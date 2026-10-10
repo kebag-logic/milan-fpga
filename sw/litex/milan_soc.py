@@ -46,7 +46,7 @@ from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
-                   NextState, Memory, Module, Record)
+                   NextState, Memory, Module, Record, READ_FIRST)
 from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
 from migen.genlib.record import layout_len
@@ -777,9 +777,9 @@ def _cross_csr_bus(host, axil, milan_cd):
 
     The two 32-bit data channels, W and R, keep their payload in block RAM
     (`_payload_in_block_ram`): one RAMB18 each holds the array and its read
-    register, which were LUTRAM and flip-flops. They take the two RAMB18s the
-    MAC crossings free, so the image's block RAM count is unchanged. AW and
-    AR stay in LUTRAM."""
+    register, which were LUTRAM and flip-flops, whether or not anything reads
+    their framing flags. They take the two RAMB18s the MAC crossings free, so
+    the image's block RAM count is unchanged. AW and AR stay in LUTRAM."""
     if milan_cd == "sys":
         return axil
     csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
@@ -1440,8 +1440,21 @@ def _payload_in_block_ram(crossing):
     and read at its read address. Every entry is therefore in both at every
     moment, and the FIFO reads their concatenation exactly as it read the one
     array: same depth, width, read latency and clock domains, and no reset on
-    the storage, as in LiteX. A framing flag nobody reads costs nothing; one
-    that is read costs one LUTRAM column."""
+    the storage, as in LiteX.
+
+    Each array registers the word it reads (`READ_FIRST`), not the address it
+    reads at. LiteX's Verilog emitter, which writes the SoC, gives every array
+    whose ports sit in two clocks that form anyway, so declaring it changes
+    nothing in the image. migen's emitter honours the declared form, and its
+    default would give the two arrays one read-address register each, fed
+    the same address: synthesis merges the pair, and the payload array cannot
+    take a register into block RAM that the flags also read. A buffered
+    crossing survives that on its output register; an unbuffered one whose
+    flags are read falls back to LUTRAM (Vivado Synth 8-6849, #640 R591-1).
+    With the word registered, the payload is in block RAM whether or not the
+    flags are read, buffered or not, under either emitter. A framing flag
+    nobody reads is trimmed; one that is read costs one LUTRAM column and its
+    one-bit read register."""
     core, storage = _crossing_storage(crossing)
     description = crossing.sink.description
     payload_bits = (layout_len(description.payload_layout)
@@ -1457,7 +1470,7 @@ def _payload_in_block_ram(crossing):
         array = Memory(bits, storage.depth, name="storage")
         array.attr = {("ram_style", ram_style)}
         array_write = array.get_port(write_capable=True, clock_domain="write")
-        array_read = array.get_port(clock_domain="read")
+        array_read = array.get_port(clock_domain="read", mode=READ_FIRST)
         core.specials += array, array_write, array_read
         core.comb += [
             array_write.adr.eq(write.adr),

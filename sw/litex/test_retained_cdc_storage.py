@@ -12,10 +12,21 @@
     payload in block RAM, while AW, B and AR are left as LiteX builds them.
 
 Only storage moved. These checks hold every one of those seven arrays, built
-by the product code, against a stock LiteX crossing with the documented
+by the product code (the MAC crossings taken from a `MilanMAC` itself, so its
+call site is under test), against a stock LiteX crossing with the documented
 parameters, in one simulation, with the same stimulus, at two clock ratios:
 
   storage   the arrays are split and tagged as intended, and no other way;
+  blockram  with every framing flag read (each source's `first` and `last`
+            is a module output), the Verilog both emitters write (migen's,
+            which `gen_mac_tx_model.py` uses, and LiteX's, which writes the
+            SoC) carries the same tagged arrays, and reads each block-RAM
+            array through a register of its own. A read-address register
+            that another array also loads is merged with it in synthesis,
+            and the block array can then no longer take it into the RAM:
+            Vivado puts an unbuffered crossing's payload in LUTRAM instead
+            (Synth 8-6849). No Vivado runs here; this is the structural
+            condition its log names;
   lockstep  every handshake and every valid beat equal the reference's, on
             every edge of both clocks;
   order     random traffic arrives exactly, once each, in order;
@@ -28,12 +39,18 @@ parameters, in one simulation, with the same stimulus, at two clock ratios:
             together; the CSR crossing takes sys and milan resets, and must
             pass traffic untouched through a MAC reinit.
 
+Every array is simulated in the read form the SoC's Verilog gives it
+(`as_emitted`): LiteX's emitter registers the word read for any array whose
+ports sit in two clocks, the stock crossing's as much as the product's.
+
 The controls then plant one defect each into a scratch copy of
 `milan_soc.py` and require the named check to fail on the named arrays:
 a storage array half as deep as its pointers, a crossing 8 beats deep, a MAC
 crossing with only one side in its reinit domain, a CSR crossing whose
-datapath side sits in the MAC's reinit domain, and a storage read port one
-entry ahead. A control the checks do not catch is a failure here.
+datapath side sits in the MAC's reinit domain, a storage read port one
+entry ahead, `MilanMAC` without its call to `_payload_in_block_ram`, and
+split arrays that register their read address instead of their read word.
+A control the checks do not catch is a failure here.
 
 Usage:
     python3 sw/litex/test_retained_cdc_storage.py               # checks, then controls
@@ -43,6 +60,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
@@ -70,7 +88,7 @@ MAC_LAYOUT = [("data", 64), ("keep", 8)]
 MAC_DEPTH = 16                  # the documented `_AXIS_CDC_DEPTH`
 MAC_CAPACITY = MAC_DEPTH + 1    # plus the buffered output register
 CSR_CAPACITY = 4                # LiteX's AXI-Lite crossing default
-CHECKS = ("storage", "lockstep", "order", "depth", "reset")
+CHECKS = ("storage", "blockram", "lockstep", "order", "depth", "reset")
 
 #: One scenario, in units of the slower clock's period: (start, writer, reader).
 #: The writer offers `random`ly, `always`, or stays `idle`; the reader is
@@ -157,25 +175,19 @@ def build_benches(soc: ModuleType) -> list:
                 setattr(self, f"cd_{name}", ClockDomain(name))
             self.channels: list[Channel] = []
 
-    def mac_bench(to_datapath: bool) -> Bench:
-        """One MAC crossing as MilanMAC builds it, beside its reference."""
+    def mac_bench(mac: object, to_datapath: bool) -> Bench:
+        """One of `mac`'s two crossings, beside its reference. The crossing
+        is the product's own: `MilanMAC` built it and placed its storage."""
         bench = Bench()
-        # as MilanMAC builds each crossing
-        product = soc._axis_dp_cdc(bench, "dut", MAC_LAYOUT, "milan",
-                                   to_datapath=to_datapath,
-                                   rename=soc._mac_cdc_rename("milan"))
-        soc._payload_in_block_ram(bench.dut)
+        bench.dut = mac.mac_rx_cdc if to_datapath else mac.mac_tx_cdc
         cd_from, cd_to = ("sys", "milan") if to_datapath else ("milan", "sys")
         reference = stream.ClockDomainCrossing(MAC_LAYOUT, cd_from=cd_from,
                                                cd_to=cd_to, depth=MAC_DEPTH,
                                                buffered=True)
         bench.ref = ClockDomainsRenamer({"sys": "macsys", "milan": "macdp"})(reference)
-        if to_datapath:
-            write_cd, read_cd, sink, source = "macsys", "macdp", product.sys, product.dp
-        else:
-            write_cd, read_cd, sink, source = "macdp", "macsys", product.dp, product.sys
+        write_cd, read_cd = ("macsys", "macdp") if to_datapath else ("macdp", "macsys")
         bench.channels.append(Channel("mac_rx" if to_datapath else "mac_tx",
-                                      write_cd, read_cd, sink, source,
+                                      write_cd, read_cd, bench.dut.sink, bench.dut.source,
                                       bench.ref.sink, bench.ref.source,
                                       MAC_CAPACITY))
         bench.storage_roots = [bench.dut]
@@ -201,7 +213,10 @@ def build_benches(soc: ModuleType) -> list:
         bench.storage_roots = [bench.milan_axil_cdc]
         return bench
 
-    return [mac_bench(False), mac_bench(True), csr_bench()]
+    # Only the two crossings are taken from `mac`; the rest of it (PHY, MAC
+    # core, store-and-forward FIFO) is never elaborated into a bench.
+    mac = soc.MilanMAC(soc.alinx_ax7101.Platform(), data_width=64, milan_cd="milan")
+    return [mac_bench(mac, False), mac_bench(mac, True), csr_bench()]
 
 
 # ---------------------------------------------------------------------------
@@ -227,6 +242,107 @@ EXPECTED_ARRAYS = {
                    (4, 4, None), (37, 4, None), (34, 4, "block"),
                    (2, 4, "distributed")], key=lambda a: (a[0], a[1], a[2] or "")),
 }
+
+
+# ---------------------------------------------------------------------------
+# blockram: the tagged arrays in the Verilog each emitter writes
+# ---------------------------------------------------------------------------
+_COMMENT = re.compile(r"//[^\n]*")
+_TAGGED = re.compile(r'\(\*\s*ram_style\s*=\s*"(\w+)"\s*\*\)\s*reg\s*\[(\d+):0\]\s*(\w+)\s*\[0:(\d+)\];')
+_ARRAY = re.compile(r"\breg\s*\[\d+:0\]\s*(\w+)\s*\[0:\d+\];")
+_ALWAYS = re.compile(r"^always @\(posedge (\w+)\) begin[^\n]*\n(.*?)^end", re.M | re.S)
+_LOAD = re.compile(r"(\w+) <= ([^;]+);")
+_ALIAS = re.compile(r"^assign (\w+) = (\w+);$", re.M)
+_INDEXED = re.compile(r"^assign \w+ = (\w+)\[(\w+)\];$", re.M)
+
+
+def read_registers(verilog: str) -> tuple[list, dict[str, list]]:
+    """The tagged arrays [(width, depth, style, name)] of a Verilog module,
+    and each array's read registers as (clock, what the register loads): its
+    read word, `("word", array, address)`, or the address it reads at,
+    `("address", address)`, with plain `assign` aliases followed through.
+    A register in a block that writes the array belongs to its write port and
+    is not a read register."""
+    text = _COMMENT.sub("", verilog)
+    tagged = sorted((int(msb) + 1, int(last) + 1, style, name)
+                    for style, msb, name, last in _TAGGED.findall(text))
+    arrays = set(_ARRAY.findall(text))
+    alias = dict(_ALIAS.findall(text))
+
+    def source(name: str) -> str:
+        """Where a plain chain of `assign`s from `name` ends."""
+        while name in alias:
+            name = alias[name]
+        return name
+
+    indexed_by = {register: array for array, register in _INDEXED.findall(text)
+                  if array in arrays}
+    reads: dict[str, list] = defaultdict(list)
+    for clock, body in _ALWAYS.findall(text):
+        written = {a for a in arrays if re.search(rf"\b{a}\[[^\]]+\] <=", body)}
+        for register, loaded in _LOAD.findall(body):
+            word = re.fullmatch(r"(\w+)\[(\w+)\]", loaded.strip())
+            if word and word.group(1) in arrays and word.group(1) not in written:
+                reads[word.group(1)].append(
+                    (clock, ("word", word.group(1), source(word.group(2)))))
+            elif register in indexed_by and indexed_by[register] not in written:
+                reads[indexed_by[register]].append(
+                    (clock, ("address", source(loaded.strip()))))
+    return tagged, reads
+
+
+def blockram_result(verilog: str, kind: str) -> tuple[bool, str]:
+    """Whether a bench's Verilog carries its expected tagged arrays and reads
+    each block-RAM array through a register no other array's read shares."""
+    tagged, reads = read_registers(verilog)
+    want = sorted(a for a in EXPECTED_ARRAYS[kind] if a[2])
+    problems = []
+    if [t[:3] for t in tagged] != want:
+        problems.append(f"tagged {[t[:3] for t in tagged]}, expected {want}")
+    for _, _, style, name in tagged:
+        if style != "block":
+            continue
+        if len(reads[name]) != 1:
+            problems.append(f"{name} has {len(reads[name])} read registers")
+            continue
+        twins = [other for other, registers in reads.items()
+                 if other != name and reads[name][0] in registers]
+        if twins:
+            problems.append(f"{name} registers the read address that "
+                            f"{', '.join(twins)} also registers")
+    blocks = [f"{n} by {reads[n][0][1][0]}" for _, _, s, n in tagged if s == "block" and reads[n]]
+    return not problems, "; ".join(problems) or f"own read register: {', '.join(blocks)}"
+
+
+def emit(bench: object, emitter: str) -> str:
+    """A bench as Verilog, with every endpoint field a port: each source's
+    `first` and `last` are outputs, so every framing flag is read."""
+    if emitter == "migen":
+        from migen.fhdl.verilog import convert
+    else:
+        from litex.gen.fhdl.verilog import convert
+    ios = set()
+    for name in DOMAINS:
+        domain = getattr(bench, f"cd_{name}")
+        ios |= {domain.clk, domain.rst}
+    for ch in bench.channels:
+        for endpoint in (ch.dut_sink, ch.dut_source, ch.ref_sink, ch.ref_source):
+            ios |= {endpoint.valid, endpoint.ready, *fields_of(endpoint)}
+    return str(convert(bench, ios=ios, name="bench"))
+
+
+def blockram(soc: ModuleType) -> dict[tuple[str, str], list[tuple[bool, str]]]:
+    """The `blockram` verdict of every channel, under both emitters. Each
+    emitter converts benches of its own: LiteX's rewrites port modes in place,
+    so a bench it has converted is not simulated."""
+    verdicts: dict[tuple[str, str], list[tuple[bool, str]]] = defaultdict(list)
+    for emitter in ("migen", "litex"):
+        for bench in build_benches(soc):
+            kind = "mac" if bench.channels[0].array.startswith("mac") else "csr"
+            ok, evidence = blockram_result(emit(bench, emitter), kind)
+            for ch in bench.channels:
+                verdicts[(ch.array, "blockram")].append((ok, f"{emitter}: {evidence}"))
+    return verdicts
 
 
 # ---------------------------------------------------------------------------
@@ -336,8 +452,25 @@ def grade(ch: Channel, kind: str) -> dict[str, tuple[bool, str]]:
     return results
 
 
+def as_emitted(module: object) -> None:
+    """Give every storage array below `module` whose ports sit in two clocks
+    the read form LiteX's emitter writes for it: it turns each such port into
+    `READ_FIRST` (`litex/gen/fhdl/memory.py`), so the SoC's Verilog registers
+    the word read, stock crossing and product alike. migen's simulator models
+    the other form with a reset address register, which no emitter writes:
+    left as built, the two would differ only inside a reset, and only there."""
+    from migen import Memory, READ_FIRST
+    for special in module._fragment.specials:
+        if isinstance(special, Memory) and len({p.clock.cd for p in special.ports}) > 1:
+            for port in special.ports:
+                port.mode = READ_FIRST
+    for _, child in module._submodules:
+        as_emitted(child)
+
+
 def run(soc: ModuleType) -> dict[tuple[str, str], list[tuple[bool, str]]]:
-    """Every bench at every ratio; {(array, check): [(ok, evidence), ...]}."""
+    """Every bench at every ratio, then `blockram` once per emitter;
+    {(array, check): [(ok, evidence), ...]}."""
     from migen import run_simulation
     verdicts: dict[tuple[str, str], list[tuple[bool, str]]] = defaultdict(list)
     if any(period % 2 for ratio in RATIOS for period in ratio):
@@ -360,11 +493,14 @@ def run(soc: ModuleType) -> dict[tuple[str, str], list[tuple[bool, str]]]:
                 generators[ch.read_cd].append(
                     reader(ch, periods[ch.read_cd], slow, Random(seed + "r")))
             generators["sys"].append(resetter(bench, kind, sys_period, slow))
+            as_emitted(bench)
             run_simulation(bench, dict(generators), clocks=periods)
             for ch in bench.channels:
                 for check, result in grade(ch, kind).items():
                     verdicts[(ch.array, check)].append(
                         (result[0], f"{sys_period}/{milan_period}: {result[1]}"))
+    for key, results in blockram(soc).items():
+        verdicts[key] += results
     return verdicts
 
 
@@ -406,6 +542,15 @@ CONTROLS = (
      "            array_read.adr.eq(read.adr),\n",
      "            array_read.adr.eq(read.adr + 1),\n",
      {"mac_tx": "order", "mac_rx": "order", "csr_w": "order", "csr_r": "order"}),
+    ("milanmac-call-site-removed",
+     "            _payload_in_block_ram(self.mac_tx_cdc)\n"
+     "            _payload_in_block_ram(self.mac_rx_cdc)\n",
+     "            pass\n",
+     {"mac_tx": "storage", "mac_rx": "storage"}),
+    ("read-address-registered",
+     '        array_read = array.get_port(clock_domain="read", mode=READ_FIRST)\n',
+     '        array_read = array.get_port(clock_domain="read")\n',
+     {"csr_w": "blockram", "csr_r": "blockram"}),
 )
 
 

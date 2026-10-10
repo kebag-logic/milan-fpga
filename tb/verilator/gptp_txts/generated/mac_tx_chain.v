@@ -2685,7 +2685,7 @@ assign packetfifo_param_fifo_rdport_dat_r = memdat_4;
 
 (* ram_style = "block" *) reg [71:0] storage_5[0:15];
 reg [3:0] memadr_4;
-reg [3:0] memadr_5;
+reg [71:0] memdat_5;
 always @(posedge macdp_clk) begin
 	if (array_write_memory0_we)
 		storage_5[array_write_memory0_adr] <= array_write_memory0_dat_w;
@@ -2693,27 +2693,27 @@ always @(posedge macdp_clk) begin
 end
 
 always @(posedge macsys_clk) begin
-	memadr_5 <= array_read_memory0_adr;
+	memdat_5 <= storage_5[array_read_memory0_adr];
 end
 
 assign array_write_memory0_dat_r = storage_5[memadr_4];
-assign array_read_memory0_dat_r = storage_5[memadr_5];
+assign array_read_memory0_dat_r = memdat_5;
 
 (* ram_style = "distributed" *) reg [1:0] storage_6[0:15];
-reg [3:0] memadr_6;
-reg [3:0] memadr_7;
+reg [3:0] memadr_5;
+reg [1:0] memdat_6;
 always @(posedge macdp_clk) begin
 	if (array_write_memory1_we)
 		storage_6[array_write_memory1_adr] <= array_write_memory1_dat_w;
-	memadr_6 <= array_write_memory1_adr;
+	memadr_5 <= array_write_memory1_adr;
 end
 
 always @(posedge macsys_clk) begin
-	memadr_7 <= array_read_memory1_adr;
+	memdat_6 <= storage_6[array_read_memory1_adr];
 end
 
-assign array_write_memory1_dat_r = storage_6[memadr_6];
-assign array_read_memory1_dat_r = storage_6[memadr_7];
+assign array_write_memory1_dat_r = storage_6[memadr_5];
+assign array_read_memory1_dat_r = memdat_6;
 
 endmodule
 
