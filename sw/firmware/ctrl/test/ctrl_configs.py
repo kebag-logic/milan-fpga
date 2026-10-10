@@ -594,8 +594,8 @@ def named_sources(planted: dict[Path, str] | None = None, view: Callable[[Path],
     written: dict[str, str] = {}
     data, findings = [], []
     texts = builder_texts(planted)
-    for (where, name), why in NOT_SOURCES.items():
-        if ROOT / where not in texts or name not in texts[ROOT / where]:
+    for where, name in NOT_SOURCES:
+        if ROOT / where not in texts or name not in names_of(ROOT / where, texts[ROOT / where]).names:
             findings.append(f"firmware c++: NOT_SOURCES lists {name} for {where}, which no longer names it")
     for path, text in texts.items():
         held = names_of(path, text)
