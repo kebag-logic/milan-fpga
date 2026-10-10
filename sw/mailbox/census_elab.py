@@ -255,11 +255,12 @@ def front_end_files(rcp: Recipe) -> set[Path]:
 
 
 @functools.lru_cache(maxsize=8)
-def tracked_openers(rcp: Recipe) -> dict[Path, tuple[int, str]]:
-    """Each file the front end can read for rcp, as tracked, that holds an escaped name
-    with a comment opener: its first such line and name."""
+def tracked_openers(rcp: Recipe | None = None) -> dict[Path, tuple[int, str]]:
+    """Each file the front end can read for rcp (the recipe's shape when None, as the
+    reviewers' probes call it), as tracked, that holds an escaped name with a comment
+    opener: its first such line and name."""
     out = {}
-    for path in sorted(front_end_files(rcp)):
+    for path in sorted(front_end_files(rcp or recipe())):
         hit = opener(path.read_text(encoding="utf-8", errors="replace"))
         if hit:
             out[path] = hit
