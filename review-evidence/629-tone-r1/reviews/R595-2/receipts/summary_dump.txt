@@ -1,0 +1,68 @@
+== pts1/a-peer-tap.json tap tap-peer.pcap 36979626 6abff9059487 frames 1151058 sid <peer-eid> port 3 verdict TONE ABSENT {}
+  info {'pdus': 191843, 'other_avtp': 12005, 'ports': {'3': 191843}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191843}, 'bad_length': 0, 'ts_steps': {'125001': 119285, '125002': 68764, '124961': 2296, '124962': 1315, '125004': 39, '125003': 29}}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 1, 'nonzero': 625468, 'share_997': 0.000424, 'share_9973': 0.000417, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 624799, 'share_997': 0.00042, 'share_9973': 0.000415, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575883, 'share_997': 0.000425, 'share_9973': 0.000418, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.49, 'min': -1, 'max': 0, 'nonzero': 575375, 'share_997': 0.000398, 'share_9973': 0.00044, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts1/b-dut-tap.json tap tap-dut.pcap 36979440 3e1d81ba2e50 frames 1151052 sid <peer-eid> port 2 verdict TONE ABSENT {}
+  info {'pdus': 191842, 'other_avtp': 12005, 'ports': {'2': 191842}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191842}, 'bad_length': 0, 'ts_steps': {'125001': 119284, '125002': 68765, '124961': 2297, '124962': 1313, '125004': 39, '125003': 29}}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 1, 'nonzero': 625407, 'share_997': 0.000423, 'share_9973': 0.000416, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 624752, 'share_997': 0.000423, 'share_9973': 0.000411, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575820, 'share_997': 0.000424, 'share_9973': 0.000416, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.49, 'min': -1, 'max': 0, 'nonzero': 575347, 'share_997': 0.000401, 'share_9973': 0.000436, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts1/c-mcasp.json mcasp mcasp-all.raw 15360000 7e059d75bf3c frames 480000 sid None port None verdict TONE ABSENT {}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 0, 'nonzero': 260866, 'share_997': 0.000424, 'share_9973': 0.00042, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 260571, 'share_997': 0.000377, 'share_9973': 0.000393, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 240056, 'share_997': 0.000431, 'share_9973': 0.000412, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.49, 'min': -1, 'max': 0, 'nonzero': 239814, 'share_997': 0.000338, 'share_9973': 0.000414, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 4, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 5, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 6, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 7, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts2/a-peer-tap.json tap tap-peer.pcap 90982432 9d408d762790 frames 1149834 sid <peer-eid> port 3 verdict TONE ABSENT {}
+  info {'pdus': 191639, 'other_avtp': 203631, 'ports': {'3': 191639}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191639}, 'bad_length': 0, 'ts_steps': {'125001': 119171, '125002': 68703, '124961': 2253, '124962': 1343, '125003': 45, '125004': 21}}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 1, 'nonzero': 624621, 'share_997': 0.000411, 'share_9973': 0.00041, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 624463, 'share_997': 0.000404, 'share_9973': 0.000434, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575468, 'share_997': 0.000381, 'share_9973': 0.000384, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575183, 'share_997': 0.000409, 'share_9973': 0.000445, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts2/b-dut-tap.json tap tap-dut.pcap 90981496 88c41bc5c8d7 frames 1149822 sid <peer-eid> port 2 verdict TONE ABSENT {}
+  info {'pdus': 191637, 'other_avtp': 203629, 'ports': {'2': 191637}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191637}, 'bad_length': 0, 'ts_steps': {'125001': 119169, '125002': 68703, '124961': 2253, '124962': 1343, '125003': 45, '125004': 21}}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 1, 'nonzero': 624577, 'share_997': 0.000411, 'share_9973': 0.000409, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 624440, 'share_997': 0.00041, 'share_9973': 0.000435, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575438, 'share_997': 0.000384, 'share_9973': 0.000385, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 575158, 'share_997': 0.000415, 'share_9973': 0.000446, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts2/c-mcasp.json mcasp mcasp-all.raw 15360000 1a331755a46b frames 480000 sid None port None verdict TONE ABSENT {}
+   {'channel': 0, 'rms_dbfs': -141.09, 'min': -2, 'max': 0, 'nonzero': 260964, 'share_997': 0.000398, 'share_9973': 0.000383, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 1, 'rms_dbfs': -141.1, 'min': -2, 'max': 0, 'nonzero': 260700, 'share_997': 0.000377, 'share_9973': 0.000501, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 2, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 240291, 'share_997': 0.000344, 'share_9973': 0.00036, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -141.48, 'min': -1, 'max': 0, 'nonzero': 240224, 'share_997': 0.000392, 'share_9973': 0.000519, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 4, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 5, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 6, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 7, 'rms_dbfs': None, 'min': 0, 'max': 0, 'nonzero': 0, 'share_997': None, 'share_9973': None, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts1/d-extcap-pair.json extcap None None 7040fae17dc8 frames 768000 sid None port None verdict TONE ABSENT None
+== pts2/d-extcap-pair.json extcap None None fa771dccc383 frames 768000 sid None port None verdict TONE PRESENT None
+== pts2/ctl-peer-tap-dut-talker.json tap tap-peer.pcap 90982432 9d408d762790 frames 1149834 sid 0200000000010000 port 2 verdict TONE PRESENT {'997': [0], '9973': [1]}
+  info {'pdus': 191639, 'other_avtp': 203631, 'ports': {'2': 191639}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=8 depth=32 sdl=192': 191639}, 'bad_length': 0, 'ts_steps': {'124999': 128035, '125000': 50860, '125019': 9173, '125020': 3570}}
+   {'channel': 0, 'rms_dbfs': -5.76, 'min': -7476354, 'max': 7476354, 'nonzero': 1149817, 'share_997': 0.998736, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {'997': {'level_dbfs': -1.0, 'f_hz': 997.0, 'ppm': -0.0, 'thdn_db': -146.0647, 'snr_db': 146.0671}} {'997': (23, 5.446)}
+   {'channel': 1, 'rms_dbfs': -5.76, 'min': -7476354, 'max': 7476354, 'nonzero': 1149816, 'share_997': 0.0, 'share_9973': 0.998736, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {'9973': {'level_dbfs': -1.0, 'f_hz': 9973.0, 'ppm': -0.0, 'thdn_db': -145.9933, 'snr_db': 145.9933}} {'9973': (23, 5.449)}
+   {'channel': 2, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 4, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 5, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 6, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 7, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381825, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+== pts2/ctl-dut-tap-dut-talker.json tap tap-dut.pcap 90981496 88c41bc5c8d7 frames 1149822 sid 0200000000010000 port 3 verdict TONE PRESENT {'997': [0], '9973': [1]}
+  info {'pdus': 191637, 'other_avtp': 203629, 'ports': {'3': 191637}, 'seq_gaps': 0, 'tv0': 0, 'mr_toggles': 0, 'formats': {'fmt=0x02 nsr=5 cpf=8 depth=32 sdl=192': 191637}, 'bad_length': 0, 'ts_steps': {'124999': 128037, '125000': 50856, '125019': 9175, '125020': 3568}}
+   {'channel': 0, 'rms_dbfs': -5.76, 'min': -7476354, 'max': 7476354, 'nonzero': 1149805, 'share_997': 0.998734, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {'997': {'level_dbfs': -1.0, 'f_hz': 997.0, 'ppm': 0.0, 'thdn_db': -146.0647, 'snr_db': 146.0671}} {'997': (23, 4.901)}
+   {'channel': 1, 'rms_dbfs': -5.76, 'min': -7476354, 'max': 7476354, 'nonzero': 1149804, 'share_997': 0.0, 'share_9973': 0.998731, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {'9973': {'level_dbfs': -1.0, 'f_hz': 9973.0, 'ppm': -0.0, 'thdn_db': -145.9933, 'snr_db': 145.9933}} {'9973': (23, 4.902)}
+   {'channel': 2, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 3, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 4, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 5, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 6, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+   {'channel': 7, 'rms_dbfs': -143.26, 'min': -1, 'max': 0, 'nonzero': 381813, 'share_997': 0.0, 'share_9973': 0.0, 'low_byte_nonzero': 0, 'low_byte_values': [0]} {} {}
+997 16 floor 13 {'level_dbfs': -1.0, 'f_hz': 997.0, 'ppm': 0.0, 'thdn_db': -146.0648, 'snr_db': 146.0672}
+9973 16 floor 13 {'level_dbfs': -1.0, 'f_hz': 9973.0, 'ppm': 0.0, 'thdn_db': -145.9933, 'snr_db': 145.9933}
+{'count_carrying_997': 0, 'count_carrying_9973': 0} TONE PRESENT
+{"point": "extcap", "note": "the two channels of the external capture that carry the reference peer's digital output, identified by content in pts2; the capture's layout is withheld", "frames": 768000, "seconds": 16.0, "sha256": "7040fae17dc84aaed803b8122608d5bd23e0864928df5e3498230fa0862745b9", "rows": [{"frames": 768000, "rms_dbfs": null, "min": 0, "max": 0, "nonzero": 0, "pair_channel": 0}, {"frames": 768000, "rms_dbfs": null, "min": 0, "max": 0, "nonzero": 0, "pair_channel": 1}], "other_channels": {"count_carrying_997": 0, "count_carrying_9973": 0}, "verdict": "TONE ABSENT"}

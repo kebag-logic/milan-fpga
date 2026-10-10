@@ -1,0 +1,66 @@
+{
+ "controls": [
+  {
+   "control": "clean, tone on 0/1, foreign stream interleaved",
+   "exact_samples": true,
+   "verdict": "TONE PRESENT",
+   "tone_channels": {
+    "997": [
+     0
+    ],
+    "9973": [
+     1
+    ]
+   },
+   "seq_gaps": 0,
+   "other_avtp": 3429,
+   "level_997": -20.0,
+   "level_9973": -20.0,
+   "ppm": [
+    0.0,
+    0.0
+   ],
+   "thdn": [
+    -127.0157,
+    -127.0623
+   ],
+   "result": "PASS"
+  },
+  {
+   "control": "tone on 2/3",
+   "tone_channels": {
+    "997": [
+     2
+    ],
+    "9973": [
+     3
+    ]
+   },
+   "result": "PASS"
+  },
+  {
+   "control": "one PDU dropped at 5,000",
+   "seq_gaps": 1,
+   "at": [
+    [
+     5000,
+     135,
+     137
+    ]
+   ],
+   "frames": 95994,
+   "result": "PASS"
+  },
+  {
+   "control": "stream on the other port",
+   "frames": 0,
+   "result": "PASS"
+  },
+  {
+   "control": "+-1 LSB only",
+   "verdict": "TONE ABSENT",
+   "result": "PASS"
+  }
+ ],
+ "all_pass": true
+}

@@ -1,0 +1,29 @@
+pts1 as-found None None rx-peer-0 {'status': 0, 'conn_count': 1, 'stream_id': '0200000000010000', 'talker': '020000fffe000001', 'talker_uid': 0, 'flags': '0x0082'} clk 0 1 fmts 0205022001006000 0205022001006000 0205022002006000
+pts1 format-check {'kind': 'format-check', 'ok': True, 'talker': 'peer-out-0', 'listener': 'dut-in-0', 'talker_fmt': '0205022001006000', 'listener_fmt': '0205022001006000', 'set': None, 'listener_after': '0205022001006000'}
+pts1 bind {'kind': 'bind', 'talker': 'peer-out-0', 'listener': 'dut-in-0', 'status': 0, 'conn_count': 1, 'stream_id': '0000000000000000'}
+pts1 unbind {'kind': 'unbind', 'tag': 'control-unbind-as-found', 'talker': '020000fffe000001', 'tu': 0, 'listener': 'peer-in-0', 'status': 0, 'conn_count': 0}
+pts1 format-check {'kind': 'format-check', 'ok': True, 'talker': 'peer-out-0', 'listener': 'peer-in-0', 'talker_fmt': '0205022001006000', 'listener_fmt': '0205022002006000', 'set': {'fmt': '0205022001006000', 'status': ['SUCCESS'], 'echoed': '0205022001006000'}, 'listener_after': '0205022001006000'}
+pts1 bind {'kind': 'bind', 'talker': 'peer-out-0', 'listener': 'peer-in-0', 'status': 0, 'conn_count': 1, 'stream_id': '0000000000000000'}
+pts1 unbind {'kind': 'unbind', 'tag': 'teardown', 'talker': '<peer-eid>', 'tu': 0, 'listener': 'peer-in-0', 'status': 0, 'conn_count': 0}
+pts1 unbind {'kind': 'unbind', 'tag': 'teardown', 'talker': '<peer-eid>', 'tu': 0, 'listener': 'dut-in-0', 'status': 0, 'conn_count': 0}
+pts1 format-restore {'kind': 'format-restore', 'listener': 'peer-in-0', 'fmt': '0205022002006000', 'status': ['SUCCESS']}
+pts1 format-check {'kind': 'format-check', 'ok': True, 'talker': '020000fffe000001-out-0', 'listener': 'peer-in-0', 'talker_fmt': '0205022002006000', 'listener_fmt': '0205022002006000', 'set': None, 'note': 'the as-found bind, restored'}
+pts1 rebind-as-found {'kind': 'rebind-as-found', 'status': 0, 'conn_count': 1, 'stream_id': '0200000000010000'}
+pts1 final False ['rx-peer-0'] rx-peer-0 {'status': 0, 'conn_count': 1, 'stream_id': '0200000000010000', 'talker': '020000fffe000001', 'talker_uid': 0, 'flags': '0x0002'} clk 0 1 fmts 0205022001006000 0205022001006000 0205022002006000
+pts2 as-found None None rx-peer-0 {'status': 0, 'conn_count': 1, 'stream_id': '0200000000010000', 'talker': '020000fffe000001', 'talker_uid': 0, 'flags': '0x0082'} clk 0 1 fmts 0205022001006000 0205022001006000 0205022002006000
+pts2 format-check {'kind': 'format-check', 'ok': True, 'talker': 'peer-out-0', 'listener': 'dut-in-0', 'talker_fmt': '0205022001006000', 'listener_fmt': '0205022001006000', 'set': None, 'listener_after': '0205022001006000'}
+pts2 bind {'kind': 'bind', 'talker': 'peer-out-0', 'listener': 'dut-in-0', 'status': 0, 'conn_count': 1, 'stream_id': '0000000000000000'}
+pts2 unbind {'kind': 'unbind', 'tag': 'teardown', 'talker': '<peer-eid>', 'tu': 0, 'listener': 'dut-in-0', 'status': 0, 'conn_count': 0}
+pts2 final True [] rx-peer-0 {'status': 0, 'conn_count': 1, 'stream_id': '0200000000010000', 'talker': '020000fffe000001', 'talker_uid': 0, 'flags': '0x0082'} clk 0 1 fmts 0205022001006000 0205022001006000 0205022002006000
+pts1 as-found 2026-10-10T13:27:25.665212+00:00 {}  
+pts1 captures-started 2026-10-10T13:27:32.730612+00:00 {'tap': '2026-10-10T13:27:28.729000+00:00', 'extcap': '2026-10-10T13:27:30.730000+00:00', 'mcasp': '2026-10-10T13:27:32.731000+00:00'}  
+pts1 capture-done 2026-10-10T13:27:43.014988+00:00 {} mcasp 10.284
+pts1 capture-done 2026-10-10T13:27:46.785700+00:00 {} extcap 16.056
+pts1 capture-done 2026-10-10T13:27:53.213234+00:00 {} tap 24.484
+pts1 end 2026-10-10T13:27:55.446676+00:00 {}  
+pts2 as-found 2026-10-10T13:31:09.482665+00:00 {}  
+pts2 captures-started 2026-10-10T13:31:17.174062+00:00 {'tap': '2026-10-10T13:31:13.172000+00:00', 'extcap': '2026-10-10T13:31:15.173000+00:00', 'mcasp': '2026-10-10T13:31:17.174000+00:00'}  
+pts2 capture-done 2026-10-10T13:31:33.377684+00:00 {} mcasp 16.204
+pts2 capture-done 2026-10-10T13:31:33.377887+00:00 {} extcap 18.205
+pts2 capture-done 2026-10-10T13:31:37.699822+00:00 {} tap 24.528
+pts2 end 2026-10-10T13:31:40.453915+00:00 {}  

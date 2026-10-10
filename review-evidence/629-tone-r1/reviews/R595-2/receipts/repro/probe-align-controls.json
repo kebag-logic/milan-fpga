@@ -1,0 +1,51 @@
+{
+ "controls": [
+  {
+   "control": "exact copy",
+   "verdict": "SAMPLE-EXACT",
+   "slips": [],
+   "frames_differing": 0,
+   "result": "PASS"
+  },
+  {
+   "control": "one frame dropped at 200,000 (expected at 200000)",
+   "verdict": "DIFFERENT",
+   "slips": [
+    {
+     "recording_frame": 200000,
+     "step": 1
+    }
+   ],
+   "frames_differing": 0,
+   "result": "PASS"
+  },
+  {
+   "control": "one frame repeated at 250,000 (expected at 250000)",
+   "verdict": "DIFFERENT",
+   "slips": [
+    {
+     "recording_frame": 250000,
+     "step": -1
+    }
+   ],
+   "frames_differing": 0,
+   "result": "PASS"
+  },
+  {
+   "control": "one sample changed by 1 LSB at 300,000",
+   "verdict": "DIFFERENT",
+   "slips": [],
+   "frames_differing": 1,
+   "result": "PASS"
+  },
+  {
+   "control": "another stretch, channel 0 negated",
+   "verdict": "NO MATCH",
+   "slips": null,
+   "frames_differing": null,
+   "result": "PASS"
+  }
+ ],
+ "all_pass": true,
+ "stream_frames": 1152000
+}

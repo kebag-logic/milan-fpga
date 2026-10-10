@@ -1,0 +1,18 @@
+R595-2 independent pass, written before reading any prior review finding on PR #712.
+Head 1df3ac18a85c59626491ccb6c0955f834cb1d31f. Diff: docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md (+395/-1), docs/findings/README.md (1 row).
+Preliminary results:
+- Hash/size tables: 9 evidence rows and 11 raw rows equal the published tree / RAW-ARTIFACTS.json at 06148614 (check_hashes.txt, check_raw.txt).
+- Per-point tables, PDU/format table, alignment table, counters table, positive-control block counts (15/23, 15/23, 13/16), census 45/46, NVM 272->276 / 38->42, SLIP_LB 146->152, peer survey (base 16, identity maps, 20 NSD all type 0x0010 in cfg 1, AUDIO_UNIT no ext/int ports, CONFIGURATION one CONTROL), DUT maps start==end: all agree with the published evidence.
+- Controls reproduced byte-equal: b6 7bbefc71, b9 728a4f0e, tap f69bf5cf. align controls pass on a synthetic floor.
+- Doc gates rc 0 at head.
+Candidate items:
+- RESIDUE: alignment method prose says "by exact match"; the tool keys each sample's low 8 bits. Exact for this data only because every (b)/(c) value lies in -2..+1 (doc's own range columns). Probe P3/P4: a +256 difference reads SAMPLE-EXACT.
+- RESIDUE: artifact-hash paragraph names only tone_points_b15.py as masked in the lane packet; redaction.json also masks runs/pts1/events.jsonl, runs/pts2/events.jsonl and restore/census-compare.txt (as-run hashes d80ffde4..., 5d4acd1c..., f3a32e9e...).
+- SUGGESTION: align_b15 control set lacks a >8-bit difference case; widen key to full 24-bit.
+- SUGGESTION: tap-decode controls hold mr=0, tv=1 constant; the tv/mr columns are corroborated by DUT counters, not by a control.
+- SUGGESTION: -40 dBFS presence gate sits 1.5 dB under the source's metered -38.5 dBFS; a -41.5 dBFS RMS tone with share 1.0 grades absent (probe). No effect at this head (share 0.04 %).
+2026-10-10T14:41:28Z
+Draft verdict and ledger, written before reading R594-1 / R595-1 on PR #712:
+Verdict (own pass): POSITIVE, no open BLOCKER/MAJOR/MINOR; two RESIDUE and three SUGGESTION items above.
+Ledger draft: Conformance CLEAN | RTL CLEAN (no RTL in diff; DUT-behaviour claims checked against REGISTER_MAP SLIP_LB and counter layout) | Robustness CLEAN | Tests CLEAN (controls reproduced; probe gaps are SUGGESTION) | Docs CLEAN (two RESIDUE) -- all at 1df3ac18a85c59626491ccb6c0955f834cb1d31f, round R595-2.
+2026-10-10T14:41:48Z

@@ -1,0 +1,10 @@
+{"probe": "decode floor exact", "ok": true, "seq_gaps": 0}
+{"probe": "P1 exact 10 s recording", "want": "SAMPLE-EXACT", "verdict": "SAMPLE-EXACT", "slips": [], "differing": 0, "matches": 1, "tool_detects": true}
+{"probe": "P2 channels 2 and 3 swapped", "want": "NOT SAMPLE-EXACT", "verdict": "NO MATCH", "slips": null, "differing": null, "matches": null, "tool_detects": true}
+{"probe": "P3 one sample +256 (outside the 8-bit key)", "want": "NOT SAMPLE-EXACT", "verdict": "SAMPLE-EXACT", "slips": [], "differing": 0, "matches": 1, "tool_detects": false}
+{"probe": "P4 every sample of channel 0 +256", "want": "NOT SAMPLE-EXACT", "verdict": "SAMPLE-EXACT", "slips": [], "differing": 0, "matches": 1, "tool_detects": false}
+{"probe": "P5 one frame dropped", "want": "NOT SAMPLE-EXACT", "verdict": "DIFFERENT", "slips": [{"recording_frame": 123456, "step": 1}], "differing": 0, "matches": 1, "tool_detects": true}
+{"probe": "align_b15 controls on a synthetic floor", "rc": 0, "all_pass": true}
+{"probe": "floor verdict", "verdict": "TONE ABSENT", "rms": [-140.69, -140.7, -140.69, -140.69]}
+{"probe": "tone pair at -38.5 dBFS RMS over the floor", "verdict": "TONE PRESENT", "tone_channels": {"997": [0], "9973": [1]}, "rms": [-38.5, -38.5], "share": [1.0, 1.0]}
+{"probe": "tone pair at -41.5 dBFS RMS over the floor", "verdict": "TONE ABSENT", "tone_channels": {}, "rms": [-41.5, -41.5], "share": [1.0, 1.0]}
