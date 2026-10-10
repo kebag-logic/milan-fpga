@@ -86,7 +86,8 @@ Coalesced events retain their defined state and elapsed tick count.
 The [F0 contract](design/MAILBOX_SPLIT.md#rings-records-and-events) defines those details.
 
 A publication block carries firmware-owned class-D state to the fabric.
-It holds the talker DA gate, each sink's bound state and stream_id, and the SRP licence, idle slope and Domain.
+It holds the talker DA gate, each sink's bound and started states and stream_id, and the SRP licence, Talker declarations, idle slope and Domain.
+It carries every class-D value the datapath reads on the wire: a census of the datapath's reads fails the mailbox suite when one is not carried or excluded by a ruling.
 Each owner writes a value before the response that promises it.
 The split placement's datapath reads the block through a build-time selection, never a runtime multiplexer.
 The [publication contract](design/MAILBOX_SPLIT.md#the-publication-block) defines its layout and writers.

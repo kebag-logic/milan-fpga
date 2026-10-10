@@ -114,6 +114,12 @@ allocation: bit s open for source s while the range is valid, every bit
 closed before a loss is reported. A PROBE_TX_RESPONSE therefore never
 promises an address the split datapath's talker gate holds closed.
 `maap_mbx_init` refuses more talker sources than the block holds (16).
+The gate is written on the interface that allocated: at two interfaces, an
+allocation on interface 1 alone opens interface 1's gate before its report
+and moves no other (`DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport`).
+`DA_GATE` is address validity only; the processor's `acmp_declaring_o` also
+needs a recent probe or a registered Listener, which lane F3b adds (the
+[design page's choices](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)).
 F2 records the dependency; it does not change that wiring.
 F3 composes ACMP on the core beside MAAP, but its talker learns a stream's destination only from the integrator's
 `source` port (`acmp.h`); the app does not feed that port from this allocation.

@@ -718,8 +718,8 @@ At F0's assumed 1 us per access, only the event bound still fits T_svc
 under the ceiling (17.67 ms), and the one behind a full adp ring exceeds it
 (35.33 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,327
-accesses at one interface and 4,213 at two (3,224 and 4,073 before the
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,346
+accesses at one interface and 4,235 at two (3,224 and 4,073 before the
 publication block). `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
@@ -728,10 +728,10 @@ Registration followed by withdrawal can stop or re-arm two timers.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 Kind updates preserve state and require no additional mailbox access.
-`srp_bounds.h` derives SRP's 1,657 / 2,464 accesses from the maximum frame,
+`srp_bounds.h` derives SRP's 1,676 / 2,486 accesses from the maximum frame,
 two transmit calls per interface, bounded reception, link reconciliation,
-retry clocks and the publication term (a reset's three writes, an adoption's
-two, two licence changes for each of 16 sources: 37 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
+retry clocks and the publication term (a reset's five writes, an adoption's
+three, two licence changes for each of 16 sources: 40 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
 make no mailbox access. The composition now queues ACMP's binding requests
 per sink and delivers them in a fifth poll after SRP service returns.
 It preserves the configured interface, retries transient refusals, and supersedes
@@ -804,8 +804,8 @@ filed as processor issue
 In the split placement the fabric datapath can no longer read the protocol
 processor's class-D outputs: the firmware owns ADP, ACMP, MAAP and SRP. The
 ruling on [#665 (6088423771)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6088423771),
-decision 2 (a), puts the values the datapath consumes in a block of the
-mailbox window, contract 2.2
+decision 2 (a), puts every class-D value the datapath reads on the wire in a
+block of the mailbox window, contract 2.2
 ([reference](../reference/MAILBOX_CONTRACT.md#interface-publication-registers)).
 Firmware writes each value before the response that promises it
 ([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
@@ -816,10 +816,12 @@ after F5. The all-fabric build carries no mailbox, so it is unchanged; the
 
 | Value | Register, interface i | Writer | Written before | Processor output it stands for |
 |---|---|---|---|---|
-| talker DA gate, bit s | `DA_GATE.OPEN` | MAAP adapter, its range port | the allocation is reported, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1) | `acmp_declaring_o` |
+| talker DA gate, bit s | `DA_GATE.OPEN` | MAAP adapter, its range port | the allocation is reported, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1) | `acmp_declaring_o`, as address validity only (choices below) |
 | listener bound, sink k | `BINDING.BOUND` | ACMP core's publish port, through its adapter | any frame of the entry: the BIND_RX and UNBIND_RX responses | `acmp_bound_o` |
+| listener started, sink k | `BINDING.STARTED` | the same | the BIND_RX response that echoes STREAMING_WAIT; a START_STREAMING or STOP_STREAMING is published before the notifier and before `acmp_set_started` returns to the AECP side that answers it | the wrapper's `aecp_strm_started_o`, which the ACMP binding record owns |
 | bound stream_id, sink k | `SID_LO`, `SID_HI`, `BINDING.SID_VALID` | the same | the end of the settling entry, before the notifier; any later GET_RX_STATE response | `acmp_bound_sid_o` |
 | SRP stream gate, bit s | `LICENCE.ACTIVE` | SRP adapter | each licence report, revocations by a reset or by destroy included | `srp_active_o` AND `srp_sr_admitted_o` |
+| Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
 | idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
 | SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
 
@@ -827,7 +829,32 @@ ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face, which the core serves after F5, as it serves
 GET_STREAM_INFO (the ruling).
 
-Interface i's block starts at `0x800 + 0x200 * i`: the four interface
+The list is not kept by hand. The first version copied one from a review
+comment, and it missed the started level and the Talker declarations (the
+round-3 ruling on [#665 (6092086337)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6092086337)).
+[`publication_census.py`](../../sw/mailbox/publication_census.py) reads
+`milan_datapath.sv` on every run of the mailbox suite's `make`. It finds
+every read of a `pp_cd_*_w` wire and of the started level: a right-hand side,
+an index, a declaration's initialiser, an `if`, `case` or `for` condition, or
+a port connection. It follows each read to where it ends. Each read must then
+be one of three kinds:
+
+- read on the wire (another module's port, or a module output), and carried
+  by the block field the census names, which the contract must define;
+- read back as CSR status only, through `milan_csr` ports the census names;
+- the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers, which need no
+  publication (the ruling, decision 2).
+
+A read the census does not name fails the suite, and so does a status read
+that reaches the wire. Of the 39 reads at this head, 10 are on the wire and
+map to the block, 14 are CSR status, and 15 are the answer face. The idle
+slope's one read is status, for LWSRP_SLOPE: no shaper consumes it, and the
+block carries it as ruled. The census covers the class-D face and the started
+level. The wrapper's other faces the datapath reads (its AECP settings, and
+its counter and audio-map requests) belong to AECP, which F5 moves to the
+core; the placement switch must give each of them a split-build source too.
+
+Interface i's block starts at `0x800 + 0x200 * i`: the five interface
 registers, then sink k's entry at `+0x100 + 0x10 * k`. Every register resets
 to 0. A hole, the fourth word of an entry and the block of an interface the
 build does not have read 0 and take no write; a partial strobe is refused and
@@ -835,10 +862,13 @@ counted in `BUS_ERR` like any other. The stream_id is two words, so the
 driver (`mbx_pub_sink`) writes `BINDING` with `SID_VALID` clear, then
 `SID_LO` and `SID_HI`, then `BINDING` with it set, and the datapath takes
 `pub_sid_o` only while `pub_sid_valid_o` is set: a half-written stream_id
-never reaches it. Gating each bit in the block instead would cost 1,024 AND
+never reaches it. A move of the bound or started level alone, with the
+stream_id unchanged, is one write of `BINDING` that keeps `SID_VALID`
+(`mbx_pub_sink_binding`): a START_STREAMING or STOP_STREAMING never takes a
+settled stream off the datapath. Gating each bit in the block instead would cost 1,024 AND
 gates once a consumer reads the port; the valid bit costs one wire a sink.
 
-Two choices are the firmware's, and the placement switch's comparison sees
+Four choices are the firmware's, and the placement switch's comparison sees
 them:
 
 - The stream_id is the stream the sink listens to: from the PROBE_TX_RESPONSE
@@ -849,34 +879,58 @@ them:
   ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
   the processor's F10.2 rule: set by the first received Domain that differs
   from the declared one, cleared by a link restart.
+- `DA_GATE` is destination-address validity only. The processor's
+  `acmp_declaring_o` also needs a probe within T-SRP-DAFRESH (15 s) or a
+  registered Listener (Milan v1.2 4.3.3.1; the processor's
+  `05_acmp_engine.md`), which the firmware ACMP talker does not implement
+  yet. The egress consequence: with SRP policing off (`cfg_lwsrp_enable`
+  clear), the split build's AAF talkers stream as soon as MAAP holds their
+  address, where the processor's also wait for that probe or Listener. With
+  policing on, the licence already needs a registered Listener Ready, so the
+  two gates agree. Lane F3b adds the predicate to the firmware talker and
+  makes `DA_GATE` publish it, and lands before the placement switch, whose
+  comparison then never meets this difference (the ruling of comment
+  6092086337, item 4).
+- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
+  every source from participant creation, as a Talker Failed until MAAP
+  allocates its address (`declare_sources`). The processor declares a source
+  only once its DA gate opens (`KL_srp_talker_fsm.sv`, the record
+  capture). The CRF talker's C-TAG reads this level. Its frames leave under
+  the licence, which needs a declaration in both placements, unless policing
+  is off (the AAF bypass or lwSRP disabled): then the split build tags CRF
+  frames that the processor build sends untagged until its DA gate opens.
 
 Every publication is counted in its path's bound. ACMP: a BIND_RX or an
-UNBIND_RX writes `BINDING` once (77 and 50), a settling PROBE_TX_RESPONSE
-writes the stream's four words (32), and a TMR_NO_TK writes `BINDING` once
-(14 when it also makes the run's first TMR_DELAY draw). MAAP: an allocation
-reported writes `DA_GATE` once (49). SRP: a reset writes `LICENCE`,
-`SR_DOMAIN` and `IDLE_SLOPE` once each (an event is 4), an adoption writes
-`SR_DOMAIN` and `IDLE_SLOPE`, and each licence change `LICENCE`
-(`SRP_MBX_PUB_POLL_MAX`). Each figure is measured on the host model.
+UNBIND_RX writes `BINDING` once, its started level included (77 and 50), a
+settling PROBE_TX_RESPONSE writes the stream's four words (32), and a
+TMR_NO_TK writes `BINDING` once (14 when it also makes the run's first
+TMR_DELAY draw); a START_STREAMING or STOP_STREAMING writes `BINDING` once,
+on the AECP side's path, which F5 bounds. MAAP: an allocation reported writes
+`DA_GATE` once (49). SRP: a reset writes `LICENCE` and `TALKER_DECL` before
+it destroys the participants, then `SR_DOMAIN`, `IDLE_SLOPE` and
+`TALKER_DECL` as it declares again (five; an event is 6), an adoption writes
+`SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
+`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
+on the host model.
 
 ## Verification
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 401 checks through the Wishbone adapter and the same 401 through the AXI4-Lite adapter (403 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the publication census first (above), then 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
-| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
-| the same suite on the host model | the 388 of the RTL's 401 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+| the same suite on the host model | the 389 of the RTL's 402 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
 | the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; four differences asserted ([above](#differences-from-the-processor)) |
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
-| the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, and a call back from the port refused (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model (`B10`, `B11`); MAAP's DA gate before each allocation report (`DaGateIsPublishedBeforeEachAllocationIsReported`); SRP's licence before each report, its Domain and slope before every MRPDU that carries them, read at each record's commit (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
+| the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the declarations withdrawn before a reset or destroy removes them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; six of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build

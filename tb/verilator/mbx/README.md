@@ -1,20 +1,27 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # mbx: the packet-mailbox fabric skeleton, through both bus adapters
 
-`make` builds and runs four things, exit 0 = all green:
+`make` builds and runs five things, exit 0 = all green:
 
-1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
+1. `census`: [`publication_census.py`](../../../sw/mailbox/publication_census.py)
+   counts every read of the processor's class-D outputs in
+   `milan_datapath.sv`, follows each to the wire, CSR read-back or the
+   wrapper's GET_STREAM_INFO face, and fails on one the publication block
+   does not carry or a ruling does not exclude; its self-test plants an
+   unmapped read three ways, points a status and an answer-face read at the
+   wire, and names a field the contract lacks (#665, comment 6092086337);
+2. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
    table's timing checks, which need a stream that can stall;
-2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
+3. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
-3. `run-cosim`: the control-plane firmware (ADP and ACMP) run on the RTL
+4. `run-cosim`: the control-plane firmware (ADP and ACMP) run on the RTL
    and on the host model, one scenario, compared frame by frame; the
    firmware library is rebuilt when any firmware source or header changes,
    and the binary relinked whenever the library is newer, so a firmware-only
    change never runs a stale binary;
-4. `run-if2`: the same checks on the contract elaborated for two AVB
+5. `run-if2`: the same checks on the contract elaborated for two AVB
    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
    `obj_if2/gen`, never the tree), through both adapters and on the host
    model ([`model_main.cpp`](model_main.cpp)), so the own-MAC and
@@ -84,7 +91,7 @@ filter table. Register offsets and field positions are the generated
 | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
-| P0 to P5 | the publication block (lane F-INT, #665 comment 6088423771): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's or sink's bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, and in the firmware's write order never half written; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
+| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
 
 The AXI4-Lite build then runs the adapter's handshake rules, which a polite
 master (AW and W together, BREADY and RREADY high) never exercises:
@@ -265,7 +272,7 @@ bytes and copies; the rest are round 3's. The twins in the host model are in
 | `top-bound-unwritten-word-read-raw` | a word not written since the reset read as stored | Q17, every entry reads 0 after a reset |
 | `rx-bound-valid-kept-through-reset` | BOUND_EID_LO's written flag kept through a reset | Q17, every entry reads 0 after a reset |
 
-The publication block (lane F-INT) adds ten defects in the generated
+The publication block (lane F-INT) adds fourteen defects in the generated
 skeleton, each planted through both adapters; the twins in the host model
 are in `ctrl_mutants.py`'s table:
 
@@ -281,6 +288,10 @@ are in `ctrl_mutants.py`'s table:
 | `top-pub-interface-unchecked` (two interfaces) | an interface index past the build aliases another's block | P4, nothing moved |
 | `top-pub-partial-strobe-accepted` | a partial strobe writes the block | P4, the partial strobe refused |
 | `top-pub-licence-kept-through-reset` | LICENCE not reset | P5, a reset clears the block |
+| `top-pub-started-from-bound` | `pub_started_o` takes BOUND | P2, every field on its own output |
+| `top-pub-started-not-stored` | BINDING drops STARTED on a write | P1, each register's fields only |
+| `top-pub-declarations-from-licence` | `pub_talker_decl_o` takes LICENCE | P2, every field on its own output |
+| `top-pub-declarations-kept-through-reset` | TALKER_DECL not reset | P5, a reset clears the block |
 
 ## Run
 

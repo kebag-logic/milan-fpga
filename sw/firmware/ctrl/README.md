@@ -72,10 +72,13 @@ with the bindings the store restored
 ([design page](../../../docs/design/MAILBOX_SPLIT.md#discovery-and-the-adp-channels-filter)).
 The core's `publish` port (lane F-INT) writes each sink's binding into its
 interface's publication block for the split placement's datapath: whether it
-is bound, and the stream_id it listens to while settled. It is called before
-any frame of the entry is sent, so the BIND_RX and UNBIND_RX responses never
-leave ahead of the state they promise, and at the end of an entry before the
-store and the notifier hear of a change; `acmp_open` publishes the restored
+is bound and started (Milan v1.2 5.3.8.7), and the stream_id it listens to
+while settled. It is called before any frame of the entry is sent, so the
+BIND_RX and UNBIND_RX responses never leave ahead of the state they promise,
+and at the end of an entry before the store and the notifier hear of a
+change, so a START_STREAMING or STOP_STREAMING is published before
+`acmp_set_started` returns; a started move alone is one `BINDING` write that
+keeps the stream on the datapath. `acmp_open` publishes the restored
 bindings ([design page](../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)).
 Only AVTP version 0 is read: the core discards an ACMPDU or ADPDU of another
 version before decoding it (IEEE 1722-2016 4.4.3.4). TMR_NO_RESP runs from
@@ -165,7 +168,7 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,327 accesses at one interface and 4,213 at two. The SRP bound counts one maximum-size frame per
+The result is 3,346 accesses at one interface and 4,235 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.

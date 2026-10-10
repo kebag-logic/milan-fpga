@@ -300,7 +300,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_PUB_BASE_C = 32'h00000800;
   //! bytes per interface's publication block
   localparam int unsigned MBX_PUB_STRIDE_C = 32'h00000200;
-  //! The talker destination-address gate: bit s is set while MAAP holds a stream destination address for source s on this interface (IEEE 1722-2016 Annex B; the processor's acmp_declaring_o). The MAAP owner writes it before it reports the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1).
+  //! The talker destination-address gate: bit s is set while MAAP holds a stream destination address for source s on this interface (IEEE 1722-2016 Annex B). The MAAP owner writes it before it reports the allocation, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1). It is address validity only. The processor's acmp_declaring_o also needs a probe within T-SRP-DAFRESH or a registered Listener (Milan v1.2 4.3.3.1), which the firmware ACMP talker does not implement yet (#665, comment 6092086337).
   localparam int unsigned MBX_PUB_REG_DA_GATE_C = 32'h00000000;
   //! DA_GATE: bit s: source s may send to its destination address
   localparam int unsigned MBX_DA_GATE_OPEN_LSB_C = 32'd0;
