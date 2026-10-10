@@ -13,12 +13,34 @@ datapath with, the all-fabric shape's header directory among them, and the
 census takes them from there, never from a list of its own. sv2v lowers the
 SystemVerilog as it does in that gate, and Yosys reads what sv2v writes.
 
+THE SHAPES are every shape the builder builds (#665, comment 6100024293).
+``shapes()`` is the recipe's own (run.sh's row: the module's default
+parameters, define ``SYNTHESIS``, the all-fabric header), then one per
+``configs/*.yaml`` in name order, each taken from sw/builder alone:
+
+  header      the configuration's generated directory
+              ``configs/generated/<name>``, and its ``gen/``, in place of the
+              recipe's header slot, as milan_soc.py's ``--entity-gen-dir``
+              puts both ahead of the tracked include directories
+              (scripts/check_entity_shape.py arm D holds the header to what
+              the builder generates)
+  parameters  ``endstation_builder.datapath_params()``: every integer
+              parameter the build binds on milan_datapath (test_builder gate
+              23m compares it with the Instance milan_soc.py builds for each
+              configuration); the three ROM image paths, which only the
+              processor and gPTP wrappers read, stay at their defaults
+  defines     ``SYNTHESIS`` alone: milan_soc.py adds no define, and Vivado's
+              synthesis defines that one, as run.sh's recipe does
+
+A configuration added to configs/ is elaborated with no edit here.
+
 THE ELABORATION keeps the hierarchy. Every module but the datapath is read as
 a blackbox, so each instance stays a cell whose ports have a direction and no
-body. The datapath alone is elaborated, by ``hierarchy -check`` (an unknown
-module or port fails), and its processes become cells through the passes
-``proc`` runs, in its order. Two changes keep every read under the name the
-source gave it, which is what the census keys a read by:
+body. The datapath alone is elaborated, read deferred and bound to the shape's
+parameters by ``hierarchy -check -chparam`` (an unknown module or port
+fails), and its processes become cells through the passes ``proc`` runs, in
+its order. Two changes keep every read under the name the source gave it,
+which is what the census keys a read by:
 
   ``insbuf``        turns every connection into a buffer cell before
                     proc_prune, before proc_dff and after the last pass;
@@ -42,6 +64,11 @@ Anything else the front end or the elaborator refuses is the census's refusal
 too: an undefined module, port or macro, a hierarchical reference (the
 datapath sets ``default_nettype none``), or a form sv2v does not parse, such
 as ``alias`` or an ``iff`` event qualifier.
+
+THE TOOLS are the pinned ones. ``toolchain()`` refuses an sv2v or a Yosys
+other than the versions .github/workflows/rtl-fast.yml installs (its
+``YOSYS_VERSION`` and the release its sv2v step fetches), with a message
+naming both pins and both versions found.
 """
 
 from __future__ import annotations
@@ -59,9 +86,21 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import yaml
+
+from census_rules import live
+
 REPO = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(REPO / "sw/builder"))
+import endstation_builder as eb  # noqa: E402
+
 TOP = "milan_datapath"
 RUN_SH = REPO / "syn/yosys/run.sh"
+#: The workflow whose census job installs the pinned sv2v and Yosys.
+WORKFLOW = REPO / ".github/workflows/rtl-fast.yml"
+SV2V_STEP = "Install the pinned sv2v release"
+#: Where the builder writes each configuration's generated header directory.
+GENERATED = REPO / eb.GEN_CONFIG_DIR
 #: The ROM images a blackbox read needs in its working directory: a module
 #: without parameters is elaborated as it is read, $readmemh included.
 ROMS = (("protocol-processor/hdl/acmp/rom/gen_ltn_rom.py", "ltn_rom.hex"),
@@ -96,6 +135,23 @@ class Recipe:
     sources: tuple[Path, ...]
 
 
+@dataclass(frozen=True)
+class Shape:
+    """One shape the datapath is elaborated in."""
+
+    name: str                               # "recipe", or the configuration's name
+    header: Path | None                     # its generated header directory; None keeps the recipe's
+    params: tuple[tuple[str, int], ...]     # the datapath parameters it binds, by name
+
+    def binds(self, param: str, least: int) -> bool:
+        """Whether this shape binds param to least or more."""
+        return dict(self.params).get(param, least - 1) >= least
+
+
+#: run.sh's own row: the module's default parameters and the recipe's header.
+RECIPE = Shape("recipe", None, ())
+
+
 @functools.lru_cache(maxsize=1)
 def recipe() -> Recipe:
     """The record ``syn/yosys/run.sh --emit milan_datapath`` prints, which is bash's own expansion of the gate's row."""
@@ -107,13 +163,62 @@ def recipe() -> Recipe:
     return Recipe(tuple(pick["define"]), tuple(Path(d) for d in pick["incdir"]), tuple(Path(s) for s in pick["src"]))
 
 
+def shapes() -> tuple[Shape, ...]:
+    """The recipe's shape, then one per configs/*.yaml in name order: the builder's
+    generated header directory for it and the parameters the builder states."""
+    out = [RECIPE]
+    for path in sorted((REPO / "configs").glob("*.yaml")) if live("shapes") else ():
+        try:
+            cfg = eb.load_config(str(path))
+            params = eb.datapath_params(cfg)
+        except (eb.ConfigError, OSError, KeyError, ValueError) as exc:
+            raise CensusError(f"the builder cannot state the shape of {rel(path)}: {exc}") from exc
+        out.append(Shape(cfg["name"], GENERATED / cfg["name"], tuple(sorted(params.items()))))
+    return tuple(out)
+
+
+def shaped(rcp: Recipe, shape: Shape) -> Recipe:
+    """rcp with the shape's header directory, then its gen/, in place of the recipe's
+    header slot (the one include directory under configs/generated)."""
+    if shape.header is None or not live("shape-header"):
+        return rcp
+    slot = [d for d in rcp.incdirs if Path(d).resolve().parent == GENERATED.resolve()]
+    if len(slot) != 1:
+        raise CensusError(f"the recipe has {len(slot)} include directories under {rel(GENERATED)}, not the one "
+                          f"header slot a shape replaces")
+    want = {p.relative_to(slot[0]) for p in Path(slot[0]).rglob("*") if p.is_file()}
+    have = {p.relative_to(shape.header) for p in shape.header.rglob("*") if p.is_file()}
+    if want - have:
+        raise CensusError(f"{rel(shape.header)} lacks {', '.join(sorted(map(str, want - have)))}: run the builder "
+                          f"for {shape.name}, or the front end reads another shape's header")
+    at = rcp.incdirs.index(slot[0])
+    return Recipe(rcp.defines, (*rcp.incdirs[:at], shape.header, shape.header / "gen", *rcp.incdirs[at + 1:]),
+                  rcp.sources)
+
+
 def tool(name: str) -> str:
     """The sv2v or yosys to run: $SV2V or $YOSYS when set, else the one on PATH."""
     path = os.environ.get(name.upper()) or shutil.which(name)
     if not path:
         raise CensusError(f"missing tool: {name}; the census elaborates with the sv2v and Yosys "
-                          f"syn/yosys/README.md pins")
+                          f"{rel(WORKFLOW)} pins")
     return path
+
+
+@functools.lru_cache(maxsize=1)
+def pins() -> tuple[str, str]:
+    """(sv2v, Yosys) as rtl-fast.yml pins them: the release its sv2v steps fetch, and its YOSYS_VERSION."""
+    try:
+        doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise CensusError(f"cannot read the pins from {rel(WORKFLOW)}: {exc}") from exc
+    sv2v = {v for job in doc.get("jobs", {}).values() for step in job.get("steps", ())
+            if step.get("name") == SV2V_STEP for v in re.findall(r"^ver=(\S+)$", step.get("run", ""), re.M)}
+    yosys = str(doc.get("env", {}).get("YOSYS_VERSION", ""))
+    if len(sv2v) != 1 or not yosys:
+        raise CensusError(f"{rel(WORKFLOW)} pins sv2v {sorted(sv2v) or 'nowhere'} and Yosys {yosys or 'nowhere'}; "
+                          f"the census needs one of each")
+    return sv2v.pop(), yosys
 
 
 def run(argv: list[str], cwd: Path, what: str) -> str:
@@ -130,9 +235,13 @@ def run(argv: list[str], cwd: Path, what: str) -> str:
 
 
 def toolchain() -> str:
-    """The sv2v and Yosys versions the census elaborated with."""
+    """The sv2v and Yosys versions the census elaborates with; a CensusError for any but the pinned ones."""
     sv2v = run([tool("sv2v"), "--version"], REPO, "sv2v --version").strip()
     yosys = run([tool("yosys"), "-V"], REPO, "yosys -V").split("(")[0].strip()
+    want_sv2v, want_yosys = pins()
+    if live("pins") and (sv2v.split()[-1:] != [want_sv2v] or yosys.split()[1:2] != [want_yosys.lstrip("v")]):
+        raise CensusError(f"the census elaborates with the pinned sv2v {want_sv2v} and Yosys {want_yosys} "
+                          f"({rel(WORKFLOW)}), not `{sv2v}` and `{yosys}`: set SV2V and YOSYS to the pinned tools")
     return f"{sv2v}, {yosys}"
 
 
@@ -145,12 +254,12 @@ def front_end_files(rcp: Recipe) -> set[Path]:
     return out
 
 
-@functools.lru_cache(maxsize=1)
-def tracked_openers() -> dict[Path, tuple[int, str]]:
-    """Each file the front end can read, as tracked, that holds an escaped name with a
-    comment opener: its first such line and name."""
+@functools.lru_cache(maxsize=8)
+def tracked_openers(rcp: Recipe) -> dict[Path, tuple[int, str]]:
+    """Each file the front end can read for rcp, as tracked, that holds an escaped name
+    with a comment opener: its first such line and name."""
     out = {}
-    for path in sorted(front_end_files(recipe())):
+    for path in sorted(front_end_files(rcp)):
         hit = opener(path.read_text(encoding="utf-8", errors="replace"))
         if hit:
             out[path] = hit
@@ -163,9 +272,9 @@ def opener(text: str) -> tuple[int, str] | None:
     return (text.count("\n", 0, m.start()) + 1, m.group()) if m else None
 
 
-def guard(overlay: dict[Path, str]) -> None:
+def guard(overlay: dict[Path, str], rcp: Recipe) -> None:
     """Refuse an escaped name holding // or /* in any file the front end can read, planted copies included."""
-    hits = {p: h for p, h in tracked_openers().items() if p not in overlay}
+    hits = {p: h for p, h in tracked_openers(rcp).items() if p not in overlay}
     hits |= {p: h for p, h in ((p, opener(t)) for p, t in overlay.items()) if h}
     if hits:
         path, (line, name) = min(hits.items())
@@ -234,12 +343,12 @@ def netlist(doc: dict) -> Netlist:
 
 
 class Work:
-    """The census's scratch: one directory, the blackbox library Yosys read once, the ROM images."""
+    """The census's scratch: one directory, each blackbox library Yosys read once, the ROM images."""
 
     def __init__(self) -> None:
         self.root: Path | None = None
-        self.libs: dict[str, Path] = {}          # sha256 of the library's text -> its RTLIL
-        self.baseline: dict[str, str] = {}       # the tracked sources' library modules
+        # sha256 of a library's text -> its RTLIL and its modules (one per shape's header, and per changed module)
+        self.libs: dict[str, tuple[Path, dict[str, str]]] = {}
 
     def path(self) -> Path:
         """The scratch directory, made on first use and removed at exit by the process that made it."""
@@ -320,26 +429,24 @@ def shadow(rcp: Recipe, overlay: dict[Path, str], tree: Path) -> list[str]:
 
 def library(mods: dict[str, str], arm: Path) -> list[str]:
     """The Yosys commands that read every module but the datapath as a blackbox:
-    the RTLIL of the tracked library when every module of it is unchanged (plus
+    the RTLIL of a library already read whose every module is unchanged (plus
     any module a plant adds), else the whole library afresh."""
-    if WORK.baseline and all(mods.get(n) == t for n, t in WORK.baseline.items()):
-        lib = WORK.libs[digest(WORK.baseline)]
-        extra = {n: t for n, t in mods.items() if n not in WORK.baseline}
-        if not extra:
-            return [f"read_rtlil {lib}"]
-        (arm / "extra.v").write_text("".join(extra.values()), encoding="utf-8")
-        return [f"read_rtlil {lib}", f"read_verilog -lib {arm / 'extra.v'}"]
+    for lib, base in WORK.libs.values():
+        if all(mods.get(n) == t for n, t in base.items()):
+            extra = {n: t for n, t in mods.items() if n not in base}
+            if not extra:
+                return [f"read_rtlil {lib}"]
+            (arm / "extra.v").write_text("".join(extra.values()), encoding="utf-8")
+            return [f"read_rtlil {lib}", f"read_verilog -lib {arm / 'extra.v'}"]
     key = digest(mods)
-    if key not in WORK.libs:
-        WORK.roms()
-        (arm / "lib.v").write_text("".join(mods.values()), encoding="utf-8")
-        lib = WORK.path() / f"lib-{key[:16]}.il"
-        run([tool("yosys"), "-q", "-p", f"read_verilog -lib {arm / 'lib.v'}; write_rtlil {lib}"], WORK.path(),
-            "the elaborator (Yosys) refused the other modules as blackboxes")
-        WORK.libs[key] = lib
-        if not WORK.baseline:
-            WORK.baseline = dict(mods)
-    return [f"read_rtlil {WORK.libs[key]}"]
+    WORK.roms()
+    (arm / "lib.v").write_text("".join(mods.values()), encoding="utf-8")
+    # per process: two workers of one pool may read the same library at once
+    lib = WORK.path() / f"lib-{key[:16]}-{os.getpid()}.il"
+    run([tool("yosys"), "-q", "-p", f"read_verilog -lib {arm / 'lib.v'}; write_rtlil {lib}"], WORK.path(),
+        "the elaborator (Yosys) refused the other modules as blackboxes")
+    WORK.libs[key] = (lib, dict(mods))
+    return [f"read_rtlil {lib}"]
 
 
 def digest(mods: dict[str, str]) -> str:
@@ -350,21 +457,25 @@ def digest(mods: dict[str, str]) -> str:
     return h.hexdigest()
 
 
-def elaborate(overlay: dict[Path, str]) -> Netlist:
-    """The datapath elaborated from the recipe, overlay's texts (absolute path ->
-    text) in place of the files they name; a CensusError if any step refuses,
-    its paths named as in the checkout."""
-    rcp = recipe()
+def elaborate(overlay: dict[Path, str], shape: Shape = RECIPE) -> Netlist:
+    """The datapath elaborated from the recipe in shape, overlay's texts (absolute
+    path -> text) in place of the files they name; a CensusError if any step
+    refuses, its paths named as in the checkout."""
+    rcp = shaped(recipe(), shape)
     overlay = {Path(p).resolve(): t for p, t in overlay.items()}
-    guard(overlay)
+    if live("opener-guard"):
+        guard(overlay, rcp)
     arm = Path(tempfile.mkdtemp(prefix="arm-", dir=WORK.path()))
     try:
         argv = shadow(rcp, overlay, arm / "tree")
         top, mods = split(run(argv, arm, "the front end (sv2v) refused the datapath"))
         script = library(mods, arm)
         (arm / "top.v").write_text(top, encoding="utf-8")
-        script += [f"read_verilog {arm / 'top.v'}", f"hierarchy -check -top {TOP}", *PROC,
-                   f"write_json {arm / 'net.json'}"]
+        bind = "".join(f" -chparam {k} {v}" for k, v in shape.params) if live("shape-params") else ""
+        # deferred, so the module is elaborated once, at the shape's parameters;
+        # hierarchy names a bound top $paramod$..., and rename gives it its name back
+        script += [f"read_verilog -defer {arm / 'top.v'}", f"hierarchy -check -top {TOP}{bind}", f"rename -top {TOP}",
+                   *(PROC if live("keep-names") else ("proc",)), f"write_json {arm / 'net.json'}"]
         run([tool("yosys"), "-q", "-p", "; ".join(script)], WORK.path(), "the elaborator (Yosys) refused the datapath")
         with (arm / "net.json").open(encoding="utf-8") as handle:
             return netlist(json.load(handle))
