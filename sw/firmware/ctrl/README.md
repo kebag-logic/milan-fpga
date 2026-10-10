@@ -91,9 +91,15 @@ Every unit is judged as its builders compile it, and nothing about that is liste
 The builders are found, never listed: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
 Every unit is judged as C.
 A firmware header that a C++ source a builder names reaches (a test or a bench, every `#include` followed as text) is judged as C++ too, with the arms' test include path.
+A C++ name resolves beside its builder, in this tree or its tests, the stack, the protocol processor, the checkout's root, or a directory of the checkout the builder names.
+A C++ source the builder writes itself is followed through the builder's own literals.
+A C++ name that resolves to no file, or that the builder computes, fails the gate by name.
+`NOT_SOURCES` lists the two paths a coverage self-test writes into a planted report, which are no files; each is checked to be held by its builder, unresolved and unwritten.
 The builders' own `-D` and `-U` flags, as one argument or as two, are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
 A macro name the C implementation reserves is not a mode.
-A flag a builder computes at run time is a value.
+A flag a builder computes at run time, an f-string, is a value, whose macro is the f-string's literal before its `=`.
+Any other `-D` or `-U` a builder writes that is neither a literal nor an f-string refuses the gate by name.
+Examples are `"-D" + NAME`, `"-DNAME=" + value`, `"-D%s" % NAME`, a bare `-D` alone, `-D$(NAME)`, `-DNAME=$(VALUE)` and `$(addprefix -D,...)`.
 The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config.
 A unit that tests any other computed value is refused, since the gate has none of its values.
 Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
@@ -106,7 +112,7 @@ The gate tries every combination of their alternatives, until no new one appears
 A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
 A finding names the smallest configuration that reaches it, beyond the unit's default build.
 It also runs the stack's own boundary gate.
-`--selftest` plants 42 defects, each refused by name, and three passing controls.
+`--selftest` plants 56 defects, each refused by name, and three passing controls.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.

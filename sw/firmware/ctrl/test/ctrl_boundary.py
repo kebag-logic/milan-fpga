@@ -45,7 +45,12 @@ gate excepted.
   as C++ too, with the arms' test flags and include path (the stack's tests/
   on it), when a C++ source a builder names (a test, a bench) reaches it:
   every #include line is followed as text, in every branch alike, and one
-  whose operand a macro computes, which text cannot follow, is refused.
+  whose operand a macro computes, which text cannot follow, is refused. A
+  name resolves beside its builder, in the firmware's tree, its tests, the
+  stack, the protocol processor, the checkout's root, or a directory of the
+  checkout the builder names, in the trees judged; one the builder writes
+  itself is followed through the builder's literals; one that resolves to no
+  file, or that the builder computes, is refused by name (ctrl_configs).
 - Build modes: every -D or -U flag written in a builder, as one argument or
   as two (-D NAME, -U NAME). A macro the C implementation reserves (C11 7.1.3,
   a leading underscore and a capital or a second underscore, as the runtime's
@@ -54,7 +59,9 @@ gate excepted.
   image's stream counts are taken at every shipped config (configs/*.yaml,
   each a shape the image builders take) from the image builder's own
   ctrl_image.shape_build. A unit that tests any other computed value is
-  refused: the boundary has none of its values.
+  refused: the boundary has none of its values. A value is an f-string, its
+  macro the literal before its "="; any other -D or -U a builder writes that
+  is neither a literal nor an f-string refuses the gate by name.
 - Shapes: the headers the builders generate for each shipped config, written
   by the builders' own generators (every entity generator, */*_entity.py, and
   the store's headers from ctrl_image.shape_build); and the SRP adapter's
@@ -114,6 +121,7 @@ import shlex
 import shutil
 import sys
 import tempfile
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from functools import lru_cache
@@ -126,6 +134,7 @@ import fw_gtest  # noqa: E402
 import fw_rv32  # noqa: E402
 from ctrl_build import (C_FLAGS, CTRL, HARNESS, NVM_DIR, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE,  # noqa: E402
                         STACK_PARTS, TB_COMMON, Refusal, Tree, includes, stack_pin)
+# modes stays importable from here: a caller judges in the modes a planted builder gives (judge's universe).
 from ctrl_configs import (DEFAULT_ENTITY, FLAG, FORCED, Read, Space, cxx_sources, derive, image_dim,  # noqa: E402
                           makefiles, mode_dims, modes, run, spaces, variants)
 from ctrl_pin import makefile_findings, pin_controls  # noqa: E402
@@ -432,35 +441,56 @@ def firmware_units(trees: Trees) -> list[Path]:
     return units + sorted((trees.ctrl / "test").rglob("*.c"))
 
 
-def cxx_units(trees: Trees, work: Path) -> tuple[list[Path], list[str]]:
+def view(trees: Trees) -> Callable[[Path], Path] | None:
+    """A file of the checkout as the trees judged hold it: under the ctrl tree or the stack, their copy's."""
+    if (trees.ctrl.resolve(), trees.stack.resolve()) == (CTRL.resolve(), STACK.resolve()):
+        return None
+    moves = ((CTRL.resolve(), trees.ctrl), (STACK.resolve(), trees.stack))
+    return lambda path: next((into / path.relative_to(root) for root, into in moves if path.is_relative_to(root)),
+                             path)
+
+
+@lru_cache(maxsize=None)
+def operands(text: str) -> tuple[str, ...]:
+    """The operand of every #include line of a text."""
+    return tuple(INCLUDE.findall(text))
+
+
+def cxx_units(trees: Trees, work: Path, planted: dict[Path, str] | None = None) -> tuple[list[Path], list[str]]:
     """The firmware units a C++ source a builder names reaches, every #include line followed as text in every
-    branch, against every directory a builder searches; and an #include whose operand a macro computes, which
-    text cannot follow, as a finding."""
+    branch, against every directory a builder searches, in the trees judged; a source a builder writes itself
+    followed through the builder's literals; and as findings, an #include whose operand a macro computes,
+    which text cannot follow, and every C++ name of a builder that resolves to no file or that it computes."""
+    moved = view(trees) or (lambda path: path)
+    sources = cxx_sources(planted, view(trees))
     shapes = [gen for gen, _ in variants().shapes.values()]
     dirs = [Path(f[2:]) for f in search(trees, work)] + [trees.stack / d for d in (STACK_INCLUDE, *STACK_PRIVATE)]
     dirs += [NVM_DIR / d for d in ("host", "plat", "host/stubs", "test", "test/rv32")]
-    dirs += [LWSRP / "include", LWSRP, HARNESS, HERE, TB_COMMON, *shapes]
+    dirs += [LWSRP / "include", LWSRP, HARNESS, moved(HERE), TB_COMMON, *shapes]
     roots = [r.resolve() for r in (ROOT, trees.ctrl, trees.stack, *shapes)]
-    queue, read, findings = cxx_sources(), set(), []
-    while queue:
-        path = queue.pop()
+    queue, read, findings = list(sources.files), set(), list(sources.findings)
+    texts = [(None, text) for text in sources.written.values()]
+    while queue or texts:
+        path, text = texts.pop() if texts else (queue.pop(), None)
         if path in read:
             continue
-        read.add(path)
-        for operand in INCLUDE.findall(path.read_text(encoding="utf-8", errors="replace")):
+        if path is not None:
+            read.add(path)
+            text = path.read_text(encoding="utf-8", errors="replace")
+        for operand in operands(text):
             if operand[:1] not in ('"', "<"):
-                findings.append(f"firmware c++: {where(path, trees)} includes {operand}, which text cannot follow")
+                findings.append(f"firmware c++: {where(path, trees) if path else 'a source a builder writes'} "
+                                f"includes {operand}, which text cannot follow")
                 continue
             name = operand[1:].split('"' if operand[0] == '"' else ">", 1)[0]
-            for base in ([path.parent] if operand[0] == '"' else []) + dirs:
-                if (base / name).is_file() and any((hit := (base / name).resolve()).is_relative_to(r) for r in roots):
+            for base in ([path.parent] if path and operand[0] == '"' else []) + dirs:
+                if (base / name).is_file() and \
+                        any((hit := moved((base / name).resolve())).is_relative_to(r) for r in roots):
                     queue.append(hit)
-    units = {}
-    for path in read:
-        for root in (trees.ctrl.resolve(), CTRL.resolve()):
-            if path.is_relative_to(root) and len(part := path.relative_to(root).parts) > 1 and \
-                    part[0] not in TEST_EQUIPMENT and (trees.ctrl / path.relative_to(root)).is_file():
-                units[trees.ctrl / path.relative_to(root)] = None
+    ctrl = trees.ctrl.resolve()
+    units = {trees.ctrl / path.relative_to(ctrl): None for path in read
+             if path.is_relative_to(ctrl) and len(part := path.relative_to(ctrl).parts) > 1 and
+             part[0] not in TEST_EQUIPMENT}
     return sorted(units), findings
 
 
@@ -500,13 +530,16 @@ def shadows(trees: Trees, firmware: Path) -> list[str]:
 
 
 def judge(trees: Trees, rv32: str | None, work: Path, universe: dict[str, tuple[str, ...]] | None = None,
-          computed: dict[str, str] | None = None) -> list[str]:
-    """Every finding on both sides of the boundary for these trees, in every configuration and language."""
-    derived = derive() if universe is None or computed is None else ({}, {})
+          computed: dict[str, str] | None = None, control: Plant | None = None) -> list[str]:
+    """Every finding on both sides of the boundary for these trees, in every configuration and language, as the
+    builders compile them (with a `control`'s builder text replacing or adding one's), or in `universe`'s modes
+    and with `computed`'s values where given."""
+    planted = builder_plant(control) if control else None
+    derived = derive(planted)
     each = spaces(derived[0] if universe is None else universe, derived[1] if computed is None else computed)
     findings = stack_side(trees, ["gcc", *C_FLAGS], "host", each["stack"], work / "stack")
     firmware = firmware_side(trees, ["gcc", "-std=c11"], "firmware", each["firmware"], work / "firmware")
-    cxx, unfollowed = cxx_units(trees, work / "firmware-cxx")
+    cxx, unfollowed = cxx_units(trees, work / "firmware-cxx", planted)
     firmware += unfollowed + firmware_side(trees, ["g++", *fw_gtest.CXX_FLAGS], "firmware c++", each["c++"],
                                            work / "firmware-cxx", cxx)
     if rv32 is not None:
@@ -538,10 +571,12 @@ def stack_gate(selftest: bool, work: Path) -> list[str]:
 @dataclass(frozen=True)
 class Plant:
     """One control: written into the stack's copy or the ctrl tree's copy, side by side, so a relative path
-    from one reaches the other (a "+" file is written whole as a new file); refused by a finding holding
-    `needle`, or passing when `needle` is "". `mode` is a builder's flag arguments, planted into a copy of the
-    text of `builder` (a file of test/; a new one when it holds none; a Makefile's recipe when it is one),
-    which the boundary must then explore without being told."""
+    from one reaches the other (a "+" file is written whole as a new file; no file, none), with `extra` edits
+    of the same kind in the same copy; refused by a finding (or a refusal) holding `needle`, or passing when
+    `needle` is "". `words` are a builder's arguments (flags, or a source's name), planted into a copy of the
+    text of `builder` (a file of test/, or one relative to it; a new one when it holds none; a Makefile's
+    recipe when it is one), which the boundary must then read without being told; `raw` is text added to that
+    copy as it is, and `swap` an (old, new) edit of it."""
 
     name: str
     side: str
@@ -549,8 +584,11 @@ class Plant:
     old: str
     new: str
     needle: str
-    mode: tuple[str, ...] = ()
+    words: tuple[str, ...] = ()
     builder: str = "ctrl_arms.py"
+    raw: str = ""
+    swap: tuple[str, str] | tuple[()] = ()
+    extra: tuple[tuple[str, str, str], ...] = ()
 
 
 #: A builder the checkout does not hold: it names the firmware's shared builder, as every builder does.
@@ -700,6 +738,54 @@ PLANTS = (
           "#include \"maap.h\"\n#ifdef CTRL_SPLIT_MAKE\n#include \"ctrl_loop.h\"\n#endif\n",
           "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
           ("-D", "CTRL_SPLIT_MAKE"), "planted.mk"),
+    Plant("a header only the MAAP differential's C++ source reaches includes a stack test's fake in C++ only",
+          "ctrl", "+maap/maap_r584.h", "", "#ifdef __cplusplus\n#include \"acmp_fake.hpp\"\n#endif\n",
+          "firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public "
+          "headers",
+          extra=(("test/test_maap_differential.cpp", "#include \"maap.h\"\n",
+                  "#include \"maap.h\"\n#include \"maap_r584.h\"\n"),)),
+    Plant("a builder names a C++ source that is no file", "ctrl", "", "", "",
+          "firmware c++: sw/firmware/ctrl/test/planted_arms.py names planted_r4.cpp, a C++ source that resolves to "
+          "no file", ("planted_r4.cpp",), "planted_arms.py"),
+    Plant("a builder computes a C++ source's name", "ctrl", "", "", "",
+          "firmware c++: sw/firmware/ctrl/test/planted_arms.py computes the name of a C++ source",
+          builder="planted_arms.py", raw='STEM = "planted_r4"\nPLANTED = STEM + ".cpp"\n'),
+    Plant("a C++ source a builder writes reaches a header that includes a stack example in C++ only", "ctrl",
+          "+adp/adp_r4.h", "", "#ifdef __cplusplus\n#include \"adp_port.h\"\n#endif\n",
+          "firmware c++: adp/adp_r4.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public "
+          "headers", builder="planted_arms.py",
+          raw='from pathlib import Path\nPath("planted_r4.cpp").write_text("#include \\"adp_r4.h\\"\\n")\n'),
+    Plant("a name NOT_SOURCES lists is followed once it is a file", "ctrl", "+test/t.cpp", "",
+          "#include \"maap_r4.h\"\n",
+          "firmware c++: maap/maap_r4.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public "
+          "headers", extra=(("+maap/maap_r4.h", "", "#ifdef __cplusplus\n#include \"acmp_fake.hpp\"\n#endif\n"),)),
+    Plant("NOT_SOURCES lists a name its builder no longer holds", "ctrl", "", "", "",
+          "firmware c++: NOT_SOURCES lists tests/t.cpp for sw/firmware/gtest/fw_coverage_selftest.py, which no "
+          "longer names it", builder="../../gtest/fw_coverage_selftest.py", swap=('"tests/t.cpp", ', "")),
+    Plant("a builder joins -D to a macro it computes", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read",
+          builder="planted_arms.py", raw='MODE = "CTRL_R4_JOINED"\nPLANTED = ["-D" + MODE]\n'),
+    Plant("a builder formats a -D flag's macro", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D%s', a -D or -U flag the boundary cannot "
+          "read", builder="planted_arms.py", raw='PLANTED = ["-D%s" % "CTRL_R4_FORMAT"]\n'),
+    Plant("a builder joins a value to a -D flag", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-DCTRL_R4_VALUE=', a -D or -U flag the "
+          "boundary cannot read", builder="planted_arms.py", raw='N = 2\nPLANTED = ["-DCTRL_R4_VALUE=" + str(N)]\n'),
+    Plant("a builder's f-string computes a -D flag's macro name", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted_arms.py computes a -D or -U flag's macro",
+          builder="planted_arms.py", raw='SUFFIX = "MODE"\nPLANTED = [f"-DCTRL_R4_{SUFFIX}"]\n'),
+    Plant("a builder writes a bare -D alone", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read",
+          builder="planted_arms.py", raw='NAMES = ["CTRL_R4_BARE"]\nPLANTED = ["cc", "-D"] + NAMES\n'),
+    Plant("a Makefile computes a -D flag's macro", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted.mk writes '-D$(MODE)', a -D or -U flag the boundary cannot read",
+          builder="planted.mk", raw="planted:\n\tcc -D$(MODE) -c planted.c\n"),
+    Plant("a Makefile computes a -D flag's value", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted.mk writes '-DCTRL_R4_MAKE=$(VALUE)', a -D or -U flag the "
+          "boundary cannot read", builder="planted.mk", raw="planted:\n\tcc -DCTRL_R4_MAKE=$(VALUE) -c planted.c\n"),
+    Plant("a Makefile prefixes -D to the macros it lists", "stack", "", "", "",
+          "the builder sw/firmware/ctrl/test/planted.mk writes '-D,$(MODES))', a -D or -U flag the boundary cannot "
+          "read", builder="planted.mk", raw="planted:\n\tcc $(addprefix -D,$(MODES)) -c planted.c\n"),
     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",
@@ -719,39 +805,53 @@ def planted(plant: Plant, work: Path) -> Trees:
     for part in dict.fromkeys((*STACK_PARTS, *STACK_PRIVATE)):
         shutil.copytree(STACK / part, trees.stack / part)
     root = trees.stack if plant.side == "stack" else trees.ctrl
-    if plant.file.startswith("+"):
-        target = root / plant.file[1:]
-        if target.exists():
-            raise Refusal(f"control {plant.name!r}: {plant.file[1:]} exists already")
-        target.write_text(plant.new, encoding="utf-8")
-        return trees
-    target = root / plant.file
-    text = target.read_text(encoding="utf-8")
-    if text.count(plant.old) != 1:
-        raise Refusal(f"control {plant.name!r}: its anchor occurs {text.count(plant.old)} times in {plant.file}")
-    target.write_text(text.replace(plant.old, plant.new), encoding="utf-8")
+    for file, old, new in ((plant.file, plant.old, plant.new), *plant.extra):
+        if not file:
+            continue
+        if file.startswith("+"):
+            target = root / file[1:]
+            if target.exists():
+                raise Refusal(f"control {plant.name!r}: {file[1:]} exists already")
+            target.write_text(new, encoding="utf-8")
+            continue
+        target = root / file
+        text = target.read_text(encoding="utf-8")
+        if text.count(old) != 1:
+            raise Refusal(f"control {plant.name!r}: its anchor occurs {text.count(old)} times in {file}")
+        target.write_text(text.replace(old, new), encoding="utf-8")
     return trees
 
 
+
 def builder_plant(plant: Plant) -> dict[Path, str] | None:
-    """The builder text a plant's mode is written into: a Python builder's tuple of arguments, or a Makefile
-    recipe's words."""
-    if not plant.mode:
+    """The builder text a plant is written into: a Python builder's tuple of arguments, or a Makefile recipe's
+    words; then its raw text, after its swap."""
+    if not (plant.words or plant.raw or plant.swap):
         return None
-    builder = HERE / plant.builder
-    if builder.suffix == ".py":
-        text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_BUILDER
-        return {builder: f"{text}\nPLANTED = {plant.mode!r}\n"}
-    text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_MAKEFILE
-    return {builder: f"{text}\nplanted:\n\tcc {' '.join(plant.mode)} -c planted.c\n"}
+    builder = (HERE / plant.builder).resolve()
+    text = builder.read_text(encoding="utf-8") if builder.exists() else \
+        NEW_BUILDER if builder.suffix == ".py" else NEW_MAKEFILE
+    if plant.swap:
+        old, new = plant.swap
+        if text.count(old) != 1:
+            raise Refusal(f"control {plant.name!r}: its builder anchor occurs {text.count(old)} times")
+        text = text.replace(old, new)
+    if plant.words:
+        text += f"\nPLANTED = {plant.words!r}\n" if builder.suffix == ".py" else \
+            f"\nplanted:\n\tcc {' '.join(plant.words)} -c planted.c\n"
+    return {builder: text + plant.raw}
 
 
 def controls(rv32: str | None, work: Path) -> int:
-    """Every plant refused by the finding it names, every pass control passing; the misbehaving count."""
+    """Every plant refused by the finding (or the refusal) it names, every pass control passing; the misbehaving
+    count."""
     bad = 0
     for plant in PLANTS:
         trees = planted(plant, work / "plants")
-        findings = judge(trees, rv32, work / "plants-build", modes(builder_plant(plant)))
+        try:
+            findings = judge(trees, rv32, work / "plants-build", control=plant)
+        except Refusal as exc:
+            findings = [f"REFUSED: {exc}"]
         shutil.rmtree(work / "plants-build", ignore_errors=True)
         ok = (not findings) if not plant.needle else any(plant.needle in f for f in findings)
         shown = next((f for f in findings if plant.needle and plant.needle in f), findings[0] if findings else "")
@@ -772,6 +872,10 @@ def configurations(universe: dict[str, tuple[str, ...]], computed: dict[str, str
           f"contracts: the tracked one and {', '.join(f'{n} interfaces' for n in found.contracts) or 'no variant'}")
     print("values the builders compute, which no judged unit may test: " +
           "; ".join(f"{name} ({where})" for name, where in computed.items() if name not in image.macros))
+    sources = cxx_sources()
+    print(f"C++ sources the builders name: {len(sources.files)} files; written by a builder: "
+          f"{', '.join(sources.written) or 'none'}; named, but no source (NOT_SOURCES): "
+          f"{'; '.join(sources.data) or 'none'}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -799,7 +903,7 @@ def main(argv: list[str] | None = None) -> int:
                 misbehaved, pins = pin_controls(work, makefiles())
                 bad += misbehaved
             PREPROCESSED.clear()
-            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", universe, computed)
+            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout")
             runs = sum(PREPROCESSED)
             cxx = len(cxx_units(Trees(CTRL, STACK), work / "count")[0])
             findings += makefile_findings(makefiles(), work / "makefiles")
