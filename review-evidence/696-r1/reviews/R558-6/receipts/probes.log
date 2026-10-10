@@ -1,0 +1,28 @@
+PROBE p1_beat5_keep_low_byte_only: CAUGHT
+PROBE p2_link_return_keeps_pending: CAUGHT
+PROBE p3_restart_keeps_pending: CAUGHT
+PROBE p4_seed_end_unchecked: CAUGHT
+PROBE p5_link_return_counts_conflict: CAUGHT
+PROBE p6_requested_count_follows_live_count: ESCAPED
+    |   [ ok ] M3 B.3.6.1 first enable seeds MAC plus clock = 1
+    |   [ ok ] M3 Release/Begin retains the generator sequence = 1
+    | 
+    | ======================================================================
+    | KL_maap: 172 checks, 0 failures
+    | 
+PROBE p7_first_offset_ignores_seed_unit: ESCAPED
+    |   [ ok ] M3 B.3.6.1 first enable seeds MAC plus clock = 1
+    |   [ ok ] M3 Release/Begin retains the generator sequence = 1
+    | 
+    | ======================================================================
+    | KL_maap: 172 checks, 0 failures
+    | 
+PROBE p7_first_offset_ignores_seed_datapath: ESCAPED
+    | wire type=1 bytes=60 start=13560
+    | wire type=1 bytes=60 start=19110
+    | clock trial 1 probe intervals: 5569 5460 5550
+    | [ok] M3 datapath: real-time clock changes probe intervals
+    | MAAP integration: 3 checks, 0 failures
+    | 
+PROBE p8_echo_count_low_byte: CAUGHT
+PROBE p9_seed_only_mac_high_bits: CAUGHT

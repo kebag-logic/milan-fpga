@@ -1,0 +1,10 @@
+--- a/tb/verilator/maap/sim_integration.cpp
++++ b/sim_integration_offsets.cpp (reviewer print-only copy)
+@@ -82,6 +82,7 @@
+             if (dut->m_axis_mac_tx_tlast) {
+                 if (frame.size()>=16 && frame[14]==0xfe)
+                     std::printf("wire type=%u bytes=%zu start=%u\n", frame[15],frame.size(),start);
++                if (frame.size() >= 34 && frame[14] == 0xfe) std::printf("R558PROBE type=%u requested_start=0x%02x%02x\n", frame[15], frame[30], frame[31]);
+                 if (frame.size() >= 16 && frame[14] == 0xfe && frame[15] == 1) {
+                     frames_ok &= frame.size() == 60 && frame[17] == 16;
+                     starts.push_back(start);

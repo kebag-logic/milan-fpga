@@ -1,0 +1,12 @@
+build head rc=0
+== head
+adjacent MACs, clock 0             mac 020000000001 -> offset 0x0001, first interval 5190 | mac 020000000002 -> offset 0x0002, first interval 5200 | 8-address blocks OVERLAP
+MACs differ in bit 16 only, clock 0 mac 020000000001 -> offset 0x0001, first interval 5190 | mac 020000010001 -> offset 0x0001, first interval 5190 | 8-address blocks IDENTICAL
+MACs differ in octet 4 only, clock 7 mac 0200000a1234 -> offset 0x123b, first interval 5770 | mac 0200005b1234 -> offset 0x123b, first interval 5770 | 8-address blocks IDENTICAL
+MACs differ in octet 3 only, clock 0 mac 020011001234 -> offset 0x1234, first interval 5700 | mac 020022001234 -> offset 0x1234, first interval 5700 | 8-address blocks IDENTICAL
+build p7 rc=0
+== p7
+adjacent MACs, clock 0             mac 020000000001 -> offset 0xc73c, first interval 5190 | mac 020000000002 -> offset 0xc73c, first interval 5200 | 8-address blocks IDENTICAL
+MACs differ in bit 16 only, clock 0 mac 020000000001 -> offset 0xc73c, first interval 5190 | mac 020000010001 -> offset 0xc73c, first interval 5190 | 8-address blocks IDENTICAL
+MACs differ in octet 4 only, clock 7 mac 0200000a1234 -> offset 0xc73c, first interval 5770 | mac 0200005b1234 -> offset 0xc73c, first interval 5770 | 8-address blocks IDENTICAL
+MACs differ in octet 3 only, clock 0 mac 020011001234 -> offset 0xc73c, first interval 5700 | mac 020022001234 -> offset 0xc73c, first interval 5700 | 8-address blocks IDENTICAL

@@ -1,0 +1,12 @@
+--- a/hdl/ieee1722/maap/KL_maap.sv
++++ b/p7_KL_maap.sv (reviewer plant p7)
+@@ -304,8 +304,7 @@
+   //! generate_address for Begin!: use a valid provisioning seed once (note a).
+   //! An invalid seed falls back to the normal bounded random draw.
+   wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
+-                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w[15:0]
+-                                                                    : enable_seed_w[15:0], count_i);
++                          ? seed_offset_i : rand_offset(lfsr_next_w[15:0], count_i);
+ 
+   always_ff @(posedge clk_i) begin : maap_sm
+     if (!rst_n) begin

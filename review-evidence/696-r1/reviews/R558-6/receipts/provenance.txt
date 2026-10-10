@@ -1,0 +1,47 @@
+# R558-6 provenance (reviewer clone and scratch execution clone)
+review clone HEAD: 6de3904ec2d6b2f04325c94c7686519ecd92a202  tree: 4e0c5d5fc3bf69e7ebaf1c6d234bb144df658e43
+review clone: worktree and index equal HEAD (no edits made in the review clone)
+review clone: every index entry (mode, blob, path) equals the HEAD tree
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+execution clone (shared clone of the review clone, detached at the same commit):
+  HEAD 6de3904ec2d6b2f04325c94c7686519ecd92a202 tree 4e0c5d5fc3bf69e7ebaf1c6d234bb144df658e43
+  tracked bytes equal HEAD after all runs
+  protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a dirty-files=0
+  gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty-files=0
+  third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty-files=0
+simulator: Verilator 5.050 2026-07-01 rev v5.050 (pinned 5.050 wrapper); coverage reader: Verilator 5.050 2026-07-01 rev v5.050 (same pinned root)
+merge parents of 941ba7463: 30073ee9cc30d1d8fc12163ab3e3f8dc27cc126f e8454e2751d05b02ee8e5a571857589ab358ab86; merge tree 03143567d700df74f208ff16f547f5023f485d62
+lane files whose blob differs from live dev e8454e27 at HEAD:
+  docs/design/AREA_BUDGET.md
+  docs/design/MAAP_FABRIC.md
+  docs/design/MARK_II_AREA_PLAN.md
+  docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+  docs/findings/README.md
+  hdl/ieee1722/maap/KL_maap.sv
+  hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+  hdl/milan/milan_datapath.sv
+  sw/firmware/ctrl/maap/README.md
+  sw/firmware/ctrl/test/maap_differential.py
+  sw/firmware/ctrl/test/test_maap_differential.cpp
+  syn/ooc/pp_resource_baseline.json
+  tb/verilator/maap/Makefile
+  tb/verilator/maap/integration.mk
+  tb/verilator/maap/mutants.py
+  tb/verilator/maap/sim_integration.cpp
+  tb/verilator/maap/sim_main.cpp
+hdl/ and submodule pins unchanged between merge result 0df48637 (the recorded measurement) and HEAD:
+  (empty line above = no difference)
+
+static gates at HEAD (execution clone), rc:
+  python3 scripts/docs_check.py -> 0
+  <pinned markdown venv> scripts/gen_toc.py --check -> 0
+  <pinned markdown venv> scripts/check_em_dash.py --base e8454e2751d05b02ee8e5a571857589ab358ab86 -> 0
+  python3 scripts/measure_test_evidence.py --check -> 0
+  python3 syn/ooc/pp_resource_gate.py check-baseline -> 0
+  python3 scripts/lint_rtl.py --check --jobs 4 -> 0 (90 <= 90)
+  (first gen_toc/em_dash/measure attempts returned 2 for environment reasons: renderer not on the default interpreter, submodules not registered; rerun as above)
