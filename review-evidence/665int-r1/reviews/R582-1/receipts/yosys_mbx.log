@@ -1,0 +1,13 @@
+# cmd: bash syn/yosys/run.sh --top KL_mbx --top KL_mbx_wb --top KL_mbx_axil --no-structural
+# dir: $REVIEWS/665int-r582-1-packet/scratch/src
+# start: 2026-10-10T00:51:44Z
+== Yosys open-synthesis check (synth, via sv2v; shard 0/1) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] KL_mbx                 cells=406331
+  [PASS] KL_mbx_wb              cells=5
+  [PASS] KL_mbx_axil            cells=136
+--------------------------------------------------------------
+tops: 3   pass: 3   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+# end: 2026-10-10T00:52:23Z rc=0

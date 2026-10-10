@@ -1,0 +1,16 @@
+# cmd: python3 -B -I $REVIEWS/665int-r582-1-packet/scripts/probe_link_hold.py $REVIEWS/665int-r582-1-packet/scratch/src $REVIEWS/665int-r582-1-packet/scratch/src/third_party/lwSRP $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2 2 head
+# dir: $REVIEWS/665int-r582-1-packet/scratch
+# start: 2026-10-10T00:51:13Z
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/control-head/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/control-head/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/control-head/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[as expected] control-head: expected 'pass', got pass
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-with-plant/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-with-plant/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-with-plant/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[as expected] hold-with-plant: expected 'adapter.ifs[i].link', got rc 1
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-ignored/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-ignored/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r582-1-packet/scratch/probe-head-if2/hold-ignored/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[as expected] hold-ignored: expected 'the DOWN record stayed held', got rc 1
+# end: 2026-10-10T00:51:50Z rc=0

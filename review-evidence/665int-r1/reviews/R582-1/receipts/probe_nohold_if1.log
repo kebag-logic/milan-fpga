@@ -1,0 +1,7 @@
+# cmd: python3 -B -I $REVIEWS/665int-r582-1-packet/scripts/probe_link_hold.py $REVIEWS/665int-r582-1-packet/scratch/nohold-tree $REVIEWS/665int-r582-1-packet/scratch/src/third_party/lwSRP $REVIEWS/665int-r582-1-packet/scratch/probe-nohold-if1 1 nohold
+# dir: $REVIEWS/665int-r582-1-packet/scratch
+# start: 2026-10-10T00:51:08Z
+[as expected] nohold-control: expected 'pass', got pass
+[as expected] nohold-plant: expected 'pass', got pass
+[as expected] nohold-plant-no-publication: expected 'adapter.ifs[i].link', got rc 1
+# end: 2026-10-10T00:51:44Z rc=0

@@ -1,0 +1,49 @@
+# cmd: python3 -B -u -I $REVIEWS/665int-r582-1-packet/scripts/fint_plants.py $REVIEWS/665int-r582-1-packet/scratch/src $REVIEWS/665int-r582-1-packet/scratch/src/third_party/lwSRP $REVIEWS/665int-r582-1-packet/scratch/fint-ctrl ctrl
+# dir: $REVIEWS/665int-r582-1-packet/scratch
+# start: 2026-10-10T00:47:08Z
+F-INT ctrl plants: 21 of 492
+[ok] mutant pub-sid-valid-set-first (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sid-halves-swapped (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+[ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+[ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+[ok] mutant pub-sink-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant model-pub-sid-not-gated (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant model-pub-hole-takes-a-write (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, BINDING BOUND and SID_VALID only, per interface and sink
+[ok] mutant model-pub-every-sink-reads-entry-0 (model): 6 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 10 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 27 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 21 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 12 check(s) failed
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+[ok] mutant pub-maap-gate-after-the-report (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 20 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 11 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 21 of 21 caught
+fint_plants ctrl: PASS
+# end: 2026-10-10T00:48:17Z rc=0

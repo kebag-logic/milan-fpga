@@ -1,0 +1,11 @@
+# files changed 7c1b52be..25bbe4d9 outside docs/, tb/, sw/firmware/ctrl/, sw/mailbox/, hdl/milan/mailbox/
+sw/litex/milan_soc.py
+# milan_soc.py hunks
+@@ -2514 +2514,4 @@ class CtrlMailbox(LiteXModule):
+@@ -2533,0 +2537,4 @@ class CtrlMailbox(LiteXModule):
+@@ -2552 +2559,11 @@ class CtrlMailbox(LiteXModule):
+# default-path guard
+2486:_CTRL_MAILBOX_SOURCES = [
+2504:class CtrlMailbox(LiteXModule):
+2573:def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
+3343:        if ctrl_mailbox:
