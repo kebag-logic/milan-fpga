@@ -75,6 +75,41 @@ clock; the run legs also give their CPU seconds.
 The gmstep leg's seven runs cost the time.
 Each run grew by the #621 phase, about 205 s.
 
+At the split head `0e3eef5b`, each suite ran in its own clean checkout, the
+two started together on the same host. Seconds of wall clock, with CPU seconds
+in brackets:
+
+| `milan_dp` leg | Head `83239549` | Split head `0e3eef5b` |
+|---|---:|---:|
+| `gptp` build and run | 179.6 (215.7) | 165.0 (199.1) |
+| `gptp-lat` build and run | 185.1 (221.9) | 153.2 (183.3) |
+| `gmstep` build and clean run | 316.8 (348.5) | moved |
+| twelve ordinary builds | 552.4 (992.7) | 539.3 (927.1) |
+| `sim_pool`, twelve ordinary legs | 748.3 (900.1) | 728.9 (871.1) |
+| `render_mutants.py` | 586.2 (727.2) | 537.3 (666.0) |
+| `gmstep_mutants.py` | 1555.0 | moved |
+| whole suite, `make` start to end | 4126.6 | 2124.4 |
+
+| `milan_dp_gm_steps` leg at `0e3eef5b` | Seconds |
+|---|---:|
+| `gmstep` build | 46.2 (81.6) |
+| `gmstep` clean run, every phase | 216.8 (215.9) |
+| `gmstep_mutants.py`: five control builds | 233.5 (409.9) |
+| `gmstep_mutants.py`: six runs without the #621 phase, and its own work | 243.8 |
+| whole suite, `make` start to end | 741.0 |
+
+The host was less loaded during this pair, so the unchanged legs ran 2 to 17%
+faster than in the first pair. The hosted projection below therefore removes the
+gmstep share measured in the first pair rather than using the split-head total.
+
+**Hosted projection.** The six dev pushes from run 37968528697 to run
+38067159953 took 2972.7 to 3519.6 s for `milan_dp`, 1.036 to 1.226 times this
+host's base total. At 1.226 the #621 head projects to 5060 s: both hosted runs
+of it timed out at 4800 s. The gmstep leg and its controls were 627.3 s of the
+2870.1 s base total, 21.9%. Without them those six windows become 2323 to
+2750 s, at most 57.3% of 4800 s. This suite projects to 741.0 x 1.226 = 909 s,
+50.5% of its 1800 s budget. Hosted runs confirm or replace these figures.
+
 ## Running
 
 ```sh

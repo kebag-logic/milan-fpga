@@ -298,7 +298,11 @@ default worker with the most headroom: its jobs took 459 to 680 s in those six r
 The new suite keeps the 1800 s default budget. The clean leg runs every
 phase once; the controls run without the #621 phase, which holds none of
 their named checks. Its README records the native per-leg times at base,
-at the #621 head and at the split head.
+at the #621 head and at the split head. Natively the leg and its controls
+were 21.9% of `milan_dp` at base. Removed from the six dev windows above,
+that projects `milan_dp` to 2323 to 2750 s, at most 57.3% of 4800 s. The
+new suite projects to about 909 s, 50.5% of 1800 s. Hosted runs at the
+pushed head confirm or replace both projections.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
