@@ -1,0 +1,35 @@
+GNU Make 4.3
+make: Entering directory '<scratch>/probe/tb/verilator/maap'
+python3 -I -c 'import subprocess,sys; r=subprocess.run(["make","-j8","-s","-C",sys.argv[1],"integration-build","MAAP_RTL="+sys.argv[1]+"/../../../hdl/ieee1722/maap/KL_maap.sv","DP_MDIR="+sys.argv[2],"VERILATOR="+sys.argv[3],"VERILATOR_JOBS=0"],capture_output=True,text=True); print(r.stdout[-1500:]+r.stderr[-1500:]); print("integration-build rc=%d" % r.returncode)' <scratch>/probe/tb/verilator/maap <scratch>/obj_chain43_fixed $VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+make[1]: Entering directory '<scratch>/probe/tb/verilator/maap'
+make[2]: Entering directory '<scratch>/probe/tb/verilator/maap'
+wrote <scratch>/obj_chain43_fixed/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<scratch>/obj_chain43_fixed/ucode.hex: 2048 words, 89 programs
+make[3]: Entering directory '<scratch>/probe/tb/verilator/maap'
+make[3]: Leaving directory '<scratch>/obj_chain43_fixed'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 147.874 MB sources in 118 modules, into 13.957 MB in 23 C++ files needing 0.006 MB
+- Verilator: Walltime 74.768 s (elab=0.511, cvt=4.153, bld=69.556); cpu 5.382 s on 16 threads; allocated 1379.297 MB
+make[2]: Leaving directory '<scratch>/probe/tb/verilator/maap'
+make[1]: Leaving directory '<scratch>/probe/tb/verilator/maap'
+          : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:3486:10: ... Location of async usage
+ 3486 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:773:10: ... Location of sync usage
+  773 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[3]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+
+integration-build rc=0
+make: Leaving directory '<scratch>/probe/tb/verilator/maap'
+top rc=0

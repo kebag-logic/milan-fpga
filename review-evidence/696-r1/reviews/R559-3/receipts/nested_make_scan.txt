@@ -1,0 +1,20 @@
+make files scanned: 128
+ok      tb/verilator/capture_coherence/Makefile:101:DP_SRCS  := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
+ok      tb/verilator/capture_coherence/Makefile:105:DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-dp-vflags)
+ok      tb/verilator/maap/integration.mk:8:DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+ok      tb/verilator/maap/integration.mk:15:DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
+ok      tb/verilator/milan_dp_mclk/Makefile:62:SRCS_DP := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
+ok      tb/verilator/milan_dp_mclk/Makefile:70:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+ok      tb/verilator/milan_dp_render/Makefile:86:SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
+ok      tb/verilator/milan_dp_render/Makefile:91:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+ok      tb/verilator/pp_shadow/Makefile:107:DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+--- non-recipe, non-comment lines naming make (review by eye):
+tb/verilator/capture_coherence/Makefile:101:DP_SRCS  := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
+tb/verilator/capture_coherence/Makefile:105:DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-dp-vflags)
+tb/verilator/maap/integration.mk:8:DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+tb/verilator/maap/integration.mk:15:DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
+tb/verilator/milan_dp_mclk/Makefile:62:SRCS_DP := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
+tb/verilator/milan_dp_mclk/Makefile:70:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/milan_dp_render/Makefile:86:SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
+tb/verilator/milan_dp_render/Makefile:91:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/pp_shadow/Makefile:107:DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
