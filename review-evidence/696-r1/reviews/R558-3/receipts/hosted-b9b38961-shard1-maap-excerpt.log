@@ -1,0 +1,16 @@
+source: run 38027027728 (rtl-full, head b9b389611304850ea435b2056887568afe5e6bf4, merge-ref TARGET_SHA 98be85e70e3808c8e13eb665623357b74fe90eed), job 114140492769 'Verilator shard 1/5' (conclusion failure, completed 2026-10-10T07:09:33Z), artifact suite-logs-1 (id 11662447870), file maap.log; excerpt
+246:KL_maap: 172 checks, 0 failures
+347:make[2]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+348:integration.mk:13: *** datapath source list names non-files: make[2]:.  Stop.
+351:[ESCAPED] m4_datapath_clean: compilation failed
+356:make[2]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+357:integration.mk:13: *** datapath source list names non-files: make[2]:.  Stop.
+360:[ESCAPED] m4_reset_time_sampling: compilation failed
+365:make[2]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+366:integration.mk:13: *** datapath source list names non-files: make[2]:.  Stop.
+369:[ESCAPED] m5_datapath_ignores_link: compilation failed
+374:make[2]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+375:integration.mk:13: *** datapath source list names non-files: make[2]:.  Stop.
+378:[ESCAPED] m3_datapath_ignores_clock: compilation failed
+379:== maap mutants: checks: 52   failures: 4 ==
+380:make: *** [Makefile:38: mutants] Error 1

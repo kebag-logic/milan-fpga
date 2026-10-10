@@ -1,0 +1,37 @@
+source: run 38021886237 (rtl-full, head f909d6c460344527f102f24b8e7a77f09959e755, merge-ref TARGET_SHA 6acefec8fd7b668712000e6923058f2308b2a3a2), job 114124653499 'Verilator shard 1/5', artifact suite-logs-1 (id 11659834749), file maap.log; excerpt
+246:KL_maap: 172 checks, 0 failures
+377:%Error: Cannot find file containing module: 'Entering'
+378:%Error: Cannot find file containing module: 'directory'
+379:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/maap'
+380:%Error: Cannot find file containing module: 'Leaving'
+381:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+382:%Error: Exiting due to 6 error(s)
+386:[ESCAPED] m4_datapath_clean: compilation failed
+420:%Error: Cannot find file containing module: 'Entering'
+421:%Error: Cannot find file containing module: 'directory'
+422:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/maap'
+423:%Error: Cannot find file containing module: 'Leaving'
+424:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+425:%Error: Exiting due to 6 error(s)
+429:[ESCAPED] m4_reset_time_sampling: compilation failed
+463:%Error: Cannot find file containing module: 'Entering'
+464:%Error: Cannot find file containing module: 'directory'
+465:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/maap'
+466:%Error: Cannot find file containing module: 'Leaving'
+467:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+468:%Error: Exiting due to 6 error(s)
+472:[ESCAPED] m5_datapath_ignores_link: compilation failed
+506:%Error: Cannot find file containing module: 'Entering'
+507:%Error: Cannot find file containing module: 'directory'
+508:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/maap'
+509:%Error: Cannot find file containing module: 'Leaving'
+510:%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+511:%Error: Exiting due to 6 error(s)
+515:[ESCAPED] m3_datapath_ignores_clock: compilation failed
+516:== maap mutants: checks: 52   failures: 4 ==
+--- job log summary
+2026-10-10T03:52:12.0828701Z shard: 1/5   selected suites: 23
+2026-10-10T04:34:16.5483544Z FAIL     maap
+2026-10-10T04:58:09.8825173Z suites: 23   passed: 22   failed: 1   timed out: 0
+2026-10-10T04:58:10.0658548Z checks: 197745   in-suite failures: 4
+2026-10-10T04:58:10.0704404Z failing suites: maap

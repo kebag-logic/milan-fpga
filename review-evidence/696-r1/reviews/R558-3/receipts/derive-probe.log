@@ -1,0 +1,29 @@
+head=b9b389611304850ea435b2056887568afe5e6bf4 make=GNU Make 4.4.1
+worktree integration.mk == HEAD blob
+--- 1. head (byte-identical copy + probe target)
+== head-plain MAKEFLAGS='' rc=0
+SRCS-WORDS=114 NONFILE=[] FLAGS-WORDS=39
+== head-w MAKEFLAGS='w' rc=0
+SRCS-WORDS=114 NONFILE=[] FLAGS-WORDS=39
+--- 2. pre-fix f909d6c4 form: the hosted pollution reproduces under MAKEFLAGS=w
+== old-plain MAKEFLAGS='' rc=0
+SRCS-WORDS=114 NONFILE=[] FLAGS-WORDS=39
+== old-w MAKEFLAGS='w' rc=0
+SRCS-WORDS=122 NONFILE=[make[1]: Entering directory '$REVIEWS/r558-3-696/tb/verilator/milan_dp' make[1]: Leaving directory '$REVIEWS/r558-3-696/tb/verilator/milan_dp'] FLAGS-WORDS=47
+--- 3. guard alone (flag removed), MAKEFLAGS=w: guard must refuse
+== noflag-w MAKEFLAGS='w' rc=2
+$REVIEWS/696-r558-3-packet/scratch/derive/noflag.mk:13: *** datapath source list names non-files: make[1]:.  Stop.
+--- 4. guard vs injected non-file word / directory / glob / empty list
+== inject-word MAKEFLAGS='' rc=2
+$REVIEWS/696-r558-3-packet/scratch/derive/word.mk:13: *** datapath source list names non-files: not_a_source_file.sv.  Stop.
+== inject-dir MAKEFLAGS='' rc=0
+SRCS-WORDS=115 NONFILE=[../milan_dp] FLAGS-WORDS=39
+== inject-glob MAKEFLAGS='' rc=2
+$REVIEWS/696-r558-3-packet/scratch/derive/glob.mk:13: *** datapath source list names non-files: ../../../hdl/ieee1722/maap/*.sv.  Stop.
+== inject-empty MAKEFLAGS='' rc=0
+SRCS-WORDS=0 NONFILE=[] FLAGS-WORDS=39
+--- 5. DP_SRCS overridden on the command line with a non-file word (head)
+== cmdline-override MAKEFLAGS='' rc=2
+$REVIEWS/696-r558-3-packet/scratch/derive/head.mk:13: *** datapath source list names non-files: not_a_file.  Stop.
+--- 6. observation: an outer 'make -n' reaches the nested capture (head suite entry)
+integration.mk:13: *** datapath source list names non-files: echo.  Stop.

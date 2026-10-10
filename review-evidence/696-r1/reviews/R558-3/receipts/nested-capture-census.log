@@ -1,0 +1,57 @@
+# every $(shell ... make ...) capture in tracked Makefiles/.mk (excluding submodules)
+tb/verilator/capture_coherence/Makefile:101:DP_SRCS  := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
+tb/verilator/capture_coherence/Makefile:105:DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-dp-vflags)
+tb/verilator/maap/integration.mk:8:DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+tb/verilator/maap/integration.mk:15:DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
+tb/verilator/milan_dp_mclk/Makefile:62:SRCS_DP := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
+tb/verilator/milan_dp_mclk/Makefile:70:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/milan_dp_render/Makefile:86:SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
+tb/verilator/milan_dp_render/Makefile:91:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/pp_shadow/Makefile:107:DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+# captures lacking --no-print-directory:
+(none)
+# same search across all submodules
+# broader: != assignments, backticks, and print-* target consumers in Makefiles/.mk
+tb/verilator/capture_coherence/Makefile:94:# directory flag it inherits (GNU make 4.3 hands a `make -C` recipe
+tb/verilator/milan_dp_mclk/Makefile:46:# make 4.3 hands a `make -C` recipe MAKEFLAGS=w, which reaches the nested
+tb/verilator/milan_dp_mclk/Makefile:47:# `make mclk-build` mclk_mutants.py runs: on the hosted runner the schemata
+tb/verilator/milan_dp_mclk/Makefile:51:# flags to $(shell), so `make -pqrR` (scripts/shape_consumer_inventory.py's
+tb/verilator/capture_coherence/Makefile:88:# elaboration flag set are tb/verilator/milan_dp's own (print-srcs,
+tb/verilator/capture_coherence/Makefile:89:# print-dp-vflags), so this leg elaborates the same gateware that suite does;
+tb/verilator/capture_coherence/Makefile:101:DP_SRCS  := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
+tb/verilator/capture_coherence/Makefile:103:$(error $(DP_DIR) print-srcs failed; the datapath source list could not be derived)
+tb/verilator/capture_coherence/Makefile:105:DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-dp-vflags)
+tb/verilator/capture_coherence/Makefile:107:$(error $(DP_DIR) print-dp-vflags failed; the elaboration flag set could not be derived)
+tb/verilator/maap/integration.mk:8:DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+tb/verilator/maap/integration.mk:15:DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
+tb/verilator/milan_dp_mclk/Makefile:52:# database read) ran the nested make in question mode, print-srcs failed
+tb/verilator/milan_dp_mclk/Makefile:62:SRCS_DP := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
+tb/verilator/milan_dp_mclk/Makefile:64:$(error $(DP) print-srcs failed; the datapath source list could not be derived)
+tb/verilator/milan_dp_mclk/Makefile:70:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/milan_dp_mclk/Makefile:72:$(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
+tb/verilator/milan_dp_render/Makefile:71:# tb/verilator/milan_dp exports the datapath source list (`print-srcs`, which
+tb/verilator/milan_dp_render/Makefile:73:# (`print-dp-vflags`). Copying either here would be a second hand-maintained
+tb/verilator/milan_dp_render/Makefile:86:SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs \
+tb/verilator/milan_dp_render/Makefile:89:$(error $(DP) print-srcs failed; the datapath source list could not be derived)
+tb/verilator/milan_dp_render/Makefile:91:DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+tb/verilator/milan_dp_render/Makefile:93:$(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
+tb/verilator/pp_shadow/Makefile:107:DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+tb/verilator/pp_shadow/Makefile:109:$(error ../milan_dp print-srcs failed; the datapath source list could not be derived)
+# non-Makefile consumers of print-* targets (context only)
+scripts/check_rtl_source_lists.py:40:own expansion (`make -s print-srcs`, `syn/yosys/run.sh --emit`,
+scripts/check_rtl_source_lists.py:54:diagnosed defect - `print-srcs` having become a makefile's default goal, so a
+scripts/check_rtl_source_lists.py:274:    Adding a `print-srcs` target ABOVE a makefile's first real target makes it
+scripts/check_rtl_source_lists.py:278:    happened here when print-srcs was first added to a Verilator suite.
+scripts/check_rtl_source_lists.py:293:    return out.strip().splitlines()[-1].strip() == "print-srcs"
+scripts/check_rtl_source_lists.py:297:    """`make -s print-srcs` in the suite directory. A copy of the Makefile is
+scripts/check_rtl_source_lists.py:304:    text, err = _run(["make", "-s", "-f", str(mk), "print-srcs"], d)
+scripts/check_rtl_source_lists.py:314:                      f"instead of running the suite - print-srcs has become the "
+scripts/check_rtl_source_lists_selftest.py:236:            ".PHONY: all print-srcs\nall:\n\t@echo ran\nprint-srcs:\n\t@echo a.sv\n")
+scripts/check_rtl_source_lists_selftest.py:239:            ".PHONY: all print-srcs\nprint-srcs:\n\t@echo a.sv\nall:\n\t@echo ran\n")
+scripts/check_rtl_source_lists_selftest.py:242:            ".PHONY: all print-srcs\nall:\n\t@echo ran\nprint-srcs:\n\t@false\n")
+scripts/check_rtl_source_lists_selftest.py:245:        ck("print-srcs as the default goal is caught",
+scripts/entity_shape_selftest.py:437:            failed.returncode != 0 and "../milan_dp print-srcs failed" in failed.stderr,
+sw/builder/test_builder.py:12270:            ["make", "-s", "print-srcs"], cwd=suite,
+tb/verilator/milan_dp/gmstep_mutants.py:254:    the Makefile's SRCS (`make print-srcs`), the leg's harness and the
+tb/verilator/milan_dp/gmstep_mutants.py:258:    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
+tb/verilator/pp_shadow/pending_mutant.py:54:        listing = subprocess.run(["make", "-s", "-C", "../milan_dp", "print-srcs"],
