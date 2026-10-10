@@ -900,10 +900,11 @@ implicit `.name` ports, and a function's return. The idle
 slope's one read is status, for LWSRP_SLOPE: no shaper consumes it, and the
 block carries it as ruled. The census covers the class-D face and the started
 level. The wrapper's other faces the datapath reads (its AECP settings, and
-its counter and audio-map requests) belong to AECP. F5's owner now holds those
-values and hands them to the platform through its `changed`, `format` and
-`counters` ports (`aecp.h`). The placement switch must give each face a
-split-build source from them.
+its counter and audio-map requests) belong to AECP. F5's owner now holds the
+settings and the audio maps, and reaches the platform through its ports
+(`aecp.h`): `changed` to apply a setting or a map, `format` for the
+SET_STREAM_FORMAT verdict, `counters` to read the counters. The placement
+switch must connect each face to the split build through them.
 
 Interface i's block starts at `0x800 + 0x200 * i`: the five interface
 registers, then sink k's entry at `+0x100 + 0x10 * k`. Every register resets
