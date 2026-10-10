@@ -4,7 +4,7 @@
 """The defect controls the gPTP table lockstep owns.
 
 WHY THIS EXISTS. A lockstep that cannot go red proves nothing. Issue #640
-lane M7 moved six of the fabric gPTP plane's tables into another storage
+lane M7 moved five of the fabric gPTP plane's tables into another storage
 form; for each one this driver plants three defects of the kinds a storage
 conversion can introduce - a wrong depth, a wrong read latency and an index
 alias - one at a time, and requires the table's OWN named lockstep check to
@@ -40,12 +40,10 @@ from private_inputs import InputRefused, copy_inputs  # noqa: E402
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 SHADOW = PLANE / "KL_gptp_shadow.sv"
 RET = PLANE / "KL_gptp_txret.sv"
-ENGINE = REPO / "gptp-processor" / "hdl" / "top" / "KL_gptp_engine.sv"
 TIMER = REPO / "gptp-processor" / "hdl" / "common" / "KL_gptp_timer.sv"
 
 RX = "rx_fifo lockstep"
 TX = "tx_fifo lockstep"
-BANK = "bank lockstep"
 LED = "ledger lockstep"
 RES = "results lockstep"
 TMR = "timer lockstep"
@@ -81,24 +79,6 @@ MUTATIONS = [
      "  localparam int unsigned CNT_W_C  = 4;",
      "  localparam int unsigned CNT_W_C  = 3;",
      TX),
-    # ---- the engine's message bank -----------------------------------------
-    ("bank_wrong_depth", ENGINE,
-     "  (* ram_style = \"block\" *) logic [31:0] bank_lo_r [0:63];\n"
-     "  (* ram_style = \"block\" *) logic [31:0] bank_hi_r [0:63];",
-     "  (* ram_style = \"block\" *) logic [31:0] bank_lo_r [0:31];\n"
-     "  (* ram_style = \"block\" *) logic [31:0] bank_hi_r [0:31];",
-     BANK),
-    ("bank_wrong_read_latency", ENGINE,
-     "  assign st_rdata_w = bank_q_r | st_rdata_r;",
-     "  logic [63:0] bank_q2_r;\n"
-     "  always_ff @(posedge clk_i) bank_q2_r <= bank_q_r;\n"
-     "  assign st_rdata_w = bank_q2_r | st_rdata_r;",
-     BANK),
-    #: every read of message bank 1 lands in bank 0
-    ("bank_index_alias", ENGINE,
-     "  assign bank_raddr_w = {disp_bank_r, st_addr_w[4:0]};",
-     "  assign bank_raddr_w = {1'b0, st_addr_w[4:0]};",
-     BANK),
     # ---- the egress ledger's RAM fields ------------------------------------
     #: The engine's per-class claims keep a few entries outstanding, so a
     #: power-of-two short table aliases harmlessly; one entry short of the

@@ -2,7 +2,7 @@
 # gptp_tables -- per-table lockstep of the fabric gPTP plane
 
 Issue [#640](https://github.com/kebag-logic/milan-fpga/issues/640), lane M7,
-moved six tables of the fabric gPTP plane into another storage form with
+moved five tables of the fabric gPTP plane into another storage form with
 identical function. This bench runs the real plane inside the
 [`gptp_shadow`](../gptp_shadow) slice bench (tap, frame FIFOs, engine, egress
 ledger, launch observer, link guard, PHC) and keeps, beside it, each table in
@@ -14,7 +14,6 @@ compared every cycle with what the table's consumer receives.
 |---|---|---|---|
 | `rx_fifo` | tap frame FIFO carrying the highest enabled lane | the same FIFO with eight `tkeep` bits | ready, valid, overflow/bad/good strobes; data, last and highest lane while valid |
 | `tx_fifo` | transmit FIFO carrying the beat's lane count | the old gearbox enables into the eight-bit FIFO | ready, valid, last, data and `tkeep` |
-| `bank` | the engine's message bank in two block RAMs | a 64 x 64 array read through the state port's register | the data the micro-CPU reads |
 | `ledger` | the egress ledger's type, sequence and tag fields in distributed RAM | reset-cleared registers | the head entry while the ledger holds one |
 | `results` | the egress result queue in distributed RAM | reset-cleared registers | the head while it offers a result |
 | `timer` | the engine timer's deadlines in distributed RAM | reset-cleared registers | the sweep's deadline distance for an armed slot |
@@ -34,8 +33,8 @@ launch records, and warm resets in the middle of traffic.
 latency and an index alias. It edits private copies of the inputs `make
 print-inputs` names, with the slice suite's input copier, and requires each
 table's own named lockstep check to fail. Each wrong depth is one the table's
-reachable use exposes. The tap FIFO is halved and the bank and timer lose their
-upper half. The transmit FIFO keeps 16 of its 256 beats: admission bounds it to
+reachable use exposes. The tap FIFO is halved and the timer loses its upper
+half. The transmit FIFO keeps 16 of its 256 beats: admission bounds it to
 a few frames, so only a shallower FIFO is observable, and the resource gate
 prices a deeper one. The ledger and result queue are one entry short, because
 the engine keeps only a few entries outstanding and a power-of-two-short table

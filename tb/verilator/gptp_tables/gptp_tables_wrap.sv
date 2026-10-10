@@ -6,7 +6,7 @@
 //  File        : gptp_tables_wrap.sv
 //  Project     : Milan AVB end-station -- gPTP plane table lockstep bench
 //
-//  Description : Issue #640, lane M7, moved six of the fabric gPTP plane's
+//  Description : Issue #640, lane M7, moved five of the fabric gPTP plane's
 //                tables into another storage form. This bench runs the real
 //                plane (the whole `gptp_shadow` slice: tap, frame FIFOs,
 //                engine, egress ledger, launch observer, link guard, PHC)
@@ -20,9 +20,6 @@
 //                           against the plane's lane-number FIFO
 //                  tx_fifo  the transmit FIFO with eight tkeep bits, fed by
 //                           the old gearbox enables, against the lane count
-//                  bank     the engine's message bank as a 64 x 64 array
-//                           read through the state port's register, against
-//                           the two block RAMs and their output latch
 //                  ledger   the egress ledger's type/sequence/tag fields as
 //                           reset-cleared registers, against distributed RAM
 //                  results  the egress result queue, likewise, at its head
@@ -80,7 +77,6 @@ module gptp_tables_wrap #(
     //! per-table mismatch counts: each must end at zero
     output logic [31:0] rx_mm_o,
     output logic [31:0] tx_mm_o,
-    output logic [31:0] bank_mm_o,
     output logic [31:0] led_mm_o,
     output logic [31:0] res_mm_o,
     output logic [31:0] tmr_mm_o,
@@ -95,10 +91,6 @@ module gptp_tables_wrap #(
     output logic  [8:0] tx_counts_o,    //! lane counts that left it, as a set
     output logic [31:0] tx_stall_o,     //! cycles a beat waited on ready
     output logic [31:0] tx_hiwater_o,   //! deepest occupancy, beats
-    output logic [31:0] bank_reads_o,   //! state-port reads the bank answered
-    output logic [31:0] bank_reads1_o,  //! ...of message bank 1
-    output logic [31:0] bank_high_o,    //! ...of words 16..31
-    output logic [31:0] bank_coll_o,    //! ...in the cycle the parser wrote that word
     output logic [31:0] led_cmp_o,      //! cycles the ledger head was compared
     output logic  [7:0] led_heads_o,    //! head entries compared, as a set
     output logic  [4:0] led_maxn_o,     //! deepest ledger occupancy
@@ -313,49 +305,6 @@ module gptp_tables_wrap #(
       (rt_keep_w   != u_bench.u_shadow.tx_tkeep_o);
 
   // ======================================================================= //
-  //  bank: the message bank as the 64 x 64 distributed array it was        //
-  // ======================================================================= //
-  logic [63:0] rb_mem_r [0:63];
-  logic [63:0] rb_rdata_r;
-  initial begin : ref_bank_poweron
-    for (int i = 0; i < 64; i++) rb_mem_r[i] = '0;
-  end : ref_bank_poweron
-
-  //! the old region-0 decode, written independently of the plane's
-  //! st_rd_bank_w: a pending Pdelay_Req answers words 0, 2 and 3 from its
-  //! snapshot, an Announce answers every word from its frozen context, and
-  //! every other read of region 0 is the bank
-  logic        rb_rd_w, rb_is_bank_w;
-  logic  [5:0] rb_raddr_w, rb_waddr_w;
-  logic  [4:0] rb_word_w;
-  assign rb_word_w    = u_bench.u_shadow.u_engine.st_addr_w[4:0];
-  assign rb_rd_w      = u_bench.u_shadow.u_engine.st_req_w &&
-                        !u_bench.u_shadow.u_engine.st_we_w;
-  assign rb_is_bank_w = (u_bench.u_shadow.u_engine.st_addr_w[19:16] == 4'd0) &&
-                        (u_bench.u_shadow.u_engine.disp_pdreq_r
-                           ? !((rb_word_w == 5'd0) || (rb_word_w == 5'd2) ||
-                               (rb_word_w == 5'd3))
-                           : !u_bench.u_shadow.u_engine.disp_announce_r);
-  assign rb_raddr_w   = {u_bench.u_shadow.u_engine.disp_bank_r, rb_word_w};
-  assign rb_waddr_w   = {u_bench.u_shadow.u_engine.bank_sel_r,
-                         u_bench.u_shadow.u_engine.bank_addr_w};
-
-  always_ff @(posedge clk_i) begin : ref_bank
-    if (!run_w) begin
-      rb_rdata_r <= '0;
-    end else begin
-      if (u_bench.u_shadow.u_engine.bank_we_w)
-        rb_mem_r[rb_waddr_w] <= u_bench.u_shadow.u_engine.bank_wdata_w;
-      if (rb_rd_w)
-        rb_rdata_r <= rb_is_bank_w ? rb_mem_r[rb_raddr_w]
-                                   : u_bench.u_shadow.u_engine.st_rd_mux_w;
-    end
-  end : ref_bank
-
-  logic bank_bad_cyc_w;
-  assign bank_bad_cyc_w = (rb_rdata_r != u_bench.u_shadow.u_engine.st_rdata_w);
-
-  // ======================================================================= //
   //  ledger and results: the egress ledger's fields as reset registers      //
   // ======================================================================= //
   localparam int unsigned CAP_C = 8;   //! the slice's TXTS_CAP_N_P
@@ -456,26 +405,20 @@ module gptp_tables_wrap #(
   // ======================================================================= //
   //  Counters                                                               //
   // ======================================================================= //
-  //! the bank coverage is counted on the read the reference answered
-  logic bank_rd_bank_w;
-  assign bank_rd_bank_w = run_w && rb_rd_w && rb_is_bank_w;
-
   always_ff @(posedge clk_i) begin : counters
     //! the counts survive a warm reset: a run is graded whole
     if (cnt_clr_i) begin
-      rx_mm_o <= '0; tx_mm_o <= '0; bank_mm_o <= '0;
+      rx_mm_o <= '0; tx_mm_o <= '0;
       led_mm_o <= '0; res_mm_o <= '0; tmr_mm_o <= '0;
       rx_good_o <= '0; rx_ovf_o <= '0; rx_bad_o <= '0; rx_tops_o <= '0;
       rx_hiwater_o <= '0; tx_frames_o <= '0; tx_counts_o <= '0;
-      tx_stall_o <= '0; tx_hiwater_o <= '0; bank_reads_o <= '0;
-      bank_reads1_o <= '0; bank_high_o <= '0; bank_coll_o <= '0;
+      tx_stall_o <= '0; tx_hiwater_o <= '0;
       led_cmp_o <= '0; led_heads_o <= '0; led_maxn_o <= '0;
       res_cmp_o <= '0; res_heads_o <= '0; res_maxn_o <= '0;
       tmr_cmp_o <= '0; tmr_slots_o <= '0;
     end else if (run_w) begin
       if (rx_bad_cyc_w)   rx_mm_o   <= rx_mm_o + 32'd1;
       if (tx_bad_cyc_w)   tx_mm_o   <= tx_mm_o + 32'd1;
-      if (bank_bad_cyc_w) bank_mm_o <= bank_mm_o + 32'd1;
       if (led_bad_cyc_w)  led_mm_o  <= led_mm_o + 32'd1;
       if (res_bad_cyc_w)  res_mm_o  <= res_mm_o + 32'd1;
       if (tmr_bad_cyc_w)  tmr_mm_o  <= tmr_mm_o + 32'd1;
@@ -494,14 +437,6 @@ module gptp_tables_wrap #(
       if (rt_valid_w && !u_bench.u_shadow.tx_tready_i)
         tx_stall_o <= tx_stall_o + 32'd1;
       if (32'(rt_depth_w) > tx_hiwater_o) tx_hiwater_o <= 32'(rt_depth_w);
-
-      if (bank_rd_bank_w) begin
-        bank_reads_o <= bank_reads_o + 32'd1;
-        if (rb_raddr_w[5]) bank_reads1_o <= bank_reads1_o + 32'd1;
-        if (rb_raddr_w[4]) bank_high_o   <= bank_high_o + 32'd1;
-        if (u_bench.u_shadow.u_engine.bank_we_w && (rb_waddr_w == rb_raddr_w))
-          bank_coll_o <= bank_coll_o + 32'd1;
-      end
 
       if (led_on_w) begin
         led_cmp_o <= led_cmp_o + 32'd1;

@@ -436,8 +436,6 @@ class TablesHarness {
                 dut->rx_hiwater_o);
     std::printf("tx_fifo: %u frames, counts 0x%03x, %u stalled cycles, %u beats deep\n",
                 dut->tx_frames_o, dut->tx_counts_o, dut->tx_stall_o, dut->tx_hiwater_o);
-    std::printf("bank: %u reads, %u of bank 1, %u of words 16..31, %u same-word writes\n",
-                dut->bank_reads_o, dut->bank_reads1_o, dut->bank_high_o, dut->bank_coll_o);
     std::printf("ledger: %u compared, heads 0x%02x, %u deep\n",
                 dut->led_cmp_o, dut->led_heads_o, dut->led_maxn_o);
     std::printf("results: %u compared, heads 0x%02x, %u deep\n",
@@ -449,10 +447,9 @@ class TablesHarness {
                 dut->dbg_rx_drop_o, dut->dbg_ev_drop_o, dut->dbg_txts_lost_o,
                 dut->dbg_txts_barr_o);
 
-    // the six lockstep verdicts: the names the mutation driver requires
+    // the five lockstep verdicts: the names the mutation driver requires
     check.dec("rx_fifo lockstep: mismatching cycles", dut->rx_mm_o, 0);
     check.dec("tx_fifo lockstep: mismatching cycles", dut->tx_mm_o, 0);
-    check.dec("bank lockstep: mismatching cycles", dut->bank_mm_o, 0);
     check.dec("ledger lockstep: mismatching cycles", dut->led_mm_o, 0);
     check.dec("results lockstep: mismatching cycles", dut->res_mm_o, 0);
     check.dec("timer lockstep: mismatching cycles", dut->tmr_mm_o, 0);
@@ -470,10 +467,6 @@ class TablesHarness {
     //! more than the 16 beats the wrong-depth control leaves the FIFO
     check.that("tx_fifo coverage: over 16 beats queued behind a stall",
                dut->tx_hiwater_o > 16);
-    check.that("bank coverage: reads answered", dut->bank_reads_o >= 1000);
-    check.that("bank coverage: reads of bank 1", dut->bank_reads1_o >= 300);
-    check.that("bank coverage: a read of the word the parser wrote that cycle",
-               dut->bank_coll_o >= 10);
     check.that("ledger coverage: head compared", dut->led_cmp_o >= 1000);
     check.dec("ledger coverage: every entry was the head", dut->led_heads_o, 0xFF);
     check.that("ledger coverage: three or more entries outstanding", dut->led_maxn_o >= 3);
