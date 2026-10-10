@@ -109,7 +109,7 @@ Its deltas therefore inform planning, not a comparable gate verdict.
 
 These are the source-scope references of the gate's current record, [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [re-baseline of 2026-10-10](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696).
 It measured merge result `0df48637` of dev `8b61b709`, with processor `2ad2f845`.
-Only its route column differs from the baseline above; both standalone columns are equal.
+Against the baseline above, only the route figures changed; both standalone endpoints keep every figure.
 The levers and the ledger keep the baseline's route figures.
 The routed hierarchy is rebuilt and can absorb neighbouring logic.
 Use standalone scopes to estimate removable source functionality.
