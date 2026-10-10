@@ -1,0 +1,7 @@
+# reviewer estimate, NOT the product build: riscv64-elf-gcc 16.2.0 -march=rv32i -mabi=ilp32 -Os -std=gnu11, host-test stub headers with constant CSR/SPIFLASH bases, endstation_arty_current generated constants
+# base.c = e8454e27 milan_baremetal.c sha256 a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3
+# head.c = f54dbe3e milan_baremetal.c sha256 3b9468eebfba2cda8a6958c500086d26819cd52b4b504169cffbb60c579e6de6
+   text	   data	    bss	    dec	    hex	filename
+  12854	      4	     68	  12926	   327e	base.o
+  14374	      4	     76	  14454	   3876	head.o
+# delta: text +1520 B, bss +8 B

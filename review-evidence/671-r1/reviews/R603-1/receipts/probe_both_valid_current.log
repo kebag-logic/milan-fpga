@@ -1,0 +1,47 @@
+=== r_restage_fail_offers_none: 8 finding(s); {'cases': 304, 'held': 40, 'held_offered_older': 16}
+  O newer A at 0x5a5a5, fault a:0:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+  O newer A at 0x5a5a5, fault a:64:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+  O newer A at 0x0, fault a:0:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 4294967295; offered - seq 0 (VD_LEN)
+  O newer A at 0x0, fault a:64:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 4294967295; offered - seq 0 (VD_LEN)
+  O newer B at 0x5a5a5, fault b:0:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_OK seq 370084, slot B VD_LEN seq 0; offered - seq 0 (VD_OK)
+  O newer B at 0x5a5a5, fault b:64:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_OK seq 370084, slot B VD_LEN seq 0; offered - seq 0 (VD_OK)
+  O newer B at 0x0, fault b:0:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_LEN seq 0; offered - seq 0 (VD_OK)
+  O newer B at 0x0, fault b:64:3:3:8: held with the older slot read cleanly, yet nothing was offered: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_LEN seq 0; offered - seq 0 (VD_OK)
+=== head: 0 finding(s); {'cases': 304, 'held': 40, 'held_offered_older': 24, 'limit_faulty_boot': 'Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)', 'limit_held': False, 'limit_clean_reboot': 'Milan NVM: slot A VD_OK seq 1, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)', 'limit_change_survived': False}
+=== r_fill_from_flash: 36 finding(s); {'cases': 304, 'held': 40, 'held_offered_older': 24}
+  W newer A at 0x5a5a5, fault a:0:4:1:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x5a5a5, fault a:0:4:2:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x5a5a5, fault a:0:4:3:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x5a5a5, fault a:64:4:1:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x5a5a5, fault a:64:4:1:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer A at 0x5a5a5, fault a:64:4:2:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x5a5a5, fault a:64:4:2:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer A at 0x5a5a5, fault a:64:4:3:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x5a5a5, fault a:64:4:3:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer A at 0x0, fault a:0:4:1:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x0, fault a:0:4:2:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x0, fault a:0:4:3:8: the faulty boot offered A but its window reads VD_MAGIC / None
+  W newer A at 0x0, fault a:64:4:1:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x0, fault a:64:4:1:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer A at 0x0, fault a:64:4:2:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x0, fault a:64:4:2:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer A at 0x0, fault a:64:4:3:8: the faulty boot offered A but its window reads VD_CRC / None
+  S newer A at 0x0, fault a:64:4:3:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x5a5a5, fault b:0:4:1:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x5a5a5, fault b:0:4:2:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x5a5a5, fault b:0:4:3:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x5a5a5, fault b:64:4:1:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x5a5a5, fault b:64:4:1:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x5a5a5, fault b:64:4:2:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x5a5a5, fault b:64:4:2:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x5a5a5, fault b:64:4:3:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x5a5a5, fault b:64:4:3:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x0, fault b:0:4:1:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x0, fault b:0:4:2:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x0, fault b:0:4:3:8: the faulty boot offered B but its window reads VD_MAGIC / None
+  W newer B at 0x0, fault b:64:4:1:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x0, fault b:64:4:1:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x0, fault b:64:4:2:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x0, fault b:64:4:2:8: committed; the clean reboot restored d4e5f607, want 40414243
+  W newer B at 0x0, fault b:64:4:3:8: the faulty boot offered B but its window reads VD_CRC / None
+  S newer B at 0x0, fault b:64:4:3:8: committed; the clean reboot restored d4e5f607, want 40414243

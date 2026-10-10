@@ -1,0 +1,8 @@
+exact head: f54dbe3e393e2b1b027f1825c4acb736cf502cda tree 45b1132b81194df293752b67b27119aea99979dd
+base: e8454e2751d05b02ee8e5a571857589ab358ab86
+verilator: Verilator 5.050 2026-07-01 rev v5.050 (pinned scoped install, wrapper at $VALIDATION_TOOLS/pinned-verilator-5.050)
+python: Python 3.14.7
+host cc: gcc (GCC) 16.2.1 20260810
+rv32 cc (size estimate only): riscv64-elf-gcc 16.2.0
+firmware sha256 at head: 3b9468eebfba2cda8a6958c500086d26819cd52b4b504169cffbb60c579e6de6
+commands: make -C tb/verilator/nvm_cosim run JOBS=8 POOL=8 | python3 -B sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test | python3 -B scripts/check_nvm_capture.py | python3 -B scripts/docs_check.py
