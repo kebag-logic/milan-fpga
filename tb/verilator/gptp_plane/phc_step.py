@@ -59,6 +59,16 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
     if mutants:
         credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
         liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
+        unanswered = "asCapable falls at the third unanswered request after an unanswered crossing request"
+        # The timer program has no free ROM word, so the credit plant below
+        # displaces the Milan cease rule. Removing only that rule must pass.
+        cease = "    _tmr_cease_rule(p)\n"
+        step_credit = ('    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n'
+                       '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)\n'
+                       '    p.emit("BRS", cnd=BRS_Z, label="r571_skip")\n'
+                       '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
+                       '    p.label("r571_skip")\n')
+        arms.append(("nocease-control", plant(source, "nocease-control", "prog_tmr", cease, ""), None))
         defects = (
             ("stale-rate-window", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)\n',
              "", "asCapable never falls after step"),
@@ -68,10 +78,13 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
              "", "real excessive delay still clears asCapable"),
             # The two review rounds' plants delete the crossing exchange's
             # liveness credit through different anchors; both write the same
-            # generator text, so four distinct defects run.
+            # generator text, so five distinct defects run.
             ("liveness-not-marked", "prog_leg_pdepoch", credit, "", liveness),
             ("r571-no-liveness", None, credit + '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair',
              '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair', liveness),
+            # Credit a request that a PHC step overlapped, whether or not its
+            # exchange ever completed.
+            ("credit-on-step", "prog_tmr", cease, step_credit, unanswered),
         )
         for name, scope, old, new, assertion in defects:
             arms.append((name, plant(source, name, scope, old, new), assertion))
@@ -86,9 +99,12 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
         rc = invoke([str(binary)], directory, directory / "run.log")
         log = (directory / "run.log").read_text()
         if assertion is None:
-            print(log, end="", flush=True)
+            if name == "clean":
+                print(log, end="", flush=True)
             if rc != 0 or "RESULT: PASS" not in log:
-                raise RuntimeError("clean step regression failed")
+                raise RuntimeError(f"{name} step regression failed")
+            if name != "clean":
+                print(f"PASS control {name}: every check passes", flush=True)
         elif rc != 1 or f"[FAIL] {assertion}" not in log:
             raise RuntimeError(f"{name}: required runtime assertion did not reject the defect")
         else:

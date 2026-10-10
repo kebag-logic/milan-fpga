@@ -129,18 +129,26 @@ An answered crossing exchange still resets the lost-response count.
 
 The fourth unanswered request after it clears asCapable.
 
+An unanswered crossing request earns no liveness credit.
+
+The third unanswered request after it clears asCapable.
+
 ```sh
 make -C tb/verilator/gptp_plane phc-step
 make -C tb/verilator/milan_dp gmstep
 ```
 
-The first command includes five planted-defect controls.
+The first command includes six planted-defect controls.
 
-The two liveness controls plant the same deletion.
+The two credit-deletion controls plant the same deletion.
 
 Each comes from one review round.
 
-So four distinct defects run.
+So five distinct defects run.
+
+A positive control removes only the Milan cease rule.
+
+That deletion makes ROM room for the step-credit plant.
 
 The second checks uncertainty, public counters, and media continuity.
 

@@ -73,6 +73,7 @@ class Harness {
     exercise_crossing("deferred t1 after step", -10000000, 9000, 500, 20000);
     prove_real_failures();
     exercise_liveness();
+    exercise_unanswered_crossing();
     return check_.report();
   }
 
@@ -100,6 +101,7 @@ class Harness {
   uint64_t stamp_delay_cycles_ = 0;
   bool answer_ = true;
   bool silent_after_probe_ = false;
+  bool answer_probe_ = true;
   uint64_t unanswered_ = 0;
   uint64_t unanswered_at_drop_ = 0;
   Frame receiving_;
@@ -181,7 +183,7 @@ class Harness {
       probe_request_ = tx_cycle_; probe_seq_ = seq;
     }
     if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
-    if (!answer_) return;
+    if (!answer_ || !answer_probe_) return;
     const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
     const uint64_t t3 = t2 + kTurnNs;
     const uint64_t response_cycle = tx_cycle_ + (2 * link_ns_ + kTurnNs) / kTickNs;
@@ -322,14 +324,16 @@ class Harness {
     check_.dec("missing peer still clears asCapable", dut_->pub_flags_o & 4, 0);
   }
 
-  void exercise_liveness() {
-    // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
-    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
-    // that is answered, the fourth unanswered request, not the third,
-    // clears asCapable when the next interval judges it lost.
+  void requalify(const char* what) {
     answer_ = true;
     drive(4 * kHz);
-    check_.dec("liveness: answered exchanges requalify after silence", dut_->pub_flags_o & 4, 4);
+    check_.dec(what, dut_->pub_flags_o & 4, 4);
+  }
+
+  // A better grandmaster's +10 ms step lands between the next request's
+  // returned t1 and its response. The peer answers no later request, and
+  // that crossing request only when answer_crossing is set.
+  uint64_t silence_across_step(const char* name, bool answer_crossing) {
     const uint64_t target = last_request_cycle_ + kHz;
     if (target > cycle_ + 8000) drive(target - cycle_ - 8000);
     gm_id_ = gm_id_ == kGmA ? kGmB : kGmA;
@@ -338,22 +342,50 @@ class Harness {
     drops_ = bad_delays_ = low_ticks_ = unanswered_ = unanswered_at_drop_ = 0;
     probe_request_ = probe_response_ = probe_follow_up_ = probe_stamp_ = 0;
     monitor_ = silent_after_probe_ = true;
+    answer_probe_ = answer_crossing;
     gm_epoch_ns_ += 10000000;
     announce(); next_announce_ = cycle_ + kHz;
-    // The step lands between the crossing request's returned t1 and its response.
     next_sync_ = target + 200;
     drive(6 * kHz);
     monitor_ = silent_after_probe_ = false;
-    printf("ARM liveness drops=%llu unanswered=%llu unanswered_at_drop=%llu\n",
+    answer_probe_ = true;
+    printf("ARM %s drops=%llu unanswered=%llu unanswered_at_drop=%llu\n", name,
            static_cast<unsigned long long>(drops_), static_cast<unsigned long long>(unanswered_),
            static_cast<unsigned long long>(unanswered_at_drop_));
-    check_.dec("liveness: one grandmaster-driven step", steps_ - initial_steps, 1);
+    return steps_ - initial_steps;
+  }
+
+  void exercise_liveness() {
+    // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
+    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
+    // that is answered, the fourth unanswered request, not the third,
+    // clears asCapable when the next interval judges it lost.
+    requalify("liveness: answered exchanges requalify after silence");
+    check_.dec("liveness: one grandmaster-driven step", silence_across_step("liveness", true), 1);
     check_.that("liveness: step falls between returned t1 and response",
                 probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
     check_.dec("liveness: no invalid link-delay publication", bad_delays_, 0);
     check_.dec("liveness: asCapable falls once while the peer is silent", drops_, 1);
     check_.dec("asCapable falls at the fourth unanswered request after a crossing exchange",
                unanswered_at_drop_, 4);
+  }
+
+  void exercise_unanswered_crossing() {
+    // The same step, but the peer ignores the crossing request too. Without
+    // a response nothing resets lostResponses (11.2.19): that request is the
+    // first lost, so the third unanswered request after it clears asCapable.
+    requalify("unanswered crossing: answered exchanges requalify after silence");
+    check_.dec("unanswered crossing: one grandmaster-driven step",
+               silence_across_step("unanswered crossing", false), 1);
+    const uint64_t due = probe_request_ + (2 * link_ns_ + kTurnNs) / kTickNs;
+    check_.that("unanswered crossing: step falls between returned t1 and due response",
+                probe_stamp_ < last_step_cycle_ && last_step_cycle_ < due);
+    check_.that("unanswered crossing: crossing exchange never completes",
+                probe_response_ == 0 && probe_follow_up_ == 0);
+    check_.dec("unanswered crossing: no invalid link-delay publication", bad_delays_, 0);
+    check_.dec("unanswered crossing: asCapable falls once while the peer is silent", drops_, 1);
+    check_.dec("asCapable falls at the third unanswered request after an unanswered crossing request",
+               unanswered_at_drop_, 3);
   }
 };
 }
