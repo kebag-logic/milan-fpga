@@ -1,0 +1,57 @@
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+== MAAP core and parent wire differential: checks: 12   failures: 7 ==
+RESULT: FAIL
+[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant probe-1ms: MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant probe-500ms: MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant probe-600ms: MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+MAC/phase sampling reaches the parent's lowest draws
+  [FAIL] MaapDifferential.ProbeTimingAndCount: MAC/phase sampling reaches the parent's lowest draws
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+differential mutants: 17/17 caught
+full log sha256 dd64d3435855ab91138454e684e620e0125f0694c3ef87d4550ae89f660a06fc lines 328735

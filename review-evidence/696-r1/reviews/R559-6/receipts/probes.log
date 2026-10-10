@@ -1,0 +1,24 @@
+q1_probe_fold_unstepped: ESCAPED rc=0
+
+q2_offset_fold_unstepped: CAUGHT rc=1
+    [FAIL] M4 B.3.6.1 MACs differing in bits 16..31 claim disjoint first blocks got=0 exp=1
+
+q3_offset_row0_bit_drop: ESCAPED rc=0
+
+q4_reseed_every_begin: CAUGHT rc=1
+    [FAIL] probe draw reaches its low end               got=0 exp=1
+    [FAIL] probe draw reaches its high end              got=0 exp=1
+    [FAIL] M3 Release/Begin retains the generator sequence got=0 exp=1
+
+q5_every_begin_first_fold: ESCAPED rc=0
+
+q6_no_zero_fallback: CAUGHT rc=1
+    [FAIL] B.3.4.2 probe T randomized (zero-seed MAC)   got=0 exp=1
+    [FAIL] B.3.4.1 announce T randomized (zero-seed MAC) got=0 exp=1
+    [FAIL] M3 B.3.6.1 first enable seeds MAC plus clock got=0 exp=1
+
+q7_probe_fold_row_drop: CAUGHT rc=1
+    [FAIL] M4 B.3.4 first probe interval differs across MACs got=0 exp=1
+
+q8_first_offset_count8: ESCAPED rc=0
+
