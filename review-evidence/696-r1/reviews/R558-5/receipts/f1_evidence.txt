@@ -1,0 +1,12 @@
+# Composition-stale current-record statements at 87d51e76 (finding F1)
+368:The accepted 50,267-LUT route remains the comparison record.
+653:The last accepted gate record remains unchanged.
+654-Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+129:The table is the gate's record.
+110:These are the source-scope references of the gate's current record, [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [re-baseline of 2026-10-10](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696).
+pp_resource_baseline.json route-1x1 LUT = 50230
+# same sentences at live dev e8454e27 (written against the #645 record)
+e8454e27:docs/design/AREA_BUDGET.md:365:The accepted 50,267-LUT route remains the comparison record.
+e8454e27:docs/design/MARK_II_AREA_PLAN.md:650:Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+# at PR source 30073ee9
+absent at source
