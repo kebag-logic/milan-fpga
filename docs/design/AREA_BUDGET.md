@@ -201,6 +201,10 @@ M3/M10 cannot save an engine already removed by F5.
 M1 is dropped; F4 replaces M4.
 The retained-fabric opportunities are not added to the default ledger.
 
+M6 has measured its lane: 418 LUTs post-synthesis, 468 routed in its blocks, no block-RAM growth.
+The [plan ledger](MARK_II_AREA_PLAN.md#m6-intermediate-measurement) gives both routes and why 418 is the reproducible figure.
+This table keeps its planning estimates until the week-4 re-measure.
+
 M8a is repriced to 1,000 LUTs, range 400-1,500.
 The [census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) counts 823 controller and 873 PHY LUT cells.
 These are pre-packing cells, not packed LUT sites.

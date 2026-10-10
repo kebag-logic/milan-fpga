@@ -552,6 +552,7 @@ These datapath functions remain fabric-owned in the split.
 **Verification:** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`,
 `milan_dp`, GET_COUNTERS, wrap/reset and concurrent update cases.
 No M2 table credit overlaps these arrays.
+M6 measured 418 LUTs post-synthesis and no extra tile ([M6 intermediate measurement](#m6-intermediate-measurement)).
 
 ### L10 Fabric gPTP
 
@@ -883,6 +884,52 @@ The routed AECP engine bounds sharing: 1,727 LUTs.
 M3 must preserve that engine for M10 to remove.
 If M3 consumes it, reprice M10 to zero.
 Neither lane receives credit in the default-split total.
+
+### M6 intermediate measurement
+
+[Lane M6](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6098405082) changes two of the four [L9](#l9-media-context-tables) blocks.
+The listener monitor keeps its PDU bundles in one 4-entry LUT-RAM ring.
+The two waiting bundles and the one in service share it.
+GET_COUNTERS reads one counter table by sink and column.
+The column selects inside that LUT-RAM read, not in a word multiplexer.
+Channel-map capture resolves every channel through one flat source table.
+Its commit skid keeps descriptors; a LUT-RAM bank holds each beat once.
+Render set-point already used distributed RAM and is unchanged.
+Talker counters stay in flops: every context updates at the interval tick.
+Values, ordering, latency, resets and capacity are unchanged.
+Lockstep legs compare both blocks with their dev `e8454e27` modules every cycle.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| M6 route at `930340145` | 49,561 | 53,455 | 15,791 | 74 / 27 | +0.141 / +0.018 |
+| Routed delta | -706 | -958 | +12 | 0 / 0 | -0.158 / -0.013 |
+| Post-synthesis delta, same runs | -524 | -957 | - | 0 / 0 | - |
+
+Against the record, the M6 route passes with no failing endpoint.
+Its worst setup path lies in the unchanged protocol processor.
+Only the changed blocks are credited:
+
+| Block | Routed LUT | Post-synthesis LUT | FF |
+|---|---:|---:|---:|
+| Listener monitor | 966 -> 754 | 993 -> 818 | 1,353 -> 691 |
+| Channel-map capture | 1,069 -> 813 | 1,107 -> 864 | 1,360 -> 1,183 |
+| Talker counters, RTL unchanged | 195 -> 161 | 197 -> 165 | 359 -> 359 |
+| Render set-point, RTL unchanged | 383 -> 381 | 399 -> 399 | 137 -> 137 |
+
+Unchanged blocks also moved, by up to hundreds of LUTs.
+The protocol processor lost 358 post-synthesis and 333 routed.
+The gPTP shadow moved about 700 between its own levels.
+That movement is not a reproducible saving.
+
+The reproducible saving is 418 LUTs post-synthesis, 468 routed.
+Out of context, the changed modules save 552 LUTs at 1x1.
+All three lie low in the 600 (400-900) estimate.
+M6 adds no block-RAM tile; both blocks keep theirs.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+The gate record stays unchanged under D7.
 
 ### Cumulative default-image estimates
 
