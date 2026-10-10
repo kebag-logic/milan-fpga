@@ -1,0 +1,10 @@
+[ok] mutant rv-started-after-response-new-talker (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant rv-unbind-keeps-started (acmp): 10 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 then UNBOUND, binding cleared, nothing running, in state 1
+[ok] mutant rv-driver-final-write-drops-started (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant rv-adapter-binding-bound-started-swapped (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a BIND_RX with STREAMING_WAIT publishes its sink bound and stopped, interface 0
+mutants: 4 of 4 caught
+reviewer plants (ctrl): all caught

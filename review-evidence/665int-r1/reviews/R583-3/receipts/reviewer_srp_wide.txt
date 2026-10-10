@@ -1,0 +1,40 @@
+control if1 srp_mbx.cpp: rc 0, 0 [FAIL] ['== ctrl SRP mailbox: checks: 57   failures: 0 ==']
+control if1 srp_app.cpp: rc 0, 0 [FAIL] ['== ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==']
+control if1 srp_rx_retry.cpp: rc 0, 0 [FAIL] ['== ctrl SRP receive recovery: checks: 17   failures: 0 ==']
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+control if2 srp_mbx.cpp: rc 0, 0 [FAIL] ['== ctrl SRP mailbox: checks: 57   failures: 0 ==']
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+control if2 srp_app.cpp: rc 0, 0 [FAIL] ['== ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==']
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-control/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+control if2 srp_rx_retry.cpp: rc 0, 0 [FAIL] ['== ctrl SRP receive recovery: checks: 17   failures: 0 ==']
+planted if1 srp_mbx.cpp: rc 0, 0 [FAIL] ['== ctrl SRP mailbox: checks: 57   failures: 0 ==']
+planted if1 srp_app.cpp: rc 1, 9 [FAIL] ['== ctrl ADP MAAP SRP composition: checks: 6   failures: 4 ==']
+    [FAIL] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds: SRP event bound
+    [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: a Domain adoption publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: the poll's publication term funds a reset, an adoption and two changes per source
+planted if1 srp_rx_retry.cpp: rc 0, 0 [FAIL] ['== ctrl SRP receive recovery: checks: 17   failures: 0 ==']
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+planted if2 srp_mbx.cpp: rc 0, 0 [FAIL] ['== ctrl SRP mailbox: checks: 57   failures: 0 ==']
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+planted if2 srp_app.cpp: rc 1, 9 [FAIL] ['== ctrl ADP MAAP SRP composition: checks: 6   failures: 4 ==']
+    [FAIL] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds: SRP event bound
+    [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: a Domain adoption publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL once each
+    [FAIL] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks: the poll's publication term funds a reset, an adoption and two changes per source
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665int-r583-3-packet/scratch/rvfw/wide-planted/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+planted if2 srp_rx_retry.cpp: rc 0, 0 [FAIL] ['== ctrl SRP receive recovery: checks: 17   failures: 0 ==']
