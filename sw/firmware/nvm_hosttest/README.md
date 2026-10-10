@@ -8,8 +8,8 @@ every shipped shape passed and every planted defect reddened.
 
 - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
-- **[What is graded](#what-is-graded)** -- eleven checks per shape, all on bytes
-- **[The five negative controls](#the-five-negative-controls)** -- writer defects planted into a copy, each of which must be caught
+- **[What is graded](#what-is-graded)** -- thirteen checks per shape, all on bytes
+- **[The nine negative controls](#the-nine-negative-controls)** -- writer defects planted into a copy, each of which must be caught
 - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
@@ -43,7 +43,15 @@ overlay.
   erased and programmed through the LiteSPI command-master stubs, which decode
   `WREN`, `RDSR`, sector erase and page program, hold write-in-progress for a
   configurable erase time, and can be told to fail an erase, hang a program or
-  flip a programmed bit;
+  flip a programmed bit. The mapping's base is a host call, so every read the
+  firmware opens through it is counted from power-on, and a planted read
+  fault answers a window of those reads from a copy whose bytes of one slot
+  are wrong: one byte XORed with a different value on every faulty read
+  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), or every byte of the slot
+  read as `0xFF` (`--read-ff SLOT:SKIP:COUNT`). The first SKIP reads are
+  clean and the next COUNT are faulty. The memory-mapped read always returns
+  bytes, so wrong bytes are the only media fault the shipping read path can
+  meet ([#671](https://github.com/kebag-logic/milan-fpga/issues/671));
 - **the reserved processor window**, a byte array the firmware stages the
   KLJ2 container in and the driver writes a changed record into, as the
   processor's WRITE through the backend would;
@@ -77,9 +85,29 @@ the harness through boot, idle time and console commands, and compares bytes:
 9. an idle board stays backed and never stale;
 10. `milan_nvm wipe` erases both slots;
 11. an open record beside an unaligned closed predecessor retains its golden
-    staged bytes while the predecessor's change commits byte-identically.
+    staged bytes while the predecessor's change commits byte-identically;
+12. a boot read fault leaves the authority unknown
+    ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). One slot
+    holds a valid container and the other is blank, both ways round, at
+    sequence 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF. A read fault on the
+    valid slot (its magic byte or its sequence word), on the blank slot, or
+    an all-`0xFF` read is walked over every boot read: SKIP 0 to 5, COUNT 1
+    to 3, and one window covering the whole boot. Each case makes a real
+    change, lets the debounce commit it and boots again clean. The change
+    survives that reboot, or the faulty boot HELD the writer. A held writer
+    erased, programmed and acknowledged nothing, never heartbeated, named
+    the unread slot, and the clean reboot restores the saved value; that
+    case then runs on through a change, its commit and another clean
+    reboot. One faulty read never holds the writer, a slot faulted for the
+    whole boot always does, no boot opens more than 13 reads (the AEM image
+    and three judgements and three re-stages per slot), and a held writer
+    refuses `milan_nvm commit` and reports the hold on `milan_nvm`;
+13. a slot whose bytes read cleanly but fail validation (a foreign entity,
+    a bad CRC) names no generation: with the other slot blank, no slot is
+    offered, the boot line reports sequence 0, and the first commit is at
+    sequence 1.
 
-## The five negative controls
+## The nine negative controls
 
 `--self-test` plants each defect into a copy of the firmware, rebuilds the
 harness and requires the suite to redden:
@@ -91,6 +119,17 @@ harness and requires the suite to redden:
 | `verify_skipped` | the read-back never fails | the failed-verify check sees an acknowledgement |
 | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
 | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
+
+Those five are graded by checks 1 to 11. Four #671 defects are graded by
+checks 12 and 13, and each must be caught by a finding carrying its own
+words:
+
+| control | the defect | the finding that must catch it |
+|---|---|---|
+| `restart_at_zero` | an unread slot no longer holds the writer, so the sequence restarts at 0 | "was lost on the clean reboot" |
+| `unbounded_retry` | the read of a slot has no bound | "over the bound" |
+| `generation_from_refused_slot` | a refused slot's header sequence continues the generation | "generation was taken from a refused slot" |
+| `verdict_only_agreement` | two refused reads agree by verdict, not by bytes (R501-3's probe on #665) | "was lost on the clean reboot" |
 
 The self-test also invokes the PHY host checks.
 Their IEEE-timed peer catches missing publication, deferred recovery and
@@ -129,6 +168,14 @@ writer's scalar records reach the store; names and channel maps do not yet.
 The model follows the backend's contract as `hdl/milan/KL_nvm_backend.sv`
 states it; the backend itself is graded by
 [`tb/verilator/nvm_backend`](../../../tb/verilator/nvm_backend/README.md).
+
+Nor does it prove that every read fault is seen. The writer sees a fault
+only when two reads of a slot return different bytes. A fault that returns
+the same wrong bytes on two reads is a refusal of those bytes by the rule,
+and a slot read as all `0xFF` twice is blank. Either can still let the next
+commit restart the sequence below a container a later clean boot prefers.
+Check 12 walks faults that differ from read to read, and single all-`0xFF`
+reads, and no others.
 
 Console tests reject shape and identity mismatches on every shape.
 Every Milan command and empty input keep `hb=0 backed=0 stale=0`.
