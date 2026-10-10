@@ -1,0 +1,14 @@
+head=30073ee9cc30d1d8fc12163ab3e3f8dc27cc126f make=GNU Make 4.3
+== A rc=2
+integration.mk:13: *** datapath source list names non-files: echo.  Stop.
+make[1]: *** [Makefile:29: integration-build] Error 2
+make: *** [outer.mk:2: chain] Error 2
+== B rc=0
+  --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter 
+head=30073ee9cc30d1d8fc12163ab3e3f8dc27cc126f make=GNU Make 4.4.1
+== A rc=2
+integration.mk:13: *** datapath source list names non-files: echo.  Stop.
+make[1]: *** [Makefile:29: integration-build] Error 2
+make: *** [outer.mk:2: chain] Error 2
+== B rc=0
+  --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter 
