@@ -3,7 +3,11 @@
 #
 # Verilator verification of the packet-mailbox fabric skeleton (KL_mbx and
 # its leaves, #665 lane F0), through BOTH bus adapters.
-#   make           - the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
+#   make           - the publication census (every read of the processor's
+#                    class-D outputs in milan_datapath.sv mapped to a block
+#                    field or a ruled exclusion, and its planted defects
+#                    refused), then
+#                    the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
@@ -50,8 +54,14 @@ FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/
 CC     ?= cc
 AR     ?= ar
 
-.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
-all: run-wb run-axil run-cosim run-if2 mutants-quick
+.PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
+all: census run-wb run-axil run-cosim run-if2 mutants-quick
+
+# The publication census (#665, comment 6092086337): the block must carry
+# every value the split datapath consumes, so the datapath's reads are counted
+# from the source, never from a list.
+census:
+	python3 -B $(ROOT)/sw/mailbox/publication_census.py --check --selftest
 
 run-wb:
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_wb $(RTL) sim_main.cpp -o Vmbx_wb
