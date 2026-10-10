@@ -207,14 +207,15 @@ module KL_avtp_rx_monitor_ctx #(
   //! Table 5.16 makes a PAAD-AE "implement and return" the Table 5.6
   //! counters for EACH Stream Input; the stream-0 legacy outputs above
   //! serve exactly one. This port serves them all: the write-through
-  //! mirror below shadows every context's twelve counter words into flops
-  //! (same mechanism as the stream-0 view, all streams), and the response
-  //! builder reads the descriptor_index it is serving combinationally in
-  //! its const-load cycle. Before this port, sink 1 answered a FULL 0xF3F
-  //! mask over constant zeros - a claimed-valid counter serving a frozen
-  //! zero, the exact R5 lie - and sinks >= 2 an empty mask.
+  //! mirror below shadows every context's counter words into one table
+  //! (same mechanism as the stream-0 view, all streams), and the answer
+  //! server reads ONE counter, named by stream and column, combinationally.
+  //! Before this port, sink 1 answered a FULL 0xF3F mask over constant
+  //! zeros - a claimed-valid counter serving a frozen zero, the exact R5
+  //! lie - and sinks >= 2 an empty mask.
   input  wire [3:0]                  diag_idx_i,
-  output logic [12*32-1:0]           diag_cnt_o,  //! C_ML..C_FRX,C_TV,C_TNV order
+  input  wire [3:0]                  diag_col_i,  //! C_ML..C_FRX,C_TV,C_TNV (0..11)
+  output logic [31:0]                diag_q_o,    //! that counter of that sink
   output logic [31:0] last_ts_o,         //! stream-0 last accepted avtp_ts
   output logic [31:0] last_tsd_o         //! stream-0 last signed ts_delta
 );
@@ -279,14 +280,25 @@ module KL_avtp_rx_monitor_ctx #(
   } mstate_t;
 
   mstate_t           mst_r;
-  pdu_evt_t          pq_r [2];
+  //! PDU BUNDLE RING (#640 M6): the two waiting bundles AND the one in
+  //! service share one 4-entry table with a single write port, so a bundle
+  //! is written once, at its pulse, and never copied. The walker reads its
+  //! in-service bundle through cur_idx_r. Capacity is unchanged: at most two
+  //! wait (pq_cnt_r, the old queue count) and one is served, so the slot a
+  //! new pulse lands in (pq_wp_r = pq_rp_r + pq_cnt_r, pq_cnt_r <= 1 then)
+  //! is never cur_idx_r = pq_rp_r - 1. No reset ON PURPOSE (distributed
+  //! RAM): every read is of a slot written by its own pulse first.
+  localparam int unsigned PQ_DEPTH_C = 4;
+  pdu_evt_t          pq_ring_r [PQ_DEPTH_C];
+  logic [IDXW_C-1:0] pq_s_r    [PQ_DEPTH_C];   //! stream field, for the prefetch
+  logic [1:0]        pq_wp_r, pq_rp_r, cur_idx_r;
   logic [1:0]        pq_cnt_r;
   //! Milan 1.3 5.3.8.10 tv tallies as per-context FLOPS - counted at the
   //! accept verdict with zero added walk cycles; served to the AECP mirror
   //! slices 10/11 and the window's virtual LCTX words 26/27 from here
   logic [31:0]       tv_cnt_r  [N_LISTENERS_P];
   logic [31:0]       tnv_cnt_r [N_LISTENERS_P];
-  pdu_evt_t          cur_r;
+  pdu_evt_t          cur_w;                     //! = pq_ring_r[cur_idx_r]
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
   logic [31:0]       monst_r;
@@ -450,7 +462,15 @@ module KL_avtp_rx_monitor_ctx #(
                      (iv_pend_r == '0) && (iv_res_list_r == '0) &&
                      !depkt_any_w;
   //! stream index being dispatched this idle cycle (drives the prefetch)
-  wire [IDXW_C-1:0] disp_s_w = pdisp_new_w ? midx_w : pq_r[0].s;
+  wire [IDXW_C-1:0] disp_s_w = pdisp_new_w ? midx_w : pq_s_r[pq_rp_r];
+
+  //! the ring's one write port: EVERY accepted pulse lands at pq_wp_r, the
+  //! fast-dispatched one too (it is served from there from the next cycle,
+  //! exactly when the old in-service copy would have held it)
+  always_ff @(posedge clk_i) begin : pq_ring_write
+    if (penq_w) pq_ring_r[pq_wp_r] <= new_evt_w;
+  end : pq_ring_write
+  assign cur_w = pq_ring_r[cur_idx_r];
 
   // ======================================================================
   //  Verdict combinationals (valid in M_PDEC_S; MON_STATE = ram_q_r)
@@ -468,11 +488,11 @@ module KL_avtp_rx_monitor_ctx #(
   wire [7:0] f_depth_w   = fmt_r[39:32];
 
   //! received AAF fields from the format-specific header (wire layout)
-  wire [7:0] p_format_w = cur_r.fsh[63:56];
-  wire [3:0] p_nsr_w    = cur_r.fsh[55:52];
-  wire [7:0] p_chans_w  = cur_r.fsh[47:40];
-  wire [7:0] p_depth_w  = cur_r.fsh[39:32];
-  wire       p_sp_w     = cur_r.fsh[12];
+  wire [7:0] p_format_w = cur_w.fsh[63:56];
+  wire [3:0] p_nsr_w    = cur_w.fsh[55:52];
+  wire [7:0] p_chans_w  = cur_w.fsh[47:40];
+  wire [7:0] p_depth_w  = cur_w.fsh[39:32];
+  wire       p_sp_w     = cur_w.fsh[12];
 
   //! reference aaf_pdu_format_matches, FAMILY compare (Milan BAF v1.1
   //! Section 4 + USER 08-07: "the stream input format must accept every
@@ -483,7 +503,7 @@ module KL_avtp_rx_monitor_ctx #(
   //! the depacketizer de-interleaves by the PDU's own count and the input
   //! maps route the subset. UNSUPPORTED_FORMAT remains for genuine family
   //! mismatches only (subtype, encoding, rate, depth, sparse).
-  wire fmt_ok_w = (cur_r.subtype == f_subtype_w) &&
+  wire fmt_ok_w = (cur_w.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
@@ -491,7 +511,7 @@ module KL_avtp_rx_monitor_ctx #(
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
-  wire [7:0] lost_w     = cur_r.seq - expected_w;
+  wire [7:0] lost_w     = cur_w.seq - expected_w;
   //! lock gate (task #25, Milan 5.3.8.10 + 1722-2016 E.2.1): MEDIA_LOCKED
   //! is a stream-vs-timebase CAPABILITY predicate - in-format PDUs with
   //! placeable timestamps ARE the lock condition, identical for every
@@ -503,22 +523,22 @@ module KL_avtp_rx_monitor_ctx #(
   wire lock_ok_w  = 1'b1;
   wire lock_now_w = !ms_locked(ram_q_r) && lock_ok_w;
   wire seq_mm_w   = ms_locked(ram_q_r) && (ms_settle(ram_q_r) == '0) &&
-                    (cur_r.seq != expected_w);
+                    (cur_w.seq != expected_w);
   //! Milan Table 5.6 MEDIA_RESET trigger: "the 'mr' bit was toggled in any of
   //! the received Stream Data AVTPDUs" (IEEE 1722.1-2021 Table 7-157 agrees -
   //! "on a toggle of the mr bit"). mr is a LEVEL held for >= 8 AVTPDUs
   //! [1722-2016 4.4.4.3], so the EDGE is the event: the era's first accepted
   //! PDU only SEEDS the reference (no toggle has been observed yet).
-  wire mr_toggle_w = ms_mrsd(ram_q_r) && (cur_r.mr != ms_prevmr(ram_q_r));
+  wire mr_toggle_w = ms_mrsd(ram_q_r) && (cur_w.mr != ms_prevmr(ram_q_r));
 
   //! new MON_STATE after an ACCEPTED PDU (mirror of the flat-monitor rules)
   logic [31:0] monst_next_w;
   always_comb begin : monst_calc
     monst_next_w        = ram_q_r;
     monst_next_w[21:14] = p_chans_w;                  // wire_chans
-    monst_next_w[22]    = cur_r.mr;                   // mr level reference
+    monst_next_w[22]    = cur_w.mr;                   // mr level reference
     monst_next_w[23]    = 1'b1;                       // ... now seeded
-    monst_next_w[7:0]   = cur_r.seq;                  // seed / advance
+    monst_next_w[7:0]   = cur_w.seq;                  // seed / advance
     if (!ms_locked(ram_q_r)) begin
       if (lock_ok_w) monst_next_w[12] = 1'b1;         // lock
       monst_next_w[11:8] = 4'(SETTLE_C);
@@ -558,9 +578,9 @@ module KL_avtp_rx_monitor_ctx #(
       else
         iv_set_w[ev_s_r] =
             (12'b1 << C_FRX_C)
-          | (cur_r.tu     ? (12'b1 << C_TU_C) : 12'b0)
-          | (cur_r.late   ? (12'b1 << C_LT_C) : 12'b0)
-          | (cur_r.early  ? (12'b1 << C_ET_C) : 12'b0)
+          | (cur_w.tu     ? (12'b1 << C_TU_C) : 12'b0)
+          | (cur_w.late   ? (12'b1 << C_LT_C) : 12'b0)
+          | (cur_w.early  ? (12'b1 << C_ET_C) : 12'b0)
           | (seq_mm_w     ? (12'b1 << C_SM_C) : 12'b0)
           | (mr_toggle_w  ? (12'b1 << C_MR_C) : 12'b0);
     end
@@ -587,11 +607,11 @@ module KL_avtp_rx_monitor_ctx #(
           end
           4'd1 : begin
             eng_waddr_w = laddr(ev_s_r, W_LTS_C);
-            eng_wdata_w = cur_r.ts;
+            eng_wdata_w = cur_w.ts;
           end
           default : begin
             eng_waddr_w = laddr(ev_s_r, W_LTSD_C);
-            eng_wdata_w = cur_r.tsd;
+            eng_wdata_w = cur_w.tsd;
           end
         endcase
       end
@@ -714,9 +734,9 @@ module KL_avtp_rx_monitor_ctx #(
 
   //! Milan 5.4.2.25 all-context counter mirror: the SAME write-through
   //! mechanism as the stream-0 view, applied to every stream's ten counter
-  //! words (W_CNT0_C .. W_CNT0_C+9). Flop cost N x 10 x 32; the RAM's one
-  //! read port stays wholly the walker's, and the AECP builder reads the
-  //! mirror combinationally through diag_idx_i.
+  //! words (W_CNT0_C .. W_CNT0_C+9). The RAM's one read port stays wholly
+  //! the walker's, and the GET_COUNTERS answer server reads the mirror
+  //! combinationally through diag_idx_i and diag_col_i.
   //! NO reset ON PURPOSE: the mirror shadows a BRAM that has none either.
   //! Both power up all-zero (Xilinx GSR / Verilator zero-init), and every
   //! later word arrives by write-through, so a reset clause adds nothing -
@@ -724,39 +744,46 @@ module KL_avtp_rx_monitor_ctx #(
   //! into N x 10 x 32 fabric flops + a read mux (measured: +894 LUT /
   //! +2,560 FF on the 8x8, the DRC UTLZ-1 round of 2026-07-28).
   //!
-  //! TEN SEPARATE COLUMN ARRAYS, not one [N][10]: the single array's read
-  //! side pulls all ten columns of one row at once, i.e. ten async read
-  //! ports on one memory - yosys read-replicates that into RAM32M, Vivado
-  //! DOES NOT (measured on the m0019b seeds: the attribute was on the
-  //! declaration and the block still synthesized to 1,855 LUT of flops
-  //! and muxes). Per column the memory is textbook 1W1R - one decoded
-  //! write, one async read at diag_ridx_w - which both tools map to
-  //! distributed RAM without ceremony.
+  //! ONE TABLE, ONE READ PORT (#640 M6). The reader names the column as
+  //! well as the stream, so the table is textbook 1W1R: one decoded write
+  //! at {stream, column}, one async read at {diag_ridx_w, diag_col_i}. The
+  //! earlier form presented all twelve counters of one row at once (ten
+  //! column arrays, then a word multiplexer in the answer server); a single
+  //! [N][10] array read that way is ten async read ports on one memory,
+  //! which Vivado does not map to distributed RAM (the m0019b seeds), so
+  //! the columns had to be separate memories and the word selection was
+  //! fabric logic. Selecting the column at the address puts that
+  //! multiplexer inside the LUT-RAM read.
   wire cntw_hit_w = ram_we_w &&
                     (ram_waddr_w[4:0] >= W_CNT0_C) &&
                     (ram_waddr_w[4:0] < W_CNT0_C + 5'd10) &&
                     (32'(ram_waddr_w[AW_C-1:5]) < N_LISTENERS_P);
   wire [3:0] cntw_col_w = 4'(ram_waddr_w[4:0] - W_CNT0_C);
 
-  //! indexed combinational read: the ten Table 5.6 counters plus the two
-  //! Milan 1.3 tv tallies for one sink, in C_ML..C_FRX,C_TV,C_TNV order;
-  //! an out-of-range index clamps to 0 (the builder only presents
+  //! indexed combinational read: one of the ten Table 5.6 counters or the
+  //! two Milan 1.3 tv tallies of one sink, by C_ML..C_FRX,C_TV,C_TNV
+  //! column; an out-of-range index clamps to 0 (the builder only presents
   //! directory-served indexes)
   wire [IDXW_C-1:0] diag_ridx_w = (32'(diag_idx_i) < N_LISTENERS_P)
                                   ? diag_idx_i[IDXW_C-1:0] : '0;
 
-  for (genvar c = 0; c < 10; c++) begin : diag_mirror
-    (* ram_style = "distributed" *)
-    logic [31:0] col_r [N_LISTENERS_P];
-    always_ff @(posedge clk_i) begin : col_wr
-      if (cntw_hit_w && cntw_col_w == 4'(c))
-        col_r[ram_waddr_w[AW_C-1:5]] <= ram_wdata_w;
-    end : col_wr
-    assign diag_cnt_o[c*32 +: 32] = col_r[diag_ridx_w];
-  end : diag_mirror
-  //! appended slices 10/11 = the tv tallies straight from the flop arrays
-  assign diag_cnt_o[10*32 +: 32] = tv_cnt_r [diag_ridx_w];
-  assign diag_cnt_o[11*32 +: 32] = tnv_cnt_r[diag_ridx_w];
+  localparam int unsigned MIRW_C = $clog2(N_LISTENERS_P * 16);
+  (* ram_style = "distributed" *)
+  logic [31:0] cnt_mirror_r [N_LISTENERS_P * 16];
+  always_ff @(posedge clk_i) begin : mirror_wr
+    if (cntw_hit_w)
+      cnt_mirror_r[MIRW_C'(32'(ram_waddr_w[AW_C-1:5]) * 16 + 32'(cntw_col_w))]
+        <= ram_wdata_w;
+  end : mirror_wr
+  //! columns 10/11 = the tv tallies straight from the flop arrays
+  always_comb begin : diag_read
+    unique case (diag_col_i)
+      C_TV_C  : diag_q_o = tv_cnt_r [diag_ridx_w];
+      C_TNV_C : diag_q_o = tnv_cnt_r[diag_ridx_w];
+      default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_ridx_w) * 16
+                                                + 32'(diag_col_i))];
+    endcase
+  end : diag_read
   assign cnt_ts_valid_o     = tv_cnt_r [0];
   assign cnt_ts_not_valid_o = tnv_cnt_r[0];
 
@@ -764,13 +791,14 @@ module KL_avtp_rx_monitor_ctx #(
     if (!rst_n) begin
       mst_r       <= M_IDLE_S;
       pq_cnt_r    <= '0;
-      pq_r[0]     <= '0;
-      pq_r[1]     <= '0;
+      pq_wp_r     <= '0;
+      pq_rp_r     <= '0;
+      cur_idx_r   <= '0;
+      for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_s_r[q] <= '0;
       for (int s2 = 0; s2 < N_LISTENERS_P; s2++) begin
         tv_cnt_r[s2]  <= '0;
         tnv_cnt_r[s2] <= '0;
       end
-      cur_r       <= '0;
       ev_s_r      <= '0;
       fmt_r       <= '0;
       monst_r     <= '0;
@@ -823,25 +851,23 @@ module KL_avtp_rx_monitor_ctx #(
       pdu_accept_p_o  <= 1'b0;
       lctx_rd_valid_o <= 1'b0;
 
-      // ---- PDU bundle queue (enqueue/dispatch, race-free; a fast-
-      //      dispatched fresh pulse never enters the queue) ---------------
+      // ---- PDU bundle ring (enqueue/dispatch, race-free; a fast-
+      //      dispatched fresh pulse is written and served, never waits) ---
+      //! every accepted pulse takes the write slot (pq_ring_write above);
+      //! a dispatch serves the fresh slot (fast path) or the oldest waiting
+      //! one, and the read pointer passes it either way
+      if (penq_w) begin
+        pq_s_r[pq_wp_r] <= midx_w;
+        pq_wp_r         <= pq_wp_r + 2'd1;
+      end
+      if (pdisp_new_w || pdisp_w) begin
+        cur_idx_r <= pdisp_new_w ? pq_wp_r : pq_rp_r;
+        pq_rp_r   <= pq_rp_r + 2'd1;
+      end
       unique case ({penq_w && !pdisp_new_w, pdisp_w})
-        2'b01 : begin
-          pq_r[0]  <= pq_r[1];
-          pq_cnt_r <= pq_cnt_r - 2'd1;
-        end
-        2'b10 : begin
-          pq_r[pq_cnt_r[0]] <= new_evt_w;
-          pq_cnt_r          <= pq_cnt_r + 2'd1;
-        end
-        2'b11 : begin
-          if (pq_cnt_r == 2'd1) pq_r[0] <= new_evt_w;
-          else begin
-            pq_r[0] <= pq_r[1];
-            pq_r[1] <= new_evt_w;
-          end
-        end
-        default : ;
+        2'b01   : pq_cnt_r <= pq_cnt_r - 2'd1;
+        2'b10   : pq_cnt_r <= pq_cnt_r + 2'd1;
+        default : ;                     //! 2'b11 (one in, one out) holds it
       endcase
 
       // ---- pending event capture ----------------------------------------
@@ -884,7 +910,7 @@ module KL_avtp_rx_monitor_ctx #(
           if (pdisp_new_w || pdisp_w) begin
             //! PDU first: a same-cycle bind still wins overall because its
             //! reset walk runs after the PDU walk (flat-monitor ordering)
-            cur_r  <= pdisp_new_w ? new_evt_w : pq_r[0];
+            //! the bundle itself is served from the ring (cur_idx_r above)
             ev_s_r <= disp_s_w;
             if (disp_s_w == '0) begin
               fmt_r <= fmt0_i;              //! stream-0 format alias
@@ -973,7 +999,7 @@ module KL_avtp_rx_monitor_ctx #(
             //! an accepted PDU WITHOUT a valid timestamp is an anomaly.
             //! The per-event walk arms (ML via lock_now_w, SI via the
             //! lost-PDU rule) keep their pulses.
-            if (!cur_r.tv || lock_now_w ||
+            if (!cur_w.tv || lock_now_w ||
                 (seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)))
               dirty_p_o[ev_s_r] <= 1'b1;
             monst_r <= monst_next_w;
@@ -985,7 +1011,7 @@ module KL_avtp_rx_monitor_ctx #(
             //! Table 5.6 interval flags were raised by iv_events this
             //! cycle and commit at the interval tick, so only the EVENT
             //! counters walk here.
-            if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
+            if (cur_w.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
             inc_list_r <=
                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
