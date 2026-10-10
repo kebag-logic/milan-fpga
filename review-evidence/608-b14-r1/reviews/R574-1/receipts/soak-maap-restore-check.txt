@@ -1,0 +1,24 @@
+soak polls 121 elapsed 7200.535 timing reads 25 timing changes 0 polls_with_errors 0 rule increments 0
+   dut|0|0 {'status': ['NOT_SUPPORTED', 'NOT_SUPPORTED']}
+   dut|9|0 0x23 {}
+   dut|36|0 0x3 {}
+   dut|5|0 0xfff {'TIMESTAMP_VALID': 57599252, 'FRAMES_RX': 57599387}
+   dut|5|1 0xf3f {'FRAMES_RX': 7200}
+   dut|6|0 0x1f {'FRAMES_TX': 7200}
+   dut|6|1 0x1f {'FRAMES_TX': 7200}
+   peer|5|0 0xfff {'TIMESTAMP_VALID': 57599253, 'FRAMES_RX': 57599253}
+   peer|5|8 0xfff {'TIMESTAMP_VALID': 3599953, 'FRAMES_RX': 3599953}
+capture receipts 363 kernel-drop values {'0': 363}
+t0 1791613402.708542 first capture start after t0 -15.974 last end after t0 7201.384
+segments 17 covered s in [t0,t0+7200.5] 6823.697 fraction 0.9477
+gaps (start after t0, length s): [(420.999, 43.805), (901.375, 13.001), (1321.042, 39.605), (1801.319, 14.401), (2220.986, 21.802), (2640.954, 25.803), (3061.021, 30.504), (3540.998, 12.1), (3960.965, 28.904), (4441.042, 27.803), (4861.009, 13.601), (5281.076, 25.103), (5701.344, 14.201), (6121.011, 32.504), (6601.388, 21.302), (7021.055, 12.4)]
+gap total 376.839 max 43.805
+capture 002 streams with loss 4 [('2', '0x2', '0000', '11', 'all'), ('3', '0x2', '0000', '12', 'all'), ('2', '0x4', '4000', '1', 'all'), ('3', '0x4', '0001', '1', 'all')]
+capture 035 streams with loss 3 [('2', '0x2', '0000', '12', 'all'), ('3', '0x2', '0000', '12', 'all'), ('2', '0x4', '4000', '1', 'all')]
+capture 042 streams with loss 4 [('2', '0x2', '0000', '9', 'all'), ('3', '0x2', '0000', '10', 'all'), ('2', '0x4', '4000', '1', 'all'), ('3', '0x4', '0001', '1', 'all')]
+maap port3 {'PROBE': 0, 'DEFEND': 0, 'ANNOUNCE': 220} [['91:e0:f0:00:dd:85', 2]] {'n': 127, 'min': 30.505, 'max': 31.405, 'mean': 31.004}
+maap port2 {'PROBE': 0, 'DEFEND': 0, 'ANNOUNCE': 440} [['91:e0:f0:00:17:11', 1], ['91:e0:f0:00:85:22', 1]] {'n': 254, 'min': 30.005, 'max': 32.005, 'mean': 30.936}
+maap port2 {'PROBE': 0, 'DEFEND': 0, 'ANNOUNCE': 219} [['91:e0:f0:00:2f:2b', 2]] {'n': 125, 'min': 30.005, 'max': 32.005, 'mean': 31.031}
+maap overlaps [] non-announce [] console words [['00000201', '0000dd85', '00000006']]
+rows 44 44 equal 44 (final vs the 06:22 soak pre-bind inventory)
+as-found (05:17-05:20) rows compared at item 2 teardown: 15 equal 15

@@ -1,0 +1,13 @@
+cycles 101 capture_s_total 902.003
+capture_s graded 894.005
+LeaveAll MRPDUs (distinct timestamps) by sender: {'DUT': 0, 'bridge': 98}
+LeaveAll MRPDUs graded only: {'DUT': 0, 'bridge': 97}
+cycles with any LeaveAll in the 10 s before the first in-hold bridge Lv: 1
+DUT TA Lv after bridge Lv (s): {'cycle-001': 0.039, 'cycle-002': 0.0951, 'cycle-042': 0.3184}
+Lv after resp ms min/med/max (8.349860000000001, 8.8800775, 95.701216)
+last PDU - Lv ms (-1.9934290000000001, -1.0308305, -0.004111999999999999)
+restart ms (10.406265, 11.971657500000001, 125.90828300000001)
+late Lv cycles (>20 ms): [('cycle-026', 84.5), ('cycle-056', 95.7), ('cycle-097', 57.5)]
+stop PASS 100 start/stop +1/+1 100 pdus_after 0 malformed 0 reversals 0 capture_rc!=0 []
+restarts sorted top4 [(125.9, 'cycle-042'), (105.7, 'cycle-002'), (62.2, 'cycle-012'), (18.0, 'cycle-078')]
+page rows 101 mismatches []

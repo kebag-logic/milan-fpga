@@ -1,0 +1,23 @@
+### <pinned-md-env>/python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 201 md files + 1209 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### <pinned-md-env>/python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### <pinned-md-env>/python3 -B scripts/gen_toc.py --check
+TOC gate: OK (141 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### <pinned-md-env>/python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 422 existing cross-page fragment links reproduced
+rc=0
+### <pinned-md-env>/python3 -B scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+check_em_dash: 0 finding(s) over 619 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5603c353..HEAD]
+rc=0
+### <pinned-md-env>/python3 -B scripts/check_doc_paths.py
+doc path gate: OK (950 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0
+### <pinned-md-env>/python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1207 tracked first-party file(s))
+rc=0
+### git diff --check 5603c353 6ec1a3a9
+rc=0
