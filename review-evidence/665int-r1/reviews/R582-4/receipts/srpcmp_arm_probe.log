@@ -1,0 +1,7 @@
+[ok] tracked comparator: arm rc 0 (want pass) :: srp_wire_compare.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding PASS
+[ok] non-zero exit: arm rc 1 (want fail) :: boom
+[ok] a control reported FAIL with exit 0: arm rc 1 (want fail) :: ctlfail.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding; FAILED frame_group
+[ok] no plant reported, exit 0: arm rc 1 (want fail) :: noplant.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding PASS
+[ok] unreadable report, exit 0: arm rc 1 (want fail) :: the self-test's report does not read as its controls and plants: Expecting value: line 1 column 1 (char 0)
+[ok] report without plants key, exit 0: arm rc 1 (want fail) :: the self-test's report does not read as its controls and plants: 'plants'
+srpcmp arm probe: 0 unexpected of 6

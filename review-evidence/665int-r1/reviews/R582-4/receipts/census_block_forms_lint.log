@@ -1,0 +1,32 @@
+%Warning-BLKSEQ: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:10:49: Blocking assignment '=' in sequential logic process
+                                                                                             : ... note: In instance 'census_block_forms'
+                                                                                             : ... Suggest using delayed assignment '<='
+   10 |   always_ff @(posedge clk) begin a5 <= 1'b0; q5 |= c; end
+      |                                                 ^~
+                 ... For warning description see https://verilator.org/warn/BLKSEQ?v=5.050
+                 ... Use "/* verilator lint_off BLKSEQ */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:5:9: Signal is not used: 'a1'
+                                                                                                 : ... note: In instance 'census_block_forms'
+    5 |   logic a1, a2, a3, a4, a5;
+      |         ^~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:5:13: Signal is not used: 'a2'
+                                                                                                  : ... note: In instance 'census_block_forms'
+    5 |   logic a1, a2, a3, a4, a5;
+      |             ^~
+%Warning-UNUSEDSIGNAL: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:5:17: Signal is not used: 'a3'
+                                                                                                  : ... note: In instance 'census_block_forms'
+    5 |   logic a1, a2, a3, a4, a5;
+      |                 ^~
+%Warning-UNUSEDSIGNAL: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:5:21: Signal is not used: 'a4'
+                                                                                                  : ... note: In instance 'census_block_forms'
+    5 |   logic a1, a2, a3, a4, a5;
+      |                     ^~
+%Warning-UNUSEDSIGNAL: $REVIEWS/665int-r582-4-packet/scripts/census_block_forms.sv:5:25: Signal is not used: 'a5'
+                                                                                                  : ... note: In instance 'census_block_forms'
+    5 |   logic a1, a2, a3, a4, a5;
+      |                         ^~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.046 MB sources in 2 modules, into 0.019 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.001, cvt=0.003, bld=0.000); cpu 0.008 s on 1 threads; allocated 18.523 MB
