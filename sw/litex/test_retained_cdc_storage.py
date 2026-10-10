@@ -53,6 +53,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from random import Random
+from types import ModuleType
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
@@ -133,7 +134,7 @@ def beat(endpoint: object) -> Generator:
     return tuple(values)
 
 
-def import_soc(soc_dir: Path):
+def import_soc(soc_dir: Path) -> ModuleType:
     """`milan_soc` from the given directory, with the LiteX stack it needs."""
     sys.path.insert(0, str(soc_dir))
     import milan_soc  # noqa: E402  (imported from the chosen tree)
@@ -142,7 +143,7 @@ def import_soc(soc_dir: Path):
     return milan_soc
 
 
-def build_benches(soc):
+def build_benches(soc: ModuleType) -> list:
     """The three benches (MAC TX, MAC RX, CSR), each a module and its channels."""
     from migen import ClockDomain, ClockDomainsRenamer
     from litex.gen import LiteXModule
@@ -157,6 +158,7 @@ def build_benches(soc):
             self.channels: list[Channel] = []
 
     def mac_bench(to_datapath: bool) -> Bench:
+        """One MAC crossing as MilanMAC builds it, beside its reference."""
         bench = Bench()
         # as MilanMAC builds each crossing
         product = soc._axis_dp_cdc(bench, "dut", MAC_LAYOUT, "milan",
@@ -180,6 +182,7 @@ def build_benches(soc):
         return bench
 
     def csr_bench() -> Bench:
+        """The CSR crossing as add_milan_datapath builds it, beside LiteX's."""
         bench = Bench()
         master = axi.AXILiteInterface(data_width=32, address_width=32)
         slave = soc._cross_csr_bus(bench, master, "milan")
@@ -204,7 +207,7 @@ def build_benches(soc):
 # ---------------------------------------------------------------------------
 # storage: the arrays the product builds, read off the module tree
 # ---------------------------------------------------------------------------
-def arrays_under(module) -> list[tuple[int, int, str | None]]:
+def arrays_under(module: object) -> list[tuple[int, int, str | None]]:
     """(width, depth, ram_style) of every storage array below a module."""
     from migen import Memory
     found = []
@@ -287,7 +290,7 @@ def reader(ch: Channel, period: int, slow: int, rng: Random) -> Generator:
         cycle += 1
 
 
-def resetter(bench, kind: str, period: int, slow: int) -> Generator:
+def resetter(bench: object, kind: str, period: int, slow: int) -> Generator:
     """Assert the destructive reset and, for the CSR bench, the MAC reinit."""
     destructive = ("macsys", "macdp") if kind == "mac" else ("sys", "milan")
     cycle = 0
@@ -333,7 +336,7 @@ def grade(ch: Channel, kind: str) -> dict[str, tuple[bool, str]]:
     return results
 
 
-def run(soc) -> dict[tuple[str, str], list[tuple[bool, str]]]:
+def run(soc: ModuleType) -> dict[tuple[str, str], list[tuple[bool, str]]]:
     """Every bench at every ratio; {(array, check): [(ok, evidence), ...]}."""
     from migen import run_simulation
     verdicts: dict[tuple[str, str], list[tuple[bool, str]]] = defaultdict(list)
@@ -365,7 +368,7 @@ def run(soc) -> dict[tuple[str, str], list[tuple[bool, str]]]:
     return verdicts
 
 
-def report(verdicts) -> list[str]:
+def report(verdicts: dict[tuple[str, str], list[tuple[bool, str]]]) -> list[str]:
     """Print every verdict; return the failing (array, check) names."""
     failing = []
     for (array, check), results in sorted(verdicts.items()):
