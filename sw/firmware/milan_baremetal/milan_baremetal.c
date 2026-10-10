@@ -1608,7 +1608,8 @@ static void nvm_go_live(void)
  *   window load it accepted, so the writer RE-ATTACHES: it never re-bases,
  *   loads or RELOADs (the backend would refuse the RELOAD anyway), releases
  *   whatever capture the previous run left open, which hands the captured
- *   work back, and publishes the sequence the media holds.
+ *   work back, and publishes the sequence the media holds. A slot UNREAD in
+ *   that re-derivation HOLDS it, as on a cold boot (#671).
  *
  *   [3] 0 with [2] 0: no window load was ever accepted in this boot, so
  *   nothing in it may be captured or committed (the backend arms no capture
@@ -1696,7 +1697,8 @@ static void nvm_boot(void)
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		nvm_publish(verdict);
 		nvm_go_live();
-		printf("Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.\n");
+		printf("Milan NVM: writer restarted on a live backend; %s, the window is not reloaded.\n",
+		       nvm_held ? "re-attached and HELD" : "re-attached");
 	} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {
 		/* the writer rule that goes with the backend's window-live term:
 		 * load pending 1 with the restore walk ALREADY SEQUENCED is not a
