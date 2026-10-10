@@ -93,7 +93,8 @@ Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
 
 Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
-2 = refused (the processor pin, a missing compiler, an extraction marker).
+2 = refused (the processor pin, the tsn-c-stack pin or a modified stack, a
+missing compiler, an extraction marker).
 """
 
 from __future__ import annotations
@@ -112,7 +113,7 @@ import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
-from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+from ctrl_build import CTRL, Refusal, Tree, stack_pin  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
 
 
@@ -120,6 +121,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
     tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
     try:
+        print(f"tsn-c-stack at {stack_pin()}")
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
@@ -177,6 +179,7 @@ def main(argv: list[str] | None = None) -> int:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+            print(f"tsn-c-stack at {stack_pin()}")
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),

@@ -19,7 +19,7 @@ import struct
 import sys
 from pathlib import Path
 from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
-                        source)
+                        source, stack_pin)
 from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
 import fw_gtest
@@ -39,6 +39,8 @@ def source_tree(ctrl: Path, stack: Path, out: Path) -> Tree:
     legacy=legacy_stack(ctrl,out/"legacy-stack")
     if legacy is not None and stack != STACK.resolve():
         raise Refusal("a --ctrl-source from before #697 holds its own cores; it takes no --stack-source")
+    if legacy is None and stack == STACK.resolve():
+        stack_pin()
     return Tree(ctrl,out,out/"reuse",fw_gtest.Build(jobs=4),legacy or stack)
 
 

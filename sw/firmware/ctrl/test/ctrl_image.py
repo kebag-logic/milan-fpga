@@ -85,7 +85,7 @@ import fw_rv32  # noqa: E402
 import nvm_bench  # noqa: E402
 import nvm_rv32  # noqa: E402
 from ctrl_build import (INCLUDE_DIRS, PORTABLE, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS, Refusal,  # noqa: E402
-                        legacy_stack, source)
+                        legacy_stack, source, stack_pin)
 
 IMAGE = HERE / "rv32_image"
 #: The shipping shape (Mark II's 1x1, lane F1's self-test shape) and the
@@ -442,6 +442,7 @@ def main(argv: list[str] | None = None) -> int:
     with tempfile.TemporaryDirectory(prefix="ctrl-image-") as tmp:
         out = args.out.resolve() if args.out else Path(tmp)
         try:
+            print(f"tsn-c-stack at {stack_pin()}")
             base_fw, base_stack = base_tree(args.base, out / "base-tree") if args.base else (None, None)
             for shape in args.shape or SHAPES:
                 head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape, STACK)

@@ -54,6 +54,10 @@ pull-request update and on every push to `dev`. It produces one stable
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+  Its boundary step holds both directions with planted controls.
+  The cores include only their own headers and the C library.
+  The firmware reaches only the stack's public headers.
+  The stack's own boundary gate runs with gcc and clang.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
@@ -2307,6 +2311,7 @@ tally listener's campaign uses `--mutants`
 ```sh
 python3 sw/firmware/gtest/tally_selftest.py --mutants
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16

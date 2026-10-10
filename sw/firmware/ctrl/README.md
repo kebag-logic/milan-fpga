@@ -74,6 +74,15 @@ The adapters, the app, the loop, the HAL and both images compile its `src/*.c` u
 Its callback and timing obligations are in its
 [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md).
 
+[`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions.
+It preprocesses the stack's sources and headers with this firmware's own host and RV32 flags.
+Every dependency must be a stack public header or a C library header.
+It preprocesses every firmware source, header and image source with the stack's other directories searched last.
+A dependency on the stack outside `include/` is refused.
+So is a file under `sw/firmware` named as a stack source or header.
+It also runs the stack's own boundary gate.
+`--selftest` plants 13 defects, each refused by name, and two passing controls.
+
 Its tests run two ways.
 The gate [below](#the-host-test) builds the stack's own core tests into the
 `adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
@@ -370,12 +379,14 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 1/6
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 ```
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
 `acmpnvm` arm also runs the builder for its shape, as lane F1's gate does).
 RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
 Both firmware gates require RV32 in `firmware-unit`.
+The boundary gate also needs CMake and Clang for the stack's own gate.
 Freestanding declarations avoid the SDK's hosted C headers.
 GCC supplies its own freestanding integer and varargs headers.
 `MILAN_RV32_CC` selects an explicit compiler for local validation.

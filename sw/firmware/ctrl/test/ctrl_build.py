@@ -13,7 +13,8 @@ The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
 pinned tsn-c-stack submodule (#697): a tree names them, and the stack's own
 core tests, with STACK_PREFIX, and builds them from its stack (the submodule,
 or a copy a defect was planted in). The firmware includes only the stack's
-public headers (its include/), and nothing of the stack includes the firmware.
+public headers (its include/), and nothing of the stack includes the firmware
+(ctrl_boundary.py).
 """
 
 from __future__ import annotations
@@ -168,6 +169,34 @@ def source(src: Path, stack: Path, name: str) -> Path:
 def sources(tree: Tree, names: tuple[str, ...]) -> list[Path]:
     """Paths of firmware sources inside the tree and its stack."""
     return [source(tree.src, tree.stack, n) for n in names]
+
+
+def stack_gitlink(root: Path = ROOT) -> str:
+    """The tsn-c-stack revision the repository at `root` records: one stage-0 gitlink, or a Refusal."""
+    rel = STACK.relative_to(ROOT).as_posix()
+    entry = run(["git", "-C", str(root), "ls-files", "--stage", "--", rel]).stdout.split()
+    if len(entry) != 4 or entry[0] != "160000" or entry[2] != "0":
+        raise Refusal(f"{rel} is not one stage-0 gitlink")
+    return entry[1]
+
+
+def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
+    """Refuse a stack checkout that is not the recorded gitlink, or whose sources, headers or tests differ
+    from it: every gate builds the pinned cores and tests or none. `--no-optional-locks` keeps the status
+    read-only."""
+    pin = pin or stack_gitlink()
+    top = run(["git", "-C", str(stack), "rev-parse", "--show-toplevel"])
+    if top.returncode or Path(top.stdout.strip()).resolve() != stack.resolve():
+        raise Refusal(f"{stack} is not its own checkout: initialise the tsn-c-stack submodule")
+    head = run(["git", "-C", str(stack), "rev-parse", "HEAD"]).stdout.strip()
+    if head != pin:
+        raise Refusal(f"tsn-c-stack at {head or 'no HEAD'} is not the pinned {pin}")
+    dirty = run(["git", "--no-optional-locks", "-C", str(stack), "status", "--porcelain", "--untracked-files=all",
+                 "--", *STACK_PARTS, "tests"])
+    if dirty.returncode or dirty.stdout.strip():
+        changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
+        raise Refusal(f"tsn-c-stack differs from the pinned {pin[:8]}: {changed}")
+    return head
 
 
 #: Where each stack file lived in sw/firmware/ctrl before #697 moved the cores

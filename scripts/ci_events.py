@@ -2374,6 +2374,11 @@ RTL_STEP_LISTS = {
              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
              'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
          )},
+        # #697: the TSN stack's boundary from both sides, its controls and the stack's own gate.
+        {"name": "Hold the TSN stack boundary in both directions",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest',
+         )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
              'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
@@ -7748,7 +7753,7 @@ def _rv32_sdk_arms() -> list[Arm]:
     arms = []
     for path, jid, count in ((DOCS, "docs-check", 50),
                              (ELABORATE, "elaborate", 20),
-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9)):
+                             (RTL_FAST, FIRMWARE_UNIT_JOB, 10)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
@@ -7771,6 +7776,7 @@ def _rv32_sdk_arms() -> list[Arm]:
             # Each missing compiler must refuse, never silently skip a build.
             for script, step_name in (
                     ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+                    ("ctrl_boundary.py", "Hold the TSN stack boundary in both directions"),
                     ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
