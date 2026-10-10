@@ -9,6 +9,9 @@
 #   obj_gptp/Vcsr_gptp   : sim_gptp.cpp, fabric gPTP publication enabled.
 #   obj_pps/Vcsr_pps     : sim_main.cpp, PPS alarm enabled.
 #   obj_reset/Vcsr_reset: sim_main.cpp, generated nonzero SRP reset bits.
+#   obj_lock1/Vcsr_lock  : sim_lock.cpp, read-path lockstep against the frozen
+#   obj_lock8/Vcsr_lock    e8454e27 block (milan_csr_ref.sv), at the 1x1 and
+#                          8x8 shipping parameters; lock_mutants.py after them.
 # CHMAP_RDBK_P stays 0 in sim_main for the unsupported-path control.
 # sim_win sets it to 3 and exercises both modelled map-RAM read ports.
 #   make        - build and run every default leg above
@@ -31,6 +34,7 @@ CFG_DIR    = ../../../configs/generated
 SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
 SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+SHAPE_SHIP1 = +incdir+$(CFG_DIR)/endstation_ax7101_1x1_tdm8
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_csr
 
@@ -60,6 +64,23 @@ SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 
 SRCS = $(RTL_DIR)/common/csr/milan_csr.sv
+
+# READ-PATH LOCKSTEP (lane M5 of #640). The block under test beside the frozen
+# e8454e27 block it replaced, on the same inputs, every output compared every
+# cycle. LOCK_SRC and the build directories are overridable so lock_mutants.py
+# builds a MUTATED copy through this same recipe. The parameters are the
+# milan_datapath instance's at each shipping shape (MILAN_CLK_FREQ_HZ 50 MHz,
+# gPTP plane on, both chmap read ports wired, PPS not elaborated).
+LOCK_SRC   ?= $(SRCS)
+LOCK_REF    = milan_csr_ref.sv
+LOCK1_MDIR ?= obj_lock1
+LOCK8_MDIR ?= obj_lock8
+LOCK_COMMON = NUM_QUEUES=5 ADDR_WIDTH=16 GPTP_PLANE_EN_P=1 \
+              MILAN_CLK_FREQ_HZ_P=50000000 CHMAP_RDBK_P=3 PPS_P=0 PPS_WIDTH_CYC_P=50000
+LOCK_P1     = $(LOCK_COMMON) N_LISTENERS_P=1 N_TALKERS_P=1 SRP_LSN0_ROW_P=2
+LOCK_P8     = $(LOCK_COMMON) N_LISTENERS_P=8 N_TALKERS_P=8 SRP_LSN0_ROW_P=16
+LOCK_DEPS   = $(LOCK_SRC) $(LOCK_REF) $(GEN_CSR) gen_lockstep.py sim_lock.cpp \
+              ../../common/verilator_harness.hpp
 #! THE LIVE-INTEGRATION LEG IS DELETED. obj_live wired milan_csr's 0x800
 #! window to the REAL context engines behind it - KL_lwsrp_top's attribute-row
 #! table and KL_acmp_lstn_ctx's bind table - and BOTH are deleted with the
@@ -69,7 +90,7 @@ SRCS = $(RTL_DIR)/common/csr/milan_csr.sv
 #! prove nothing, so the leg goes rather than being kept green on stubs.
 #! (csr_win_live.sv and sim_live.cpp deleted with it.)
 
-.PHONY: all run reset-bits clean
+.PHONY: all run reset-bits lock1 lock8 clean
 all: run
 
 obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
@@ -113,15 +134,33 @@ obj_pps/Vcsr_pps: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
 	  $(SRCS) sim_main.cpp -o Vcsr_pps
 
 
+$(LOCK1_MDIR)/Vcsr_lock: $(LOCK_DEPS) $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+	python3 gen_lockstep.py $(LOCK_SRC) $(LOCK_REF) $(LOCK1_MDIR)/gen $(LOCK_P1)
+	$(VERILATOR) $(SHAPE_SHIP1) $(VFLAGS) --Mdir $(LOCK1_MDIR) --top-module csr_lockstep_top \
+	  -CFLAGS "-DLOCK_N=1 -DLOCK_GPTP=1 -I$(abspath $(LOCK1_MDIR)/gen) -Wall -Wextra" \
+	  $(LOCK_SRC) $(LOCK_REF) $(LOCK1_MDIR)/gen/csr_lockstep_top.sv sim_lock.cpp -o Vcsr_lock
+
+$(LOCK8_MDIR)/Vcsr_lock: $(LOCK_DEPS) $(SHAPE_8x8_F)
+	python3 gen_lockstep.py $(LOCK_SRC) $(LOCK_REF) $(LOCK8_MDIR)/gen $(LOCK_P8)
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir $(LOCK8_MDIR) --top-module csr_lockstep_top \
+	  -CFLAGS "-DLOCK_N=8 -DLOCK_GPTP=1 -I$(abspath $(LOCK8_MDIR)/gen) -Wall -Wextra" \
+	  $(LOCK_SRC) $(LOCK_REF) $(LOCK8_MDIR)/gen/csr_lockstep_top.sv sim_lock.cpp -o Vcsr_lock
+
+lock1: $(LOCK1_MDIR)/Vcsr_lock
+lock8: $(LOCK8_MDIR)/Vcsr_lock
+
 run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp \
-     obj_pps/Vcsr_pps
+     obj_pps/Vcsr_pps obj_lock1/Vcsr_lock obj_lock8/Vcsr_lock
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
 	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
 	./obj_gptp/Vcsr_gptp
 	./obj_pps/Vcsr_pps
+	./obj_lock1/Vcsr_lock
+	./obj_lock8/Vcsr_lock
 	$(MAKE) reset-bits
+	python3 lock_mutants.py
 
 # Generated cold-reset admission bits differ from the ordinary zero fixture.
 # The expected mask is independent of the emitted header.
@@ -132,4 +171,4 @@ reset-bits:
 	./obj_reset/Vcsr_reset
 
 clean:
-	rm -rf obj_dir obj_100m obj_win obj_gptp obj_pps obj_reset
+	rm -rf obj_dir obj_100m obj_win obj_gptp obj_pps obj_reset obj_lock1 obj_lock8

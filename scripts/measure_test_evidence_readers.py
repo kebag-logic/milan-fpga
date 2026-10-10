@@ -171,4 +171,9 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/tkdiag/mcr_mutants.py":
         "mutation campaign; it plants one of four restart-engine defects against the #387 "
         "pending-restart merge and its wire boundary into a copy and requires a named failure",
+    "tb/verilator/csr/lock_mutants.py":
+        "mutation campaign; it plants one of seven CSR read-path defects (decode, torn and stale "
+        "snapshot, reset value, stage-1 claim) into a copy and requires the named lockstep check "
+        "to fail; expected values come from the frozen e8454e27 block and the harness, never "
+        "from the text it mutates",
 }
