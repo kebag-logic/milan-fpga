@@ -64,6 +64,12 @@ pull-request update and on every push to `dev`. It produces one stable
   Every Makefile target that builds against the stack has the pin check as a prerequisite.
   Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
   Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
+  The boundary step's budget is 5 of the job's 45 minutes, its self-test included.
+  It runs each preprocessing once per run and reuses it wherever it would read the same, so its controls share one prepared base.
+  A control that must be refused stops at its finding, and the stack's own gate runs beside the controls.
+  A unit's configurations go to four compilers at once, the hosted runner's CPU count.
+  Pinned to four CPUs of a loaded host (load average 25), the step took 75 s; before this, it took 807 s there.
+  Its hosted run then passed 12 minutes and the job its 45 (job 114173809799), so a local figure stands in for a hosted one.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.

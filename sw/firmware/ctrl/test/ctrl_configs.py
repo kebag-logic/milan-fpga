@@ -75,7 +75,7 @@ sys.path.insert(0, str(ROOT / "sw/builder"))
 from endstation_builder import ConfigError  # noqa: E402
 
 #: The boundary gate's own modules: never a builder.
-GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_configs.py", "ctrl_pin.py"))
+GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_configs.py", "ctrl_pin.py", "ctrl_plants.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
 CONFIGS = ROOT / "configs"
 #: The mailbox contract's generator, which writes the contract for another interface count.

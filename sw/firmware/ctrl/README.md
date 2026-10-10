@@ -111,8 +111,11 @@ Those that the conditionals and `#include` lines of the files it reads name can 
 The gate tries every combination of their alternatives, until no new one appears.
 A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
 A finding names the smallest configuration that reaches it, beyond the unit's default build.
-It also runs the stack's own boundary gate.
-`--selftest` plants 56 defects, each refused by name, and three passing controls.
+It also runs the stack's own boundary gate, beside the rest.
+It runs each preprocessing once per run and reuses it where it would read the same: the same unit and arguments, every file it read unchanged, and no file added or removed that it could look up by name.
+`--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
+It then plants 56 defects, each refused by name, and three passing controls.
+A control that must be refused stops at the finding it names.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
