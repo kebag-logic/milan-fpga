@@ -69,7 +69,8 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
-           6088423771), its controls and every planted defect caught;
+           6088423771), its five named controls passing and its eighteen
+           named planted defects each present and caught;
   aecp     the complete command, notification and saved-state owner, composed
            with ACMP and SRP at one and two interfaces; every generated AEM
            image, mailbox completion ordering, latency and debug guards.

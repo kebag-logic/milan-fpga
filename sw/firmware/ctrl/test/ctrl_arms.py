@@ -415,23 +415,38 @@ def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
 #: The SRP comparator the placement switch compares the two placements' frames with (#665,
 #: ruling 6088423771 keeps it as that switch's infrastructure); run here so it cannot rot first.
 SRP_COMPARE = HERE / "srp_wire_compare.py"
+#: Its self-test's controls and planted defects, by name: one that goes missing fails the arm,
+#: so a plant table that shrinks is caught, not only one that empties (#665, R582-4-S1). A
+#: control or plant added beside them passes.
+SRP_COMPARE_CONTROLS = frozenset({"five_value_vector", "frame_grouping", "packing_only",
+                                  "within_opportunity_order", "zero_padding"})
+SRP_COMPARE_PLANTS = frozenset({
+    "swapped-opportunities", "collapsed-opportunities", "plus-k-off-by-one", "wrong-AttributeEvent",
+    "wrong-FourPackedEvent", "dropped-declaration", "extra-declaration", "duplicated-declaration",
+    "LeaveAll-wrong-attribute-type", "malformed-PDU-EndMark", "malformed-list-EndMark", "wrong-ProtocolVersion",
+    "wrong-AttributeLength", "wrong-AttributeListLength", "reserved-ThreePackedEvents", "reserved-LeaveAllEvent",
+    "truncated-PDU-EndMark", "oversized-frame",
+})
 
 
 def arm_srpcmp() -> Outcome:
-    """The SRP comparator's own self-test: its controls, and every planted wire and comparison defect caught."""
+    """The SRP comparator's own self-test: its named controls passing, and every named planted
+    wire and comparison defect present and caught."""
     res = run([sys.executable, "-I", "-B", str(SRP_COMPARE), "--self-test"])
     if res.returncode != 0:
         return Outcome("srpcmp", res.returncode, f"{res.stdout}{res.stderr}")
     try:
         controls = json.loads(res.stdout)["controls"]
         plants = [p["plant"] for p in controls.pop("plants")]
-    except (ValueError, KeyError, TypeError) as exc:
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
         return Outcome("srpcmp", 1, f"  the self-test's report does not read as its controls and plants: {exc}")
     failed = sorted(k for k, v in controls.items() if v != "PASS")
+    missing = sorted((SRP_COMPARE_CONTROLS - set(controls)) | (SRP_COMPARE_PLANTS - set(plants)))
     log = (f"  {SRP_COMPARE.name} --self-test: controls {', '.join(sorted(controls))}"
            f"{'; FAILED ' + ', '.join(failed) if failed else ' PASS'}\n"
-           f"  {len(plants)} planted defects caught: {', '.join(plants)}")
-    return Outcome("srpcmp", 1 if failed or not plants else 0, log)
+           f"  {len(plants)} planted defects caught: {', '.join(plants)}\n"
+           f"  named controls and plants missing: {', '.join(missing) or 'none'}")
+    return Outcome("srpcmp", 1 if failed or missing else 0, log)
 
 
 # ---- the verdict -------------------------------------------------------------------------

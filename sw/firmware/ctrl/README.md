@@ -218,7 +218,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 | `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
-| `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, five controls and 18 planted wire and comparison defects each caught |
+| `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, its five named controls and its 18 named planted wire and comparison defects each present and caught; a report missing any of them fails the arm |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
 debug, shape and processor-wire arms at one and two interfaces.
