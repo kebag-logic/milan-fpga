@@ -7,7 +7,8 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
 threads: one event loop, static state, and a static pool behind lwSRP's
 allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
 layer, the loop and the ADP slice; F2 adds the opt-in [MAAP owner](maap/README.md),
-F3 the ACMP module, and F4 the [SRP adapter](srp/README.md) on pinned lwSRP.
+F3 the ACMP module, F4 the [SRP adapter](srp/README.md) on pinned lwSRP,
+and F5 the opt-in [AECP owner](aecp/README.md).
 Each protocol has its own core and mailbox adapter.
 
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
@@ -41,6 +42,7 @@ is an integration obligation, not a target-time result established here.
 | [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`acmp/`](acmp) | the ACMP core (no mailbox), its mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
+| [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |

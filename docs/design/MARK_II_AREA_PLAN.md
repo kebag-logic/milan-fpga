@@ -635,6 +635,43 @@ No protocol surface is removed to achieve area savings.
 
 ## Ledger
 
+### M0s step-1 intermediate status
+
+The [step-1 assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6086604096) first requires integrated F0-F4 placement.
+Inspection at assigned base `7c1b52be` fails that prerequisite.
+The [mailbox adapter](../../sw/litex/milan_soc.py) holds packet and event inputs idle.
+Its outgoing packet stream has no datapath consumer.
+The [datapath](../../hdl/milan/milan_datapath.sv) still instantiates the wrapper unconditionally.
+The [MAAP firmware contract](../../sw/firmware/ctrl/maap/README.md) leaves placement integration outstanding.
+Firmware presence therefore earns no engine-removal credit.
+
+| Intermediate checkpoint | LUT / FF / slices | RAMB36 / RAMB18 | WNS / WHS | Disposition |
+|---|---|---|---|---|
+| M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
+
+No route was started; no new resource figure is claimed.
+The last accepted gate record remains unchanged.
+Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+These are stored figures, not measurements of this lane.
+The partial memory ledger still requires actual allocation and reconciliation.
+Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
+The 121.5-tile ceiling and 10 percent reserve remain binding.
+
+Step 2 supplies [selected-placement measurement support](../testing/PP_SHADOW_BASELINE_RECIPE.md#selected-placement-measurements).
+It names `all-fabric`, `f0-f4` and `full-split` explicitly.
+Split runs check retained engines before implementation and after routing.
+The gate refuses mismatched placement or incomplete population evidence.
+Whole-image comparisons retain the existing tool/flow identity and policy.
+Both all-fabric standalone references remain independent and unchanged.
+The acceptance schema, thresholds and records are unchanged.
+Only M9 re-records acceptance.
+
+The parent integration lane must connect ingress, egress and events.
+It must select F0-F4 firmware and remove the corresponding engines.
+Media controls, counters and saved-state ownership must remain connected.
+Then repeat this prerequisite check and route the selected image.
+That route must replace this missing measurement with actual figures.
+
 ### Default split saving basis
 
 All savings below are estimates of the integrated 1x1 image.
@@ -1020,16 +1057,16 @@ This separates integration cost from subsequent lane savings.
 Missing or incomparable measurements cannot produce a pass.
 Intermediate measurements enter this ledger; only M9 re-records acceptance.
 
-The current [recipe](../../syn/ooc/pp_baseline.py) expects exactly one wrapper.
-The complete split removes that wrapper.
-M0s must therefore deliver reviewed split-aware recipe and gate coverage.
+The all-fabric [recipe](../../syn/ooc/pp_baseline.py) still requires its wrapper.
+The selected split recipe checks its own engine population.
+M0s supplies split-aware recipe and gate coverage for review.
 It precedes both split routes, the checkpoint and default flip.
 Name each measured placement and retain comparable whole-image metrics.
 Preserve tool/flow identities, route completion, primitive counts and timing.
 Retain the all-fabric shipping endpoint and standalone 1x1/8x8 references.
 Later lanes record selected routes and both standalone references.
 M9 consumes M0s coverage for final qualification and re-recording.
-No gate, schema or policy implementation changes occur here.
+M0s changes measurement support only; acceptance schema and policy stay fixed.
 
 ## What holds throughout
 

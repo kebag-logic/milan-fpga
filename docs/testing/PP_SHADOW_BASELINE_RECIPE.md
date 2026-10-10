@@ -9,6 +9,7 @@ The [baseline](../findings/PP_SHADOW_BASELINE.md) records the measured revisions
 - **[Prerequisites](#prerequisites)** -- Prepare the checkout and build environment.
 - **[Export the shipping builds](#export-the-shipping-builds)** -- Derive commands and compile firmware.
 - **[Integrated measurements](#integrated-measurements)** -- Route 1x1 and synthesize 8x8.
+- **[Selected-placement measurements](#selected-placement-measurements)** -- Name split populations, check engine removal, and compare whole-image measurements without re-recording acceptance.
 - **[Boundary-preserving attribution](#boundary-preserving-attribution)** -- Preserve ownership across synthesis optimization.
 - **[Complete hierarchy rankings](#complete-hierarchy-rankings)** -- Include every reported direct child.
 - **[Standalone measurements](#standalone-measurements)** -- Bind parameters from integrated elaboration.
@@ -178,6 +179,113 @@ for directive in ("AltSpreadLogic_high", "ExtraTimingOpt"):
                     "-log", "baseline.log"], cwd=output, check=True)
 PY
 ```
+
+## Selected-placement measurements
+
+M0s names three measurement populations for the shipping shape.
+The existing default remains `all-fabric`.
+Its route and standalone recipes remain unchanged.
+
+| Selection | Required retained control engines | Required absence |
+|---|---|---|
+| `all-fabric` | Wrapper, ADP, both ACMP engines, SRP, AECP, notifications, parent MAAP and gPTP | Mailbox and processor MAAP |
+| `f0-f4` | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
+| `full-split` | Mailbox and gPTP | Wrapper and all five fabric protocol engines, including notifications |
+
+The partial selection permits AECP inside or outside one wrapper.
+Standalone 1x1/8x8 references always use their all-fabric exports.
+Never derive those references from a partial or complete split.
+
+First qualify the parent integration and its firmware entry point.
+Selection here measures an existing export; it changes no placement switches.
+At `7c1b52be`, `--ctrl-mailbox` still has idle datapath connections.
+The wrapper is unconditional, and firmware ownership is unconnected.
+Therefore the first M0s route is **STOP**, pending parent integration.
+See the [intermediate ledger](../design/MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status).
+
+After that prerequisite passes, export into a fresh external directory.
+Retain the build's selected-placement arguments with its measurement.
+Use the same part, clocks, directives, seed and worker settings.
+For an already integrated F0-F4 export:
+
+```sh
+python3 syn/ooc/pp_baseline.py "$WORK/f0-f4/gateware" \
+  --placement f0-f4 --single-thread-synthesis
+(
+  cd "$WORK/f0-f4/gateware"
+  flock /tmp/milan-vivado.lock vivado -mode batch \
+    -source baseline_integrated.tcl -nojournal -log baseline.log
+)
+python3 syn/ooc/pp_resource_gate.py check "$WORK/f0-f4/gateware" \
+  --endpoint route-1x1 --placement f0-f4
+```
+
+Use `full-split` for the later complete integration.
+Never overlap implementation with another heavy build.
+The selection requires an integrated endpoint without wrapper attribution.
+The recipe checks actual module identities immediately after synthesis.
+A retained moved engine fails by its placement and role.
+It checks again after implementation and writes `baseline_placement.tsv`.
+The gate independently validates that census against the requested selection.
+A mismatched selection, missing census or missing role exits 2.
+
+The default selection keeps its recipe and writes no census.
+For an integrated route, the gate counts the hierarchy report's module column instead.
+Both `check` and `record --write` exit 2, naming each role outside its all-fabric count.
+They also refuse a default directory holding `baseline_placement.tsv`.
+A tool or recipe identity change is reported first, as before.
+Printing a record without `--write` judges nothing.
+Standalone references lack the parent MAAP, gPTP and mailbox; this census excludes them.
+The legacy missing-wrapper refusal remains in force for every all-fabric recipe.
+
+The census uses original or current module reference names.
+It includes both parent and processor MAAP implementations.
+Renamed or flattened required modules require reviewed measurement adaptation.
+Missing required modules never silently count as an area saving.
+This census proves population, not firmware execution or mailbox connectivity.
+Integration evidence remains a prerequisite, independent of resource comparison.
+
+Split exports may omit ROM bindings belonging to removed protocols.
+Retained AECP microcode and gPTP microcode remain mandatory.
+Any binding still present receives the existing geometry checks.
+Generated firmware images retain their existing inventory and digest checks.
+ROM diagnostic promotion stays enabled before synthesis.
+
+Whole-image utilization, primitives, timing and route completion remain mandatory.
+Split hierarchy records use `image` as their attribution root.
+Wrapper-relative scope deltas are consequently not claimed across placements.
+Split internal timing covers the image, without wrapper boundary reports.
+The tool/flow identity and acceptance record shape remain unchanged.
+The input digest additionally binds the selected placement.
+
+Compare both selected routes against the accepted `route-1x1` record.
+Every existing tolerance, timing floor and BRAM ceiling still applies.
+A primitive increase still fails; it needs explicit disposition.
+A resource PASS alone establishes neither firmware qualification nor memory fit.
+Publish figures and memory reconciliation in the intermediate ledger.
+The firmware allocation is about 50 tiles, with 10 percent reserved.
+Partial placement cannot claim complete-split storage reclamation.
+Only M9 re-records acceptance; selected `record --write` is refused.
+Neither this step nor its tests rewrites the accepted baseline.
+
+The existing self-tests include selected-placement controls:
+
+```sh
+python3 syn/ooc/pp_baseline.py --selftest
+python3 syn/ooc/pp_baseline_mutants.py
+python3 syn/ooc/pp_resource_gate.py --selftest
+python3 -X cpu_count=4 syn/ooc/pp_resource_gate_mutants.py
+python3 syn/ooc/pp_resource_gate.py check-baseline
+```
+
+The census controls execute under `tclsh`, without implementation software.
+They reverse every required presence and absence by name.
+Recipe controls require exactly one marker naming the requested selection.
+They also corrupt each still-bound removed-protocol ROM and require its geometry refusal.
+Gate fixtures include wrapper-free partial and complete split images.
+Default-route fixtures plant each role absent, renamed or duplicated without a marker.
+They also plant resource, timing, routing and identity failures.
+These synthetic controls establish tooling behavior, never routed measurements.
 
 ## Boundary-preserving attribution
 
