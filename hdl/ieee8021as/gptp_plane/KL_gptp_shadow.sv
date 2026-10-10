@@ -230,6 +230,19 @@ module KL_gptp_shadow #(
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
   localparam logic [15:0] ET_GPTP_C = 16'h88F7;
 
+  //! The two frame FIFOs store a beat's byte enables as a lane number, not
+  //! as KEEP_W_C enables, so a 64-bit beat is 69 bits and fits one RAMB36
+  //! (512 x 72) instead of a RAMB36 plus a RAMB18 (issue #640, lane M7).
+  //! RX keeps the HIGHEST enabled lane, the only thing the byte serializer
+  //! ever reads from tkeep. TX keeps the beat's lane COUNT, 0..KEEP_W_C: the
+  //! gearbox only ever builds contiguous enables from lane 0, and count 0 is
+  //! the all-clear tkeep an empty FIFO output presents. Both FIFOs keep their
+  //! depth in beats, so the frame and overflow arithmetic is unchanged.
+  localparam int unsigned LANE_W_C = 3;  //! ser_idx_r's width
+  localparam int unsigned CNT_W_C  = 4;
+  localparam int unsigned RX_FIFO_BEATS_C = RX_FIFO_BYTES_P / KEEP_W_C;
+  localparam int unsigned TX_FIFO_BEATS_C = TX_FIFO_BYTES_P / KEEP_W_C;
+
   //! occupancy width shared by the allocator, the ledger and the departure
   //! count, so the three cannot drift apart silently
   localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
@@ -253,7 +266,10 @@ module KL_gptp_shadow #(
 
   // ---- elaboration contract ---------------------------------------------
   //! ONE format string per $error: later arguments print as values.
-  if (TXTS_CAP_N_P * PLANE_BEATS_C > TXF_BEATS_C) begin : g_refuse_txfifo
+  if ((KEEP_W_C < 1) || (KEEP_W_C > (1 << LANE_W_C))) begin : g_refuse_lanes
+    $error("KL_gptp_shadow: TDATA_WIDTH_P=%0d gives %0d byte lanes; the byte serializer and the frame FIFOs' lane fields cover 1 to 8 lanes.",
+           TDATA_WIDTH_P, KEEP_W_C);
+  end else if (TXTS_CAP_N_P * PLANE_BEATS_C > TXF_BEATS_C) begin : g_refuse_txfifo
     $error("KL_gptp_shadow: the plane transmit FIFO holds %0d beats and TXTS_CAP_N_P=%0d maximum plane frames need %0d. Admission is bounded by the ledger, not by this FIFO, so a FIFO that cannot hold the admitted frames would back-pressure the engine byte face - which stalls the very dispatch that releases the previous result.",
            TXF_BEATS_C, TXTS_CAP_N_P, TXTS_CAP_N_P * PLANE_BEATS_C);
   end else if ((PHC_TICK_NS_P == 0) && (DP_TICK_NS_C * CLK_HZ_P != 1_000_000_000))
@@ -295,8 +311,17 @@ module KL_gptp_shadow #(
 
   logic                     fw_valid_w, fw_last_w, fw_user_w;
   logic [TDATA_WIDTH_P-1:0] fw_data_w;
-  logic [KEEP_W_C-1:0]      fw_keep_w;
+  logic [LANE_W_C-1:0]      fw_top_w;    //! highest enabled lane
   logic                     fw_ready_w;
+
+  //! The serializer stops after the highest enabled lane, so that lane is
+  //! all the FIFO carries. An all-clear tkeep gives lane 0, as before.
+  always_comb begin : rx_top_lane
+    fw_top_w = '0;
+    for (int unsigned i = 0; i < KEEP_W_C; i++) begin
+      if (rx_tkeep_i[i]) fw_top_w = LANE_W_C'(i);
+    end
+  end : rx_top_lane
 
   logic accept_w;
   assign accept_w = (etype_w == ET_GPTP_C);
@@ -312,7 +337,6 @@ module KL_gptp_shadow #(
   always_comb begin
     fw_valid_w = 1'b0;
     fw_data_w  = rx_tdata_i;
-    fw_keep_w  = rx_tkeep_i;
     fw_last_w  = rx_tlast_i;
     fw_user_w  = 1'b0;
     unique case (fw_S)
@@ -397,23 +421,26 @@ module KL_gptp_shadow #(
   assign dbg_tap_drop_o = tap_drop_r;
 
   logic [TDATA_WIDTH_P-1:0] ff_data_w;
-  logic [KEEP_W_C-1:0]      ff_keep_w;
+  logic [LANE_W_C-1:0]      ff_top_w;
   logic                     ff_valid_w, ff_last_w, ff_ready_w;
   logic                     ff_good_w;
+  //! a delivered frame is never bad: the FIFO drops bad frames whole
+  logic                     ff_user_unused_w;
 
+  //! tuser carries {highest lane, bad}; only bit 0 judges the frame
   axis_fifo #(
-    .DEPTH               (RX_FIFO_BYTES_P),
+    .DEPTH               (RX_FIFO_BEATS_C),
     .DATA_WIDTH          (TDATA_WIDTH_P),
-    .KEEP_ENABLE         (1),
+    .KEEP_ENABLE         (0),
     .KEEP_WIDTH          (KEEP_W_C),
     .LAST_ENABLE         (1),
     .ID_ENABLE           (0),
     .DEST_ENABLE         (0),
     .USER_ENABLE         (1),
-    .USER_WIDTH          (1),
+    .USER_WIDTH          (LANE_W_C + 1),
     .FRAME_FIFO          (1),
-    .USER_BAD_FRAME_VALUE(1'b1),
-    .USER_BAD_FRAME_MASK (1'b1),
+    .USER_BAD_FRAME_VALUE((LANE_W_C + 1)'(1)),
+    .USER_BAD_FRAME_MASK ((LANE_W_C + 1)'(1)),
     .DROP_BAD_FRAME      (1),
     .DROP_OVERSIZE_FRAME (1),
     .DROP_WHEN_FULL      (1)
@@ -421,21 +448,21 @@ module KL_gptp_shadow #(
     .clk                (clk_i),
     .rst                (~rst_n),
     .s_axis_tdata       (fw_data_w),
-    .s_axis_tkeep       (fw_keep_w),
+    .s_axis_tkeep       ('1),
     .s_axis_tvalid      (fw_valid_w),
     .s_axis_tready      (fw_ready_w),
     .s_axis_tlast       (fw_last_w),
     .s_axis_tid         ('0),
     .s_axis_tdest       ('0),
-    .s_axis_tuser       (fw_user_w),
+    .s_axis_tuser       ({fw_top_w, fw_user_w}),
     .m_axis_tdata       (ff_data_w),
-    .m_axis_tkeep       (ff_keep_w),
+    .m_axis_tkeep       (),
     .m_axis_tvalid     (ff_valid_w),
     .m_axis_tready      (ff_ready_w),
     .m_axis_tlast       (ff_last_w),
     .m_axis_tid         (),
     .m_axis_tdest       (),
-    .m_axis_tuser       (),
+    .m_axis_tuser       ({ff_top_w, ff_user_unused_w}),
     .status_overflow    (ff_ovf_w),
     .status_bad_frame   (ff_bad_w),
     .status_good_frame  (ff_good_w),
@@ -538,17 +565,12 @@ module KL_gptp_shadow #(
   //  Byte serializer: 1 B/clk into the engine, sof pops the ts entry       //
   // ======================================================================= //
   logic [TDATA_WIDTH_P-1:0] ser_data_r;
-  logic [KEEP_W_C-1:0]      ser_keep_r;
+  logic [LANE_W_C-1:0]      ser_top_r;   //! the word's highest enabled lane
   logic                     ser_last_r, ser_busy_r, ser_sof_r;
   logic [2:0]               ser_idx_r;
 
   logic [2:0] ser_top_w;
-  always_comb begin
-    ser_top_w = 3'd0;
-    for (int unsigned i = 0; i < KEEP_W_C; i++) begin
-      if (ser_keep_r[i]) ser_top_w = 3'(i);
-    end
-  end
+  assign ser_top_w = ser_top_r;
 
   assign ff_ready_w = ~ser_busy_r;
 
@@ -566,13 +588,13 @@ module KL_gptp_shadow #(
       ser_busy_r <= 1'b0;
       ser_idx_r  <= 3'd0;
       ser_data_r <= '0;
-      ser_keep_r <= '0;
+      ser_top_r  <= '0;
       ser_last_r <= 1'b0;
       ser_sof_r  <= 1'b1;
     end else if (!ser_busy_r) begin
       if (ff_valid_w) begin
         ser_data_r <= ff_data_w;
-        ser_keep_r <= ff_keep_w;
+        ser_top_r  <= ff_top_w;
         ser_last_r <= ff_last_w;
         ser_idx_r  <= 3'd0;
         ser_busy_r <= 1'b1;
@@ -753,12 +775,11 @@ module KL_gptp_shadow #(
   //  TX gearbox: 1 B/clk up to wide beats, whole frames onto the lane      //
   // ======================================================================= //
   logic [TDATA_WIDTH_P-1:0] gb_data_r;
-  logic [KEEP_W_C-1:0]      gb_keep_r;
   logic [2:0]               gb_idx_r;
 
   logic                     gbo_valid_w, gbo_last_w, gbo_ready_w;
   logic [TDATA_WIDTH_P-1:0] gbo_data_w;
-  logic [KEEP_W_C-1:0]      gbo_keep_w;
+  logic [CNT_W_C-1:0]       gbo_cnt_w;
 
   //! the engine byte is accepted while the beat register has room and the
   //! TX FIFO can take a completed beat; FRAME_FIFO holds the frame until
@@ -772,35 +793,33 @@ module KL_gptp_shadow #(
   //! a completed beat presents combinationally from the staging register
   logic                     st_valid_r, st_last_r;
   logic [TDATA_WIDTH_P-1:0] st_data_r;
-  logic [KEEP_W_C-1:0]      st_keep_r;
+  //! the beat's lane count: its bytes are always lanes 0..gb_idx_r
+  logic [CNT_W_C-1:0]       st_cnt_r;
 
   assign gbo_valid_w = st_valid_r;
   assign gbo_data_w  = st_data_r;
-  assign gbo_keep_w  = st_keep_r;
+  assign gbo_cnt_w   = st_cnt_r;
   assign gbo_last_w  = st_last_r;
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       gb_data_r  <= '0;
-      gb_keep_r  <= '0;
       gb_idx_r   <= 3'd0;
       st_valid_r <= 1'b0;
       st_data_r  <= '0;
-      st_keep_r  <= '0;
+      st_cnt_r   <= '0;
       st_last_r  <= 1'b0;
     end else begin
       if (st_valid_r && gbo_ready_w) st_valid_r <= 1'b0;
       if (tx_byte_w) begin
         gb_data_r[8*gb_idx_r +: 8] <= eng_tx_data_w;
-        gb_keep_r[gb_idx_r]        <= 1'b1;
         if ((gb_idx_r == 3'd7) || eng_tx_eof_w) begin
           st_data_r  <= gb_data_r;
           st_data_r[8*gb_idx_r +: 8] <= eng_tx_data_w;
-          st_keep_r  <= gb_keep_r | (KEEP_W_C'(1) << gb_idx_r);
+          st_cnt_r   <= CNT_W_C'(gb_idx_r) + CNT_W_C'(1);
           st_last_r  <= eng_tx_eof_w;
           st_valid_r <= 1'b1;
           gb_idx_r   <= 3'd0;
-          gb_keep_r  <= '0;
         end else begin
           gb_idx_r <= gb_idx_r + 3'd1;
         end
@@ -809,16 +828,19 @@ module KL_gptp_shadow #(
   end
 
   logic txf_out_last_w, txf_out_valid_w, txf_out_ready_w;
+  logic [CNT_W_C-1:0] txf_cnt_w;
 
+  //! tuser carries the beat's lane count; tkeep is rebuilt from it below
   axis_fifo #(
-    .DEPTH               (TX_FIFO_BYTES_P),
+    .DEPTH               (TX_FIFO_BEATS_C),
     .DATA_WIDTH          (TDATA_WIDTH_P),
-    .KEEP_ENABLE         (1),
+    .KEEP_ENABLE         (0),
     .KEEP_WIDTH          (KEEP_W_C),
     .LAST_ENABLE         (1),
     .ID_ENABLE           (0),
     .DEST_ENABLE         (0),
-    .USER_ENABLE         (0),
+    .USER_ENABLE         (1),
+    .USER_WIDTH          (CNT_W_C),
     .FRAME_FIFO          (1),
     .DROP_BAD_FRAME      (0),
     .DROP_OVERSIZE_FRAME (0),
@@ -827,21 +849,21 @@ module KL_gptp_shadow #(
     .clk                (clk_i),
     .rst                (~rst_n),
     .s_axis_tdata       (gbo_data_w),
-    .s_axis_tkeep       (gbo_keep_w),
+    .s_axis_tkeep       ('1),
     .s_axis_tvalid      (gbo_valid_w),
     .s_axis_tready      (gbo_ready_w),
     .s_axis_tlast       (gbo_last_w),
     .s_axis_tid         ('0),
     .s_axis_tdest       ('0),
-    .s_axis_tuser       ('0),
+    .s_axis_tuser       (gbo_cnt_w),
     .m_axis_tdata       (tx_tdata_o),
-    .m_axis_tkeep       (tx_tkeep_o),
+    .m_axis_tkeep       (),
     .m_axis_tvalid      (txf_out_valid_w),
     .m_axis_tready      (tx_tready_i),
     .m_axis_tlast       (txf_out_last_w),
     .m_axis_tid         (),
     .m_axis_tdest       (),
-    .m_axis_tuser       (),
+    .m_axis_tuser       (txf_cnt_w),
     .status_overflow    (),
     .status_bad_frame   (),
     .status_good_frame  (),
@@ -850,6 +872,15 @@ module KL_gptp_shadow #(
     .pause_req          (1'b0),
     .pause_ack          ()
   );
+
+  //! tkeep from the lane count: lanes below the count are enabled, so an
+  //! empty FIFO's zero count presents the all-clear tkeep it always did
+  logic [KEEP_W_C-1:0] txf_keep_w;
+  always_comb begin : tx_keep_decode
+    for (int unsigned i = 0; i < KEEP_W_C; i++)
+      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w);
+  end : tx_keep_decode
+  assign tx_tkeep_o = txf_keep_w;
 
   //! start-of-frame tracking on the lane output: 1 means the next accepted
   //! beat begins a frame, so the egress is at a frame boundary
