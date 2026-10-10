@@ -1,0 +1,66 @@
+# changed files 7c1b52be..25bbe4d9
+M	docs/ARCHITECTURE_HW_SW_SPLIT.md
+M	docs/design/MAILBOX_SPLIT.md
+M	docs/reference/MAILBOX_CONTRACT.md
+M	hdl/milan/mailbox/KL_mbx.sv
+M	hdl/milan/mailbox/KL_mbx_pkg.sv
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/acmp/acmp.c
+M	sw/firmware/ctrl/acmp/acmp.h
+M	sw/firmware/ctrl/acmp/acmp_mbx.c
+M	sw/firmware/ctrl/acmp/acmp_mbx.h
+M	sw/firmware/ctrl/app/ctrl_app.h
+M	sw/firmware/ctrl/host/mbx_model.c
+M	sw/firmware/ctrl/host/mbx_model.h
+M	sw/firmware/ctrl/maap/README.md
+M	sw/firmware/ctrl/maap/maap_mbx.c
+M	sw/firmware/ctrl/maap/maap_mbx.h
+M	sw/firmware/ctrl/mbx/mbx.c
+M	sw/firmware/ctrl/mbx/mbx.h
+M	sw/firmware/ctrl/mbx/mbx_contract.h
+M	sw/firmware/ctrl/srp/README.md
+M	sw/firmware/ctrl/srp/srp_bounds.h
+M	sw/firmware/ctrl/srp/srp_mbx.c
+M	sw/firmware/ctrl/test/acmp_fake.hpp
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/model_bench.hpp
+M	sw/firmware/ctrl/test/srp_app.cpp
+M	sw/firmware/ctrl/test/srp_fixture.hpp
+M	sw/firmware/ctrl/test/srp_mbx.cpp
+M	sw/firmware/ctrl/test/srp_mutants.py
+A	sw/firmware/ctrl/test/srp_wire_compare.py
+M	sw/firmware/ctrl/test/test_acmp.cpp
+M	sw/firmware/ctrl/test/test_acmp_mbx.cpp
+M	sw/firmware/ctrl/test/test_maap_mbx.cpp
+M	sw/firmware/ctrl/test/test_unit_driver.cpp
+M	sw/litex/milan_soc.py
+M	sw/mailbox/gen_mailbox.py
+M	sw/mailbox/mailbox.yaml
+M	sw/mailbox/mailbox_emit.py
+M	sw/mailbox/mailbox_model.py
+M	sw/mailbox/mailbox_skeleton.py
+M	tb/verilator/mbx/Makefile
+M	tb/verilator/mbx/README.md
+M	tb/verilator/mbx/bench.hpp
+M	tb/verilator/mbx/frames.hpp
+M	tb/verilator/mbx/mutants.py
+M	tb/verilator/mbx/suite.hpp
+M	tb/verilator/mbx/tb_mbx_top.sv
+
+# files changed between the exported head P=9b73a8c6 and 25bbe4d9
+M	sw/firmware/ctrl/host/mbx_model.c
+M	sw/firmware/ctrl/host/mbx_model.h
+M	sw/firmware/ctrl/test/srp_mbx.cpp
+M	sw/firmware/ctrl/test/srp_mutants.py
+
+# milan_soc.py hunks (all inside class CtrlMailbox, lines 2504-2570)
+@@ -2514 +2514,4 @@ class CtrlMailbox(LiteXModule):
+@@ -2533,0 +2537,4 @@ class CtrlMailbox(LiteXModule):
+@@ -2552 +2559,11 @@ class CtrlMailbox(LiteXModule):
+
+# the only call site of the mailbox sources (default ctrl_mailbox=False)
+2573:def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
+2576:        platform.add_source(str(REPO_ROOT / f))
+2637:                 entity_gen_dir=None, ctrl_mailbox=False, **kwargs):
+3343:        if ctrl_mailbox:
+3344:            add_ctrl_mailbox(self, platform, sys_clk_freq)

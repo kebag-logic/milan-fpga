@@ -1,0 +1,41 @@
+# milan_datapath.sv at 25bbe4d9: the CRF Stream Output's C-TAG enable reads the processor's per-source Talker-declaration state
+5663:   //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
+5664:   //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
+5665:   //! tagged-but-undeclared stream to zero ports, which is strictly worse than
+5666:   //! the untagged flood. The level used to be "the fabric provisioned the row
+5677:   wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
+5678:                         (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
+5719:     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+5720:     crft_stat_c[6]     = crft_res_active_w;     //! ACTIVE AND real grant
+5721:     crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+5722:     crft_stat_c[19:8]  = crft_class_a_w ? crft_vid_w : 12'd0;
+5723:     crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w : 3'd0;
+6218:     //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
+6219:     //! CSR bit: see crf_srp_prov / crft_class_a_w. {PCP, VID} come from
+6220:     //! crft_{pcp,vid}_w - the OPERATIONAL Domain pair while adopted (Milan
+6221:     //! 4.2.7.2.1), LWSRP_VID/priority-3 defaults otherwise - literally the
+6222:     //! same pair KL_lwsrp_ctx_tx puts in this stream's Talker Advertise
+6223:     //! DataFrameParameters (802.1Q 35.2.2.4), so the frame and the
+6224:     //! declaration name one VLAN by construction.
+6225:     .vlan_en_i  (crft_class_a_w),
+6226:     .vlan_pcp_i (crft_pcp_w),
+6227:     .vlan_vid_i (crft_vid_w),
+
+# shipping configs: CRF output enabled
+configs/endstation_ax7101_1x1_tdm8.yaml:131:  crf_output:                        # one AAF media input makes the Milan
+configs/endstation_ax7101_1x1_tdm8.yaml-132-    enabled: true                    # 7.2.3 CRF Media Clock Output optional,
+--
+configs/endstation_ax7101_8x8.yaml:149:  crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
+configs/endstation_ax7101_8x8.yaml-150-    enabled: true                    # media inputs => CRF Media Clock Output;
+
+# firmware SRP owns the CRF talker in the split placement
+22:The source and sink counts equal the entity's advertised counts, including CRF.
+
+# publication block registers at head (no Talker-declaration field)
+321:    - name: DA_GATE
+331:    - name: LICENCE
+342:    - name: IDLE_SLOPE
+351:    - name: SR_DOMAIN
+364:    - name: SID_LO
+370:    - name: SID_HI
+376:    - name: BINDING

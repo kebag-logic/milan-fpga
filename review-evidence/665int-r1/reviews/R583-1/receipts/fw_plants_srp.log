@@ -1,0 +1,25 @@
+# cwd: $PACKET
+# cmd: python3 -B $PACKET/scripts/reviewer_fw_plants.py $CLONE $PACKET/scratch/fwp_srp $CLONE/third_party/lwSRP srp 4
+# start: 2026-10-10T00:48:09Z
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rv-srp-stop-owed-licence-after-report: rc=1, 2 [FAIL]; first: [FAIL] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported: PUB LICENCE clears source 0's bit before the revocation is reported
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rv-srp-reset-publishes-stale-licence: rc=1, 2 [FAIL]; first: [FAIL] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported: PUB a link loss clears LICENCE before the revocation is reported
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rv-srp-adoption-published-not-adopted: rc=1, 2 [FAIL]; first: [FAIL] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt: PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] author-cancelled-link-never-recovers: rc=1, 10 [FAIL]; first: [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/fwp_srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] author-cancelled-link-record-posted: rc=1, 2 [FAIL]; first: [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: the DOWN record stayed held
+reviewer firmware plants (srp): all as expected
+# end: 2026-10-10T00:49:13Z rc=0

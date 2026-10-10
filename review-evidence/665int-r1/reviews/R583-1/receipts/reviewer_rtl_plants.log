@@ -1,0 +1,13 @@
+# cwd: $PACKET
+# cmd: python3 -B $PACKET/scripts/reviewer_rtl_plants.py $CLONE $PACKET/scratch/rtl_plants 4
+# start: 2026-10-10T00:45:44Z
+[ok] rv-pub-sid-hi-not-reset (host 0, 1 if): 1 check(s) failed; first: [FAIL] P5 a reset clears every publication register and every output of every interface
+[ok] rv-pub-binding-sid-valid-unmasked-away (host 0, 1 if): 6 check(s) failed; first: [FAIL] P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, BINDING BOUND and SID_VALID only, per interface and sink
+[ok] rv-pub-licence-out-from-da-gate (host 1, 1 if): 2 check(s) failed; first: [FAIL] P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] rv-pub-read-ignores-decode (host 0, 1 if): 1 check(s) failed; first: [FAIL] P4 every hole of every interface block, and every word of an interface the build does not have, reads 0 after a write
+[ok] rv-pub-slope-readback-of-if0 (host 0, 2 if): 1 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] rv-pub-da-gate-write-to-if0 (host 1, 2 if): 4 check(s) failed; first: [FAIL] P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, BINDING BOUND and SID_VALID only, per interface and sink
+[ok] rv-pub-reset-interface-0-only (host 0, 2 if): 1 check(s) failed; first: [FAIL] P5 a reset clears every publication register and every output of every interface
+[ok] rv-pub-sink-k-from-entry-low-bit (host 0, 1 if): 8 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+reviewer RTL plants: 8 of 8 caught
+# end: 2026-10-10T00:47:39Z rc=0

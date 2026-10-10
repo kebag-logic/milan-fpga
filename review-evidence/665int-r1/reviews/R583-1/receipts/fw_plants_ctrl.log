@@ -1,0 +1,10 @@
+# cwd: $PACKET
+# cmd: python3 -B $PACKET/scripts/reviewer_fw_plants.py $CLONE $PACKET/scratch/fwp_ctrl $CLONE/third_party/lwSRP ctrl 4
+# start: 2026-10-10T00:48:09Z
+[ESCAPED] rv-acmp-unbind-never-published: acmp rc=1, 1 [FAIL]; first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ok] rv-acmp-no-publish-before-send: acmp rc=1, 5 [FAIL]; first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] rv-driver-sid-valid-never-set: unit rc=1, 1 [FAIL]; first: [FAIL] DriverUnit.D14PublicationBlock: D14 four writes: BINDING, SID_LO, SID_HI, BINDING
+[ok] rv-driver-binding-cleared-after-sid: unit rc=1, 1 [FAIL]; first: [FAIL] DriverUnit.D14PublicationBlock: D14 four writes: BINDING, SID_LO, SID_HI, BINDING
+[ESCAPED] rv-maap-gate-on-interface-0: maap_if2 rc=0, 0 [FAIL]; first: -
+reviewer firmware plants (ctrl): 2 not as expected
+# end: 2026-10-10T00:50:01Z rc=1

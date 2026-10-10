@@ -1,0 +1,702 @@
+2026-10-09T23:57:05.6993810Z HEAD is now at d133ab4 Merge 25bbe4d956e79de979783d7e4706a5581c0742a7 into 8b61b70902f3ebf118e56967277e2686731081bd
+2026-10-09T23:57:27.5214607Z A cache made by other installer bytes is refused before its tools run. ... ok
+2026-10-09T23:57:27.5742671Z A wrong download is refused before tar reads it or anything runs. ... ok
+2026-10-09T23:57:27.9453369Z A FIFO planted in the cache is refused before any tool runs. ... ok
+2026-10-09T23:57:36.9530801Z PASS: explicit absent compiler is refused without fallback
+2026-10-09T23:57:36.9531874Z PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+2026-10-09T23:57:36.9532597Z PASS: caught hosted headers restored
+2026-10-09T23:57:36.9533041Z PASS: caught freestanding disabled
+2026-10-09T23:57:36.9533449Z PASS: caught RV64 object
+2026-10-09T23:57:36.9533840Z PASS: caught hard-float object
+2026-10-09T23:57:36.9534366Z PASS: caught compressed ISA object
+2026-10-09T23:57:36.9534774Z PASS: caught multiply ISA object
+2026-10-09T23:57:36.9535259Z PASS: caught malformed object and dynamic stack report
+2026-10-09T23:57:36.9536070Z PASS: ctrl rejects malloc
+2026-10-09T23:57:36.9536457Z PASS: ctrl rejects __unexpected_service
+2026-10-09T23:57:36.9537080Z PASS: ctrl rejects __unexpected_service despite a same-name static definition
+2026-10-09T23:57:36.9537716Z PASS: ctrl_nvm rejects malloc
+2026-10-09T23:57:36.9538134Z PASS: ctrl_nvm rejects __unexpected_service
+2026-10-09T23:57:36.9538777Z PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+2026-10-09T23:57:36.9539493Z PASS: ctrl_nvm rejects restored stack-protector dependency
+2026-10-09T23:57:36.9540009Z RV32 build self-test: 17 checks PASS
+2026-10-10T00:01:28.0779201Z     RESULT: PASS
+2026-10-10T00:01:28.0779442Z     verdict: PASS (24 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0780719Z     RESULT: PASS
+2026-10-10T00:01:28.0781023Z     verdict: PASS (31 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0791000Z     RESULT: PASS
+2026-10-10T00:01:28.0791256Z     verdict: PASS (26 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0792319Z     RESULT: PASS
+2026-10-10T00:01:28.0792714Z     verdict: PASS (25 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0793420Z     RESULT: PASS
+2026-10-10T00:01:28.0793647Z     verdict: PASS (2 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0795297Z     RESULT: PASS
+2026-10-10T00:01:28.0795523Z     verdict: PASS (41 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0813009Z     RESULT: PASS
+2026-10-10T00:01:28.0813267Z     verdict: PASS (92 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0814269Z     RESULT: PASS
+2026-10-10T00:01:28.0814495Z     verdict: PASS (127 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0815523Z     RESULT: PASS
+2026-10-10T00:01:28.0815780Z     verdict: PASS (7 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0844299Z     RESULT: PASS
+2026-10-10T00:01:28.0844547Z     verdict: PASS (24 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0845523Z     RESULT: PASS
+2026-10-10T00:01:28.0845750Z     verdict: PASS (9 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0846513Z     RESULT: PASS
+2026-10-10T00:01:28.0846740Z     verdict: PASS (9 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0847536Z     RESULT: PASS
+2026-10-10T00:01:28.0847760Z     verdict: PASS (9 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0848550Z     RESULT: PASS
+2026-10-10T00:01:28.0848770Z     verdict: PASS (9 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0849681Z     RESULT: PASS
+2026-10-10T00:01:28.0849902Z     verdict: PASS (9 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0852904Z     RESULT: PASS
+2026-10-10T00:01:28.0853626Z     RESULT: PASS
+2026-10-10T00:01:28.0853856Z     verdict: PASS (37 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0857082Z     RESULT: PASS
+2026-10-10T00:01:28.0857306Z     verdict: PASS (13 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0858192Z     RESULT: PASS
+2026-10-10T00:01:28.0858420Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0862669Z     RESULT: PASS
+2026-10-10T00:01:28.0862903Z     verdict: PASS (14 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0863751Z     RESULT: PASS
+2026-10-10T00:01:28.0863975Z     verdict: PASS (122 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0864825Z     RESULT: PASS
+2026-10-10T00:01:28.0865048Z     verdict: PASS (122 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0867678Z     RESULT: PASS
+2026-10-10T00:01:28.0867908Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0868865Z     RESULT: PASS
+2026-10-10T00:01:28.0869088Z     verdict: PASS (56 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0870030Z     RESULT: PASS
+2026-10-10T00:01:28.0870258Z     verdict: PASS (3 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0871629Z     RESULT: PASS
+2026-10-10T00:01:28.0871869Z     verdict: PASS (17 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0872951Z     SRP refused receive bound: 2 accesses, bound 2
+2026-10-10T00:01:28.0876801Z     RESULT: PASS
+2026-10-10T00:01:28.0877037Z     verdict: PASS (6 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0894824Z     RESULT: PASS
+2026-10-10T00:01:28.0895061Z     verdict: PASS (54 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0896095Z     RESULT: PASS
+2026-10-10T00:01:28.0896326Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0897395Z     RESULT: PASS
+2026-10-10T00:01:28.0897620Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0898557Z     RESULT: PASS
+2026-10-10T00:01:28.0898787Z     verdict: PASS (56 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0899766Z     RESULT: PASS
+2026-10-10T00:01:28.0899992Z     verdict: PASS (3 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0901323Z     RESULT: PASS
+2026-10-10T00:01:28.0901555Z     verdict: PASS (17 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0902497Z     SRP refused receive bound: 2 accesses, bound 2
+2026-10-10T00:01:28.0906505Z     RESULT: PASS
+2026-10-10T00:01:28.0906736Z     verdict: PASS (6 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0935149Z     RESULT: PASS
+2026-10-10T00:01:28.0935379Z     verdict: PASS (54 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0936490Z     RESULT: PASS
+2026-10-10T00:01:28.0936816Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0938345Z     RESULT: PASS
+2026-10-10T00:01:28.0938692Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0950146Z     RESULT: PASS
+2026-10-10T00:01:28.0950565Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0969056Z     RESULT: PASS
+2026-10-10T00:01:28.0970013Z     RESULT: PASS
+2026-10-10T00:01:28.0970242Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.0988391Z     RESULT: PASS
+2026-10-10T00:01:28.0989342Z     RESULT: PASS
+2026-10-10T00:01:28.0989574Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1007777Z     RESULT: PASS
+2026-10-10T00:01:28.1008714Z     RESULT: PASS
+2026-10-10T00:01:28.1008949Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1027093Z     RESULT: PASS
+2026-10-10T00:01:28.1028027Z     RESULT: PASS
+2026-10-10T00:01:28.1028246Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1047118Z     RESULT: PASS
+2026-10-10T00:01:28.1048202Z     RESULT: PASS
+2026-10-10T00:01:28.1048434Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1067186Z     RESULT: PASS
+2026-10-10T00:01:28.1068285Z     RESULT: PASS
+2026-10-10T00:01:28.1068516Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1087749Z     RESULT: PASS
+2026-10-10T00:01:28.1088718Z     RESULT: PASS
+2026-10-10T00:01:28.1088946Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:28.1108109Z     RESULT: PASS
+2026-10-10T00:01:28.1109042Z     RESULT: PASS
+2026-10-10T00:01:28.1109268Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:50.9823140Z     RESULT: PASS
+2026-10-10T00:01:50.9824117Z     RESULT: PASS
+2026-10-10T00:01:50.9824347Z     verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:01:50.9843324Z     RESULT: PASS
+2026-10-10T00:01:50.9844505Z     first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts
+2026-10-10T00:01:50.9845677Z     first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry is counted
+2026-10-10T00:01:50.9846723Z     first: [FAIL] AdpReentry.AdvertiseInlineExpiry: callback leaves core state unchanged
+2026-10-10T00:01:50.9847746Z     first: [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+2026-10-10T00:01:50.9848859Z     first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+2026-10-10T00:01:50.9850310Z     first: [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+2026-10-10T00:01:50.9852048Z     first: [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+2026-10-10T00:01:50.9853460Z     first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+2026-10-10T00:01:50.9854916Z     first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+2026-10-10T00:03:09.7003655Z     first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+2026-10-10T00:03:09.7006423Z     first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+2026-10-10T00:03:09.7008464Z     first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 so does an ENTITY_DISCOVER
+2026-10-10T00:03:09.7010737Z     first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 and a stray expiry, which is counted
+2026-10-10T00:03:09.7013757Z     first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+2026-10-10T00:03:09.7016391Z     first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+2026-10-10T00:03:09.7018164Z     first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+2026-10-10T00:03:09.7019986Z     first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+2026-10-10T00:03:09.7022418Z     first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+2026-10-10T00:03:09.7023808Z     first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+2026-10-10T00:03:09.7025117Z     first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN: RCV_ADP_DISCOVER(eid 0) x DOWN: advertise state after
+2026-10-10T00:03:09.7026289Z     first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+2026-10-10T00:03:09.7027461Z     first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+2026-10-10T00:03:09.7028759Z     first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed: LINK_DOWN x DELAY(timer armed): advertise state after
+2026-10-10T00:03:09.7029975Z     first: [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN: SHUTDOWN x DOWN: no cancel where the slot is untouched
+2026-10-10T00:03:09.7031355Z     first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 into DELAY with a 0..4 s draw
+2026-10-10T00:03:09.7032445Z     first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 TMR_ADVERTISE fires 5000 ms after the send
+2026-10-10T00:03:09.7033550Z     first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..4 s kind
+2026-10-10T00:03:09.7034555Z     first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+2026-10-10T00:03:09.7035716Z     first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+2026-10-10T00:03:09.7037157Z     first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+2026-10-10T00:03:09.7038372Z     first: [FAIL] AdpAdapter.B1StaleTagDiscarded: B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag
+2026-10-10T00:03:09.7039392Z     first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+2026-10-10T00:03:09.7040324Z     first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a released block is the next one handed out
+2026-10-10T00:03:09.7041702Z     first: [FAIL] Pool.P3CallocZeroesAndRefusesAWrap: P3 calloc refuses a count times size that wraps to a small size
+2026-10-10T00:03:09.7042926Z     first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a double free is refused and counted
+2026-10-10T00:03:09.7043881Z     first: [FAIL] DebugSink.S2TruncatedToTheLine: S2 the truncation is counted
+2026-10-10T00:03:09.7044780Z     first: [FAIL] Loop.L4TickFanOut: L4 every centisecond reaches the first consumer
+2026-10-10T00:03:09.7045744Z     first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+2026-10-10T00:03:09.7046743Z     first: [FAIL] AdpOwed.E0toE3PendingWake: E1 the loop does not sleep while a frame is owed
+2026-10-10T00:03:09.7047771Z     first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+2026-10-10T00:03:09.7048902Z     first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F1 events first: no event-ring access follows a receive-ring access in a pass
+2026-10-10T00:03:09.7050200Z     first: [FAIL] Loop.L8TickRecordWhileCarried: L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer
+2026-10-10T00:03:09.7051559Z     first: [FAIL] Loop.L7TickSlices: L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass
+2026-10-10T00:03:09.7052557Z     first: [FAIL] Loop.L7TickSlices: L7 every one of 40 coalesced centiseconds reaches the consumer
+2026-10-10T00:03:09.7053554Z     first: [FAIL] LoopBring.L1OpenOrder: L1 OWN_EID is written before any channel opens
+2026-10-10T00:03:09.7054620Z     first: [FAIL] Driver.D1MalformedRecordResynchronises: D1 and the ring is resynchronised to RX_HEAD, the next record included
+2026-10-10T00:03:09.7055783Z     first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 a held merge fills the ring to its last whole record
+2026-10-10T00:03:09.7057004Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+2026-10-10T00:03:09.7058598Z     first: [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+2026-10-10T00:03:09.7060024Z     first: [FAIL] Pool.P4ShlanFunctionsDrawOnTheBoundPool: P4 shlan_malloc and shlan_calloc draw on the bound pool
+2026-10-10T00:03:09.7061471Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 a burst of the bucket's depth passes
+2026-10-10T00:03:09.7062732Z     first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+2026-10-10T00:03:09.7064242Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+2026-10-10T00:03:09.7065452Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot: G0 GM_HI reads the snapshot GM_LO took
+2026-10-10T00:03:09.7066551Z     first: [FAIL] Pool.P5ClassTablesAndArenasRefused: P5 a class of zero-byte blocks is refused
+2026-10-10T00:04:07.7104495Z     first: [FAIL] Pool.P1ClassesExhaustionAndRefusals: P1 refusals are counted
+2026-10-10T00:04:07.7106314Z     first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+2026-10-10T00:04:07.7107790Z     first: [FAIL] Pool.P8PortLayerUnbound: P8 the bound pool is the one reported
+2026-10-10T00:04:07.7108820Z     first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: crashed on signal 11
+2026-10-10T00:04:07.7110161Z     first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: P9 a class whose list ends before its count is exhausted, not followed: the next class serves
+2026-10-10T00:04:07.7111854Z     first: [FAIL] DebugSink.S3UnencodablePrintDiscarded: S3 an encoding failure is returned as the formatter's negative value
+2026-10-10T00:04:07.7113082Z     first: [FAIL] LoopBring.L9TablesRefuseNullAndOverflow: L9 a channel bound to no function is refused
+2026-10-10T00:04:07.7114283Z     first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 an entity id whose words cancel the seed constant starts the generator at 1
+2026-10-10T00:04:07.7115570Z     first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+2026-10-10T00:04:07.7117076Z     first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted
+2026-10-10T00:04:07.7118781Z     first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+2026-10-10T00:04:07.7120135Z     first: [FAIL] AppComposition.U1AnUncarvablePoolStartsNothing:            Actual: called once - over-saturated and active
+2026-10-10T00:04:07.7121618Z     first: [FAIL] AppComposition.U1AnotherContractOpensNothing:            Actual: called once - over-saturated and active
+2026-10-10T00:04:07.7122863Z     first: [FAIL] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words:            Actual: called once - over-saturated and active
+2026-10-10T00:04:07.7124384Z     first: [FAIL] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed: U3 every turn is one pass, and a pass that owed nothing then sleeps
+2026-10-10T00:04:07.7125512Z     first: [FAIL] DriverUnit.D6MaapRangeWritten: D6 MAAP_BASE_LO holds the base's low word
+2026-10-10T00:04:07.7126568Z     first: [FAIL] DriverUnit.D8TransmitRefusals: D8 a TX_TAIL more than a ring behind TX_HEAD is no room, never a negative fill
+2026-10-10T00:04:07.7127939Z     first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+2026-10-10T00:04:07.7129178Z     first: [FAIL] DriverUnit.D10LanesAndFieldsAtTheirBounds: D10 and reads whole
+2026-10-10T00:04:07.7130220Z     first: [FAIL] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused: B2 slots past the fabric's timer bank are refused
+2026-10-10T00:04:07.7131773Z     first: [FAIL] AdpAdapterUnit.B3ForeignInterfaceCounted: B3 a record, a LINK and a GM naming an interface with no instance are counted
+2026-10-10T00:04:07.7133001Z     first: [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+2026-10-10T00:04:07.7134082Z     first: [FAIL] MmioPlatform.M1OneWordAtBasePlusOffset: M1 a write lands in the word at base + offset
+2026-10-10T00:04:07.7135148Z     first: [FAIL] MmioPlatform.M2WaitIsThePlatformWfi: M2 each mbx_hal_wait() waits once, through CTRL_MBX_WFI
+2026-10-10T00:04:07.7136436Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+2026-10-10T00:04:07.7137836Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q1 tagged, it (adp): FILTER_MISMATCH does not count it
+2026-10-10T00:04:07.7139162Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): no RX record, no delivery
+2026-10-10T00:04:07.7140961Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (adp): no RX record, no delivery
+2026-10-10T00:04:07.7142360Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C0 ACMP to this talker or this listener passes; to neither does not
+2026-10-10T00:04:07.7143762Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery
+2026-10-10T00:04:07.7145240Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 another interface's own MAC, or one on an index with no interface, reaches no ring
+2026-10-10T00:04:07.7146916Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+2026-10-10T00:04:07.7148313Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, response)
+2026-10-10T00:04:07.7149752Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+2026-10-10T00:04:07.7151519Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+2026-10-10T00:04:07.7152837Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 a mismatch sets IRQ_STATUS.ERR
+2026-10-10T00:04:07.7154089Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+2026-10-10T00:04:07.7155479Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: no RX record, no delivery
+2026-10-10T00:04:07.7156976Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+2026-10-10T00:04:07.7158434Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery
+2026-10-10T00:04:07.7159779Z     first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+2026-10-10T00:04:07.7161389Z     first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+2026-10-10T00:04:07.7162945Z     first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 FILTER_MISMATCH is read as its COUNT field
+2026-10-10T00:05:25.3943129Z     first: [FAIL] LoopBring.L1OpenOrder: L1 every interface's OWN_MAC is written before any channel opens
+2026-10-10T00:05:25.3945569Z     first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+2026-10-10T00:05:25.3946964Z     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 no interface is refused
+2026-10-10T00:05:25.3948215Z     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sinks than ACMP_MAX_SINKS are refused
+2026-10-10T00:05:25.3949732Z     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sources than ACMP_MAX_SOURCES are refused
+2026-10-10T00:05:25.3951190Z     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a sink on an interface the entity lacks is refused
+2026-10-10T00:05:25.3952509Z     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a source on an interface the entity lacks is refused
+2026-10-10T00:05:25.3953891Z     first: [FAIL] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled: A0 init calls no port: nothing reads the mailbox before it is open
+2026-10-10T00:05:25.3955314Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+2026-10-10T00:05:25.3956476Z     first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+2026-10-10T00:05:25.3957433Z     first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+2026-10-10T00:05:25.3958666Z     first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+2026-10-10T00:05:25.3960060Z     first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 LISTENER_UNKNOWN_ID, the command's fields echoed (Table 5.27)
+2026-10-10T00:05:25.3961735Z     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+2026-10-10T00:05:25.3963264Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+2026-10-10T00:05:25.3964804Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+2026-10-10T00:05:25.3966126Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 PROBE_TX_COMMAND is Table 5.33 field by field
+2026-10-10T00:05:25.3967321Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+2026-10-10T00:05:25.3968550Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+2026-10-10T00:05:25.3969954Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the discovery machine starts, talker not discovered
+2026-10-10T00:05:25.3971738Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the change is reported after the response was taken (#653)
+2026-10-10T00:05:25.3972963Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+2026-10-10T00:05:25.3974194Z     first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+2026-10-10T00:05:25.3975465Z     first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+2026-10-10T00:05:25.3976798Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding parameters are the command's; STREAMING_WAIT binds it stopped
+2026-10-10T00:05:25.3978346Z     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+2026-10-10T00:05:25.3979814Z     first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 0
+2026-10-10T00:05:25.3981321Z     first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 1
+2026-10-10T00:05:25.3982779Z     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+2026-10-10T00:05:25.3984270Z     first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 a command for a sink the entity lacks is answered, msg 6
+2026-10-10T00:05:25.3985718Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+2026-10-10T00:05:25.3987128Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+2026-10-10T00:05:25.3988326Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+2026-10-10T00:05:25.3989573Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 then UNBOUND, binding cleared, nothing running, in state 1
+2026-10-10T00:05:25.3990916Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the change is reported after the response (#653), in state 1
+2026-10-10T00:05:25.3992360Z     first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+2026-10-10T00:05:25.3993761Z     first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 one response
+2026-10-10T00:05:25.3994943Z     first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 the locking controller binds
+2026-10-10T00:05:25.3996193Z     first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 GET_RX_STATE asks no lock (5.5.3.5.4)
+2026-10-10T00:05:25.3997571Z     first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 a re-bind of the same source sends the response alone, state 1
+2026-10-10T00:05:25.3998953Z     first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 the controller and STREAMING_WAIT are updated, state 1
+2026-10-10T00:05:25.4000349Z     first: [FAIL] AcmpCore.A6BindAnotherSourceRestartsTheSink: A6 SRP is stopped and its parameters cleared only when settled (5.5.3.5.37, .43), state 6
+2026-10-10T00:06:46.1645711Z     first: [FAIL] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding: A6 the same talker with another talker_unique_id is a new source: a new probe
+2026-10-10T00:06:46.1647517Z     first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+2026-10-10T00:06:46.1648899Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 PROBE_TX_COMMAND is Table 5.33 field by field
+2026-10-10T00:06:46.1650363Z     first: [FAIL] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId: A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source
+2026-10-10T00:06:46.1652326Z     first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+2026-10-10T00:06:46.1654184Z     first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+2026-10-10T00:06:46.1655777Z     first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+2026-10-10T00:06:46.1657405Z     first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+2026-10-10T00:06:46.1658939Z     first: [FAIL] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding: A7 the answer to the probe sent before a re-bind still matches the probe that was sent
+2026-10-10T00:06:46.1661052Z     first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 0
+2026-10-10T00:06:46.1662383Z     first: [FAIL] AcmpCore.A8SuccessSettles: A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+2026-10-10T00:06:46.1663492Z     first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+2026-10-10T00:06:46.1664507Z     first: [FAIL] AcmpCore.A8SuccessSettles: A8 SRP is started
+2026-10-10T00:06:46.1665630Z     first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 6
+2026-10-10T00:06:46.1667012Z     first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3
+2026-10-10T00:06:46.1668252Z     first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+2026-10-10T00:06:46.1669598Z     first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+2026-10-10T00:06:46.1671854Z     first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+2026-10-10T00:06:46.1673167Z     first: [FAIL] AcmpCore.A8SuccessSettles: A8 SUCCESS: SETTLED_NO_RSV, PROBING_COMPLETED, state 4
+2026-10-10T00:06:46.1674548Z     first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+2026-10-10T00:06:46.1676108Z     first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 and the ACMP status stays: step 2 sets none
+2026-10-10T00:06:46.1677443Z     first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+2026-10-10T00:06:46.1678738Z     first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)
+2026-10-10T00:06:46.1680186Z     first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+2026-10-10T00:06:46.1681937Z     first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+2026-10-10T00:06:46.1683560Z     first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED: TMR_NO_TK cleared, SETTLED_RSV_OK (5.5.3.5.42)
+2026-10-10T00:06:46.1685135Z     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+2026-10-10T00:06:46.1686632Z     first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+2026-10-10T00:06:46.1687662Z     first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+2026-10-10T00:06:46.1688636Z     first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind refuses non-settled state
+2026-10-10T00:06:46.1689934Z     first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+2026-10-10T00:06:46.1691701Z     first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 each interface's timer is armed at the earliest deadline of its own sinks
+2026-10-10T00:06:46.1693223Z     first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 2
+2026-10-10T00:06:46.1694528Z     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 and the interface's timer is stopped, in state 1
+2026-10-10T00:06:46.1695823Z     first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry takes the due timers only, of its own interface's sinks
+2026-10-10T00:06:46.1697278Z     first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+2026-10-10T00:06:46.1698764Z     first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry
+2026-10-10T00:06:46.1699940Z     first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 the longest draw is 1000 ms (Table 5.29)
+2026-10-10T00:06:46.1701126Z     first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 and never again
+2026-10-10T00:06:46.1702203Z     first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 a seed that cancels the state to 0 leaves it 1: xorshift never leaves 0
+2026-10-10T00:06:46.1703489Z     first: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+2026-10-10T00:07:52.6160363Z     first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 one frame per poll: the probe is still owed after the response
+2026-10-10T00:07:52.6163276Z     first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+2026-10-10T00:07:52.6165822Z     first: [FAIL] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs: A19 a command whose response would find the queue full is dropped before it changes anything
+2026-10-10T00:07:52.6168574Z     first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 a probe the full queue cannot take is lost and counted; TMR_NO_RESP will send its duplicate
+2026-10-10T00:07:52.6171758Z     first: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+2026-10-10T00:07:52.6174173Z     first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the oldest first: the response
+2026-10-10T00:07:52.6176767Z     first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+2026-10-10T00:07:52.6179914Z     first: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED forced 0, the source's stream (F05.11; Milan v1.2 Table 5.43)
+2026-10-10T00:07:52.6183286Z     first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+2026-10-10T00:07:52.6186086Z     first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)
+2026-10-10T00:07:52.6189095Z     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+2026-10-10T00:07:52.6191834Z     first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+2026-10-10T00:07:52.6194518Z     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+2026-10-10T00:07:52.6197533Z     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+2026-10-10T00:07:52.6200047Z     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 with no destination MAC held, none is reported
+2026-10-10T00:07:52.6203139Z     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_CONNECTION: NOT_SUPPORTED, fields echoed (5.5.4.4, Table 5.48)
+2026-10-10T00:07:52.6206132Z     first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+2026-10-10T00:07:52.6209575Z     first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+2026-10-10T00:07:52.6213036Z     first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 a frame shorter than the Milan ACMPDU, another EtherType or subtype, or an unknown interface is counted and not read (5.5.2.2)
+2026-10-10T00:07:52.6214569Z [ok] mutant acmp-longer-pdu-refused (acmp): 1 check(s) failed
+2026-10-10T00:07:52.6215645Z     first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)
+2026-10-10T00:07:52.6218491Z     first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+2026-10-10T00:07:52.6221485Z     first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 and from another domain
+2026-10-10T00:07:52.6223913Z     first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+2026-10-10T00:07:52.6226657Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+2026-10-10T00:07:52.6229477Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+2026-10-10T00:07:52.6232955Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+2026-10-10T00:07:52.6235933Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+2026-10-10T00:07:52.6238620Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 a rising available_index is noted and TMR_NO_ADP restarted, no event (step 3)
+2026-10-10T00:07:52.6241258Z     first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING in TK_NOT_DISCOVERED is ignored (Table 5.54 -)
+2026-10-10T00:07:52.6243915Z     first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+2026-10-10T00:07:52.6246461Z     first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+2026-10-10T00:07:52.6248671Z     first: [FAIL] AcmpCore.A22DepartingAndAging: A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED (5.6.4.5.4)
+2026-10-10T00:07:52.6251570Z     first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+2026-10-10T00:07:52.6254266Z     first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 an unbound sink runs no discovery
+2026-10-10T00:07:52.6256895Z     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+2026-10-10T00:07:52.6259490Z     first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 and the grandmaster is sampled once for the frame
+2026-10-10T00:07:52.6262375Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+2026-10-10T00:08:53.1165427Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+2026-10-10T00:08:53.1168286Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+2026-10-10T00:08:53.1171108Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 1 is guarded
+2026-10-10T00:08:53.1173097Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 2 is guarded
+2026-10-10T00:08:53.1174084Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+2026-10-10T00:08:53.1175017Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 4 is guarded
+2026-10-10T00:08:53.1175927Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 5 is guarded
+2026-10-10T00:08:53.1176860Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 6 is guarded
+2026-10-10T00:08:53.1177792Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 7 is guarded
+2026-10-10T00:08:53.1178908Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 8 is guarded
+2026-10-10T00:08:53.1179827Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 9 is guarded
+2026-10-10T00:08:53.1181562Z     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+2026-10-10T00:08:53.1183197Z     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+2026-10-10T00:08:53.1184493Z     first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 probing saves nothing
+2026-10-10T00:08:53.1185707Z     first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+2026-10-10T00:08:53.1186981Z     first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+2026-10-10T00:08:53.1188328Z     first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the record's flags and parameters, big-endian (the processor's BINDING payload)
+2026-10-10T00:08:53.1189960Z     first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+2026-10-10T00:08:53.1191568Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+2026-10-10T00:08:53.1192778Z     first: [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 the started state is saved (5.3.8.7) and is a Table 5.22 item
+2026-10-10T00:08:53.1194055Z     first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 discovery noted while settled moves no Table 5.22 item
+2026-10-10T00:08:53.1195386Z     first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+2026-10-10T00:08:53.1196659Z     first: [FAIL] Table530/ListenerWalk.Graded/TK_DISC_PWA: LW TK_DISC x PWA: notified exactly when a Table 5.22 item moved
+2026-10-10T00:08:53.1198076Z     first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the response, then the probe, on the acmp channel, 70 bytes each, in commit order
+2026-10-10T00:08:53.1199541Z     first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+2026-10-10T00:08:53.1201368Z     first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+2026-10-10T00:08:53.1202815Z     first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+2026-10-10T00:08:53.1204353Z     first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+2026-10-10T00:08:53.1205858Z     first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a stopped arm is counted, never acted on, interface 0
+2026-10-10T00:08:53.1207268Z     first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+2026-10-10T00:08:53.1208685Z     first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+2026-10-10T00:08:53.1210139Z     first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+2026-10-10T00:08:53.1211742Z     first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 0's grandmaster and domain is taken
+2026-10-10T00:08:53.1212933Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 attaching before ADP bound the adp channel is refused
+2026-10-10T00:08:53.1214129Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the event sink is refused
+2026-10-10T00:08:53.1215290Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the poll is refused
+2026-10-10T00:08:53.1216667Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 16 is refused: past the bank, wrapping the sum, or truncating to a slot
+2026-10-10T00:08:53.1217997Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 more interfaces than the mailbox has are refused
+2026-10-10T00:08:53.1219289Z     first: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+2026-10-10T00:08:53.1220792Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+2026-10-10T00:08:53.1221978Z     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C1 GET_RX_STATE -> response, interface 0
+2026-10-10T00:08:53.1223616Z     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+2026-10-10T00:08:53.1225054Z     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0
+2026-10-10T00:08:53.1226445Z     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C4 talker command -> response, interface 0
+2026-10-10T00:10:06.8625887Z     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0
+2026-10-10T00:10:06.8628815Z     first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0
+2026-10-10T00:10:06.8632122Z     first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0
+2026-10-10T00:10:06.8634998Z     first: [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+2026-10-10T00:10:06.8637626Z     first: [FAIL] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing: F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame
+2026-10-10T00:10:06.8639955Z     first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F3 the worst pass of the backlog
+2026-10-10T00:10:06.8642660Z     first: [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)
+2026-10-10T00:10:06.8645657Z     first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+2026-10-10T00:10:06.8648646Z     first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F2 every acmp record is taken by ACMP_MBX_RX_PASSES
+2026-10-10T00:10:06.8651558Z     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0
+2026-10-10T00:10:06.8654168Z     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY -> TMR_DELAY armed, interface 0
+2026-10-10T00:10:06.8656754Z     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0
+2026-10-10T00:10:06.8659547Z     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK -> TMR_DELAY armed, interface 0
+2026-10-10T00:10:06.8662163Z     first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the acmp ring holds no more records than A1 assumes
+2026-10-10T00:10:06.8664307Z     first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the event ring is full
+2026-10-10T00:10:06.8666553Z     first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+2026-10-10T00:10:06.8669257Z     first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+2026-10-10T00:10:06.8672083Z     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 and the view says so (5.3.8.8)
+2026-10-10T00:10:06.8674903Z     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+2026-10-10T00:10:06.8677628Z     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 the grandmaster is sampled once for the frame
+2026-10-10T00:10:06.8680212Z     first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+2026-10-10T00:10:06.8683230Z     first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+2026-10-10T00:10:06.8685985Z     first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+2026-10-10T00:10:06.8688949Z     first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+2026-10-10T00:10:06.8692068Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+2026-10-10T00:10:06.8694624Z     first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B0 the app with ACMP starts on the model
+2026-10-10T00:10:06.8697050Z     first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the filter passes a BIND_RX for this listener
+2026-10-10T00:10:06.8699646Z     first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+2026-10-10T00:10:06.8702886Z     first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+2026-10-10T00:10:06.8705784Z     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+2026-10-10T00:10:06.8708283Z     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 a latch of another length gives nothing
+2026-10-10T00:10:06.8711068Z     first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+2026-10-10T00:10:06.8713648Z     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+2026-10-10T00:10:06.8716354Z     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+2026-10-10T00:10:06.8718822Z     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 the model's readiness is the other owners'
+2026-10-10T00:10:06.8721579Z     first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+2026-10-10T00:10:06.8724314Z     first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+2026-10-10T00:10:06.8726943Z     first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+2026-10-10T00:10:06.8729749Z     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX sends two frames: the response and the probe
+2026-10-10T00:11:11.1186099Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+2026-10-10T00:11:11.1188876Z     first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+2026-10-10T00:11:11.1191272Z     first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+2026-10-10T00:11:11.1192854Z     first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+2026-10-10T00:11:11.1194698Z     first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+2026-10-10T00:11:11.1196207Z     first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+2026-10-10T00:11:11.1197756Z     first: [FAIL] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend: A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+2026-10-10T00:11:11.1199494Z     first: [FAIL] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend: A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+2026-10-10T00:11:11.1201492Z     first: [FAIL] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry: A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+2026-10-10T00:11:11.1203135Z     first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 an expiry of the interface while the probe is owed takes nothing: a held timer is never due
+2026-10-10T00:11:11.1204683Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+2026-10-10T00:11:11.1205929Z     first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 and it does
+2026-10-10T00:11:11.1207129Z     first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 an UNBIND_RX while the probe is owed stops its timer
+2026-10-10T00:11:11.1208541Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 4294967295 is refused: past the bank, wrapping the sum, or truncating to a slot
+2026-10-10T00:11:11.1210120Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 256 is refused: past the bank, wrapping the sum, or truncating to a slot
+2026-10-10T00:11:11.1211871Z     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+2026-10-10T00:11:11.1213192Z     first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+2026-10-10T00:11:11.1214574Z     first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 the duplicate leaves at 200 ms exactly, on interface 1 (5.5.3.5.16)
+2026-10-10T00:11:11.1215860Z     first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 1's grandmaster and domain is taken
+2026-10-10T00:11:11.1217437Z     first: [FAIL] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime: A24 bound and started: flags 0x03, then the parameters, byte for byte
+2026-10-10T00:11:11.1218925Z     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+2026-10-10T00:11:11.1220375Z     first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+2026-10-10T00:11:11.1222218Z     first: [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+2026-10-10T00:11:11.1223670Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+2026-10-10T00:11:11.1225117Z     first: [FAIL] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap: A28 the interface timer holds the earlier deadline, the numerically larger one before the wrap
+2026-10-10T00:11:11.1226507Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_ADP: nothing before its deadline
+2026-10-10T00:11:11.1227882Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it
+2026-10-10T00:11:11.1229306Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+2026-10-10T00:11:11.1231025Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_TK armed 4999 ms before the wrap ends 5 s after it
+2026-10-10T00:11:11.1232474Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it
+2026-10-10T00:11:11.1234028Z     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY: nothing before its deadline
+2026-10-10T00:11:11.1235199Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+2026-10-10T00:11:11.1236448Z     first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 1
+2026-10-10T00:11:11.1237888Z     first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to another talker admits it
+2026-10-10T00:11:11.1239258Z     first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 sink 2's talker on interface 1
+2026-10-10T00:11:11.1240327Z     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+2026-10-10T00:11:11.1241819Z     first: [FAIL] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens: A29 a sink the store resets is withdrawn at the next open
+2026-10-10T00:11:11.1243264Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+2026-10-10T00:11:11.1244680Z     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+2026-10-10T00:12:36.5088511Z     first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+2026-10-10T00:12:36.5091952Z     first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 and writes the bound-talker entry of the binding restored between compose and open, only that one
+2026-10-10T00:12:36.5094806Z     first: [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: B8 an UNBIND_RX clears the entry's BOUND_EN
+2026-10-10T00:12:36.5096869Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+2026-10-10T00:12:36.5098735Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+2026-10-10T00:12:36.5101073Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 a withdrawn entry: BOUND_EN cleared, one write
+2026-10-10T00:12:36.5103354Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+2026-10-10T00:12:36.5105791Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+2026-10-10T00:12:36.5108173Z     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+2026-10-10T00:12:36.5110817Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring
+2026-10-10T00:12:36.5113370Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed
+2026-10-10T00:12:36.5115971Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an entity_id differing from the entry in [63:32] only: no RX record, no delivery
+2026-10-10T00:12:36.5119073Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing
+2026-10-10T00:12:36.5122105Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 no other message_type of a bound talker passes on its entity_id, ENTITY_DISCOVER included
+2026-10-10T00:12:36.5124950Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+2026-10-10T00:12:36.5128109Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+2026-10-10T00:12:36.5131551Z     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+2026-10-10T00:12:36.5134071Z     first: [FAIL] MaapHost.ExplicitAppComposition: protocol timer slots disjoint
+2026-10-10T00:12:36.5136341Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+2026-10-10T00:12:36.5139208Z     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+2026-10-10T00:12:36.5142281Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+2026-10-10T00:12:36.5144852Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+2026-10-10T00:12:36.5147605Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+2026-10-10T00:12:36.5150323Z     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+2026-10-10T00:12:36.5151886Z [ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+2026-10-10T00:12:36.5153079Z     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+2026-10-10T00:12:36.5155580Z     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+2026-10-10T00:12:36.5158129Z     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 MAAP for an entity with no talker source is refused
+2026-10-10T00:12:36.5161448Z     first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 an ACMP configuration the module refuses fails the composition
+2026-10-10T00:12:36.5164355Z     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the explicit MAAP entry refuses a missing stream-address port
+2026-10-10T00:12:36.5166595Z     first: [FAIL] MaapHost.ExplicitAppComposition: Expected: false
+2026-10-10T00:12:36.5168700Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the worst pass of the three-way backlog
+2026-10-10T00:12:36.5171816Z     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+2026-10-10T00:12:36.5175011Z     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+2026-10-10T00:12:36.5178282Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+2026-10-10T00:12:36.5181695Z     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+2026-10-10T00:12:36.5184227Z     first: [FAIL] MaapCore.ReleaseLossAndRetry: starting down withdraws the prior owner
+2026-10-10T00:12:36.5186070Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: initial PROBE is immediate
+2026-10-10T00:12:36.5187875Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: three retransmissions remain
+2026-10-10T00:12:36.5190108Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: retransmission decrements once
+2026-10-10T00:12:36.5192108Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+2026-10-10T00:12:36.5193794Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+2026-10-10T00:12:36.5195480Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+2026-10-10T00:14:05.6944780Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+2026-10-10T00:14:05.6946601Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 500
+2026-10-10T00:14:05.6948789Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 100
+2026-10-10T00:14:05.6950395Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 30000
+2026-10-10T00:14:05.6951883Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 2000
+2026-10-10T00:14:05.6952807Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 511
+2026-10-10T00:14:05.6953749Z     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: zero sum cannot lock generator
+2026-10-10T00:14:05.6954804Z     first: [FAIL] MaapCore.UniformDrawRejectsIncompleteBucket: incomplete random bucket rejected
+2026-10-10T00:14:05.6955845Z     first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+2026-10-10T00:14:05.6956817Z     first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+2026-10-10T00:14:05.6957839Z     first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+2026-10-10T00:14:05.6958846Z     first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+2026-10-10T00:14:05.6959930Z     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+2026-10-10T00:14:05.6961374Z     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+2026-10-10T00:14:05.6962486Z     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND tests conflict fields
+2026-10-10T00:14:05.6963510Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6964740Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6965754Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6966797Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6967817Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6968817Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6969953Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6971294Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6972295Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6973472Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6974505Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6975517Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:14:05.6976022Z [ok] mutant maap-valid-minimum-refused (maap): 4 check(s) failed
+2026-10-10T00:14:05.6976582Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+2026-10-10T00:14:05.6977165Z [ok] mutant maap-future-version-refused (maap): 3 check(s) failed
+2026-10-10T00:14:05.6977730Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+2026-10-10T00:14:05.6978731Z     first: [FAIL] MaapCore.InitAndPreferredRangeBounds: Expected: false
+2026-10-10T00:14:05.6979694Z     first: [FAIL] MaapCore.ReleaseLossAndRetry: PortOperational invalidates acquired address
+2026-10-10T00:14:05.6980874Z     first: [FAIL] MaapCore.ReleaseLossAndRetry: Expected: false
+2026-10-10T00:14:05.6981835Z     first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: Expected: true
+2026-10-10T00:14:05.6983019Z     first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: allocation waits for committed ANNOUNCE
+2026-10-10T00:14:05.6984744Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions:     Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '
+2026-10-10T00:14:05.6986489Z     first: [FAIL] MaapCore.QueueBoundAndWithdrawal: overload is counted as failure
+2026-10-10T00:14:05.6987362Z     first: [FAIL] MaapCore.QueueBoundAndWithdrawal: Expected: true
+2026-10-10T00:14:05.6988218Z     first: [FAIL] MaapCore.QueueBoundAndWithdrawal:     Which is: 0
+2026-10-10T00:14:05.6989126Z     first: [FAIL] MaapCore.ReentrantPortsAreCountedAndIgnored: all input guards fire
+2026-10-10T00:14:05.6990224Z     first: [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+2026-10-10T00:14:05.6991507Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+2026-10-10T00:14:05.6992501Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: selection restored
+2026-10-10T00:14:05.6993478Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+2026-10-10T00:14:05.6994426Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 2
+2026-10-10T00:14:05.6995319Z     first: [FAIL] MaapCsr.ShapesAndCountRefusal:     Which is: 1
+2026-10-10T00:14:05.6996154Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 4026532104
+2026-10-10T00:14:05.6997094Z     first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: old timer tag ignored
+2026-10-10T00:14:05.6998045Z     first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges:     Which is: 2
+2026-10-10T00:14:05.6998902Z     first: [FAIL] MaapHost.AttachRefusalsAndTimerWrap: Expected: false
+2026-10-10T00:14:05.6999839Z     first: [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+2026-10-10T00:14:05.7001090Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+2026-10-10T00:14:05.7002102Z     first: [FAIL] MaapHost.HMaapFilterTupleAndRate: Expected: false
+2026-10-10T00:14:05.7003067Z     first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: H-MAAP original timer deadline to TX_HEAD within 10 ms
+2026-10-10T00:15:16.8093203Z     first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry:     Which is: 1
+2026-10-10T00:15:16.8095515Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+2026-10-10T00:15:16.8097319Z     first: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: callback work bound
+2026-10-10T00:15:16.8099159Z     first: [FAIL] MaapHost.HMaapConflictLossAndRetry: H-MAAP RX_HEAD to DEFEND TX_HEAD within 10 ms
+2026-10-10T00:15:16.8100991Z     first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 output count
+2026-10-10T00:15:16.8102403Z     first: [FAIL] AllStates/MaapCell.TableB7/1: Table B.7 output count
+2026-10-10T00:15:16.8103829Z     first: [FAIL] AllStates/MaapCell.TableB7/2: Table B.7 output count
+2026-10-10T00:15:16.8105413Z     first: [FAIL] AllStates/MaapCell.TableB7/3: Table B.7 output count
+2026-10-10T00:15:16.8106737Z     first: [FAIL] AllStates/MaapCell.TableB7/4: Table B.7 output count
+2026-10-10T00:15:16.8108058Z     first: [FAIL] AllStates/MaapCell.TableB7/5: Table B.7 output count
+2026-10-10T00:15:16.8109578Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:15:16.8111462Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+2026-10-10T00:15:16.8113313Z     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+2026-10-10T00:15:16.8115003Z     first: [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+2026-10-10T00:15:16.8116440Z     first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+2026-10-10T00:15:16.8117924Z     first: [FAIL] AllStates/MaapCell.TableB7/11: Table B.7 conflict decision
+2026-10-10T00:15:16.8119493Z     first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+2026-10-10T00:15:16.8121530Z     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND conflict wins over echoed request
+2026-10-10T00:15:16.8123167Z     first: [FAIL] MaapCore.RestartDrawsNewRange:     Which is: 1
+2026-10-10T00:15:16.8124542Z     first: [FAIL] AllStates/MaapCell.TableB7/15: Table B.7 output count
+2026-10-10T00:15:16.8125938Z     first: [FAIL] AllStates/MaapCell.TableB7/16: Table B.7 output count
+2026-10-10T00:15:16.8127318Z     first: [FAIL] AllStates/MaapCell.TableB7/17: Table B.7 output count
+2026-10-10T00:15:16.8129196Z     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: Expected: true
+2026-10-10T00:15:16.8131294Z     first: [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+2026-10-10T00:15:16.8133442Z     first: [FAIL] MaapCore.BeginBeforePortOperationalRetainsRange: Begin supplied range survives port down
+2026-10-10T00:15:16.8135360Z     first: [FAIL] MaapCore.RestartDrawsNewRange: fixed seed Restart draws a new range
+2026-10-10T00:15:16.8137199Z     first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+2026-10-10T00:15:16.8139378Z     first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+2026-10-10T00:15:16.8141560Z     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+2026-10-10T00:15:16.8143780Z     first: [FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite: enables follow every destination word
+2026-10-10T00:15:16.8146027Z     first: [FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget: interface 1 poll drains deferred output
+2026-10-10T00:15:16.8148213Z     first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 conflict decision
+2026-10-10T00:15:16.8150099Z     first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+2026-10-10T00:15:16.8152712Z     first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+2026-10-10T00:15:16.8154424Z     first: [FAIL] MaapCore.ReverseOctetPriority: equal MAC is not lower
+2026-10-10T00:15:16.8156389Z     first: [FAIL] MaapCore.LinkBounceDrawsAfterSuppliedRange: link bounce draws after consuming supplied range
+2026-10-10T00:15:16.8157517Z [ok] mutant pub-sid-valid-set-first (unit): 1 check(s) failed
+2026-10-10T00:15:16.8158625Z     first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+2026-10-10T00:15:16.8159765Z [ok] mutant pub-sid-halves-swapped (unit): 1 check(s) failed
+2026-10-10T00:15:16.8160840Z     first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+2026-10-10T00:15:16.8161822Z [ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+2026-10-10T00:15:16.8162950Z     first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+2026-10-10T00:15:16.8164042Z [ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+2026-10-10T00:15:16.8164918Z     first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+2026-10-10T00:15:16.8165799Z [ok] mutant pub-sink-past-the-block (unit): 2 check(s) failed
+2026-10-10T00:15:16.8166856Z     first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+2026-10-10T00:15:16.8167777Z [ok] mutant model-pub-sid-not-gated (model): 5 check(s) failed
+2026-10-10T00:15:16.8169110Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+2026-10-10T00:15:16.8170720Z [ok] mutant model-pub-hole-takes-a-write (model): 3 check(s) failed
+2026-10-10T00:15:16.8172503Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, BINDING BOUND and SID_VALID only, per interface and sink
+2026-10-10T00:15:16.8174346Z [ok] mutant model-pub-every-sink-reads-entry-0 (model): 6 check(s) failed
+2026-10-10T00:15:16.8175761Z     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+2026-10-10T00:15:16.8177200Z [ok] mutant pub-acmp-after-the-response (acmp, acmp): 10 check(s) failed
+2026-10-10T00:15:16.8178603Z     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+2026-10-10T00:15:16.8180314Z [ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 27 check(s) failed
+2026-10-10T00:15:16.8182099Z     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+2026-10-10T00:15:16.8183513Z [ok] mutant pub-acmp-talker-for-the-stream (acmp): 3 check(s) failed
+2026-10-10T00:15:16.8184919Z     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+2026-10-10T00:15:16.8186374Z [ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+2026-10-10T00:15:16.8187806Z     first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+2026-10-10T00:15:16.8189231Z [ok] mutant pub-acmp-every-sink-every-entry (acmp): 21 check(s) failed
+2026-10-10T00:15:16.8190815Z     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+2026-10-10T00:15:16.8192145Z [ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+2026-10-10T00:15:16.8193550Z     first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+2026-10-10T00:15:16.8195031Z [ok] mutant pub-acmp-reset-forgets-the-port (acmp): 1 check(s) failed
+2026-10-10T00:15:36.5678895Z     first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+2026-10-10T00:15:36.5679813Z [ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 12 check(s) failed
+2026-10-10T00:15:36.5681031Z     first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+2026-10-10T00:15:36.5681910Z [ok] mutant pub-maap-gate-after-the-report (maap): 2 check(s) failed
+2026-10-10T00:15:36.5682860Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+2026-10-10T00:15:36.5683607Z [ok] mutant pub-maap-gate-skipped (maap): 20 check(s) failed
+2026-10-10T00:15:36.5684510Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+2026-10-10T00:15:36.5685411Z [ok] mutant pub-maap-gate-one-source-short (maap): 11 check(s) failed
+2026-10-10T00:15:36.5686227Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+2026-10-10T00:15:36.5687048Z [ok] mutant pub-maap-gate-open-while-invalid (maap): 3 check(s) failed
+2026-10-10T00:15:36.5688171Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+2026-10-10T00:15:36.5689048Z [ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+2026-10-10T00:15:36.5689818Z     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+2026-10-10T00:15:36.5690900Z mutants: 492 of 492 caught
+2026-10-10T00:17:22.6348045Z [ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+2026-10-10T00:17:31.0603506Z [ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+2026-10-10T00:17:32.7516869Z [ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+2026-10-10T00:18:24.8920902Z [ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+2026-10-10T00:19:54.8510853Z [ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+2026-10-10T00:22:03.1608325Z [ok] pub-licence-after-the-report: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+2026-10-10T00:22:04.8595729Z [ok] pub-licence-skipped: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+2026-10-10T00:22:06.5221462Z [ok] pub-licence-wrong-bit: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+2026-10-10T00:22:08.1915507Z [ok] pub-licence-after-the-revocations: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB a link loss clears LICENCE before the revocation is reported
+2026-10-10T00:22:09.8786300Z [ok] pub-licence-kept-at-destroy: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB destroy clears LICENCE before any revocation is reported
+2026-10-10T00:22:11.5640348Z [ok] pub-domain-adoption-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+2026-10-10T00:22:13.2671428Z [ok] pub-domain-priority-for-vid: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+2026-10-10T00:22:14.9849587Z [ok] pub-domain-default-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+2026-10-10T00:22:16.6633040Z [ok] pub-domain-default-marked-adopted: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB the default Domain {priority 3, VID 2}, not adopted, from startup
+2026-10-10T00:22:18.3784906Z [ok] pub-slope-skipped: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+2026-10-10T00:22:20.0727594Z [ok] pub-slope-halved: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB IDLE_SLOPE is the admitted bandwidth from startup
+2026-10-10T00:22:21.7859954Z [ok] pub-domain-adoption-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+2026-10-10T00:22:23.4576155Z [ok] pub-domain-default-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+2026-10-10T00:22:25.1628180Z [ok] pub-slope-after-the-declarations: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+2026-10-10T00:22:30.0115769Z [ok] pub-term-poll-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll's publication term funds a reset, an adoption and two changes per source
+2026-10-10T00:22:34.8556723Z [ok] pub-term-reset-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each
+2026-10-10T00:23:40.3188703Z [ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+2026-10-10T00:25:46.7277826Z test_ctrl_firmware: PASS
+2026-10-10T00:27:30.4748835Z   RESULT: PASS
+2026-10-10T00:27:30.4749196Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4753975Z   RESULT: PASS
+2026-10-10T00:27:30.4754314Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4758773Z   RESULT: PASS
+2026-10-10T00:27:30.4759103Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4763914Z   RESULT: PASS
+2026-10-10T00:27:30.4764258Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4766700Z   RESULT: PASS
+2026-10-10T00:27:30.4767043Z   verdict: PASS (2 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4769745Z   RESULT: PASS
+2026-10-10T00:27:30.4770074Z   verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4772765Z   RESULT: PASS
+2026-10-10T00:27:30.4773093Z   verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4774373Z   RESULT: PASS
+2026-10-10T00:27:30.4774721Z   verdict: PASS (3 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4775900Z   RESULT: PASS
+2026-10-10T00:27:30.4776229Z   verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4780948Z   RESULT: PASS
+2026-10-10T00:27:30.4781289Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.4783585Z   RESULT: PASS
+2026-10-10T00:27:30.4783928Z   verdict: PASS (2 tests, 0 failures, exit 0)
+2026-10-10T00:27:30.8714418Z [ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+2026-10-10T00:31:13.3745818Z     RESULT: PASS
+2026-10-10T00:31:13.3746097Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:31:13.3747418Z     RESULT: PASS
+2026-10-10T00:31:13.3747703Z     verdict: PASS (5 tests, 0 failures, exit 0)
+2026-10-10T00:31:13.3748079Z test_ctrl_firmware coverage run: PASS
+2026-10-10T00:31:13.3748707Z   verdict: PASS (1 tests, 0 failures, exit 0)
+2026-10-10T00:31:13.3749881Z   RESULT: PASS
+2026-10-10T00:31:13.3750146Z   verdict: PASS (85 tests, 0 failures, exit 0)
+2026-10-10T00:31:13.3751579Z   RESULT: PASS
+2026-10-10T00:31:13.3751836Z   verdict: PASS (2 tests, 0 failures, exit 0)
+2026-10-10T00:31:13.3752197Z saved-state store coverage run: PASS
+2026-10-10T00:31:13.3766576Z firmware coverage: PASS (22 files)

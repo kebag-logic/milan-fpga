@@ -1,0 +1,47 @@
+[==========] Running 14 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 14 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 12500 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 15500 ns from original deadline (model)
+  H-MAAP timer 2: 57 accesses, 20800 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 24200 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (1 ms)
+[ RUN      ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported
+[       OK ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+[       OK ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[       OK ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[       OK ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.AppWaitWakesForMaapWithinBudget
+  H-MAAP wake interface 0: 4800 ns from RX_HEAD (model)
+  H-MAAP wake interface 1: 4800 ns from RX_HEAD (model)
+[       OK ] MaapHost.AppWaitWakesForMaapWithinBudget (0 ms)
+[ RUN      ] MaapHost.InterfaceOneStallDrainsWithinBudget
+  H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+[       OK ] MaapHost.InterfaceOneStallDrainsWithinBudget (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[       OK ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 14 tests from MaapHost (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 14 tests.
+== ctrl H-MAAP mailbox: checks: 14   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (14 tests, 0 failures, exit 0)
