@@ -55,6 +55,9 @@ import ctrl_image
 from ctrl_build import CTRL, HERE, PP, ROOT, STACK, STACK_PREFIX, Refusal
 from srp_arms import DEFAULT_ENTITY
 
+sys.path.insert(0, str(ROOT / "sw/builder"))
+from endstation_builder import ConfigError  # noqa: E402
+
 #: The boundary gate's own modules: never a builder.
 GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_configs.py", "ctrl_pin.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
@@ -257,7 +260,11 @@ def variants() -> Variants:
     atexit.register(shutil.rmtree, work, True)
     shapes = {}
     for config in sorted(CONFIGS.glob("*.yaml")):
-        gen, flags = ctrl_image.shape_build(config, work / config.stem)
+        try:
+            gen, flags = ctrl_image.shape_build(config, work / config.stem)
+        except (ConfigError, subprocess.CalledProcessError) as exc:
+            raise Refusal(f"the end-station builder refused {config.name}, whose shape the image builders "
+                          f"take: {exc}") from exc
         for generator in sorted(CTRL.glob("*/*_entity.py")):
             res = run([sys.executable, "-B", str(generator), str(config), "-o", str(gen / f"{generator.stem}_gen.h")])
             if res.returncode:

@@ -97,6 +97,7 @@ A flag a builder computes at run time is a value.
 The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config.
 A unit that tests any other computed value is refused, since the gate has none of its values.
 Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
+Those come through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
 The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
 The mailbox contract is the tracked one or the variant its generator writes for every other interface count it admits.
 The compiler reports the macros each unit tests or expands (`-dU`).
