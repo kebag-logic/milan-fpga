@@ -7,7 +7,8 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
 threads: one event loop, static state, and a static pool behind lwSRP's
 allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
 layer, the loop and the ADP slice; F2 adds the opt-in [MAAP owner](maap/README.md),
-F3 the ACMP module, and F4 the [SRP adapter](srp/README.md) on pinned lwSRP.
+F3 the ACMP module, F4 the [SRP adapter](srp/README.md) on pinned lwSRP,
+and F5 the opt-in [AECP owner](aecp/README.md).
 Each protocol has its own core and mailbox adapter.
 The ADP, ACMP and MAAP cores and the wire layer are the
 [TSN stack](#the-tsn-stack-submodule)'s, from a pinned submodule (#697).
@@ -43,6 +44,7 @@ is an integration obligation, not a target-time result established here.
 | [`maap/`](maap) | the Annex B core's per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
+| [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
@@ -68,8 +70,9 @@ core-only unit tests:
 The stack depends on nothing in this repository.
 It includes only its own headers and the C library.
 It must never include the mailbox driver or its HAL, the generated register-map contract,
-the MMIO platform, the app, the loop or the measured images.
+the MMIO platform, the app, the loop, the AECP core or the measured images.
 This firmware uses it the other way round, through its public headers (`include/`) only.
+AECP is not part of the stack: its core, adapters and application bridge ([`aecp/`](aecp), F5) are this firmware's.
 The adapters, the app, the loop, the HAL and both images compile its `src/*.c` unchanged.
 Its callback and timing obligations are in its
 [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md).
@@ -79,26 +82,31 @@ It preprocesses the stack's sources and headers with this firmware's own host an
 Every dependency must be a stack public header or a C library header.
 It preprocesses the stack's tests as C++, as the arms compile them.
 They may reach anything of the stack and the host's libraries, and nothing else of this repository.
-It preprocesses every firmware source, header and image source, on the host and for RV32, with the stack's other directories searched last.
+It preprocesses every firmware source and header, AECP's included, and every image source, on the host and for RV32.
+The firmware's units are those of every directory here but `host/` and `test/`, and every C source under `test/`.
+Their include path is every firmware directory, the entity generators' headers, and the stack's other directories last.
 A dependency on the stack outside `include/` is refused.
 So is a file under `sw/firmware` named as a stack source or header.
 Every unit is judged in every configuration the firmware builds.
-The build modes are read from the builders' own `-D` and `-U` flags (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests' and the SRP builds' switches), never listed in the gate.
+The builders are found, never listed: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+Their own `-D` and `-U` flags are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
+A macro name the C implementation reserves is not a mode.
 The compiler reports the macros each unit tests (`-dU`), and the gate tries every combination of their modes.
 A finding names the mode flags of the smallest configuration that reaches it.
 It also runs the stack's own boundary gate.
-`--selftest` plants 25 defects, each refused by name, and three passing controls.
+`--selftest` plants 33 defects, each refused by name, and three passing controls.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
 Every file of its sources, headers, tests, examples, scripts and CMake files must hash to the gitlink's tree, and no other file may be there.
 The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
 The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
-Twelve pin controls follow the boundary controls.
+The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+Fifteen pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
 The mailbox bench passes the clean clone.
-The bench and both modes of the MAAP differential refuse an edited clone before building it.
+The bench, both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
 
 Its tests run two ways.
 The gate [below](#the-host-test) builds the stack's own core tests into the

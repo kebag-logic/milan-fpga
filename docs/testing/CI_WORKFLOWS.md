@@ -60,7 +60,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The stack's tests reach nothing of this repository outside the submodule.
   The firmware reaches only the stack's public headers.
   The stack's own boundary gate runs with gcc and clang.
-  Its pin controls refuse a stack off its gitlink or differing from it, in the mailbox bench and the MAAP differential too.
+  Its pin controls refuse a stack off its gitlink or differing from it, in the mailbox bench, the MAAP differential and the AECP tools too.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.

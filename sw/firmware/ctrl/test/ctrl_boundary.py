@@ -21,20 +21,28 @@ rule under its own CMake build with gcc and clang, and its objects' symbols),
 runs as well.
 
 THE FIRMWARE'S SIDE. Every firmware source and header under sw/firmware/ctrl
-(not the host model or the tests) and the measured images' own sources reach
-the stack through its public headers only. Each is preprocessed on the host
-and with the RV32 compiler, with the firmware's include path and the stack's
-other directories searched last, so a header only they hold resolves there; a
-generated header nobody has generated is named, not read; a dependency inside
-the stack outside include/ is refused. No file under sw/firmware may be named
-as one of the stack's sources or public headers: a copy there would shadow, or
-stand in for, the stack's own.
+(every directory but host/ and test/, which hold test equipment) and the
+measured images' own sources (every C source under test/; the tests are C++)
+reach the stack through its public headers only. AECP is the firmware's, not
+the stack's: its core and adapters are judged here like the rest. Each unit is
+preprocessed on the host and with the RV32 compiler, with every firmware
+directory on the include path, the headers the firmware's entity generators
+(*/*_entity.py) write, and the stack's other directories searched last, so a
+header only they hold resolves there; any other generated header is named, not
+read; a dependency inside the stack outside include/ is refused. No file under
+sw/firmware may be named as one of the stack's sources or public headers: a
+copy there would shadow, or stand in for, the stack's own.
 
 EVERY CONFIGURATION. Both sides are judged in every configuration the
-firmware's builders compile them in. The build modes are read from the
-builders themselves (every -D or -U flag written in ctrl_build.py,
-ctrl_arms.py, srp_arms.py, the two image fixtures, the MAAP differential and
-the mailbox bench's Makefile), never restated here. The compiler reports each
+firmware's builders compile them in. The builders are found, never listed:
+every Python module and Makefile of the checkout, tracked or new, that names
+the firmware's tree (sw/firmware/ctrl, or its shared builder ctrl_build), this
+gate excepted. The build modes are read from them (every -D or -U flag
+written in one), never restated here; a macro the C implementation reserves
+(C11 7.1.3, a leading underscore and a capital or a second underscore, as the
+runtime's builder sets for Picolibc and compiler-rt) is not a firmware mode. The stack's side
+is searched with every firmware directory too, as the arms that compile the
+cores give them (the AECP arms add aecp/). The compiler reports each
 macro a unit's preprocessing tests or expands (-dU). Starting with every other
 mode's macro defined, so that a test of any of them is reported, the gate
 preprocesses each unit under every combination of the modes of the macros it
@@ -52,10 +60,10 @@ be refused by name, and controls each of which must pass; then the pin
 check's controls (a clone of the stack at its gitlink passes; the clone with a
 source, a test, a script or a CMake file edited, with an edit hidden from git
 status, with a file the tree does not hold, or at another revision, is
-refused; the mailbox bench and the MAAP differential, in both its modes,
-refuse the edited clone before building it); then runs the stack gate's own
-self-test. --require-rv32 refuses, rather than skips, the RV32 arm when no RV32
-compiler is found.
+refused; the mailbox bench, the MAAP differential in both its modes, and the
+AECP lane's arms, campaign and wire comparison refuse the edited clone before
+building it); then runs the stack gate's own self-test. --require-rv32
+refuses, rather than skips, the RV32 arm when no RV32 compiler is found.
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32
@@ -88,7 +96,7 @@ sys.path.insert(0, str(HERE.parents[1] / "gtest"))
 
 import fw_gtest  # noqa: E402
 import fw_rv32  # noqa: E402
-from ctrl_build import (C_FLAGS, CTRL, NVM_DIR, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS,  # noqa: E402
+from ctrl_build import (C_FLAGS, CTRL, NVM_DIR, PP, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS,  # noqa: E402
                         TB_MBX, Refusal, Tree, includes, stack_gitlink, stack_pin)
 
 #: The C library's headers (ISO C11, 7.1.2): what the stack may include beside its own.
@@ -96,11 +104,8 @@ C_HEADERS = ("assert complex ctype errno fenv float inttypes iso646 limits local
              "stdbool stddef stdint stdio stdlib stdnoreturn string tgmath uchar wchar wctype").split()
 #: The stack's directories other than its public headers, searched last on the firmware's side.
 STACK_PRIVATE = ("src", "tests", "examples")
-#: The firmware's directories under sw/firmware/ctrl; host/ and test/ are test equipment.
-FIRMWARE_DIRS = ("mbx", "port", "loop", "adp", "maap", "acmp", "app", "plat", "srp")
-#: The measured images' own sources (ctrl_image.py, ctrl_srp_image.py).
-IMAGE_SOURCES = ("test/rv32_image/image_main.c", "test/rv32_image/image_arith.c", "test/rv32_image/image_rt.c",
-                 "test/ctrl_image.c")
+#: The directories under sw/firmware/ctrl that hold test equipment; every other one is the firmware's.
+TEST_EQUIPMENT = ("host", "test")
 #: The firmware side's default build, the release the images ship (NDEBUG), and what its sources need
 #: defined to preprocess at all: the window's address (plat/), a shape's stream counts (the image) and
 #: lwSRP's Milan profile (srp/). The builders' modes, the SRP image's among them, vary on top of it.
@@ -111,11 +116,13 @@ LWSRP = ROOT / "third_party/lwSRP/src"
 SRP_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 #: The stack's own gate, from the submodule.
 STACK_GATE = STACK / "scripts/check_boundary.py"
-#: The firmware's builders: every -D or -U flag written in one is a build mode the boundary is judged in.
-BUILDERS = (HERE / "ctrl_build.py", HERE / "ctrl_arms.py", HERE / "srp_arms.py", HERE / "ctrl_image.py",
-            HERE / "ctrl_srp_image.py", HERE / "maap_differential.py", TB_MBX / "Makefile")
+#: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures
+#: are written on. Every -D or -U flag written in a builder is a build mode the boundary is judged in.
+BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
 #: A -D or -U flag, its macro's name in group 1.
 FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:=.*)?", re.S)
+#: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
+RESERVED = re.compile(r"_[A-Z_]")
 #: A line -dU writes for a macro the preprocessing tested or expanded.
 TESTED = re.compile(r"^#(?:define|undef) ([A-Za-z_]\w*)", re.M)
 #: The compiler's report of a header it could not find.
@@ -165,14 +172,37 @@ def mode_flags(path: Path, text: str) -> list[str]:
     return [word for word in words if FLAG.fullmatch(word)]
 
 
+def candidates() -> list[Path]:
+    """Every Python module and Makefile of the checkout, tracked or new (and not ignored)."""
+    res = run(["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--",
+               "*.py", "*Makefile", "*.mk"])
+    if res.returncode:
+        raise Refusal(f"cannot list the checkout's files: {res.stderr.strip()}")
+    return sorted({ROOT / name for name in res.stdout.split("\0") if name and (ROOT / name).is_file()})
+
+
+def builders(texts: dict[Path, str]) -> list[Path]:
+    """The firmware's builders among the files `texts` holds: each that names the firmware's tree, this gate
+    excepted (the default build it judges in, and its controls' modes, are not a builder's)."""
+    me = Path(__file__).resolve()
+    return [path for path, text in texts.items() if path.resolve() != me and any(n in text for n in BUILDER_NAMES)]
+
+
 def modes(planted: dict[Path, str] | None = None) -> dict[str, tuple[str, ...]]:
-    """Every macro the builders set or clear, with each flag they write for it, read from the builders (with
-    `planted` replacing a builder's text, for the self-test)."""
+    """Every macro the builders set or clear, with each flag they write for it, read from the builders the
+    checkout holds (with `planted` replacing a file's text, or adding a new file, for the self-test). A
+    reserved name is the C implementation's, not a mode."""
+    texts = {path: path.read_text(encoding="utf-8", errors="replace") for path in candidates()}
+    texts.update(planted or {})
     found: dict[str, dict[str, None]] = {}
-    for path in BUILDERS:
-        text = (planted or {}).get(path) or path.read_text(encoding="utf-8")
-        for flag in mode_flags(path, text):
-            found.setdefault(FLAG.fullmatch(flag)[1], {})[flag] = None
+    for path in builders(texts):
+        try:
+            flags = mode_flags(path, texts[path])
+        except SyntaxError as exc:
+            raise Refusal(f"the builder {path.relative_to(ROOT)} does not parse: {exc}") from exc
+        for flag in flags:
+            if not RESERVED.match(name := FLAG.fullmatch(flag)[1]):
+                found.setdefault(name, {})[flag] = None
     return {name: tuple(flags) for name, flags in sorted(found.items())}
 
 
@@ -278,6 +308,21 @@ def smallest(found: dict[tuple[str, str], list[str]]) -> list[str]:
             for (side, core), labels in found.items()]
 
 
+# ---- the firmware's tree, as its builders give it -------------------------------------------
+
+def firmware_dirs(ctrl: Path) -> list[Path]:
+    """The firmware's directories: every directory under the ctrl tree but the test equipment's."""
+    return sorted(d for d in ctrl.iterdir() if d.is_dir() and d.name not in TEST_EQUIPMENT and
+                  not d.name.startswith((".", "__")))
+
+
+def search(trees: Trees, work: Path) -> list[str]:
+    """The firmware's include path from the tree judged: ctrl_build's, then every other firmware directory
+    a builder adds (aecp/ for the AECP arms, srp/ for the SRP arms)."""
+    given = includes(Tree(trees.ctrl, work, work, stack=trees.stack))
+    return given + [flag for d in firmware_dirs(trees.ctrl) if (flag := f"-I{d}") not in given]
+
+
 # ---- the stack's side ---------------------------------------------------------------------
 
 @lru_cache(maxsize=None)
@@ -312,7 +357,7 @@ def stack_side(trees: Trees, compiler: list[str], label: str, universe: dict[str
     every dependency is the stack's public header or the C library's."""
     public = (trees.stack / STACK_INCLUDE).resolve()
     units = sorted((trees.stack / "src").glob("*.c")) + sorted((trees.stack / STACK_INCLUDE).glob("*.h"))
-    argv = [*compiler, *includes(Tree(trees.ctrl, work, work, stack=trees.stack)), "-x", "c"]
+    argv = [*compiler, *search(trees, work), "-x", "c"]
     found: dict[tuple[str, str], list[str]] = {}
     for unit, seen in judged(units, argv, universe, work / label):
         name = unit.relative_to(trees.stack).as_posix()
@@ -331,8 +376,8 @@ def stack_side(trees: Trees, compiler: list[str], label: str, universe: dict[str
 def tests_side(trees: Trees, universe: dict[str, tuple[str, ...]], work: Path) -> list[str]:
     """The stack's tests, preprocessed as the arms compile them in every configuration: nothing of milan-fpga
     outside the stack."""
-    argv = ["g++", *fw_gtest.CXX_FLAGS, *includes(Tree(trees.ctrl, work, work, stack=trees.stack)),
-            f"-I{trees.stack / 'tests'}", f"-idirafter{trees.stack / 'examples'}"]
+    argv = ["g++", *fw_gtest.CXX_FLAGS, *search(trees, work), f"-I{trees.stack / 'tests'}",
+            f"-idirafter{trees.stack / 'examples'}"]
     probe = work / "gtest_probe.cpp"
     work.mkdir(parents=True, exist_ok=True)
     probe.write_text("#include <gtest/gtest.h>\n#include <gmock/gmock.h>\n", encoding="utf-8")
@@ -367,24 +412,32 @@ def where(path: Path, trees: Trees) -> str:
 # ---- the firmware's side ------------------------------------------------------------------
 
 def firmware_units(trees: Trees) -> list[Path]:
-    """The firmware's sources and headers, and the measured images' own sources."""
-    units = [p for d in FIRMWARE_DIRS for p in sorted((trees.ctrl / d).glob("*.[ch]"))]
-    return units + [trees.ctrl / s for s in IMAGE_SOURCES]
+    """The firmware's sources and headers, and the measured images' own sources: every C source under test/
+    (the tests are C++)."""
+    units = [p for d in firmware_dirs(trees.ctrl) for p in sorted(d.glob("*.[ch]"))]
+    return units + sorted((trees.ctrl / "test").rglob("*.c"))
+
+
+def generated(work: Path) -> Path:
+    """The headers the firmware's entity generators (*/*_entity.py) write from SRP_ENTITY, as the arms and the
+    images generate them, in a directory of their own."""
+    gen = work / "gen"
+    gen.mkdir(parents=True, exist_ok=True)
+    for generator in sorted(CTRL.glob("*/*_entity.py")):
+        res = run([sys.executable, "-B", str(generator), str(SRP_ENTITY), "-o", str(gen / f"{generator.stem}_gen.h")])
+        if res.returncode != 0:
+            raise Refusal(f"{generator.name} refused {SRP_ENTITY.name}: {res.stderr.strip()}")
+    return gen
 
 
 def firmware_flags(trees: Trees, compiler: list[str], work: Path) -> list[str]:
-    """The firmware's include path as its builds give it, with the stack's other directories last, and the
-    SRP adapter's generated shape force-included as the SRP builds include it."""
-    tree = Tree(trees.ctrl, trees.ctrl, trees.ctrl, stack=trees.stack)
-    paths = [*includes(tree), f"-I{trees.ctrl / 'srp'}", f"-I{NVM_DIR / 'plat'}", f"-I{NVM_DIR / 'test/rv32'}",
-             f"-I{LWSRP / 'include'}", f"-I{LWSRP}"]
+    """The firmware's include path as its builds give it, the generated headers, the stack's other
+    directories last, and the SRP adapter's generated shape force-included as the SRP builds include it."""
+    gen = generated(work)
+    paths = [*search(trees, work), f"-I{NVM_DIR / 'plat'}", f"-I{NVM_DIR / 'test/rv32'}", f"-I{LWSRP / 'include'}",
+             f"-I{LWSRP}", f"-I{gen}"]
     last = [f"-idirafter{trees.stack / d}" for d in STACK_PRIVATE]
-    shape = work / "srp_entity_gen.h"
-    work.mkdir(parents=True, exist_ok=True)
-    res = run([sys.executable, "-B", str(CTRL / "srp/srp_entity.py"), str(SRP_ENTITY), "-o", str(shape)])
-    if res.returncode != 0:
-        raise Refusal(f"srp_entity.py refused {SRP_ENTITY.name}: {res.stderr.strip()}")
-    return [*compiler, *FIRMWARE_DEFINES, *paths, *last, "-include", str(shape)]
+    return [*compiler, *FIRMWARE_DEFINES, *paths, *last, "-include", str(gen / "srp_entity_gen.h")]
 
 
 def firmware_side(trees: Trees, compiler: list[str], label: str, universe: dict[str, tuple[str, ...]],
@@ -455,8 +508,9 @@ def stack_gate(selftest: bool, work: Path) -> list[str]:
 class Plant:
     """One control: written into the stack's copy or the ctrl tree's copy, side by side, so a relative path
     from one reaches the other (a "+" file is written whole as a new file); refused by a finding holding
-    `needle`, or passing when `needle` is "". `mode` is a flag planted into a copy of ctrl_arms.py's text,
-    which the boundary must then explore without being told."""
+    `needle`, or passing when `needle` is "". `mode` is a flag planted into a copy of the text of `builder`
+    (a file of test/; a new one when it holds none), which the boundary must then explore without being
+    told."""
 
     name: str
     side: str
@@ -465,6 +519,11 @@ class Plant:
     new: str
     needle: str
     mode: str = ""
+    builder: str = "ctrl_arms.py"
+
+
+#: A builder the checkout does not hold: it names the firmware's shared builder, as every builder does.
+NEW_BUILDER = '"""A builder of the firmware that nobody lists."""\nfrom ctrl_build import Tree\n'
 
 
 PLANTS = (
@@ -545,6 +604,31 @@ PLANTS = (
           "#include <assert.h>\n#ifdef CTRL_PLANTED_MODE\n#include \"mbx_hal.h\"\n#endif\n",
           "host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
           "-DCTRL_PLANTED_MODE"),
+    Plant("a mode an AECP arm writes is explored without being named here", "stack", "src/acmp.c",
+          "#include \"acmp.h\"\n", "#include \"acmp.h\"\n#ifdef AECP_TEST_APP\n#include \"mbx_hal.h\"\n#endif\n",
+          "host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"),
+    Plant("a mode written in a new builder nobody lists is explored", "stack", "src/maap.c",
+          "#include \"maap.h\"\n",
+          "#include \"maap.h\"\n#ifdef CTRL_PLANTED_BUILDER\n#include \"ctrl_loop.h\"\n#endif\n",
+          "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+          "-DCTRL_PLANTED_BUILDER", "planted_arms.py"),
+    Plant("stack source includes the AECP core's header", "stack", "src/adp.c", "#include <assert.h>\n",
+          "#include <assert.h>\n#include \"aecp.h\"\n", "the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h"),
+    Plant("a stack test includes the AECP adapter", "stack", "tests/test_adp.cpp", "#include \"adp.h\"\n",
+          "#include \"adp.h\"\n#include \"aecp_mbx.h\"\n",
+          "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h"),
+    Plant("the AECP core reaches a stack source", "ctrl", "aecp/aecp.c", "#include \"aecp_internal.h\"\n",
+          "#include \"aecp_internal.h\"\n#include \"../../tsn-c-stack/src/acmp.c\"\n",
+          "aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"),
+    Plant("the AECP application bridge reaches a stack example's header", "ctrl", "app/ctrl_app_aecp.c",
+          "#include \"ctrl_app_aecp.h\"\n", "#include \"ctrl_app_aecp.h\"\n#include \"adp_port.h\"\n",
+          "app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers"),
+    Plant("the AECP image's SRP composition reaches a stack source", "ctrl", "test/ctrl_aecp_image.c",
+          "#ifdef CTRL_IMAGE_SRP\n#include \"srp_mbx.h\"\n",
+          "#ifdef CTRL_IMAGE_SRP\n#include \"srp_mbx.h\"\n#include \"../../tsn-c-stack/src/maap.c\"\n",
+          "firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c"),
+    Plant("a copy of the stack's acmp.h in the AECP directory", "ctrl", "+aecp/acmp.h", "", "#include <stdint.h>\n",
+          "aecp/acmp.h has the name of the stack's acmp.h"),
     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",
@@ -581,10 +665,11 @@ def planted(plant: Plant, work: Path) -> Trees:
 def controls(rv32: str | None, work: Path) -> int:
     """Every plant refused by the finding it names, every pass control passing; the misbehaving count."""
     bad = 0
-    arms = HERE / "ctrl_arms.py"
     for plant in PLANTS:
         trees = planted(plant, work / "plants")
-        written = {arms: f"{arms.read_text(encoding='utf-8')}\nPLANTED = (\"{plant.mode}\",)\n"} if plant.mode else None
+        builder = HERE / plant.builder
+        text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_BUILDER
+        written = {builder: f"{text}\nPLANTED = (\"{plant.mode}\",)\n"} if plant.mode else None
         findings = judge(trees, rv32, work / "plants-build", modes(written))
         shutil.rmtree(work / "plants-build", ignore_errors=True)
         ok = (not findings) if not plant.needle else any(plant.needle in f for f in findings)
@@ -599,8 +684,9 @@ def pin_controls(work: Path) -> tuple[int, int]:
     """The shared pin check (ctrl_build.stack_pin) passes a clone of the stack at its gitlink and refuses, by
     name, the clone with a source, a test, a script or a CMake file edited, with an edit hidden from git
     status, with a header the gitlink's tree does not hold, and at another revision; the mailbox bench passes
-    the pinned clone, and the bench and the MAAP differential (both modes) refuse an edited one before
-    building it. Returns the misbehaving count and the number of controls."""
+    the pinned clone, and the bench, the MAAP differential (both modes) and the AECP lane's arms, campaign
+    and wire comparison refuse an edited one before building it. Returns the misbehaving count and the
+    number of controls."""
     pin = stack_gitlink()
     clone = work / "pin-clone"
     edited = f"differs from the pinned {pin[:8]}: "
@@ -647,6 +733,11 @@ def pin_controls(work: Path) -> tuple[int, int]:
         return tool([sys.executable, "-B", str(HERE / "maap_differential.py"), "--stack", str(clone), *extra],
                     {"VERILATOR": "false"})
 
+    def aecp(script: str, *extra: str) -> tuple[bool, str]:
+        """One of the AECP lane's tools on the clone, with a simulator that always fails."""
+        return tool([sys.executable, "-B", str(HERE / script), "--stack", str(clone), "--output",
+                     str(work / "aecp-out"), *extra], {"VERILATOR": "false"})
+
     arms = (("the pinned clone, unmodified", lambda: None, direct, ""),
             ("a core source edited", lambda: append("src/adp.c"), direct, edited + "src/adp.c"),
             ("a core test edited", lambda: append("tests/test_adp.cpp"), direct, edited + "tests/test_adp.cpp"),
@@ -664,7 +755,13 @@ def pin_controls(work: Path) -> tuple[int, int]:
             ("the MAAP differential, a core source edited", lambda: append("src/maap.c"), differential,
              edited + "src/maap.c"),
             ("the MAAP differential's self-test, a core source edited", lambda: append("src/maap.c"),
-             lambda: differential("--self-test"), edited + "src/maap.c"))
+             lambda: differential("--self-test"), edited + "src/maap.c"),
+            ("the AECP arms, a core source edited", lambda: append("src/acmp.c"), lambda: aecp("aecp_arms.py", "--app"),
+             edited + "src/acmp.c"),
+            ("the AECP campaign, a core source edited", lambda: append("src/acmp.c"),
+             lambda: aecp("aecp_mutants.py", "--shard", "0", "1000"), edited + "src/acmp.c"),
+            ("the AECP wire comparison, the stack's wire layer edited", lambda: append("include/wire.h"),
+             lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h"))
     bad = 0
     for what, spoil, check, needle in arms:
         fresh()
@@ -674,6 +771,7 @@ def pin_controls(work: Path) -> tuple[int, int]:
         print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
         bad += not ok
     shutil.rmtree(clone)
+    shutil.rmtree(work / "aecp-out", ignore_errors=True)
     return bad, len(arms)
 
 
