@@ -1,0 +1,10 @@
+[ESCAPED] q1_m2_echo_overlap_start: rc=0, KL_maap: 177 checks, 0 failures
+[CAUGHT] q2_first_offset_unstepped: rc=1, 1 failing checks; first: [FAIL] M4 B.3.6.1 MACs differing in bits 16..31 claim disjoint first blocks got=0 exp=1
+[ESCAPED] q3_probe_fold_unstepped: rc=0, KL_maap: 177 checks, 0 failures
+[ESCAPED] q4_every_begin_refolds: rc=0, KL_maap: 177 checks, 0 failures
+[CAUGHT] q6_m8_no_accumulate: rc=1, 2 failing checks; first: [FAIL] M8 B.2 truncated PROBE-state input has no effect got=0 exp=1
+[CAUGHT] q7_m5_counts_conflict: rc=1, 3 failing checks; first: [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+[CAUGHT] q11_m1_equal_is_lower: rc=1, 2 failing checks; first: [FAIL] M1 rProbe/PROBE higher or equal MAC yields   got=0 exp=1
+[CAUGHT] q12_m7_end_off_by_one: rc=1, 1 failing checks; first: [FAIL] M7 Table B.9 invalid supplied range refused  got=0 exp=1
+[CAUGHT] q13_m6_survives_restart: rc=1, 1 failing checks; first: [FAIL] M6 pending response cancelled with allocation got=0 exp=1
+[CAUGHT] q14_m5_return_only_in_announce: rc=1, 1 failing checks; first: [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1

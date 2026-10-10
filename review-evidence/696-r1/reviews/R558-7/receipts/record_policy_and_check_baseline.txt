@@ -1,0 +1,9 @@
+route-1x1 policy unchanged: False | identity unchanged: True | record keys: ['figures', 'identity', 'inputs_sha256', 'kind', 'scopes']
+ooc-1x1 policy unchanged: False | identity unchanged: True | record keys: ['figures', 'identity', 'inputs_sha256', 'kind', 'scopes']
+ooc-8x8 policy unchanged: False | identity unchanged: True | record keys: ['figures', 'identity', 'inputs_sha256', 'kind', 'scopes']
+schema/description unchanged: True True
+baseline PASS: 3 endpoints
+check-baseline rc=0
+route-1x1: differing endpoint keys ['measured', 'record']; tolerance/floor/ceiling unchanged: True
+ooc-1x1: differing endpoint keys ['measured', 'record']; tolerance/floor/ceiling unchanged: True
+ooc-8x8: differing endpoint keys ['measured', 'record']; tolerance/floor/ceiling unchanged: True
