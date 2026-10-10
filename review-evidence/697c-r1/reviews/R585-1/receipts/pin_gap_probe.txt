@@ -1,0 +1,11 @@
+probe: third_party/tsn-c-stack/src/maap.c edited (git -C third_party/tsn-c-stack status):
+ M src/maap.c
+rc=0 make -C tb/verilator/mbx run-cosim (no refusal; result line follows)
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+RESULT: PASS
+compile lines naming the edited source: 1
+rc=0 maap_differential.py (no refusal)
+  verdict: PASS (12 tests, 0 failures, exit 0)
+rc=2 test_ctrl_firmware.py (control: refuses)
+REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+restored: 0 changes

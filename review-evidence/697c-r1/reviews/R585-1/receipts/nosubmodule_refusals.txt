@@ -1,0 +1,13 @@
+rc=2  sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+    REFUSED: <scratch>/nosub/third_party/tsn-c-stack is not its own checkout: initialise the tsn-c-stack submodule
+rc=2  sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 2
+    toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+    REFUSED: <scratch>/nosub/third_party/tsn-c-stack is not its own checkout: initialise the tsn-c-stack submodule
+rc=2  sw/firmware/ctrl/test/ctrl_image.py --shape endstation_ax7101_1x1_tdm8
+    compiler: <scratch>/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+    REFUSED: <scratch>/nosub/third_party/tsn-c-stack is not its own checkout: initialise the tsn-c-stack submodule
+rc=1  sw/firmware/ctrl/test/maap_differential.py --self-test
+    compilation terminated.
+    
+rc=2 make -C tb/verilator/mbx run-cosim
+    make: *** No rule to make target '<scratch>/nosub/third_party/tsn-c-stack/src/adp.c', needed by 'obj_fw/libctrlfw.a'.  Stop.

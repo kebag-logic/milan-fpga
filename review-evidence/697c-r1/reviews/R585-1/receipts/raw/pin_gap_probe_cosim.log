@@ -1,0 +1,33 @@
+make: Entering directory '<scratch>/headclone/tb/verilator/mbx'
+rm -f obj_fw/*.o obj_fw/libctrlfw.a
+cd obj_fw && cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<scratch>/headclone/sw/firmware/ctrl/mbx -I<scratch>/headclone/sw/firmware/ctrl/host -I<scratch>/headclone/sw/firmware/ctrl/port -I<scratch>/headclone/sw/firmware/ctrl/loop -I<scratch>/headclone/sw/firmware/ctrl/adp -I<scratch>/headclone/sw/firmware/ctrl/maap -I<scratch>/headclone/sw/firmware/ctrl/acmp -I<scratch>/headclone/sw/firmware/ctrl/app -I<scratch>/headclone/third_party/tsn-c-stack/include -I<scratch>/headclone/sw/firmware/ctrl_nvm -c <scratch>/headclone/sw/firmware/ctrl/mbx/mbx.c <scratch>/headclone/sw/firmware/ctrl/loop/ctrl_loop.c <scratch>/headclone/sw/firmware/ctrl/port/ctrl_pool.c <scratch>/headclone/sw/firmware/ctrl/port/ctrl_debug.c <scratch>/headclone/sw/firmware/ctrl/port/shlan_port.c <scratch>/headclone/sw/firmware/ctrl/adp/adp_mbx.c <scratch>/headclone/sw/firmware/ctrl/maap/maap_mbx.c <scratch>/headclone/sw/firmware/ctrl/maap/maap_csr.c <scratch>/headclone/sw/firmware/ctrl/acmp/acmp_mbx.c <scratch>/headclone/sw/firmware/ctrl/acmp/acmp_nvm.c <scratch>/headclone/sw/firmware/ctrl/app/ctrl_app.c <scratch>/headclone/sw/firmware/ctrl/host/mbx_model.c <scratch>/headclone/third_party/tsn-c-stack/src/adp.c <scratch>/headclone/third_party/tsn-c-stack/src/maap.c <scratch>/headclone/third_party/tsn-c-stack/src/acmp.c
+cd obj_fw && ar crs libctrlfw.a *.o
+if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
+  rm -f obj_cosim/Vmbx_cosim; fi
+<pinned-verilator>/verilator --cc --exe --build -j 4 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<scratch>/headclone/sw/firmware/ctrl/mbx" -GHOST_P=0 --Mdir obj_cosim ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv cosim_main.cpp \
+  -CFLAGS "-Wall -Wextra -I<scratch>/headclone/sw/firmware/ctrl/mbx -I<scratch>/headclone/sw/firmware/ctrl/host -I<scratch>/headclone/sw/firmware/ctrl/port -I<scratch>/headclone/sw/firmware/ctrl/loop -I<scratch>/headclone/sw/firmware/ctrl/adp -I<scratch>/headclone/sw/firmware/ctrl/maap -I<scratch>/headclone/sw/firmware/ctrl/acmp -I<scratch>/headclone/sw/firmware/ctrl/app -I<scratch>/headclone/third_party/tsn-c-stack/include -I<scratch>/headclone/sw/firmware/ctrl_nvm" -LDFLAGS "<scratch>/headclone/tb/verilator/mbx/obj_fw/libctrlfw.a" -o Vmbx_cosim
+make[1]: Entering directory '<scratch>/headclone/tb/verilator/mbx/obj_cosim'
+g++    cosim_main.o verilated.o verilated_threads.o Vtb_mbx_top__ALL.a   <scratch>/headclone/tb/verilator/mbx/obj_fw/libctrlfw.a  -pthread -lpthread -latomic   -o Vmbx_cosim
+make[1]: Leaving directory '<scratch>/headclone/tb/verilator/mbx/obj_cosim'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.068 s (elab=0.000, cvt=0.000, bld=0.067); cpu 0.001 s on 4 threads; allocated 16.492 MB
+======================================================================
+./obj_cosim/Vmbx_cosim
+  frame 0: NOW_MS 117, ADP message_type 0, available_index 0
+  frame 1: NOW_MS 1000, ACMP message_type 7, sequence_id 257
+  frame 2: NOW_MS 1000, ACMP message_type 0, sequence_id 0
+  frame 3: NOW_MS 1200, ACMP message_type 0, sequence_id 0
+  frame 4: NOW_MS 3000, ACMP message_type 5, sequence_id 258
+  frame 5: NOW_MS 3500, ACMP message_type 1, sequence_id 259
+  frame 6: NOW_MS 5565, ACMP message_type 0, sequence_id 1
+  frame 7: NOW_MS 5765, ACMP message_type 0, sequence_id 1
+  frame 8: NOW_MS 6000, ACMP message_type 11, sequence_id 261
+  frame 9: NOW_MS 7000, ACMP message_type 9, sequence_id 262
+  frame 10: NOW_MS 7542, ADP message_type 0, available_index 1
+  frame 11: NOW_MS 14570, ADP message_type 0, available_index 2
+  frame 12: NOW_MS 18907, ADP message_type 0, available_index 3
+  frame 13: NOW_MS 20000, ADP message_type 1, available_index 4
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<scratch>/headclone/tb/verilator/mbx'

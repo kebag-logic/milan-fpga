@@ -1,0 +1,12 @@
+host: Linux x86_64
+gcc (GCC) 16.2.1 20260810
+clang version 23.1.1
+cmake version 4.4.4
+Python 3.14.7
+riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+RV32 SDK installed by scripts/ci_rv32_sdk.py from the pinned archive (sha256 d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f)
+Verilator 5.050 2026-07-01 rev v5.050
+verilator_bin sha256 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+GoogleTest/GoogleMock 1.14.0 static install on CPLUS_INCLUDE_PATH/LIBRARY_PATH for the firmware gates and coverage; the MAAP differential links the host's shared GoogleTest 1.18.0 (the static 1.14.0 archives do not link in its argument order, at base and head alike)
+SRP image runtime archives built by ctrl_image_runtime.py from picolibc ad4203cecf0fd65f653835fe65c20f1b7924e0ca, llvm-project compiler-rt acd27dbc4ae293113fcddab8576e17ab06299d0c, litex b2759f69bcae8be0357fb2ee5eebe216365d1f00: libc.a 07b867f505b84b405c0c3dd0ebccdb6f86daf401bc91b4e659dde5af75e53a48, libcompiler_rt.a 9212207bd3944718a4ed38bb5f9a7dfdea991e50b394cca9eec862e5596236fe; the same archives before and after
+base tree: clone of dev 8b61b70902f3ebf118e56967277e2686731081bd with its own submodules, each tree linked and tested with its own scripts

@@ -1,0 +1,4 @@
+[CAUGHT] control: stack src includes mbx_hal.h unconditionally: ctrl_boundary refused: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h; the stack's own gate refused
+[ESCAPED] stack src includes mbx_hal.h under CTRL_REENTRY_ASSERT (a macro the acmp arm defines): ctrl_boundary passes; the stack's own gate passes
+[CAUGHT] stack src includes ctrl_debug.h under #ifndef NDEBUG (the debug arms' mode): ctrl_boundary passes; the stack's own gate refused
+[ESCAPED] firmware adapter reaches the stack's tests/acmp_fake.hpp under CTRL_REENTRY_ASSERT (the acmp arm compiles the adapters with it): ctrl_boundary passes; the stack's own gate n/a
