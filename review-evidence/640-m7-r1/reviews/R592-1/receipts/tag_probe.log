@@ -1,0 +1,3 @@
+ledger_tag_stuck_1: SURVIVED (make rc 0); expected: prior finding says this survives; failed checks: []
+ledger_tag_stuck_0: CAUGHT (make rc 2); expected: ledger lockstep fails; failed checks: ['ledger coverage: three or more entries outstanding', 'ledger lockstep: mismatching cycles', 'timer coverage: slots 0 to 5', 'tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276', 'tx_fifo coverage: over 16 beats queued behind a stall']
+rc=0

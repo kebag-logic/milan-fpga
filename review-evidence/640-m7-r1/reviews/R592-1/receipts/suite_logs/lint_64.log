@@ -1,0 +1,65 @@
+%Warning-TIMESCALEMOD: $CLONE/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv:41:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   41 | package gptp_ucpu_pkg;
+      |         ^~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:98:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   98 | module timestamp_counter #(
+      |        ^~~~~~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:115:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  115 | module KL_ptp_clock_validity #(
+      |        ^~~~~~~~~~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv:73:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   73 | module KL_gptp_txticket #(
+      |        ^~~~~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:91:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   91 | module KL_gptp_txret #(
+      |        ^~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:112:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  112 | module KL_gptp_gmii_launch #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:75:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   75 | module KL_gptp_shadow #(
+      |        ^~~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/common/KL_link_guard.sv:74:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   74 | module KL_link_guard #(
+      |        ^~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/common/cdc_pulse.sv:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cdc_pulse #(
+      |        ^~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $CLONE/hdl/common/cdc_handshake.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module cdc_handshake #(
+      |        ^~~~~~~~~~~~~
+                       $CLONE/third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.590 MB sources in 17 modules, into 0.460 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.264 s (elab=0.019, cvt=0.136, bld=0.000); cpu 0.211 s on 1 threads; allocated 28.188 MB

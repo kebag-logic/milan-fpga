@@ -1,0 +1,11 @@
+== plain
+ledger: 11500995 compared, heads 0xff, 3 deep
+results: 6891576 compared, heads 0xff, 3 deep
+== gptp_tables: checks: 21   failures: 0 ==
+rc=0
+== write_at_head
+ledger: 11500995 compared, heads 0xff, 3 deep
+results: 6891576 compared, heads 0xff, 3 deep
+  [FAIL] results lockstep: mismatching cycles     got=1267065 exp=0
+== gptp_tables: checks: 21   failures: 1 ==
+rc=2

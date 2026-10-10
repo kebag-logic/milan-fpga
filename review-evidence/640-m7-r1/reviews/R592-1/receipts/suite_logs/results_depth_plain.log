@@ -1,0 +1,13 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.140 MB sources in 19 modules, into 0.878 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 8.926 s (elab=0.057, cvt=0.225, bld=8.532); cpu 0.196 s on 4 threads; allocated 231.945 MB
+stimulus: 29100030 cycles, 86740 mixed and 190 peer frames, 12 pdelay answers
+rx_fifo: 40993 good, 33628 overflow, 12309 bad, lanes 0xff, 256 beats deep
+tx_fifo: 7068 frames, counts 0x114, 10699321 stalled cycles, 25 beats deep
+ledger: 11500995 compared, heads 0xff, 3 deep
+results: 6891576 compared, heads 0xff, 3 deep
+timer: 44437 compared, slots 0x3f
+plane: flags 0x5, 2804 programs run, 125 tap drops, 967 parser drops, 466 event drops, 0 lost results, 0 barriers
+== gptp_tables: checks: 21   failures: 0 ==
+RESULT: PASS
+rc=0
