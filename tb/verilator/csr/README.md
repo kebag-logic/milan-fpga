@@ -88,6 +88,7 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
   The leg grades five named checks:
   `reset-values`, `decode`, `snapshot-coherence`, `snapshot-freshness` and `lockstep`.
   The coherence and freshness expectations come from the harness, not from the copy.
+  `lockstep` also requires the random traffic to complete reads; their count is printed.
   `lock_mutants.py` plants seven defects into a copy of the block.
   Each defect must fail its named check: a wrong decode, a torn snapshot,
   two stale snapshots, a reset-value drift and two stage-1 claim defects.

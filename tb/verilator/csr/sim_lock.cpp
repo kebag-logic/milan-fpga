@@ -30,7 +30,9 @@
  *                       reinit release zeroing STAT0-8, a new identity pair.
  *   lockstep            random AXI traffic (aimed at the map's addresses) and
  *                       random inputs on every port, with resets: no output
- *                       may differ on any cycle of any phase.
+ *                       may differ on any cycle of any phase, and the random
+ *                       traffic must complete reads (its R handshakes are
+ *                       counted as that phase's reads).
  *
  * lock_mutants.py plants one defect per class into a copy of the block and
  * requires the matching named check to fail.
@@ -293,6 +295,9 @@ void LockHarness::tick() {
   const bool frozen = out("o_lctx_snap_req") || out("o_tctx_snap_req");
   bool any = false;
   for (int w = 0; w < (LOCK_OUT_N + 31) / 32; ++w) any = any || (top->mism[w] != 0);
+  // the random phase drives the bus pins itself: count the reads it completes
+  if (phase == kRandom && out("s_axi_rvalid") && get_bits(stim.data(), in_at["s_axi_rready"]))
+    reads[phase]++;
   top->aclk = 1;
   top->eval();
   for (int w = 0; w < (LOCK_OUT_N + 31) / 32; ++w) any = any || (top->mism[w] != 0);
@@ -708,8 +713,9 @@ int LockHarness::run() {
   const std::string lw = std::string("lockstep") +
       (all == 0 ? "" : ": " + std::to_string(all) + " mismatching cycles over all phases; " +
                        (first[kRandom].empty() ? std::string("see the phase lines above")
-                                               : first[kRandom]));
-  check.that(lw.c_str(), all == 0);
+                                               : first[kRandom])) +
+      (reads[kRandom] > 0 ? "" : ": the random traffic completed no read");
+  check.that(lw.c_str(), all == 0 && reads[kRandom] > 0);
   std::printf("  cycles: %llu\n", static_cast<unsigned long long>(cyc));
   return check.report();
 }
