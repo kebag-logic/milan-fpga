@@ -1,0 +1,52 @@
+ADP_TEST_COVERAGE ('-DADP_TEST_COVERAGE',)
+ADP_TEST_RELEASE ('-DADP_TEST_RELEASE',)
+AECP_TEST_APP ('-DAECP_TEST_APP',)
+AECP_TEST_MAILBOX ('-DAECP_TEST_MAILBOX',)
+AECP_TEST_NVM ('-DAECP_TEST_NVM',)
+CTRL_APP_TEST_SRP ('-DCTRL_APP_TEST_SRP',)
+CTRL_IMAGE_SRP ('-DCTRL_IMAGE_SRP',)
+CTRL_MBX_BASE ('-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window)', '-DCTRL_MBX_BASE=0x80000000u')
+CTRL_MBX_WFI ('-DCTRL_MBX_WFI=ctrl_test_wfi',)
+CTRL_REENTRY_ASSERT ('-DCTRL_REENTRY_ASSERT',)
+LWSRP_MILAN ('-DLWSRP_MILAN=1',)
+NDEBUG ('-UNDEBUG', '-DNDEBUG')
+NVM_DOCTORED_MAPIN ('-DNVM_DOCTORED_MAPIN',)
+NVM_DOCTORED_NONAME ('-DNVM_DOCTORED_NONAME',)
+PP_TOP_IF2 ('-DPP_TOP_IF2',)
+PP_TOP_TIM_DEFAULTS ('-DPP_TOP_TIM_DEFAULTS',)
+mrp_transmit ('-Dmrp_transmit=srp_test_transmit_real',)
+shlan_calloc ('-Dshlan_calloc=srp_test_calloc',)
+18
+32
+B docs/diagrams/submodule_boundaries.gen.py
+B scripts/ci_events.py
+B scripts/ci_scope.py
+B sw/firmware/ctrl/adp/adp_entity.py
+B sw/firmware/ctrl/test/aecp_arms.py
+B sw/firmware/ctrl/test/aecp_mutants.py
+B sw/firmware/ctrl/test/aecp_wire.py
+B sw/firmware/ctrl/test/ctrl_arms.py
+B sw/firmware/ctrl/test/ctrl_build.py
+B sw/firmware/ctrl/test/ctrl_image.py
+B sw/firmware/ctrl/test/ctrl_image_runtime.py
+B sw/firmware/ctrl/test/ctrl_image_selftest.py
+B sw/firmware/ctrl/test/ctrl_mutant.py
+B sw/firmware/ctrl/test/ctrl_mutants.py
+B sw/firmware/ctrl/test/ctrl_reuse.py
+B sw/firmware/ctrl/test/ctrl_srp_image.py
+B sw/firmware/ctrl/test/maap_differential.py
+B sw/firmware/ctrl/test/srp_arms.py
+B sw/firmware/ctrl/test/srp_mutants.py
+B sw/firmware/ctrl/test/srp_reuse.py
+B sw/firmware/ctrl/test/test_ctrl_firmware.py
+B sw/firmware/ctrl_nvm/test/nvm_bench.py
+B sw/firmware/ctrl_nvm/test/nvm_mutants.py
+B sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+B sw/firmware/gtest/fw_coverage.py
+B sw/firmware/gtest/fw_coverage_selftest.py
+B sw/firmware/gtest/fw_gtest.py
+B sw/firmware/gtest/fw_rv32_selftest.py
+B sw/mailbox/gen_mailbox.py
+B sw/mailbox/mailbox_emit.py
+B tb/verilator/mbx/Makefile
+B tb/verilator/mbx/mutants.py

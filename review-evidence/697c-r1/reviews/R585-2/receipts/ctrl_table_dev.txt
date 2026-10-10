@@ -1,0 +1,471 @@
+reentry-guard-removed | adp/adp.c | reentry_debug | AdpReentry.AdvertiseInlineExpiry | inline ADVERTISE expiry asserts
+reentry-uncounted | adp/adp.c | reentry_release | AdpReentry.AdvertiseInlineExpiry | inline ADVERTISE expiry is counted
+reentry-not-ignored | adp/adp.c | reentry_release | AllPorts/AdpPortEntry.RefusesBeforeTouchingState/ | callback leaves core state unchanged
+departing-keeps-index | adp/adp.c | walk | Table551/AdpWalkCell.Graded/ | available_index
+departing-sends-zero | adp/adp.c | adp | AdpCore.A10toA14DepartingIndex | A10 SHUTDOWN in WAITING
+available-replaces-owed-departing | adp/adp.c | adp | AdpCore.A15OwedDepartingAcrossARestart | A15 with room, the next poll sends the owed ENTITY_DEPARTING first
+available-passes-owed-departing | adp/adp.c | adp | AdpCore.A17RoomBackBeforeAPoll | A17 room back and TMR_DELAY expiring before a poll
+second-departing-dropped | adp/adp.c | adp | AdpCore.A16SecondShutdownQueuesItsOwn | A16 a SHUTDOWN while one is owed queues its own
+second-shutdown-overwrites-index | adp/adp.c | adp | AdpCore.A16SecondShutdownQueuesItsOwn | A16 a SHUTDOWN while one is owed queues its own
+link-loss-drops-owed-departing | adp/adp.c | adp | AdpCore.A18LinkLossKeepsTheOwedDeparting | A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING
+gm-change-drops-owed-available | adp/adp.c | adp | AdpCore.A19IgnoredInputsKeepTheOwedAvailable | A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed
+discover-drops-owed-available | adp/adp.c | adp | AdpCore.A19IgnoredInputsKeepTheOwedAvailable | A19 so does an ENTITY_DISCOVER
+stray-expiry-drops-owed-available | adp/adp.c | adp | AdpCore.A19IgnoredInputsKeepTheOwedAvailable | A19 and a stray expiry, which is counted
+link-loss-keeps-owed-available | adp/adp.c | adp | AdpCore.A20LinkLossDropsTheOwedAvailable | A20 a link loss drops the owed ENTITY_AVAILABLE at once
+departing-queue-unbounded | adp/adp.c | adp | Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/ | E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed
+coalesced-departing-uncounted | adp/adp.c | adp | AdpCore.A21DepartingCapacity | A21 the next SHUTDOWN is coalesced into the queued one and counted
+coalesce-drops-queued-departing | adp/adp.c | adp | AdpCore.A21DepartingCapacity | A21 the next SHUTDOWN is coalesced into the queued one and counted
+coalesce-overwrites-oldest-index | adp/adp.c | adp | AdpCore.A21DepartingCapacity | A21 the next SHUTDOWN is coalesced into the queued one and counted
+own-discover-discarded | adp/adp.c | walk | Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING | RCV_ADP_DISCOVER(own eid) x WAITING
+down-answers-discover | adp/adp.c | walk | Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN | RCV_ADP_DISCOVER(eid 0) x DOWN
+link-down-departs | adp/adp.c | walk | Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING | LINK_DOWN x WAITING: frames committed
+gm-change-ignored | adp/adp.c | walk | Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING | GM_CHANGE x WAITING
+delay-ignores-link-down | adp/adp.c | walk | Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed | LINK_DOWN x DELAY
+shutdown-in-down-departs | adp/adp.c | walk | Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN | SHUTDOWN x DOWN
+advertise-expiry-skips-delay | adp/adp.c | walk | Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING | TMR_ADVERTISE x WAITING
+advertise-period-wrong | adp/adp.c | walk | Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed | TMR_DELAY x DELAY(timer armed)
+link-up-draws-startup-kind | adp/adp.c | walk | Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN | LINK_UP x DOWN
+draw-kinds-merged | adp/adp.c | adp | AdpCore.A9DrawKinds | A9 every startup draw
+foreign-discover-answered | adp/adp.c | adp | AdpCore.A3toA5DiscoverAndDiscard | A4 a foreign DISCOVER
+frame-misses-config-index | adp/adp.c | walk | AdpWalk.P11ConfigurationIndexBytes | P11
+stale-tag-accepted | adp/adp_mbx.c | adp | AdpAdapter.B1StaleTagDiscarded | B1 an expiry of the arm a GM_CHANGE replaced
+latency-extra-read | adp/adp_mbx.c | adp | AdpLatency.C0toC6EveryResponsePath | C0 LINK_UP -> TMR_DELAY armed
+pool-free-leaks | port/ctrl_pool.c | port | Pool.P2ReleaseAndBadFrees | P2 a released block
+calloc-overflow-unchecked | port/ctrl_pool.c | port | Pool.P3CallocZeroesAndRefusesAWrap | P3 calloc refuses
+pool-double-free-accepted | port/ctrl_pool.c | port | Pool.P2ReleaseAndBadFrees | P2 a double free
+debug-truncation-uncounted | port/ctrl_debug.c | port | DebugSink.S2TruncatedToTheLine | S2 the truncation
+tick-count-ignored | loop/ctrl_loop.c | port | Loop.L4TickFanOut | L4 every centisecond
+rx-pass-unbounded | loop/ctrl_loop.c | port | Loop.L2PerPassRxBound | L2 a pass takes at most
+poll-owes-nothing | adp/adp_mbx.c | adp | AdpOwed.E0toE3PendingWake | E1 the loop does not sleep while a frame is owed
+events-halved | loop/ctrl_loop.c | adp | AdpBacklog.F0toF7FullBacklogs | F2 all 16 event records are taken by pass
+rx-before-events | loop/ctrl_loop.c | adp | AdpBacklog.F0toF7FullBacklogs | F1 events first
+carried-ticks-overwritten | loop/ctrl_loop.c | port | Loop.L8TickRecordWhileCarried | L8 a TICK record taken while centiseconds are carried
+tick-slice-unbounded | loop/ctrl_loop.c | port | Loop.L7TickSlices | L7 at most CTRL_LOOP_TICKS_PER_PASS
+owed-ticks-let-it-sleep | loop/ctrl_loop.c | port | Loop.L7TickSlices | L7 and the loop keeps passing
+filter-opened-before-eid | loop/ctrl_loop.c | port | LoopBring.L1OpenOrder | L1 OWN_EID is written before
+rx-no-resync | mbx/mbx.c | port | Driver.D1MalformedRecordResynchronises | D1 and the ring is resynchronised
+tx-overfills | mbx/mbx.c | port | Driver.D3HeldMergeFillsAndOrderAcrossChannels | D3 a held merge fills the ring
+lanes-big-endian | mbx/mbx_wire.h | model | Suite/MbxModelGroup.PassesOnTheModel/ | F1 frame byte k is ring word
+frame-sources-from-sinks | adp/adp.c | entity | Fabric/EntityField.MatchesTheFabric/talker_stream_sources | talker_stream_sources
+pool-falls-back-to-heap | port/shlan_port.c | port | Pool.P4ShlanFunctionsDrawOnTheBoundPool | P4 shlan_malloc and shlan_calloc draw on the bound pool
+model-rate-unlimited | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/RateLimit | T0 the frames past it count in RATE_DROP
+seq-not-stamped | mbx/mbx.c | port | Driver.D3HeldMergeFillsAndOrderAcrossChannels | D3 ACMP, ACMP, AECP committed by the driver
+model-round-robin | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder | X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame
+model-gm-hi-live | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot | G0 GM_HI reads the snapshot
+zero-byte-class-accepted | port/ctrl_pool.c | port | Pool.P5ClassTablesAndArenasRefused | P5 a class of zero-byte blocks is refused
+zero-size-refusal-uncounted | port/ctrl_pool.c | port | Pool.P6CallocOfNothingAndOnAnExhaustedPool | P6 and both refusals are counted
+foreign-free-uncounted | port/ctrl_pool.c | port | Pool.P7FreeBelowTheArenaRefused | P7 a free below the first class is refused and counted
+port-pool-unreported | port/shlan_port.c | port | Pool.P8PortLayerUnbound | P8 the bound pool is the one reported
+pool-follows-a-cut-free-list | port/ctrl_pool.c | port | Pool.P9AFreeListShorterThanItsCountIsExhausted | crashed on signal 11
+pool-cut-list-refuses-outright | port/ctrl_pool.c | port | Pool.P9AFreeListShorterThanItsCountIsExhausted | P9 a class whose list ends before its count
+encoding-failure-swallowed | port/ctrl_debug.c | port | DebugSink.S3UnencodablePrintDiscarded | S3 an encoding failure is returned
+rx-binds-no-function | loop/ctrl_loop.c | port | LoopBring.L9TablesRefuseNullAndOverflow | L9 a channel bound to no function is refused
+seed-left-at-zero | adp/adp.c | adp | AdpCore.A22GeneratorNeverStuckAtZero | A22 an entity id whose words cancel the seed constant
+enable-not-idempotent | adp/adp.c | adp | AdpCore.A23RepeatedEnableOrDisableChangesNothing | A23 an enable while enabled draws and arms nothing
+other-subtype-accepted | adp/adp.c | adp | AdpCore.A24OtherEtherTypeOrSubtypeDiscarded | A24 a DISCOVER under another EtherType or subtype is discarded
+app-binds-pool-after-the-mailbox | app/ctrl_app.c | unit | AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox | unsatisfied and active
+app-starts-on-an-uncarved-pool | app/ctrl_app.c | unit | AppComposition.U1AnUncarvablePoolStartsNothing | over-saturated and active
+major-unchecked | mbx/mbx.c | unit | AppComposition.U1AnotherContractOpensNothing | U1 a bitstream carrying another contract is refused
+evt-words-unchecked | mbx/mbx.c | unit | IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words | U2 evt_words differs
+step-waits-twice | loop/ctrl_loop.c | unit | LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed | U3 every turn is one pass
+maap-base-shifted | mbx/mbx.c | unit | DriverUnit.D6MaapRangeWritten | D6 MAAP_BASE_LO holds the base's low word
+tx-negative-fill | mbx/mbx.c | unit | DriverUnit.D8TransmitRefusals | D8 a TX_TAIL more than a ring behind TX_HEAD is no room
+unknown-event-decoded-as-tick | mbx/mbx.c | unit | DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt | D9 an event of a type the contract does not define
+whole-field-loses-its-top-bit | mbx/mbx_wire.h | unit | DriverUnit.D10LanesAndFieldsAtTheirBounds | D10 and reads whole
+slots-past-the-bank | adp/adp_mbx.c | unit | AdpAdapterUnit.B2SlotsPastTheTimerBankRefused | B2 slots past the fabric's timer bank
+foreign-frame-uncounted | adp/adp_mbx.c | unit | AdpAdapterUnit.B3ForeignInterfaceCounted | B3 a record, a LINK and a GM
+attach-ignores-poll-room | adp/adp_mbx.c | unit | AdpAdapterUnit.B4LoopWithNoRoomRefused | B4 a loop with no room for the poll is refused
+mmio-offset-as-index | plat/mbx_plat_mmio.c | unit | MmioPlatform.M1OneWordAtBasePlusOffset | M1 a write lands in the word at base + offset
+wait-without-wfi | plat/mbx_plat_mmio.c | unit | MmioPlatform.M2WaitIsThePlatformWfi | M2 each mbx_hal_wait() waits once
+model-tag-stripped | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q1 tagged, it (adp): no RX record
+model-tpid-matches-a-tuple | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q1 tagged, it (srp MSRP): no RX record
+model-multicast-dst-ignored | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q2 to another destination MAC, it (adp)
+model-ethertype-ignored | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q3 under another control EtherType, it (adp)
+model-subtype-ignored | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q4 with an unassigned AVTP subtype, it (adp)
+model-own-any-unicast | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q2 to another destination MAC, it (aecp, command)
+model-own-mac-of-interface-0 | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface | Q8 another interface's own MAC, or one on an index with no interface, reaches no ring
+model-own-mac-hi-dropped | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks | R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only
+model-aecp-command-only | mbx/mbx_contract.h | model | Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections | Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring
+model-mismatch-never-counted | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+model-mismatch-counts-identity-refusals | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/TupleRejections | Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+model-mismatch-sets-no-err | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount | Q9 a mismatch sets IRQ_STATUS.ERR
+model-msg-type-off-by-one | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast | Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+model-tuple-msg-type-ignored | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast | Q11 a PROBE to this interface's own MAC: no RX record
+model-msg-type-refusal-uncounted | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast | Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+model-defend-any-unicast | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast | Q11 a DEFEND to a unicast MAC no interface owns: no RX record
+own-mac-unguarded | mbx/mbx.c | unit | DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount | D11 an interface past the contract's is refused
+own-mac-halves-swapped | mbx/mbx.c | unit | DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount | D11 OWN_MAC_LO holds MAC[31:0]
+mismatch-read-from-bus-err | mbx/mbx.c | unit | DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount | D11 FILTER_MISMATCH is read as its COUNT field
+own-mac-after-the-channels-open | loop/ctrl_loop.c | port | LoopBring.L1OpenOrder | L1 every interface's OWN_MAC is written before any channel opens
+app-own-mac-not-the-entity-mac | app/ctrl_app.c | unit | AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens | OWN_MAC is the entity's MAC
+acmp-init-no-interface | acmp/acmp.c | acmp | AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold | A0 no interface is refused
+acmp-init-too-many-sinks | acmp/acmp.c | acmp | AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold | A0 more sinks than ACMP_MAX_SINKS
+acmp-init-too-many-sources | acmp/acmp.c | acmp | AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold | A0 more sources than ACMP_MAX_SOURCES
+acmp-init-sink-interface | acmp/acmp.c | acmp | AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold | A0 a sink on an interface the entity lacks is refused
+acmp-init-source-interface | acmp/acmp.c | acmp | AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold | A0 a source on an interface the entity lacks is refused
+acmp-init-reads-the-seed | acmp/acmp.c | acmp | AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled | A0 init calls no port
+acmp-header-no-resp-2s | acmp/acmp.h | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 and TMR_NO_RESP armed 200 ms
+acmp-header-retry-2s | acmp/acmp.h | acmp | AcmpCore.A9FailureWaitsForTheRetry | A9 and TMR_RETRY 4 s
+acmp-header-no-tk-5s | acmp/acmp.h | acmp | AcmpCore.A8SuccessSettles | A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+acmp-header-valid-time-in-seconds | acmp/acmp.h | acmp | AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches | A22 TMR_NO_ADP is the received valid_time in two-second units
+acmp-header-listener-unknown-is-2 | acmp/acmp.h | acmp | AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId | A2 LISTENER_UNKNOWN_ID, the command's fields echoed
+acmp-header-registering-failed-bit | acmp/acmp.h | acmp | AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed | REGISTERING_FAILED 1 (Table 5.39)
+acmp-header-cdl-84 | acmp/acmp.h | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 every frame goes to the ACMP multicast address
+acmp-bind-count-0 | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 BIND_RX_RESPONSE is Table 5.32
+acmp-probe-without-fast-connect | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 PROBE_TX_COMMAND is Table 5.33
+acmp-probe-before-response | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 BIND_RX_RESPONSE is Table 5.32
+acmp-no-resp-2s | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 and TMR_NO_RESP armed 200 ms
+acmp-bind-starts-no-discovery | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 the discovery machine starts
+acmp-bind-change-before-response | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 the change is reported after the response
+acmp-nothing-persisted | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 the binding is saved
+acmp-unbind-not-persisted | acmp/acmp.c | acmpnvm | AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord | N2 the unbind marks the record
+acmp-rebind-not-persisted | acmp/acmp.c | acmpnvm | AcmpStore.N4AnUnreadSlotRefusesPersistence | N4 a new bind is answered and taken, and its record marked
+acmp-streaming-wait-ignored | acmp/acmp.c | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | STREAMING_WAIT binds it stopped
+acmp-sw-read-from-fast-connect | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed | STREAMING_WAIT saved
+acmp-getrx-count-unbound | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateInEveryState | A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39
+acmp-getrx-no-fast-connect | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateInEveryState | A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39
+acmp-getrx-no-registering-failed | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed | REGISTERING_FAILED 1 (Table 5.39)
+acmp-unknown-sink-silent | acmp/acmp.c | acmp | AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId | A2 a command for a sink the entity lacks
+acmp-unbind-echoes-the-talker | acmp/acmp.c | acmp | AcmpCore.A3UnbindInEveryState | A3 UNBIND_RX_RESPONSE is Table 5.36
+acmp-unbind-keeps-srp | acmp/acmp.c | acmp | AcmpCore.A3UnbindInEveryState | A3 a settled sink stops SRP before the response
+acmp-unbind-srp-after-response | acmp/acmp.c | acmp | AcmpCore.A3UnbindInEveryState | A3 a settled sink stops SRP before the response
+acmp-unbind-keeps-discovery | acmp/acmp.c | acmp | AcmpCore.A3UnbindInEveryState | A3 then UNBOUND, binding cleared
+acmp-unbind-change-before-response | acmp/acmp.c | acmp | AcmpCore.A3UnbindInEveryState | A3 the change is reported after the response (#653)
+acmp-not-authorized-is-13 | acmp/acmp.h | acmp | AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind | A4 CONTROLLER_NOT_AUTHORIZED (16
+acmp-lock-ignored | acmp/acmp.c | acmp | AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind | A4 one response
+acmp-lock-refuses-the-holder | acmp/acmp.c | acmp | AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked | A4 the locking controller binds
+acmp-get-rx-state-locked | acmp/acmp.c | acmp | AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked | A4 GET_RX_STATE asks no lock
+acmp-rebind-same-reprobes | acmp/acmp.c | acmp | AcmpCore.A5RebindTheSameSourceUpdatesAndExits | A5 a re-bind of the same source sends the response alone
+acmp-rebind-same-keeps-the-controller | acmp/acmp.c | acmp | AcmpCore.A5RebindTheSameSourceUpdatesAndExits | A5 the controller and STREAMING_WAIT are updated
+acmp-bind-new-keeps-srp | acmp/acmp.c | acmp | AcmpCore.A6BindAnotherSourceRestartsTheSink | A6 SRP is stopped and its parameters cleared
+acmp-bind-same-talker-is-the-same-source | acmp/acmp.c | acmp | AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding | A6 the same talker with another talker_unique_id is a new source
+acmp-sequence-id-never-advances | acmp/acmp.c | acmp | AcmpCore.A12DelaySendsANewProbe | A12 a new PROBE_TX_COMMAND with the next sequence_id
+acmp-sequence-id-per-sink | acmp/acmp.c | acmp | AcmpCore.A16OneCounterForEveryNewProbe | A16 each new PROBE_TX_COMMAND takes the next
+acmp-response-keyed-on-the-source | acmp/acmp.c | acmp | AcmpCore.A7ResponsesKeyOnTheListenerUniqueId | A7 the response belongs to the sink
+acmp-guard-controller-dropped | acmp/acmp.c | acmp | AcmpCore.A7EachGuardTermIsChecked | A7 a response with another controller
+acmp-guard-talker-dropped | acmp/acmp.c | acmp | AcmpCore.A7EachGuardTermIsChecked | A7 a response with another controller
+acmp-guard-unique-id-dropped | acmp/acmp.c | acmp | AcmpCore.A7EachGuardTermIsChecked | A7 a response with another controller
+acmp-guard-sequence-id-dropped | acmp/acmp.c | acmp | AcmpCore.A7EachGuardTermIsChecked | A7 a response with another controller
+acmp-guard-reads-the-binding | acmp/acmp.c | acmp | AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding | A7 the answer to the probe sent before a re-bind still matches
+acmp-responses-taken-outside-probing | acmp/acmp.c | acmp | AcmpCore.A7ResponsesOutsideProbingAreIgnored | A7 RCV_PROBE_TX_RESP is ignored outside
+acmp-vlan-masked | acmp/acmp.c | acmp | AcmpCore.A8SuccessSettles | A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+acmp-no-tk-1s | acmp/acmp.c | acmp | AcmpCore.A8SuccessSettles | A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+acmp-settle-starts-no-srp | acmp/acmp.c | acmp | AcmpCore.A8SuccessSettles | A8 SRP is started
+acmp-settle-swaps-stream-fields | acmp/acmp.c | acmp | AcmpCore.A8SuccessSettles | stream_vlan_id exactly
+acmp-failure-status-dropped | acmp/acmp.c | acmp | AcmpCore.A9FailureWaitsForTheRetry | A9 a failed response: PRB_W_RETRY, the ACMP status is its status
+acmp-failure-retries-at-200ms | acmp/acmp.c | acmp | AcmpCore.A9FailureWaitsForTheRetry | A9 and TMR_RETRY 4 s
+acmp-duplicate-takes-a-new-sequence-id | acmp/acmp.c | acmp | AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp | A10 an exact duplicate of the first probe
+acmp-second-timeout-keeps-status-0 | acmp/acmp.c | acmp | AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp | A10 the second: no frame, LISTENER_TALKER_TIMEOUT
+acmp-no-duplicate | acmp/acmp.c | acmp | AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp | A10 the first TMR_NO_RESP sends one frame
+acmp-retry-ignores-discovery | acmp/acmp.c | acmp | AcmpCore.A11RetryWaitsForTheTalkerOrDelays | A11 TMR_RETRY, talker discovered: TMR_DELAY
+acmp-retry-zeroes-the-status | acmp/acmp.c | acmp | AcmpCore.A11RetryWaitsForTheTalkerOrDelays | A11 and the ACMP status stays
+acmp-delay-resends-the-old-probe | acmp/acmp.c | acmp | AcmpCore.A12DelaySendsANewProbe | A12 a new PROBE_TX_COMMAND with the next sequence_id
+acmp-no-tk-keeps-srp | acmp/acmp.c | acmp | AcmpCore.A13NoTalkerAttributeReprobes | A13 TMR_NO_TK clears the SRP parameters and stops SRP
+acmp-reprobe-ignores-discovery | acmp/acmp.c | acmp | AcmpCore.A13NoTalkerAttributeReprobes | A13 talker discovered: TMR_DELAY, PRB_W_DELAY
+acmp-registered-anywhere | acmp/acmp.c | acmp | AcmpCore.A14RegisteredSettlesTheReservation | A14 EVT_TK_REGISTERED anywhere else
+acmp-registered-keeps-no-tk | acmp/acmp.c | acmp | AcmpCore.A14RegisteredSettlesTheReservation | A14 EVT_TK_REGISTERED: TMR_NO_TK cleared
+acmp-registered-kind-dropped | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed | REGISTERING_FAILED 1 (Table 5.39)
+acmp-unregistered-anywhere | acmp/acmp.c | acmp | AcmpCore.A15UnregisteredReprobes | A15 EVT_TK_UNREGISTERED anywhere else
+acmp-kind-lost | acmp/acmp.c | acmp | AcmpCore.KindChangesOnlyTheSettledView | kind updates the reported view
+acmp-kind-any-state | acmp/acmp.c | acmp | AcmpCore.KindChangesOnlyTheSettledView | kind refuses non-settled state
+acmp-unregistered-keeps-srp | acmp/acmp.c | acmp | AcmpCore.A15UnregisteredReprobes | A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped
+acmp-timer-at-the-latest-deadline | acmp/acmp.c | acmp | AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline | A17 each interface's timer is armed at the earliest
+acmp-timer-port-called-every-time | acmp/acmp.c | acmp | AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline | A17 the port is called only when the earliest deadline moves
+acmp-timer-never-stopped | acmp/acmp.c | acmp | AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline | A17 an interface whose sinks hold no deadline
+acmp-expiry-takes-every-interface | acmp/acmp.c | acmp | AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline | A17 an expiry takes the due timers only
+acmp-expiry-not-consumed | acmp/acmp.c | acmp | AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline | A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+acmp-zero-delay-waits | acmp/acmp.c | acmp | AcmpCore.A18AZeroDelayProbesInTheSameExpiry | A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry
+acmp-delay-up-to-4s | acmp/acmp.h | acmp | AcmpCore.A18AZeroDelayProbesInTheSameExpiry | A18 the longest draw is 1000 ms
+acmp-seed-at-every-draw | acmp/acmp.c | acmp | AcmpCore.A18TheSeedIsTakenAtTheFirstDraw | A18 and never again
+acmp-rng-left-at-0 | acmp/acmp.c | acmp | AcmpCore.A18TheSeedIsTakenAtTheFirstDraw | A18 a seed that cancels the state to 0 leaves it 1
+acmp-response-passes-an-owed-frame | acmp/acmp.c | acmp | AcmpCore.A19NothingPassesAnOwedFrame | A19 a response does not pass one already owed
+acmp-poll-drains-everything | acmp/acmp.c | acmp | AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits | A19 one frame per poll
+acmp-change-not-held-for-its-response | acmp/acmp.c | acmp | AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits | A19 but its change is not reported while its response waits (#653)
+acmp-full-queue-acts | acmp/acmp.c | acmp | AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs | A19 a command whose response would find the queue full is dropped
+acmp-lost-probe-uncounted | acmp/acmp.c | acmp | AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered | A19 a probe the full queue cannot take is lost and counted
+acmp-first-owed-releases-every-change | acmp/acmp.c | acmp | AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether | A19 the bind's response left but the unbind's is still owed
+acmp-poll-newest-first | acmp/acmp.c | acmp | AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 | E2 3 frames owed ahead
+acmp-probe-tx-reports-asking-failed | acmp/acmp.c | acmp | AcmpCore.A20ProbeTxIsAnsweredFromTheSource | A20 PROBE_TX_RESPONSE is Table 5.43
+acmp-probe-tx-echoes-every-flag | acmp/acmp.c | acmpwalk | TalkerWalk.TW1ProbeTheFlagLawAndTheSource | TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed
+acmp-probe-tx-any-interface | acmp/acmp.c | acmp | AcmpCore.A20ProbeTxIsAnsweredFromTheSource | A20 a probe from another interface than the source's
+acmp-probe-tx-no-destination-mac-check | acmp/acmp.c | acmp | AcmpCore.A20ProbeTxIsAnsweredFromTheSource | A20 no destination MAC: TALKER_DEST_MAC_FAILED
+acmp-disconnect-always-succeeds | acmp/acmp.c | acmp | AcmpCore.A20DisconnectGetTxStateAndGetTxConnection | A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID
+acmp-unknown-source-answered | acmp/acmp.c | acmp | AcmpCore.A20ProbeTxIsAnsweredFromTheSource | A20 an unknown source: TALKER_UNKNOWN_ID
+acmp-get-tx-state-echoes-the-listener | acmp/acmp.c | acmp | AcmpCore.A20DisconnectGetTxStateAndGetTxConnection | A20 GET_TX_STATE: listener fields 0
+acmp-get-tx-state-registering-failed-0 | acmp/acmp.c | acmp | AcmpCore.A20DisconnectGetTxStateAndGetTxConnection | REGISTERING_FAILED live
+acmp-get-tx-state-unheld-mac | acmp/acmp.c | acmp | AcmpCore.A20DisconnectGetTxStateAndGetTxConnection | A20 with no destination MAC held, none is reported
+acmp-get-tx-connection-supported | acmp/acmp.c | acmp | AcmpCore.A20DisconnectGetTxStateAndGetTxConnection | A20 GET_TX_CONNECTION: NOT_SUPPORTED
+acmp-every-listener-is-this-one | acmp/acmp.c | acmp | AcmpCore.A21MessagesNotForThisEntityAreIgnored | A21 commands for another listener or talker
+acmp-every-talker-is-this-one | acmp/acmp.c | acmp | AcmpCore.A21MessagesNotForThisEntityAreIgnored | A21 commands for another listener or talker
+acmp-short-pdu-read | acmp/acmp.c | acmp | AcmpCore.A21MalformedFramesAreCounted | A21 a frame shorter than the Milan ACMPDU
+acmp-longer-pdu-refused | acmp/acmp.c | acmp | AcmpCore.A21MalformedFramesAreCounted | A21 the longer IEEE 1722.1-2021 PDU is accepted
+acmp-discovery-reads-no-grandmaster | acmp/acmp.c | acmp | AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches | A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster
+acmp-discovery-reads-no-domain | acmp/acmp.c | acmp | AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches | A22 and from another domain
+acmp-valid-time-in-seconds | acmp/acmp.c | acmp | AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches | A22 TMR_NO_ADP is the received valid_time in two-second units
+acmp-discovered-interface-unchecked | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored
+acmp-restart-on-a-smaller-index-only | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | A22 available_index 700 <= last
+acmp-restart-raises-no-discovered | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | EVT_TK_DEPARTED then EVT_TK_DISCOVERED
+acmp-restart-mismatch-keeps-aging | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | A22 index <= last from another grandmaster
+acmp-refresh-notes-no-index | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | A22 a rising available_index is noted
+acmp-departing-taken-undiscovered | acmp/acmp.c | acmp | AcmpCore.A22DepartingAndAging | A22 a DEPARTING in TK_NOT_DISCOVERED is ignored
+acmp-departing-interface-unchecked | acmp/acmp.c | acmp | AcmpCore.A22DepartingAndAging | A22 a DEPARTING with another interface_index is ignored
+acmp-departing-keeps-aging | acmp/acmp.c | acmp | AcmpCore.A22DepartingAndAging | A22 a DEPARTING: TMR_NO_ADP stopped
+acmp-no-aging | acmp/acmp.c | acmp | AcmpCore.A22DepartingAndAging | A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED
+acmp-discovery-on-every-interface | acmp/acmp.c | acmp | AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface | A22 every bound sink of the talker processes it
+acmp-discovery-on-unbound-sinks | acmp/acmp.c | acmp | AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface | A22 an unbound sink runs no discovery
+acmp-grandmaster-sampled-for-the-refresh | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStateCells | A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored
+acmp-grandmaster-sampled-per-sink | acmp/acmp.c | acmp | AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface | A22 and the grandmaster is sampled once for the frame
+acmp-reentry-unguarded | acmp/acmp.c | acmp | AcmpCore.A23EveryEntryRefusesACallFromInsideAPort | A23 a call made from inside the send port is refused
+acmp-reentry-untrapped | acmp/acmp.c | acmp | AcmpCore.A23EveryEntryRefusesACallFromInsideAPort | refused, counted and trapped
+acmp-send-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryEntryRefusesACallFromInsideAPort | A23 a call made from inside the send port is refused
+acmp-timer-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 1 is guarded
+acmp-gptp-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 2 is guarded
+acmp-clock-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 3 is guarded
+acmp-seed-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 4 is guarded
+acmp-lock-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 5 is guarded
+acmp-source-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 6 is guarded
+acmp-srp-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 7 is guarded
+acmp-persist-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 8 is guarded
+acmp-changed-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 9 is guarded
+acmp-restore-lands-in-prb-w-resp | acmp/acmp.c | acmp | AcmpCore.A24ARestoredBindingFastConnects | A24 startup with a saved binding
+acmp-restore-starts-no-discovery | acmp/acmp.c | acmp | AcmpCore.A24ARestoredBindingFastConnects | A24 startup with a saved binding
+acmp-restore-announced | acmp/acmp.c | acmpnvm | AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects | N1 probing saves nothing
+acmp-record-flags-swapped | acmp/acmp.c | acmpnvm | AcmpStore.N3EachSinksStartedStateIsSaved | N3 each sink's started state and STREAMING_WAIT come back
+acmp-record-unique-id-little-endian | acmp/acmp.c | acmp | AcmpCore.A24ARestoredBindingFastConnects | A24 the latch gives the same record back
+acmp-restore-unique-id-little-endian | acmp/acmp.c | acmp | AcmpCore.A24ARestoredBindingFastConnects | A24 the record's flags and parameters, big-endian
+acmp-roll-back-keeps-the-bindings | acmp/acmp.c | acmp | AcmpCore.A24UnboundRecordsRefusalsAndRollback | A24 the roll-back drops every restored binding
+acmp-unbound-record-not-zero | acmp/acmp.c | acmp | AcmpCore.A24UnboundRecordsRefusalsAndRollback | A24 an unbound sink's record is all zeros
+acmp-started-not-saved | acmp/acmp.c | acmp | AcmpCore.A24StartedIsSavedAndReported | A24 the started state is saved (5.3.8.7)
+acmp-discovery-notifies | acmp/acmp.c | acmp | AcmpCore.A25OnlyTable522ItemsAreReported | A25 discovery noted while settled moves no Table 5.22 item
+acmp-status-not-notified | acmp/acmp.c | acmp | AcmpCore.A25OnlyTable522ItemsAreReported | A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+acmp-probing-status-not-notified | acmp/acmp.c | acmpwalk | Table530/ListenerWalk.Graded/TK_DEP_PWD | notified exactly when a Table 5.22 item moved
+acmp-frames-on-the-adp-channel | acmp/acmp_mbx.c | acmp | AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder | B1 the response, then the probe, on the acmp channel
+acmp-timer-on-the-next-slot | acmp/acmp_mbx.c | acmp | AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot | B3 TMR_NO_RESP is armed on interface 0's ACMP slot
+acmp-timer-deadline-taken-as-a-delay | acmp/acmp_mbx.c | acmp | AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot | B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200
+acmp-stale-tag-taken | acmp/acmp_mbx.c | acmp | AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded | B4 the expiry of a replaced arm
+acmp-tag-reused | acmp/acmp_mbx.c | acmp | AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded | B4 the expiry of a replaced arm
+acmp-stop-keeps-the-arm | acmp/acmp_mbx.c | acmp | AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded | B4 the expiry of a stopped arm is counted
+acmp-tap-takes-discover | acmp/acmp_mbx.c | acmp | AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp | B5 an ENTITY_DISCOVER still goes to ADP
+acmp-tap-drops-the-rest | acmp/acmp_mbx.c | acmp | AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp | B5 an ENTITY_DISCOVER still goes to ADP
+acmp-no-tap | acmp/acmp_mbx.c | acmp | AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp | B5 and reaches discovery through the tap
+acmp-domain-not-sampled | acmp/acmp_mbx.c | acmp | AcmpMailbox.B6TheGrandmasterIsTheInterfaces | B6 one from interface 0's grandmaster and domain is taken
+acmp-attach-before-adp | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 attaching before ADP bound the adp channel is refused
+acmp-attach-ignores-sink-room | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 a loop with no room for the event sink is refused
+acmp-attach-ignores-poll-room | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 a loop with no room for the poll is refused
+acmp-slots-past-the-bank | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 a first slot of 16 is refused
+acmp-interfaces-past-the-mailbox | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 more interfaces than the mailbox has are refused
+acmp-poll-owes-nothing | acmp/acmp_mbx.c | acmp | AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt | E1 nothing reported yet, and the loop does not sleep
+acmp-bind-reads-the-clock-twice | acmp/acmp.c | acmp | AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem | C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP
+acmp-get-rx-state-reads-the-clock | acmp/acmp.c | acmp | AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem | C1 GET_RX_STATE -> response
+acmp-probe-response-reads-the-clock-twice | acmp/acmp.c | acmp | AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem | C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed
+acmp-unbind-reads-the-clock | acmp/acmp.c | acmp | AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem | C3 UNBIND_RX -> response, timer stopped
+acmp-talker-reads-the-clock | acmp/acmp.c | acmp | AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem | C4 talker command -> response
+acmp-expiry-reads-the-clock-twice | acmp/acmp.c | acmp | AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry | C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP
+acmp-available-reads-the-clock-twice | acmp/acmp.c | acmp | AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord | C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed
+acmp-departing-samples-the-grandmaster | acmp/acmp.c | acmp | AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord | C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped
+acmp-aging-samples-the-grandmaster | acmp/acmp.c | acmp | AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry | C12 TMR_NO_ADP -> TK_NOT_DISCOVERED
+acmp-smallest-record-overstated | acmp/acmp_mbx.h | acmp | AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing | F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame
+acmp-pass-bound-understated | acmp/acmp_mbx.h | acmp | AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound | F3 the worst pass of the backlog
+acmp-adp-ring-bound-understated | acmp/acmp_mbx.h | acmp | AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound | F5 ENTITY_AVAILABLE behind a full adp ring
+acmp-discovery-takes-the-first-sink | acmp/acmp.c | acmp | AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound | F5 every matching bound sink takes it in the same pass
+rx-one-record-per-pass | loop/ctrl_loop.c | acmp | AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound | F5 the ENTITY_AVAILABLE is taken by pass
+acmp-second-no-resp-samples-the-grandmaster | acmp/acmp.c | acmp | AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry | C6 TMR_NO_RESP -> TMR_RETRY armed
+acmp-retry-samples-the-grandmaster | acmp/acmp.c | acmp | AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry | C7 TMR_RETRY -> TMR_DELAY armed
+acmp-delay-reads-the-clock-again | acmp/acmp.c | acmp | AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry | C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP
+acmp-no-tk-samples-the-grandmaster | acmp/acmp.c | acmp | AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry | C9 TMR_NO_TK -> TMR_DELAY armed
+acmp-backlog-understated | acmp/acmp_mbx.h | acmp | AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound | F0 the acmp ring holds no more records than A1 assumes
+model-event-ring-a-record-short | host/mbx_model.c | acmp | AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound | F0 the event ring is full
+acmp-new-bind-never-started | acmp/acmp.c | acmp | AcmpCore.A1BindWithoutStreamingWaitBindsStarted | A1 a bind without STREAMING_WAIT lands started
+acmp-bind-response-always-streaming-wait | acmp/acmp.c | acmp | AcmpCore.A1BindWithoutStreamingWaitBindsStarted | A1 a bind without STREAMING_WAIT lands started
+acmp-view-without-registering-failed | acmp/acmp.c | acmp | AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed | A2 and the view says so
+acmp-discovered-probing-stays-passive | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail | A22 EVT_TK_DISCOVERED in PRB_W_AVAIL
+acmp-grandmaster-read-twice | acmp/acmp.c | acmp | AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail | A22 the grandmaster is sampled once for the frame
+acmp-adp-short-frame-taken | acmp/acmp.c | acmp | AcmpCore.A22OtherAdpFramesAreIgnored | A22 a short ADPDU, a DISCOVER
+acmp-adp-ethertype-unchecked | acmp/acmp.c | acmp | AcmpCore.A22OtherAdpFramesAreIgnored | A22 a short ADPDU, a DISCOVER
+acmp-adp-subtype-unchecked | acmp/acmp.c | acmp | AcmpCore.A22OtherAdpFramesAreIgnored | A22 a short ADPDU, a DISCOVER
+acmp-adp-discover-taken | acmp/acmp.c | acmp | AcmpCore.A22OtherAdpFramesAreIgnored | A22 a short ADPDU, a DISCOVER
+acmp-frames-to-the-own-mac | acmp/acmp.c | acmp | AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused | B2 and is answered, to the multicast address
+app-acmp-before-adp | app/ctrl_app.c | acmp | AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract | B0 the app with ACMP starts on the model
+app-acmp-never-composed | app/ctrl_app.c | acmp | AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract | U5 ACMP binds its channel and stands in front of ADP's handler
+acmp-nvm-bindings-to-the-others | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects | N1 the binding parameters come back
+acmp-nvm-refusal-applied | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault | N5 a binding record of a sink the configuration lacks is refused
+acmp-nvm-d3-roll-back-kept | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N6TheRollBackAndEveryOtherGroup | N6 every other group
+acmp-nvm-latch-length-unchecked | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N6TheRollBackAndEveryOtherGroup | N6 a latch of another length gives nothing
+acmp-nvm-bindings-latched-by-the-others | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects | N1 the binding parameters come back
+acmp-nvm-release-dropped | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N6TheRollBackAndEveryOtherGroup | N6 every other group
+acmp-nvm-settle-dropped | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N6TheRollBackAndEveryOtherGroup | N6 every other group
+acmp-nvm-model-always-ready | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N6TheRollBackAndEveryOtherGroup | N6 the model's readiness is the other owners'
+acmp-version-unchecked | acmp/acmp.c | acmp | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 a BIND_RX of AVTP version 1
+acmp-adp-version-unchecked | acmp/acmp.c | acmp | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 an ENTITY_AVAILABLE of version 1
+acmp-version-bits-misread | acmp/acmp.c | acmp | AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead | A26 a BIND_RX of AVTP version 1
+acmp-header-version-1 | acmp/acmp.h | acmp | AcmpCore.A1BindFromUnboundRespondsThenProbes | A1 BIND_RX sends two frames: the response and the probe
+acmp-owed-probe-timer-runs | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held
+acmp-owed-probe-never-starts | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+acmp-owed-probe-no-resp-2s | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+acmp-owed-probe-sequence-unchecked | acmp/acmp.c | acmp | AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing | A27 the old probe leaving starts no timer for the new one
+acmp-owed-probe-unnamed | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+acmp-owed-probe-names-the-next-sink | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+acmp-probe-timer-before-its-send | acmp/acmp.c | acmp | AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend | A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+acmp-taken-probe-timer-from-the-entry-clock | acmp/acmp.c | acmp | AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend | A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+acmp-expiry-due-at-its-first-read | acmp/acmp.c | acmp | AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry | A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock
+acmp-held-timer-expires | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 an expiry of the interface while the probe is owed takes nothing
+acmp-held-timer-armed | acmp/acmp.c | acmp | AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves | A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed
+acmp-lost-probe-held | acmp/acmp.c | acmp | AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered | A19 and it does
+acmp-stop-keeps-the-hold | acmp/acmp.c | acmp | AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing | A27 an UNBIND_RX while the probe is owed stops its timer
+acmp-slot-sum-wraps | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 a first slot of 4294967295 is refused
+acmp-slot-narrowed-first | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 a first slot of 256 is refused
+acmp-slots-one-short | acmp/acmp_mbx.c | acmp | AcmpAdapterUnit.B7RefusalsOfTheAdapter | B7 the last slot range that fits is taken
+acmp-one-slot-for-all-interfaces | acmp/acmp_mbx.c | acmpif2 | AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot | B3 TMR_NO_RESP is armed on interface 1's ACMP slot
+acmp-expiry-to-interface-0 | acmp/acmp_mbx.c | acmpif2 | AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot | B3 the duplicate leaves at 200 ms exactly, on interface 1
+acmp-gptp-of-interface-0 | acmp/acmp_mbx.c | acmpif2 | AcmpMailbox.B6TheGrandmasterIsTheInterfaces | B6 one from interface 1's grandmaster and domain is taken
+acmp-record-flag-defines-swapped | acmp/acmp.c | acmp | AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime | A24 bound and started: flags 0x03
+acmp-record-valid-bit-moved | acmp/acmp.c | acmp | AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime | A24 bound and stopped: the valid flag alone, 0x01
+acmp-longer-record-applied | acmp/acmp.c | acmp | AcmpCore.A24UnboundRecordsRefusalsAndRollback | A24 a payload of 21 bytes is refused
+acmp-nvm-d3-rollback-drops-bindings | acmp/acmp_nvm.c | acmpnvm | AcmpStore.N7AD3RollBackKeepsTheBindings | N7 and leaves the applied binding
+acmp-due-unsigned | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+acmp-earliest-unsigned | acmp/acmp.c | acmp | AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap | A28 the interface timer holds the earlier deadline
+acmp-no-adp-due-unsigned | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_NO_ADP: nothing before
+acmp-no-resp-deadline-saturates | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_NO_RESP: nothing
+acmp-retry-deadline-saturates | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_RETRY: nothing
+acmp-no-tk-deadline-saturates | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_NO_TK: nothing
+acmp-delay-deadline-saturates | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_DELAY: nothing
+acmp-no-adp-deadline-saturates | acmp/acmp.c | acmp | AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap | A28 TMR_NO_ADP: nothing before
+acmp-admit-never-called | acmp/acmp.c | acmp | AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker | A29 a BIND_RX admits its talker once
+acmp-admit-on-every-entry | acmp/acmp.c | acmp | AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker | A29 a re-bind to the same talker, from any controller or source, admits nothing
+acmp-admit-ignores-another-talker | acmp/acmp.c | acmp | AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker | A29 a re-bind to another talker admits it
+acmp-admit-on-interface-0 | acmp/acmp.c | acmp | AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker | A29 sink 2's talker on interface 1
+acmp-admit-port-unflagged | acmp/acmp.c | acmp | AcmpCore.A23EveryPortIsGuarded | A23 the port kind 10 is guarded
+acmp-reset-forgets-the-admitted | acmp/acmp.c | acmp | AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens | A29 a sink the store resets is withdrawn at the next open
+acmp-open-does-nothing | acmp/acmp.c | acmp | AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens | A29 acmp_open admits each restored binding's talker
+acmp-open-unguarded | acmp/acmp.c | acmp | AcmpCore.A23EveryEntryRefusesACallFromInsideAPort | A23 a call made from inside the send port is refused, counted and trapped, entry 10
+app-acmp-never-opened | app/ctrl_app.c | acmp | AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract | U5 and writes the bound-talker entry of the binding restored
+acmp-mbx-admit-on-entry-0 | acmp/acmp_mbx.c | acmp | AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract | U5 and writes the bound-talker entry of the binding restored
+acmp-mbx-admit-always-bound | acmp/acmp_mbx.c | acmp | AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding | B8 an UNBIND_RX clears the entry's BOUND_EN
+mbx-bound-unguarded | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 an interface past the contract's is refused
+mbx-bound-entry-unguarded | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 an entry past the table's is refused
+mbx-bound-withdraw-writes-nothing | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 a withdrawn entry: BOUND_EN cleared
+mbx-bound-enabled-before-the-identity | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 BOUND_EN is cleared before the identity is written
+mbx-bound-halves-swapped | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 BOUND_EID_LO holds talker[31:0]
+mbx-bound-entry-stride-ignored | mbx/mbx.c | unit | DriverUnit.D13BoundTalkerEntries | D13 BOUND_EID_LO holds talker[31:0]
+model-bound-term-misses | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers | Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring
+model-bound-enable-ignored | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers | Q12 an entry with BOUND_EN clear, its identity still written
+model-bound-low-word-only | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers | Q12 an entity_id differing from the entry in [63:32] only
+model-bound-table-of-interface-0 | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers | Q13 on another interface, or an index with no interface, it reaches no ring
+model-bound-term-any-type | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers | Q12 no other message_type of a bound talker passes on its entity_id
+model-bound-entry-decoded-as-0 | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks | R1 each bound-talker entry keeps
+model-bound-en-reads-the-eid | host/mbx_model.c | model | Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks | R1 each bound-talker entry keeps
+app-maap-slots-overlap-acmp | app/ctrl_app.h | acmp | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+app-maap-slots-overlap-adp | app/ctrl_app.h | maap | MaapHost.ExplicitAppComposition | protocol timer slots disjoint
+app-maap-attached-after-open | app/ctrl_app.c | acmp | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 opening opens the adp, acmp and maap channels and no other
+app-maap-before-acmp | app/ctrl_app.c | acmp | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+app-maap-started-in-compose | app/ctrl_app.c | acmp | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 composing the three touches no mailbox register
+app-maap-never-started | app/ctrl_app.c | acmp | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 MAAP probes from the open
+app-maap-channel-unbound | maap/maap_mbx.c | acmp | AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound | F6 events, acmp and maap records wait
+app-maap-preferred-unchecked | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 a preferred range below the B.4 pool is refused
+app-maap-last-range-refused | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 the pool's last range is not
+app-maap-range-past-the-pool | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 one that runs past the pool's end is refused
+app-maap-refusal-ignored | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 MAAP for an entity with no talker source is refused
+app-acmp-refusal-ignored | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 a refused ACMP configuration fails the three-way composition
+app-maap-entry-takes-no-port | app/ctrl_app.c | acmp | AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened | U7 the explicit MAAP entry refuses a missing stream-address port
+app-maap-entry-drops-preferred | app/ctrl_app.c | maap | MaapHost.ExplicitAppComposition | 
+app-three-way-pass-overrun | maap/maap_mbx.c | acmp | AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound | F6 the worst pass of the three-way backlog
+app-maap-mac-per-interface | app/ctrl_app.c | acmpif2 | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+app-own-mac-per-interface | app/ctrl_app.c | acmpif2 | AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen | U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+app-three-way-bound-drops-maap | app/ctrl_app.h | acmp | AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound | F6 the three-way bound is both modules' passes
+app-three-way-bound-one-maap-poll | app/ctrl_app.h | acmpif2 | AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound | F6 the three-way bound is both modules' passes
+maap-down-start-keeps-owner | maap/maap.c | maap | MaapCore.ReleaseLossAndRetry | starting down withdraws the prior owner
+maap-initial-send-absent | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | initial PROBE is immediate
+maap-retransmit-count | maap/maap.h | maap | MaapCore.InitialAndThreeRetransmissions | three retransmissions remain
+maap-probe-count-not-decremented | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | retransmission decrements once
+maap-wire-version | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | B.2 complete PROBE bytes
+maap-wire-length | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | B.2 complete PROBE bytes
+maap-wire-source | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | B.2 complete PROBE bytes
+maap-wire-padding | maap/maap.c | maap | MaapCore.InitialAndThreeRetransmissions | B.2 complete PROBE bytes
+maap-constant-probe_base | maap/maap.h | maap | MaapCore.ConstantsStrictTimersAndSeed | 
+maap-constant-probe_variation | maap/maap.h | maap | MaapCore.ConstantsStrictTimersAndSeed | 
+maap-constant-announce_base | maap/maap.h | maap | MaapCore.ConstantsStrictTimersAndSeed | 
+maap-constant-announce_variation | maap/maap.h | maap | MaapCore.ConstantsStrictTimersAndSeed | 
+maap-seed-clock-ignored | maap/maap.c | maap | MaapCore.ConstantsStrictTimersAndSeed | 
+maap-zero-seed-sticks | maap/maap.c | maap | MaapCore.ConstantsStrictTimersAndSeed | zero sum cannot lock generator
+maap-biased-random-bucket | maap/maap.c | maap | MaapCore.UniformDrawRejectsIncompleteBucket | incomplete random bucket rejected
+maap-numeric-mac-priority | maap/maap.c | maap | MaapCore.ReverseOctetPriority | least significant octet decides first
+maap-defend-multicast | maap/maap.c | maap | MaapCore.DefendEchoAndIntersection | echo request and exact intersection
+maap-defend-echo-own-range | maap/maap.c | maap | MaapCore.DefendEchoAndIntersection | echo request and exact intersection
+maap-intersection-too-long | maap/maap.c | maap | MaapCore.DefendEchoAndIntersection | echo request and exact intersection
+maap-adjacent-overlaps | maap/maap.c | maap | MaapCore.DisjointAdjacentZeroAndDefendRange | half open intervals
+maap-zero-count-conflicts | maap/maap.c | maap | MaapCore.DisjointAdjacentZeroAndDefendRange | half open intervals
+maap-defend-checks-request | maap/maap.c | maap | MaapCore.DisjointAdjacentZeroAndDefendRange | DEFEND tests conflict fields
+maap-malformed-ethertype | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-subtype | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-version | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-reserved-zero | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-reserved-high | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-cdl-short | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-cdl-truncated | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-cdl-current | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-source-zero | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-source-group | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-destination | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-malformed-own-probe | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | malformed input is rejected
+maap-valid-minimum-refused | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | B.2.3 recognized future
+maap-future-version-refused | maap/maap.c | maap | MaapCore.MalformedAndVersionCompatibility | B.2.3 recognized future
+maap-range-end-off-by-one | maap/maap.c | maap | MaapCore.InitAndPreferredRangeBounds | 
+maap-port-up-keeps-claim | maap/maap.c | maap | MaapCore.ReleaseLossAndRetry | PortOperational invalidates acquired address
+maap-release-keeps-enable | maap/maap.c | maap | MaapCore.ReleaseLossAndRetry | released instance stays idle
+maap-expiry-forgotten-on-stall | maap/maap.c | maap | MaapCore.StalledOutputRetainsOrderAndOriginalExpiry | original expiry remains owed
+maap-allocation-before-commit | maap/maap.c | maap | MaapCore.StalledOutputRetainsOrderAndOriginalExpiry | allocation waits for committed ANNOUNCE
+maap-probe-announce-reordered | maap/maap.c | maap | MaapCore.StalledOutputRetainsOrderAndOriginalExpiry | 
+maap-overflow-uncounted | maap/maap.c | maap | MaapCore.QueueBoundAndWithdrawal | overload is counted as failure
+maap-poll-unbounded | maap/maap.c | maap | MaapCore.QueueBoundAndWithdrawal | poll has bounded work
+maap-release-leaves-output | maap/maap.c | maap | MaapCore.QueueBoundAndWithdrawal | 
+maap-reentry-not-counted | maap/maap.c | maap | MaapCore.ReentrantPortsAreCountedAndIgnored | all input guards fire
+maap-debug-no-assert | maap/maap.c | maap_debug | MaapDebug.SynchronousExpiryAsserts | debug reentry assertion
+maap-stream-index-missing | maap/maap_csr.c | maap | MaapCsr.EveryStreamAddressAndLossGate | stream destination base plus index
+maap-selection-not-restored | maap/maap_csr.c | maap | MaapCsr.EveryStreamAddressAndLossGate | selection restored
+maap-fabric-owner-kept | maap/maap_csr.c | maap | MaapCsr.EveryStreamAddressAndLossGate | fabric MAAP disabled without touching seed
+maap-loss-keeps-crf | maap/maap_csr.c | maap | MaapCsr.EveryStreamAddressAndLossGate | loss closes both media gates
+maap-count-mismatch-accepted | maap/maap_csr.c | maap | MaapCsr.ShapesAndCountRefusal | wrong shape stays disabled
+maap-crf-index-wrong | maap/maap_csr.c | maap | MaapCsr.ShapesAndCountRefusal | CRF only shape
+maap-timer-tag-ignored | maap/maap_mbx.c | maap | MaapHost.StaleTagsForeignInputsAndLinkEdges | old timer tag ignored
+maap-foreign-not-counted | maap/maap_mbx.c | maap | MaapHost.StaleTagsForeignInputsAndLinkEdges | 
+maap-half-attach | maap/maap_mbx.c | maap | MaapHost.AttachRefusalsAndTimerWrap | no partial attachment
+maap-interface-zero | maap/maap_mbx.c | maap_if2 | MaapHost.InterfaceIsolationAndRangeEnvelope | record index selects state
+maap-no-range-filter | maap/maap_mbx.c | maap | MaapHost.HMaapConflictLossAndRetry | 
+maap-filter-destination-ignored | host/mbx_model.c | maap | MaapHost.HMaapFilterTupleAndRate | 
+maap-late-service | maap/maap_mbx.c | maap | MaapHost.HMaapTimerCommitsAndIntervals | H-MAAP original timer deadline
+maap-stall-unqueued | maap/maap.c | maap | MaapHost.HMaapBacklogAndStallNeverRestartClock | 
+maap-app-channel-closed | loop/ctrl_loop.c | maap | MaapHost.ExplicitAppComposition | 
+maap-callback-work-overrun | maap/maap_mbx.c | maap | MaapHost.CallbackWorkAndEveryOutputCount | callback work bound
+maap-ignored-input-late | maap/maap_mbx.c | maap | MaapHost.IgnoredInputCommitsStateWithinOriginalBudget | state completion uses original RX budget
+maap-table-b7-0 | maap/maap.c | maap | AllStates/MaapCell.TableB7/0 | Table B.7
+maap-table-b7-1 | maap/maap.c | maap | AllStates/MaapCell.TableB7/1 | Table B.7
+maap-table-b7-2 | maap/maap.c | maap | AllStates/MaapCell.TableB7/2 | Table B.7
+maap-table-b7-3 | maap/maap.c | maap | AllStates/MaapCell.TableB7/3 | Table B.7
+maap-table-b7-4 | maap/maap.c | maap | AllStates/MaapCell.TableB7/4 | Table B.7
+maap-table-b7-5 | maap/maap.c | maap | AllStates/MaapCell.TableB7/5 | Table B.7
+maap-table-b7-6 | maap/maap.c | maap | AllStates/MaapCell.TableB7/6 | Table B.7
+maap-table-b7-7 | maap/maap.c | maap | AllStates/MaapCell.TableB7/7 | Table B.7
+maap-table-b7-8 | maap/maap.c | maap | AllStates/MaapCell.TableB7/8 | Table B.7
+maap-table-b7-9 | maap/maap.c | maap | AllStates/MaapCell.TableB7/9 | Table B.7
+maap-table-b7-10 | maap/maap.c | maap | AllStates/MaapCell.TableB7/10 | Table B.7
+maap-table-b7-11 | maap/maap.c | maap | AllStates/MaapCell.TableB7/11 | Table B.7
+maap-table-b7-12 | maap/maap.c | maap | AllStates/MaapCell.TableB7/12 | Table B.7
+maap-table-b7-13 | maap/maap.c | maap | AllStates/MaapCell.TableB7/13 | Table B.7
+maap-table-b7-14 | maap/maap.c | maap | AllStates/MaapCell.TableB7/14 | Table B.7
+maap-table-b7-15 | maap/maap.c | maap | AllStates/MaapCell.TableB7/15 | Table B.7
+maap-table-b7-16 | maap/maap.c | maap | AllStates/MaapCell.TableB7/16 | Table B.7
+maap-table-b7-17 | maap/maap.c | maap | AllStates/MaapCell.TableB7/17 | Table B.7
+maap-allocation-seam-disconnected | maap/maap.c | maap | MaapHost.AcquiredRangeFeedsExistingCsrPath | allocation reaches AAF CSR
+maap-app-missing-rx-interrupt | loop/ctrl_loop.c | maap | MaapHost.AppWaitWakesForMaapWithinBudget | accepted MAAP wakes idle loop
+maap-begin-down-forgets-range | maap/maap.c | maap | MaapCore.BeginBeforePortOperationalRetainsRange | Begin supplied range survives port down
+maap-restart-reuses-range | maap/maap.c | maap | MaapCore.RestartDrawsNewRange | fixed seed Restart draws a new range
+maap-reverse-five-octets | maap/maap.c | maap | MaapCore.PriorityAfterTiedOctets | every reversed octet decides
+maap-compare-mac-lsb-only | maap/maap.c | maap | MaapCore.PriorityAfterTiedOctets | every reversed octet decides
+maap-csr-select-listener | maap/maap_csr.c | maap | MaapCsr.EveryStreamAddressAndLossGate | stream destination base plus index
+maap-csr-enable-before-programming | maap/maap_csr.c | maap | MaapCsr.AdmissionAfterEveryDestinationWrite | enables follow every destination word
+maap-poll-first-interface-only | maap/maap_mbx.c | maap_if2 | MaapHost.InterfaceOneStallDrainsWithinBudget | interface 1 poll drains deferred output
+maap-generic-initial-handles-conflict | maap/maap.c | maap | AllStates/MaapCell.TableB7/0 | Table B.7
+maap-generic-probe-state-defends | maap/maap.c | maap | AllStates/MaapCell.TableB7/12 | Table B.7
+maap-generic-probe-defend-uses-priority | maap/maap.c | maap | AllStates/MaapCell.TableB7/10 | Table B.7
+maap-generic-equal-mac-wins | maap/maap.c | maap | MaapCore.ReverseOctetPriority | equal MAC is not lower
+r2-saved-range-never-consumed | maap/maap.c | maap | MaapCore.LinkBounceDrawsAfterSuppliedRange | link bounce draws after consuming supplied range

@@ -1,0 +1,14 @@
+python3 -B ../../../sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out <packet>/receipts/pin/out/if2/gen
+wrote <packet>/receipts/pin/out/if2/gen/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/receipts/pin/out/if2/gen/KL_mbx.sv (2 interfaces)
+wrote <packet>/receipts/pin/out/if2/gen/mbx_contract.h (2 interfaces)
+true --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<packet>/receipts/pin/out/if2/gen" -GHOST_P=0 --Mdir <packet>/receipts/pin/out/if2/obj_wb <packet>/receipts/pin/out/if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <packet>/receipts/pin/out/if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb
+true --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<packet>/receipts/pin/out/if2/gen" -GHOST_P=1 --Mdir <packet>/receipts/pin/out/if2/obj_axil <packet>/receipts/pin/out/if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <packet>/receipts/pin/out/if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil
+cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<packet>/receipts/pin/out/if2/gen -I<checkout>/sw/firmware/ctrl/mbx -I<checkout>/sw/firmware/ctrl/host -I<checkout>/sw/firmware/ctrl/port -I<checkout>/sw/firmware/ctrl/loop -I<checkout>/sw/firmware/ctrl/adp -I<checkout>/sw/firmware/ctrl/maap -I<checkout>/sw/firmware/ctrl/acmp -I<checkout>/sw/firmware/ctrl/app -I<checkout>/third_party/tsn-c-stack/include -I<checkout>/sw/firmware/ctrl_nvm \
+  -c <checkout>/sw/firmware/ctrl/host/mbx_model.c -o <packet>/receipts/pin/out/if2/mbx_model.o
+In file included from <checkout>/sw/firmware/ctrl/mbx/mbx_wire.h:22,
+                 from <checkout>/sw/firmware/ctrl/host/mbx_model.c:31:
+<checkout>/third_party/tsn-c-stack/include/wire.h:46:2: error: #error PLANTED_WIRE_EDIT
+   46 | #error PLANTED_WIRE_EDIT
+      |  ^~~~~
+make: *** [Makefile:115: run-if2] Error 1
