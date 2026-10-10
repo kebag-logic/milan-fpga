@@ -99,6 +99,8 @@
 //! Milan Table 5.6 observation-interval commit for the seven interval
 //! counters (seen flags -> tick -> walk), per-stream ms-tick silence
 //! watchdog in flops, stream-0 legacy outputs via write-through shadows.
+//! PDU bundles wait and are served from one 4-entry ring, and GET_COUNTERS
+//! reads one write-through counter table by sink and column (#640 M6).
 //! `pdu_accept_p_o`+`pdu_accept_idx_o` = the depacketizer's per-stream
 //! commit verdict.
 
