@@ -1,0 +1,17 @@
+[PASSED] clean stack, stack-pin: make stack-pin -> rc=0 refused=no poisoned=no :: 
+[PASSED] clean stack, firmware library: make obj_fw/libctrlfw.a -> rc=0 refused=no poisoned=no :: 
+[REFUSED-ON-PIN] poisoned wire.h: make all -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make run-cosim -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make run-if2 -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make obj_fw/libctrlfw.a -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make stack-pin -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make -j16 all -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h, keep-going (simulator false): make -k -j16 VERILATOR=false all -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] poisoned wire.h: make -j16 run-if2 run-cosim -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[REFUSED-ON-PIN] assume-unchanged hidden edit: make run-if2 -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[REFUSED-ON-PIN] assume-unchanged hidden edit: make run-cosim -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[REFUSED-ON-PIN] stack at another revision: make run-if2 -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[REFUSED-ON-PIN] stack at another revision: make obj_fw/libctrlfw.a -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[REFUSED-ON-PIN] extra header the pinned tree lacks: make run-cosim -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[REFUSED-ON-PIN] extra header the pinned tree lacks: make run-if2 -> rc=2 refused=yes poisoned=no :: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+pin probes: 16 as expected, 0 not

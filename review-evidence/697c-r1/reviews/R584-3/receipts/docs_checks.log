@@ -1,0 +1,16 @@
+== python3 scripts/docs_check.py -> rc=0
+docs_check: 0 finding(s) across 202 md files + 1237 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== python3 scripts/check_em_dash.py --base 386b8e69e -> rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== python3 scripts/check_em_dash.py --base 8b61b70902f3ebf118e56967277e2686731081bd -> rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== python3 scripts/check_doc_style.py -> rc=0
+documentation style: OK (22 current documents)
+== python3 docs/DOC_MAP.gen.py --check -> rc=0
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+== python3 scripts/check_submodule_docs.py -> rc=0
+submodule documentation: OK (6 exact gitlinks)
+== python3 docs/diagrams/submodule_boundaries.gen.py --check -> rc=0
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+== python3 scripts/check_solution_docs.py -> rc=0
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)

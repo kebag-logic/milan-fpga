@@ -1,0 +1,1906 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index e7a87c095..497052101 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -284,12 +284,13 @@ jobs:
+           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+           python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+ 
+-      # #697: the TSN stack's boundary from both sides, in every configuration
+-      # the firmware's builders compile: the cores include only their own
+-      # headers and the C library, the stack's tests reach nothing of this
+-      # repository, the firmware reaches only the stack's public headers, and
+-      # the stack's own gate (its CMake build with gcc and clang) runs; planted
+-      # and pin controls first.
++      # #697: the TSN stack's boundary from both sides, each unit judged as the
++      # firmware's builders compile it (language, modes, shapes, contracts):
++      # the cores include only their own headers and the C library, the
++      # stack's tests reach nothing of this repository, the firmware reaches
++      # only the stack's public headers, every Makefile target that builds the
++      # stack is pinned, and the stack's own gate (its CMake build with gcc and
++      # clang) runs; planted and pin controls first.
+       - name: Hold the TSN stack boundary in both directions
+         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 65d9686a2..dfb215fd9 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -55,12 +55,15 @@ pull-request update and on every push to `dev`. It produces one stable
+   F4 initializes the public lwSRP submodule at its exact pin.
+   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+   Its boundary step holds both directions with planted controls.
+-  It judges every configuration the firmware's builders compile.
++  It judges each unit as the firmware's builders compile it, read from them: as C, and as C++ where a builder's C++ source reaches it.
++  Its configurations are the builders' modes, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
+   The cores include only their own headers and the C library.
+   The stack's tests reach nothing of this repository outside the submodule.
+   The firmware reaches only the stack's public headers.
+   The stack's own boundary gate runs with gcc and clang.
+-  Its pin controls refuse a stack off its gitlink or differing from it, in the mailbox bench, the MAAP differential and the AECP tools too.
++  Every Makefile target that builds against the stack has the pin check as a prerequisite.
++  Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
++  Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
+   The control gate includes lwSRP, SRP and its mutation campaign.
+   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
+   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
+@@ -192,9 +195,10 @@ verifies, so on both hosted `milan_dp` timeouts only that step failed.
+ 
+ Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
+ suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
+-come from that submodule (#697), whichever shard owns the suite. The suite
+-runs the shared pin check before building them, so a checkout off the gitlink
+-or differing from it is refused, never built.
++come from that submodule (#697), whichever shard owns the suite. Every bench
++target that compiles against the stack has the shared pin check as a
++prerequisite, so a checkout off the gitlink or differing from it is refused,
++never built, whichever target runs.
+ 
+ Each suite runs under a per-suite wall clock from the table in
+ `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 135a5d442..2aa8fc7c3 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -84,17 +84,29 @@ It preprocesses the stack's tests as C++, as the arms compile them.
+ They may reach anything of the stack and the host's libraries, and nothing else of this repository.
+ It preprocesses every firmware source and header, AECP's included, and every image source, on the host and for RV32.
+ The firmware's units are those of every directory here but `host/` and `test/`, and every C source under `test/`.
+-Their include path is every firmware directory, the entity generators' headers, and the stack's other directories last.
++Their include path is every firmware directory, a shape's generated headers, and the stack's other directories last.
+ A dependency on the stack outside `include/` is refused.
+ So is a file under `sw/firmware` named as a stack source or header.
+-Every unit is judged in every configuration the firmware builds.
++Every unit is judged as its builders compile it, and nothing about that is listed here or in the gate: [`ctrl_configs.py`](test/ctrl_configs.py) reads it from the builders.
+ The builders are found, never listed: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+-Their own `-D` and `-U` flags are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
++Every unit is judged as C.
++A firmware header that a C++ source a builder names reaches (a test or a bench, every `#include` followed as text) is judged as C++ too, with the arms' test include path.
++The builders' own `-D` and `-U` flags, as one argument or as two, are the build modes (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches).
+ A macro name the C implementation reserves is not a mode.
+-The compiler reports the macros each unit tests (`-dU`), and the gate tries every combination of their modes.
+-A finding names the mode flags of the smallest configuration that reaches it.
++A flag a builder computes at run time is a value.
++The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config.
++A unit that tests any other computed value is refused, since the gate has none of its values.
++Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
++Those come through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
++The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
++The mailbox contract is the tracked one or the variant its generator writes for every other interface count it admits.
++The compiler reports the macros each unit tests or expands (`-dU`).
++Those that the conditionals and `#include` lines of the files it reads name can decide what it includes.
++The gate tries every combination of their alternatives, until no new one appears.
++A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
++A finding names the smallest configuration that reaches it, beyond the unit's default build.
+ It also runs the stack's own boundary gate.
+-`--selftest` plants 33 defects, each refused by name, and three passing controls.
++`--selftest` plants 42 defects, each refused by name, and three passing controls.
+ 
+ Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
+ The submodule must be at its gitlink.
+@@ -102,11 +114,16 @@ Every file of its sources, headers, tests, examples, scripts and CMake files mus
+ The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
+ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
+ The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+-Fifteen pin controls follow the boundary controls.
++In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
++[`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
++Twenty pin controls follow the boundary controls.
+ A clean clone passes the check.
+ An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
+-The mailbox bench passes the clean clone.
+-The bench, both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
++Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
++Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
++At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.
++Each refuses on the pin check and never compiles the poisoned header, and the pin target passes the clean clone.
++A planted copy of the bench's Makefile whose `run-if2` lacks the pin prerequisite is refused by name.
+ 
+ Its tests run two ways.
+ The gate [below](#the-host-test) builds the stack's own core tests into the
+diff --git a/sw/firmware/ctrl/test/ctrl_boundary.py b/sw/firmware/ctrl/test/ctrl_boundary.py
+index ba451dfc9..aeaf5cbcf 100644
+--- a/sw/firmware/ctrl/test/ctrl_boundary.py
++++ b/sw/firmware/ctrl/test/ctrl_boundary.py
+@@ -8,13 +8,14 @@ THE STACK'S SIDE. Every source and public header of the tsn-c-stack submodule
+ and flags, as the host arms compile it (ctrl_build.includes, C_FLAGS) and as
+ the RV32 build does (RV32_FLAGS and the freestanding headers of fw_rv32), and
+ its dependencies are read from the compiler. Each must be one of the stack's
+-public headers or a header of the C library the compiler supplies. A
+-dependency anywhere else (the mailbox driver or its HAL, the generated
+-register-map contract, the MMIO platform, the app, the loop, the store, an
+-image) is refused by name; one that does not resolve is refused too. The
+-stack's tests (tests/*.cpp, tests/*.hpp), which the arms compile with the
+-firmware's test include path (ctrl_build.compile_tests), are preprocessed as
+-C++ the same way: they may reach anything of the stack and the host's own
++public headers, a header of the C library the compiler supplies, or the SRP
++adapter's generated shape header where a configuration force-includes it, as
++the SRP builds do. A dependency anywhere else (the mailbox driver or its HAL,
++the generated register-map contract, the MMIO platform, the app, the loop,
++the store, an image) is refused by name; one that does not resolve is refused
++too. The stack's tests (tests/*.cpp, tests/*.hpp), which the arms compile with
++the firmware's test include path (ctrl_build.compile_tests), are preprocessed
++as C++ the same way: they may reach anything of the stack and the host's own
+ libraries (the C++ library, GoogleTest), and nothing of milan-fpga outside
+ the submodule. The stack's own gate, its scripts/check_boundary.py (the same
+ rule under its own CMake build with gcc and clang, and its objects' symbols),
+@@ -26,44 +27,73 @@ measured images' own sources (every C source under test/; the tests are C++)
+ reach the stack through its public headers only. AECP is the firmware's, not
+ the stack's: its core and adapters are judged here like the rest. Each unit is
+ preprocessed on the host and with the RV32 compiler, with every firmware
+-directory on the include path, the headers the firmware's entity generators
+-(*/*_entity.py) write, and the stack's other directories searched last, so a
+-header only they hold resolves there; any other generated header is named, not
+-read; a dependency inside the stack outside include/ is refused. No file under
+-sw/firmware may be named as one of the stack's sources or public headers: a
+-copy there would shadow, or stand in for, the stack's own.
+-
+-EVERY CONFIGURATION. Both sides are judged in every configuration the
+-firmware's builders compile them in. The builders are found, never listed:
++directory on the include path, a shape's generated headers, and the stack's
++other directories searched last, so a header only they hold resolves there;
++any other generated header is named, not read; a dependency inside the stack
++outside include/ is refused. No file under sw/firmware may be named as one of
++the stack's sources or public headers: a copy there would shadow, or stand in
++for, the stack's own.
++
++AS ITS BUILDERS COMPILE IT. Each unit is judged in the language and in every
++configuration its builders compile it in, and nothing about either is listed
++here: both are read from the builders. The builders are found, never listed:
+ every Python module and Makefile of the checkout, tracked or new, that names
+ the firmware's tree (sw/firmware/ctrl, or its shared builder ctrl_build), this
+-gate excepted. The build modes are read from them (every -D or -U flag
+-written in one), never restated here; a macro the C implementation reserves
+-(C11 7.1.3, a leading underscore and a capital or a second underscore, as the
+-runtime's builder sets for Picolibc and compiler-rt) is not a firmware mode. The stack's side
+-is searched with every firmware directory too, as the arms that compile the
+-cores give them (the AECP arms add aecp/). The compiler reports each
+-macro a unit's preprocessing tests or expands (-dU). Starting with every other
+-mode's macro defined, so that a test of any of them is reported, the gate
+-preprocesses each unit under every combination of the modes of the macros it
+-tests, until no new one appears: a mode the unit never tests cannot change
+-what it includes. A finding names the mode flags, beyond the unit's default
+-build, of the smallest configuration that reaches it.
+-
+-Every gate that builds the stack first runs the shared pin check
+-(ctrl_build.stack_pin): the submodule must be at its gitlink, and every file of
+-its sources, headers, tests, examples, scripts and CMake files must hash to the
+-gitlink's tree. This gate does too.
++gate excepted.
++- Language. Every firmware unit is judged as C, as every builder compiles the
++  firmware's sources and their headers with them. A firmware unit is judged
++  as C++ too, with the arms' test flags and include path (the stack's tests/
++  on it), when a C++ source a builder names (a test, a bench) reaches it:
++  every #include line is followed as text, in every branch alike, and one
++  whose operand a macro computes, which text cannot follow, is refused.
++- Build modes: every -D or -U flag written in a builder, as one argument or
++  as two (-D NAME, -U NAME). A macro the C implementation reserves (C11 7.1.3,
++  a leading underscore and a capital or a second underscore, as the runtime's
++  builder sets for Picolibc and compiler-rt) is not a firmware mode.
++- Values: a flag a builder computes at run time is a value, not a mode. The
++  image's stream counts are taken at every shipped config (configs/*.yaml,
++  each a shape the image builders take) from the image builder's own
++  ctrl_image.shape_build. A unit that tests any other computed value is
++  refused: the boundary has none of its values.
++- Shapes: the headers the builders generate for each shipped config, written
++  by the builders' own generators (every entity generator, */*_entity.py, and
++  the store's headers from ctrl_image.shape_build); and the SRP adapter's
++  shape header force-included, as the SRP builds compile every unit, or not,
++  as the others do.
++- The mailbox contract: the tracked one, and the variant its generator writes
++  (gen_mailbox.py --variant-interfaces) for every other interface count it
++  admits, counting up from one until it refuses, as the two-interface builds
++  compile the firmware.
++The compiler reports each macro a unit's preprocessing tests or expands
++(-dU). Of those, the ones that can decide which files it reads are the ones
++the conditionals and #include lines of the files it read name, and those
++their definitions name in turn; a macro only code expands cannot. Starting
++with every alternative that defines a macro chosen, so that a test of it is
++reported, the gate preprocesses each unit under every combination of the
++alternatives of what decides its reads, until no new one appears: a mode, a
++value, a shape or a contract none of them names cannot change what it
++includes, and a shape or a contract matters only through the macros its
++headers define differently (or a generated header whose own directives
++differ). A configuration that stops on an #error directive is one
++no builder compiles: what it reads is still judged, from the compiler's
++dependency list, which it writes in full; only a unit that stops in every
++configuration is refused for it. A finding names, beyond the unit's default
++build, the smallest configuration that reaches it.
++
++THE PIN (ctrl_pin.py). Every gate that builds the stack first runs the shared
++pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
++every file of its sources, headers, tests, examples, scripts and CMake files
++must hash to the gitlink's tree. This gate does too. Every target of a
++Makefile builder whose recipe builds against the stack must have the pin check
++as a prerequisite, read from make's own dry run.
+ 
+ --selftest first plants defects in copies of the two trees, each of which must
+ be refused by name, and controls each of which must pass; then the pin
+-check's controls (a clone of the stack at its gitlink passes; the clone with a
+-source, a test, a script or a CMake file edited, with an edit hidden from git
+-status, with a file the tree does not hold, or at another revision, is
+-refused; the mailbox bench, the MAAP differential in both its modes, and the
+-AECP lane's arms, campaign and wire comparison refuse the edited clone before
+-building it); then runs the stack gate's own self-test. --require-rv32
+-refuses, rather than skips, the RV32 arm when no RV32 compiler is found.
++controls (ctrl_pin.pin_controls: the check on edited clones, the gates that
++build the stack on an edited clone, and every Makefile target that reaches the
++stack run for real on a poisoned one); then the stack gate's own self-test.
++--require-rv32 refuses, rather than skips, the RV32 arm when no RV32 compiler
++is found.
+ 
+ Usage:
+     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32
+@@ -77,13 +107,11 @@ not run).
+ from __future__ import annotations
+ 
+ import argparse
+-import ast
+ import itertools
+ import os
+ import re
+ import shlex
+ import shutil
+-import subprocess
+ import sys
+ import tempfile
+ from concurrent.futures import ThreadPoolExecutor
+@@ -96,8 +124,11 @@ sys.path.insert(0, str(HERE.parents[1] / "gtest"))
+ 
+ import fw_gtest  # noqa: E402
+ import fw_rv32  # noqa: E402
+-from ctrl_build import (C_FLAGS, CTRL, NVM_DIR, PP, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS,  # noqa: E402
+-                        TB_MBX, Refusal, Tree, includes, stack_gitlink, stack_pin)
++from ctrl_build import (C_FLAGS, CTRL, HARNESS, NVM_DIR, ROOT, RV32_FLAGS, STACK, STACK_INCLUDE,  # noqa: E402
++                        STACK_PARTS, TB_COMMON, Refusal, Tree, includes, stack_pin)
++from ctrl_configs import (DEFAULT_ENTITY, FLAG, FORCED, Read, Space, cxx_sources, derive, image_dim,  # noqa: E402
++                          makefiles, mode_dims, modes, run, spaces, variants)
++from ctrl_pin import makefile_findings, pin_controls  # noqa: E402
+ 
+ #: The C library's headers (ISO C11, 7.1.2): what the stack may include beside its own.
+ C_HEADERS = ("assert complex ctype errno fenv float inttypes iso646 limits locale math stdalign stdarg stdatomic "
+@@ -106,27 +137,25 @@ C_HEADERS = ("assert complex ctype errno fenv float inttypes iso646 limits local
+ STACK_PRIVATE = ("src", "tests", "examples")
+ #: The directories under sw/firmware/ctrl that hold test equipment; every other one is the firmware's.
+ TEST_EQUIPMENT = ("host", "test")
+-#: The firmware side's default build, the release the images ship (NDEBUG), and what its sources need
+-#: defined to preprocess at all: the window's address (plat/), a shape's stream counts (the image) and
+-#: lwSRP's Milan profile (srp/). The builders' modes, the SRP image's among them, vary on top of it.
+-FIRMWARE_DEFINES = ("-DNDEBUG", "-DCTRL_MBX_BASE=0x80000000u", "-DIMAGE_SINKS=1u", "-DIMAGE_SOURCES=1u",
+-                    "-DLWSRP_MILAN=1")
+ LWSRP = ROOT / "third_party/lwSRP/src"
+-#: The entity the SRP adapter's generated shape is taken from, as the SRP arms take it by default.
+-SRP_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+ #: The stack's own gate, from the submodule.
+ STACK_GATE = STACK / "scripts/check_boundary.py"
+-#: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures
+-#: are written on. Every -D or -U flag written in a builder is a build mode the boundary is judged in.
+-BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
+-#: A -D or -U flag, its macro's name in group 1.
+-FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:=.*)?", re.S)
+-#: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
+-RESERVED = re.compile(r"_[A-Z_]")
+ #: A line -dU writes for a macro the preprocessing tested or expanded.
+ TESTED = re.compile(r"^#(?:define|undef) ([A-Za-z_]\w*)", re.M)
+ #: The compiler's report of a header it could not find.
+ MISSING = re.compile(r"fatal error: (.+?): No such file or directory")
++#: What an #error directive (or, under -Werror, a #warning) makes the compiler say: a configuration no
++#: builder compiles.
++STOPS = ("#error", "#warning")
++#: An #include line, read as text: its operand in group 1.
++INCLUDE = re.compile(r"^\s*#\s*include\s+(.*?)\s*$", re.M)
++#: A directive that decides which files a preprocessing reads (a conditional or an #include): what it names in
++#: group 1.
++DECIDING = re.compile(r"^\s*#\s*(?:if|ifdef|ifndef|elif|elifdef|elifndef|include|include_next)\b(.*)$", re.M)
++#: An identifier.
++IDENT = re.compile(r"[A-Za-z_]\w*")
++#: A definition -dU writes: its macro, then its replacement list.
++DEFINED = re.compile(r"^#define ([A-Za-z_]\w*)(?:\([^)]*\))?(.*)$", re.M)
+ #: Units preprocessed at once.
+ JOBS = 4
+ #: How many times each judgement preprocessed a unit, one entry per side judged.
+@@ -143,169 +172,137 @@ class Trees:
+ 
+ @dataclass(frozen=True)
+ class Seen:
+-    """One unit preprocessed in one configuration: the mode flags beyond its default build, and its
+-    dependencies, or its error."""
++    """One unit preprocessed in one configuration: its words beyond the unit's default build, its flags, and what
++    it read."""
+ 
+     label: str
+-    deps: frozenset[Path]
+-    error: str
+-
+-
+-def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+-    """One tool, its output captured, its messages in English."""
+-    return subprocess.run(argv, cwd=cwd, capture_output=True, text=True, check=False,
+-                          env={**os.environ, "LC_ALL": "C"})
+-
+-
+-# ---- the build modes, from the builders -----------------------------------------------------
+-
+-def mode_flags(path: Path, text: str) -> list[str]:
+-    """The -D and -U flags written in one builder: its string literals (a Python builder) or the words of its
+-    recipes (a Makefile). A flag computed at run time (a shape's stream count, a test's expectation) is a
+-    value the build supplies, not a mode."""
+-    if path.suffix == ".py":
+-        tree = ast.parse(text)
+-        computed = {id(part) for node in ast.walk(tree) if isinstance(node, ast.JoinedStr) for part in node.values}
+-        return [node.value for node in ast.walk(tree) if isinstance(node, ast.Constant) and id(node) not in computed
+-                and isinstance(node.value, str) and FLAG.fullmatch(node.value)]
+-    words = (word.strip("\"'") for line in text.splitlines() for word in line.split("#", 1)[0].split())
+-    return [word for word in words if FLAG.fullmatch(word)]
+-
+-
+-def candidates() -> list[Path]:
+-    """Every Python module and Makefile of the checkout, tracked or new (and not ignored)."""
+-    res = run(["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--",
+-               "*.py", "*Makefile", "*.mk"])
+-    if res.returncode:
+-        raise Refusal(f"cannot list the checkout's files: {res.stderr.strip()}")
+-    return sorted({ROOT / name for name in res.stdout.split("\0") if name and (ROOT / name).is_file()})
+-
+-
+-def builders(texts: dict[Path, str]) -> list[Path]:
+-    """The firmware's builders among the files `texts` holds: each that names the firmware's tree, this gate
+-    excepted (the default build it judges in, and its controls' modes, are not a builder's)."""
+-    me = Path(__file__).resolve()
+-    return [path for path, text in texts.items() if path.resolve() != me and any(n in text for n in BUILDER_NAMES)]
+-
+-
+-def modes(planted: dict[Path, str] | None = None) -> dict[str, tuple[str, ...]]:
+-    """Every macro the builders set or clear, with each flag they write for it, read from the builders the
+-    checkout holds (with `planted` replacing a file's text, or adding a new file, for the self-test). A
+-    reserved name is the C implementation's, not a mode."""
+-    texts = {path: path.read_text(encoding="utf-8", errors="replace") for path in candidates()}
+-    texts.update(planted or {})
+-    found: dict[str, dict[str, None]] = {}
+-    for path in builders(texts):
+-        try:
+-            flags = mode_flags(path, texts[path])
+-        except SyntaxError as exc:
+-            raise Refusal(f"the builder {path.relative_to(ROOT)} does not parse: {exc}") from exc
+-        for flag in flags:
+-            if not RESERVED.match(name := FLAG.fullmatch(flag)[1]):
+-                found.setdefault(name, {})[flag] = None
+-    return {name: tuple(flags) for name, flags in sorted(found.items())}
+-
++    flags: tuple[str, ...]
++    read: Read
+ 
+-def state(flag: str | None) -> tuple[str, ...]:
+-    """What a -D or -U flag leaves its macro as: defined with a value, or undefined."""
+-    if flag is None or flag.startswith("-U"):
+-        return ("undefined",)
+-    return ("defined", flag[2:].partition("=")[2] or "1")
+ 
++# ---- the exploration ------------------------------------------------------------------------
+ 
+-def default(argv: list[str], name: str) -> tuple[str, ...]:
+-    """What the unit's own flags leave `name` as; the last flag for it wins."""
+-    return state(next((a for a in reversed(argv) if (m := FLAG.fullmatch(a)) and m[1] == name), None))
+ 
+-
+-def preprocess(argv: list[str], unit: Path, work: Path, standins: Path | None) -> tuple[set[Path], set[str]] | str:
++@lru_cache(maxsize=None)
++def deciding_names(path: str, stamp: tuple[int, int]) -> frozenset[str]:
++    """Every identifier a file's conditionals and #include lines hold, read as text (`stamp`, its modification
++    time and size, keeps a file a control rewrote from being read from the cache)."""
++    text = Path(path).read_text(encoding="utf-8", errors="replace").replace("\\\n", " ")
++    return frozenset(name for m in DECIDING.finditer(text) for name in IDENT.findall(m[1]))
++
++
++def deciding(out: str, deps: frozenset[Path]) -> frozenset[str]:
++    """The macros a preprocessing tested or expanded (-dU's `out`) that can decide which files it reads: those
++    the conditionals and #include lines of the files it read name, and those their definitions name in turn. A
++    macro only code expands cannot change what is read."""
++    names: set[str] = set()
++    for dep in deps:
++        try:
++            stat = dep.stat()
++        except OSError:
++            continue
++        names |= deciding_names(str(dep), (stat.st_mtime_ns, stat.st_size))
++    bodies: dict[str, set[str]] = {}
++    for m in DEFINED.finditer(out):
++        bodies.setdefault(m[1], set()).update(IDENT.findall(m[2]))
++    queue = list(names & bodies.keys())
++    while queue:
++        for name in bodies.get(queue.pop(), ()):
++            if name not in names:
++                names.add(name)
++                queue.append(name)
++    return frozenset(TESTED.findall(out)) & names
++
++
++def preprocess(argv: list[str], unit: Path, work: Path, standins: Path | None) -> Read:
+     """The files the compiler reads for `unit` under `argv`, and the macros its preprocessing tests or expands
+-    (-dU), or its error. With `standins`, a header nobody supplies by its plain name (a generated one) is
+-    named, not read: an empty stand-in of it is written there, searched last. A path through ".." or from
+-    the root that resolves nowhere is an error, never stood in for."""
++    (-dU) that can decide which files it reads (deciding), or its error. With `standins`, a header nobody
++    supplies by its plain name (a generated one) is named, not read: an empty stand-in of it is written there,
++    searched last. A path through ".." or from the root that resolves nowhere is an error, never stood in for."""
+     work.mkdir(parents=True, exist_ok=True)
+-    fd, name = tempfile.mkstemp(suffix=".i", dir=work)
++    fd, name = tempfile.mkstemp(suffix=".d", dir=work)
+     os.close(fd)
+-    out = Path(name)
+-    dep = out.with_suffix(".d")
++    dep = Path(name)
+     extra = ["-idirafter", str(standins)] if standins else []
+     try:
+         for _ in range(64):
+-            res = run([*argv, *extra, "-E", "-dU", "-P", "-MD", "-MF", str(dep), "-MT", "boundary", "-o", str(out),
+-                       str(unit)])
++            res = run([*argv, *extra, "-E", "-dU", "-P", "-MD", "-MF", str(dep), "-MT", "boundary", str(unit)])
+             missing = Path(found[1]) if standins and (found := MISSING.search(res.stderr)) else None
+             if res.returncode == 0 or missing is None or missing.is_absolute() or ".." in missing.parts or \
+                     (standins / missing).exists():
+                 break
+             (standins / missing).parent.mkdir(parents=True, exist_ok=True)
+             (standins / missing).write_text("", encoding="utf-8")
+-        if res.returncode != 0:
+-            said = [ln.split("error:", 1)[1].strip() for ln in res.stderr.splitlines() if "error:" in ln]
+-            return said[0] if said else res.stderr.strip() or f"exit {res.returncode}"
++        said = [ln.split("error:", 1)[1].strip() for ln in res.stderr.splitlines() if "error:" in ln]
++        stopped = res.returncode != 0 and bool(said) and all(s.startswith(STOPS) for s in said)
++        if res.returncode != 0 and not stopped:
++            return Read(frozenset(), frozenset(), said[0] if said else res.stderr.strip() or f"exit {res.returncode}")
+         names = shlex.split(dep.read_text(encoding="utf-8").replace("\\\n", " ").split(":", 1)[1])
+-        return {Path(n) for n in names}, set(TESTED.findall(out.read_text(encoding="utf-8", errors="replace")))
++        deps = frozenset(Path(n) for n in names)
++        return Read(deps, deciding(res.stdout, deps), said[0] if stopped else "", stopped)
+     finally:
+-        out.unlink(missing_ok=True)
+         dep.unlink(missing_ok=True)
+ 
+ 
+-def explore(argv: list[str], unit: Path, universe: dict[str, tuple[str, ...]], work: Path,
+-            standins: Path | None = None) -> list[Seen]:
+-    """`unit` preprocessed in its default build, then under every combination of the modes of the macros it
+-    tests, every other mode's macro defined, until no new one appears."""
+-    choices = {}
+-    for name, flags in universe.items():
+-        base = default(argv, name)
+-        other = list(dict.fromkeys((f,) for f in flags if state(f) != base))
+-        if other:
+-            choices[name] = [(), *other]
+-    seed = {n: () if default(argv, n)[0] == "defined" else next(c for c in cs if c and c[0].startswith("-D"))
+-            for n, cs in choices.items()}
++def explore(argv: list[str], unit: Path, space: Space, work: Path, standins: Path | None = None) -> list[Seen]:
++    """`unit` preprocessed in its default build, then under every combination of the alternatives of the modes
++    and dimensions that decide what it reads, every other one at its seed, until no new one appears."""
++    every = {**space.dims, **mode_dims(argv, space.modes)}
++    seed = {n: d.seed for n, d in every.items()}
+     tested: list[str] = []
+-    runs: dict[tuple[str, ...], tuple[dict[str, tuple[str, ...]], tuple[set[Path], set[str]] | str]] = {}
++    runs: dict[tuple[str, ...], tuple[dict[str, int], Read]] = {}
+ 
+-    def visit(config: dict[str, tuple[str, ...]]) -> bool:
+-        """Preprocess in one configuration; True when it tested a mode's macro not seen tested before."""
+-        # an -U first, so a mode's value replaces the default's without a redefinition warning
+-        flags = tuple(f for n in choices for flag in config[n]
+-                      for f in ((f"-U{n}", flag) if flag.startswith("-D") else (flag,)))
++    def visit(config: dict[str, int]) -> bool:
++        """Preprocess in one configuration; True when it showed a dependence not seen before."""
++        flags = tuple(f for n, d in every.items() for f in d.alternatives[config[n]][1])
+         if flags in runs:
+             return False
+-        result = preprocess([*argv, *flags], unit, work, standins)
+-        runs[flags] = (config, result)
+-        new = [] if isinstance(result, str) else [n for n in choices if n in result[1] and n not in tested]
++        read = preprocess([*argv, *flags], unit, work, standins)
++        runs[flags] = (config, read)
++        new = [n for n, d in every.items() if n not in tested and d.shown(config[n], read)]
+         tested.extend(new)
+         return bool(new)
+ 
+-    visit({n: () for n in choices})
++    visit({n: 0 for n in every})
+     grew = True
+     while grew:
+         grew = False
+-        for pick in itertools.product(*(choices[n] for n in tested)):
++        for pick in itertools.product(*(range(len(every[n].alternatives)) for n in tested)):
+             grew = visit({**seed, **dict(zip(tested, pick))}) or grew
+     seen = []
+-    for config, result in runs.values():
++    for flags, (config, read) in runs.items():
+         # a run that failed tested nothing it could report: its label is its whole configuration
+-        named = [n for n in choices if n in tested or isinstance(result, str)]
+-        label = " ".join(flag for n in named for flag in config[n])
+-        seen.append(Seen(label, frozenset(), result) if isinstance(result, str) else
+-                    Seen(label, frozenset(d.resolve() for d in result[0] if d.is_absolute() or d.exists()), ""))
++        failed = bool(read.error) and not read.stopped
++        label = " ".join(w for n, d in every.items() if (n in tested or failed) and (w := d.alternatives[config[n]][0]))
++        deps = frozenset(d.resolve() for d in read.deps if d.is_absolute() or d.exists())
++        seen.append(Seen(label, flags, Read(deps, read.tested, read.error, read.stopped)))
+     return seen
+ 
+ 
+-def judged(units: list[Path], argv: list[str], universe: dict[str, tuple[str, ...]], work: Path,
++def judged(units: list[Path], argv: list[str], space: Space, work: Path,
+            standins: Path | None = None) -> list[tuple[Path, list[Seen]]]:
+     """Every unit explored, a few at once."""
+     with ThreadPoolExecutor(max_workers=JOBS) as pool:
+-        result = list(zip(units, pool.map(lambda u: explore(argv, u, universe, work / "pp", standins), units)))
++        result = list(zip(units, pool.map(lambda u: explore(argv, u, space, work / "pp", standins), units)))
+     PREPROCESSED.append(sum(len(seen) for _, seen in result))
+     return result
+ 
+ 
+ def smallest(found: dict[tuple[str, str], list[str]]) -> list[str]:
+     """Each finding once, named by the smallest configuration that reaches it."""
+-    return [f"{side}{f' [{min(labels, key=lambda s: (len(s.split()), s))}]' if all(labels) else ''}: {core}"
+-            for (side, core), labels in found.items()]
++    return [f"{side}{f' [{min(labels, key=lambda s: (len(s.split()), s))}]' if labels and all(labels) else ''}: "
++            f"{core}" for (side, core), labels in found.items()]
++
++
++def common(found: dict[tuple[str, str], list[str]], side: str, name: str, seen: list[Seen], space: Space) -> None:
++    """The findings every side shares: a unit that stops on an #error in every configuration, and one whose
++    reads a value a builder computes decides, which the boundary has none of."""
++    if seen and all(s.read.stopped for s in seen):
++        found.setdefault((side, f"{name} stops on an #error in every configuration: {seen[0].read.error}"), [])
++    for s in seen:
++        for macro in sorted(s.read.tested & space.values.keys()):
++            found.setdefault((side, f"{name} tests {macro}, a value {space.values[macro]} computes at run time, "
++                                    "which the boundary has none of"), []).append(s.label)
+ 
+ 
+ # ---- the firmware's tree, as its builders give it -------------------------------------------
+@@ -323,6 +320,13 @@ def search(trees: Trees, work: Path) -> list[str]:
+     return given + [flag for d in firmware_dirs(trees.ctrl) if (flag := f"-I{d}") not in given]
+ 
+ 
++def tail(trees: Trees) -> list[str]:
++    """The rest of the firmware's include path: the store's platform and RV32 headers, lwSRP's, and the stack's
++    other directories, searched last."""
++    return [f"-I{NVM_DIR / 'plat'}", f"-I{NVM_DIR / 'test/rv32'}", f"-I{LWSRP / 'include'}", f"-I{LWSRP}",
++            *(f"-idirafter{trees.stack / d}" for d in STACK_PRIVATE)]
++
++
+ # ---- the stack's side ---------------------------------------------------------------------
+ 
+ @lru_cache(maxsize=None)
+@@ -346,34 +350,43 @@ def c_library(argv: tuple[str, ...]) -> frozenset[Path]:
+ 
+ def library_flags(compiler: list[str], label: str) -> tuple[str, ...]:
+     """The compiler's own flags and a configuration's mode flags, for the C library it supplies there."""
+-    flags = [f for word in label.split() for f in ((f"-U{FLAG.fullmatch(word)[1]}", word)
+-                                                    if word.startswith("-D") else (word,))]
++    flags = [f for word in label.split() if FLAG.fullmatch(word)
++             for f in ((f"-U{FLAG.fullmatch(word)[1]}", word) if word.startswith("-D") else (word,))]
+     return tuple(compiler + flags)
+ 
+ 
+-def stack_side(trees: Trees, compiler: list[str], label: str, universe: dict[str, tuple[str, ...]],
+-               work: Path) -> list[str]:
++def forced_in(seen: Seen) -> frozenset[Path]:
++    """The SRP adapter's shape header a configuration force-includes, wherever its shape put it."""
++    if (FORCED not in seen.flags) or seen.flags[seen.flags.index(FORCED) - 1] != "-include":
++        return frozenset()
++    return frozenset(d for d in seen.read.deps if d.name == FORCED and
++                     any(d.is_relative_to(gen.resolve()) for gen, _ in variants().shapes.values()))
++
++
++def stack_side(trees: Trees, compiler: list[str], label: str, space: Space, work: Path) -> list[str]:
+     """The stack's sources and public headers, preprocessed under the firmware's flags in every configuration:
+-    every dependency is the stack's public header or the C library's."""
++    every dependency is the stack's public header, the C library's, or the shape header a configuration
++    force-includes."""
+     public = (trees.stack / STACK_INCLUDE).resolve()
+     units = sorted((trees.stack / "src").glob("*.c")) + sorted((trees.stack / STACK_INCLUDE).glob("*.h"))
+     argv = [*compiler, *search(trees, work), "-x", "c"]
+     found: dict[tuple[str, str], list[str]] = {}
+-    for unit, seen in judged(units, argv, universe, work / label):
++    for unit, seen in judged(units, argv, space, work / label):
+         name = unit.relative_to(trees.stack).as_posix()
+         for s in seen:
+-            if s.error:
++            if s.read.error and not s.read.stopped:
+                 found.setdefault((label, f"the stack's {name} does not preprocess with the firmware's flags: "
+-                                         f"{s.error}"), []).append(s.label)
++                                         f"{s.read.error}"), []).append(s.label)
+                 continue
+-            library = c_library(library_flags(compiler, s.label))
+-            for dep in sorted(s.deps):
+-                if dep != unit.resolve() and not dep.is_relative_to(public) and dep not in library:
++            allowed = c_library(library_flags(compiler, s.label)) | forced_in(s) | {unit.resolve()}
++            for dep in sorted(s.read.deps - allowed):
++                if not dep.is_relative_to(public):
+                     found.setdefault((label, f"the stack's {name} includes {where(dep, trees)}"), []).append(s.label)
++        common(found, label, f"the stack's {name}", seen, space)
+     return smallest(found)
+ 
+ 
+-def tests_side(trees: Trees, universe: dict[str, tuple[str, ...]], work: Path) -> list[str]:
++def tests_side(trees: Trees, space: Space, work: Path) -> list[str]:
+     """The stack's tests, preprocessed as the arms compile them in every configuration: nothing of milan-fpga
+     outside the stack."""
+     argv = ["g++", *fw_gtest.CXX_FLAGS, *search(trees, work), f"-I{trees.stack / 'tests'}",
+@@ -381,23 +394,24 @@ def tests_side(trees: Trees, universe: dict[str, tuple[str, ...]], work: Path) -
+     probe = work / "gtest_probe.cpp"
+     work.mkdir(parents=True, exist_ok=True)
+     probe.write_text("#include <gtest/gtest.h>\n#include <gmock/gmock.h>\n", encoding="utf-8")
+-    if isinstance(preprocess(argv, probe, work, None), str):
++    if preprocess(argv, probe, work, None).error:
+         raise Refusal("the stack's tests need GoogleTest's and GoogleMock's headers")
+     units = sorted((trees.stack / "tests").glob("*.cpp")) + sorted((trees.stack / "tests").glob("*.hpp"))
+     stack = trees.stack.resolve()
+     found: dict[tuple[str, str], list[str]] = {}
+-    for unit, seen in judged(units, [*argv, "-x", "c++"], universe, work):
++    for unit, seen in judged(units, [*argv, "-x", "c++"], space, work):
+         name = unit.relative_to(trees.stack).as_posix()
+         for s in seen:
+-            if s.error:
++            if s.read.error and not s.read.stopped:
+                 found.setdefault(("tests", f"the stack's {name} does not preprocess with the firmware's test "
+-                                           f"flags: {s.error}"), []).append(s.label)
++                                           f"flags: {s.read.error}"), []).append(s.label)
+                 continue
+-            for dep in sorted(s.deps):
++            for dep in sorted(s.read.deps):
+                 if not dep.is_relative_to(stack) and (dep.is_relative_to(trees.ctrl.resolve()) or
+                                                       dep.is_relative_to(ROOT.resolve())):
+                     found.setdefault(("tests", f"the stack's {name} includes {where(dep, trees)}"),
+                                      []).append(s.label)
++        common(found, "tests", f"the stack's {name}", seen, space)
+     return smallest(found)
+ 
+ 
+@@ -418,49 +432,62 @@ def firmware_units(trees: Trees) -> list[Path]:
+     return units + sorted((trees.ctrl / "test").rglob("*.c"))
+ 
+ 
+-def generated(work: Path) -> Path:
+-    """The headers the firmware's entity generators (*/*_entity.py) write from SRP_ENTITY, as the arms and the
+-    images generate them, in a directory of their own."""
+-    gen = work / "gen"
+-    gen.mkdir(parents=True, exist_ok=True)
+-    for generator in sorted(CTRL.glob("*/*_entity.py")):
+-        res = run([sys.executable, "-B", str(generator), str(SRP_ENTITY), "-o", str(gen / f"{generator.stem}_gen.h")])
+-        if res.returncode != 0:
+-            raise Refusal(f"{generator.name} refused {SRP_ENTITY.name}: {res.stderr.strip()}")
+-    return gen
+-
+-
+-def firmware_flags(trees: Trees, compiler: list[str], work: Path) -> list[str]:
+-    """The firmware's include path as its builds give it, the generated headers, the stack's other
+-    directories last, and the SRP adapter's generated shape force-included as the SRP builds include it."""
+-    gen = generated(work)
+-    paths = [*search(trees, work), f"-I{NVM_DIR / 'plat'}", f"-I{NVM_DIR / 'test/rv32'}", f"-I{LWSRP / 'include'}",
+-             f"-I{LWSRP}", f"-I{gen}"]
+-    last = [f"-idirafter{trees.stack / d}" for d in STACK_PRIVATE]
+-    return [*compiler, *FIRMWARE_DEFINES, *paths, *last, "-include", str(gen / "srp_entity_gen.h")]
+-
+-
+-def firmware_side(trees: Trees, compiler: list[str], label: str, universe: dict[str, tuple[str, ...]],
+-                  work: Path) -> list[str]:
++def cxx_units(trees: Trees, work: Path) -> tuple[list[Path], list[str]]:
++    """The firmware units a C++ source a builder names reaches, every #include line followed as text in every
++    branch, against every directory a builder searches; and an #include whose operand a macro computes, which
++    text cannot follow, as a finding."""
++    shapes = [gen for gen, _ in variants().shapes.values()]
++    dirs = [Path(f[2:]) for f in search(trees, work)] + [trees.stack / d for d in (STACK_INCLUDE, *STACK_PRIVATE)]
++    dirs += [NVM_DIR / d for d in ("host", "plat", "host/stubs", "test", "test/rv32")]
++    dirs += [LWSRP / "include", LWSRP, HARNESS, HERE, TB_COMMON, *shapes]
++    roots = [r.resolve() for r in (ROOT, trees.ctrl, trees.stack, *shapes)]
++    queue, read, findings = cxx_sources(), set(), []
++    while queue:
++        path = queue.pop()
++        if path in read:
++            continue
++        read.add(path)
++        for operand in INCLUDE.findall(path.read_text(encoding="utf-8", errors="replace")):
++            if operand[:1] not in ('"', "<"):
++                findings.append(f"firmware c++: {where(path, trees)} includes {operand}, which text cannot follow")
++                continue
++            name = operand[1:].split('"' if operand[0] == '"' else ">", 1)[0]
++            for base in ([path.parent] if operand[0] == '"' else []) + dirs:
++                if (base / name).is_file() and any((hit := (base / name).resolve()).is_relative_to(r) for r in roots):
++                    queue.append(hit)
++    units = {}
++    for path in read:
++        for root in (trees.ctrl.resolve(), CTRL.resolve()):
++            if path.is_relative_to(root) and len(part := path.relative_to(root).parts) > 1 and \
++                    part[0] not in TEST_EQUIPMENT and (trees.ctrl / path.relative_to(root)).is_file():
++                units[trees.ctrl / path.relative_to(root)] = None
++    return sorted(units), findings
++
++
++def firmware_side(trees: Trees, compiler: list[str], label: str, space: Space, work: Path,
++                  units: list[Path] | None = None) -> list[str]:
+     """Every firmware unit reaches the stack through its public headers only, in every configuration: the
+-    stack judged, and the checkout's submodule when the stack judged is a copy."""
+-    argv = firmware_flags(trees, compiler, work)
++    stack judged, and the checkout's submodule when the stack judged is a copy. With `units`, those are
++    judged as C++, as the arms compile their tests (the stack's tests on the include path)."""
++    cxx = units is not None
++    argv = [*compiler, *search(trees, work), *([f"-I{trees.stack / 'tests'}"] if cxx else []), *tail(trees),
++            "-x", "c++" if cxx else "c"]
+     stacks = {s.resolve(): (s / STACK_INCLUDE).resolve() for s in (trees.stack, STACK)}
+     standins = work / "standins"
+     standins.mkdir(parents=True, exist_ok=True)
+-    units = firmware_units(trees)
+     found: dict[tuple[str, str], list[str]] = {}
+-    for unit, seen in judged(units, [*argv, "-x", "c"], universe, work, standins):
++    for unit, seen in judged(firmware_units(trees) if units is None else units, argv, space, work, standins):
+         name = unit.relative_to(trees.ctrl).as_posix()
+         for s in seen:
+-            if s.error:
+-                found.setdefault((label, f"{name} does not preprocess: {s.error}"), []).append(s.label)
++            if s.read.error and not s.read.stopped:
++                found.setdefault((label, f"{name} does not preprocess: {s.read.error}"), []).append(s.label)
+                 continue
+-            for dep in sorted(s.deps):
++            for dep in sorted(s.read.deps):
+                 if any(dep.is_relative_to(stack) and not dep.is_relative_to(public)
+                        for stack, public in stacks.items()):
+                     found.setdefault((label, f"{name} includes {where(dep, trees)}, not one of the stack's public "
+                                              "headers"), []).append(s.label)
++        common(found, label, name, seen, space)
+     return smallest(found)
+ 
+ 
+@@ -472,17 +499,21 @@ def shadows(trees: Trees, firmware: Path) -> list[str]:
+             for root in roots for p in sorted(root.rglob("*")) if p.is_file() and p.name in names]
+ 
+ 
+-def judge(trees: Trees, rv32: str | None, work: Path, universe: dict[str, tuple[str, ...]] | None = None) -> list[str]:
+-    """Every finding on both sides of the boundary for these trees, in every configuration."""
+-    universe = modes() if universe is None else universe
+-    host = ["gcc", *C_FLAGS]
+-    findings = stack_side(trees, host, "host", universe, work / "stack")
+-    firmware = firmware_side(trees, ["gcc", "-std=c11"], "firmware", universe, work / "firmware")
++def judge(trees: Trees, rv32: str | None, work: Path, universe: dict[str, tuple[str, ...]] | None = None,
++          computed: dict[str, str] | None = None) -> list[str]:
++    """Every finding on both sides of the boundary for these trees, in every configuration and language."""
++    derived = derive() if universe is None or computed is None else ({}, {})
++    each = spaces(derived[0] if universe is None else universe, derived[1] if computed is None else computed)
++    findings = stack_side(trees, ["gcc", *C_FLAGS], "host", each["stack"], work / "stack")
++    firmware = firmware_side(trees, ["gcc", "-std=c11"], "firmware", each["firmware"], work / "firmware")
++    cxx, unfollowed = cxx_units(trees, work / "firmware-cxx")
++    firmware += unfollowed + firmware_side(trees, ["g++", *fw_gtest.CXX_FLAGS], "firmware c++", each["c++"],
++                                           work / "firmware-cxx", cxx)
+     if rv32 is not None:
+         cross = [rv32, *RV32_FLAGS, *fw_rv32.includes(rv32)]
+-        findings += stack_side(trees, cross, "rv32", universe, work / "stack")
+-        firmware += firmware_side(trees, cross, "firmware rv32", universe, work / "firmware-rv32")
+-    findings += tests_side(trees, universe, work / "tests")
++        findings += stack_side(trees, cross, "rv32", each["stack"], work / "stack")
++        firmware += firmware_side(trees, cross, "firmware rv32", each["firmware"], work / "firmware-rv32")
++    findings += tests_side(trees, each["tests"], work / "tests")
+     findings += firmware
+     findings += shadows(trees, ROOT / "sw/firmware")
+     return findings
+@@ -508,9 +539,9 @@ def stack_gate(selftest: bool, work: Path) -> list[str]:
+ class Plant:
+     """One control: written into the stack's copy or the ctrl tree's copy, side by side, so a relative path
+     from one reaches the other (a "+" file is written whole as a new file); refused by a finding holding
+-    `needle`, or passing when `needle` is "". `mode` is a flag planted into a copy of the text of `builder`
+-    (a file of test/; a new one when it holds none), which the boundary must then explore without being
+-    told."""
++    `needle`, or passing when `needle` is "". `mode` is a builder's flag arguments, planted into a copy of the
++    text of `builder` (a file of test/; a new one when it holds none; a Makefile's recipe when it is one),
++    which the boundary must then explore without being told."""
+ 
+     name: str
+     side: str
+@@ -518,12 +549,14 @@ class Plant:
+     old: str
+     new: str
+     needle: str
+-    mode: str = ""
++    mode: tuple[str, ...] = ()
+     builder: str = "ctrl_arms.py"
+ 
+ 
+ #: A builder the checkout does not hold: it names the firmware's shared builder, as every builder does.
+ NEW_BUILDER = '"""A builder of the firmware that nobody lists."""\nfrom ctrl_build import Tree\n'
++#: A Makefile builder the checkout does not hold, of the firmware's tree.
++NEW_MAKEFILE = "# A builder of sw/firmware/ctrl that nobody lists.\n"
+ 
+ 
+ PLANTS = (
+@@ -603,7 +636,7 @@ PLANTS = (
+     Plant("a mode an arm writes is explored without being named here", "stack", "src/adp.c", "#include <assert.h>\n",
+           "#include <assert.h>\n#ifdef CTRL_PLANTED_MODE\n#include \"mbx_hal.h\"\n#endif\n",
+           "host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+-          "-DCTRL_PLANTED_MODE"),
++          ("-DCTRL_PLANTED_MODE",)),
+     Plant("a mode an AECP arm writes is explored without being named here", "stack", "src/acmp.c",
+           "#include \"acmp.h\"\n", "#include \"acmp.h\"\n#ifdef AECP_TEST_APP\n#include \"mbx_hal.h\"\n#endif\n",
+           "host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"),
+@@ -611,7 +644,7 @@ PLANTS = (
+           "#include \"maap.h\"\n",
+           "#include \"maap.h\"\n#ifdef CTRL_PLANTED_BUILDER\n#include \"ctrl_loop.h\"\n#endif\n",
+           "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+-          "-DCTRL_PLANTED_BUILDER", "planted_arms.py"),
++          ("-DCTRL_PLANTED_BUILDER",), "planted_arms.py"),
+     Plant("stack source includes the AECP core's header", "stack", "src/adp.c", "#include <assert.h>\n",
+           "#include <assert.h>\n#include \"aecp.h\"\n", "the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h"),
+     Plant("a stack test includes the AECP adapter", "stack", "tests/test_adp.cpp", "#include \"adp.h\"\n",
+@@ -629,6 +662,44 @@ PLANTS = (
+           "firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c"),
+     Plant("a copy of the stack's acmp.h in the AECP directory", "ctrl", "+aecp/acmp.h", "", "#include <stdint.h>\n",
+           "aecp/acmp.h has the name of the stack's acmp.h"),
++    Plant("the image reaches a stack example's header under a shape's stream count", "ctrl",
++          "test/rv32_image/image_main.c", "#include <stdbool.h>\n",
++          "#include <stdbool.h>\n#if IMAGE_SINKS > 1u\n#include \"../../../tsn-c-stack/examples/adp_port.h\"\n"
++          "#error PROBE-REACHED\n#endif\n",
++          "firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes "
++          "tsn-c-stack/examples/adp_port.h, not one of the stack's public headers"),
++    Plant("a firmware header reaches a stack test's fake in C++ only", "ctrl", "acmp/acmp_mbx.h",
++          "#ifdef __cplusplus\nextern \"C\" {\n", "#ifdef __cplusplus\n#include \"acmp_fake.hpp\"\nextern \"C\" {\n",
++          "firmware c++: acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public "
++          "headers"),
++    Plant("the AECP image reaches a stack source at a shape its generated header gives many maps", "ctrl",
++          "test/ctrl_aecp_image.c", "#include \"aecp_entity_gen.h\"\n",
++          "#include \"aecp_entity_gen.h\"\n#if AECP_ENTITY_MAPS > 8u\n#include \"../../tsn-c-stack/src/acmp.c\"\n"
++          "#endif\n",
++          "firmware [shape=endstation_ax7101_8x8]: test/ctrl_aecp_image.c includes tsn-c-stack/src/acmp.c"),
++    Plant("an adapter reaches a stack source where the SRP shape header is force-included", "ctrl",
++          "maap/maap_mbx.c", "#include \"maap_mbx.h\"\n",
++          "#include \"maap_mbx.h\"\n#ifdef CTRL_SRP_SOURCES\n#include \"../../tsn-c-stack/src/maap.c\"\n#endif\n",
++          "firmware [-include srp_entity_gen.h]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c"),
++    Plant("an adapter reaches a stack source on the two-interface contract", "ctrl", "adp/adp_mbx.c",
++          "#include \"adp_mbx.h\"\n",
++          "#include \"adp_mbx.h\"\n#if MBX_N_IF > 1u\n#include \"../../tsn-c-stack/src/adp.c\"\n#endif\n",
++          "firmware [interfaces=2]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c"),
++    Plant("an adapter reaches a stack source where a build leaves lwSRP's profile undefined", "ctrl",
++          "acmp/acmp_mbx.c", "#include \"acmp_mbx.h\"\n",
++          "#include \"acmp_mbx.h\"\n#ifndef LWSRP_MILAN\n#include \"../../tsn-c-stack/src/acmp.c\"\n#endif\n",
++          "firmware: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"),
++    Plant("the AECP core tests a value only its arms compute", "ctrl", "aecp/aecp.c",
++          "#include \"aecp_internal.h\"\n", "#include \"aecp_internal.h\"\n#if AECP_TEST_INTERFACES > 1\n#endif\n",
++          "aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctrl/test/aecp_arms.py computes at run time"),
++    Plant("a mode an arm writes as two arguments is explored", "stack", "src/adp.c", "#include <assert.h>\n",
++          "#include <assert.h>\n#ifdef CTRL_SPLIT_MODE\n#include \"mbx_hal.h\"\n#endif\n",
++          "host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
++          ("-D", "CTRL_SPLIT_MODE")),
++    Plant("a mode a new Makefile writes as two words is explored", "stack", "src/maap.c", "#include \"maap.h\"\n",
++          "#include \"maap.h\"\n#ifdef CTRL_SPLIT_MAKE\n#include \"ctrl_loop.h\"\n#endif\n",
++          "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
++          ("-D", "CTRL_SPLIT_MAKE"), "planted.mk"),
+     Plant("pass: the firmware includes a public header", "ctrl", "port/ctrl_debug.c", "#include \"ctrl_debug.h\"\n",
+           "#include \"ctrl_debug.h\"\n#include \"wire.h\"\n", ""),
+     Plant("pass: the stack includes only its own header and the C library", "stack", "src/maap.c",
+@@ -662,15 +733,25 @@ def planted(plant: Plant, work: Path) -> Trees:
+     return trees
+ 
+ 
++def builder_plant(plant: Plant) -> dict[Path, str] | None:
++    """The builder text a plant's mode is written into: a Python builder's tuple of arguments, or a Makefile
++    recipe's words."""
++    if not plant.mode:
++        return None
++    builder = HERE / plant.builder
++    if builder.suffix == ".py":
++        text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_BUILDER
++        return {builder: f"{text}\nPLANTED = {plant.mode!r}\n"}
++    text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_MAKEFILE
++    return {builder: f"{text}\nplanted:\n\tcc {' '.join(plant.mode)} -c planted.c\n"}
++
++
+ def controls(rv32: str | None, work: Path) -> int:
+     """Every plant refused by the finding it names, every pass control passing; the misbehaving count."""
+     bad = 0
+     for plant in PLANTS:
+         trees = planted(plant, work / "plants")
+-        builder = HERE / plant.builder
+-        text = builder.read_text(encoding="utf-8") if builder.exists() else NEW_BUILDER
+-        written = {builder: f"{text}\nPLANTED = (\"{plant.mode}\",)\n"} if plant.mode else None
+-        findings = judge(trees, rv32, work / "plants-build", modes(written))
++        findings = judge(trees, rv32, work / "plants-build", modes(builder_plant(plant)))
+         shutil.rmtree(work / "plants-build", ignore_errors=True)
+         ok = (not findings) if not plant.needle else any(plant.needle in f for f in findings)
+         shown = next((f for f in findings if plant.needle and plant.needle in f), findings[0] if findings else "")
+@@ -680,103 +761,22 @@ def controls(rv32: str | None, work: Path) -> int:
+     return bad
+ 
+ 
+-def pin_controls(work: Path) -> tuple[int, int]:
+-    """The shared pin check (ctrl_build.stack_pin) passes a clone of the stack at its gitlink and refuses, by
+-    name, the clone with a source, a test, a script or a CMake file edited, with an edit hidden from git
+-    status, with a header the gitlink's tree does not hold, and at another revision; the mailbox bench passes
+-    the pinned clone, and the bench, the MAAP differential (both modes) and the AECP lane's arms, campaign
+-    and wire comparison refuse an edited one before building it. Returns the misbehaving count and the
+-    number of controls."""
+-    pin = stack_gitlink()
+-    clone = work / "pin-clone"
+-    edited = f"differs from the pinned {pin[:8]}: "
+-
+-    def fresh() -> None:
+-        """A new clone of the stack at its gitlink, for the next control."""
+-        if clone.exists():
+-            shutil.rmtree(clone)
+-        if run(["git", "clone", "--quiet", "--no-hardlinks", str(STACK), str(clone)]).returncode or \
+-                run(["git", "-C", str(clone), "-c", "advice.detachedHead=false", "checkout", "--quiet",
+-                     pin]).returncode:
+-            raise Refusal(f"cannot clone {STACK.relative_to(ROOT)} at {pin} for the pin controls")
+-
+-    def append(rel: str) -> None:
+-        """One line added to a file of the clone."""
+-        (clone / rel).write_text((clone / rel).read_text(encoding="utf-8") + "\n", encoding="utf-8")
+-
+-    def hidden() -> None:
+-        """A source edited and hidden from git status by the index's assume-unchanged flag."""
+-        append("src/adp.c")
+-        if run(["git", "-C", str(clone), "update-index", "--assume-unchanged", "src/adp.c"]).returncode:
+-            raise Refusal("cannot hide the pin control's edit from git status")
+-
+-    def direct() -> tuple[bool, str]:
+-        """The pin check itself on the clone: accepted, and what it said."""
+-        try:
+-            return True, f"accepted {stack_pin(clone, pin)}"
+-        except Refusal as exc:
+-            return False, str(exc)
+-
+-    def tool(argv: list[str], env: dict[str, str] | None = None) -> tuple[bool, str]:
+-        """A gate run on the clone: accepted (exit 0), and its last line about the stack."""
+-        res = subprocess.run(argv, capture_output=True, text=True, check=False, env={**os.environ, **(env or {})})
+-        said = [ln for ln in (res.stdout + res.stderr).splitlines() if "tsn-c-stack" in ln]
+-        return res.returncode == 0, f"exit {res.returncode}: {said[-1].strip() if said else 'no pin verdict'}"
+-
+-    def bench(target: str) -> tuple[bool, str]:
+-        """The mailbox bench's `target` with the clone as its stack, and a compiler that always fails, so a
+-        bench that skipped the check could build nothing."""
+-        return tool(["make", "--no-print-directory", "-C", str(TB_MBX), f"STACK_DIR={clone}", "CC=false", target])
+-
+-    def differential(*extra: str) -> tuple[bool, str]:
+-        """The MAAP differential on the clone, with a simulator that always fails."""
+-        return tool([sys.executable, "-B", str(HERE / "maap_differential.py"), "--stack", str(clone), *extra],
+-                    {"VERILATOR": "false"})
+-
+-    def aecp(script: str, *extra: str) -> tuple[bool, str]:
+-        """One of the AECP lane's tools on the clone, with a simulator that always fails."""
+-        return tool([sys.executable, "-B", str(HERE / script), "--stack", str(clone), "--output",
+-                     str(work / "aecp-out"), *extra], {"VERILATOR": "false"})
+-
+-    arms = (("the pinned clone, unmodified", lambda: None, direct, ""),
+-            ("a core source edited", lambda: append("src/adp.c"), direct, edited + "src/adp.c"),
+-            ("a core test edited", lambda: append("tests/test_adp.cpp"), direct, edited + "tests/test_adp.cpp"),
+-            ("a stack script edited", lambda: append("scripts/check_boundary.py"), direct,
+-             edited + "scripts/check_boundary.py"),
+-            ("a CMake file edited", lambda: append("CMakeLists.txt"), direct, edited + "CMakeLists.txt"),
+-            ("an edit hidden from git status (assume-unchanged)", hidden, direct, edited + "src/adp.c"),
+-            ("a header the pinned tree does not hold", lambda: (clone / "include/stdint.h").write_text(""), direct,
+-             edited + "include/stdint.h"),
+-            ("another revision checked out",
+-             lambda: run(["git", "-C", str(clone), "checkout", "--quiet", "HEAD~1"]), direct, "is not the pinned"),
+-            ("the mailbox bench, the pinned clone", lambda: None, lambda: bench("stack-pin"), ""),
+-            ("the mailbox bench, a core source edited", lambda: append("src/maap.c"),
+-             lambda: bench("obj_fw/libctrlfw.a"), edited + "src/maap.c"),
+-            ("the MAAP differential, a core source edited", lambda: append("src/maap.c"), differential,
+-             edited + "src/maap.c"),
+-            ("the MAAP differential's self-test, a core source edited", lambda: append("src/maap.c"),
+-             lambda: differential("--self-test"), edited + "src/maap.c"),
+-            ("the AECP arms, a core source edited", lambda: append("src/acmp.c"), lambda: aecp("aecp_arms.py", "--app"),
+-             edited + "src/acmp.c"),
+-            ("the AECP campaign, a core source edited", lambda: append("src/acmp.c"),
+-             lambda: aecp("aecp_mutants.py", "--shard", "0", "1000"), edited + "src/acmp.c"),
+-            ("the AECP wire comparison, the stack's wire layer edited", lambda: append("include/wire.h"),
+-             lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h"))
+-    bad = 0
+-    for what, spoil, check, needle in arms:
+-        fresh()
+-        spoil()
+-        accepted, detail = check()
+-        ok = accepted if not needle else (not accepted and needle in detail)
+-        print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
+-        bad += not ok
+-    shutil.rmtree(clone)
+-    shutil.rmtree(work / "aecp-out", ignore_errors=True)
+-    return bad, len(arms)
++def configurations(universe: dict[str, tuple[str, ...]], computed: dict[str, str]) -> None:
++    """What the configurations are drawn from, as read from the builders."""
++    found = variants()
++    image = image_dim()
++    print("build modes read from the builders: " +
++          "; ".join(f"{name} ({' '.join(flags)})" for name, flags in universe.items()))
++    print(f"shapes, the shipped configs: {', '.join(found.shapes)} (default {DEFAULT_ENTITY.stem}); the image's "
++          f"stream counts (ctrl_image.shape_build): {'; '.join(w for w, _ in image.alternatives[1:])}; mailbox "
++          f"contracts: the tracked one and {', '.join(f'{n} interfaces' for n in found.contracts) or 'no variant'}")
++    print("values the builders compute, which no judged unit may test: " +
++          "; ".join(f"{name} ({where})" for name, where in computed.items() if name not in image.macros))
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+-    """Hold both sides, then the stack's own gate; with --selftest, the controls first."""
++    """Hold both sides, every Makefile builder's pin prerequisites, then the stack's own gate; with --selftest,
++    the controls first."""
+     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+     ap.add_argument("--selftest", action="store_true", help="also plant every control and require its verdict")
+     ap.add_argument("--require-rv32", action="store_true", help="refuse, not skip, without an RV32 compiler")
+@@ -787,31 +787,33 @@ def main(argv: list[str] | None = None) -> int:
+         return 2
+     if rv32 is None:
+         print("  SKIPPED: the RV32 arm, no RV32 compiler; --require-rv32 refuses instead")
+-    universe = modes()
+-    print("build modes read from the builders: " +
+-          "; ".join(f"{name} ({' '.join(flags)})" for name, flags in universe.items()))
+     try:
++        universe, computed = derive()
++        configurations(universe, computed)
+         with tempfile.TemporaryDirectory(prefix="ctrl-boundary-") as tmp:
+             work = Path(tmp)
+             print(f"tsn-c-stack at {stack_pin()}", flush=True)
+             bad = pins = 0
+             if args.selftest:
+                 bad = controls(rv32, work)
+-                misbehaved, pins = pin_controls(work)
++                misbehaved, pins = pin_controls(work, makefiles())
+                 bad += misbehaved
+             PREPROCESSED.clear()
+-            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", universe)
++            findings = judge(Trees(CTRL, STACK), rv32, work / "checkout", universe, computed)
+             runs = sum(PREPROCESSED)
++            cxx = len(cxx_units(Trees(CTRL, STACK), work / "count")[0])
++            findings += makefile_findings(makefiles(), work / "makefiles")
+             findings += stack_gate(args.selftest, work)
+     except Refusal as exc:
+         print(f"REFUSED: {exc}")
+         return 2
+     for finding in findings:
+         print(f"  [FAIL] {finding}")
+-    units = len(firmware_units(Trees(CTRL, STACK)))
+-    print(f"ctrl_boundary: {units} firmware units and the stack's sources, headers and tests, host"
+-          f"{' and RV32' if rv32 else ''}, in every configuration of {len(universe)} build modes "
+-          f"({runs} preprocessings); "
++    found = variants()
++    print(f"ctrl_boundary: {len(firmware_units(Trees(CTRL, STACK)))} firmware units ({cxx} also as C++) and the "
++          f"stack's sources, headers and tests, host{' and RV32' if rv32 else ''}, in every configuration of "
++          f"{len(universe)} build modes, {len(found.shapes)} shapes and {1 + len(found.contracts)} mailbox "
++          f"contracts ({runs} preprocessings), and every Makefile builder's pin prerequisites; "
+           f"{len(findings)} finding(s)"
+           f"{f', {len(PLANTS)} boundary and {pins} pin controls, {bad} misbehaved' if args.selftest else ''}")
+     print(f"ctrl_boundary: {'FAIL' if findings or bad else 'PASS'}")
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+new file mode 100644
+index 000000000..c0633b5ba
+--- /dev/null
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -0,0 +1,408 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""ctrl_configs.py - the configurations the firmware's builders compile it in, read from the builders (#697).
++
++The boundary gate (ctrl_boundary.py) judges each unit in every configuration
++its builders compile it in; this module reads them, and lists none of them.
++
++THE BUILDERS: every Python module and Makefile of the checkout, tracked or new
++and not ignored, that names the firmware's tree (sw/firmware/ctrl, or its
++shared builder ctrl_build), the gate's own modules excepted.
++
++THE BUILD MODES: every -D or -U flag a builder writes, as one argument
++("-DNAME", "-UNAME=1") or as two ("-D", "NAME": adjacent in a list, a tuple
++or a call's arguments, or two words of a Makefile recipe). A macro the C
++implementation reserves (C11 7.1.3) is not a mode.
++
++THE VALUES: a flag a builder computes at run time (an f-string, or a bare -D
++or -U followed by one) names a macro whose value only the build knows. A flag
++whose macro is computed too, which no reader could name, refuses the gate.
++
++THE SHAPES: every shipped config (configs/*.yaml), each a shape the image
++builders take. For each, the image builder's own ctrl_image.shape_build writes
++the store's generated headers and gives the image's stream counts, and every
++entity generator (*/*_entity.py) writes its header, as the arms and the image
++builders run them. The SRP adapter's shape header is force-included by the
++SRP builds, and not by the others.
++
++THE MAILBOX CONTRACT: the tracked one, and the variant its generator writes
++(gen_mailbox.py --variant-interfaces) for every interface count it admits,
++counting up from one until it refuses.
++
++THE C++ SOURCES: every C++ source a builder names, a test or a bench.
++
++Each way a builder varies a unit's build is a dimension (Dim): its
++alternatives, the one the search holds it at, and what in a preprocessing
++shows that the unit depends on it.
++"""
++
++from __future__ import annotations
++
++import ast
++import atexit
++import itertools
++import os
++import re
++import shutil
++import subprocess
++import sys
++import tempfile
++from dataclasses import dataclass
++from functools import lru_cache
++from pathlib import Path
++
++import ctrl_image
++from ctrl_build import CTRL, HERE, PP, ROOT, STACK, STACK_PREFIX, Refusal
++from srp_arms import DEFAULT_ENTITY
++
++sys.path.insert(0, str(ROOT / "sw/builder"))
++from endstation_builder import ConfigError  # noqa: E402
++
++#: The boundary gate's own modules: never a builder.
++GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_configs.py", "ctrl_pin.py"))
++#: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
++CONFIGS = ROOT / "configs"
++#: The mailbox contract's generator, which writes the contract for another interface count.
++GEN_MAILBOX = ROOT / "sw/mailbox/gen_mailbox.py"
++#: The mailbox contract, which a variant replaces.
++CONTRACT = "mbx_contract.h"
++#: The SRP adapter's generated shape header, which the SRP builds force-include and the others do not.
++FORCED = "srp_entity_gen.h"
++#: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures
++#: are written on. Every -D or -U flag written in a builder is a build mode the boundary is judged in.
++BUILDER_NAMES = ("sw/firmware/ctrl", "ctrl_build")
++#: A -D or -U flag, its macro's name in group 1.
++FLAG = re.compile(r"-[DU]([A-Za-z_]\w*)(?:=.*)?", re.S)
++#: A flag written as two arguments: the bare -D or -U, then its macro (and value).
++BARE = ("-D", "-U")
++MACRO = re.compile(r"[A-Za-z_]\w*(?:=.*)?", re.S)
++#: The macro a flag computed at run time names, read from its literal start.
++COMPUTED = re.compile(r"([A-Za-z_]\w*)(?:=|$)")
++#: A macro name the C implementation reserves (C11 7.1.3): never a firmware mode.
++RESERVED = re.compile(r"_[A-Z_]")
++#: A #define line, read as text: its macro and its definition.
++DEFINE = re.compile(r"^\s*#\s*define\s+([A-Za-z_]\w*)(.*)$", re.M)
++#: The suffixes of a C++ source.
++CXX_SUFFIXES = (".cpp", ".cc", ".cxx")
++
++
++@dataclass(frozen=True)
++class Read:
++    """What one preprocessing read: its dependencies and the macros that decided them (tested or expanded where a
++    conditional or an #include of a file it read names them, or a definition of one does); its error
++    when it does not preprocess, and whether that error is an #error directive's only."""
++
++    deps: frozenset[Path]
++    tested: frozenset[str]
++    error: str = ""
++    stopped: bool = False
++
++
++@dataclass(frozen=True)
++class Dim:
++    """One way the builders vary a unit's build. Each alternative is the words a finding names it by and the
++    flags it adds; the first is the unit's default build, `seed` the one the search holds it at until the unit
++    is seen to depend on it: when one of `macros` decides what a preprocessing reads, when it reads a generated
++    header named in `reads`, or, at the default, when one of `base_only` (a force-included header's own guard)
++    decides it."""
++
++    alternatives: tuple[tuple[str, tuple[str, ...]], ...]
++    seed: int
++    macros: frozenset[str]
++    reads: frozenset[str] = frozenset()
++    base_only: frozenset[str] = frozenset()
++
++    def shown(self, at: int, read: Read) -> bool:
++        """Whether one preprocessing, with this dimension at alternative `at`, depends on it."""
++        return bool(self.macros & read.tested or self.reads & {d.name for d in read.deps} or
++                    (at == 0 and self.base_only & read.tested))
++
++
++@dataclass(frozen=True)
++class Space:
++    """What one side's units are explored over: the builders' modes, the dimensions the builders vary that side
++    along, and the values builders compute that the boundary has none of, each with its builder."""
++
++    modes: dict[str, tuple[str, ...]]
++    dims: dict[str, Dim]
++    values: dict[str, str]
++
++
++def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
++    """One tool, its output captured, its messages in English."""
++    return subprocess.run(argv, cwd=cwd, capture_output=True, text=True, check=False,
++                          env={**os.environ, "LC_ALL": "C"})
++
++
++def rel(path: Path) -> str:
++    """A path of the checkout, named from its root."""
++    return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path)
++
++
++def literal_start(node: ast.JoinedStr) -> str:
++    """The literal text an f-string starts with."""
++    first = node.values[0] if node.values else None
++    return first.value if isinstance(first, ast.Constant) and isinstance(first.value, str) else ""
++
++
++def computed_macro(path: Path, start: str) -> str:
++    """The macro of a flag a builder computes, from its literal start; a macro it computes too is refused."""
++    if m := COMPUTED.match(start):
++        return m[1]
++    raise Refusal(f"the builder {rel(path)} computes a -D or -U flag's macro: the boundary cannot read it")
++
++
++def python_flags(path: Path, text: str) -> tuple[list[str], list[str]]:
++    """A Python builder's flags (a string literal that is one, or a bare -D or -U followed, in a list, a tuple or
++    a call's arguments, by a literal macro) and the macros of the flags it computes (an f-string, or a bare -D
++    or -U followed by one)."""
++    tree = ast.parse(text)
++    parts = {id(part) for node in ast.walk(tree) if isinstance(node, ast.JoinedStr) for part in node.values}
++    flags, values = [], []
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Constant) and id(node) not in parts and isinstance(node.value, str) and \
++                FLAG.fullmatch(node.value):
++            flags.append(node.value)
++        elif isinstance(node, ast.JoinedStr) and literal_start(node)[:2] in BARE:
++            values.append(computed_macro(path, literal_start(node)[2:]))
++        sequence = node.elts if isinstance(node, (ast.List, ast.Tuple, ast.Set)) else \
++            node.args if isinstance(node, ast.Call) else []
++        for bare, then in zip(sequence, sequence[1:]):
++            if not (isinstance(bare, ast.Constant) and bare.value in BARE):
++                continue
++            if isinstance(then, ast.Constant) and isinstance(then.value, str) and MACRO.fullmatch(then.value):
++                flags.append(bare.value + then.value)
++            elif isinstance(then, ast.JoinedStr):
++                values.append(computed_macro(path, literal_start(then)))
++            elif not isinstance(then, ast.Constant):
++                raise Refusal(f"the builder {rel(path)} writes {bare.value} before a macro it computes: the "
++                              "boundary cannot read it")
++    return flags, values
++
++
++def makefile_flags(text: str) -> list[str]:
++    """A Makefile's flags: the words of its logical lines (comments aside) that are one, or a bare -D or -U
++    followed by a macro."""
++    flags = []
++    for line in text.replace("\\\n", " ").splitlines():
++        words = [word.strip("\"'") for word in line.split("#", 1)[0].split()]
++        flags += [word for word in words if FLAG.fullmatch(word)]
++        flags += [bare + then for bare, then in zip(words, words[1:]) if bare in BARE and MACRO.fullmatch(then)]
++    return flags
++
++
++def candidates() -> list[Path]:
++    """Every Python module and Makefile of the checkout, tracked or new (and not ignored)."""
++    res = run(["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--",
++               "*.py", "*Makefile", "*.mk"])
++    if res.returncode:
++        raise Refusal(f"cannot list the checkout's files: {res.stderr.strip()}")
++    return sorted({ROOT / name for name in res.stdout.split("\0") if name and (ROOT / name).is_file()})
++
++
++def builders(texts: dict[Path, str]) -> list[Path]:
++    """The firmware's builders among the files `texts` holds: each that names the firmware's tree, the boundary
++    gate's own modules excepted (its controls' modes and its exploration's flags are not a builder's)."""
++    return [path for path, text in texts.items()
++            if path.resolve() not in GATE and any(n in text for n in BUILDER_NAMES)]
++
++
++def builder_texts(planted: dict[Path, str] | None = None) -> dict[Path, str]:
++    """The text of every builder the checkout holds, with `planted` replacing a file's text, or adding a new
++    file, for the self-test."""
++    texts = {path: path.read_text(encoding="utf-8", errors="replace") for path in candidates()}
++    texts.update(planted or {})
++    return {path: texts[path] for path in builders(texts)}
++
++
++def derive(planted: dict[Path, str] | None = None) -> tuple[dict[str, tuple[str, ...]], dict[str, str]]:
++    """Every macro the builders set or clear, with each flag they write for it; and every macro whose value a
++    builder computes, with the first builder that does. A reserved name is the C implementation's."""
++    found: dict[str, dict[str, None]] = {}
++    computed: dict[str, str] = {}
++    for path, text in builder_texts(planted).items():
++        try:
++            flags, values = python_flags(path, text) if path.suffix == ".py" else (makefile_flags(text), [])
++        except SyntaxError as exc:
++            raise Refusal(f"the builder {rel(path)} does not parse: {exc}") from exc
++        for flag in flags:
++            if not RESERVED.match(name := FLAG.fullmatch(flag)[1]):
++                found.setdefault(name, {})[flag] = None
++        for name in values:
++            computed.setdefault(name, rel(path))
++    return {name: tuple(flags) for name, flags in sorted(found.items())}, dict(sorted(computed.items()))
++
++
++def modes(planted: dict[Path, str] | None = None) -> dict[str, tuple[str, ...]]:
++    """Every macro the builders set or clear, with each flag they write for it."""
++    return derive(planted)[0]
++
++
++def makefiles() -> list[Path]:
++    """The Makefiles among the builders."""
++    return [path for path in builder_texts() if path.suffix != ".py"]
++
++
++@dataclass(frozen=True)
++class Variants:
++    """What the builders generate per configuration: each shipped config's generated headers and the image's
++    stream-count flags; and the mailbox contract written for each interface count but the tracked one's."""
++
++    shapes: dict[str, tuple[Path, tuple[str, ...]]]
++    contracts: dict[int, Path]
++
++
++@lru_cache(maxsize=None)
++def variants() -> Variants:
++    """Every shipped config's generated headers, by the builders' own generators, and every contract variant the
++    mailbox generator admits; written once per run."""
++    work = Path(tempfile.mkdtemp(prefix="ctrl-boundary-variants-"))
++    atexit.register(shutil.rmtree, work, True)
++    shapes = {}
++    for config in sorted(CONFIGS.glob("*.yaml")):
++        try:
++            gen, flags = ctrl_image.shape_build(config, work / config.stem)
++        except (ConfigError, subprocess.CalledProcessError) as exc:
++            raise Refusal(f"the end-station builder refused {config.name}, whose shape the image builders "
++                          f"take: {exc}") from exc
++        for generator in sorted(CTRL.glob("*/*_entity.py")):
++            res = run([sys.executable, "-B", str(generator), str(config), "-o", str(gen / f"{generator.stem}_gen.h")])
++            if res.returncode:
++                raise Refusal(f"{generator.name} refused {config.name}: {res.stderr.strip()}")
++        shapes[config.stem] = (gen, tuple(flags))
++    if DEFAULT_ENTITY.stem not in shapes:
++        raise Refusal(f"the arms' default entity {DEFAULT_ENTITY.name} is not a shipped config")
++    tracked = (CTRL / "mbx" / CONTRACT).read_text(encoding="utf-8")
++    contracts = {}
++    for count in itertools.count(1):
++        out = work / f"interfaces-{count}"
++        res = run([sys.executable, "-B", str(GEN_MAILBOX), "--variant-interfaces", str(count), "--out", str(out)])
++        if res.returncode == 2 and res.stdout.startswith("REFUSED") and count > 1:
++            break
++        if res.returncode:
++            raise Refusal(f"{GEN_MAILBOX.name} failed for {count} interfaces: {(res.stdout + res.stderr).strip()}")
++        if (out / CONTRACT).read_text(encoding="utf-8") != tracked:
++            contracts[count] = out / CONTRACT
++    return Variants(shapes, contracts)
++
++
++def definitions(path: Path) -> dict[str, str]:
++    """The macros a header defines, each with its definition, read as text."""
++    text = path.read_text(encoding="utf-8", errors="replace").replace("\\\n", " ")
++    return {m[1]: m[2].strip() for m in DEFINE.finditer(text)}
++
++
++def skeleton(path: Path) -> tuple[str, ...]:
++    """A header's directives other than its definitions: what decides what else it reads."""
++    text = path.read_text(encoding="utf-8", errors="replace").replace("\\\n", " ")
++    return tuple(ln.strip() for ln in text.splitlines() if ln.lstrip().startswith("#") and not DEFINE.match(ln))
++
++
++def varying(tables: list[dict[str, str]]) -> frozenset[str]:
++    """The macros the tables do not all define alike."""
++    return frozenset(n for n in set().union(*tables) if len({t.get(n) for t in tables}) > 1)
++
++
++def shape_dim() -> Dim:
++    """The shapes: each shipped config's generated headers, searched first for a quoted include as the image
++    builder puts them; the arms' default config is the unit's default build."""
++    shapes = variants().shapes
++    order = [DEFAULT_ENTITY.stem, *sorted(s for s in shapes if s != DEFAULT_ENTITY.stem)]
++    headers = [{p.relative_to(shapes[s][0]).as_posix(): p for p in shapes[s][0].rglob("*.h")} for s in order]
++    tables = [{m: d for p in held.values() for m, d in definitions(p).items()} for held in headers]
++    names = set().union(*headers)
++    reads = frozenset(Path(n).name for n in names if len({skeleton(h[n]) if n in h else None for h in headers}) > 1)
++    alternatives = tuple((f"shape={s}" if i else "", ("-iquote", str(shapes[s][0]), "-I", str(shapes[s][0])))
++                         for i, s in enumerate(order))
++    return Dim(alternatives, 0, varying(tables), reads)
++
++
++def forced_dim() -> Dim:
++    """The SRP adapter's shape header: left out, as most builds compile, or force-included, as the SRP builds
++    compile every unit. Its own include guard shows a dependence only where it is left out."""
++    header = variants().shapes[DEFAULT_ENTITY.stem][0] / FORCED
++    defined = set(definitions(header))
++    guard = set(re.findall(r"^\s*#\s*ifndef\s+(\w+)", header.read_text(encoding="utf-8"), re.M)) & defined
++    return Dim((("", ()), (f"-include {FORCED}", ("-include", FORCED))), 1, frozenset(defined - guard),
++               base_only=frozenset(guard))
++
++
++def contract_dim() -> Dim:
++    """The mailbox contract: the tracked one, or a variant force-included ahead of it, as the two-interface
++    builds compile the firmware (the variant's include guard keeps the tracked one out)."""
++    contracts = variants().contracts
++    tracked = CTRL / "mbx" / CONTRACT
++    tables = [definitions(tracked), *(definitions(p) for p in contracts.values())]
++    differ = len({skeleton(tracked), *(skeleton(p) for p in contracts.values())}) > 1
++    alternatives = (("", ()), *((f"interfaces={n}", ("-include", str(p))) for n, p in contracts.items()))
++    return Dim(alternatives, 0, varying(tables), frozenset({CONTRACT}) if differ else frozenset())
++
++
++def image_dim() -> Dim:
++    """The image's stream counts: undefined, as every builder but the image's compiles, or a shape's, as
++    ctrl_image.shape_build gives them."""
++    counts = dict.fromkeys(flags for _, flags in variants().shapes.values())
++    names = frozenset(FLAG.fullmatch(flag)[1] for flags in counts for flag in flags)
++    return Dim((("", ()), *((" ".join(flags), flags) for flags in counts)), 1, names)
++
++
++def spaces(universe: dict[str, tuple[str, ...]], computed: dict[str, str]) -> dict[str, Space]:
++    """What each side is explored over. A value the builders compute that the image's are not is a dimension of
++    its own, defined or not, so that a unit testing it is seen to, and refused."""
++    image = image_dim()
++    unknown = {name: where for name, where in computed.items() if name not in image.macros}
++    guards = {f"<value {name}>": Dim((("", ()), (f"-D{name}", (f"-D{name}",))), 1, frozenset({name}))
++              for name in unknown}
++    shape, forced, contract = shape_dim(), forced_dim(), contract_dim()
++    return {"stack": Space(universe, {"<shape>": shape, "<forced>": forced, "<image>": image, **guards}, unknown),
++            "tests": Space(universe, guards, unknown),
++            "firmware": Space(universe, {"<shape>": shape, "<contract>": contract, "<forced>": forced,
++                                         "<image>": image, **guards}, unknown),
++            "c++": Space(universe, {"<shape>": shape, "<contract>": contract, "<forced>": forced, **guards},
++                         unknown)}
++
++
++def state(flag: str | None) -> tuple[str, ...]:
++    """What a -D or -U flag leaves its macro as: defined with a value, or undefined."""
++    if flag is None or flag.startswith("-U"):
++        return ("undefined",)
++    return ("defined", flag[2:].partition("=")[2] or "1")
++
++
++def default(argv: list[str], name: str) -> tuple[str, ...]:
++    """What the unit's own flags leave `name` as; the last flag for it wins."""
++    return state(next((a for a in reversed(argv) if (m := FLAG.fullmatch(a)) and m[1] == name), None))
++
++
++def mode_dims(argv: list[str], universe: dict[str, tuple[str, ...]]) -> dict[str, Dim]:
++    """Each build mode as a dimension: the unit's own state of its macro, then every other one a builder
++    writes (an -U first, so a mode's value replaces the default's without a redefinition warning); held defined
++    until the unit is seen to test it."""
++    dims = {}
++    for name, flags in universe.items():
++        base = default(argv, name)
++        other = list(dict.fromkeys(f for f in flags if state(f) != base))
++        if other:
++            alternatives = (("", ()), *((f, (f"-U{name}", f) if f.startswith("-D") else (f,)) for f in other))
++            seed = 0 if base[0] == "defined" else next(i for i, (f, _) in enumerate(alternatives) if f[:2] == "-D")
++            dims[name] = Dim(alternatives, seed, frozenset({name}))
++    return dims
++
++
++def cxx_sources() -> list[Path]:
++    """Every C++ source a builder names (a string literal of a Python builder, or a word of a Makefile, ending in
++    a C++ suffix), wherever it is found: beside the builder, among the firmware's tests, in the stack (named
++    under tsn-c-stack/ or not), in the protocol processor or from the checkout's root."""
++    found: dict[Path, None] = {}
++    for path, text in builder_texts().items():
++        if path.suffix == ".py":
++            names = [n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and
++                     isinstance(n.value, str) and n.value.endswith(CXX_SUFFIXES) and not n.value.split()[1:]]
++        else:
++            names = [w for w in text.replace("\\\n", " ").split() if w.endswith(CXX_SUFFIXES)]
++        for name in names:
++            for base in (path.parent, HERE, STACK, ROOT, PP):
++                hit = base / name.removeprefix(STACK_PREFIX) if base == STACK else base / name
++                if hit.is_file():
++                    found[hit.resolve()] = None
++    return list(found)
+diff --git a/sw/firmware/ctrl/test/ctrl_image.py b/sw/firmware/ctrl/test/ctrl_image.py
+index 32e4c5fa6..8a4c14f30 100644
+--- a/sw/firmware/ctrl/test/ctrl_image.py
++++ b/sw/firmware/ctrl/test/ctrl_image.py
+@@ -336,19 +336,27 @@ def app_parts(cc: str, fw: Path, gen: Path, work: Path, stack: Path) -> dict[str
+     return {n.removeprefix("size_"): s for n, (_, s) in symbol_sizes(cc.removesuffix("gcc"), obj).items()}
+ 
+ 
+-def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
+-    """Link the composition at one shape and read its figures."""
+-    config = ROOT / "configs" / f"{shape}.yaml"
++def shape_build(config: Path, work: Path) -> tuple[Path, list[str]]:
++    """What the composition is compiled with at one shape: the store's generated headers (its container and the
++    SoC's header), written into work/gen, and the shape's stream counts from its entity model, the -D flags
++    image_main.c reads. The boundary gate (ctrl_boundary.py) judges the image under the same."""
+     view = ctrl_arms.fabric_view(config)
+-    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
+-    work.mkdir(parents=True, exist_ok=True)
+     try:
+         inputs = nvm_bench.shape_inputs(config, work / "shape")
+     except nvm_bench.Refusal as exc:
+         raise Refusal(str(exc)) from exc
+     gen = work / "gen"
+     nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+-    defs = [f"-DIMAGE_SINKS={image.sinks}u", f"-DIMAGE_SOURCES={image.sources}u"]
++    return gen, [f"-DIMAGE_SINKS={view['listener_stream_sinks']}u", f"-DIMAGE_SOURCES={view['talker_stream_sources']}u"]
++
++
++def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
++    """Link the composition at one shape and read its figures."""
++    config = ROOT / "configs" / f"{shape}.yaml"
++    view = ctrl_arms.fabric_view(config)
++    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
++    work.mkdir(parents=True, exist_ok=True)
++    gen, defs = shape_build(config, work)
+     objs = compile_all(cc, fw, gen, work, defs, stack)
+     tool = cc.removesuffix("gcc")
+     helpers = work / object_name(HELPERS)
+diff --git a/sw/firmware/ctrl/test/ctrl_pin.py b/sw/firmware/ctrl/test/ctrl_pin.py
+new file mode 100644
+index 000000000..5e65278d4
+--- /dev/null
++++ b/sw/firmware/ctrl/test/ctrl_pin.py
+@@ -0,0 +1,312 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""ctrl_pin.py - the TSN stack's pin, held at every gate that builds the stack (#697).
++
++The pin check itself is ctrl_build.stack_pin: the submodule at its gitlink,
++every file of its sources, headers, tests, examples, scripts and CMake files
++hashing to the gitlink's tree. Every Python gate that builds the stack calls it
++first. This module holds the rest, for the boundary gate (ctrl_boundary.py).
++
++THE MAKEFILES. A Makefile among the firmware's builders is read with make's
++own database (make -p) and dry run (make -n -B --trace), never restated here,
++with the stack it builds named through STACK_DIR. A target whose own recipe
++names that stack (its include path, its sources) must have a target that runs
++the pin check (ctrl_build.py --stack-pin) as a prerequisite, so no target
++reaches the stack unpinned, whichever target is run alone; a recipe that names
++the checkout's stack rather than STACK_DIR's is refused too, since no stack
++could be checked in its place.
++
++THE CONTROLS (pin_controls, under ctrl_boundary.py --selftest). The pin check
++passes a clone of the stack at its gitlink and refuses, by name, the clone with
++a source, a test, a script or a CMake file edited, with an edit hidden from
++git status, with a file the tree does not hold, and at another revision. The
++MAAP differential (both its modes) and the AECP lane's arms, campaign and wire
++comparison refuse an edited clone before building it. Then every target of
++every Makefile builder whose dry run reaches the stack is run for real, in a
++scratch copy of its directory (the rest of the checkout linked, so its paths
++reach what they reach in the checkout), with the system's compilers and a
++simulator that builds nothing, against a clone whose wire.h is poisoned: each
++must refuse on the pin check and never compile the poisoned header. A planted
++copy of the mailbox bench's Makefile whose run-if2 lacks the pin prerequisite
++must be refused by name.
++"""
++
++from __future__ import annotations
++
++import os
++import re
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++from ctrl_build import HERE, PP, ROOT, STACK, Refusal, stack_gitlink, stack_pin
++
++#: A target make's database does not hold: asked for so make prints the database and runs nothing.
++NO_GOAL = "ctrl-pin-no-such-goal"
++#: make --trace's line before each target's commands, the target in group 1.
++TRACE = re.compile(r"^\S+:\d+: (?:update )?target '(.+?)'")
++#: What a recipe line that runs the pin check holds.
++PIN_RUN = "--stack-pin"
++#: The checkout's stack, however a recipe names it (relative or absolute).
++CHECKOUT_STACK = STACK.relative_to(ROOT).as_posix()
++#: The line the poisoned clone's wire.h ends with; a build that reads it fails naming it.
++POISON = "#error PIN-POISON: the poisoned tsn-c-stack was compiled"
++#: A simulator that builds nothing: it writes, where Verilator would build it, an executable that passes.
++NO_SIMULATOR = '''import sys
++from pathlib import Path
++args = sys.argv[1:]
++if "--Mdir" in args and "-o" in args:
++    exe = Path(args[args.index("--Mdir") + 1]) / args[args.index("-o") + 1]
++    exe.parent.mkdir(parents=True, exist_ok=True)
++    exe.write_text("#!/bin/sh\\nexit 0\\n", encoding="utf-8")
++    exe.chmod(0o755)
++'''
++#: The planted Makefile control: the mailbox bench's run-if2 without the pin check as its prerequisite.
++UNPINNED = (ROOT / "tb/verilator/mbx/Makefile", "run-if2: if2-gen | stack-pin\n", "run-if2: if2-gen\n", "run-if2")
++#: How long one bench target may run against the poisoned clone before it is a failure.
++BENCH_TIMEOUT_S = 900
++
++
++def run(argv: list[str], cwd: Path | None = None, env: dict[str, str] | None = None,
++        timeout: int | None = None) -> tuple[int, str]:
++    """One tool, its output and errors interleaved, its messages in English."""
++    try:
++        res = subprocess.run(argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
++                             check=False, env={**os.environ, "LC_ALL": "C", **(env or {})}, timeout=timeout)
++    except subprocess.TimeoutExpired:
++        return 124, f"timed out after {timeout} s"
++    return res.returncode, res.stdout
++
++
++def make(makefile: Path, *args: str, timeout: int | None = None) -> tuple[int, str]:
++    """make on one Makefile, in its directory."""
++    return run(["make", "--no-print-directory", "-C", str(makefile.parent), "-f", makefile.name, *args],
++               timeout=timeout)
++
++
++def targets(makefile: Path, overrides: list[str]) -> dict[str, frozenset[str]]:
++    """Every target the Makefile defines, special and pattern ones aside, with all its prerequisites (normal
++    and order-only), from make's own database."""
++    _, out = make(makefile, "-p", "-n", "-q", "-R", *overrides, NO_GOAL)
++    files = out.partition("\n# Files\n")[2].partition("\n# files hash-table stats")[0]
++    if not files:
++        raise Refusal(f"make printed no database for {makefile.relative_to(ROOT)}")
++    found = {}
++    for entry in files.split("\n\n"):
++        lines = [ln for ln in entry.splitlines() if ln]
++        rule = next((ln for ln in lines if not ln.startswith(("#", "\t"))), None)
++        if rule is None or any(ln.startswith("# Not a target") for ln in lines):
++            continue
++        name, sep, rest = rule.partition(":")
++        if sep and not name.startswith(".") and "%" not in name:
++            found[name.strip()] = frozenset(rest.lstrip(":").replace("|", " ").split())
++    return found
++
++
++def recipes(makefile: Path, target: str, overrides: list[str]) -> dict[str, list[str]]:
++    """Each target make's dry run of `target` would build (it and its prerequisites, every one remade), with the
++    command lines of its own recipe."""
++    _, out = make(makefile, "-n", "-B", "--trace", *overrides, target)
++    own: dict[str, list[str]] = {}
++    current = None
++    for line in out.splitlines():
++        if m := TRACE.match(line):
++            current = m[1]
++            own.setdefault(current, [])
++        elif current is not None:
++            own[current].append(line)
++    return own
++
++
++def stack_targets(makefile: Path, stack: Path) -> tuple[list[str], list[str], list[str]]:
++    """The Makefile's targets whose build reaches `stack` (STACK_DIR), those that run the pin check, and the
++    findings: each target whose own recipe names the stack without one that runs the pin check among its
++    prerequisites, and each that names the checkout's stack instead."""
++    overrides = [f"STACK_DIR={stack}"]
++    defined = targets(makefile, overrides)
++    built = {name: recipes(makefile, name, overrides) for name in defined}
++    pins = {t for own in built.values() for t, lines in own.items() if any(PIN_RUN in ln for ln in lines)}
++    where = makefile.relative_to(ROOT).as_posix() if makefile.is_relative_to(ROOT) else makefile.name
++    reaching, findings = [], {}
++    for name, own in built.items():
++        if any(str(stack) in ln for lines in own.values() for ln in lines):
++            reaching.append(name)
++        for target, lines in own.items():
++            if target in pins:
++                continue
++            if any(CHECKOUT_STACK in ln for ln in lines):
++                findings[f"{where}: {target} builds the checkout's tsn-c-stack, not the STACK_DIR it is given"] = None
++            elif any(str(stack) in ln for ln in lines) and not defined.get(target, frozenset()) & pins:
++                findings[f"{where}: {target} builds against tsn-c-stack without the pin check "
++                         f"({', '.join(sorted(pins)) or 'none'}) as a prerequisite"] = None
++    return reaching, sorted(pins), list(findings)
++
++
++def makefile_findings(makefiles: list[Path], work: Path) -> list[str]:
++    """Every Makefile builder's targets that build the stack take the pin check first: judged with STACK_DIR a
++    link to the submodule, so a recipe naming the submodule itself is told apart."""
++    link = work / "tsn-c-stack-link"
++    work.mkdir(parents=True, exist_ok=True)
++    if not link.is_symlink():
++        link.symlink_to(STACK, target_is_directory=True)
++    return [f for makefile in makefiles for f in stack_targets(makefile, link)[2]]
++
++
++def mirror(directory: Path, into: Path) -> Path:
++    """A scratch checkout for one directory of it: the directory's files copied (tracked, or new and not
++    ignored), every other entry of the checkout linked, so its relative paths reach what they reach in the
++    checkout and what it writes stays in the copy."""
++    if into.exists():
++        shutil.rmtree(into)
++    here, there = ROOT, into
++    for part in directory.relative_to(ROOT).parts:
++        there.mkdir(parents=True, exist_ok=True)
++        for entry in here.iterdir():
++            if entry.name != part:
++                (there / entry.name).symlink_to(entry)
++        here, there = here / part, there / part
++    rc, out = run(["git", "-C", str(directory), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "."])
++    if rc:
++        raise Refusal(f"cannot list {directory.relative_to(ROOT)}: {out.strip()}")
++    for name in filter(None, out.split("\0")):
++        if (directory / name).is_file():
++            (there / name).parent.mkdir(parents=True, exist_ok=True)
++            shutil.copy2(directory / name, there / name)
++    return there
++
++
++def bench_arms(makefiles: list[Path], clone: Path, work: Path, edited: str) -> list[tuple]:
++    """For every target of every Makefile builder that reaches the stack in its dry run: run it in a scratch
++    copy of its directory against the clone with wire.h poisoned, with no simulator; it must refuse on the pin
++    check and never reach the poisoned header; each target that runs the pin check passes the clone
++    unpoisoned. And the planted Makefile without the pin prerequisite."""
++    simulator = work / "no_simulator.py"
++    simulator.write_text(NO_SIMULATOR, encoding="utf-8")
++
++    def poison() -> None:
++        """The clone's wire.h, which every firmware build reads, ends in an #error."""
++        wire = clone / "include/wire.h"
++        wire.write_text(wire.read_text(encoding="utf-8") + f"\n{POISON}\n", encoding="utf-8")
++
++    def bench(makefile: Path, target: str) -> tuple[bool, str]:
++        """The target run for real in a fresh scratch copy: accepted, and its verdict on the stack."""
++        copy = mirror(makefile.parent, work / "bench") / makefile.name
++        rc, out = make(copy, f"STACK_DIR={clone}", f"VERILATOR={sys.executable} -I {simulator}", target,
++                       timeout=BENCH_TIMEOUT_S)
++        said = [ln for ln in out.splitlines() if "tsn-c-stack" in ln or "PIN-POISON" in ln]
++        if "PIN-POISON" in out:
++            return True, f"exit {rc}: compiled the poisoned header: {said[-1].strip()}"
++        return rc == 0, f"exit {rc}: {said[-1].strip() if said else 'no pin verdict'}"
++
++    def unpinned() -> tuple[bool, str]:
++        """The planted Makefile, judged as the gate judges every Makefile builder."""
++        makefile, old, new, _ = UNPINNED
++        copy = mirror(makefile.parent, work / "bench") / makefile.name
++        text = copy.read_text(encoding="utf-8")
++        if text.count(old) != 1:
++            raise Refusal(f"the planted Makefile control's anchor occurs {text.count(old)} times")
++        copy.write_text(text.replace(old, new), encoding="utf-8")
++        found = makefile_findings([copy], work / "unpinned")
++        return not found, found[0] if found else "no finding"
++
++    arms = []
++    for makefile in makefiles:
++        where = makefile.relative_to(ROOT).as_posix()
++        reaching, pins, _ = stack_targets(makefile, clone)
++        arms += [(f"{where} make {pin}, the pinned clone", lambda: None, lambda m=makefile, t=pin: bench(m, t), "")
++                 for pin in pins]
++        for target in reaching:
++            arms.append((f"{where} make {target}, the stack's wire.h poisoned", poison,
++                         lambda m=makefile, t=target: bench(m, t), edited + "include/wire.h"))
++    arms.append((f"{UNPINNED[0].relative_to(ROOT).as_posix()} planted with {UNPINNED[3]} unpinned", lambda: None,
++                 unpinned, f"{UNPINNED[3]} builds against tsn-c-stack without the pin check"))
++    return arms
++
++
++def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
++    """The shared pin check passes a clone of the stack at its gitlink and refuses, by name, the clone with a
++    source, a test, a script or a CMake file edited, with an edit hidden from git status, with a header the
++    gitlink's tree does not hold, and at another revision; the MAAP differential (both modes) and the AECP
++    lane's arms, campaign and wire comparison refuse an edited one before building it; every Makefile
++    builder's target that reaches the stack refuses a poisoned one on the pin check. Returns the misbehaving
++    count and the number of controls."""
++    pin = stack_gitlink()
++    clone = work / "pin-clone"
++    edited = f"differs from the pinned {pin[:8]}: "
++
++    def fresh() -> None:
++        """A new clone of the stack at its gitlink, for the next control."""
++        if clone.exists():
++            shutil.rmtree(clone)
++        if run(["git", "clone", "--quiet", "--no-hardlinks", str(STACK), str(clone)])[0] or \
++                run(["git", "-C", str(clone), "-c", "advice.detachedHead=false", "checkout", "--quiet", pin])[0]:
++            raise Refusal(f"cannot clone {STACK.relative_to(ROOT)} at {pin} for the pin controls")
++
++    def append(rel: str) -> None:
++        """One line added to a file of the clone."""
++        (clone / rel).write_text((clone / rel).read_text(encoding="utf-8") + "\n", encoding="utf-8")
++
++    def hidden() -> None:
++        """A source edited and hidden from git status by the index's assume-unchanged flag."""
++        append("src/adp.c")
++        if run(["git", "-C", str(clone), "update-index", "--assume-unchanged", "src/adp.c"])[0]:
++            raise Refusal("cannot hide the pin control's edit from git status")
++
++    def direct() -> tuple[bool, str]:
++        """The pin check itself on the clone: accepted, and what it said."""
++        try:
++            return True, f"accepted {stack_pin(clone, pin)}"
++        except Refusal as exc:
++            return False, str(exc)
++
++    def tool(argv: list[str], env: dict[str, str] | None = None) -> tuple[bool, str]:
++        """A gate run on the clone: accepted (exit 0), and its last line about the stack."""
++        rc, out = run(argv, env=env)
++        said = [ln for ln in out.splitlines() if "tsn-c-stack" in ln]
++        return rc == 0, f"exit {rc}: {said[-1].strip() if said else 'no pin verdict'}"
++
++    def differential(*extra: str) -> tuple[bool, str]:
++        """The MAAP differential on the clone, with a simulator that always fails."""
++        return tool([sys.executable, "-B", str(HERE / "maap_differential.py"), "--stack", str(clone), *extra],
++                    {"VERILATOR": "false"})
++
++    def aecp(script: str, *extra: str) -> tuple[bool, str]:
++        """One of the AECP lane's tools on the clone, with a simulator that always fails."""
++        return tool([sys.executable, "-B", str(HERE / script), "--stack", str(clone), "--output",
++                     str(work / "aecp-out"), *extra], {"VERILATOR": "false"})
++
++    arms = [("the pinned clone, unmodified", lambda: None, direct, ""),
++            ("a core source edited", lambda: append("src/adp.c"), direct, edited + "src/adp.c"),
++            ("a core test edited", lambda: append("tests/test_adp.cpp"), direct, edited + "tests/test_adp.cpp"),
++            ("a stack script edited", lambda: append("scripts/check_boundary.py"), direct,
++             edited + "scripts/check_boundary.py"),
++            ("a CMake file edited", lambda: append("CMakeLists.txt"), direct, edited + "CMakeLists.txt"),
++            ("an edit hidden from git status (assume-unchanged)", hidden, direct, edited + "src/adp.c"),
++            ("a header the pinned tree does not hold", lambda: (clone / "include/stdint.h").write_text(""), direct,
++             edited + "include/stdint.h"),
++            ("another revision checked out",
++             lambda: run(["git", "-C", str(clone), "checkout", "--quiet", "HEAD~1"]), direct, "is not the pinned"),
++            ("the MAAP differential, a core source edited", lambda: append("src/maap.c"), differential,
++             edited + "src/maap.c"),
++            ("the MAAP differential's self-test, a core source edited", lambda: append("src/maap.c"),
++             lambda: differential("--self-test"), edited + "src/maap.c"),
++            ("the AECP arms, a core source edited", lambda: append("src/acmp.c"), lambda: aecp("aecp_arms.py", "--app"),
++             edited + "src/acmp.c"),
++            ("the AECP campaign, a core source edited", lambda: append("src/acmp.c"),
++             lambda: aecp("aecp_mutants.py", "--shard", "0", "1000"), edited + "src/acmp.c"),
++            ("the AECP wire comparison, the stack's wire layer edited", lambda: append("include/wire.h"),
++             lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h")]
++    fresh()
++    arms += bench_arms(makefiles, clone, work, edited)
++    bad = 0
++    for what, spoil, check, needle in arms:
++        fresh()
++        spoil()
++        accepted, detail = check()
++        ok = accepted if not needle else (not accepted and needle in detail)
++        print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
++        bad += not ok
++    for scratch in (clone, work / "aecp-out", work / "bench", work / "unpinned"):
++        shutil.rmtree(scratch, ignore_errors=True)
++    return bad, len(arms)
+diff --git a/tb/verilator/mbx/Makefile b/tb/verilator/mbx/Makefile
+index 7d39980cf..71a6f9e93 100644
+--- a/tb/verilator/mbx/Makefile
++++ b/tb/verilator/mbx/Makefile
+@@ -42,8 +42,11 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
+ # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
+ # The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
+ # pinned tsn-c-stack submodule (#697), included through its public headers. The
+-# shared pin check (stack-pin) runs before every firmware build, so a stack off
+-# its gitlink or differing from it is refused and never built.
++# shared pin check (stack-pin) is a prerequisite of every target whose recipe
++# compiles against the stack (the firmware library, the co-simulation and
++# run-if2's host model), so whichever target runs alone, a stack off its gitlink
++# or differing from it is refused and never built. ctrl_pin.py finds those
++# targets in make's own dry run and refuses one without it.
+ FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
+ STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
+ FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
+@@ -85,7 +88,7 @@ obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
+ # Verilator's own build relinks Vmbx_cosim only when one of its objects
+ # changed, and the firmware library is not one of them: the binary goes
+ # whenever the library is newer, so a firmware-only change is never run stale.
+-run-cosim: obj_fw/libctrlfw.a
++run-cosim: obj_fw/libctrlfw.a | stack-pin
+ 	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
+ 	  rm -f obj_cosim/Vmbx_cosim; fi
+ 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
+@@ -109,7 +112,7 @@ CXX ?= c++
+ if2-gen:
+ 	python3 -B $(ROOT)/sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out $(IF2_GEN)
+ 
+-run-if2: if2-gen
++run-if2: if2-gen | stack-pin
+ 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=0 --Mdir $(IF2)/obj_wb $(IF2_RTL) sim_main.cpp -o Vmbx_wb
+ 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=1 --Mdir $(IF2)/obj_axil $(IF2_RTL) sim_main.cpp -o Vmbx_axil
+ 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$(IF2_GEN) $(FW_INC) \
+diff --git a/tb/verilator/mbx/README.md b/tb/verilator/mbx/README.md
+index deef65257..a99bcdc27 100644
+--- a/tb/verilator/mbx/README.md
++++ b/tb/verilator/mbx/README.md
+@@ -13,9 +13,11 @@
+    and on the host model, one scenario, compared frame by frame; the
+    firmware library is rebuilt when any firmware source or header changes,
+    and the binary relinked whenever the library is newer, so a firmware-only
+-   change never runs a stale binary; before every firmware build the shared
+-   pin check (`make stack-pin`) refuses a `third_party/tsn-c-stack` checkout
+-   off its gitlink or differing from it;
++   change never runs a stale binary; the shared pin check (`make
++   stack-pin`) is a prerequisite of every target that compiles against
++   `third_party/tsn-c-stack` (the firmware library, `run-cosim` and
++   `run-if2`), so whichever runs alone refuses a checkout off its gitlink or
++   differing from it before building it;
+ 4. `run-if2`: the same checks on the contract elaborated for two AVB
+    interfaces (`gen_mailbox.py --variant-interfaces 2`, written into
+    `obj_if2/gen`, never the tree), through both adapters and on the host

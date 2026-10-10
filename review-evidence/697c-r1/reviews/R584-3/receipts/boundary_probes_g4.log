@@ -1,0 +1,8 @@
+[NOT-A-GAP] multiword-string-flag: exit 2; REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+    summary: none
+[CAUGHT] makefile-new-target-unpinned: exit 1; [FAIL] tb/verilator/mbx/Makefile: r584-probe builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 1 finding(s)
+[CAUGHT] makefile-run-cosim-unpinned: exit 1; [FAIL] tb/verilator/mbx/Makefile: run-cosim builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 1 finding(s)
+[CAUGHT] makefile-checkout-path: exit 1; [FAIL] tb/verilator/mbx/Makefile: r584-probe builds the checkout's tsn-c-stack, not the STACK_DIR it is given
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 1 finding(s)

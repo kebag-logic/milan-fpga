@@ -1,0 +1,8 @@
+[CAUGHT] shape-sinks-gt1: exit 1; [FAIL] firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 2 finding(s)
+[CAUGHT] shape-sources-eq1: exit 1; [FAIL] firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (982 preprocessings), and every Makefile builder's pin prerequisites; 2 finding(s)
+[CAUGHT] shape-9x9-only: exit 1; [FAIL] firmware [-DIMAGE_SINKS=9u -DIMAGE_SOURCES=9u]: test/rv32_image/image_main.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (982 preprocessings), and every Makefile builder's pin prerequisites; 2 finding(s)
+[GAP-CONFIRMED] makefile-pin-errors-ignored: exit 0; no finding
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 18 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 0 finding(s)

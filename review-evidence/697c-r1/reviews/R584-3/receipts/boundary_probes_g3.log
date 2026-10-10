@@ -1,0 +1,12 @@
+[ESCAPED] two-arg-D-list: exit 2; REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+    modes: R584_TWO_ARG (-DR584_TWO_ARG)
+    summary: none
+[ESCAPED] two-arg-D-call: exit 2; REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+    modes: R584_CALL (-DR584_CALL)
+    summary: none
+[CAUGHT] two-arg-D-makefile-value: exit 1; [FAIL] firmware [-DR584_MK=3]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers
+    modes: R584_MK (-DR584_MK=3); R584_MK2 (-UR584_MK2)
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 20 build modes, 5 shapes and 2 mailbox contracts (948 preprocessings), and every Makefile builder's pin prerequisites; 2 finding(s)
+[ESCAPED] two-arg-U-tuple: exit 0; no finding
+    modes: R584_UNDEF (-UR584_UNDEF -DR584_UNDEF)
+    summary: ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 19 build modes, 5 shapes and 2 mailbox contracts (942 preprocessings), and every Makefile builder's pin prerequisites; 0 finding(s)
