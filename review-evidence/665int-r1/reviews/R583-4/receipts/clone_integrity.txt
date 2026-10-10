@@ -1,0 +1,28 @@
+head: 4a99c1e92ba74c3cbab87a2d6c414113311e743b tree: 73e89cc4a550360d26f39b26b4d6ca8c5150ad65
+status-short-lines: 0
+!! avdecc/__pycache__/
+!! sw/litex/platforms/__pycache__/
+!! sw/mailbox/__pycache__/
+index-vs-HEAD: identical
+worktree-vs-index: identical
+index-records(mode,blob,path) sha256: b162a43d82f60257d338062cd44e4f4be7e7c20c5f24f0a7297d69225d813bdf
+HEAD-tree-records sha256:            b162a43d82f60257d338062cd44e4f4be7e7c20c5f24f0a7297d69225d813bdf
+index==HEAD records: yes
+worktree blobs rehashed: 1273, mismatches: 0
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 2ad2f845dd583f8310075fa2380cb60a04fd091a 0	protocol-processor
+160000 9197193e47a6bb1c45a56d90a18c1784123aba44 0	third_party/lwSRP
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+-9197193e47a6bb1c45a56d90a18c1784123aba44 third_party/lwSRP
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+after removing the four ignored __pycache__ directories this review's runs created (13:37):
+ignored+untracked: 0
+protocol-processor ignored+untracked: 0
+protocol-processor HEAD: 2ad2f845dd583f8310075fa2380cb60a04fd091a
+gptp-processor HEAD: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d status-lines: 0
+verilog-axis HEAD: 48ff7a7e2ef782cf778d47910cf85835c64b1bce status-lines: 0

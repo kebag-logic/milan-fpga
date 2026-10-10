@@ -1,0 +1,6 @@
+tracked comparator: arm rc=0
+  srp_wire_compare.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding PASS
+  18 planted defects caught: swapped-opportunities, collapsed-opportunities, plus-k-off-by-one, wrong-AttributeEvent, wrong-FourPackedEvent, dropped-declaration, extra-declaration, duplicated-declaration, LeaveAll-wrong-attribute-type, malformed-PDU-EndMark, malformed-list-EndMark, wrong-ProtocolVersion, wrong-AttributeLength, wrong-AttributeListLength, reserved-ThreePackedEvents, reserved-LeaveAllEvent, truncated-PDU-EndMark, oversized-frame
+[caught] planted exit-1: arm rc=1
+[caught] planted control-reported-failed: arm rc=1
+[caught] planted no-plants-reported: arm rc=1

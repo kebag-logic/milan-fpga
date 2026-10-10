@@ -1,0 +1,20 @@
+[ESCAPE] probe   lwsrp_talker_declared: begin-less always_ff, if/else, else-branch register to a sink: ACCEPTED
+[ESCAPE] probe   lwsrp_talker_declared: begin-less always_ff, if/else with begin/end branches: ACCEPTED
+[ESCAPE] probe   lwsrp_talker_declared: begin-less always_ff, case selector, default-item register to a sink: ACCEPTED
+[ESCAPE] probe   lwsrp_talker_declared: begin/end always_ff whose event control nests parentheses, if/else: ACCEPTED
+[ok] control lwsrp_talker_declared: CONTROL, the same if/else inside begin/end: REFUSED :: pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared (line 7339): counted as status, but it reaches the wire at u_probe_sink.a_i
+[ESCAPE] probe   gsi_tkdcl_w: begin-less always_ff, if/else, else-branch register to a sink: ACCEPTED
+[ESCAPE] probe   gsi_tkdcl_w: begin-less always_ff, if/else with begin/end branches: ACCEPTED
+[ESCAPE] probe   gsi_tkdcl_w: begin-less always_ff, case selector, default-item register to a sink: ACCEPTED
+[ESCAPE] probe   gsi_tkdcl_w: begin/end always_ff whose event control nests parentheses, if/else: ACCEPTED
+[ok] control gsi_tkdcl_w: CONTROL, the same if/else inside begin/end: REFUSED :: pp_aecp_strm_started_w -> gsi_flags_w (line 4952): counted as processor, but it reaches the wire at u_probe_sink.a_i
+[ESCAPE] probe   included file defines a token-paste macro; datapath reads pp_cd_srp_over_limit_w through it: ACCEPTED
+[ESCAPE] probe   included file defines a macro holding a hierarchical reference into the wrapper: ACCEPTED
+[ok] control CONTROL: the token-paste macro defined in the datapath: REFUSED :: a macro token paste (``) at line 5677 can build a class-D wire's name the census cannot see
+[ok] control CONTROL: the hierarchical reference written in the datapath: REFUSED :: a hierarchical reference into pp_shadow at line 5678 reads it without naming the wire: `assign probe_w = pp_shadow.srp_over_limit_o;`
+[ESCAPE] probe   escaped identifier containing // hides a read of the class-D wire: ACCEPTED
+[ESCAPE] probe   escaped identifier containing a double quote hides the statements up to the next quote: ACCEPTED
+[ok] control CONTROL: the same read through a plain wire: REFUSED :: unmapped read: pp_cd_srp_over_limit_w -> probe_w (line 5678) reaches the wire; name its block field or its ruled exclusion
+[ESCAPE] probe   second driver as the population wire's declaration initialiser: ACCEPTED
+[ok] control CONTROL: second driver as a continuous assign: REFUSED :: unaccounted occurrence of pp_cd_srp_over_limit_w at `assign pp_cd_srp_over_limit_w = 1'b0;` (line 5677): not its declaration, the wrapper's connection or a read
+r583-4 probes: 13 probes, 13 escape(s); 6 controls, 0 not refused

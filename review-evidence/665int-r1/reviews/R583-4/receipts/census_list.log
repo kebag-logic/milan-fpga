@@ -1,0 +1,64 @@
+acmp_bound_dmac_o          -> pp_cd_acmp_bound_dmac_w
+acmp_bound_eid_o           -> pp_cd_acmp_bound_eid_w
+acmp_bound_o               -> pp_cd_acmp_bound_w
+acmp_bound_sid_o           -> pp_cd_acmp_bound_sid_w
+acmp_bound_vlan_o          -> pp_cd_acmp_bound_vlan_w
+acmp_declaring_o           -> pp_cd_acmp_declaring_w
+adp_next_avail_index_o     -> pp_cd_adp_avail_index_w
+aecp_strm_started_o        -> pp_aecp_strm_started_w
+srp_acc_latency_o          -> pp_cd_srp_acc_latency_w
+srp_active_o               -> pp_cd_srp_active_w
+srp_class_a_prio_o         -> pp_cd_srp_class_a_prio_w
+srp_class_a_vid_o          -> pp_cd_srp_class_a_vid_w
+srp_domain_adopted_o       -> pp_cd_srp_domain_adopted_w
+srp_domain_change_o        -> pp_cd_srp_domain_change_w
+srp_granted_slope_bps_o    -> pp_cd_srp_granted_slope_bps_w
+srp_lstn_decl_state_o      -> pp_cd_srp_lstn_decl_state_w
+srp_lstn_reg_state_o       -> pp_cd_srp_lstn_reg_state_w
+srp_over_limit_o           -> pp_cd_srp_over_limit_w
+srp_snk_fail_code_o        -> pp_cd_srp_snk_fail_code_w
+srp_sr_admitted_o          -> pp_cd_srp_sr_admitted_w
+srp_src_fail_bridge_o      -> pp_cd_srp_src_fail_bridge_w
+srp_src_fail_code_o        -> pp_cd_srp_src_fail_code_w
+srp_sum_slope_bps_o        -> pp_cd_srp_sum_slope_bps_w
+srp_tk_decl_state_o        -> pp_cd_srp_tk_decl_state_w
+srp_tk_reg_state_o         -> pp_cd_srp_tk_reg_state_w
+pp_aecp_strm_started_w         -> acmpl_stopped_v_w        lines 5376         reaches wire                   field BINDING.STARTED
+pp_aecp_strm_started_w         -> gsi_flags_w              lines 4952         reaches processor              processor 
+pp_cd_acmp_bound_dmac_w        -> gsi_ans_raw_w            lines 5166         reaches processor              processor 
+pp_cd_acmp_bound_sid_w         -> acmpl_sid_v_w            lines 5399         reaches wire                   field SID_LO.SID
+pp_cd_acmp_bound_sid_w         -> gsi_sid_w                lines 4913         reaches processor              processor 
+pp_cd_acmp_bound_vlan_w        -> acmpl_vlan_w             lines 1765         reaches csr                    status 
+pp_cd_acmp_bound_vlan_w        -> gsi_ans_raw_w            lines 5180         reaches processor              processor 
+pp_cd_acmp_bound_w             -> acmpl_bound_v_w          lines 5349         reaches csr, wire              field BINDING.BOUND
+pp_cd_acmp_bound_w             -> gsi_bnd_w                lines 4912         reaches processor              processor 
+pp_cd_acmp_declaring_w         -> acmp_talker_active_v     lines 5335         reaches processor, wire        field DA_GATE.OPEN
+pp_cd_acmp_declaring_w         -> gsi_decl_w               lines 4918         reaches processor              processor 
+pp_cd_adp_avail_index_w        -> adp_available_index      lines 3088         reaches csr                    status 
+pp_cd_srp_acc_latency_w        -> gsi_ans_raw_w            lines 5158         reaches processor              processor 
+pp_cd_srp_active_w             -> lwsrp_res_active         lines 7282         reaches csr                    status 
+pp_cd_srp_active_w             -> lwsrp_stream_gate        lines 7265         reaches csr, processor, wire   field LICENCE.ACTIVE
+pp_cd_srp_class_a_prio_w       -> gsi_prio_snap_r          lines 4901         reaches processor              processor 
+pp_cd_srp_class_a_prio_w       -> lwsrp_op_prio            lines 7278         reaches csr, wire              field SR_DOMAIN.PRIORITY
+pp_cd_srp_class_a_vid_w        -> gsi_ans_raw_w            lines 5182         reaches processor              processor 
+pp_cd_srp_class_a_vid_w        -> gsi_vid_snap_r           lines 4902         reaches processor              processor 
+pp_cd_srp_class_a_vid_w        -> lwsrp_op_vid             lines 7279         reaches csr, wire              field SR_DOMAIN.VID
+pp_cd_srp_domain_adopted_w     -> lwsrp_adopt_valid        lines 7277         reaches csr, wire              field SR_DOMAIN.ADOPTED
+pp_cd_srp_domain_adopted_w     -> lwsrp_domain_ok          lines 7280         reaches csr                    status 
+pp_cd_srp_lstn_reg_state_w     -> gsi_lreg_w               lines 4919         reaches processor              processor 
+pp_cd_srp_lstn_reg_state_w     -> lwsrp_lstn_reg0_w        lines 7327         reaches csr                    status 
+pp_cd_srp_over_limit_w         -> lwsrp_over_limit         lines 7281         reaches csr                    status 
+pp_cd_srp_snk_fail_code_w      -> lwsrp_ta_fail_code       lines 7307         reaches csr                    status 
+pp_cd_srp_snk_fail_code_w      -> lwsrp_ta_failed          lines 7306         reaches csr                    status 
+pp_cd_srp_sr_admitted_w        -> lwsrp_slope_en           lines 7273         reaches csr                    status 
+pp_cd_srp_sr_admitted_w        -> lwsrp_stream_gate        lines 7266         reaches csr, processor, wire   field LICENCE.ACTIVE
+pp_cd_srp_src_fail_bridge_w    -> gsi_ans_raw_w            lines 5177         reaches processor              processor 
+pp_cd_srp_src_fail_code_w      -> gsi_ans_raw_w            lines 5171         reaches processor              processor 
+pp_cd_srp_src_fail_code_w      -> lwsrp_tfail_code         lines 7284         reaches csr                    status 
+pp_cd_srp_src_fail_code_w      -> lwsrp_tfail_valid        lines 7285         reaches csr                    status 
+pp_cd_srp_sum_slope_bps_w      -> lwsrp_idle_slope         lines 7274         reaches csr                    status IDLE_SLOPE.BPS
+pp_cd_srp_tk_decl_state_w      -> crft_class_a_w           lines 5678         reaches csr, wire              field TALKER_DECL.DECLARED
+pp_cd_srp_tk_decl_state_w      -> gsi_tkdcl_w              lines 4920         reaches processor              processor 
+pp_cd_srp_tk_decl_state_w      -> lwsrp_talker_declared    lines 7333         reaches csr                    status 
+pp_cd_srp_tk_reg_state_w       -> gsi_tkreg_w              lines 4915         reaches processor              processor 
+pp_cd_srp_tk_reg_state_w       -> lwsrp_ta_registered      lines 7304         reaches csr                    status 
