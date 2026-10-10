@@ -1,0 +1,9 @@
+cyc01 first set-clock 05:20:30.392
+setup2 binds [('peer-out-2', '05:20:08.783'), ('peer-out-0', '05:20:09.785')]
+teardown unbinds [('peer-out-0', '05:45:34.541'), ('peer-out-2', '05:45:34.541')]
+cyc09 poll-end 05:45:23.700
+soak AAF bind 06:22:39.507 soak CRF bind 06:22:40.720
+cyc01 -> cyc03 last phase-end to first set-clock 64.79 s
+cyc03 -> cyc05 last phase-end to first set-clock 35.43 s
+cyc05 -> cyc07 last phase-end to first set-clock 13.31 s
+cyc07 -> cyc09 last phase-end to first set-clock 15.53 s

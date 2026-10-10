@@ -1,0 +1,20 @@
+as found [('2026-10-10T05:17:01.338548Z', 0, 0), ('2026-10-10T05:20:08.318898Z', 0, 0)]
+between cycles [('c01-int', 'c02-aaf', 2), ('c03-int', 'c04-aaf', 0), ('c05-int', 'c06-aaf', 2), ('c07-int', 'c08-aaf', 2), ('c09-int', 'c10-aaf', 0)]
+between runs [('c02-int', 'c03-aaf', 36), ('c04-int', 'c05-aaf', 20), ('c06-int', 'c07-aaf', 6), ('c08-int', 'c09-aaf', 8)]
+within cycle [('c01-aaf', 'c01-crf', 0), ('c01-crf', 'c01-int', 0), ('c02-aaf', 'c02-crf', 0), ('c02-crf', 'c02-int', 0), ('c03-aaf', 'c03-crf', 0), ('c03-crf', 'c03-int', 0), ('c04-aaf', 'c04-crf', 0), ('c04-crf', 'c04-int', 0), ('c05-aaf', 'c05-crf', 0), ('c05-crf', 'c05-int', 0), ('c06-aaf', 'c06-crf', 0), ('c06-crf', 'c06-int', 0), ('c07-aaf', 'c07-crf', 0), ('c07-crf', 'c07-int', 0), ('c08-aaf', 'c08-crf', 0), ('c08-crf', 'c08-int', 0), ('c09-aaf', 'c09-crf', 0), ('c09-crf', 'c09-int', 0), ('c10-aaf', 'c10-crf', 0), ('c10-crf', 'c10-int', 0)]
+soak steps [('2026-10-10T06:28:23.212191Z', '2026-10-10T06:33:23.213790Z', 2)] soak reads 25 rails [10]
+teardown [('2026-10-10T05:45:36.844110Z', 142, 10)] prebind [('2026-10-10T06:22:39.057948Z', 142, 10)] final [('2026-10-10T08:23:49.335132Z', 146, 10)]
+setup to first set                            dups   12 frames   6.0
+INTERNAL->AAF, before boundary                dups   42 frames  21.0
+INTERNAL->AAF, after boundary                 dups    0 frames   0.0
+AAF->CRF holds                                dups    0 frames   0.0
+returns to INTERNAL holds                     dups    6 frames   3.0
+within a cycle, between phases                dups    0 frames   0.0
+between the two cycles of a run               dups    6 frames   3.0
+between runs                                  dups   70 frames  35.0
+last poll to teardown read                    dups    6 frames   3.0
+items 3 and 4 (teardown to prebind)           dups    0 frames   0.0
+across the soak bind (prebind to soak-000)    dups    2 frames   1.0
+within the soak reads                         dups    2 frames   1.0
+last soak read to final                       dups    0 frames   0.0
+total dups 146 final 0x92 frames 73.0 consistent True

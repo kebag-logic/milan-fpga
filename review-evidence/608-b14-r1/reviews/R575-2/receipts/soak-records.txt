@@ -1,0 +1,26 @@
+capture prev port subtype stream missing recovered_from_previous_capture gap_ms
+002 001 2 0x2 0000 11 all 1.501
+002 001 3 0x2 0000 12 all 1.625
+002 001 2 0x4 4000 1 all 4.0
+002 001 3 0x4 0001 1 all 4.0
+035 034 2 0x2 0000 12 all 1.624
+035 034 3 0x2 0000 12 all 1.625
+035 034 2 0x4 4000 1 all 3.998
+042 041 2 0x2 0000 9 all 1.25
+042 041 3 0x2 0000 10 all 1.375
+042 041 2 0x4 4000 1 all 4.001
+042 041 3 0x4 0001 1 all 4.0
+
+capture 002 streams hit 4 [('2', '0x2', '0000', 11), ('3', '0x2', '0000', 12), ('2', '0x4', '4000', 1), ('3', '0x4', '0001', 1)] all recovered True
+capture 035 streams hit 3 [('2', '0x2', '0000', 12), ('3', '0x2', '0000', 12), ('2', '0x4', '4000', 1)] all recovered True
+capture 042 streams hit 4 [('2', '0x2', '0000', 9), ('3', '0x2', '0000', 10), ('2', '0x4', '4000', 1), ('3', '0x4', '0001', 1)] all recovered True
+AAF missing range 9 12 CRF missing [1]
+DUT CRF stream (0001) hit in capture 035: False
+console reads 27 deviating (MAC_STATUS!=0xd or STATS_CAP!=0x1B8 or a nonzero lane 0x210-0x230): []
+STATS_CAP lanes real: [3, 4, 5, 7, 8] lane 6 (0x228) bit: 0
+dut|5|0 {'TIMESTAMP_VALID': {'at_first_poll': 345515, 'delta': 57599252}, 'FRAMES_RX': {'at_first_poll': 342369, 'delta': 57599387}}
+dut|5|1 {'FRAMES_RX': {'at_first_poll': 42, 'delta': 7200}}
+dut|6|0 {'FRAMES_TX': {'at_first_poll': 171, 'delta': 7200}}
+dut|6|1 {'FRAMES_TX': {'at_first_poll': 904, 'delta': 7200}}
+peer|5|0 {'TIMESTAMP_VALID': {'at_first_poll': 1367898, 'delta': 57599253}, 'FRAMES_RX': {'at_first_poll': 1367898, 'delta': 57599253}}
+peer|5|8 {'TIMESTAMP_VALID': {'at_first_poll': 451855, 'delta': 3599953}, 'FRAMES_RX': {'at_first_poll': 451855, 'delta': 3599953}}

@@ -1,0 +1,17 @@
+R575-2 independent pass over 6ec1a3a9..d981b1cc, written before reading the round-1 review findings.
+Candidate A (MINOR; Conformance, RTL, Docs): item 5 FRAMES observation, page :475-480. It says
+  "Table 5.6 and the declared STREAM_INPUT contract allow at most one per interval" and cites
+  KL_avtp_rx_monitor_ctx.sv as the contract the CRF listener matches. At this head that file implements and
+  declares FRAMES_RX as the interval's frame total (:318-323, :627-630, the USER 2026-08-05 law, "both readings
+  are Milan-legal"). Its header (:28-36) says the opposite. tests/features/counters_contract_milan.feature
+  :250-277 and :406-408 classify ~8000/s as the conformant per-frame reading (INFO, not FAIL), because Table 5.6
+  bounds the interval only from above. The CRF listener's FRAMES_RX is KL_crf_rx.sv (pdu_count_o, :233), not
+  the ctx monitor.
+Candidate B (MINOR; Docs, Tests): Evidence "Round 2 recomputes" :682-689 cites scripts and outputs "in the
+  lane's round 2 handoff packet under round2/". That directory is not at c848925d and not on the evidence
+  branch tip da42cd96. The raw re-decode agreement and the 44-row category recount, plus the final read of
+  the 7 as-found format rows, rest on it.
+Verified clean against c848925d: withdrawal times (cycles 1/2/42; 101-cycle Lv after response, median 8.880;
+  late cycles 26/56/97); soak loss bursts by stream; the SLIP_LB ledger (146 dups / 73 frames, each phase); the
+  soak-bind bracket; item 2 traffic counters; RMON/STATS_CAP lanes; NVM lines; packet digests and counts; the
+  422 redactions; 8 of 15 as-found rows at the final read; the #658 ruling citation; doc gates rc 0.

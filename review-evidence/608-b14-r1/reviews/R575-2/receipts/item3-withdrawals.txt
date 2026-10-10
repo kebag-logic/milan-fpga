@@ -1,0 +1,8 @@
+cycle 001: DUT TA Lv stream 0200000000010001 at 2.853098093; after bridge Lv 0.0390 s; after DISCONNECT_RX response 0.0475 s; cycles.tsv dut_ta_lv_in_hold=1
+cycle 002: DUT TA Lv stream 0200000000010001 at 2.840873289; after bridge Lv 0.0951 s; after DISCONNECT_RX response 0.1040 s; cycles.tsv dut_ta_lv_in_hold=1
+cycle 042: DUT TA Lv stream 0200000000010001 at 3.300089338; after bridge Lv 0.3184 s; after DISCONNECT_RX response 0.3277 s; cycles.tsv dut_ta_lv_in_hold=1
+cycles 101 compared with cycles.tsv 101 max |cycles.tsv - recomputed| ms 0.0
+graded Lv after response ms: min 8.350 max 95.701 median 8.880
+late (>50 ms): [('026', 84.466), ('056', 95.701), ('097', 57.499)]
+cycles with a DUT TA Lv: ['001', '002', '042']
+cycles.tsv dut_ta_lv_in_hold true: ['001', '002', '042']

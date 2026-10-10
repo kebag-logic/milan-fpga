@@ -1,0 +1,13 @@
+setup as-found keys 14 ['clk-dut', 'clk-peer', 'fmt-dut-in-0', 'fmt-dut-in-1', 'fmt-dut-out-0', 'fmt-dut-out-1', 'fmt-peer-in-0', 'fmt-peer-out-0', 'fmt-peer-out-2', 'map-dut-0x000e-0', 'map-dut-0x000f-0', 'rx-dut-0', 'rx-dut-1', 'rx-peer-0']
+teardown compare rows 15 all equal True missing from setup record ['rx-peer-8']
+asfound-rx acmp rows 12 [(None, 1, '0x0082'), (None, 0, '0x0000'), (None, 0, '0x0000'), (None, 0, '0x0000'), (None, 0, '0x0000'), (None, 0, '0x0000')]
+final map 0x000e 0 mappings 4
+final map 0x000f 0 mappings 8
+rx-dut-0 final conn_count 0 as found 0 equal True
+rx-dut-1 final conn_count 0 as found 0 equal True
+rx-peer-8 final conn_count 1 as found 1 equal True
+rx-peer-0 final conn_count 1 as found 1 equal True
+restore-compare.txt clock rows: ["('dut', 'clock', 36, 0) 0", "('peer', 'clock', 36, 0) 1"] as found clk-dut 0 clk-peer 1
+map-dut-0x000e-0 final mappings [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]] as-found [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]]
+map-dut-0x000f-0 final mappings [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]] as-found [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]]
+formats: final values are not in the archived restore/ records (only in the raw snapshot-final.jsonl); teardown 05:45 compare equal for all 7: True

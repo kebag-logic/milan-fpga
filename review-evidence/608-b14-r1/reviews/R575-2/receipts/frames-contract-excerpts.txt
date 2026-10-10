@@ -1,0 +1,94 @@
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:28-36 (header)
+                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+                  FRAMES_RX are OBSERVATION-INTERVAL counters ("incremented
+                  at the end of every observation interval during which
+                  ..."), interval <= 1 s. A per-PDU verdict only SETS a
+                  per-stream seen flag; the interval tick pends the stream
+                  and the walker commits +1 per flagged counter through the
+                  normal serial RMW walk. N frame events inside one
+                  interval therefore move each counter by AT MOST ONE -
+                  the per-frame reading is IEEE 1722.1-2021 Table 7-153's,
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:318-325 (FRAMES_RX law)
+  //! USER 2026-08-05 FRAMES_RX law: count FRAMES, publish COALESCED at the
+  //! interval commit - the visible counter advances by the interval's frame
+  //! total (~8000/s at class A) instead of Table 5.6's +1-per-interval. Both
+  //! readings are Milan-legal (the interval is implementation-specific,
+  //! <= 1 s); this one matches the ecosystem/peer and restores 1722.1's
+  //! TV+TNV == FRAMES_RX identity. Saturating 16-bit/stream (8000/s legit).
+  logic [15:0] frx_acc_r [N_LISTENERS_P];
+  logic [15:0] frx_add_r;
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:624-631 (commit)
+        else if (inc_list_r != '0 && inc_rd_q_r) begin
+          eng_we_w    = 1'b1;
+          eng_waddr_w = laddr(ev_s_r, W_CNT0_C | 5'(inc_next_w));
+          //! FRAMES_RX commits the interval's FRAME TOTAL (coalesced law,
+          //! USER 2026-08-05); every other Table 5.6 counter keeps +1
+          eng_wdata_w = ram_q_r + ((5'(inc_next_w) == 5'(C_FRX_C))
+                                   ? 32'(frx_add_r) : 32'd1);
+        end
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:1150-1164 (accumulator)
+        begin
+          iv_seen_r[s] <= iv_set_w[s];
+          iv_pend_r[s] <= 1'b0;
+          frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
+        end
+        else begin
+          if (iv_go_w && (32'(iv_s_w) == s)) begin
+            iv_seen_r[s] <= iv_set_w[s];
+            frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
+          end
+          else begin
+            iv_seen_r[s] <= iv_seen_r[s] | iv_set_w[s];
+            if (iv_set_w[s][C_FRX_C] && (frx_acc_r[s] != 16'hFFFF))
+              frx_acc_r[s] <= frx_acc_r[s] + 16'd1;
+          end
+== hdl/milan/milan_datapath.sv:3518 and :3701
+      6'd11   : ctr_blk_w = mon_diag_cnt_w[MON_FRX_C * 32 +: 32]; // @44  FRAMES_RX
+      6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+== hdl/ieee1722/crf/KL_crf_rx.sv:233
+  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
+== tests/features/counters_contract_milan.feature:250-277
+  @class:invariant @clause:Milan-Table-5.4
+  Scenario Outline: a measured frames rate is classified, not asserted
+    # THE CLAUSE BOUNDS THE INTERVAL FROM ABOVE ONLY: "The duration of the
+    # observation interval is implementation-specific and shall be less than or
+    # equal to 1 second." So every interval in (0, 1 s] is conformant, and the
+    # ONLY non-conformant interval reading is one that implies MORE than a
+    # second. The first version of this table called 200.0/s - a perfectly legal
+    # 5 ms interval - "neither", i.e. the defect, and a passing unit test
+    # asserting exactly that cemented it. 0.4/s implies a 2.5 s interval and IS
+    # the violation.
+    Given a measured frames rate of <rate> per second
+    Then the rate is consistent with the <reading> reading
+
+    Examples: the silicon numbers from the 2026-07-29 talker/listener window
+      | rate   | reading   |
+      | 7995.7 | per-frame |
+      | 4000.0 | per-frame |
+      | 3999.0 | interval  |
+      | 200.0  | interval  |
+      | 1.0    | interval  |
+      | 0.4    | neither   |
+      | 0.0    | neither   |
+
+  @class:invariant @clause:Milan-Table-5.4 @honesty
+  Scenario: the interval a rate implies is reported, and only over a second is a defect
+    Given a measured frames rate of 200.0 per second
+    Then the implied observation interval is 0.005 seconds
+    And the rate is consistent with the interval reading
+== tests/features/counters_contract_milan.feature:404-409
+    Examples: the two directions of getting the law wrong
+      | counter         | delta  | window | verdict | reading    |
+      | TIMESTAMP_VALID | 30     | 30     | FAIL    | interval   |
+      | FRAMES_RX       | 15     | 30     | FAIL    | neither    |
+      | FRAMES_RX       | 240060 | 30     | INFO    | per-frame  |
+
+== git log of the FRAMES_RX law
+f611af391 2026-08-05 counters: FRAMES_RX/TX count frames coalesced per interval, the ATDECC quantity at the Milan cadence
+== page :475-480
+- **The AAF listener's FRAMES_RX counts PDUs.** Milan v1.2 Table 5.4 (FRAMES_TX) and Table 5.6 (FRAMES_RX) define observation-interval counters.
+  Each advances by one at the end of every interval, at most 1 s long, in which at least one stream data PDU was transmitted or received.
+  FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, and so did FRAMES_RX on the DUT's CRF listener.
+  Those three match the clause and the contracts the repository declares (`hdl/ieee1722/avtp/KL_talker_diag_ctx.sv`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`, `tests/features/counters_contract_milan.feature`).
+  FRAMES_RX on the DUT's AAF listener, STREAM_INPUT 0, advanced by 57,599,387 in 7,200.5 s: about 8,000 per second, one per PDU.
+  Table 5.6 and the declared STREAM_INPUT contract allow at most one per interval, so this needs triage.
