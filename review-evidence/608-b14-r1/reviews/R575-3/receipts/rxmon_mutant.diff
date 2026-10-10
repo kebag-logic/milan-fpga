@@ -1,0 +1,5 @@
+diff -r $PACKET/scratch/rxbase/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $PACKET/scratch/rxmut/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+630c630
+<                                    ? 32'(frx_add_r) : 32'd1);
+---
+>                                    ? 32'd1 : 32'd1);

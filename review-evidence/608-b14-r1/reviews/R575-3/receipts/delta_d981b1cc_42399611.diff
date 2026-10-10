@@ -1,0 +1,86 @@
+diff --git a/docs/findings/B14_BENCH_5603C353.md b/docs/findings/B14_BENCH_5603C353.md
+index 0b6b4a7b6..587742ab9 100644
+--- a/docs/findings/B14_BENCH_5603C353.md
++++ b/docs/findings/B14_BENCH_5603C353.md
+@@ -472,12 +472,17 @@ B13's probe observed the unsolicited counter notifications under the application
+ 
+ **Observations, not error-class counters.**
+ 
+-- **The AAF listener's FRAMES_RX counts PDUs.** Milan v1.2 Table 5.4 (FRAMES_TX) and Table 5.6 (FRAMES_RX) define observation-interval counters.
++- **The DUT's two listeners count FRAMES_RX under different laws.** Milan v1.2 Table 5.4 (FRAMES_TX) and Table 5.6 (FRAMES_RX) define observation-interval counters.
+   Each advances by one at the end of every interval, at most 1 s long, in which at least one stream data PDU was transmitted or received.
+-  FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, and so did FRAMES_RX on the DUT's CRF listener.
+-  Those three match the clause and the contracts the repository declares (`hdl/ieee1722/avtp/KL_talker_diag_ctx.sv`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`, `tests/features/counters_contract_milan.feature`).
++  FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, the one-per-interval count `hdl/ieee1722/avtp/KL_talker_diag_ctx.sv` declares.
++  FRAMES_RX on the DUT's CRF listener, STREAM_INPUT 1, also advanced by 7,200.
++  Its server is `hdl/ieee1722/crf/KL_crf_rx.sv`, which counts intervals with at least one accepted PDU (`:233`; GET_COUNTERS FRAMES_RX at `hdl/milan/milan_datapath.sv:3701`).
+   FRAMES_RX on the DUT's AAF listener, STREAM_INPUT 0, advanced by 57,599,387 in 7,200.5 s: about 8,000 per second, one per PDU.
+-  Table 5.6 and the declared STREAM_INPUT contract allow at most one per interval, so this needs triage.
++  That is the law `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` declares and implements for the AAF listeners: each interval commit adds the interval's frame total, under a ruling of 2026-08-05 (`:318-323` and `:627-630`).
++  The header of the same file (`:28-36`) says each interval moves the counter by at most one, so the repository's declarations conflict.
++  `tests/features/counters_contract_milan.feature` describes Table 5.6's reading as one per interval (`:194-201`), and grades a per-frame FRAMES_RX advance under Table 5.6 as INFO, not FAIL (`:393-408`).
++  The reference peer's FRAMES_RX also advanced once per PDU, by 57,599,253 for the DUT's AAF and 3,599,953 for its CRF.
++  For triage: whether the frame-total law conforms to Table 5.6, and which of the repository's conflicting declarations governs.
+ - **No unsolicited STREAM_INPUT counters from the DUT.** One soak minute's control capture holds 60 unsolicited GET_COUNTERS for each DUT STREAM_OUTPUT, one per second.
+   It holds none for either DUT STREAM_INPUT, although FRAMES_RX on input 0 changed throughout.
+   Milan v1.2 Sections 5.4.5.1 and 5.4.5.2 (Table 5.22) send a changed counter unsolicited, rate-limited to one per second.
+@@ -507,7 +512,7 @@ gPTP read `SYNC=1 ASCAPABLE=1 TU=0` at every read, with the grandmaster equal to
+ - The DUT's AVB_INTERFACE counters carry LINK_UP, LINK_DOWN and GPTP_GM_CHANGED only (valid mask `0x23`), with no RX_CRC_ERROR.
+ - `STATS_CAP` read `0x1B8` ([REGISTER_MAP.md](../reference/REGISTER_MAP.md#0x200-----statistics-rmon--req-mac-04)).
+   On this build the RMON lanes for FCS errors (`0x224`), preamble or alignment errors (`0x220`) and frames delivered flagged bad (`0x22C`) are real.
+-  Receive drops have no source: lane 6, `RX_FIFO_OVERFLOW` at `0x228`, has `STATS_CAP` bit 6 = 0, and the register map says such a lane reads "not supported", never "0 errors".
++  Receive drops have no source: lane 6, `RX_FIFO_OVERFLOW` at `0x228`, has `STATS_CAP` bit 6 = 0, and the register map says such a lane must be rendered "not supported" by software, never "0 errors".
+ - Every lane at `0x210` to `0x230` read zero at every read, which the register map defines as "no valid snapshot".
+   A snapshot needs a `STATS_CTRL[0]` write, and this lane's rules allow no register write beyond the stream and audio-interface controls.
+ - So the FCS and alignment counts are NOT RUN here, and this build has no receive-drop count to read.
+@@ -642,6 +647,7 @@ The records are paths in the evidence packet ([Evidence](#evidence)).
+ 
+ **The packet.** The lane's handoff packet is archived at `review-evidence/608-b14-r1/author/` on branch `608-b14-review-evidence`, archive commit `c848925d2e88a98e7f31b663e5dd4f342b765487`.
+ Record paths on this page are relative to that directory.
++The round 2 recompute records under `round2-recompute/` were added to that directory after that commit (see "Round 2 recomputes" below).
+ 
+ | Packet file | SHA-256 as published |
+ |---|---|
+@@ -658,12 +664,12 @@ The archive's manifest gives each file's digest before and after that redaction.
+ |---|---|
+ | 1 | `identity/identity.json`, `identity/identity-aecp.jsonl`, `identity/console-identity.txt` |
+ | 2 | `item2/summary/switches.json`, `item2/summary/switches.tsv`, `item2/summary/rails.txt`; the counter marks in `item2/cyc01/events.jsonl` to `item2/cyc09/events.jsonl` |
+-| 3 | `item3/cycles.tsv`, `item3/summary.json`; per cycle, `item3/cycles/cycle-NNN/msrp.tsv`, `acmp.tsv`, `analysis.json`, `result.json` and the counter snapshots; the withdrawals in cycles 1, 2 and 42 in their `msrp.tsv` and `acmp.tsv` |
+-| 4 | `item4/startup-cycles.csv`, `item4/startup-first-ten.csv`, `item4/startup-summary.json`, `item4/summary.json`, `item4/asfound-release.jsonl`, `item4/asfound-rebind.jsonl` |
++| 3 | `item3/cycles.tsv`, `item3/summary.json`; per cycle, `item3/cycles/cycle-NNN/msrp.tsv`, `acmp.tsv`, `analysis.json`, `result.json` and the counter snapshots; the withdrawals in cycles 1, 2 and 42 in their `msrp.tsv` and `acmp.tsv`; the raw re-decode in `round2-recompute/outputs/ta_lv_all.txt` and `round2-recompute/outputs/ta_lv_vs_cycles.txt` |
++| 4 | `item4/startup-cycles.csv`, `item4/startup-first-ten.csv`, `item4/startup-summary.json`, `item4/short-summary-001-050.json`, `item4/short-summary-051-100.json`, `item4/asfound-release.jsonl`, `item4/asfound-rebind.jsonl` |
+ | 5 | The maps: the as-found record in `item2/setup/events.jsonl`, `soak/maps-prebind.jsonl`, `restore/final-maps.jsonl`; the saved-state status in `item2/setup/dut-before.txt`. The soak: `soak/summary.json`, `soak/ledger.tsv`, `soak/soak-wire-aggregate.txt`, `soak/soak-overlap-recovery.txt`, `soak/soak-coverage.txt`, `soak/control-aecp-soak-050.txt`, `soak/hive-events-summary.json`, `soak/bind-a-aaf.jsonl`, `soak/bind-a-crf.jsonl`, `soak/console-prebind.txt` and `soak/console-soak-000.txt` to `soak/console-soak-120.txt` |
+ | 6 | The soak console reads (`MAC_STATUS`, `STATS_CAP` and the RMON window) and the AVB_INTERFACE deltas in `soak/summary.json` |
+ | 7 | `maap/summary.json` and the console reads named in items 5 and 8 |
+-| 8 | `item2/setup/events.jsonl`, `restore/asfound-rx.jsonl`, `item2/teardown/events.jsonl`, `restore/restore-compare.txt`, `restore/final-maps.jsonl`, `restore/final-dut-in0.jsonl`, `restore/final-dut-in1.jsonl`, `restore/final-peer-in8.jsonl`, `restore/peer-clock-sources.jsonl`, `restore/console-final.txt`; the `SLIP_LB` table above |
++| 8 | `item2/setup/events.jsonl`, `restore/asfound-rx.jsonl`, `item2/teardown/events.jsonl`, `restore/restore-compare.txt`, `restore/final-maps.jsonl`, `restore/final-dut-in0.jsonl`, `restore/final-dut-in1.jsonl`, `restore/final-peer-in8.jsonl`, `restore/peer-clock-sources.jsonl`, `restore/console-final.txt`; the final-read and inventory compares in `round2-recompute/outputs/final_vs_asfound.txt` and `round2-recompute/outputs/inventory_rows.txt`; the `SLIP_LB` table above, recomputed in `round2-recompute/outputs/slip_ledger.txt` |
+ 
+ Every tool is in `tools/`, with the SHA-256 of each file it derives from in lanes B2, B8 and B13.
+ 
+@@ -679,13 +685,20 @@ Every tool is in `tools/`, with the SHA-256 of each file it derives from in lane
+ 
+ The soak index is one of the redacted files: `RAW-ARTIFACTS.json` records its digest before redaction, `044b4ebfc3af2197ad2b091d5bb5f0af6f13e2201efeb055ba47cfaf9cfc7b36`.
+ 
+-**Round 2 recomputes.** Two checks were added from raw files indexed above, whose SHA-256 values were re-verified first.
+-The scripts and their outputs are in the lane's round 2 handoff packet under `round2/`.
++**Round 2 recomputes.** Round 2 added four recomputes.
++Three read raw files indexed above, whose SHA-256 values were re-verified first; the `SLIP_LB` ledger reads only the packet.
++Their scripts, inputs and outputs are in `round2-recompute/`, under `review-evidence/608-b14-r1/author/` on the same branch, added after `c848925d`.
++`round2-recompute/MANIFEST.sha256` (SHA-256 `65636059407702a12a5f7e09c7d28e3858f16d9ad65f6ce3261cafd4cb6489dc`) lists every file there.
++`round2-recompute/README.md` maps each record to the claim it backs.
++`round2-recompute/scripts/run_all.sh` re-runs them from the archived packet and compares each output byte for byte.
+ 
+-- Item 3: the raw tap captures of all 101 cycles were decoded again, timed by the tap's own clock.
++- Item 3: the raw tap captures of all 101 cycles were decoded again, timed by the tap's own clock (`round2-recompute/scripts/ta_lv_recheck.py`, `round2-recompute/outputs/ta_lv_all.txt`).
+   The DUT's Talker Advertise `Lv` appears in cycles 1, 2 and 42 only, 0.0390, 0.0951 and 0.3184 s after the bridge's `Lv`.
+-  The bridge's `Lv` after the response agrees with `item3/cycles.tsv` within 0.5 us in all 101 cycles.
+-- Item 8: the final read was compared with the 15 as-found rows, from `restore/` and the raw `snapshot-final.jsonl` in `raw-index/soak.jsonl`: 15 of 15 equal.
+-  The 44 inventory rows were recounted by category from the raw `snapshot-prebind.jsonl` and `snapshot-final.jsonl`: 2 descriptor counts, 18 formats, 18 connection states, 2 clock sources and 4 maps, all equal.
++  The bridge's `Lv` after the response agrees with `item3/cycles.tsv` in all 101 cycles to the microsecond the re-decode prints, at most 0.498 us apart (`round2-recompute/outputs/ta_lv_vs_cycles.txt`).
++  The captures are not public: `round2-recompute/inputs/raw-inputs.tsv` gives each one's SHA-256 and its line in `raw-index/item3.jsonl`.
++- Item 8: the final read was compared with the 15 as-found rows, from `restore/` and the raw final snapshot: 15 of 15 equal (`round2-recompute/outputs/final_vs_asfound.txt`).
++  The 44 inventory rows were recounted by category from the raw 06:22 and final snapshots: 2 descriptor counts, 18 formats, 18 connection states, 2 clock sources and 4 maps, all equal (`round2-recompute/outputs/inventory_rows.txt`).
++  Both snapshots are included byte for byte, `round2-recompute/inputs/snapshot-prebind.jsonl` and `round2-recompute/inputs/snapshot-final.jsonl`, with the digests `raw-index/soak.jsonl` lists.
++- Item 8: `round2-recompute/outputs/slip_ledger.txt` recomputes the `SLIP_LB` table from the console reads and `item2/summary/switches.json`.
+ 
+ The peer's, the grandmaster's and the third station's identifiers are masked in the packet.

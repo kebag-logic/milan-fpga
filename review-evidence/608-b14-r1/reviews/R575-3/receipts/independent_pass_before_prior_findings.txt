@@ -1,0 +1,11 @@
+Independent pass at 42399611fc2217014024f03f4ba0365fb072688c, written before reading any prior review finding text.
+Inputs read: AGENTS.md, issue #608 body, the round-3 assignment comment (6096487327), the PR #709 body, the delta d981b1cc..42399611,
+the cited RTL/feature lines, tb/verilator/avtp_rxmon, docs/reference/REGISTER_MAP.md, and the archived author packet at 273764df.
+Candidate findings:
+- RESIDUE (Docs): the "Round 2 recomputes" paragraph says "Round 2 added four recomputes" and lists the record
+  round2-recompute/outputs/ta_lv_vs_cycles.txt in the same list, which the archived README marks round 3 (r3).
+- SUGGESTION (Docs, Conformance): the FRAMES observation cites :318-323 but does not repeat the ruling's own claim there
+  (:320-322) that both readings are Milan-legal; quoting it would sharpen the triage question.
+- SUGGESTION (Docs): the page pins the round2-recompute folder by its manifest digest; naming archive commit 273764df would
+  let a reader find it without searching the branch history.
+No MINOR/MAJOR/BLOCKER candidate: every cited line range, record path, digest and figure in the delta was confirmed.

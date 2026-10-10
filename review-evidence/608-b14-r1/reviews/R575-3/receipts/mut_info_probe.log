@@ -1,0 +1,21 @@
+USING RUNNER: behave.runner:Runner
+features/counters_contract_milan.feature  .....................................................................F........EEEEEEEE
+
+
+Failing scenarios:
+  features/counters_contract_milan.feature:408  a single counter is graded against its own law, with the clause named -- @2.3 the two directions of getting the law wrong
+
+Errored scenarios:
+  features/counters_contract_milan.feature:470  a counter advertised in the mask must be a measurement, never a constant
+  features/counters_contract_milan.feature:505  the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @1.1 the per-event one among the five that were constant
+  features/counters_contract_milan.feature:509  the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.1 the four observation-interval ones
+  features/counters_contract_milan.feature:510  the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.2 the four observation-interval ones
+  features/counters_contract_milan.feature:511  the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.3 the four observation-interval ones
+  features/counters_contract_milan.feature:512  the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.4 the four observation-interval ones
+  features/counters_contract_milan.feature:515  the bind edge wipes all ten, and the unbind edge wipes none
+  features/counters_contract_milan.feature:545  the per-stream window exposes the ten counters at the block offsets
+
+0 features passed, 1 failed, 0 skipped
+77 scenarios passed, 1 failed, 8 error, 0 skipped
+255 steps passed, 1 failed, 8 error, 3 skipped
+Took 0min 0.027s
