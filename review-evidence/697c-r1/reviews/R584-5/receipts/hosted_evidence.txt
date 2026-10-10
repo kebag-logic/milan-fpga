@@ -1,0 +1,56 @@
+Hosted evidence read at exact head 92b5be18817659c1c9903a0544450d29ca7ab3fd (read-only GitHub API; runs 38075657991 docs, 38075658065 elaborate, 38075658068 rtl-fast, 38075658053 rtl-full, all head_sha 92b5be18, event pull_request, conclusion success; Physical gPTP SKIPPED).
+
+firmware-unit job 114282060753 at 92b5be18, steps:
+2026-10-10T18:25:13Z -> 2026-10-10T19:06:03Z
+1	Set up job	success	2026-10-10T18:25:14Z	2026-10-10T18:25:15Z
+2	Run actions/checkout@v4	success	2026-10-10T18:25:15Z	2026-10-10T18:25:17Z
+3	Fetch RTL dependencies	success	2026-10-10T18:25:17Z	2026-10-10T18:25:20Z
+4	Install GoogleTest and GoogleMock and print the versions	success	2026-10-10T18:25:20Z	2026-10-10T18:25:30Z
+5	Prove the tally reads a failing and a crashing test as failures	success	2026-10-10T18:25:30Z	2026-10-10T18:25:35Z
+6	Cache the pinned RV32 SDK	success	2026-10-10T18:25:35Z	2026-10-10T18:25:39Z
+7	Install and verify the pinned RV32 SDK	success	2026-10-10T18:25:39Z	2026-10-10T18:25:42Z
+8	Run the control-plane firmware suites and RV32 builds	success	2026-10-10T18:25:42Z	2026-10-10T18:57:55Z
+9	Run the saved-state store suites and its RV32 build	success	2026-10-10T18:57:55Z	2026-10-10T18:59:43Z
+10	Hold the firmware coverage ratchet	success	2026-10-10T18:59:43Z	2026-10-10T19:04:06Z
+11	Hold the TSN stack boundary in both directions	success	2026-10-10T19:04:06Z	2026-10-10T19:05:59Z
+21	Post Cache the pinned RV32 SDK	success	2026-10-10T19:05:59Z	2026-10-10T19:05:59Z
+22	Post Run actions/checkout@v4	success	2026-10-10T19:05:59Z	2026-10-10T19:06:00Z
+23	Complete job	success	2026-10-10T19:06:00Z	2026-10-10T19:06:00Z
+
+firmware-unit job 114206016568 at e07b3054, steps:
+2026-10-10T11:47:25Z -> 2026-10-10T12:28:54Z
+1	Set up job	success	2026-10-10T11:47:26Z	2026-10-10T11:47:27Z
+2	Run actions/checkout@v4	success	2026-10-10T11:47:27Z	2026-10-10T11:47:29Z
+3	Fetch RTL dependencies	success	2026-10-10T11:47:29Z	2026-10-10T11:47:34Z
+4	Install GoogleTest and GoogleMock and print the versions	success	2026-10-10T11:47:34Z	2026-10-10T11:47:47Z
+5	Prove the tally reads a failing and a crashing test as failures	success	2026-10-10T11:47:47Z	2026-10-10T11:47:52Z
+6	Cache the pinned RV32 SDK	success	2026-10-10T11:47:52Z	2026-10-10T11:47:56Z
+7	Install and verify the pinned RV32 SDK	success	2026-10-10T11:47:56Z	2026-10-10T11:47:58Z
+8	Run the control-plane firmware suites and RV32 builds	success	2026-10-10T11:47:58Z	2026-10-10T12:21:17Z
+9	Hold the TSN stack boundary in both directions	success	2026-10-10T12:21:17Z	2026-10-10T12:22:50Z
+10	Run the saved-state store suites and its RV32 build	success	2026-10-10T12:22:50Z	2026-10-10T12:24:32Z
+11	Hold the firmware coverage ratchet	success	2026-10-10T12:24:32Z	2026-10-10T12:28:50Z
+21	Post Cache the pinned RV32 SDK	success	2026-10-10T12:28:50Z	2026-10-10T12:28:50Z
+22	Post Run actions/checkout@v4	success	2026-10-10T12:28:50Z	2026-10-10T12:28:51Z
+23	Complete job	success	2026-10-10T12:28:51Z	2026-10-10T12:28:51Z
+
+boundary step lines at 92b5be18:
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:32.9002794Z   LEFT OUT: tb/verilator/mbx/Makefile, which needs Verilator, which this run has none of (--without verilator)
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:32.9004393Z   LEFT OUT: sw/firmware/ctrl/test/maap_differential.py, which needs Verilator, which this run has none of (--without verilator)
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:32.9006028Z   LEFT OUT: sw/firmware/ctrl/test/aecp_wire.py, which needs Verilator, which this run has none of (--without verilator)
+WN STEP	2026-10-10T19:05:59.0059556Z ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 22 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (942 configurations, 943 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s), 89 boundary and 20 pin controls, 0 misbehaved
+firmware-unit	UNKNOWN STEP	2026-10-10T19:05:59.0062858Z ctrl_boundary: PASS
+
+coverage rows (gcc 13.3) for srp_mbx.c and the cores, head job 114282060753 then dev aef7ac66 job 114089603191:
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:06.0078440Z sw/firmware/ctrl/srp/srp_mbx.c                   514/514     478/478     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:06.0082823Z third_party/tsn-c-stack/include/wire.h            10/10        2/2       lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:06.0083868Z third_party/tsn-c-stack/src/acmp.c               742/742     348/348     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:06.0085149Z third_party/tsn-c-stack/src/adp.c                204/206      95/102     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T19:04:06.0086225Z third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+ntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	UNKNOWN STEP	2026-10-10T01:14:41.6299112Z sw/firmware/ctrl/acmp/acmp.c                     742/742     348/348     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T01:14:41.6300297Z sw/firmware/ctrl/adp/adp.c                       204/206      95/102     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T01:14:41.6305899Z sw/firmware/ctrl/maap/maap.c                     209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T01:14:41.6309421Z sw/firmware/ctrl/srp/srp_mbx.c                   514/514     478/478     lines 100.00 %  branches 100.00 %
+firmware-unit	UNKNOWN STEP	2026-10-10T01:14:41.6309791Z sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %
+ntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}

@@ -1,0 +1,7 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+universe: 33 modes: ['ADP_TEST_COVERAGE', 'ADP_TEST_RELEASE', 'AECP_TEST_APP', 'AECP_TEST_INTERFACES', 'AECP_TEST_MAILBOX', 'AECP_TEST_NVM', 'AECP_WIRE_INTERFACES', 'CTRL_APP_TEST_SRP', 'CTRL_IMAGE_SRP', 'CTRL_MBX_BASE', 'CTRL_MBX_WFI', 'CTRL_REENTRY_ASSERT', 'FW_GTEST_LABEL', 'LWSRP_MILAN', 'NDEBUG', 'NVM_DOCTORED_MAPIN', 'NVM_DOCTORED_NONAME', 'NVM_TALLY_SHAPE', 'PP_ENTITY_CAPS', 'PP_TOP_TIM_DEFAULTS', 'SRP_EXPECT_SINKS', 'SRP_EXPECT_SOURCES', 'VERILATOR', 'VM_COVERAGE', 'VM_SC', 'VM_TIMING', 'VM_TRACE', 'VM_TRACE_FST', 'VM_TRACE_SAIF', 'VM_TRACE_VCD', 'VM_VPI', 'mrp_transmit', 'shlan_calloc']
+[CAUGHT] K0 harness control: a mode the capture records (CTRL_REENTRY_ASSERT): firmware rv32 [-DCTRL_REENTRY_ASSERT]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] V1 a mode only aecp_wire.py gives (PP_TOP_TIM_DEFAULTS): firmware c++ [-DPP_TOP_TIM_DEFAULTS]: aecp/aecp_image.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ESCAPED] V2 a mode only aecp_wire.py --interfaces 2 gives (PP_TOP_IF2): ['no finding: the gate passes']
+[ESCAPED] V3 a value only aecp_wire.py --interfaces 2 gives (AECP_WIRE_INTERFACES=2): ['no finding: the gate passes']
+probes: 2 caught, 2 escaped of 4
