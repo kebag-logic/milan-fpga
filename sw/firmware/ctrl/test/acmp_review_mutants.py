@@ -220,10 +220,12 @@ MUTANTS = (
            "acmp", "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
            "A29 a re-bind to the same talker, from any controller or source, admits nothing",
            (("acmp", "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem", "C1 GET_RX_STATE -> response"),)),
+    # #697: the stack's test (tsn-c-stack tests/test_acmp.cpp) asserts the admission count first, in its own
+    # words, which are this killer's, as they are its own table's.
     Mutant("acmp-admit-ignores-another-talker", ACMP_C,
            "if (s->bound != s->admitted || (s->bound && talker != s->admitted_talker)) {",
            "if (s->bound != s->admitted) {",
-           "acmp", "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker", "A29 a re-bind to another talker admits it",
+           "acmp", "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker", "A29 re-binding emits one admission",
            (("acmp", "AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding",
              "B8 a BIND_RX of another talker rewrites the entry"),)),
     Mutant("acmp-admit-on-interface-0", ACMP_C, "\t\t\tp_admit(a, s->interface, k, s->bound, talker);",
@@ -235,11 +237,12 @@ MUTANTS = (
            "\ta->in_port = true;\n\ta->ports->admit(a->ports->ctx, interface, sink, bound, talker);",
            "\ta->ports->admit(a->ports->ctx, interface, sink, bound, talker);",
            "acmp", "AcmpCore.A23EveryPortIsGuarded", "A23 the port kind 10 is guarded"),
+    # #697: likewise the withdrawal count, first and in the stack's words.
     Mutant("acmp-reset-forgets-the-admitted", ACMP_C,
            "\tmemset(s, 0, sizeof *s);\n\ts->admitted = admitted;\n\ts->admitted_talker = admitted_talker;",
            "\tmemset(s, 0, sizeof *s);\n\t(void)admitted;\n\t(void)admitted_talker;",
            "acmp", "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
-           "A29 a sink the store resets is withdrawn at the next open"),
+           "A29 opening after reset emits one withdrawal"),
     Mutant("acmp-open-does-nothing", ACMP_C,
            "void acmp_open(struct acmp *a)\n{\n\tif (!enter(a)) {\n\t\treturn;\n\t}\n\tfinish(a);\n}",
            "void acmp_open(struct acmp *a)\n{\n\t(void)a;\n}",
