@@ -56,8 +56,9 @@ run: gptp_ucode.hex
 
 #: A lockstep that cannot go red proves nothing. `mutants.py` plants, one at
 #: a time in private copies of the sources, a wrong depth, a wrong read
-#: latency and an index alias in each converted table, and requires the
-#: table's own named check to fail.
+#: latency and an index alias in each converted table, plus a result-queue
+#: write at the wrong index and odd lane counts decoded short, and requires
+#: each control's own named check to fail.
 mutants: run
 	python3 mutants.py
 
