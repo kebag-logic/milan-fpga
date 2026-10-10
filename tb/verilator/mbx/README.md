@@ -4,12 +4,18 @@
 `make` builds and runs five things, exit 0 = all green:
 
 1. `census`: [`publication_census.py`](../../../sw/mailbox/publication_census.py)
-   counts every read of the processor's class-D outputs in
-   `milan_datapath.sv`, follows each to the wire, CSR read-back or the
-   wrapper's GET_STREAM_INFO face, and fails on one the publication block
-   does not carry or a ruling does not exclude; its self-test plants an
-   unmapped read three ways, points a status and an answer-face read at the
-   wire, and names a field the contract lacks (#665, comment 6092086337);
+   takes the class-D wires from the processor wrapper's instance in
+   `milan_datapath.sv`: the wires its class-D ports (checked against the
+   wrapper's own declaration) and its started level connect to. It fails
+   closed. Every occurrence of one of those wires must be its declaration,
+   the wrapper's connection, or a read the census follows to the wire, CSR
+   read-back or the wrapper's GET_STREAM_INFO face and maps to a block field
+   or a ruled exclusion. Any other occurrence fails, and so do a wildcard
+   connection, a macro token paste and a hierarchical reference into the
+   wrapper, the CSR block or an instance a read reaches. Its self-test
+   plants 33 defects, among them every escaping form the round-3 reviews
+   found, and requires each refused by its own words (#665, comments
+   6092086337 and 6094461419);
 2. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
    table's timing checks, which need a stream that can stall;

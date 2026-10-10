@@ -833,11 +833,49 @@ The list is not kept by hand. The first version copied one from a review
 comment, and it missed the started level and the Talker declarations (the
 round-3 ruling on [#665 (6092086337)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6092086337)).
 [`publication_census.py`](../../sw/mailbox/publication_census.py) reads
-`milan_datapath.sv` on every run of the mailbox suite's `make`. It finds
-every read of a `pp_cd_*_w` wire and of the started level: a right-hand side,
-an index, a declaration's initialiser, an `if`, `case` or `for` condition, or
-a port connection. It follows each read to where it ends. Each read must then
-be one of three kinds:
+`milan_datapath.sv` on every run of the mailbox suite's `make`, and it fails
+closed (the round-4 assignment on
+[#665 (6094461419)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6094461419)).
+
+The census takes its population from the processor wrapper's instance, not
+from a wire name. It lists the class-D outputs of `KL_pp_shadow`, and that
+list must equal the outputs the wrapper's own class-D sections declare
+(`hdl/milan/KL_pp_shadow.sv`). The started level, `aecp_strm_started_o`,
+joins them by the round-3 ruling. The datapath's one `KL_pp_shadow` instance
+must connect each of these ports by name, once, to a bare wire, and that wire
+joins the population whatever it is called. Each of these fails:
+
+- a class-D port left unconnected or omitted;
+- a class-D port connected to an expression;
+- a positional or implicit `.name` connection on the wrapper;
+- a class-D output the list does not name, or a listed one the wrapper's
+  class-D sections no longer declare.
+
+Comments and strings are blanked first. Every remaining occurrence of a
+population wire in the datapath must then be exactly one of these:
+
+- its one declaration;
+- the wrapper's own output connection;
+- a read the census classifies.
+
+Any other occurrence fails, whatever its syntactic form. That covers a case
+item label, a positional or implicit `.name` port connection, a function or
+task body, a second driver, and any form not yet written. A form the parser
+does not understand is therefore refused, never skipped. Three forms read a
+value without naming its wire, and each fails wherever it appears:
+
+- a wildcard `.*` port connection;
+- a macro token paste;
+- a hierarchical reference into the wrapper, the CSR block or an instance a
+  population read reaches.
+
+A file the datapath includes must not name a population wire, and an include
+the census cannot find under `hdl/` or `configs/` fails.
+
+A read is an occurrence in a right-hand side, an index, a declaration's
+initialiser, the parentheses of an `if`, `case` or `for`, or a named port
+connection. The census follows each read to where it ends. Each read must
+then be one of three kinds:
 
 - read on the wire (another module's port, or a module output), and carried
   by the block field the census names, which the contract must define;
@@ -845,9 +883,14 @@ be one of three kinds:
 - the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers, which need no
   publication (the ruling, decision 2).
 
-A read the census does not name fails the suite, and so does a status read
-that reaches the wire. Of the 39 reads at this head, 10 are on the wire and
-map to the block, 14 are CSR status, and 15 are the answer face. The idle
+A read the census does not map fails the suite, and so does a status read
+that reaches the wire. At this head the 25 population wires occur 89 times:
+25 declarations, 25 wrapper connections and 39 reads. Of the 39 reads, 10 are
+on the wire and map to the block, 14 are CSR status, and 15 are the answer
+face. The census's self-test plants 33 defects and requires each refused by
+its own words. They include every form the round-3 reviews found escaping: a
+class-D output wired under another name, a case item label, positional and
+implicit `.name` ports, and a function's return. The idle
 slope's one read is status, for LWSRP_SLOPE: no shaper consumes it, and the
 block carries it as ruled. The census covers the class-D face and the started
 level. The wrapper's other faces the datapath reads (its AECP settings, and

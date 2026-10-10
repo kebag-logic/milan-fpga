@@ -87,7 +87,8 @@ The [F0 contract](design/MAILBOX_SPLIT.md#rings-records-and-events) defines thos
 
 A publication block carries firmware-owned class-D state to the fabric.
 It holds the talker DA gate, each sink's bound and started states and stream_id, and the SRP licence, Talker declarations, idle slope and Domain.
-It carries every class-D value the datapath reads on the wire: a census of the datapath's reads fails the mailbox suite when one is not carried or excluded by a ruling.
+It carries every class-D value the datapath reads on the wire.
+A census takes the class-D wires from the processor wrapper's instance, and fails the mailbox suite on any occurrence of one in the datapath that is not its declaration, the wrapper's connection, or a read the block carries or a ruling excludes.
 Each owner writes a value before the response that promises it.
 The split placement's datapath reads the block through a build-time selection, never a runtime multiplexer.
 The [publication contract](design/MAILBOX_SPLIT.md#the-publication-block) defines its layout and writers.
