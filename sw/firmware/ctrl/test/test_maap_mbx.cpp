@@ -145,6 +145,39 @@ TEST_F(MaapHost, DaGateIsPublishedBeforeEachAllocationIsReported) {
         << "DA gate: as many as it has are taken";
 }
 
+// R583-1-F2 (#665 comment 6092086337): the gate is published on the interface
+// that allocated. Interface 1 (the last) acquires alone: its gate opens
+// before its own report and no other interface's moves. maap_if2 runs this at
+// two interfaces, where a gate written to interface 0 fails it.
+TEST_F(MaapHost, DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport) {
+    const unsigned last = MBX_N_IF - 1u;
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        if (k != last) maap_release(&adapter.ifs[k].core);
+    }
+    for (unsigned n = 0; n < 3; ++n) expiry(last);
+    ASSERT_TRUE(valid[last]) << "interface " << last << " acquires alone";
+    EXPECT_EQ(gate_at_report[last], 0xFFu) << "DA gate of the acquiring interface opens before its own report";
+    EXPECT_EQ(gate(last), 0xFFu) << "DA gate of the acquiring interface stays open while it holds the range";
+    for (unsigned k = 0; k + 1u < MBX_N_IF; ++k) {
+        EXPECT_TRUE(gate(k) == 0u && !valid[k]) << "DA gate of interface " << k << ", which holds no range, stays closed";
+    }
+}
+
+// Every interface acquires: each interface's gate was open before its own
+// report, whichever interface allocated first.
+TEST_F(MaapHost, DaGateOfEveryInterfaceOpensBeforeItsOwnReport) {
+    for (unsigned n = 0; n < 4u * MBX_N_IF; ++n) {
+        for (unsigned k = 0; k < MBX_N_IF; ++k) {
+            if (!valid[k] && model.timers[adapter.ifs[k].slot].armed) expiry(k);
+        }
+    }
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        ASSERT_TRUE(valid[k]) << "interface " << k << " acquires";
+        EXPECT_EQ(gate_at_report[k], 0xFFu) << "DA gate of interface " << k << " opens before its own report";
+        EXPECT_EQ(gate(k), 0xFFu) << "DA gate of interface " << k << " stays open while it holds the range";
+    }
+}
+
 TEST_F(MaapHost, HMaapConflictLossAndRetry) {
     acquire();
     auto start = now_ns; auto before = accesses(); auto n = model.tx_sent;

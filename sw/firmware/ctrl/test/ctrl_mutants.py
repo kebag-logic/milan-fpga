@@ -630,6 +630,14 @@ MUTANTS += (
            "count != 0u ? (uint32_t)((1u << count) - 1u) : 0u",
            "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
            "DA gate closed while the range is only probed"),
+    # round 3 (R583-1-F2): the gate published on interface 0 whichever
+    # interface allocated, killed at two interfaces (#665 comment 6092086337)
+    Mutant("rv-maap-gate-on-interface-0", "maap/maap_mbx.c", "(void)mbx_pub_da_gate(interface, valid ?",
+           "(void)mbx_pub_da_gate(0u, valid ?",
+           "maap_if2", "MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport",
+           "DA gate of the acquiring interface opens before its own report",
+           (("maap_if2", "MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport",
+             "DA gate of interface 1 opens before its own report"),)),
     Mutant("pub-maap-sources-past-the-block", "maap/maap_mbx.c",
            "allocation == NULL || count > MBX_N_PUB_SOURCES) {", "allocation == NULL) {",
            "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
