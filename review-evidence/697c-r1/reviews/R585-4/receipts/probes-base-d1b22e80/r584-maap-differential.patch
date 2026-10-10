@@ -1,0 +1,20 @@
+diff --git a/sw/firmware/ctrl/test/test_maap_differential.cpp b/sw/firmware/ctrl/test/test_maap_differential.cpp
+index a5281f325..424fc9f5c 100644
+--- a/sw/firmware/ctrl/test/test_maap_differential.cpp
++++ b/sw/firmware/ctrl/test/test_maap_differential.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ // Shared stimulus; Annex B grades the core and the fabric engine (#686).
++#include "maap_r584.h"
+ #include <gtest/gtest.h>
+ #include <array>
+ #include <cstdint>
+
++++ new file sw/firmware/ctrl/maap/maap_r584.h
+#ifndef MAAP_R584_H
+#define MAAP_R584_H
+#ifdef __cplusplus
+#include "acmp_fake.hpp"
+#endif
+#endif

@@ -1,0 +1,44 @@
+job 114206016568 head e07b305458ed3520e4adfc55e9746144ce5cdc79 success 2489 s (limit 2700 s)
+   1 success       1 s  Set up job
+   2 success       2 s  Run actions/checkout@v4
+   3 success       5 s  Fetch RTL dependencies
+   4 success      13 s  Install GoogleTest and GoogleMock and print the versions
+   5 success       5 s  Prove the tally reads a failing and a crashing test as failures
+   6 success       4 s  Cache the pinned RV32 SDK
+   7 success       2 s  Install and verify the pinned RV32 SDK
+   8 success    1999 s  Run the control-plane firmware suites and RV32 builds
+   9 success      93 s  Hold the TSN stack boundary in both directions
+  10 success     102 s  Run the saved-state store suites and its RV32 build
+  11 success     258 s  Hold the firmware coverage ratchet
+  21 success       0 s  Post Cache the pinned RV32 SDK
+  22 success       1 s  Post Run actions/checkout@v4
+  23 success       0 s  Complete job
+job 114173809799 head d1b22e804158cbcb33fa12116d60e982f9a4c55b cancelled 2716 s (limit 2700 s)
+   1 success       0 s  Set up job
+   2 success       2 s  Run actions/checkout@v4
+   3 success       4 s  Fetch RTL dependencies
+   4 success      13 s  Install GoogleTest and GoogleMock and print the versions
+   5 success       3 s  Prove the tally reads a failing and a crashing test as failures
+   6 success       5 s  Cache the pinned RV32 SDK
+   7 success       2 s  Install and verify the pinned RV32 SDK
+   8 success    1932 s  Run the control-plane firmware suites and RV32 builds
+   9 cancelled   750 s  Hold the TSN stack boundary in both directions
+  10 skipped       0 s  Run the saved-state store suites and its RV32 build
+  11 skipped       0 s  Hold the firmware coverage ratchet
+  21 skipped       0 s  Post Cache the pinned RV32 SDK
+  22 success       1 s  Post Run actions/checkout@v4
+  23 success       0 s  Complete job
+job 114029646010 head 8b61b70902f3ebf118e56967277e2686731081bd success 1963 s (limit 2700 s)
+   1 success       1 s  Set up job
+   2 success       2 s  Run actions/checkout@v4
+   3 success       4 s  Fetch RTL dependencies
+   4 success      18 s  Install GoogleTest and GoogleMock and print the versions
+   5 success       4 s  Prove the tally reads a failing and a crashing test as failures
+   6 success       3 s  Cache the pinned RV32 SDK
+   7 success       2 s  Install and verify the pinned RV32 SDK
+   8 success    1605 s  Run the control-plane firmware suites and RV32 builds
+   9 success     103 s  Run the saved-state store suites and its RV32 build
+  10 success     217 s  Hold the firmware coverage ratchet
+  19 success       0 s  Post Cache the pinned RV32 SDK
+  20 success       1 s  Post Run actions/checkout@v4
+  21 success       0 s  Complete job

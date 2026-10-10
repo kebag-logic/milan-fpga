@@ -1,0 +1,13 @@
+unplanted                  rc=0 findings: 0
+r584-maap-differential     rc=1   [FAIL] firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+cxx-name-no-file           rc=1   [FAIL] firmware c++: sw/firmware/ctrl/test/ctrl_arms.py names test/test_r585_missing.cpp, a C++ source that resolves to no file
+cxx-name-computed          rc=1   [FAIL] firmware c++: sw/firmware/ctrl/test/ctrl_arms.py computes the name of a C++ source, f'test/test_r585_{R585_N}.cpp', which the boundary cannot follow
+py-join                    rc=2 REFUSED: the builder sw/firmware/ctrl/test/ctrl_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+py-format                  rc=2 REFUSED: the builder sw/firmware/ctrl/test/ctrl_arms.py writes '-DCTRL_R585_MODE={}', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+py-strjoin                 rc=2 REFUSED: the builder sw/firmware/ctrl/test/ctrl_arms.py writes -D before a macro it computes: the boundary cannot read it
+py-list-literal-control    rc=1   [FAIL] firmware [-DCTRL_R585_MODE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+py-midstring               rc=0 findings: 0
+py-fstring-mid             rc=0 findings: 0
+mk-spaced-control          rc=1   [FAIL] firmware [-DCTRL_R585_MAKE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+mk-append-nospace          rc=0 findings: 0
+mk-patsubst                rc=0 findings: 0

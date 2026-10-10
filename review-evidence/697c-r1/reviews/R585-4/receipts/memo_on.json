@@ -1,0 +1,477 @@
+{
+ "controls": {
+  "NOT_SOURCES lists a name its builder no longer holds": {
+   "findings": [
+    "firmware c++: NOT_SOURCES lists tests/t.cpp for sw/firmware/gtest/fw_coverage_selftest.py, which no longer names it"
+   ],
+   "verdict_ok": true
+  },
+  "a C++ source a builder writes reaches a header that includes a stack example in C++ only": {
+   "findings": [
+    "firmware c++: adp/adp_r4.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "a Makefile computes a -D flag's macro": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-D$(MODE)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a Makefile computes a -D flag's value": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-DCTRL_R4_MAKE=$(VALUE)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a Makefile prefixes -D to the macros it lists": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted.mk writes '-D,$(MODES))', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a builder computes a C++ source's name": {
+   "findings": [
+    "firmware c++: sw/firmware/ctrl/test/planted_arms.py computes the name of a C++ source, STEM + '.cpp', which the boundary cannot follow"
+   ],
+   "verdict_ok": true
+  },
+  "a builder formats a -D flag's macro": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D%s', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a builder joins -D to a macro it computes": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a builder joins a value to a -D flag": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-DCTRL_R4_VALUE=', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a builder names a C++ source that is no file": {
+   "findings": [
+    "firmware c++: sw/firmware/ctrl/test/planted_arms.py names planted_r4.cpp, a C++ source that resolves to no file"
+   ],
+   "verdict_ok": true
+  },
+  "a builder writes a bare -D alone": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)"
+   ],
+   "verdict_ok": true
+  },
+  "a builder's f-string computes a -D flag's macro name": {
+   "findings": [
+    "REFUSED: the builder sw/firmware/ctrl/test/planted_arms.py computes a -D or -U flag's macro: the boundary cannot read it"
+   ],
+   "verdict_ok": true
+  },
+  "a copy of the stack's acmp.h in the AECP directory": {
+   "findings": [
+    "firmware: ctrl/aecp/acmp.h has the name of the stack's acmp.h"
+   ],
+   "verdict_ok": true
+  },
+  "a copy of the stack's adp.c in the firmware": {
+   "findings": [
+    "firmware: ctrl/adp/adp.c has the name of the stack's adp.c"
+   ],
+   "verdict_ok": true
+  },
+  "a copy of the stack's wire.h in the firmware": {
+   "findings": [
+    "firmware: ctrl/mbx/wire.h has the name of the stack's wire.h",
+    "host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/wire.h",
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/wire.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/wire.h",
+    "rv32: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/wire.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/wire.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/wire.h",
+    "tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/mbx/wire.h",
+    "tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/wire.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/mbx/wire.h"
+   ],
+   "verdict_ok": true
+  },
+  "a firmware header reaches a stack test's fake in C++ only": {
+   "findings": [
+    "firmware c++: acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+    "firmware c++: app/ctrl_app.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+    "firmware c++: app/ctrl_app_aecp.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "a header only the MAAP differential's C++ source reaches includes a stack test's fake in C++ only": {
+   "findings": [
+    "firmware c++: maap/maap_r584.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "a mode a new Makefile writes as two words is explored": {
+   "findings": [
+    "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "host [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32 [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "rv32 [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "rv32 [-DCTRL_SPLIT_MAKE]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "a mode an AECP arm writes is explored without being named here": {
+   "findings": [
+    "host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rv32 [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "a mode an arm writes as two arguments is explored": {
+   "findings": [
+    "host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rv32 [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "a mode an arm writes is explored without being named here": {
+   "findings": [
+    "host [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rv32 [-DCTRL_PLANTED_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "a mode written in a new builder nobody lists is explored": {
+   "findings": [
+    "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "host [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32 [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "rv32 [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "rv32 [-DCTRL_PLANTED_BUILDER]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "a name NOT_SOURCES lists is followed once it is a file": {
+   "findings": [
+    "firmware c++: maap/maap_r4.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "a stack public header includes the mailbox HAL for C++ only": {
+   "findings": [
+    "tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "a stack test includes the AECP adapter": {
+   "findings": [
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_model.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/mbx/mbx.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "a stack test includes the firmware's harness": {
+   "findings": [
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/gtest/fw_gtest.hpp"
+   ],
+   "verdict_ok": true
+  },
+  "a stack test includes the mailbox HAL": {
+   "findings": [
+    "tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "a stack test includes the platform's pool in its release build": {
+   "findings": [
+    "tests [-DADP_TEST_RELEASE]: the stack's tests/test_adp_reentry.cpp includes sw/firmware/ctrl/port/ctrl_pool.h"
+   ],
+   "verdict_ok": true
+  },
+  "an adapter reaches a stack source on the two-interface contract": {
+   "findings": [
+    "firmware [interfaces=2]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers",
+    "firmware rv32 [interfaces=2]: adp/adp_mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "an adapter reaches a stack source where a build leaves lwSRP's profile undefined": {
+   "findings": [
+    "firmware rv32: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers",
+    "firmware: acmp/acmp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "an adapter reaches a stack source where the SRP shape header is force-included": {
+   "findings": [
+    "firmware [-include srp_entity_gen.h]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32 [-include srp_entity_gen.h]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "firmware adapter reaches a stack test's fake under the re-entry assertion": {
+   "findings": [
+    "firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+    "firmware rv32 [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "firmware adapter reaches the stack's test fake by its checkout path under the re-entry assertion": {
+   "findings": [
+    "firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes third_party/tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+    "firmware rv32 [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes third_party/tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "firmware header reaches a stack source by a relative path": {
+   "findings": [
+    "firmware c++: app/ctrl_app.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware c++: app/ctrl_app_aecp.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware c++: maap/maap_mbx.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: app/ctrl_app.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: app/ctrl_app.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: app/ctrl_app_aecp.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: app/ctrl_app_aecp.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: app/ctrl_app_srp.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: maap/maap_mbx.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: test/ctrl_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32: test/rv32_image/image_main.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: app/ctrl_app.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: app/ctrl_app.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: app/ctrl_app_aecp.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: app/ctrl_app_aecp.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: app/ctrl_app_srp.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: maap/maap_mbx.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: test/ctrl_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware: test/rv32_image/image_main.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "firmware reaches a stack example's header": {
+   "findings": [
+    "firmware rv32: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers",
+    "firmware: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "firmware tests a mode by its value": {
+   "findings": [
+    "firmware [-DCTRL_REENTRY_ASSERT]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32 [-DCTRL_REENTRY_ASSERT]: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "image source reaches a stack test's header": {
+   "findings": [
+    "firmware rv32: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers",
+    "firmware: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "pass: a stack test reaches the stack's example": {
+   "findings": [],
+   "verdict_ok": true
+  },
+  "pass: the copies as they are, the base the controls share": {
+   "findings": [],
+   "verdict_ok": true
+  },
+  "pass: the firmware includes a public header": {
+   "findings": [],
+   "verdict_ok": true
+  },
+  "pass: the stack includes only its own header and the C library": {
+   "findings": [],
+   "verdict_ok": true
+  },
+  "stack public header includes the platform's header": {
+   "findings": [
+    "host: the stack's include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "host: the stack's src/acmp.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32: the stack's include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32: the stack's src/acmp.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "tests: the stack's tests/test_adp.cpp includes sw/firmware/ctrl/port/ctrl_debug.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes a header nobody supplies": {
+   "findings": [
+    "host: the stack's src/adp.c does not preprocess with the firmware's flags: image_layout.h: No such file or directory",
+    "rv32: the stack's src/adp.c does not preprocess with the firmware's flags: image_layout.h: No such file or directory"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes an OS header": {
+   "findings": [
+    "host: the stack's src/adp.c includes /usr/include/bits/confname.h",
+    "host: the stack's src/adp.c includes /usr/include/bits/posix_opt.h",
+    "host: the stack's src/adp.c includes /usr/include/bits/unistd_ext.h",
+    "host: the stack's src/adp.c includes /usr/include/unistd.h",
+    "rv32: the stack's src/adp.c does not preprocess with the firmware's flags: unistd.h: No such file or directory"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the AECP core's header": {
+   "findings": [
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h",
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp_model.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp_model.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the composition": {
+   "findings": [
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/acmp/acmp_mbx.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/adp/adp_mbx.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/maap/maap_mbx.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_pool.h",
+    "host: the stack's src/maap.c includes sw/firmware/ctrl/srp/srp_bounds.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/acmp/acmp_mbx.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/adp/adp_mbx.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/maap/maap_mbx.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_pool.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl/srp/srp_bounds.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the contract in a debug build with the re-entry assertion": {
+   "findings": [
+    "host [-DCTRL_REENTRY_ASSERT -UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32 [-DCTRL_REENTRY_ASSERT -UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the loop through a macro": {
+   "findings": [
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the mailbox HAL": {
+   "findings": [
+    "host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rv32: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the mailbox HAL under the re-entry assertion": {
+   "findings": [
+    "host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h",
+    "rv32 [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the platform's header in a debug build": {
+   "findings": [
+    "host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h",
+    "rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the register-map contract": {
+   "findings": [
+    "host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h",
+    "rv32: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h"
+   ],
+   "verdict_ok": true
+  },
+  "stack source includes the store's port": {
+   "findings": [
+    "host: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h",
+    "rv32: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h"
+   ],
+   "verdict_ok": true
+  },
+  "the AECP application bridge reaches a stack example's header": {
+   "findings": [
+    "firmware rv32: app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers",
+    "firmware: app/ctrl_app_aecp.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "the AECP core reaches a stack source": {
+   "findings": [
+    "firmware rv32: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers",
+    "firmware: aecp/aecp.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "the AECP core tests a value only its arms compute": {
+   "findings": [
+    "firmware [-DAECP_TEST_INTERFACES]: aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctrl/test/aecp_arms.py computes at run time, which the boundary has none of",
+    "firmware rv32 [-DAECP_TEST_INTERFACES]: aecp/aecp.c tests AECP_TEST_INTERFACES, a value sw/firmware/ctrl/test/aecp_arms.py computes at run time, which the boundary has none of"
+   ],
+   "verdict_ok": true
+  },
+  "the AECP image reaches a stack source at a shape its generated header gives many maps": {
+   "findings": [
+    "firmware [shape=endstation_ax7101_8x8]: test/ctrl_aecp_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers",
+    "firmware rv32 [shape=endstation_ax7101_8x8]: test/ctrl_aecp_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "the AECP image's SRP composition reaches a stack source": {
+   "findings": [
+    "firmware [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers",
+    "firmware rv32 [-DCTRL_IMAGE_SRP]: test/ctrl_aecp_image.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "the SRP image's composition reaches a stack source": {
+   "findings": [
+    "firmware [-DCTRL_IMAGE_SRP]: test/ctrl_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers",
+    "firmware rv32 [-DCTRL_IMAGE_SRP]: test/ctrl_image.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers"
+   ],
+   "verdict_ok": true
+  },
+  "the image reaches a stack example's header under a shape's stream count": {
+   "findings": [
+    "firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers",
+    "firmware rv32 [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers",
+    "firmware rv32: test/rv32_image/image_main.c stops on an #error in every configuration: #error \"IMAGE_SINKS: the shape's STREAM_INPUTs (ctrl_image.py)\"",
+    "firmware: test/rv32_image/image_main.c stops on an #error in every configuration: #error \"IMAGE_SINKS: the shape's STREAM_INPUTs (ctrl_image.py)\""
+   ],
+   "verdict_ok": true
+  }
+ },
+ "mode": "on",
+ "ran": 8842,
+ "reused": 40944,
+ "seconds": 126.7
+}

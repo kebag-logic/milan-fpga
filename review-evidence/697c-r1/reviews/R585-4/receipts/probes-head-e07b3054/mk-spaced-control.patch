@@ -1,0 +1,21 @@
+diff --git a/sw/firmware/ctrl/adp/adp_mbx.c b/sw/firmware/ctrl/adp/adp_mbx.c
+index d594cf180..0489da3af 100644
+--- a/sw/firmware/ctrl/adp/adp_mbx.c
++++ b/sw/firmware/ctrl/adp/adp_mbx.c
+@@ -145,3 +145,6 @@ void adp_mbx_set_enable(struct adp_mbx *m, bool enable)
+ 		adp_set_enable(&m->ifs[k].adp, enable);
+ 	}
+ }
++#ifdef CTRL_R585_MAKE
++#include "adp_port.h"
++#endif
+diff --git a/tb/verilator/mbx/Makefile b/tb/verilator/mbx/Makefile
+index 71a6f9e93..3f13c0598 100644
+--- a/tb/verilator/mbx/Makefile
++++ b/tb/verilator/mbx/Makefile
+@@ -137,3 +137,5 @@ print-vflags:
+ 
+ clean:
+ 	rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2
++
++CFLAGS += -DCTRL_R585_MAKE

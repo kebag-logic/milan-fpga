@@ -1,0 +1,21 @@
+diff --git a/sw/firmware/ctrl/adp/adp_mbx.c b/sw/firmware/ctrl/adp/adp_mbx.c
+index d594cf180..4d09f3db0 100644
+--- a/sw/firmware/ctrl/adp/adp_mbx.c
++++ b/sw/firmware/ctrl/adp/adp_mbx.c
+@@ -145,3 +145,6 @@ void adp_mbx_set_enable(struct adp_mbx *m, bool enable)
+ 		adp_set_enable(&m->ifs[k].adp, enable);
+ 	}
+ }
++#ifdef CTRL_R585_MODE
++#include "adp_port.h"
++#endif
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index f4c9e80b9..60c9de3a7 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -441,3 +441,5 @@ def report(outcomes: list[Outcome]) -> bool:
+                 print(f"    {ln.strip()}")
+         failed = failed or o.rc != 0
+     return failed
++
++R585_FLAGS = "-O2 -DCTRL_R585_MODE".split()

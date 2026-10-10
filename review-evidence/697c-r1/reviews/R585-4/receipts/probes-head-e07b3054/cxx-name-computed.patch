@@ -1,0 +1,11 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index f4c9e80b9..15f9db777 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -441,3 +441,6 @@ def report(outcomes: list[Outcome]) -> bool:
+                 print(f"    {ln.strip()}")
+         failed = failed or o.rc != 0
+     return failed
++
++R585_N = 4
++R585_SOURCE = f"test/test_r585_{R585_N}.cpp"

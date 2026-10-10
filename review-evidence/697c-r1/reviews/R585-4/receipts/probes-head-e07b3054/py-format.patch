@@ -1,0 +1,10 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index f4c9e80b9..79d282694 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -441,3 +441,5 @@ def report(outcomes: list[Outcome]) -> bool:
+                 print(f"    {ln.strip()}")
+         failed = failed or o.rc != 0
+     return failed
++
++R585_FLAGS = ["-DCTRL_R585_MODE={}".format(1)]
