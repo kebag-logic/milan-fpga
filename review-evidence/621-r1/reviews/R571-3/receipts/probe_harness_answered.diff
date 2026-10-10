@@ -1,0 +1,11 @@
+--- $REVIEWS/r571-3-621/tb/verilator/gptp_plane/sim_phc_step.cpp
++++ scratch/probes/h/answered/sim_phc_step.cpp
+@@ -376,7 +376,7 @@
+     // first lost, so the third unanswered request after it clears asCapable.
+     requalify("unanswered crossing: answered exchanges requalify after silence");
+     check_.dec("unanswered crossing: one grandmaster-driven step",
+-               silence_across_step("unanswered crossing", false), 1);
++               silence_across_step("unanswered crossing", true), 1);
+     const uint64_t due = probe_request_ + (2 * link_ns_ + kTurnNs) / kTickNs;
+     check_.that("unanswered crossing: step falls between returned t1 and due response",
+                 probe_stamp_ < last_step_cycle_ && last_step_cycle_ < due);

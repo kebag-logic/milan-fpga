@@ -1,0 +1,21 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600184
+STEP cycle=80800866 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600184
+STEP cycle=113601242 ns=10000000
+ARM t1 before forward step drops=0 outage_ns=0 exchanges=4 last_req=137600184
+STEP cycle=145601242 ns=-10000000
+ARM t1 before backward step drops=0 outage_ns=0 exchanges=4 last_req=169600184
+STEP cycle=177607642 ns=10000000
+ARM response before step drops=0 outage_ns=0 exchanges=4 last_req=201600184
+STEP cycle=209610042 ns=-10000000
+ARM deferred t1 after step drops=0 outage_ns=0 exchanges=4 last_req=233600184
+STEP cycle=353601242 ns=10000000
+LOSS cycle=393600082 delay=500 since_step_ns=4999855000 unanswered=4
+ARM liveness drops=1 unanswered=5 unanswered_at_drop=4
+STEP cycle=433601242 ns=10000000
+LOSS cycle=465600082 delay=500 since_step_ns=3999855000 unanswered=3
+ARM unanswered crossing drops=1 unanswered=5 unanswered_at_drop=3
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS

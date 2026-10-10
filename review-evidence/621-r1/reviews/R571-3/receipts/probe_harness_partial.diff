@@ -1,0 +1,18 @@
+--- $REVIEWS/r571-3-621/tb/verilator/gptp_plane/sim_phc_step.cpp
++++ scratch/probes/h/partial/sim_phc_step.cpp
+@@ -183,7 +183,14 @@
+       probe_request_ = tx_cycle_; probe_seq_ = seq;
+     }
+     if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
+-    if (!answer_ || !answer_probe_) return;
++    if (!answer_) return;
++    if (!answer_probe_) {
++      const uint64_t t2p = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
++      auto rp = header(3, seq, 20, 0x0200);
++      rp.timestamp(t2p); rp.put(kOurId, 8); rp.put(1, 2);
++      schedule(std::move(rp), tx_cycle_ + (2 * link_ns_ + kTurnNs) / kTickNs);
++      return;
++    }
+     const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
+     const uint64_t t3 = t2 + kTurnNs;
+     const uint64_t response_cycle = tx_cycle_ + (2 * link_ns_ + kTurnNs) / kTickNs;
