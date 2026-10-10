@@ -113,6 +113,7 @@ import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
+import srp_pub_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
@@ -215,7 +216,8 @@ def main(argv: list[str] | None = None) -> int:
                     srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                               if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                                     "p11-", "srp-bound-", "srp-term-",
-                                                                    "srp-poll-extra", "srp-send-extra")))
+                                                                    "srp-poll-extra", "srp-send-extra",
+                                                                    *srp_pub_mutants.ROUND5)))
                     failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
                 finally:
                     srp_mutants.DEFECTS = complete_srp_table

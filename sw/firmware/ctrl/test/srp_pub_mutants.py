@@ -153,4 +153,42 @@ def _declarations(Defect: Callable[..., T], held_back: Callable[..., T]) -> tupl
         Defect('pub-declared-kept-at-destroy','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
                '        withdraw_declared(n);\n', '',
                'PUB destroy withdraws every declaration from the datapath'),
+    ) + _adoption_and_failure(Defect)
+
+
+#: The round-5 TALKER_DECL defects, which the gate plants at one interface too.
+ROUND5 = ('pub-declared-dropped-at-adoption', 'pub-declared-withdrawn-after-the-adoption',
+          'pub-declared-skipped-at-adoption', 'pub-declared-before-the-joins', 'pub-declared-as-each-source-joins')
+DECLARED_PUBLISHED = '    (void)mbx_pub_talker_decl(i->index,declared);\n'
+ADOPTION_DECLARED = '    (void)declare_sources(i);\n    i->domain_owed = false;\n'
+
+
+def _adoption_and_failure(Defect: Callable[..., T]) -> tuple[T, ...]:
+    """Round 5 (#665, comment 6095903333): TALKER_DECL dropped at a Domain
+    adoption (R582-3-F3), and published by a creation that fails part way
+    (R583-3-S1)."""
+    adopted = 'PubTalkerDeclHoldsAcrossADomainAdoption'
+    failed = 'PubTalkerDeclIsNotPublishedByACreationThatFails'
+    return (
+        # the adoption: zero published while it is owed (no extra write), a
+        # withdrawal after its declarations, the publication skipped
+        Defect('pub-declared-dropped-at-adoption', adopted, DECLARED_PUBLISHED,
+               '    (void)mbx_pub_talker_decl(i->index,i->domain_owed ? 0u : declared);\n',
+               'PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again'),
+        Defect('pub-declared-withdrawn-after-the-adoption', adopted, ADOPTION_DECLARED,
+               '    (void)declare_sources(i);\n    withdraw_declared(i->index);\n    i->domain_owed = false;\n',
+               'PUB TALKER_DECL holds every declared source after the adoption'),
+        Defect('pub-declared-skipped-at-adoption', adopted, DECLARED_PUBLISHED,
+               '    if (!i->domain_owed) {\n        (void)mbx_pub_talker_decl(i->index,declared);\n    }\n',
+               'PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again'),
+        # the failed creation: every source published before the joins (no
+        # extra write), each source published as it joins
+        Defect('pub-declared-before-the-joins', failed, '    uint64_t used = 0;\n    uint32_t declared = 0;\n',
+               '    uint64_t used = 0;\n    uint32_t declared = 0;\n'
+               '    (void)mbx_pub_talker_decl(i->index,(1u << CTRL_SRP_SOURCES) - 1u);\n',
+               'publishes no Talker declaration', also=((DECLARED_PUBLISHED, '    (void)declared;\n'),)),
+        Defect('pub-declared-as-each-source-joins', failed, '        declared |= 1u << n;\n',
+               '        declared |= 1u << n;\n        (void)mbx_pub_talker_decl(i->index,declared);\n',
+               'publishes no Talker declaration',
+               also=((DECLARED_PUBLISHED + '    return true;\n}', '    return true;\n}'),)),
     )

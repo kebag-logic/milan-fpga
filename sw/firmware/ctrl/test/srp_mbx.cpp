@@ -205,6 +205,79 @@ TEST_F(Srp, PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst) {
     ASSERT_TRUE(srp_mbx_init(&adapter,&config));
 }
 
+// TALKER_DECL across a Domain adoption (#665, comment 6095903333): the
+// adoption declares every source again under the adopted VID, and
+// declare_sources publishes TALKER_DECL again before those declarations
+// leave. A value the firmware did not write stands in the register first, so
+// an adoption that skips the publication shows too; it holds after.
+TEST_F(Srp, PubTalkerDeclHoldsAcrossADomainAdoption) {
+    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
+    settle();
+    ASSERT_EQ(pub_of(model,0).talker_decl,all);
+    mbx_model_write(&model,MBX_PUB_BASE+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    offer(frame(4,{6,4,0,3},0)); advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned talkers=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=0 || d.ethertype!=0x22ea || d.frame<first || commit_of(d.frame)==nullptr) continue;
+        if ((d.type!=1 && d.type!=2) || wire_be16(d.value.data()+14)!=3u) continue;
+        ++talkers;
+        EXPECT_EQ(commit_of(d.frame)->pub[0].talker_decl,all)
+            << "PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again";
+    }
+    EXPECT_GT(talkers,0u) << "PUB the adoption declared the Talkers again under the adopted VID";
+    EXPECT_EQ(pub_of(model,0).talker_decl,all) << "PUB TALKER_DECL holds every declared source after the adoption";
+    for (unsigned i=1;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB another interface keeps its own declarations";
+    }
+}
+
+// A creation that fails declares nothing the block shows (srp_mbx.c,
+// withdraw_declared; #665, comment 6095903333, R583-3-S1): declare_sources
+// publishes TALKER_DECL only once every source joined. Each allocation of a
+// link restart's re-creation is refused in turn, the sources' joins among
+// them, so one refusal lands after the first source joined and before the
+// last: no such re-creation writes TALKER_DECL nonzero, and it holds 0 after.
+TEST_F(Srp, PubTalkerDeclIsNotPublishedByACreationThatFails) {
+    settle();
+    const unsigned last=MBX_N_IF-1u;
+    const uint32_t reg=MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_TALKER_DECL;
+    // the allocations a re-creation makes: what a successful one consumes
+    calloc_before_failure=1000000;
+    mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+    const int made=1000000-calloc_before_failure;
+    calloc_before_failure=-1;
+    ASSERT_NE(adapter.ifs[last].msrp,nullptr);
+    ASSERT_GT(made,static_cast<int>(CTRL_SRP_SOURCES)) << "PUB a re-creation allocates for each source's join";
+    mbx_model_set_link(&model,last,true); settle();
+    int failed=0;
+    for (int failure=0;failure<made;++failure) {
+        const unsigned refused=adapter.refused;
+        pub_trace.clear(); mbx_host_trace(pub_writes,nullptr);
+        calloc_before_failure=failure;
+        mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+        calloc_before_failure=-1;
+        mbx_host_trace(nullptr,nullptr);
+        ASSERT_GT(adapter.refused,refused) << "PUB the re-creation refused at allocation " << failure << " fails";
+        ++failed;
+        bool declared=false;
+        for (const auto &w:pub_trace) declared=declared || (w.first==reg && w.second!=0u);
+        EXPECT_FALSE(declared)
+            << "PUB a re-creation refused at allocation " << failure << " publishes no Talker declaration";
+        EXPECT_EQ(pub_of(model,last).talker_decl,0u)
+            << "PUB TALKER_DECL holds 0 after a re-creation refused at allocation " << failure;
+        settle();
+        ASSERT_NE(adapter.ifs[last].msrp,nullptr);
+        mbx_model_set_link(&model,last,true); settle();
+    }
+    EXPECT_EQ(failed,made) << "PUB every allocation of the re-creation was refused in turn";
+    EXPECT_EQ(pub_of(model,last).talker_decl,(1u<<CTRL_SRP_SOURCES)-1u)
+        << "PUB the retried creation declares every source";
+}
+
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);
