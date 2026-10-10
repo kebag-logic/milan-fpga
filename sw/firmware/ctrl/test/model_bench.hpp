@@ -80,8 +80,10 @@ class ModelBench {
         out.vid = v.vid;
         out.priority = v.priority;
         out.adopted = v.adopted ? 1u : 0u;
+        out.talker_decl = v.talker_decl;
         for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
             out.bound |= (v.bound[k] ? 1u : 0u) << k;
+            out.started |= (v.started[k] ? 1u : 0u) << k;
             out.sid.push_back(v.sid[k]);
         }
         return out;

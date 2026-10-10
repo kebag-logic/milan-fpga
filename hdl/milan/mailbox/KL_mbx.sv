@@ -65,8 +65,10 @@ module KL_mbx
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_VID_WIDTH_C-1:0] pub_dom_vid_o,   //! SR_DOMAIN.VID per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,   //! SR_DOMAIN.PRIORITY per interface
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0] pub_dom_adopted_o,   //! SR_DOMAIN.ADOPTED per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0] pub_talker_decl_o,   //! TALKER_DECL.DECLARED per interface
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   //! SID_HI:SID_LO per sink, taken only while its SID_VALID is set
 );
 
@@ -170,7 +172,7 @@ module KL_mbx
     pub_at_w   = off_w >= AW2_C'(MBX_PUB_BASE_C)
                  && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
                  && (pub_sink_w ? (entry < AW2_C'(MBX_N_PUB_SINKS_C) && (pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C) || pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C) || pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)))
-                                : (pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)));
+                                : (pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)));
   end : pub_decode
 
   // ---- what the host writes -----------------------------------------------------
@@ -261,9 +263,10 @@ module KL_mbx
   logic [15:0] pub_licence_r [MBX_N_IF_C];   //! LICENCE per interface
   logic [31:0] pub_idle_slope_r [MBX_N_IF_C];   //! IDLE_SLOPE per interface
   logic [24:0] pub_sr_domain_r [MBX_N_IF_C];   //! SR_DOMAIN per interface
+  logic [15:0] pub_talker_decl_r [MBX_N_IF_C];   //! TALKER_DECL per interface
   logic [31:0] pub_sid_lo_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! SID_LO per sink
   logic [31:0] pub_sid_hi_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! SID_HI per sink
-  logic [1:0] pub_binding_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! BINDING per sink
+  logic [2:0] pub_binding_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! BINDING per sink
 
   always_ff @(posedge clk_i) begin : pub_write
     if (!rst_n) begin
@@ -272,6 +275,7 @@ module KL_mbx
         pub_licence_r[i] <= '0;
         pub_idle_slope_r[i] <= '0;
         pub_sr_domain_r[i] <= '0;
+        pub_talker_decl_r[i] <= '0;
         for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
           pub_sid_lo_r[i][k] <= '0;
           pub_sid_hi_r[i][k] <= '0;
@@ -287,12 +291,14 @@ module KL_mbx
         pub_idle_slope_r[pub_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_IDLE_SLOPE_BPS_LSB_C, MBX_IDLE_SLOPE_BPS_WIDTH_C)));
       if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C))
         pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_VID_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C)));
+      if (!pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C))
+        pub_talker_decl_r[pub_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_TALKER_DECL_DECLARED_LSB_C, MBX_TALKER_DECL_DECLARED_WIDTH_C)));
       if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C))
         pub_sid_lo_r[pub_if_w][pub_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SID_LO_SID_LSB_C, MBX_SID_LO_SID_WIDTH_C)));
       if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C))
         pub_sid_hi_r[pub_if_w][pub_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_SID_HI_SID_LSB_C, MBX_SID_HI_SID_WIDTH_C)));
       if (pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C))
-        pub_binding_r[pub_if_w][pub_k_w] <= 2'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C)));
+        pub_binding_r[pub_if_w][pub_k_w] <= 3'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)));
     end
   end : pub_write
 
@@ -304,9 +310,11 @@ module KL_mbx
       pub_dom_vid_o[MBX_SR_DOMAIN_VID_WIDTH_C*i +: MBX_SR_DOMAIN_VID_WIDTH_C] = MBX_SR_DOMAIN_VID_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_VID_WIDTH_C));
       pub_dom_prio_o[MBX_SR_DOMAIN_PRIORITY_WIDTH_C*i +: MBX_SR_DOMAIN_PRIORITY_WIDTH_C] = MBX_SR_DOMAIN_PRIORITY_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C));
       pub_dom_adopted_o[MBX_SR_DOMAIN_ADOPTED_WIDTH_C*i +: MBX_SR_DOMAIN_ADOPTED_WIDTH_C] = MBX_SR_DOMAIN_ADOPTED_WIDTH_C'(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_ADOPTED_LSB_C, MBX_SR_DOMAIN_ADOPTED_WIDTH_C));
+      pub_talker_decl_o[MBX_N_PUB_SOURCES_C*i +: MBX_N_PUB_SOURCES_C] = MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_talker_decl_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C, MBX_TALKER_DECL_DECLARED_WIDTH_C));
       for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
         pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C) != 0;
         pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0;
+        pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C) != 0;
         pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};
       end
     end
@@ -344,6 +352,7 @@ module KL_mbx
     if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C)) reg_rdata_w = 32'(pub_licence_r[pub_if_w]);
     if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C)) reg_rdata_w = 32'(pub_idle_slope_r[pub_if_w]);
     if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)) reg_rdata_w = 32'(pub_sr_domain_r[pub_if_w]);
+    if (pub_at_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)) reg_rdata_w = 32'(pub_talker_decl_r[pub_if_w]);
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);

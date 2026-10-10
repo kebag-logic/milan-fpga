@@ -263,6 +263,11 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
                                               "| `MBX_PUB_SINK_STRIDE` | `0x8` |"), "MBX_PUB_SINK_STRIDE"),
         ("skeleton publication register dropped", _plant_all(base, top, "MBX_PUB_SINK_REG_SID_HI_C",
                                                              "MBX_PUB_SINK_REG_SID_LO_C"), "SID_HI"),
+        # lane F-INT round 3: the started levels and the Talker declarations
+        ("C header started bit moved", _plant(base, hdr, "#define MBX_BINDING_STARTED_LSB 2u",
+                                              "#define MBX_BINDING_STARTED_LSB 3u"), "MBX_BINDING_STARTED_LSB"),
+        ("skeleton declarations register dropped", _plant_all(base, top, "MBX_PUB_REG_TALKER_DECL_C",
+                                                              "MBX_PUB_REG_LICENCE_C"), "TALKER_DECL"),
         ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
          "BOUND_EN"),
     ]
@@ -325,6 +330,11 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "{name: ADOPT, lsb: 24, width: 1,"),
         ("publication gate narrower than its sources", "{name: OPEN, lsb: 0, width: 16,",
          "{name: OPEN, lsb: 0, width: 8,"),
+        # lane F-INT round 3: the started levels and the Talker declarations
+        ("publication declarations narrower than their sources", "{name: DECLARED, lsb: 0, width: 16,",
+         "{name: DECLARED, lsb: 0, width: 8,"),
+        ("publication sink field the skeleton does not wire", "{name: STARTED, lsb: 2, width: 1,",
+         "{name: RUNNING, lsb: 2, width: 1,"),
     ]
 
 

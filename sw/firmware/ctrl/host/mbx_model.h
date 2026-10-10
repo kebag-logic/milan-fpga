@@ -169,7 +169,9 @@ struct mbx_model_pub {
 	uint16_t vid;                                   // SR_DOMAIN.VID
 	uint8_t priority;                               // SR_DOMAIN.PRIORITY
 	bool adopted;                                   // SR_DOMAIN.ADOPTED
+	uint32_t talker_decl;                           // TALKER_DECL.DECLARED, bit s source s
 	bool bound[MBX_N_PUB_SINKS];                    // BINDING.BOUND
+	bool started[MBX_N_PUB_SINKS];                  // BINDING.STARTED
 	uint64_t sid[MBX_N_PUB_SINKS];                  // SID_HI:SID_LO, 0 while SID_VALID is clear
 };
 void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mbx_model_pub *out);

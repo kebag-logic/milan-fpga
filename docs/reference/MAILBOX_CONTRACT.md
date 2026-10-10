@@ -256,6 +256,7 @@ Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source
 | `0x004` | `LICENCE` | rw | The SRP stream gate: bit s is set while source s holds its licence, an admitted Talker Advertise with a registered Listener Ready or Ready Failed after the stream VLAN's MVRP Join (Milan v1.2 5.3.7.3 and 4.3.2; the processor's srp_active_o AND srp_sr_admitted_o). The SRP owner writes it before it reports the licence. |
 | `0x008` | `IDLE_SLOPE` | rw | The sum, in bits per second, of the bandwidth the SRP owner admitted for this interface's sources, Ethernet overhead included (the processor's srp_sum_slope_bps_o), written before the declarations it admitted are sent. |
 | `0x00C` | `SR_DOMAIN` | rw | The SR class A Domain this interface's declarations carry (Milan v1.2 4.2.7.2.1). ADOPTED is set once a received Domain replaced the default {priority 3, VID 2}, until the link restarts (the processor's srp_domain_adopted_o, class_a_prio_o and class_a_vid_o). Written in one access, before the declarations that carry it. |
+| `0x010` | `TALKER_DECL` | rw | The Talker declarations: bit s is set while source s's MSRP Talker attribute, a Talker Advertise or a Talker Failed, is declared on this interface (IEEE 802.1Q-2018 clause 35; the processor's srp_tk_decl_state_o other than NONE). The datapath tags a stream's frames only while its bit is set, because a bridge prunes a tagged stream that is not declared (802.1Q 35.1.2). The SRP owner sets a bit before the declaration it describes is sent, and clears it before the declaration is destroyed. |
 
 `DA_GATE` fields:
 
@@ -283,6 +284,12 @@ Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source
 | `[18:16]` | `PRIORITY` | the operational SR class A priority |
 | `[11:0]` | `VID` | the operational SR class A VID |
 
+`TALKER_DECL` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `DECLARED` | bit s: source s has a Talker declaration |
+
 ### Interface publication sink registers
 
 Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication block, for 16 sinks (one per listener stream). A hole, a sink past the last and an interface the build does not have read 0 and take no write.
@@ -291,7 +298,7 @@ Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication blo
 |---|---|---|---|
 | `0x000` | `SID_LO` | rw | Sink k's stream_id, low word, as last written. The datapath reads it while SID_VALID is set. |
 | `0x004` | `SID_HI` | rw | Sink k's stream_id, high word, as last written. The datapath reads it while SID_VALID is set. |
-| `0x008` | `BINDING` | rw | Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. |
+| `0x008` | `BINDING` | rw | Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. STARTED is the started state (5.3.8.7; the processor wrapper's aecp_strm_started_o, which the ACMP binding record owns), 0 while the sink is unbound: the datapath discards the AVTPDUs of a sink that is bound and not started. The firmware writes it before the BIND_RX response that echoes STREAMING_WAIT and before a later START_STREAMING or STOP_STREAMING is reported, in one write that keeps SID_VALID. |
 
 `SID_LO` fields:
 
@@ -309,6 +316,7 @@ Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication blo
 
 | Bits | Field | Meaning |
 |---|---|---|
+| `[2]` | `STARTED` | the bound sink is started |
 | `[1]` | `SID_VALID` | SID_LO and SID_HI are the settled stream_id |
 | `[0]` | `BOUND` | the sink is bound |
 
@@ -671,6 +679,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_SR_DOMAIN_PRIORITY_WIDTH` | `0x3` |
 | `MBX_SR_DOMAIN_ADOPTED_LSB` | `0x18` |
 | `MBX_SR_DOMAIN_ADOPTED_WIDTH` | `0x1` |
+| `MBX_PUB_REG_TALKER_DECL` | `0x10` |
+| `MBX_TALKER_DECL_DECLARED_LSB` | `0x0` |
+| `MBX_TALKER_DECL_DECLARED_WIDTH` | `0x10` |
 | `MBX_PUB_SINK_BASE` | `0x100` |
 | `MBX_PUB_SINK_STRIDE` | `0x10` |
 | `MBX_PUB_SINK_REG_SID_LO` | `0x0` |
@@ -684,6 +695,8 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_BINDING_BOUND_WIDTH` | `0x1` |
 | `MBX_BINDING_SID_VALID_LSB` | `0x1` |
 | `MBX_BINDING_SID_VALID_WIDTH` | `0x1` |
+| `MBX_BINDING_STARTED_LSB` | `0x2` |
+| `MBX_BINDING_STARTED_WIDTH` | `0x1` |
 | `MBX_CH_BASE` | `0x100` |
 | `MBX_CH_STRIDE` | `0x20` |
 | `MBX_CH_REG_RX_HEAD` | `0x0` |

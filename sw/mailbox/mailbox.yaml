@@ -53,10 +53,12 @@
 # Minor 2 (#665 lane F-INT, the ruling on #665, comment 6088423771, decision
 # 2 (a)): a publication block per interface, in which the firmware owner of
 # ADP, ACMP, MAAP and SRP writes the class-D values the fabric datapath reads
-# in the split placement (the talker DA gate, the listener's bound level and
-# stream_id, the SRP stream gate, the idle slope and the Domain), each before
-# the response that promises it. It only adds: a firmware built against 2.1
-# leaves the block at its reset value, and nothing in the window moved.
+# in the split placement (the talker DA gate, the listener's bound and started
+# levels and stream_id, the SRP stream gate, the Talker declarations, the idle
+# slope and the Domain; the round-3 ruling on #665, comment 6092086337, added
+# the started levels and the declarations), each before the response that
+# promises it. It only adds: a firmware built against 2.1 leaves the block at
+# its reset value, and nothing in the window moved.
 
 version:
   major: 2
@@ -360,6 +362,19 @@ interface_publication_registers:
         - {name: VID, lsb: 0, width: 12, doc: the operational SR class A VID}
         - {name: PRIORITY, lsb: 16, width: 3, doc: the operational SR class A priority}
         - {name: ADOPTED, lsb: 24, width: 1, doc: "a received Domain was adopted"}
+    - name: TALKER_DECL
+      offset: 0x10
+      access: rw
+      doc: >-
+        The Talker declarations: bit s is set while source s's MSRP Talker attribute,
+        a Talker Advertise or a Talker Failed, is declared on this interface (IEEE
+        802.1Q-2018 clause 35; the processor's srp_tk_decl_state_o other than NONE).
+        The datapath tags a stream's frames only while its bit is set, because a bridge
+        prunes a tagged stream that is not declared (802.1Q 35.1.2). The SRP owner sets
+        a bit before the declaration it describes is sent, and clears it before the
+        declaration is destroyed.
+      fields:
+        - {name: DECLARED, lsb: 0, width: 16, doc: "bit s: source s has a Talker declaration"}
   sink_registers:
     - name: SID_LO
       offset: 0x0
@@ -382,10 +397,16 @@ interface_publication_registers:
         SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4,
         5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only
         while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI
-        and sets it after, so a half-written stream_id never reaches the datapath.
+        and sets it after, so a half-written stream_id never reaches the datapath. STARTED
+        is the started state (5.3.8.7; the processor wrapper's aecp_strm_started_o, which
+        the ACMP binding record owns), 0 while the sink is unbound: the datapath discards
+        the AVTPDUs of a sink that is bound and not started. The firmware writes it before
+        the BIND_RX response that echoes STREAMING_WAIT and before a later START_STREAMING
+        or STOP_STREAMING is reported, in one write that keeps SID_VALID.
       fields:
         - {name: BOUND, lsb: 0, width: 1, doc: the sink is bound}
         - {name: SID_VALID, lsb: 1, width: 1, doc: SID_LO and SID_HI are the settled stream_id}
+        - {name: STARTED, lsb: 2, width: 1, doc: the bound sink is started}
 
 channel_registers:
   base: 0x100

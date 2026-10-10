@@ -32,14 +32,16 @@ struct PubView {
     std::uint32_t vid = 0;           //!< SR_DOMAIN.VID
     std::uint32_t priority = 0;      //!< SR_DOMAIN.PRIORITY
     std::uint32_t adopted = 0;       //!< SR_DOMAIN.ADOPTED
+    std::uint32_t talker_decl = 0;   //!< TALKER_DECL.DECLARED, bit s source s
     std::uint32_t bound = 0;         //!< bit k: sink k's BINDING.BOUND
+    std::uint32_t started = 0;       //!< bit k: sink k's BINDING.STARTED
     std::vector<std::uint64_t> sid;  //!< the stream_id the datapath takes for sink k: 0 while its SID_VALID is clear
 };
 
 inline bool same_pub(const PubView& a, const PubView& b) {
     return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope_bps == b.idle_slope_bps &&
-           a.vid == b.vid && a.priority == b.priority && a.adopted == b.adopted && a.bound == b.bound &&
-           a.sid == b.sid;
+           a.vid == b.vid && a.priority == b.priority && a.adopted == b.adopted && a.talker_decl == b.talker_decl &&
+           a.bound == b.bound && a.started == b.started && a.sid == b.sid;
 }
 
 constexpr std::uint16_t kEtherAvtp = 0x22F0;   // IEEE 1722-2016 Table 5

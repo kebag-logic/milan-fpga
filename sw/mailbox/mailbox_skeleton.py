@@ -56,13 +56,17 @@ PUB_OUTPUTS = {
     ("SR_DOMAIN", "VID"): ("pub_dom_vid_o", "MBX_SR_DOMAIN_VID_WIDTH_C"),
     ("SR_DOMAIN", "PRIORITY"): ("pub_dom_prio_o", "MBX_SR_DOMAIN_PRIORITY_WIDTH_C"),
     ("SR_DOMAIN", "ADOPTED"): ("pub_dom_adopted_o", "MBX_SR_DOMAIN_ADOPTED_WIDTH_C"),
+    ("TALKER_DECL", "DECLARED"): ("pub_talker_decl_o", "MBX_N_PUB_SOURCES_C"),
 }
 
-#: The publication block's sink fields: BINDING.BOUND on pub_bound_o and
-#: BINDING.SID_VALID on pub_sid_valid_o, one bit a sink, and SID_HI:SID_LO on
-#: pub_sid_o, 64 bits a sink, as last written: the datapath takes the stream_id
-#: only while its SID_VALID is set.
-PUB_SINK_FIELDS = {"SID_LO": ("SID",), "SID_HI": ("SID",), "BINDING": ("BOUND", "SID_VALID")}
+#: The interface fields that carry one bit per talker source.
+PUB_SOURCE_REGS = ("DA_GATE", "LICENCE", "TALKER_DECL")
+
+#: The publication block's sink fields: BINDING.BOUND on pub_bound_o,
+#: BINDING.SID_VALID on pub_sid_valid_o and BINDING.STARTED on pub_started_o,
+#: one bit a sink, and SID_HI:SID_LO on pub_sid_o, 64 bits a sink, as last
+#: written: the datapath takes the stream_id only while its SID_VALID is set.
+PUB_SINK_FIELDS = {"SID_LO": ("SID",), "SID_HI": ("SID",), "BINDING": ("BOUND", "SID_VALID", "STARTED")}
 
 #: Read-only interface fields; `{i}` is the interface index.
 IF_SOURCES = {
@@ -192,6 +196,7 @@ def _pub_ports() -> list[str]:
         out.append(f"  output logic [MBX_N_IF_C*{width}-1:0] {port},   //! {reg}.{fld} per interface")
     out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink",
             "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink",
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink",
             "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   "
             "//! SID_HI:SID_LO per sink, taken only while its SID_VALID is set",
             ");",
@@ -355,9 +360,11 @@ def _pub_block(contract: Contract) -> list[str]:
         out.append(f"      {port}[{width}*i +: {width}] = {width}'({field});")
     valid = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C)"
     bound = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C)"
+    started = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)"
     out += ["      for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin",
             f"        pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = {bound} != 0;",
             f"        pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = {valid} != 0;",
+            f"        pub_started_o[MBX_N_PUB_SINKS_C*i + k] = {started} != 0;",
             "        pub_sid_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};",
             "      end", "    end", "  end : pub_out", ""]
     return out
@@ -578,9 +585,10 @@ def _check_wiring(contract: Contract) -> None:
     if set(fields) != set(PUB_OUTPUTS) or {r.name: tuple(f.name for f in r.fields)
                                            for r in contract.pub_sink_registers} != PUB_SINK_FIELDS:
         raise ContractError("the skeleton wires DA_GATE.OPEN, LICENCE.ACTIVE, IDLE_SLOPE.BPS, SR_DOMAIN's VID, "
-                            "PRIORITY and ADOPTED, and the sinks' SID_LO, SID_HI and BINDING's BOUND and "
-                            "SID_VALID onto the pub_*_o ports; the publication registers changed")
-    for name in ("DA_GATE", "LICENCE"):
+                            "PRIORITY and ADOPTED, TALKER_DECL.DECLARED, and the sinks' SID_LO, SID_HI and "
+                            "BINDING's BOUND, SID_VALID and STARTED onto the pub_*_o ports; the publication "
+                            "registers changed")
+    for name in PUB_SOURCE_REGS:
         width = next(f for (reg, _), f in fields.items() if reg == name).width
         if width != contract.pub_sources:
             raise ContractError(f"{name} carries {width} sources, the contract publishes {contract.pub_sources}")

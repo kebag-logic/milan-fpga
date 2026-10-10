@@ -640,7 +640,8 @@ static uint32_t pub_mask(uint32_t rel)
 			return ones(MBX_SID_HI_SID_LSB, MBX_SID_HI_SID_WIDTH);
 		case MBX_PUB_SINK_REG_BINDING:
 			return ones(MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) |
-			       ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH);
+			       ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) |
+			       ones(MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);
 		default:
 			return 0;
 		}
@@ -656,6 +657,8 @@ static uint32_t pub_mask(uint32_t rel)
 		return ones(MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |
 		       ones(MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) |
 		       ones(MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH);
+	case MBX_PUB_REG_TALKER_DECL:
+		return ones(MBX_TALKER_DECL_DECLARED_LSB, MBX_TALKER_DECL_DECLARED_WIDTH);
 	default:
 		return 0;
 	}
@@ -675,10 +678,13 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 	out->vid = (uint16_t)mbx_field(domain, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH);
 	out->priority = (uint8_t)mbx_field(domain, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH);
 	out->adopted = mbx_field(domain, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) != 0u;
+	out->talker_decl = mbx_field(w[MBX_PUB_REG_TALKER_DECL / 4u], MBX_TALKER_DECL_DECLARED_LSB,
+				     MBX_TALKER_DECL_DECLARED_WIDTH);
 	for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
 		const uint32_t *e = w + (MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u;
 		uint32_t binding = e[MBX_PUB_SINK_REG_BINDING / 4u];
 		out->bound[k] = mbx_field(binding, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) != 0u;
+		out->started[k] = mbx_field(binding, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH) != 0u;
 		if (mbx_field(binding, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) != 0u) {
 			out->sid[k] = ((uint64_t)e[MBX_PUB_SINK_REG_SID_HI / 4u] << 32) | e[MBX_PUB_SINK_REG_SID_LO / 4u];
 		}

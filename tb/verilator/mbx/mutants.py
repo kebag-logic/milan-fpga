@@ -442,8 +442,8 @@ ARMS += (
     *_both("top-pub-domain-unmasked", "KL_mbx.sv", "pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i & (",
            "pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i | 32'd0 & (",
            "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
-    *_both("top-pub-sink-index-dropped", "KL_mbx.sv", "pub_binding_r[pub_if_w][pub_k_w] <= 2'(",
-           "pub_binding_r[pub_if_w][0] <= 2'(",
+    *_both("top-pub-sink-index-dropped", "KL_mbx.sv", "pub_binding_r[pub_if_w][pub_k_w] <= 3'(",
+           "pub_binding_r[pub_if_w][0] <= 3'(",
            "P1 each interface's registers and each sink's entry read back what was written"),
     # nothing outside the registers takes a write: a hole aliasing a
     # register, and (two interfaces) an index past the build aliasing one
@@ -459,6 +459,21 @@ ARMS += (
            "P4 a write with a partial strobe leaves the register and the output"),
     # a reset clears the whole block
     *_both("top-pub-licence-kept-through-reset", "KL_mbx.sv", "        pub_licence_r[i] <= '0;\n", "",
+           "P5 a reset clears every publication register and every output"),
+    # round 3 (#665, comment 6092086337): each sink's started level and each
+    # source's Talker declaration, on their own outputs, stored and reset
+    *_both("top-pub-started-from-bound", "KL_mbx.sv",
+           "pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C,",
+           "pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C,",
+           "P2 every field reaches the datapath on its own output"),
+    *_both("top-pub-started-not-stored", "KL_mbx.sv",
+           " | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)));", "));",
+           "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    *_both("top-pub-declarations-from-licence", "KL_mbx.sv",
+           "MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_talker_decl_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C,",
+           "MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_licence_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C,",
+           "P2 every field reaches the datapath on its own output"),
+    *_both("top-pub-declarations-kept-through-reset", "KL_mbx.sv", "        pub_talker_decl_r[i] <= '0;\n", "",
            "P5 a reset clears every publication register and every output"),
 )
 

@@ -332,6 +332,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_SR_DOMAIN_ADOPTED_LSB_C = 32'd24;
   //! SR_DOMAIN: a received Domain was adopted
   localparam int unsigned MBX_SR_DOMAIN_ADOPTED_WIDTH_C = 32'd1;
+  //! The Talker declarations: bit s is set while source s's MSRP Talker attribute, a Talker Advertise or a Talker Failed, is declared on this interface (IEEE 802.1Q-2018 clause 35; the processor's srp_tk_decl_state_o other than NONE). The datapath tags a stream's frames only while its bit is set, because a bridge prunes a tagged stream that is not declared (802.1Q 35.1.2). The SRP owner sets a bit before the declaration it describes is sent, and clears it before the declaration is destroyed.
+  localparam int unsigned MBX_PUB_REG_TALKER_DECL_C = 32'h00000010;
+  //! TALKER_DECL: bit s: source s has a Talker declaration
+  localparam int unsigned MBX_TALKER_DECL_DECLARED_LSB_C = 32'd0;
+  //! TALKER_DECL: bit s: source s has a Talker declaration
+  localparam int unsigned MBX_TALKER_DECL_DECLARED_WIDTH_C = 32'd16;
   //! first sink entry inside a publication block
   localparam int unsigned MBX_PUB_SINK_BASE_C = 32'h00000100;
   //! bytes per publication sink entry
@@ -348,7 +354,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_SID_HI_SID_LSB_C = 32'd0;
   //! SID_HI: stream_id[63:32]
   localparam int unsigned MBX_SID_HI_SID_WIDTH_C = 32'd32;
-  //! Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath.
+  //! Sink k's binding. BOUND is the bound state (Milan v1.2 5.3.8.2; the processor's acmp_bound_o), written before the BIND_RX or UNBIND_RX response. SID_VALID says SID_LO and SID_HI hold the stream_id the sink settled on (5.5.3.5.18 step 4, 5.3.8.9; the processor's acmp_bound_sid_o); the datapath takes the stream_id only while it is set. The firmware clears SID_VALID before it rewrites SID_LO and SID_HI and sets it after, so a half-written stream_id never reaches the datapath. STARTED is the started state (5.3.8.7; the processor wrapper's aecp_strm_started_o, which the ACMP binding record owns), 0 while the sink is unbound: the datapath discards the AVTPDUs of a sink that is bound and not started. The firmware writes it before the BIND_RX response that echoes STREAMING_WAIT and before a later START_STREAMING or STOP_STREAMING is reported, in one write that keeps SID_VALID.
   localparam int unsigned MBX_PUB_SINK_REG_BINDING_C = 32'h00000008;
   //! BINDING: the sink is bound
   localparam int unsigned MBX_BINDING_BOUND_LSB_C = 32'd0;
@@ -358,6 +364,10 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_BINDING_SID_VALID_LSB_C = 32'd1;
   //! BINDING: SID_LO and SID_HI are the settled stream_id
   localparam int unsigned MBX_BINDING_SID_VALID_WIDTH_C = 32'd1;
+  //! BINDING: the bound sink is started
+  localparam int unsigned MBX_BINDING_STARTED_LSB_C = 32'd2;
+  //! BINDING: the bound sink is started
+  localparam int unsigned MBX_BINDING_STARTED_WIDTH_C = 32'd1;
   //! first channel register block
   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
   //! bytes per channel block

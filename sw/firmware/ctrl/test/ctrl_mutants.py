@@ -508,6 +508,13 @@ MUTANTS += (
     Mutant("model-pub-hole-takes-a-write", "host/mbx_model.c", "m->pub[i][reg / 4u] = value & pub_mask(reg);",
            "m->pub[i][reg / 4u] = value | (pub_mask(reg) & 0u);",
            "model", MODEL_GROUP + "Publication", "P4 every hole of every interface block"),
+    Mutant("model-pub-started-not-stored", "host/mbx_model.c",
+           " |\n\t\t\t       ones(MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);", ";",
+           "model", MODEL_GROUP + "Publication", "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    Mutant("model-pub-declarations-a-hole", "host/mbx_model.c",
+           "\tcase MBX_PUB_REG_TALKER_DECL:\n\t\treturn ones(MBX_TALKER_DECL_DECLARED_LSB, "
+           "MBX_TALKER_DECL_DECLARED_WIDTH);\n", "",
+           "model", MODEL_GROUP + "Publication", "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
     Mutant("model-pub-every-sink-reads-entry-0", "host/mbx_model.c",
            "(MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u", "MBX_PUB_SINK_BASE / 4u",
            "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),

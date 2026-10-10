@@ -1675,7 +1675,9 @@ void Suite<Bench, Check>::check_publication() {
     for (const PubView& v : pub_views()) {
         idle = idle && same_pub(v, pub_zero());
     }
-    ck_.that("P0 and the datapath sees no gate open, no slope, the Domain 0, no sink bound and no stream_id", idle);
+    ck_.that("P0 and the datapath sees no gate open, no slope, the Domain 0, no declaration, no sink bound or "
+             "started and no stream_id",
+             idle);
     check_pub_masks();
     check_pub_outputs();
     check_pub_sid_valid();
@@ -1687,7 +1689,8 @@ template <class Bench, class Check>
 std::vector<std::uint32_t> Suite<Bench, Check>::pub_words() {
     std::vector<std::uint32_t> out;
     for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
-        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN}) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN,
+                                MBX_PUB_REG_TALKER_DECL}) {
             out.push_back(rd(pub_reg(i, r)));
         }
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
@@ -1716,6 +1719,7 @@ void Suite<Bench, Check>::fill_pub(std::uint32_t seed) {
         wr(pub_reg(i, MBX_PUB_REG_LICENCE), 0x0202u * (t + 3u));
         wr(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE), 0x01000193u * (t + 5u));
         wr(pub_reg(i, MBX_PUB_REG_SR_DOMAIN), pub_domain(t));
+        wr(pub_reg(i, MBX_PUB_REG_TALKER_DECL), 0x0303u * (t + 7u));
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO), 0xC0DE0000u + 0x100u * t + k);
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI), 0x5EED0000u + 0x100u * t + k);
@@ -1732,23 +1736,27 @@ void Suite<Bench, Check>::check_pub_masks() {
                                  ones(MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) |
                                  ones(MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH);
     const std::uint32_t binding = ones(MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) |
-                                  ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH);
+                                  ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) |
+                                  ones(MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);
     bool masked = true;
     for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
-        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN}) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN,
+                                MBX_PUB_REG_TALKER_DECL}) {
             wr(pub_reg(i, r), 0xFFFFFFFFu);
         }
         masked = masked && rd(pub_reg(i, MBX_PUB_REG_DA_GATE)) == ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH) &&
                  rd(pub_reg(i, MBX_PUB_REG_LICENCE)) == ones(MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH) &&
                  rd(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE)) == 0xFFFFFFFFu &&
-                 rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == domain;
+                 rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == domain &&
+                 rd(pub_reg(i, MBX_PUB_REG_TALKER_DECL)) ==
+                     ones(MBX_TALKER_DECL_DECLARED_LSB, MBX_TALKER_DECL_DECLARED_WIDTH);
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0xFFFFFFFFu);
             masked = masked && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING)) == binding;
         }
     }
     ck_.that("P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, "
-             "BINDING BOUND and SID_VALID only, per interface and sink",
+             "TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink",
              masked);
     fill_pub(0x21u);
     bool own = true;
@@ -1757,7 +1765,8 @@ void Suite<Bench, Check>::check_pub_masks() {
         own = own && rd(pub_reg(i, MBX_PUB_REG_DA_GATE)) == ((0x0101u * (t + 1u)) & 0xFFFFu) &&
               rd(pub_reg(i, MBX_PUB_REG_LICENCE)) == ((0x0202u * (t + 3u)) & 0xFFFFu) &&
               rd(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE)) == 0x01000193u * (t + 5u) &&
-              rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == pub_domain(t);
+              rd(pub_reg(i, MBX_PUB_REG_SR_DOMAIN)) == pub_domain(t) &&
+              rd(pub_reg(i, MBX_PUB_REG_TALKER_DECL)) == ((0x0303u * (t + 7u)) & 0xFFFFu);
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             own = own && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO)) == 0xC0DE0000u + 0x100u * t + k &&
                   rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI)) == 0x5EED0000u + 0x100u * t + k &&
@@ -1777,10 +1786,12 @@ void Suite<Bench, Check>::check_pub_outputs() {
         const std::uint32_t dom = pub_domain(t);
         const PubView v = b_.pub(i);
         std::uint32_t bound = 0;
+        std::uint32_t started = 0;
         bool sid = true;
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             const std::uint32_t b = t + k;
             bound |= ((b >> MBX_BINDING_BOUND_LSB) & 1u) << k;
+            started |= ((b >> MBX_BINDING_STARTED_LSB) & 1u) << k;
             const std::uint64_t want = ((b >> MBX_BINDING_SID_VALID_LSB) & 1u) != 0u
                                            ? (std::uint64_t{0x5EED0000u + 0x100u * t + k} << 32) | (0xC0DE0000u + 0x100u * t + k)
                                            : 0u;
@@ -1791,13 +1802,14 @@ void Suite<Bench, Check>::check_pub_outputs() {
                  v.vid == field(dom, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) &&
                  v.priority == field(dom, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) &&
                  v.adopted == field(dom, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) &&
-                 v.bound == bound && sid;
+                 v.talker_decl == ((0x0303u * (t + 7u)) & 0xFFFFu) && v.bound == bound && v.started == started && sid;
     }
     ck_.that("P2 every field reaches the datapath on its own output, for its own interface and sink", fields);
-    // one bit at a time: a gate, a licence or a bound level moves its own bit only
+    // one bit at a time: a gate, a licence, a declaration, a bound or a
+    // started level moves its own bit only
     bool single = true;
     for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
-        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE}) {
+        for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_TALKER_DECL}) {
             wr(pub_reg(i, r), 0u);
         }
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
@@ -1806,26 +1818,37 @@ void Suite<Bench, Check>::check_pub_outputs() {
     }
     for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
         for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            const std::uint32_t d = (s + MBX_N_PUB_SOURCES / 2u) % MBX_N_PUB_SOURCES;
             wr(pub_reg(i, MBX_PUB_REG_DA_GATE), 1u << s);
             wr(pub_reg(i, MBX_PUB_REG_LICENCE), 1u << (MBX_N_PUB_SOURCES - 1u - s));
+            wr(pub_reg(i, MBX_PUB_REG_TALKER_DECL), 1u << d);
             const std::vector<PubView> v = pub_views();
             for (std::uint32_t j = 0; j < MBX_N_IF; ++j) {
                 single = single && v[j].da_gate == (j == i ? 1u << s : 0u) &&
-                         v[j].licence == (j == i ? 1u << (MBX_N_PUB_SOURCES - 1u - s) : 0u);
+                         v[j].licence == (j == i ? 1u << (MBX_N_PUB_SOURCES - 1u - s) : 0u) &&
+                         v[j].talker_decl == (j == i ? 1u << d : 0u);
             }
         }
         wr(pub_reg(i, MBX_PUB_REG_DA_GATE), 0u);
         wr(pub_reg(i, MBX_PUB_REG_LICENCE), 0u);
+        wr(pub_reg(i, MBX_PUB_REG_TALKER_DECL), 0u);
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 1u << MBX_BINDING_BOUND_LSB);
-            const std::vector<PubView> v = pub_views();
+            std::vector<PubView> v = pub_views();
             for (std::uint32_t j = 0; j < MBX_N_IF; ++j) {
-                single = single && v[j].bound == (j == i ? 1u << k : 0u);
+                single = single && v[j].bound == (j == i ? 1u << k : 0u) && v[j].started == 0u;
+            }
+            wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 1u << MBX_BINDING_STARTED_LSB);
+            v = pub_views();
+            for (std::uint32_t j = 0; j < MBX_N_IF; ++j) {
+                single = single && v[j].started == (j == i ? 1u << k : 0u) && v[j].bound == 0u;
             }
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0u);
         }
     }
-    ck_.that("P2 source s's DA_GATE and LICENCE bits and sink k's BOUND move their own output bit only", single);
+    ck_.that("P2 source s's DA_GATE, LICENCE and TALKER_DECL bits and sink k's BOUND and STARTED move their own "
+             "output bit only",
+             single);
 }
 
 // P3: the stream_id reaches the datapath only while SID_VALID is set, and
@@ -1868,6 +1891,16 @@ void Suite<Bench, Check>::check_pub_sid_valid() {
     wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound | valid);
     ck_.that("P3 rewritten in the firmware's order, the datapath sees 0, then the whole new stream_id",
              never_half && b_.pub(i).sid.at(k) == 0xFEDCBA9876543210ull);
+    // the firmware's started move: one write of BINDING that keeps SID_VALID
+    const std::uint32_t started = 1u << MBX_BINDING_STARTED_LSB;
+    bool kept = true;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound | valid | started);
+    kept = kept && b_.pub(i).started == 1u << k && b_.pub(i).sid.at(k) == 0xFEDCBA9876543210ull;
+    wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), bound | valid);
+    kept = kept && b_.pub(i).started == 0u && b_.pub(i).bound == 1u << k &&
+           b_.pub(i).sid.at(k) == 0xFEDCBA9876543210ull;
+    ck_.that("P3 STARTED moves on its own output; the stream_id and BOUND stay through a write that keeps SID_VALID",
+             kept);
     wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_BINDING), 0u);
     ck_.that("P3 SID_VALID cleared takes the stream_id off the datapath; SID_LO and SID_HI still read as written",
              b_.pub(i).sid.at(k) == 0u && rd(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO)) == 0x76543210u &&
@@ -1892,7 +1925,8 @@ void Suite<Bench, Check>::check_pub_out_of_window() {
                                (sink ? (in == MBX_PUB_SINK_REG_SID_LO || in == MBX_PUB_SINK_REG_SID_HI ||
                                         in == MBX_PUB_SINK_REG_BINDING)
                                      : (in == MBX_PUB_REG_DA_GATE || in == MBX_PUB_REG_LICENCE ||
-                                        in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN));
+                                        in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN ||
+                                        in == MBX_PUB_REG_TALKER_DECL));
             if (!named) {
                 wr(pub_reg(i, off), 0xFFFFFFFFu);
                 holes_zero = holes_zero && rd(pub_reg(i, off)) == 0u;
