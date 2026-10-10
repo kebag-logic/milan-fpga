@@ -1,0 +1,45 @@
+head route-1x1 {'LUT': 50230, 'FF': 54308, 'SLICE': 15823, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.114, 'WHS_ns': 0.036, 'CARRY4': 3397}
+base 7c1b52be route-1x1 {'LUT': 50267, 'FF': 54413, 'SLICE': 15779, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.299, 'WHS_ns': 0.031, 'CARRY4': 3402}
+PASS base 7c1b52be route LUT is 50,267 (#645 record)
+PASS head route LUT is 50,230
+PASS RAMB36/RAMB18 74/27 unchanged base->head
+PASS BRAM tiles 87.5 = 74 + 27/2
+FAIL AREA_BUDGET:368 names #645 50,267 at base and #696 50,230 replacing it
+PASS AREA_BUDGET:369 74/27 = 87.5
+PASS MARK_II:653 base record 50,267 74/27
+PASS MARK_II:654 #696 50,230 74/27 comparison anchor
+PASS AREA_BUDGET Slice LUT row
+PASS AREA_BUDGET Slice register row
+PASS AREA_BUDGET Slice row
+PASS AREA_BUDGET BRAM row
+PASS AREA_BUDGET DSP row
+PASS AREA_BUDGET timing row
+PASS AREA_BUDGET LUT over 38,040
+PASS AREA_BUDGET slice free
+PASS 234:47 route row
+PASS MARK_II inventory route wrapper
+PASS MARK_II inventory route u_pp
+PASS MARK_II inventory route u_pp/u_aecp
+PASS MARK_II inventory route u_pp/u_aecp/u_d3
+PASS MARK_II inventory route u_pp/u_aecp/u_dyn
+PASS MARK_II inventory route u_pp/u_aecp/u_store
+PASS MARK_II inventory route u_pp/u_aecp/u_ucpu
+PASS MARK_II inventory route u_pp/u_aecp/u_resp
+PASS MARK_II inventory route u_pp/u_notify
+PASS MARK_II inventory route u_pp/u_srp
+PASS MARK_II inventory route u_pp/u_srp/u_encoder
+PASS MARK_II inventory route u_pp/u_srp/u_decoder
+PASS MARK_II inventory route u_pp/u_listener
+PASS MARK_II inventory route u_pp/u_talker
+PASS MARK_II inventory route u_pp/u_adp
+PASS MARK_II inventory route u_pp/u_originator
+PASS MARK_II inventory route u_pp/u_nvm_shadow
+PASS MARK_II inventory route u_pp/u_nvm_port
+PASS MARK_II inventory route u_nvm
+PASS MARK_II inventory route u_pp/u_timer
+PASS MARK_II inventory route u_pp/u_dispatch
+PASS MARK_II inventory route u_pp/u_trace
+inventory rows matched 22 of 22
+PASS ooc-1x1 figures unchanged base->head
+PASS ooc-8x8 figures unchanged base->head
+probe revert_368 figure-check rc=1
