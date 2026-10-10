@@ -2646,11 +2646,14 @@ module milan_csr #(
       live_mux_q <= 32'h0;
     end else begin
       //! stage 1: the wide case trees terminate HERE (their whole cost).
-      //! live_mux reads 0 wherever live_hit is 0, and a live arm never
-      //! claims an address rd_in_window excludes, so the old select's
-      //! !rd_in_window arm never hid a live word.
+      //! live_mux reads 0 wherever live_hit is 0. The old select's order
+      //! still gates it: the 0x800 window answers first, then an address
+      //! outside rd_in_window reads 0. Every other live address at or above
+      //! 0x800 is in that list today, and a live arm added there without a
+      //! term still reads 0 (the 0x8F8 dead-read trap that milan_dp_mclk's
+      //! read-window control plants).
       if (rd_pend)
-        live_mux_q <= live_mux;
+        live_mux_q <= (strm_hit || rd_in_window) ? live_mux : 32'h0;
       //! stage 2: an OR of two registered words, at most one of them
       //! nonzero - shallow by construction, whatever the map grows to
       if (rd_pend2)
