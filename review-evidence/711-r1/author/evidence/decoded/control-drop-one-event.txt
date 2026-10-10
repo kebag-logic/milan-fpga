@@ -1,0 +1,35 @@
+| Arm | Tests | MRPDUs | Identical | Layout-only | Different | Values | LeaveAll types | Octets base / candidate | Other frames |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| aecp-mailbox-endstation_ax7101_1x1_tdm8-if1 | 15 | 41 | 38 | 2 | 1 | 61 | 5 | 2164 / 2148 | 0 |
+| aecp-mailbox-endstation_ax7101_1x1_tdm8-if2 | 15 | 108 | 100 | 8 | 0 | 163 | 20 | 5837 / 5773 | 0 |
+| build | 50 | 0 | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 |
+| checkout | 185 | 2 | 2 | 0 | 0 | 0 | 0 | 70 / 70 | 0 |
+| srp-debug-if1-endstation_ax7101_1x1_tdm8 | 3 | 6 | 3 | 3 | 0 | 12 | 0 | 399 / 399 | 0 |
+| srp-debug-if2-endstation_ax7101_1x1_tdm8 | 3 | 12 | 6 | 6 | 0 | 24 | 0 | 798 / 798 | 0 |
+| srp-srp_app-if1-endstation_ax7101_1x1_tdm8 | 5 | 23 | 9 | 14 | 0 | 51 | 0 | 4532 / 4492 | 1 |
+| srp-srp_app-if2-endstation_ax7101_1x1_tdm8 | 5 | 44 | 18 | 26 | 0 | 96 | 0 | 8909 / 8839 | 1 |
+| srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 | 5 | 71 | 33 | 38 | 0 | 146 | 5 | 4927 / 4895 | 30 |
+| srp-srp_latency-if2-endstation_ax7101_1x1_tdm8 | 5 | 140 | 65 | 75 | 0 | 287 | 10 | 9748 / 9694 | 30 |
+| srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8 | 53 | 739 | 414 | 325 | 0 | 1339 | 20 | 45783 / 45339 | 0 |
+| srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8 | 53 | 1792 | 929 | 863 | 0 | 3442 | 106 | 115500 / 114334 | 0 |
+| srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8 | 17 | 132 | 51 | 81 | 0 | 311 | 0 | 9756 / 9568 | 30 |
+| srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8 | 17 | 252 | 102 | 150 | 0 | 591 | 0 | 18696 / 18360 | 30 |
+| srp-srp_shape-if1-endstation_arty_4x4 | 1 | 4 | 2 | 2 | 0 | 19 | 0 | 614 / 554 | 0 |
+| srp-srp_shape-if1-endstation_arty_8ch | 1 | 4 | 2 | 2 | 0 | 19 | 0 | 614 / 554 | 0 |
+| srp-srp_shape-if1-endstation_arty_current | 1 | 4 | 3 | 1 | 0 | 8 | 0 | 216 / 210 | 0 |
+| srp-srp_shape-if1-endstation_ax7101_1x1_tdm8 | 1 | 4 | 2 | 2 | 0 | 10 | 0 | 302 / 296 | 0 |
+| srp-srp_shape-if1-endstation_ax7101_8x8 | 1 | 4 | 2 | 2 | 0 | 31 | 0 | 1030 / 898 | 0 |
+| srp-srp_shape-if2-endstation_arty_4x4 | 1 | 8 | 4 | 4 | 0 | 38 | 0 | 1228 / 1108 | 0 |
+| srp-srp_shape-if2-endstation_arty_8ch | 1 | 8 | 4 | 4 | 0 | 38 | 0 | 1228 / 1108 | 0 |
+| srp-srp_shape-if2-endstation_arty_current | 1 | 8 | 6 | 2 | 0 | 16 | 0 | 432 / 420 | 0 |
+| srp-srp_shape-if2-endstation_ax7101_1x1_tdm8 | 1 | 8 | 4 | 4 | 0 | 20 | 0 | 604 / 592 | 0 |
+| srp-srp_shape-if2-endstation_ax7101_8x8 | 1 | 8 | 4 | 4 | 0 | 62 | 0 | 2060 / 1796 | 0 |
+| srp-srp_walk-if1-endstation_ax7101_1x1_tdm8 | 5 | 61 | 31 | 30 | 0 | 123 | 1 | 4066 / 4046 | 0 |
+| srp-srp_walk-if2-endstation_ax7101_1x1_tdm8 | 5 | 118 | 57 | 61 | 0 | 240 | 6 | 8089 / 8047 | 0 |
+| srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 | 109 | 214 | 116 | 98 | 0 | 399 | 0 | 15384 / 14808 | 0 |
+| srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8 | 118 | 371 | 193 | 178 | 0 | 731 | 0 | 26983 / 25921 | 0 |
+| **Total** | 678 | 4186 | 2200 | 1985 | 1 | 8277 | 173 | 289969 / 285067 | 122 |
+
+problems: 1
+aecp-mailbox-endstation_ax7101_1x1_tdm8-if1.txt block 0 frame 0: DIFFERENT (if 0/0, ms 0/0, LeaveAll []/[], 2/1 events)
+

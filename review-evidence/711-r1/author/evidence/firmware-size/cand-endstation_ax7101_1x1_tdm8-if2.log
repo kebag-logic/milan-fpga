@@ -1,0 +1,51 @@
+wrote $SCRATCH/srpimage/cand-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/srpimage/cand-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/srpimage/cand-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": false,
+  "sections": {
+    ".text": 47700,
+    ".rodata": 2898,
+    ".bss": 34808,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_allocation": 16,
+    "image_app": 9640,
+    "image_arena": 19840,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_licences": 4,
+    "image_sources": 128,
+    "image_srp": 5032
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "99d60da304f808f40563e2fff9e6b8766d4a3ac65603b49ddb279f67c02a8ef7"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "f778004e37e04409c700a9c5bb72a159d7fef72fb77c885dae56ff655cf8e5ae"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 68556,
+      "sha256": "8b6e960b593cff412095b1641f71a2e38d8bf98c43967155c8de82cd2a67bead"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 88291,
+      "sha256": "a1d0c4e87030512356746ae455ff473e888dfc4b2c152f19f42b773ebe9bf731"
+    }
+  ],
+  "ram_sections": 93598,
+  "ram_span": 93616
+}

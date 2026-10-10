@@ -1,0 +1,12 @@
+endpoint route-1x1: $SCRATCH/res/base/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50267       50267         0  ok
+FF               54413       54413         0  ok
+SLICE            15779       15779         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.299       0.299       0.0  ok
+WHS_ns           0.031       0.031       0.0  ok
+route status: complete, no unrouted net and no routing error
+RESULT: PASS
