@@ -61,8 +61,12 @@ THE CENSUS. ``CENSUS`` names every read once:
   status     the read reaches CSR read-back only, through the ports
              ``CSR_READBACK`` lists (a field may be named: published anyway)
   processor  the read reaches the wrapper's own GET_STREAM_INFO face only
-             (``PROCESSOR_FACE``), which needs no publication: after F5 the
-             core answers it (ruling 6088423771, decision 2)
+             (``PROCESSOR_FACE``), which needs no publication (ruling
+             6088423771, decision 2): F5's AECP owner answers GET_STREAM_INFO
+             and GET_AVB_INFO from firmware state, a STREAM_INPUT's binding,
+             started and registration fields from the ACMP view
+             (sw/firmware/ctrl/app/ctrl_app_aecp.c) and the rest through its
+             platform's stream and avb ports, none from the block
 
 and fails on a read the census does not name, a row no read matches, a status
 or processor read whose cone reaches the wire or a port the lists do not name,
