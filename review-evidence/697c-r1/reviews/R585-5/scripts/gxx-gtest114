@@ -1,0 +1,3 @@
+#!/bin/sh
+# g++ with GoogleTest 1.14.0 as a system include, as the hosted runner has it
+exec /usr/bin/g++ -isystem $VALIDATION_TOOLS/gtest-1.14.0/include "$@"

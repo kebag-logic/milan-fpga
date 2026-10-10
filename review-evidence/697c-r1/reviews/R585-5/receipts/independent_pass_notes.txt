@@ -1,0 +1,20 @@
+R585-5 independent pass over the diff (written before reading any prior review finding on PR #705)
+Head 92b5be18817659c1c9903a0544450d29ca7ab3fd
+
+Candidate observations from the diff alone:
+C1  sw/firmware/ctrl/test/ctrl_shim.py RECORDER closure(): the kept-header walk stops silently at
+    CLOSURE (256) headers per compile (loop guard `kept->count < CLOSURE`, add() returns when full);
+    README says "every header outside the checkout that a C++ source reaches in a builder's own
+    directories" is kept. Latent: needs a builder reaching >256 such headers. To be sized against the
+    real capture (max kept per record).
+C2  ctrl_shim.parse()/RECORDER: a response file argument (@file) is read as a source of language
+    "other"; -D/-U inside it would not be seen as modes. Latent: to be checked that no recorded
+    invocation carries an @ argument.
+C3  docs/testing/CI_WORKFLOWS.md boundary budget paragraph projects ~124 s "until a hosted run
+    measures it"; the exact-head hosted job 114282060753 now measures the step at 113 s.
+C4  sw/firmware/gtest/coverage.ratchet srp_mbx.c 515 -> 514 lines: author says dev measures 514
+    (stale row). To be checked by measurement at dev and head.
+C5  ctrl_mutants: 2 expectation needles changed (acmp-admit-ignores-another-talker,
+    acmp-reset-forgets-the-admitted) to the stack's reworded size assertions; same test, same check.
+Checked clean so far: pin = newest token-identical commit; 35/35 images byte-identical dev vs head;
+no core test case lost; mutant tables 714 rows, same names, 0 lost.

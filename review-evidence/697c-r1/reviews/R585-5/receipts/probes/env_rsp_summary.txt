@@ -1,0 +1,12 @@
+builder env rc=0
+  records in capture-env: 1
+gate env rc=1
+    [FAIL] firmware [-DCTRL_R585_ENV]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+    [FAIL] firmware rv32 [-DCTRL_R585_ENV]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+  ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 23 build modes from 23792 recorded invocations, 5 shapes and 2 mailbox contracts (944 configurations, 945 preprocessed), and every Makefile builder's pin prerequisites; 2 finding(s)
+  ctrl_boundary: FAIL
+builder rsp rc=0
+  records in capture-rsp: 1
+gate rsp rc=0
+  ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 22 build modes from 23792 recorded invocations, 5 shapes and 2 mailbox contracts (942 configurations, 943 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+  ctrl_boundary: PASS

@@ -1,0 +1,12 @@
+rows: A 714  B 714
+only in A: 0
+only in B: 0
+EXPECTATION DIFFERS
+  ctrl_mutants.MUTANTS:acmp-admit-ignores-another-talker
+  {'name': 'acmp-admit-ignores-another-talker', 'arm': 'acmp', 'test': 'AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker', 'needle': 'A29 a re-bind to another talker admits it', 'also': (('acmp', 'AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding', 'B8 a BIND_RX of another talker rewrites the entry'),)}
+  {'name': 'acmp-admit-ignores-another-talker', 'arm': 'acmp', 'test': 'AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker', 'needle': 'A29 re-binding emits one admission', 'also': (('acmp', 'AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding', 'B8 a BIND_RX of another talker rewrites the entry'),)}
+EXPECTATION DIFFERS
+  ctrl_mutants.MUTANTS:acmp-reset-forgets-the-admitted
+  {'name': 'acmp-reset-forgets-the-admitted', 'arm': 'acmp', 'test': 'AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens', 'needle': 'A29 a sink the store resets is withdrawn at the next open', 'also': ()}
+  {'name': 'acmp-reset-forgets-the-admitted', 'arm': 'acmp', 'test': 'AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens', 'needle': 'A29 opening after reset emits one withdrawal', 'also': ()}
+common rows 714, expectations differing 2, file moved 309

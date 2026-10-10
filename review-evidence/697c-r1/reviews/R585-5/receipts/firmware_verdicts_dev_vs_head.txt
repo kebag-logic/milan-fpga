@@ -1,0 +1,80 @@
+verdict lines: dev 843, head 843
+  dev verdict words: {'ok': 843}
+  head verdict words: {'ok': 843}
+only at dev: 0
+only at head: 0
+verdict word differs: 0
+same verdict, different text: 24
+  mutant acmp-aging-samples-the-grandmaster (acmp)
+    dev : [('ok', 'mutant acmp-aging-samples-the-grandmaster (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-aging-samples-the-grandmaster (acmp): 2 check(s) failed')]
+  mutant acmp-available-reads-the-clock-twice (acmp)
+    dev : [('ok', 'mutant acmp-available-reads-the-clock-twice (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-available-reads-the-clock-twice (acmp): 2 check(s) failed')]
+  mutant acmp-bind-reads-the-clock-twice (acmp)
+    dev : [('ok', 'mutant acmp-bind-reads-the-clock-twice (acmp): 2 check(s) failed')]
+    head: [('ok', 'mutant acmp-bind-reads-the-clock-twice (acmp): 3 check(s) failed')]
+  mutant acmp-bind-starts-no-discovery (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-bind-starts-no-discovery (acmp, acmpwalk): 219 check(s) failed')]
+    head: [('ok', 'mutant acmp-bind-starts-no-discovery (acmp, acmpwalk): 239 check(s) failed')]
+  mutant acmp-delay-reads-the-clock-again (acmp)
+    dev : [('ok', 'mutant acmp-delay-reads-the-clock-again (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-delay-reads-the-clock-again (acmp): 2 check(s) failed')]
+  mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk): 3 check(s) failed')]
+    head: [('ok', 'mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk): 5 check(s) failed')]
+  mutant acmp-departing-keeps-aging (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-departing-keeps-aging (acmp, acmpwalk): 3 check(s) failed')]
+    head: [('ok', 'mutant acmp-departing-keeps-aging (acmp, acmpwalk): 4 check(s) failed')]
+  mutant acmp-departing-samples-the-grandmaster (acmp)
+    dev : [('ok', 'mutant acmp-departing-samples-the-grandmaster (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-departing-samples-the-grandmaster (acmp): 2 check(s) failed')]
+  mutant acmp-discovered-probing-stays-passive (acmp)
+    dev : [('ok', 'mutant acmp-discovered-probing-stays-passive (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-discovered-probing-stays-passive (acmp): 2 check(s) failed')]
+  mutant acmp-expiry-reads-the-clock-twice (acmp)
+    dev : [('ok', 'mutant acmp-expiry-reads-the-clock-twice (acmp): 4 check(s) failed')]
+    head: [('ok', 'mutant acmp-expiry-reads-the-clock-twice (acmp): 9 check(s) failed')]
+  mutant acmp-get-rx-state-reads-the-clock (acmp)
+    dev : [('ok', 'mutant acmp-get-rx-state-reads-the-clock (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-get-rx-state-reads-the-clock (acmp): 2 check(s) failed')]
+  mutant acmp-grandmaster-read-twice (acmp, acmp)
+    dev : [('ok', 'mutant acmp-grandmaster-read-twice (acmp, acmp): 6 check(s) failed')]
+    head: [('ok', 'mutant acmp-grandmaster-read-twice (acmp, acmp): 8 check(s) failed')]
+  mutant acmp-no-aging (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-no-aging (acmp, acmpwalk): 6 check(s) failed')]
+    head: [('ok', 'mutant acmp-no-aging (acmp, acmpwalk): 9 check(s) failed')]
+  mutant acmp-no-duplicate (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-no-duplicate (acmp, acmpwalk): 52 check(s) failed')]
+    head: [('ok', 'mutant acmp-no-duplicate (acmp, acmpwalk): 53 check(s) failed')]
+  mutant acmp-no-tk-samples-the-grandmaster (acmp)
+    dev : [('ok', 'mutant acmp-no-tk-samples-the-grandmaster (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-no-tk-samples-the-grandmaster (acmp): 2 check(s) failed')]
+  mutant acmp-probe-response-reads-the-clock-twice (acmp)
+    dev : [('ok', 'mutant acmp-probe-response-reads-the-clock-twice (acmp): 2 check(s) failed')]
+    head: [('ok', 'mutant acmp-probe-response-reads-the-clock-twice (acmp): 3 check(s) failed')]
+  mutant acmp-probe-timer-before-its-send (acmp, acmp)
+    dev : [('ok', 'mutant acmp-probe-timer-before-its-send (acmp, acmp): 12 check(s) failed')]
+    head: [('ok', 'mutant acmp-probe-timer-before-its-send (acmp, acmp): 16 check(s) failed')]
+  mutant acmp-restart-raises-no-discovered (acmp, acmpwalk)
+    dev : [('ok', 'mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 5 check(s) failed')]
+    head: [('ok', 'mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 6 check(s) failed')]
+  mutant acmp-retry-samples-the-grandmaster (acmp)
+    dev : [('ok', 'mutant acmp-retry-samples-the-grandmaster (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-retry-samples-the-grandmaster (acmp): 2 check(s) failed')]
+  mutant acmp-second-no-resp-samples-the-grandmaster (acmp)
+    dev : [('ok', 'mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 2 check(s) failed')]
+  mutant acmp-sequence-id-never-advances (acmp, acmp)
+    dev : [('ok', 'mutant acmp-sequence-id-never-advances (acmp, acmp): 14 check(s) failed')]
+    head: [('ok', 'mutant acmp-sequence-id-never-advances (acmp, acmp): 18 check(s) failed')]
+  mutant acmp-taken-probe-timer-from-the-entry-clock (acmp)
+    dev : [('ok', 'mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 4 check(s) failed')]
+    head: [('ok', 'mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 6 check(s) failed')]
+  mutant acmp-talker-reads-the-clock (acmp)
+    dev : [('ok', 'mutant acmp-talker-reads-the-clock (acmp): 4 check(s) failed')]
+    head: [('ok', 'mutant acmp-talker-reads-the-clock (acmp): 5 check(s) failed')]
+  mutant acmp-unbind-reads-the-clock (acmp)
+    dev : [('ok', 'mutant acmp-unbind-reads-the-clock (acmp): 1 check(s) failed')]
+    head: [('ok', 'mutant acmp-unbind-reads-the-clock (acmp): 2 check(s) failed')]
+count-only differences: 24; head catches with fewer failed checks than dev: 0
