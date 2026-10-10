@@ -67,7 +67,8 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
             ("never-rearm-measurement", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
              "", "real excessive delay still clears asCapable"),
             # The two review rounds' plants delete the crossing exchange's
-            # liveness credit through different anchors.
+            # liveness credit through different anchors; both write the same
+            # generator text, so four distinct defects run.
             ("liveness-not-marked", "prog_leg_pdepoch", credit, "", liveness),
             ("r571-no-liveness", None, credit + '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair',
              '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair', liveness),

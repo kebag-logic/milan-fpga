@@ -1629,7 +1629,7 @@ Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
 The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
-Capture-SoC RTL and 8x8 configuration changes on dev moved the figures from the previous receipt.
+Capture-SoC RTL changes on dev moved the timing figures from the previous receipt; a dev 8x8 configuration change moved only its recorded configuration hash.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**

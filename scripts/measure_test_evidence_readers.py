@@ -105,9 +105,11 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it generates each arm's ROM from the donor microcode generator, planting "
         "one of five named defects from its own table (a stale rate window, a measured crossing "
         "exchange, measurement never rearmed, and two deletions of a crossing exchange's liveness "
-        "credit) into a scratch copy, and requires the named runtime check of the real-counter step "
-        "regression to fail while the clean image passes; expected values come from the independent "
-        "peer model and the physical link constants, none from the generator text",
+        "credit; the two liveness controls, one per review round, plant the same deletion, so "
+        "four distinct defects run) into a scratch copy, and requires the named runtime check of "
+        "the real-counter step regression to fail while the clean image passes; expected values "
+        "come from the independent peer model and the physical link constants, none from the "
+        "generator text",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "

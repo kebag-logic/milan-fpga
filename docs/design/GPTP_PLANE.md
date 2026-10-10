@@ -136,6 +136,12 @@ make -C tb/verilator/milan_dp gmstep
 
 The first command includes five planted-defect controls.
 
+The two liveness controls plant the same deletion.
+
+Each comes from one review round.
+
+So four distinct defects run.
+
 The second checks uncertainty, public counters, and media continuity.
 
 Its compressed clock leaves the selected CRF servo unlocked.
