@@ -1,0 +1,56 @@
+# head d981b1cc574f757a1d04d1b21d34a078ad85be3d
+== docs/findings/B14_BENCH_5603C353.md:475-480
+- **The AAF listener's FRAMES_RX counts PDUs.** Milan v1.2 Table 5.4 (FRAMES_TX) and Table 5.6 (FRAMES_RX) define observation-interval counters.
+  Each advances by one at the end of every interval, at most 1 s long, in which at least one stream data PDU was transmitted or received.
+  FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, and so did FRAMES_RX on the DUT's CRF listener.
+  Those three match the clause and the contracts the repository declares (`hdl/ieee1722/avtp/KL_talker_diag_ctx.sv`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`, `tests/features/counters_contract_milan.feature`).
+  FRAMES_RX on the DUT's AAF listener, STREAM_INPUT 0, advanced by 57,599,387 in 7,200.5 s: about 8,000 per second, one per PDU.
+  Table 5.6 and the declared STREAM_INPUT contract allow at most one per interval, so this needs triage.
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:27-36
+                * SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+                  FRAMES_RX are OBSERVATION-INTERVAL counters ("incremented
+                  at the end of every observation interval during which
+                  ..."), interval <= 1 s. A per-PDU verdict only SETS a
+                  per-stream seen flag; the interval tick pends the stream
+                  and the walker commits +1 per flagged counter through the
+                  normal serial RMW walk. N frame events inside one
+                  interval therefore move each counter by AT MOST ONE -
+                  the per-frame reading is IEEE 1722.1-2021 Table 7-153's,
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:318-325
+  //! USER 2026-08-05 FRAMES_RX law: count FRAMES, publish COALESCED at the
+  //! interval commit - the visible counter advances by the interval's frame
+  //! total (~8000/s at class A) instead of Table 5.6's +1-per-interval. Both
+  //! readings are Milan-legal (the interval is implementation-specific,
+  //! <= 1 s); this one matches the ecosystem/peer and restores 1722.1's
+  //! TV+TNV == FRAMES_RX identity. Saturating 16-bit/stream (8000/s legit).
+  logic [15:0] frx_acc_r [N_LISTENERS_P];
+  logic [15:0] frx_add_r;
+== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:624-631
+        else if (inc_list_r != '0 && inc_rd_q_r) begin
+          eng_we_w    = 1'b1;
+          eng_waddr_w = laddr(ev_s_r, W_CNT0_C | 5'(inc_next_w));
+          //! FRAMES_RX commits the interval's FRAME TOTAL (coalesced law,
+          //! USER 2026-08-05); every other Table 5.6 counter keeps +1
+          eng_wdata_w = ram_q_r + ((5'(inc_next_w) == 5'(C_FRX_C))
+                                   ? 32'(frx_add_r) : 32'd1);
+        end
+== hdl/milan/milan_datapath.sv:241-245
+  //! Milan Table 5.6 observation interval (every server of the Stream
+  //! Input clause: KL_avtp_rx_monitor_ctx for the AAF listeners AND
+  //! KL_crf_rx for the CRF Media Clock Input), in datapath clock cycles;
+  //! <= 1 s. TBs shrink it so counter checks see interval boundaries.
+  parameter int LDIAG_IVAL_CYC_P = MILAN_CLK_FREQ_HZ,
+== hdl/milan/milan_datapath.sv:3701-3701
+      6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+== hdl/ieee1722/crf/KL_crf_rx.sv:233-233
+  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
+== tests/features/counters_contract_milan.feature:196-201
+    # 8000 frames in one second with FRAMES_RX ticking once is the interval
+    # counter Milan Table 5.6 describes. A checker that fails here is asserting
+    # 1722.1 against a Milan device.
+    Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1
+    Then the tv-tnv verdict is INFO
+    And the reading in force is "milan-interval"
+== docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:443-443
+| FRAMES_RX interval commit adds the interval's FRAME TOTAL (frx_add_r/frx_acc_r coalesced law, project ruling 2026-08-05) instead of Table 5.6's +1-per-interval; in-code defense = the interval is implementation-specific so the coalesced total equals a shorter-interval reading; NOTE the talker side was reverted to strict +1/interval by #21, leaving TX/RX asymmetric against identical clause wording

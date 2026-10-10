@@ -1,0 +1,12 @@
+graded cycles: 100
+86 [('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Listener', 'Lv')]
+11 [('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'Listener', 'Mt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Domain', 'JoinMt'), ('bridge', 'Domain', 'LeaveAll'), ('bridge', 'Listener', 'JoinMt'), ('bridge', 'Listener', 'LeaveAll'), ('bridge', 'Listener', 'Lv'), ('bridge', 'Listener', 'Mt'), ('bridge', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'TalkerAdvertise', 'LeaveAll'), ('bridge', 'TalkerAdvertise', 'Mt'), ('bridge', 'TalkerFailed', 'LeaveAll')]
+2 [('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'Lv'), ('bridge', 'Listener', 'Lv'), ('bridge', 'TalkerAdvertise', 'Mt')]
+1 [('DUT', 'Domain', 'JoinIn'), ('DUT', 'Listener', 'JoinMt'), ('DUT', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'Domain', 'JoinMt'), ('bridge', 'Domain', 'LeaveAll'), ('bridge', 'Listener', 'JoinMt'), ('bridge', 'Listener', 'LeaveAll'), ('bridge', 'Listener', 'Lv'), ('bridge', 'TalkerAdvertise', 'JoinMt'), ('bridge', 'TalkerAdvertise', 'LeaveAll'), ('bridge', 'TalkerFailed', 'LeaveAll')]
+registrar_at_lv (graded): {'UNDETERMINED': 100}
+DUT TA Lv anywhere in capture (cycle, graded, stream, after bridge Lv s, after response s):
+  ('cycle-001', False, '0200000000010001', 0.039, 0.0475)
+  ('cycle-002', True, '0200000000010001', 0.0951, 0.104)
+  ('cycle-042', True, '0200000000010001', 0.3184, 0.3277)
+bridge Lv after response ms: min 8.350 max 95.701 median 8.880
+over 50 ms: [('cycle-026', 84.466), ('cycle-056', 95.701), ('cycle-097', 57.499)]

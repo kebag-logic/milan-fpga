@@ -1,0 +1,299 @@
+diff --git a/docs/findings/B14_BENCH_5603C353.md b/docs/findings/B14_BENCH_5603C353.md
+index 9ee2040ca..0b6b4a7b6 100644
+--- a/docs/findings/B14_BENCH_5603C353.md
++++ b/docs/findings/B14_BENCH_5603C353.md
+@@ -19,9 +19,9 @@ The [ruling of 2026-10-10](https://github.com/kebag-logic/milan-fpga/issues/608#
+ - **[Item 5: default map and two-hour soak (#682, #658)](#item-5-default-map-and-two-hour-soak-682-658)** -- The audio maps as found, then every stream and counter over 7,200 s.
+ - **[Item 6: Ethernet receive sanity (#691)](#item-6-ethernet-receive-sanity-691)** -- The link over the soak, and why the receive error counters are not readable here.
+ - **[Item 7: MAAP interoperation (#686)](#item-7-maap-interoperation-686)** -- The DUT's MAAP range and announcements beside the reference peer's.
+-- **[Item 8: restore](#item-8-restore)** -- Every changed item read back against the as-found record, and what remains different.
++- **[Item 8: restore](#item-8-restore)** -- Every changed item read back against the 15 as-found rows and the 44-row 06:22 inventory, and what remains different.
+ - **[Method, deviations and authorities](#method-deviations-and-authorities)** -- How each item was run, where it departs from the lane it repeats, and the clauses used.
+-- **[Evidence](#evidence)** -- Where the per-cycle records and the raw captures are identified.
++- **[Evidence](#evidence)** -- The archived packet, its digests, the record behind each item and the raw-capture indexes.
+ 
+ ## Summary
+ 
+@@ -32,13 +32,13 @@ No power cycle, JTAG load, flash or DUT register write was made.
+ | Item | Issue | Result | Deciding figures |
+ |---|---|---|---|
+ | 1 Identity | - | PASS | entity_id `020000fffe000001`, "Milan FPGA 1x1 TDM8", firmware_version 2.96.0, serial AX7101-0001; CSR ID `4d494c4e`, VERSION `00020060`; AEM CRC `5ba355eb` |
+-| 2 Source switches | #645 acceptance 3, #647 bench item | PASS against the declared switch behaviour; the settle recentre's count is NOT OBSERVABLE on silicon | 10 INTERNAL to AAF: 1 to 3 frames slipped before the settle boundary, none after it; 10 AAF to CRF: no slip; `SLIP_TDM` 0; MEDIA_UNLOCKED 0 while following; no stream gap on the tap |
++| 2 Source switches | #645 acceptance 3, #647 bench item | PASS against the declared switch behaviour; the settle recentre's count is NOT RUN (not observable: no silicon register counts it) | 10 INTERNAL to AAF: 1 to 3 frames slipped before the settle boundary, none after it; 10 AAF to CRF: no slip; `SLIP_TDM` 0; MEDIA_UNLOCKED 0 while following; no stream gap on the tap |
+ | 3 Withdrawals | #608 item 3 | PASS, 100 of 100 | the stream stopped within one PDU period of the bridge's Listener `Lv` in 100 of 100 cycles; STREAM_START and STREAM_STOP +1 each in 100 of 100; the DUT sent no MRP LeaveAll in 894 s of capture |
+ | 4 Talker starts | #667 | 0 of 100 EARLY, 0 of 100 LATE | first-to-second presentation-time step 124,999 to 125,020 ns in all 100 starts; lane B13 counted 14 EARLY with backward first steps on dev `28f9666f` |
+-| 5 Default map and soak | #682 acceptance 5, #658 | Maps: 4 and 8 mappings. Soak: PASS, 0 error-class increments | 7,200.5 s, 121 counter polls, 25 timing reads; three observations below (`FRAMES` counters, no unsolicited STREAM_INPUT counters from the DUT, one loopback slip at INTERNAL) |
+-| 6 Ethernet receive | #691 | Link: PASS. Receive error counters: NOT RUN | link up at 1000 Mb/s, full duplex, at all 27 reads; the RMON window needs a snapshot write this lane may not make |
++| 5 Default map and soak | #682 acceptance 5, #658 | Maps: 4 and 8 mappings. Soak: PASS, 0 error-class increments | 7,200.5 s, 121 counter polls, 25 timing reads; three observations below (the AAF listener's FRAMES_RX advances once per PDU, no unsolicited STREAM_INPUT counters from the DUT, two loopback slips in the soak configuration, one across the soak's bind) |
++| 6 Ethernet receive | #691 | Link: PASS. Receive error counters: NOT RUN | link up at 1000 Mb/s, full duplex, at all 27 reads; the FCS and alignment lanes need a snapshot write this lane may not make; receive drops have no source on this build (`STATS_CAP` bit 6 = 0) |
+ | 7 MAAP | #686 acceptance 4 | Announce interoperation: PASS. Acquisition and DEFEND: NOT RUN | one range of 2 addresses, ANNOUNCE every 30.505 to 31.405 s; no overlap with the peer's two ranges; no PROBE or DEFEND on the segment |
+-| 8 Restore | - | PASS | 44 of 44 inventory rows equal the as-found record; residuals listed |
++| 8 Restore | - | PASS | 15 of 15 as-found rows (05:17 to 05:20) equal at item 2's teardown and at the final read; 44 of 44 inventory rows equal the 06:22 pre-soak inventory; the saved-state content was not read back; residuals listed |
+ 
+ ## Item 1: identity gate
+ 
+@@ -87,7 +87,7 @@ On this lane `SLIP_LB` counts 2 per slipped frame: the peer's AAF stream feeds t
+   The DUT's STREAM_INPUT 0 and 1 counted no MEDIA_UNLOCKED from LOCKED to the hold's end.
+   CLOCK_DOMAIN counted LOCKED +1 and UNLOCKED +1 per switch.
+   Each DUT talker counted MEDIA_RESET +1 per switch, and the peer's listener counted the same.
+-  No other counter moved.
++  No other counter moved except the traffic counters (FRAMES_TX, FRAMES_RX and TIMESTAMP_VALID).
+   The servo ended every hold LOCKED, with its trim between -6.06 and -5.94 ppm.
+ - **Tap.** In all 20 captures, none of the four streams has a sequence gap.
+   Each DUT talker toggles `mr` once, about 3.0 s into the capture, at the set.
+@@ -120,8 +120,9 @@ On this lane `SLIP_LB` counts 2 per slipped frame: the peer's AAF stream feeds t
+ 
+ **The returns to INTERNAL.** These are not graded switches.
+ At INTERNAL the DUT does not follow the peer, which also ran at INTERNAL here.
+-`SLIP_LB` then climbs at the offset between the two clocks.
+-It moved by one frame in 3 of the 10 returns.
++There `SLIP_LB` moved by one frame in 3 of the 10 returns.
++It also moved by 41 frames at INTERNAL outside the polled holds: between cycles, between runs and before the teardown read.
++[Item 8](#item-8-restore) accounts for every frame from the as-found 0 to the final `0x92`.
+ The nine rail steps during item 2 (0 to 9) all fell at INTERNAL or between cycles, never in a followed hold.
+ A tenth fell after item 2's last poll and before the soak.
+ `RENDER_STAT`'s rail count is listed per return:
+@@ -146,7 +147,7 @@ No silicon register counts it.
+ `RENDER_STAT`'s converged bit read 0 in 5 of the 10 AAF switches, 0.10 to 0.17 s after the set.
+ That is the #386 at-switch recentre, not the settle recentre.
+ No poll caught the bit near the settle point.
+-So "once per switch" is NOT OBSERVABLE on this image.
++So "once per switch" is NOT RUN on this image: no silicon register or poll observes it.
+ What is observed is the recentre's declared effect: nothing moved after the boundary.
+ 
+ **Against #645 and #647.** #645 saw a one-frame slip 14.7 to 44.9 s after LOCKED, and lane B8 saw it 2.0 to 3.0 s after LOCKED, both on dev `bbf704ec`.
+@@ -169,7 +170,7 @@ B2's analysis decodes every MSRPDU and grades the stop against the bridge's List
+   No valid PDU followed the `Lv` by more than one period.
+   The last PDU preceded the `Lv` by 0.004 to 1.99 ms.
+ - The bridge's `Lv` crossed the tap 8.35 to 95.7 ms after the DISCONNECT_RX response, median 8.88 ms.
+-  It came 57 to 96 ms late in cycles 26, 56 and 97; the stream ran until it, then stopped.
++  It crossed the tap 57.5 to 95.7 ms after the response in cycles 26, 56 and 97; the stream ran until it, then stopped.
+ - The DUT's STREAM_OUTPUT 1 counted STREAM_START +1 and STREAM_STOP +1 in every cycle.
+ - The restart after CONNECT_RX took 10.4 to 125.9 ms, median 12.0 ms (#75: under 1 s).
+ - No MSRPDU was malformed. No tap record ran backwards.
+@@ -185,11 +186,13 @@ B2's classifier therefore reads the registrar at `Lv` as UNDETERMINED in all 100
+ The stop held in every cycle regardless.
+ Inside the 2 s hold:
+ 
+-- 86 cycles show only the bridge's Listener `Lv` and the DUT's Domain JoinIn and Talker Advertise JoinMt;
++- 86 cycles show only the bridge's Listener `Lv` and the DUT's Domain JoinIn and Talker Advertise JoinMt, besides the DUT's own Listener declaration for the peer's CRF stream;
+ - 12 cycles add a bridge LeaveAll of all four attribute types, after the `Lv`;
+-- 2 cycles (2 and 42) show the DUT withdrawing its Talker Advertise (`Lv`) 0.104 and 0.328 s after the bridge's `Lv`.
++- 2 cycles (2 and 42) show the DUT withdrawing its Talker Advertise (`Lv`) 0.095 and 0.318 s after the bridge's `Lv`, which is 0.104 and 0.328 s after the DISCONNECT_RX response.
+ 
+-Those two cycles have the two slowest restarts, 105.7 and 125.9 ms; the next is 62.2 ms and the median 12.0 ms.
++The pilot cycle 1, listed and not counted, shows the same withdrawal 0.039 s after the bridge's `Lv`.
++No other cycle's capture holds a Talker Advertise `Lv` from the DUT.
++Cycles 2 and 42 have the two slowest restarts, 105.7 and 125.9 ms; the next is 62.2 ms and the median 12.0 ms.
+ In the other 98 the DUT kept its Talker Advertise declared through the hold.
+ This is an observation for triage, not a failure of item 3.
+ 
+@@ -425,13 +428,14 @@ Absolute gPTP correlation is NOT RUN, as in B13.
+ 
+ ## Item 5: default map and two-hour soak (#682, #658)
+ 
+-**Default map.** GET_AUDIO_MAP read the DUT's maps at the first ATDECC access of the day (05:17 UTC), before this lane changed anything.
++**Default map.** GET_AUDIO_MAP read the DUT's maps at 05:17 UTC, the first ATDECC read after the identity gate, before this lane changed anything.
+ 
+ - STREAM_PORT_INPUT 0 holds 4 mappings: stream channels 0 to 3 to clusters 0 to 3, channel 0.
+ - STREAM_PORT_OUTPUT 0 holds 8 mappings: stream channels 0 to 7 to clusters 0 to 7, channel 0.
+ 
+ The maps read the same at 05:45, 06:22 and 08:23.
+ #658 had found 1 of 4 input mappings and an empty output map.
++Both maps equal the identity default #658 ruled, clipped to the 4-channel input format: stream channel c to cluster c for every c below the smaller of the format's channel count and the port's cluster count ([ruling](https://github.com/kebag-logic/milan-fpga/issues/658#issuecomment-5988293154) item 1; [rulings](https://github.com/kebag-logic/milan-fpga/issues/658#issuecomment-5988843004) items 1 and 3).
+ The read is the effective map.
+ The DUT's saved state then held 54 records (image sequence 234), so a saved mapping cannot be excluded by this read.
+ 
+@@ -454,10 +458,13 @@ B13's probe observed the unsolicited counter notifications under the application
+ - No error-class counter increased at any poll: MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT, LATE_TIMESTAMP and EARLY_TIMESTAMP on every listener; STREAM_STOP, MEDIA_RESET and TIMESTAMP_UNCERTAIN on both DUT talkers; LINK_DOWN and GPTP_GM_CHANGED; CLOCK_DOMAIN UNLOCKED.
+ - The application rule raised no increment.
+ - The grandmaster, asCapable and the AS path did not change at any timing read.
+-- The DUT's STREAM_INPUT 0 received 57,599,387 PDUs, and the peer received 57,599,253 from the DUT's AAF and 3,599,953 from its CRF.
+-- On the tap, the four streams carried 54,869,021 and 54,869,000 AAF PDUs and 3,429,307 and 3,429,316 CRF PDUs.
++- FRAMES_RX advanced by 57,599,387 on the DUT's STREAM_INPUT 0, one per PDU (see the observations below).
++  On the peer it advanced by 57,599,253 for the DUT's AAF and 3,599,953 for its CRF.
++- On the tap, summed over the 121 tagged-AVTP captures, whose spans total 6,858.7 s including their overlaps and the 16 s before t0, the four streams carried 54,869,021 and 54,869,000 AAF PDUs and 3,429,307 and 3,429,316 CRF PDUs.
+   None has an `mr` toggle, `tv=0` or `tu=1`.
+-- Three captures each lose a burst within 45 ms of their first frame, on all four streams at once: 9 to 12 AAF PDUs and 1 CRF PDU.
++- Three captures each lose a burst within 45 ms of their first frame.
++  Captures 002 and 042 lose PDUs on all four streams, capture 035 on three: the DUT's CRF stream lost nothing there.
++  Each affected AAF stream lost 9 to 12 PDUs and each affected CRF stream 1.
+   The overlapping previous capture holds every missing PDU, so the loss is in the capture path.
+ - All 363 captures report no dropped packets in the capture statistics.
+   The tap covered 6,823.7 s of the 7,200.5 s; the 16 gaps of 12 to 44 s fall between foreground chunks.
+@@ -465,21 +472,28 @@ B13's probe observed the unsolicited counter notifications under the application
+ 
+ **Observations, not error-class counters.**
+ 
+-- **`FRAMES` counters.** FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, one per second, not one per PDU.
+-  So did FRAMES_RX on the DUT's CRF listener.
+-  The AAF listener's FRAMES_RX advanced by 8,000 per second.
+-  Milan v1.2 Table 5.4 and Table 5.6 define these as frame counts, so this needs triage.
++- **The AAF listener's FRAMES_RX counts PDUs.** Milan v1.2 Table 5.4 (FRAMES_TX) and Table 5.6 (FRAMES_RX) define observation-interval counters.
++  Each advances by one at the end of every interval, at most 1 s long, in which at least one stream data PDU was transmitted or received.
++  FRAMES_TX on both DUT talkers advanced by exactly 7,200 in 7,200 s, and so did FRAMES_RX on the DUT's CRF listener.
++  Those three match the clause and the contracts the repository declares (`hdl/ieee1722/avtp/KL_talker_diag_ctx.sv`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`, `tests/features/counters_contract_milan.feature`).
++  FRAMES_RX on the DUT's AAF listener, STREAM_INPUT 0, advanced by 57,599,387 in 7,200.5 s: about 8,000 per second, one per PDU.
++  Table 5.6 and the declared STREAM_INPUT contract allow at most one per interval, so this needs triage.
+ - **No unsolicited STREAM_INPUT counters from the DUT.** One soak minute's control capture holds 60 unsolicited GET_COUNTERS for each DUT STREAM_OUTPUT, one per second.
+   It holds none for either DUT STREAM_INPUT, although FRAMES_RX on input 0 changed throughout.
+   Milan v1.2 Sections 5.4.5.1 and 5.4.5.2 (Table 5.22) send a changed counter unsolicited, rate-limited to one per second.
+   So the application error rule saw only the peer's two listeners, 6,909 notifications each.
+   The DUT's listeners are graded by the direct polls above. This needs triage.
+-- **One loopback slip at INTERNAL.** `SLIP_LB` stepped by one frame between 06:28:23 and 06:33:23, 5 to 10 minutes into the soak.
+-  It was static for the remaining 110 minutes.
+-  The DUT was at INTERNAL, receiving a peer stream that follows the DUT's own CRF, so its rate matches the DUT's on average.
+-  A bind primes the loopback ring where its first PDU lands, and only a later settle recentre centres it.
+-  At INTERNAL with no source change none fires, so a ring near an edge can slip once on the peer's clock wander.
++- **Two loopback slips in the soak configuration.** The DUT was at INTERNAL, receiving a peer stream that follows the DUT's own CRF.
++  `SLIP_LB` stepped by one frame across the soak's own bind.
++  It read `0x8e` at 06:22:39.06 and `0x90` at 06:23:23.21, the first soak read.
++  The peer's AAF talker was bound to the DUT's STREAM_INPUT 0 at 06:22:39.51, and the soak's t0 is 06:23:22.71.
++  So the step lies between 0.45 s before the bind and 0.50 s after t0: before the graded soak, unless it fell in its first 0.50 s.
++  The records cannot place it more exactly.
++  It stepped by one more frame between 06:28:23 and 06:33:23, 5 to 10 minutes into the soak, and was static for the remaining 110 minutes.
++  A bind is not among the settle recentre's arm terms: a CLOCK_SOURCE change, an aligner re-engagement or an aligner excursion ([MEDIA_CLOCK_FOLLOWING.md](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)).
++  Whether any recentre fired after this bind is not observable, because no register counts it.
+   The declared transient covers source changes and aligner pull-ins, not this case.
++  The records do not show the cause; both slips are for triage under #645 and #647.
+   `RENDER_STAT`'s rail count stayed 10 and `SLIP_TDM` 0 throughout.
+ 
+ ## Item 6: Ethernet receive sanity (#691)
+@@ -491,13 +505,15 @@ gPTP read `SYNC=1 ASCAPABLE=1 TU=0` at every read, with the grandmaster equal to
+ **Receive error counters: NOT RUN.**
+ 
+ - The DUT's AVB_INTERFACE counters carry LINK_UP, LINK_DOWN and GPTP_GM_CHANGED only (valid mask `0x23`), with no RX_CRC_ERROR.
+-- The RMON lanes hold the FCS, preamble or alignment and receive-drop counts ([REGISTER_MAP.md](../reference/REGISTER_MAP.md#0x200-----statistics-rmon--req-mac-04)).
+-  `STATS_CAP` read `0x1B8`.
+-  Every lane at `0x210` to `0x230` read zero at every read, which the register map defines as "no valid snapshot".
+-- A snapshot needs a `STATS_CTRL[0]` write, and this lane's rules allow no register write beyond the stream and audio-interface controls.
++- `STATS_CAP` read `0x1B8` ([REGISTER_MAP.md](../reference/REGISTER_MAP.md#0x200-----statistics-rmon--req-mac-04)).
++  On this build the RMON lanes for FCS errors (`0x224`), preamble or alignment errors (`0x220`) and frames delivered flagged bad (`0x22C`) are real.
++  Receive drops have no source: lane 6, `RX_FIFO_OVERFLOW` at `0x228`, has `STATS_CAP` bit 6 = 0, and the register map says such a lane reads "not supported", never "0 errors".
++- Every lane at `0x210` to `0x230` read zero at every read, which the register map defines as "no valid snapshot".
++  A snapshot needs a `STATS_CTRL[0]` write, and this lane's rules allow no register write beyond the stream and audio-interface controls.
++- So the FCS and alignment counts are NOT RUN here, and this build has no receive-drop count to read.
+ 
+ As an end-to-end indication only, the DUT's two listeners counted no SEQ_NUM_MISMATCH and no STREAM_INTERRUPTED over the soak, 57.6 million AAF PDUs among them.
+-That is not the FCS, alignment or drop count the item asks for.
++That is not the FCS or alignment count the item asks for.
+ 
+ ## Item 7: MAAP interoperation (#686)
+ 
+@@ -538,22 +554,46 @@ Lanes B2, B8 and B13 started from all listeners unbound and the peer at INTERNAL
+ - Item 4 released the peer's STREAM_INPUT 0 binding and re-bound it under the binding rule; it read back with flags `0x0082`.
+ - The soak's two peer-to-DUT bindings were released at 08:23.
+ 
++The as-found reads of 05:17 to 05:20 give 15 rows: 7 stream formats, both clock sources, 4 listener states (the peer's STREAM_INPUT 0 and 8 and the DUT's two inputs) and the DUT's two maps.
++All 15 equal the as-found values at item 2's teardown at 05:45, and again at the final read at 08:23.
+ The final inventory at 08:23:49 equals the inventory read at 06:22 in all 44 rows.
+-The rows are formats, the 18 stream connection states, both clock sources and both entities' maps.
+-Its formats, clock sources, listener states and DUT maps also equal the first reads of 05:17 to 05:20.
++The rows are both entities' descriptor counts, the 18 stream formats, the 18 stream connection states, both clock sources and both entities' maps.
++The other 29 rows were first read at 06:22, after items 2 to 4 had changed and restored state, so their basis is the 06:22 inventory, not an as-found read.
++The 15 as-found rows cover every item this lane changed.
+ The DUT's maps read 4 and 8 mappings, as found.
+ `MAAP_STAT0` and `MAAP_STAT1` are unchanged.
+ 
+ **Residuals.**
+ 
+-- The DUT's saved state committed 38 times with none failed: image sequence 234 to 272, `dirty=0`.
+-  Its content restores the as-found clock source and bindings.
+-- `SLIP_LB` reads `0x92` and `RENDER_STAT`'s rail count 10; nothing but a reset clears them.
++- The DUT's saved state committed 38 times with none failed: image sequence 234 to 272, `dirty=0`, 54 records and 3,336 B before and after.
++  Its content was not read back: that it restores the as-found clock source and bindings is expected, not verified.
++- `SLIP_LB` reads `0x92` (73 frames; as found 0) and `RENDER_STAT`'s rail count 10 (as found 0); nothing but a reset clears them.
++  The table below accounts for every `SLIP_LB` frame by phase.
+ - The GET_COUNTERS values advanced: MEDIA_RESET, STREAM_START and STREAM_STOP, and CLOCK_DOMAIN LOCKED and UNLOCKED.
+ - The peer's two as-found bindings were re-established by controller commands.
+ - The controller host's and the tap host's staging was removed.
+ - The SoC board was not touched.
+ 
++**`SLIP_LB` from 0 to `0x92`.** Each slipped frame counts 2 dups here (item 2).
++Interval values come from the console reads and from each item 2 phase's start and end values.
++The records are paths in the evidence packet ([Evidence](#evidence)).
++
++| Phase | UTC | Frames | Record |
++|---|---|---|---|
++| As found | 05:17:01 and 05:20:08 | reads 0 | `item2/setup/dut-before.txt`, `item2/setup2/dut-before.txt` |
++| Item 2's setup binds to cycle 1's first set | 05:20:09.79 to 05:20:30.39 | 6 | `item2/summary/switches.json` |
++| The ten INTERNAL to AAF switches, before the settle boundary | AAF holds | 21 | `item2/summary/switches.json` (the switch table above) |
++| The ten AAF to CRF switches | CRF holds | 0 | `item2/summary/switches.json` |
++| The ten returns to INTERNAL, in their 15 s holds | INTERNAL holds | 3 | `item2/summary/switches.json` (the returns table above) |
++| At INTERNAL between the two cycles of each run | 5 intervals | 3 | `item2/summary/switches.json`: a phase's start value minus the previous phase's end value |
++| At INTERNAL between runs | 4 intervals of 12 to 63 s | 35 | as above |
++| Item 2's last poll to the teardown read, across the unbinds at 05:45:34.54 | 05:45:23 to 05:45:36.84 | 3 | `item2/summary/switches.json`, `item2/teardown/dut-after.txt` |
++| Items 3 and 4 | 05:45:36.84 to 06:22:39.06 | 0 | `item2/teardown/dut-after.txt`, `soak/console-prebind.txt` |
++| Across the soak's bind | 06:22:39.06 to 06:23:23.21 | 1 | `soak/console-prebind.txt`, `soak/console-soak-000.txt` |
++| The soak | 06:28:23.21 to 06:33:23.21 | 1 | `soak/console-soak-005.txt`, `soak/console-soak-010.txt` |
++| The rest of the soak and the restore | 06:33:23.21 to 08:23:49.34 | 0 | `soak/console-soak-010.txt` to `soak/console-soak-120.txt`, `restore/console-final.txt` |
++| Total | - | 73 (`0x92` = 146 dups) | - |
++
+ ## Method, deviations and authorities
+ 
+ **Deviations from the lanes repeated.**
+@@ -600,20 +640,52 @@ The DUT's maps read 4 and 8 mappings, as found.
+ 
+ ## Evidence
+ 
+-The lane's handoff packet holds the per-cycle records:
++**The packet.** The lane's handoff packet is archived at `review-evidence/608-b14-r1/author/` on branch `608-b14-review-evidence`, archive commit `c848925d2e88a98e7f31b663e5dd4f342b765487`.
++Record paths on this page are relative to that directory.
+ 
+-- item 2: events, counter marks and the per-switch summary;
+-- item 3: per-cycle action logs, MSRP and ACMP tables and analyses;
+-- item 4: per-start rows and first-ten headers;
+-- the soak: counters, timing and console reads;
+-- MAAP: the decoded PDUs;
+-- every tool, with the SHA-256 of each file it derives from in lanes B2, B8 and B13.
++| Packet file | SHA-256 as published |
++|---|---|
++| `MANIFEST.sha256` (every packet file) | `e44c20a5c1c92721dfabe5cf79ee462382437ec049baf745fcd77f56dc194012` |
++| `RAW-ARTIFACTS.json` (the raw-file index) | `d8bc2a5f229cfd599d03e2429236b9864294de85eb42ecddffc5db670a3a961a` |
++| `review-evidence/608-b14-r1/MANIFEST.json` (the archive's own manifest, 2,356 files) | `e87cc7a59575a2f2b5ce3485e2e671762bd054a7f3a89ce34496414c75457812` |
++
++Publication redacted local paths in 422 files.
++The archive's manifest gives each file's digest before and after that redaction.
+ 
+-The raw captures stay outside the repository, listed by name, size and SHA-256:
++**Records behind each item.**
+ 
+-- item 2: 20 captures, 1.51 GB;
+-- item 3: 101 captures, 89.8 MB;
+-- item 4: 300 captures, 452 MB;
+-- the soak: 363 captures, 25.9 GB.
++| Item | Records |
++|---|---|
++| 1 | `identity/identity.json`, `identity/identity-aecp.jsonl`, `identity/console-identity.txt` |
++| 2 | `item2/summary/switches.json`, `item2/summary/switches.tsv`, `item2/summary/rails.txt`; the counter marks in `item2/cyc01/events.jsonl` to `item2/cyc09/events.jsonl` |
++| 3 | `item3/cycles.tsv`, `item3/summary.json`; per cycle, `item3/cycles/cycle-NNN/msrp.tsv`, `acmp.tsv`, `analysis.json`, `result.json` and the counter snapshots; the withdrawals in cycles 1, 2 and 42 in their `msrp.tsv` and `acmp.tsv` |
++| 4 | `item4/startup-cycles.csv`, `item4/startup-first-ten.csv`, `item4/startup-summary.json`, `item4/summary.json`, `item4/asfound-release.jsonl`, `item4/asfound-rebind.jsonl` |
++| 5 | The maps: the as-found record in `item2/setup/events.jsonl`, `soak/maps-prebind.jsonl`, `restore/final-maps.jsonl`; the saved-state status in `item2/setup/dut-before.txt`. The soak: `soak/summary.json`, `soak/ledger.tsv`, `soak/soak-wire-aggregate.txt`, `soak/soak-overlap-recovery.txt`, `soak/soak-coverage.txt`, `soak/control-aecp-soak-050.txt`, `soak/hive-events-summary.json`, `soak/bind-a-aaf.jsonl`, `soak/bind-a-crf.jsonl`, `soak/console-prebind.txt` and `soak/console-soak-000.txt` to `soak/console-soak-120.txt` |
++| 6 | The soak console reads (`MAC_STATUS`, `STATS_CAP` and the RMON window) and the AVB_INTERFACE deltas in `soak/summary.json` |
++| 7 | `maap/summary.json` and the console reads named in items 5 and 8 |
++| 8 | `item2/setup/events.jsonl`, `restore/asfound-rx.jsonl`, `item2/teardown/events.jsonl`, `restore/restore-compare.txt`, `restore/final-maps.jsonl`, `restore/final-dut-in0.jsonl`, `restore/final-dut-in1.jsonl`, `restore/final-peer-in8.jsonl`, `restore/peer-clock-sources.jsonl`, `restore/console-final.txt`; the `SLIP_LB` table above |
++
++Every tool is in `tools/`, with the SHA-256 of each file it derives from in lanes B2, B8 and B13.
++
++**Raw captures.** They stay outside the repository and the packet.
++`RAW-ARTIFACTS.json` and `raw-index/` list every raw file by name, size and SHA-256.
++
++| Group | Captures | Capture bytes | Index | Index SHA-256 as published |
++|---|---|---|---|---|
++| Item 2 | 20 | 1,506,903,676 (1.51 GB) | `raw-index/item2.jsonl` | `e4257893108a0cc5af8295fa8b9a1f7b47e55100a82d19e91877f1127d48a2db` |
++| Item 3 | 101 | 89,799,919 (89.8 MB) | `raw-index/item3.jsonl` | `3c6e20dd61db94b5da831db66032b2af9b801857d46c9625a61389a371e4d300` |
++| Item 4 | 300 | 452,454,920 (452 MB) | `raw-index/item4.jsonl` | `a0ed076692b0f3731a966863f7f737142fcc5f28dad8bdce9d041fb1d7806b1a` |
++| The soak | 363 | 25,885,038,026 (25.9 GB) | `raw-index/soak.jsonl` | `1065a231b261f609d0b319a158268f4e867110a6b84b3bb9f11859b2863a58fc` |
++
++The soak index is one of the redacted files: `RAW-ARTIFACTS.json` records its digest before redaction, `044b4ebfc3af2197ad2b091d5bb5f0af6f13e2201efeb055ba47cfaf9cfc7b36`.
++
++**Round 2 recomputes.** Two checks were added from raw files indexed above, whose SHA-256 values were re-verified first.
++The scripts and their outputs are in the lane's round 2 handoff packet under `round2/`.
++
++- Item 3: the raw tap captures of all 101 cycles were decoded again, timed by the tap's own clock.
++  The DUT's Talker Advertise `Lv` appears in cycles 1, 2 and 42 only, 0.0390, 0.0951 and 0.3184 s after the bridge's `Lv`.
++  The bridge's `Lv` after the response agrees with `item3/cycles.tsv` within 0.5 us in all 101 cycles.
++- Item 8: the final read was compared with the 15 as-found rows, from `restore/` and the raw `snapshot-final.jsonl` in `raw-index/soak.jsonl`: 15 of 15 equal.
++  The 44 inventory rows were recounted by category from the raw `snapshot-prebind.jsonl` and `snapshot-final.jsonl`: 2 descriptor counts, 18 formats, 18 connection states, 2 clock sources and 4 maps, all equal.
+ 
+ The peer's, the grandmaster's and the third station's identifiers are masked in the packet.
