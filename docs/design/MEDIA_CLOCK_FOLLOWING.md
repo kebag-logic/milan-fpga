@@ -1650,6 +1650,13 @@ accepts this as a test correction, not a change to the law.
   `--law-only` leg dwells past it, as `--crf-only` does. The settled-grid
   trigger's comment in `milan_datapath.sv` calls the loop overdamped; this
   overshoot is measured at the INTERNAL boot pull-in only.
+- **The shortened epoch history (#657).** `--epoch-only` skips `[SERIAL]`.
+  It therefore takes `--crf-only`'s existing boot pull-in dwell.
+  Its old 120 ms post-selection wait started during boot.
+  All four #386 recentre checks consequently observed zero actions.
+  The correction preserves their exact one-action expectations.
+  This measures #386's source-change trigger, unchanged by #645.
+  The later settle recentre remains a separately tested action.
 
 ### Bench
 
