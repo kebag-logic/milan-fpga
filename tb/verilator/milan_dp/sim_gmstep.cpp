@@ -26,9 +26,9 @@
 // cycles). Everything below is in fabric cycles and PHC nanoseconds of this
 // model; nothing is scaled back to wall time.
 //
-// Peer: one link partner at a 600 ns one-way delay. Its Pdelay answers are
-// fabricated against the DUT's own PHC exactly as sim_gptp.cpp does, so the
-// published delay stays at the link delay across a PHC step. Its Sync origins
+// Peer: one link partner at a 600 ns one-way delay. Its Pdelay answers use
+// an independent LocalClock driven by fabric cycles. Request launch records
+// identify physical time without importing the DUT's stepped epoch. Sync origins
 // come from an INDEPENDENT grandmaster timeline, gm(c) = 8 c + epoch: GM A's
 // epoch puts it seconds ahead of the reset PHC (the link-up pair steps), and
 // the change to GM B moves the epoch by kGmStepNs. Nothing about the new
@@ -240,6 +240,10 @@ struct Trace {
     uint64_t tu_fall_cyc = 0;
     uint64_t identity_cyc = 0;          //! first cycle the bank named GM B
     bool tu_at_identity = false;
+    uint64_t tu_rises = 0;
+    uint64_t incapable_cycles = 0;
+    uint64_t bad_delay_cycles = 0;
+    uint64_t servo_locked_cycles = 0;
     uint64_t render_triggers = 0;       //! render_recentre_p_w pulses
     std::vector<uint64_t> recentre_cycs;  //! cycles the counted tally moved
 };
@@ -375,6 +379,7 @@ class GmStepHarness {
     void provision_media();
     void baseline();
     void change_grandmaster();
+    void check_small_grandmaster_steps();
     void check_slew_connection();
     void check_crf_restart();
     void check_coincident_restart();
@@ -468,7 +473,7 @@ void GmStepHarness::observe() {
     settime_pulses_ += settime;
     coincident_pulses_ += crf_toggle && settime;
     const bool tu = root->milan_datapath__DOT__clkv_tu_w;
-    if (tu && !trace_.tu_prev) trace_.tu_rise_cyc = cyc_;
+    if (tu && !trace_.tu_prev) { trace_.tu_rise_cyc = cyc_; ++trace_.tu_rises; }
     if (!tu && trace_.tu_prev) trace_.tu_fall_cyc = cyc_;
     //! both are read after the same edge: the bank's identity and the tu every
     //! talker stamps during the cycle that follows it
@@ -477,6 +482,10 @@ void GmStepHarness::observe() {
         trace_.tu_at_identity = tu;
     }
     trace_.tu_prev = tu;
+    if (!(root->milan_datapath__DOT__gptp_pub_flags_w & 4)) ++trace_.incapable_cycles;
+    trace_.servo_locked_cycles += (root->milan_datapath__DOT__mcsrv_stat_w & 7) == 4;
+    const uint32_t delay = root->milan_datapath__DOT__gptp_pub_pdelay_w;
+    if (delay < kLinkNs - 16 || delay > kLinkNs + 16) ++trace_.bad_delay_cycles;
     if (root->milan_datapath__DOT__gptp_step_we_w) {
         ++trace_.step_pulses;
         trace_.step_pulse_cyc = cyc_;
@@ -600,15 +609,13 @@ void GmStepHarness::schedule() {
     }
 }
 
-//! A Pdelay response is fabricated here, against the PHC the DUT will stamp
-//! its first beat with: t2 = now + 5 ms and a residence that leaves exactly
-//! the link delay, so a PHC step between t1 and now cancels (sim_gptp.cpp).
+//! Responder timestamps follow physical cycles, independent of DUT steps.
+//! Scheduling jitter changes residence time, never the physical link delay.
 void GmStepHarness::start_frame(Outgoing what) {
     if (what.kind == Kind::Crf) crf_start_cyc_ = cyc_;
     if (what.kind == Kind::PdelayResp) {
-        const uint64_t now = phc_ns();
-        const uint64_t t2 = now + 5000000;
-        const uint64_t t3 = t2 + (now - what.value) - 2 * static_cast<uint64_t>(kLinkNs);
+        const uint64_t t2 = what.value + 20000000000ULL;
+        const uint64_t t3 = 20000000000ULL + cyc_ * kPhcTickNs - kLinkNs;
         control_.push_back({Kind::PdelayRespFu, what.seq, t3, what.tail, 0, cyc_ + 16});
         what.value = t2;
     }
@@ -661,8 +668,7 @@ void GmStepHarness::rx_drive() {
 
 //! One receive beat went in. The first beat of a Sync is the instant the DUT
 //! stamps, so the Follow_Up's origin is the grandmaster's time at that
-//! instant less the link; a Pdelay response is answered the same way
-//! sim_gptp.cpp does, against the PHC the DUT stamps it with.
+//! instant less the link. Pdelay uses the independent peer LocalClock.
 void GmStepHarness::rx_accepted() {
     const bool first = rx_off_ == 0;
     rx_off_ += 8;
@@ -696,7 +702,7 @@ void GmStepHarness::complete_tx() {
 }
 
 //! Queue an answer to every Pdelay_Req once its launch has been reported
-//! (#360); start_frame() fabricates its times.
+//! (#360); start_frame() supplies independent peer LocalClock timestamps.
 void GmStepHarness::service_pdelay() {
     while (pd_scan_ < tx_frames_.size()) {
         const std::vector<uint8_t>& req = tx_frames_[pd_scan_];
@@ -705,8 +711,10 @@ void GmStepHarness::service_pdelay() {
             continue;
         }
         uint64_t t1 = 0;
-        if (!observer_.t1_of(0x2, static_cast<unsigned>(be(req, 44, 2)), &t1)) return;
-        Outgoing resp{Kind::PdelayResp, static_cast<uint16_t>(be(req, 44, 2)), t1,
+        uint64_t at_cycle = 0;
+        if (!observer_.t1_of(0x2, static_cast<unsigned>(be(req, 44, 2)), &t1, &at_cycle)) return;
+        const uint64_t t2 = at_cycle * kPhcTickNs - observer_.correction_ns() + kLinkNs;
+        Outgoing resp{Kind::PdelayResp, static_cast<uint16_t>(be(req, 44, 2)), t2,
                       std::vector<uint8_t>(req.begin() + 34, req.begin() + 44), 0, cyc_ + 300};
         control_.push_back(resp);
         ++pd_scan_;
@@ -928,6 +936,66 @@ void GmStepHarness::change_grandmaster() {
     const uint64_t end = announced + kGmSyncDelayCyc + 5 * kQtickCyc;
     if (cyc_ < end) run_cycles(end - cyc_);
     grade_the_event(sout0, sout_mid, mid_cyc, sin0, recentres0, rails0, talker0);
+}
+
+//! Issue #621: observe several complete Pdelay intervals after both signs.
+//! The public GET_COUNTERS responses grade effects at their consumer boundary.
+void GmStepHarness::check_small_grandmaster_steps() {
+    for (const bool internal : {false, true}) {
+        const uint8_t source = internal ? 0 : kCrfClockSource;
+        const auto selected = aecp_transaction(0x0016, 0x7410, {0x00, 0x24, 0x00, 0x00,
+                                                              0x00, source, 0x00, 0x00});
+        check_.dec("621: clock selection succeeds", selected.size() > 16 ? selected[16] >> 3 : 255, 0);
+        run_cycles(3 * kClkHz);
+        check_.dec("621: root resolves selected clock source",
+                   dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, !internal);
+        for (const int64_t delta : {10000000LL, -10000000LL}) {
+            const auto avb0 = counters(0x7400, 0x0009);
+            const auto domain0 = counters(0x7401, 0x0024);
+            const auto sout0 = counters(0x7402, 0x0006);
+            sin0_accepts_.first = accepts_.size();
+            const auto sin0 = counters(0x7403, 0x0005);
+            sin0_accepts_.second = accepts_.size();
+            const size_t talker0 = talker_.size();
+            trace_ = Trace{};
+            trace_.tu_prev = dut_->rootp->milan_datapath__DOT__clkv_tu_w;
+            check_.dec("621: tu clear before the step", trace_.tu_prev, 0);
+            gm_id_ += 1; --gm_priority_; gm_epoch_ += delta;
+            media_follows_sync_ = true;
+            next_announce_ = cyc_; next_sync_ = cyc_ + kGmSyncDelayCyc;
+            run_cycles(4 * kClkHz);
+            const auto avb1 = counters(0x7404, 0x0009);
+            const auto domain1 = counters(0x7405, 0x0024);
+            const auto sout1 = counters(0x7406, 0x0006);
+            sin1_accepts_.first = accepts_.size();
+            const auto sin1 = counters(0x7407, 0x0005);
+            sin1_accepts_.second = accepts_.size();
+            printf("621: %s signed step %lld, tu episodes %llu\n", internal ? "INTERNAL" : "CRF",
+                   static_cast<long long>(delta),
+                   static_cast<unsigned long long>(trace_.tu_rises));
+            check_.dec("621: exactly one step", trace_.step_pulses, 1);
+            check_.that("621: signed 10 ms PHC step", trace_.step_ns > delta - 1000 && trace_.step_ns < delta + 1000);
+            check_.dec("621: asCapable held every cycle", trace_.incapable_cycles, 0);
+            check_.dec("621: valid link delay every cycle", trace_.bad_delay_cycles, 0);
+            check_.dec("621: one tu episode", trace_.tu_rises, 1);
+            check_.dec("621: tu clears again", dut_->rootp->milan_datapath__DOT__clkv_tu_w, 0);
+            check_.dec("621: one GPTP_GM_CHANGED", counter_word(avb1, 5) - counter_word(avb0, 5), 1);
+            // The existing compressed-clock model leaves the CRF servo unlocked.
+            // Under #629 C1 this keeps CLOCK_DOMAIN unlocked while following.
+            // At INTERNAL, the same tu episode must produce one public edge pair.
+            check_.dec("621: CRF servo remains unlocked throughout", trace_.servo_locked_cycles, 0);
+            check_.dec("621: CLOCK_DOMAIN UNLOCKED delta", counter_word(domain1, 1) - counter_word(domain0, 1), internal ? 1 : 0);
+            check_.dec("621: CLOCK_DOMAIN LOCKED delta", counter_word(domain1, 0) - counter_word(domain0, 0), internal ? 1 : 0);
+            check_.dec("621: no outgoing mr change", mr_toggles_since(talker0), 0);
+            check_.dec("621: no MEDIA_RESET", counter_word(sout1, 2) - counter_word(sout0, 2), 0);
+            grade_the_licence(talker0, sin0, sin1);
+        }
+    }
+    const auto restored = aecp_transaction(0x0016, 0x7411, {0x00, 0x24, 0x00, 0x00,
+                                                          0x00, kCrfClockSource, 0x00, 0x00});
+    check_.dec("621: restore CRF selection succeeds", restored.size() > 16 ? restored[16] >> 3 : 255, 0);
+    run_cycles(kClkHz / 10);
+    check_.dec("621: CRF source restored", dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, 1);
 }
 
 void GmStepHarness::grade_the_event(const std::vector<uint8_t>& sout0,
@@ -1206,6 +1274,7 @@ int GmStepHarness::run() {
         provision_media();
         baseline();
         change_grandmaster();
+        check_small_grandmaster_steps();
         check_crf_restart();
         check_slew_connection();
         check_coincident_restart();

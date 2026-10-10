@@ -1616,16 +1616,20 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-02 in the
+Timing. MEASURED on 2026-10-09 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) requires this remeasurement.
+The [#621 final ruling](https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382) requires this remeasurement, at the #629 census.
+The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the previous one.
 The CLOCK_SOURCE NAME records #629 adds grow the census.
-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the previous one.
-Measured commit: `a2f1734283f367d0d522c8c7cda09b79aff60d06`.
-Measured tree: `c28595df81fb96ae7cb554216c76a23917105169`.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the one before it.
+Measured commit: `034e2e30f225f3fcd755cac8ad01c60dda5b366a`.
+Measured tree: `a5d1a1b02212c04de89292893fcf022b39620848`.
 Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
-Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
+Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
+The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
+Capture-SoC RTL changes on dev moved the timing figures from the previous receipt; a dev 8x8 configuration change moved only its recorded configuration hash.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1638,9 +1642,9 @@ The backend retains its nominal 50 ms hold.
 Its free-running millisecond tick gives a 49 ms guaranteed floor.
 The first tick can arrive immediately after ARM.
 The acceptance limit is therefore 24.5 ms, half that floor.
-**The worst 8x8 measurement is 13.86484 ms.**
-Its floor ratio is 3.5341x.
-The margin to 24.5 ms is 10.63516 ms.
+**The worst 8x8 measurement is 13.86318 ms.**
+Its floor ratio is 3.5345x.
+The margin to 24.5 ms is 10.63682 ms.
 The previous census measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
@@ -1657,8 +1661,8 @@ The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
 |---|---|---|---|---|
 | 1x1 | 50 / 100, contract | ON | 3.96022 to 3.96728 | 12.3510x |
 | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91182 | 12.5261x |
-| 8x8 | 50 / 100, contract | ON | 13.84836 to 13.86484 | 3.5341x |
-| 8x8 | 50 / 100, contract | OFF | 13.67682 to 13.69390 | 3.5782x |
+| 8x8 | 50 / 100, contract | ON | 13.84682 to 13.86318 | 3.5345x |
+| 8x8 | 50 / 100, contract | OFF | 13.68947 to 13.69390 | 3.5782x |
 | 8x8 | 100 / 100, non-contract | ON | 10.41821 to 10.42973 | 4.6981x |
 | 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
 
@@ -1704,6 +1708,7 @@ Named controls alter bytes, records and clocks independently.
 A slower OFF fixture must determine the published maximum.
 A planted grader ignoring OFF timing fails that fixture.
 The OFF timing limit checks equality and one extra tick.
+A receipt arm that names a control is still graded against the production bound.
 Both simulation controls also detect missing copying and missing traffic.
 
 Measurements retire the six-instructions-per-byte and fifty-instructions-per-record estimates.
@@ -1805,10 +1810,10 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The worst 8x8 copy is 13.86484 ms across both arms.
+   The worst 8x8 copy is 13.86318 ms across both arms.
    It covers 13,210 bytes and 164 records, including output maps.
-   Its ratio to the guaranteed 49 ms floor is 3.5341x.
-   The 24.5 ms margin is 10.63516 ms.
+   Its ratio to the guaranteed 49 ms floor is 3.5345x.
+   The 24.5 ms margin is 10.63682 ms.
    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).

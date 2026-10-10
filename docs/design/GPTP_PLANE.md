@@ -29,10 +29,10 @@ This page defines parent integration.
 
 | Reader | Parent guide | Engine guide |
 |---|---|---|
-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md) |
-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md) |
-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md) |
-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md) |
+| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/MANAGER.md) |
+| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/INTEGRATION.md) |
+| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/HDL_DEVELOPER.md) |
+| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/TEST_DEVELOPER.md) |
 
 Parent guides own integration behavior.
 
@@ -93,6 +93,76 @@ Reset is synchronous and active-low.
 - `pub_commit_o` exposes one complete state generation.
 - `pub_disc_o` exposes pre-commit health discontinuities.
 - Consumers never combine different publication generations.
+
+### Peer delay during PHC steps
+
+A servo phase step preserves the last valid link delay.
+
+It invalidates the rate window spanning that step.
+
+The next clean exchange seeds replacement rate history.
+
+An overlapping completed exchange proves liveness without replacing measurements.
+
+Missing responses and multiple responders retain their existing failure paths.
+
+These references are from IEEE 802.1AS-2020.
+
+| Clause | Contract |
+|---|---|
+| 11.2.2 | Peer-delay conditions determine asCapable |
+| 11.2.19.3.3 | Successive timestamps determine neighbour rate ratio |
+| 11.2.19.3.4 | Consistent timestamp differences determine link delay |
+| 11.2.20 | The responder supplies its own timestamp pair |
+
+Issue #621's regression uses an independent peer LocalClock.
+
+Both signed 10 ms changes enter through Announce and Sync.
+
+The real PHC counter applies the servo's step pulse.
+
+Crossing responses and delayed transmit timestamps remain covered.
+
+Excessive delay and peer silence still clear asCapable.
+
+An answered crossing exchange still resets the lost-response count.
+
+The fourth unanswered request after it clears asCapable.
+
+An unanswered crossing request earns no liveness credit.
+
+The third unanswered request after it clears asCapable.
+
+```sh
+make -C tb/verilator/gptp_plane phc-step
+make -C tb/verilator/milan_dp gmstep
+```
+
+The first command includes six planted-defect controls.
+
+The two credit-deletion controls plant the same deletion.
+
+Each comes from one review round.
+
+So five distinct defects run.
+
+A positive control removes only the Milan cease rule.
+
+That deletion makes ROM room for the step-credit plant.
+
+The second checks uncertainty, public counters, and media continuity.
+
+Its compressed clock leaves the selected CRF servo unlocked.
+
+While following that unlocked servo, both domain counters remain unchanged.
+
+The INTERNAL arm requires one unlock/lock pair per step.
+
+Each identity change produces one uncertainty episode.
+
+GPTP_GM_CHANGED increments once.
+
+The physical five-step repeat remains issue #621's later acceptance.
 
 ## Timestamp boundaries
 

@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-02",
-  "base": "a2f1734283f367d0d522c8c7cda09b79aff60d06",
+  "date": "2026-10-09",
+  "base": "034e2e30f225f3fcd755cac8ad01c60dda5b366a",
   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
   "soc_component_revisions": {
     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
@@ -43,7 +43,7 @@
     "sim_main.cpp": "6badc0169535098690357f4c3ad114cf116843d66b08342cbfeb0cde990e3e96",
     "recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
     "probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
-    "run.py": "1bddc676e452a885f11f8cc1e6fe75a3b6e0df8f8d704baade0ee1f5f72d5dea"
+    "run.py": "c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659"
   },
   "measurements": [
     {
@@ -92,7 +92,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24691,
+          "requests": 24690,
           "responses": 26,
           "reads": 1006
         },
@@ -116,7 +116,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24694,
+          "requests": 24693,
           "responses": 26,
           "reads": 1014
         },
@@ -152,7 +152,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24697,
+          "requests": 24698,
           "responses": 26,
           "reads": 1010
         },
@@ -164,7 +164,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24665,
+          "requests": 24664,
           "responses": 25,
           "reads": 1006
         },
@@ -176,7 +176,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24665,
+          "requests": 24664,
           "responses": 25,
           "reads": 1006
         },
@@ -188,7 +188,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24665,
+          "requests": 24664,
           "responses": 25,
           "reads": 1006
         },
@@ -200,7 +200,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24690,
+          "requests": 24691,
           "responses": 26,
           "reads": 1006
         },
@@ -212,7 +212,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24671,
+          "requests": 24672,
           "responses": 26,
           "reads": 998
         },
@@ -236,7 +236,7 @@
           "records": 54,
           "mismatches": 0,
           "open": 0,
-          "requests": 24690,
+          "requests": 24691,
           "responses": 26,
           "reads": 1006
         },
@@ -258,7 +258,7 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
       "bios_sha256": "afb2f54f1a80549c12ed853a6ce9789da822da1408e15f6be0a8c4e859eaed57",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
     },
     {
@@ -473,7 +473,7 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
       "bios_sha256": "d001869a7db6bfe9b633903a47d4a18c02809375b3ff74d9fa8558378facd27e",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
     },
     {
@@ -484,45 +484,45 @@
       "configured_cpu_hz": 50000000,
       "phase": "aligned rising edges",
       "traffic": "on",
-      "minimum_ms": 13.848360000000001,
-      "maximum_ms": 13.86484,
+      "minimum_ms": 13.84682,
+      "maximum_ms": 13.86318,
       "hold_ms": 50,
       "hold_floor_ms": 49,
-      "margin": 3.5341193984207537,
+      "margin": 3.534542579696722,
       "rows": [
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1385074,
+          "sys_cycles": 1385678,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86480,
-          "responses": 91,
-          "reads": 3549
+          "requests": 86518,
+          "responses": 92,
+          "reads": 3558
         },
         {
           "index": 1,
           "ok": 1,
-          "sys_cycles": 1386484,
+          "sys_cycles": 1384682,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86569,
-          "responses": 92,
-          "reads": 3587
+          "requests": 86456,
+          "responses": 91,
+          "reads": 3575
         },
         {
           "index": 2,
           "ok": 1,
-          "sys_cycles": 1386318,
+          "sys_cycles": 1386046,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86559,
+          "requests": 86541,
           "responses": 91,
           "reads": 3549
         },
@@ -606,7 +606,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86466,
+          "requests": 86465,
           "responses": 91,
           "reads": 3559
         },
@@ -642,7 +642,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86472,
+          "requests": 86471,
           "responses": 91,
           "reads": 3549
         },
@@ -688,8 +688,8 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
       "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -699,7 +699,7 @@
       "configured_cpu_hz": 50000000,
       "phase": "aligned rising edges",
       "traffic": "off",
-      "minimum_ms": 13.67682,
+      "minimum_ms": 13.68947,
       "maximum_ms": 13.6939,
       "hold_ms": 50,
       "hold_floor_ms": 49,
@@ -708,7 +708,7 @@
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1367682,
+          "sys_cycles": 1369030,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -903,8 +903,8 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
       "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -928,7 +928,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130120,
+          "requests": 130119,
           "responses": 90,
           "reads": 3510
         },
@@ -952,7 +952,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130105,
+          "requests": 130104,
           "responses": 91,
           "reads": 3535
         },
@@ -964,7 +964,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130119,
+          "requests": 130118,
           "responses": 91,
           "reads": 3534
         },
@@ -976,7 +976,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130206,
+          "requests": 130207,
           "responses": 90,
           "reads": 3534
         },
@@ -988,7 +988,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130119,
+          "requests": 130118,
           "responses": 91,
           "reads": 3534
         },
@@ -1036,7 +1036,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130118,
+          "requests": 130119,
           "responses": 91,
           "reads": 3534
         },
@@ -1048,7 +1048,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130207,
+          "requests": 130206,
           "responses": 90,
           "reads": 3534
         },
@@ -1072,7 +1072,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130216,
+          "requests": 130217,
           "responses": 91,
           "reads": 3535
         },
@@ -1096,7 +1096,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130217,
+          "requests": 130216,
           "responses": 91,
           "reads": 3535
         },
@@ -1108,7 +1108,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130187,
+          "requests": 130188,
           "responses": 90,
           "reads": 3510
         }
@@ -1118,8 +1118,8 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
       "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -1333,8 +1333,8 @@
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
       "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
+      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     }
   ],
   "maxima": [
@@ -1347,8 +1347,8 @@
     {
       "shape": "endstation_ax7101_8x8",
       "cpu_hz": 50000000,
-      "maximum_ms": 13.86484,
-      "margin": 3.5341193984207537
+      "maximum_ms": 13.86318,
+      "margin": 3.534542579696722
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -1357,13 +1357,13 @@
       "margin": 4.698108196472967
     }
   ],
-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634",
+  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382",
   "processor_pins": {
-    "protocol-processor": "b2db3a970cedbbff2f8ba813acb96122c442bc58",
-    "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+    "gptp-processor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
   },
-  "tree": "c28595df81fb96ae7cb554216c76a23917105169",
+  "tree": "a5d1a1b02212c04de89292893fcf022b39620848",
   "reproduction_environment": {
     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
     "PYTHONHASHSEED": "0",
@@ -1374,6 +1374,6 @@
     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
     "SCRATCH": "external build directory, outside the repository; one per arm"
   },
-  "provenance": "All six arms measure the unchanged #70 lane 2 firmware for the census #629 grows (the CLOCK_SOURCE NAME records of the AAF listeners), at processor pin b2db3a97. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The six arms ran in parallel from the tree of a2f17342. A first run at 62822ca6, before the meter's port split and the TX-trace fix, reproduced every capture's cycle count in the five arms it graded; its 8x8 OFF arm could not be graded, a TX trace having split a CAPTURE row, which a2f17342 fixes. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+  "provenance": "All six arms measure the unchanged #70 lane 2 firmware at the #629 census, from the tree of 034e2e30 (gPTP pin 7dda9c3b, protocol-processor pin 2ad2f845) on Verilator 5.052, in four parallel workers. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The #621 base, 5603c353 with gPTP pin 5dce647a, writes byte-identical capture logs in all six arms and the three named controls, so the #621 gPTP change has no capture effect. The previous values were measured at a2f17342; that tree reproduces them in each arm rerun there (1x1 / 50 MHz ON, 8x8 / 50 MHz ON and OFF). The changed values come from capture-SoC RTL and the 8x8 configuration changing on dev between a2f17342 and 5603c353. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
 }

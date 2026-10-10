@@ -56,7 +56,7 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
 
 
 def grade_rows(rows: list[dict], spec: dict) -> dict:
-    """Apply the same timing and byte oracle to both traffic arms.
+    """Check every capture and bound production timing in both traffic arms.
 
     The census each row must copy is the spec's, derived from the generated
     shape by `nvm_shape.closed_record_census`, never restated here.
@@ -75,7 +75,8 @@ def grade_rows(rows: list[dict], spec: dict) -> dict:
         if (spec['traffic'] == 'on' and not all(value > 0 for value in counts)
                 or spec['traffic'] == 'off' and any(counts)):
             raise RuntimeError(f'traffic arm failed: {row}')
-        if row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']:
+        if (spec.get('mutation', 'none') == 'none'
+                and row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']):
             raise RuntimeError('worst measured copy exceeds half the 49 ms hold floor')
     elapsed = [row['sys_cycles'] / spec['sys_hz'] * 1000 for row in rows]
     return dict(shape=spec['shape'], captures=len(rows), sys_hz=spec['sys_hz'],
@@ -101,7 +102,7 @@ def grade_byte_only(measured: dict, baseline: dict) -> None:
 
 
 def byte_only_controls() -> None:
-    """Accept the ratio boundary; reject a faster or mismatched control."""
+    """Separate the production time bound from the byte-only slowdown check."""
     baseline = dict(shape=SHAPES[0], cpu_hz=CPU_HZ, sys_hz=100_000_000,
                     configured_cpu_hz=CPU_HZ, phase='fixed', traffic='on', maximum_ms=10)
     measured = dict(baseline, minimum_ms=15)
@@ -112,6 +113,17 @@ def byte_only_controls() -> None:
         except RuntimeError:
             continue
         raise RuntimeError('byte-only grading control escaped')
+    row = dict(index=0, ok=1, sys_cycles=2_500_000, raw=4, records=1,
+               mismatches=0, open=0, requests=1, responses=1, reads=1)
+    spec = dict(baseline, captures=1, raw_bytes=4, records=1, mutation='byte-only')
+    grade_byte_only(grade_rows([row], spec), baseline)
+    try:
+        grade_rows([row], dict(spec, mutation='none'))
+    except RuntimeError as exc:
+        if 'half the 49 ms' not in str(exc):
+            raise
+    else:
+        raise RuntimeError('production timing bound was ignored')
 
 
 def maximum_ms(arms: list[dict]) -> float:
