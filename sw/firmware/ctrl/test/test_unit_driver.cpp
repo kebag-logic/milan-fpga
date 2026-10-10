@@ -185,15 +185,19 @@ TEST(DriverUnit, D14PublicationBlock) {
     Window w(hal);
     const std::uint32_t valid = mbx_place(1u, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH);
     const std::uint32_t bound = mbx_place(1u, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH);
+    const std::uint32_t started = mbx_place(1u, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);
     for (unsigned i = 0; i < MBX_N_IF; ++i) {
         const std::uint32_t block = MBX_PUB_BASE + MBX_PUB_STRIDE * i;
         std::size_t first = w.writes.size();
         EXPECT_TRUE(mbx_pub_da_gate(i, 0x00A5u + i) && mbx_pub_licence(i, 0x5A00u + i) &&
-                    mbx_pub_idle_slope(i, 0x01312D00u + i) && mbx_pub_domain(i, true, 5u, 0x123u + i))
+                    mbx_pub_idle_slope(i, 0x01312D00u + i) && mbx_pub_domain(i, true, 5u, 0x123u + i) &&
+                    mbx_pub_talker_decl(i, 0x0C30u + i))
             << "D14 interface " << i << " takes every publication";
-        EXPECT_EQ(w.writes.size(), first + 4u) << "D14 one write each";
+        EXPECT_EQ(w.writes.size(), first + 5u) << "D14 one write each";
         EXPECT_EQ(w.at(block + MBX_PUB_REG_DA_GATE), 0x00A5u + i) << "D14 DA_GATE.OPEN holds the gate";
         EXPECT_EQ(w.at(block + MBX_PUB_REG_LICENCE), 0x5A00u + i) << "D14 LICENCE.ACTIVE holds the licences";
+        EXPECT_EQ(w.at(block + MBX_PUB_REG_TALKER_DECL), 0x0C30u + i)
+            << "D14 TALKER_DECL.DECLARED holds the declarations";
         EXPECT_EQ(w.at(block + MBX_PUB_REG_IDLE_SLOPE), 0x01312D00u + i) << "D14 IDLE_SLOPE.BPS holds the slope";
         EXPECT_EQ(w.at(block + MBX_PUB_REG_SR_DOMAIN),
                   mbx_place(0x123u + i, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |
@@ -208,28 +212,41 @@ TEST(DriverUnit, D14PublicationBlock) {
         const unsigned k = MBX_N_PUB_SINKS - 1u - i;
         const std::uint32_t entry = block + MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k;
         first = w.writes.size();
-        EXPECT_TRUE(mbx_pub_sink(i, k, true, 0x0011223344556677ull + i)) << "D14 sink " << k << " takes its stream";
+        EXPECT_TRUE(mbx_pub_sink(i, k, true, true, 0x0011223344556677ull + i))
+            << "D14 sink " << k << " takes its stream";
         ASSERT_EQ(w.writes.size(), first + 4u) << "D14 four writes: BINDING, SID_LO, SID_HI, BINDING";
-        EXPECT_TRUE(w.writes[first].first == entry + MBX_PUB_SINK_REG_BINDING && w.writes[first].second == bound &&
+        EXPECT_TRUE(w.writes[first].first == entry + MBX_PUB_SINK_REG_BINDING &&
+                    w.writes[first].second == (bound | started) &&
                     w.writes[first + 3u].first == entry + MBX_PUB_SINK_REG_BINDING &&
-                    w.writes[first + 3u].second == (bound | valid))
+                    w.writes[first + 3u].second == (bound | started | valid))
             << "D14 SID_VALID is clear while the stream_id is written, and set after it";
         EXPECT_EQ(w.at(entry + MBX_PUB_SINK_REG_SID_LO), 0x44556677u + i) << "D14 SID_LO holds stream_id[31:0]";
         EXPECT_EQ(w.at(entry + MBX_PUB_SINK_REG_SID_HI), 0x00112233u) << "D14 SID_HI holds stream_id[63:32]";
         first = w.writes.size();
-        EXPECT_TRUE(mbx_pub_sink(i, k, true, 0u));
-        EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == bound)
-            << "D14 a bound sink with no stream: BINDING with SID_VALID clear, one write";
+        EXPECT_TRUE(mbx_pub_sink_binding(i, k, true, false, true));
+        EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == (bound | valid))
+            << "D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write";
         first = w.writes.size();
-        EXPECT_TRUE(mbx_pub_sink(i, k, false, 0u));
+        EXPECT_TRUE(mbx_pub_sink_binding(i, k, true, true, false));
+        EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == (bound | started))
+            << "D14 a start with no stream: BINDING alone, STARTED set, SID_VALID clear, one write";
+        first = w.writes.size();
+        EXPECT_TRUE(mbx_pub_sink(i, k, true, false, 0u));
+        EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == bound)
+            << "D14 a bound, stopped sink with no stream: BINDING with SID_VALID clear, one write";
+        first = w.writes.size();
+        EXPECT_TRUE(mbx_pub_sink(i, k, false, false, 0u));
         EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_PUB_SINK_REG_BINDING) == 0u)
             << "D14 an unbound sink: BINDING 0, one write";
     }
     const std::size_t writes = w.writes.size();
     EXPECT_FALSE(mbx_pub_da_gate(MBX_N_IF, 1u) || mbx_pub_licence(MBX_N_IF, 1u) || mbx_pub_idle_slope(MBX_N_IF, 1u) ||
-                 mbx_pub_domain(MBX_N_IF, true, 1u, 1u) || mbx_pub_sink(MBX_N_IF, 0, true, 1u))
+                 mbx_pub_domain(MBX_N_IF, true, 1u, 1u) || mbx_pub_talker_decl(MBX_N_IF, 1u) ||
+                 mbx_pub_sink(MBX_N_IF, 0, true, true, 1u) || mbx_pub_sink_binding(MBX_N_IF, 0, true, true, true))
         << "D14 an interface past the contract's is refused";
-    EXPECT_FALSE(mbx_pub_sink(0, MBX_N_PUB_SINKS, true, 1u)) << "D14 a sink past the block's is refused";
+    EXPECT_FALSE(mbx_pub_sink(0, MBX_N_PUB_SINKS, true, true, 1u) ||
+                 mbx_pub_sink_binding(0, MBX_N_PUB_SINKS, true, true, true))
+        << "D14 a sink past the block's is refused";
     EXPECT_EQ(w.writes.size(), writes) << "D14 and nothing is written";
 }
 

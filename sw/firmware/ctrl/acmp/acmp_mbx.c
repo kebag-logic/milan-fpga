@@ -65,11 +65,18 @@ static void port_admit(void *ctx, unsigned interface, unsigned sink, bool bound,
 
 // Sink k is entry k of its interface's publication block, as of its
 // bound-talker table: the sinks fit (above) and the interfaces are the
-// mailbox's, so the driver's refusal never applies.
-static void port_publish(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t stream_id)
+// mailbox's, so the driver's refusal never applies. A stream_id that did not
+// move is not rewritten: BINDING alone carries the bound or started move, and
+// SID_VALID stays as it was, so the stream never leaves the datapath.
+static void port_publish(void *ctx, unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id,
+			 bool stream_moved)
 {
 	(void)ctx;
-	(void)mbx_pub_sink(interface, sink, bound, stream_id);
+	if (stream_moved) {
+		(void)mbx_pub_sink(interface, sink, bound, started, stream_id);
+	} else {
+		(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);
+	}
 }
 
 bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const struct acmp_env *env,

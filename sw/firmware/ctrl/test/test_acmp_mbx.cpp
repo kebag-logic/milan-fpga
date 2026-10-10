@@ -615,7 +615,7 @@ TEST_F(AcmpMailbox, B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse) 
         mbx_host_trace(trace_writes, nullptr);
         bind(k);
         mbx_host_trace(nullptr, nullptr);
-        EXPECT_TRUE(pub_view(i).bound[k] && pub_view(i).sid[k] == 0u)
+        EXPECT_TRUE(pub_view(i).bound[k] && pub_view(i).started[k] && pub_view(i).sid[k] == 0u)
             << on_if(i, "B10 a BIND_RX publishes its sink bound, with no stream");
         EXPECT_LT(first_write(binding_reg(i, k)), first_write(kAcmpTxHead))
             << on_if(i, "B10 BINDING is written before the BIND_RX response's TX_HEAD commit");
@@ -659,7 +659,7 @@ TEST_F(AcmpMailbox, B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse) 
             mbx_model_pub v = pub_view(j);
             bool any = false;
             for (unsigned e = 0; e < MBX_N_PUB_SINKS; ++e) {
-                any = any || v.bound[e] || v.sid[e] != 0u;
+                any = any || v.bound[e] || v.started[e] || v.sid[e] != 0u;
             }
             EXPECT_FALSE(any) << on_if(i, "B10 no entry of any interface's block is left behind");
         }
@@ -674,7 +674,56 @@ TEST_F(AcmpMailbox, B11RestoredBindingsArePublishedAtOpen) {
             for (unsigned e = 0; e < MBX_N_PUB_SINKS; ++e) {
                 EXPECT_EQ(pub_view(j).bound[e], j == i && e == i)
                     << on_if(i, "B11 the restored sink, and only it, is published bound on its interface");
+                EXPECT_EQ(pub_view(j).started[e], j == i && e == i)
+                    << on_if(i, "B11 and started, as its record saved it");
             }
+        }
+    }
+}
+
+// The started level (Milan v1.2 5.3.8.7) reaches the block before the BIND_RX
+// response that echoes STREAMING_WAIT, and a later START_STREAMING or
+// STOP_STREAMING of a settled sink is one write of BINDING that keeps
+// SID_VALID: the stream never leaves the datapath.
+TEST_F(AcmpMailbox, B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        const std::uint32_t entry = binding_reg(i, k) - MBX_PUB_SINK_REG_BINDING;
+        const std::uint32_t valid = 1u << MBX_BINDING_SID_VALID_LSB;
+        const std::uint32_t bound = 1u << MBX_BINDING_BOUND_LSB;
+        const std::uint32_t started = 1u << MBX_BINDING_STARTED_LSB;
+        Pdu cmd = command(spec::MSG_BIND_RX_COMMAND, k);
+        cmd.flags = spec::FLAG_STREAMING_WAIT;
+        pub_writes.clear();
+        mbx_host_trace(trace_writes, nullptr);
+        ASSERT_TRUE(offer(cmd, spec::MULTICAST_MAC, i));
+        settle();
+        mbx_host_trace(nullptr, nullptr);
+        EXPECT_TRUE(pub_view(i).bound[k] && !pub_view(i).started[k])
+            << on_if(i, "B12 a BIND_RX with STREAMING_WAIT publishes its sink bound and stopped");
+        EXPECT_LT(first_write(binding_reg(i, k)), first_write(kAcmpTxHead))
+            << on_if(i, "B12 BINDING is written before the response that echoes STREAMING_WAIT is committed");
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(pub_view(i).sid[k], kSid);
+        for (bool start : {true, false}) {
+            pub_writes.clear();
+            mbx_host_trace(trace_writes, nullptr);
+            ASSERT_TRUE(acmp_set_started(core(), k, start));
+            mbx_host_trace(nullptr, nullptr);
+            std::vector<std::pair<std::uint32_t, std::uint32_t>> in_entry;
+            for (const auto& w : pub_writes) {
+                if (w.first >= entry && w.first < entry + MBX_PUB_SINK_STRIDE) {
+                    in_entry.push_back(w);
+                }
+            }
+            ASSERT_EQ(in_entry.size(), 1u) << on_if(i, "B12 a started move is one write to the sink's entry");
+            EXPECT_TRUE(in_entry[0].first == binding_reg(i, k) &&
+                        in_entry[0].second == (bound | valid | (start ? started : 0u)))
+                << on_if(i, "B12 that write is BINDING, with SID_VALID kept and STARTED moved");
+            EXPECT_TRUE(pub_view(i).started[k] == start && pub_view(i).sid[k] == kSid)
+                << on_if(i, "B12 the datapath sees the move, and the stream_id stays");
         }
     }
 }

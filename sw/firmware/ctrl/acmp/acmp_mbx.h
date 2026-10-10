@@ -13,9 +13,11 @@
 //   seed         -> NOW_MS
 //   admit        -> entry `sink` of the interface's bound-talker table
 //                   (BOUND_EN cleared, then BOUND_EID and BOUND_EN written)
-//   publish      -> entry `sink` of the interface's publication block
-//                   (BINDING, then with a stream SID_LO, SID_HI and BINDING
-//                   with SID_VALID: mbx_pub_sink)
+//   publish      -> entry `sink` of the interface's publication block: for a
+//                   stream_id that moved, BINDING, then with a stream SID_LO,
+//                   SID_HI and BINDING with SID_VALID (mbx_pub_sink); for a
+//                   bound or started move alone, BINDING with SID_VALID kept
+//                   (mbx_pub_sink_binding)
 //
 // and from the loop: the acmp channel's RX records to acmp_rx, the TIMER
 // event of a slot to acmp_timer_expired when its tag is the current arm's (an

@@ -185,7 +185,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     }
     const uint64_t fixed=idle+reset_extra+retry_extra;
     EXPECT_EQ(fixed,MBX_N_IF*4u) << "fixed poll branch envelope";
-    EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_RESET) << "a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each";
+    EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_RESET) << "a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
     const int64_t pub_term=static_cast<int64_t>(MBX_N_IF*SRP_MBX_PUB_POLL_MAX);
     EXPECT_LE(static_cast<int64_t>(fixed),
               static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-2*MBX_N_IF*SRP_MBX_TX_MAX)
@@ -208,7 +208,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
 }
 
 // Each publication a poll may make, measured through the real callbacks: a
-// reset's three writes, a Domain adoption's two, one before each licence
+// reset's five writes, a Domain adoption's three, one before each licence
 // change. SRP_MBX_PUB_POLL_MAX funds a reset, an adoption and two licence
 // changes for every source the publication block holds.
 TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
@@ -222,11 +222,11 @@ TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
     auto poll=[&] { loop.polls[0].fn(loop.polls[0].ctx); };
     mbx_model_set_link(&model,0,false);
     const auto reset=pub(poll);
-    EXPECT_EQ(reset,SRP_MBX_PUB_RESET) << "a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each";
+    EXPECT_EQ(reset,SRP_MBX_PUB_RESET) << "a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
     mbx_model_set_link(&model,0,true); settle();
     receive_before_poll(frame(4,{6,4,0,3},0));
     const auto adoption=pub(poll);
-    EXPECT_EQ(adoption,2u) << "a Domain adoption publishes SR_DOMAIN and IDLE_SLOPE once each";
+    EXPECT_EQ(adoption,3u) << "a Domain adoption publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL once each";
     settle(); advance(200);
     EXPECT_CALL(licence,Change(0,0,true));
     receive_before_poll(frame(3,identity(0),1,2));

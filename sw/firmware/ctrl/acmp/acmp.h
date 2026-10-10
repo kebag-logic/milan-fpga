@@ -103,16 +103,20 @@
 //   the store's write path. Whether a change is then written is the store's
 //   rule (an unread slot holds its writer, ctrl_nvm/README.md, "Boot" 9).
 //
-//   PUBLISHED BEFORE PROMISED (#665, comment 6088423771). In the split
-//   placement the fabric datapath reads each sink's binding from the mailbox's
-//   publication block: whether it is bound, and the stream_id of the stream it
-//   listens to, which is the one its last PROBE_TX_RESPONSE settled on while
-//   the sink is settled and 0 otherwise (5.5.3.5.18 step 4 to 5.5.3.5.36 step
-//   1: SRP runs only while settled). The transport's publish port is told of
-//   each sink whose pair moved before any frame the entry sends (the BIND_RX
-//   and UNBIND_RX responses promise the bound state, a GET_RX_STATE response
-//   the stream) and, with nothing sent, first thing at the end of the entry,
-//   before the store and the notifier hear of it
+//   PUBLISHED BEFORE PROMISED (#665, comments 6088423771 and 6092086337). In
+//   the split placement the fabric datapath reads each sink's binding from the
+//   mailbox's publication block: whether it is bound, whether it is started
+//   (5.3.8.7: the datapath discards a bound, stopped sink's AVTPDUs), and the
+//   stream_id of the stream it listens to, which is the one its last
+//   PROBE_TX_RESPONSE settled on while the sink is settled and 0 otherwise
+//   (5.5.3.5.18 step 4 to 5.5.3.5.36 step 1: SRP runs only while settled). The
+//   transport's publish port is told of each sink whose triple moved before
+//   any frame the entry sends (the BIND_RX response promises the bound and
+//   started states, by echoing STREAMING_WAIT, the UNBIND_RX response the
+//   bound state, a GET_RX_STATE response the stream) and, with nothing sent,
+//   first thing at the end of the entry, before the store and the notifier
+//   hear of it; acmp_set_started returns only after it, so the AECP response
+//   to START_STREAMING or STOP_STREAMING follows it too
 //   (docs/ARCHITECTURE_HW_SW_SPLIT.md, section 1: state-apply acknowledgements
 //   precede responses promising that state). The bindings the store restored
 //   are published by acmp_open, as the admit port is told of them.
@@ -318,10 +322,13 @@ struct acmp_ports {
 	// the store restored.
 	void (*admit)(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t talker_entity_id);
 	// The sink's binding as the fabric datapath reads it (the publication
-	// block): bound, and the stream_id it listens to, 0 when none. Called for
-	// a sink whose pair moved, before any frame of the entry is sent (see the
-	// top of this file), and by acmp_open for every binding the store restored.
-	void (*publish)(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t stream_id);
+	// block): bound, started, and the stream_id it listens to, 0 when none;
+	// stream_moved says the stream_id is not the one last published. Called
+	// for a sink whose triple moved, before any frame of the entry is sent
+	// (see the top of this file), and by acmp_open for every binding the
+	// store restored.
+	void (*publish)(void *ctx, unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id,
+			bool stream_moved);
 };
 
 // The entity's other owners. Every pointer is required; none may call back
@@ -376,6 +383,7 @@ struct acmp_sink {
 	uint64_t admitted_talker;
 	// what the publish port holds for the sink
 	bool published_bound;
+	bool published_started;
 	uint64_t published_stream;
 	// notification (#653) and the store
 	uint8_t change_owed;                    // owed frames whose leaving releases this sink's change

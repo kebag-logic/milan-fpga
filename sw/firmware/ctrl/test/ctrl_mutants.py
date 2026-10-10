@@ -473,6 +473,21 @@ MUTANTS += maap_mutants(Mutant)
 #: rules are planted too. Each is killed by a test that names it.
 PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
                         "\tif (stream_id != 0u) {")
+PUB_SINK_ENTRY = "bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id)\n{\n"
+PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, "
+                     "bool sid_valid)\n{\n")
+PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
+ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
+ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
+               "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
+               "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
+               "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
+               "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
+               "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
+               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n}")
+ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
+A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
 ACMP_TRANSMIT = "\tpublish(a);\n\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\treturn SENT;\n\t}"
 ACMP_PUB_STREAM = "uint64_t stream = settled ? s->stream.stream_id : 0u;"
 MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);\n"
@@ -497,9 +512,24 @@ MUTANTS += (
     Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
            "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
            "unit", "DriverUnit.D14PublicationBlock", "D14 LICENCE.ACTIVE holds the licences"),
-    Mutant("pub-sink-past-the-block", "mbx/mbx.c", "if (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {",
-           "if (interface >= MBX_N_IF) {",
+    Mutant("pub-sink-past-the-block", "mbx/mbx.c", PUB_SINK_ENTRY + PUB_SINK_REFUSAL,
+           PUB_SINK_ENTRY + "\tif (interface >= MBX_N_IF) {",
            "unit", "DriverUnit.D14PublicationBlock", "D14 a sink past the block's is refused"),
+    # round 3 (#665, comment 6092086337): STARTED and TALKER_DECL
+    Mutant("pub-sink-binding-past-the-block", "mbx/mbx.c", PUB_BINDING_ENTRY + PUB_SINK_REFUSAL,
+           PUB_BINDING_ENTRY + "\tif (interface >= MBX_N_IF) {",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a sink past the block's is refused"),
+    Mutant("pub-started-in-the-bound-bit", "mbx/mbx.c",
+           "mbx_place(started ? 1u : 0u, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH)",
+           "mbx_place(started ? 1u : 0u, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH)",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a start with no stream: BINDING alone, STARTED set"),
+    Mutant("pub-sink-binding-drops-sid-valid", "mbx/mbx.c", "mbx_place(sid_valid ? 1u : 0u,",
+           "mbx_place(sid_valid ? 0u : 0u,",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a stop with the stream unchanged: BINDING alone"),
+    Mutant("pub-talker-decl-in-the-licence", "mbx/mbx.c",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 TALKER_DECL.DECLARED holds the declarations"),
     # the host model's twins of the RTL's rules (tb/verilator/mbx/mutants.py)
     Mutant("model-pub-sid-not-gated", "host/mbx_model.c",
            "\t\tif (mbx_field(binding, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) != 0u) {",
@@ -537,27 +567,53 @@ MUTANTS += (
            "uint64_t stream = s->bound ? (settled ? s->stream.stream_id : s->published_stream) : 0u;",
            "acmp", "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
            "A31 TMR_NO_TK publishes the sink without its stream"),
-    Mutant("pub-acmp-every-sink-every-entry", "acmp/acmp.c",
-           "if (s->bound != s->published_bound || stream != s->published_stream) {", "if (true) {",
-           "acmp", "AcmpCore.A31OnlyAMovedPairIsPublished",
-           "A31 a re-bind to the same talker, a registration, a stop and a discovery move neither bound nor stream"),
+    Mutant("pub-acmp-every-sink-every-entry", "acmp/acmp.c", ACMP_PUB_MOVED, "if (true) {",
+           "acmp", "AcmpCore.A31OnlyAMovedTripleIsPublished",
+           "A31 a re-bind to the same talker, a registration, a start of a started sink and a discovery move"),
     Mutant("pub-acmp-port-unguarded", "acmp/acmp.c",
-           "\ta->in_port = true;\n\ta->ports->publish(a->ports->ctx, interface, sink, bound, stream);\n"
+           "\ta->in_port = true;\n\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);\n"
            "\ta->in_port = false;",
-           "\ta->ports->publish(a->ports->ctx, interface, sink, bound, stream);",
+           "\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);",
            "acmp", "AcmpCore.A31ACallBackFromThePublishPortIsRefused",
            "A31 an UNBIND_RX and a poll from inside the publish port"),
     Mutant("pub-acmp-reset-forgets-the-port", "acmp/acmp.c",
-           "\ts->published_bound = published_bound;\n\ts->published_stream = published_stream;",
-           "\t(void)published_bound;\n\t(void)published_stream;",
+           "\ts->published_bound = published_bound;\n\ts->published_started = published_started;\n"
+           "\ts->published_stream = published_stream;",
+           "\t(void)published_bound;\n\t(void)published_started;\n\t(void)published_stream;",
            "acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
            "A31 a sink the store resets is published unbound at the next open"),
     Mutant("pub-acmp-adapter-drops-the-port", "acmp/acmp_mbx.c",
-           "\t(void)ctx;\n\t(void)mbx_pub_sink(interface, sink, bound, stream_id);",
-           "\t(void)ctx;\n\t(void)interface;\n\t(void)sink;\n\t(void)bound;\n\t(void)stream_id;",
+           "\t(void)ctx;\n\tif (stream_moved) {\n\t\t(void)mbx_pub_sink(interface, sink, bound, started, stream_id);\n"
+           "\t} else {\n\t\t(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);\n\t}",
+           "\t(void)ctx;\n\t(void)interface;\n\t(void)sink;\n\t(void)bound;\n\t(void)started;\n"
+           "\t(void)stream_id;\n\t(void)stream_moved;",
            "acmp", B10, "B10 a BIND_RX publishes its sink bound, with no stream",
            (("acmp", "AcmpMailbox.B11RestoredBindingsArePublishedAtOpen",
              "B11 the restored sink, and only it, is published bound on its interface"),)),
+    # round 3 (#665, comment 6092086337): the started level published after
+    # the BIND_RX response that echoes it and after the notifier, on the
+    # bound field, its move skipped; the adapter rewriting an unmoved stream
+    # (SID_VALID drops for three writes) or dropping SID_VALID
+    Mutant("pub-acmp-started-after-the-response", "acmp/acmp.c", ACMP_REBIND,
+           "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
+           "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
+    Mutant("pub-acmp-started-after-the-report", "acmp/acmp.c", ACMP_FINISH,
+           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
+           "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
+    Mutant("pub-acmp-started-from-bound", "acmp/acmp.c",
+           "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",
+           "p_publish(a, s->interface, k, s->bound, s->bound, stream, moved);",
+           "acmp", A31S, "A31 a bind with STREAMING_WAIT is published bound and stopped"),
+    Mutant("pub-acmp-started-move-skipped", "acmp/acmp.c", ACMP_PUB_MOVED,
+           "if (s->bound != s->published_bound || moved) {",
+           "acmp", A31S, "A31 a re-bind to the same talker without STREAMING_WAIT publishes once"),
+    Mutant("pub-acmp-adapter-rewrites-the-stream", "acmp/acmp_mbx.c", "\tif (stream_moved) {",
+           "\tif (stream_moved || stream_id != 0u) {",
+           "acmp", B12, "B12 a started move is one write to the sink's entry"),
+    Mutant("pub-acmp-adapter-drops-sid-valid", "acmp/acmp_mbx.c",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, false);",
+           "acmp", B12, "B12 that write is BINDING, with SID_VALID kept and STARTED moved"),
     # MAAP: the DA gate published after the allocation is reported, skipped,
     # one source short, held open while the range is invalid, past the block
     Mutant("pub-maap-gate-after-the-report", "maap/maap_mbx.c", MAAP_GATE + MAAP_REPORT,

@@ -47,14 +47,18 @@ DECLARE_SOURCES = 'static bool declare_sources(struct srp_interface *i)\n{'
 SEND_COMMITTED = '    m->owed_len = 0;\n    ++m->transmitted;\n    return 0;\n}'
 
 
-def held_back(name: str, test: str, site: str, publish: str, needle: str, slope: bool = False) -> Defect:
+def held_back(name: str, test: str, site: str, publish: str, needle: str, slope: bool = False,
+              declared: bool = False) -> Defect:
     """The publish at `site` moved after the response: it is held back until
     send_pdu has committed the interface's next MSRP frame, the frame that
-    carries what the value promises. A held slope keeps the value it had."""
+    carries what the value promises. A held slope or set of declared sources
+    keeps the value it had."""
     late=(f'    if (s->app == s->interface->msrp && planted_held[s->interface->index]) {{\n'
           f'        planted_held[s->interface->index] = false;\n        {publish}\n    }}\n')
-    held=' planted_slope[i->index] = (uint32_t)used;' if slope else ''
-    store='static uint32_t planted_slope[MBX_N_IF];\n' if slope else ''
+    held=(' planted_slope[i->index] = (uint32_t)used;' if slope else
+          ' planted_declared[i->index] = declared;' if declared else '')
+    store=('static uint32_t planted_slope[MBX_N_IF];\n' if slope else
+           'static uint32_t planted_declared[MBX_N_IF];\n' if declared else '')
     return Defect(name,test,site,f'    planted_held[i->index] = true;{held}\n',needle,
                   also=((DECLARE_SOURCES,f'static bool planted_held[MBX_N_IF];\n{store}\n{DECLARE_SOURCES}'),
                         (SEND_COMMITTED,SEND_COMMITTED.replace('    return 0;\n',late+'    return 0;\n'))))
@@ -948,14 +952,46 @@ DEFECTS = (
               '(void)mbx_pub_idle_slope(s->interface->index,planted_slope[s->interface->index]);',
               'PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again', slope=True),
     Defect('pub-term-poll-understated','PollPublicationTermIsMeasuredThroughRealCallbacks',
-           '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 2u + 2u * MBX_N_PUB_SOURCES)',
-           '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 2u)',
+           '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 3u + 2u * MBX_N_PUB_SOURCES)',
+           '#define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 3u)',
            "the poll's publication term funds a reset, an adoption and two changes per source",
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('pub-term-reset-understated','PollPublicationTermIsMeasuredThroughRealCallbacks',
-           '#define SRP_MBX_PUB_RESET 3u', '#define SRP_MBX_PUB_RESET 2u',
-           'a reset publishes LICENCE, SR_DOMAIN and IDLE_SLOPE once each',
+           '#define SRP_MBX_PUB_RESET 5u', '#define SRP_MBX_PUB_RESET 4u',
+           'a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
+
+    # round 3 (#665, comment 6092086337): TALKER_DECL, set before the
+    # declarations it describes leave and withdrawn before their participants
+    # are destroyed. Set: skipped, on the wrong register or bit, held back
+    # until the first MSRP frame has left. Withdrawn: skipped at a reset and at
+    # destroy, and moved after the reset's new declarations.
+    Defect('pub-declared-skipped','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '    (void)mbx_pub_talker_decl(i->index,declared);\n', '    (void)declared;\n',
+           'PUB TALKER_DECL holds every declared source from startup'),
+    Defect('pub-declared-in-the-licence','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '(void)mbx_pub_talker_decl(i->index,declared);', '(void)mbx_pub_licence(i->index,declared);',
+           'PUB TALKER_DECL holds every declared source from startup'),
+    Defect('pub-declared-wrong-bit','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '        declared |= 1u << n;', '        declared |= 1u << (n + 1u);',
+           'PUB TALKER_DECL holds every declared source from startup'),
+    held_back('pub-declared-after-the-declarations','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+              '    (void)mbx_pub_talker_decl(i->index,declared);\n',
+              '(void)mbx_pub_talker_decl(s->interface->index,planted_declared[s->interface->index]);',
+              'PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again', declared=True),
+    Defect('pub-declared-kept-at-reset','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '    withdraw_declared(i->index);\n', '',
+           'PUB a link restart withdraws TALKER_DECL before the new participants declare'),
+    Defect('pub-declared-withdrawn-after-the-new-declarations',
+           'PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '    withdraw_declared(i->index);\n', '',
+           'PUB a link restart withdraws TALKER_DECL before the new participants declare',
+           also=(('    if (!open_interface(i)) {\n        ++m->refused;\n    }\n}\n\nstatic void on_event(',
+                  '    if (!open_interface(i)) {\n        ++m->refused;\n    }\n    withdraw_declared(i->index);\n}'
+                  '\n\nstatic void on_event('),)),
+    Defect('pub-declared-kept-at-destroy','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
+           '        withdraw_declared(n);\n', '',
+           'PUB destroy withdraws every declaration from the datapath'),
 
 )
 

@@ -97,16 +97,22 @@ bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound,
 //   mbx_pub_idle_slope  IDLE_SLOPE: the bandwidth SRP admitted, bits per second
 //   mbx_pub_domain      SR_DOMAIN: the operational SR class A priority and VID,
 //                       and whether they were adopted from a received Domain
+//   mbx_pub_talker_decl TALKER_DECL: bit s, source s has a Talker declaration
 bool mbx_pub_da_gate(unsigned interface, uint32_t open);
 bool mbx_pub_licence(unsigned interface, uint32_t active);
 bool mbx_pub_idle_slope(unsigned interface, uint32_t bps);
 bool mbx_pub_domain(unsigned interface, bool adopted, uint8_t priority, uint16_t vid);
-// Sink `sink`'s BINDING: whether it is bound, and the stream_id it settled on,
-// 0 for none. BINDING is written first, with SID_VALID clear; a nonzero
-// stream_id is then written to SID_LO and SID_HI and published by setting
-// SID_VALID, so a half-written stream_id never reaches the datapath. One write
-// without a stream_id, four with one.
-bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, uint64_t stream_id);
+bool mbx_pub_talker_decl(unsigned interface, uint32_t declared);
+// Sink `sink`'s entry, for a stream_id that moved: whether it is bound and
+// started, and the stream_id it settled on, 0 for none. BINDING is written
+// first, with SID_VALID clear; a nonzero stream_id is then written to SID_LO
+// and SID_HI and published by setting SID_VALID, so a half-written stream_id
+// never reaches the datapath. One write without a stream_id, four with one.
+bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id);
+// Sink `sink`'s BINDING alone, for a stream_id that did not move: whether it is
+// bound and started, with SID_VALID as the entry holds it, so the stream_id
+// stays on the datapath through the write. One write.
+bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, bool sid_valid);
 // FILTER_MISMATCH: untagged frames of a control EtherType that matched no
 // channel's tuple, saturating at 0xFFFF.
 uint16_t mbx_filter_mismatch(void);

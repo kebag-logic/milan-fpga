@@ -185,25 +185,28 @@ static void p_admit(struct acmp *a, unsigned interface, unsigned sink, bool boun
 	a->in_port = false;
 }
 
-static void p_publish(struct acmp *a, unsigned interface, unsigned sink, bool bound, uint64_t stream)
+static void p_publish(struct acmp *a, unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream,
+		      bool moved)
 {
 	a->in_port = true;
-	a->ports->publish(a->ports->ctx, interface, sink, bound, stream);
+	a->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);
 	a->in_port = false;
 }
 
-// The datapath's view of each sink (acmp.h): bound, and the settled stream's
-// id; the port is told only of a sink whose pair moved.
+// The datapath's view of each sink (acmp.h): bound, started, and the settled
+// stream's id; the port is told only of a sink whose triple moved.
 static void publish(struct acmp *a)
 {
 	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 		struct acmp_sink *s = &a->sinks[k];
 		bool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;
 		uint64_t stream = settled ? s->stream.stream_id : 0u;
-		if (s->bound != s->published_bound || stream != s->published_stream) {
+		bool moved = stream != s->published_stream;
+		if (s->bound != s->published_bound || s->started != s->published_started || moved) {
 			s->published_bound = s->bound;
+			s->published_started = s->started;
 			s->published_stream = stream;
-			p_publish(a, s->interface, k, s->bound, stream);
+			p_publish(a, s->interface, k, s->bound, s->started, stream, moved);
 		}
 	}
 }
@@ -513,11 +516,13 @@ static void sink_reset(struct acmp *a, unsigned k)
 	bool admitted = s->admitted;
 	uint64_t admitted_talker = s->admitted_talker;
 	bool published_bound = s->published_bound;
+	bool published_started = s->published_started;
 	uint64_t published_stream = s->published_stream;
 	memset(s, 0, sizeof *s);
 	s->admitted = admitted;
 	s->admitted_talker = admitted_talker;
 	s->published_bound = published_bound;
+	s->published_started = published_started;
 	s->published_stream = published_stream;
 	s->interface = a->cfg.sink_interface[k];
 	s->state = ACMP_UNBOUND;

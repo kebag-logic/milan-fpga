@@ -145,6 +145,66 @@ TEST_F(Srp, PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits) {
     EXPECT_GT(left,0u) << "PUB the restarted interface declared again";
 }
 
+// TALKER_DECL (#665 comment 6092086337): every source's Talker attribute is
+// declared, so its bit is set before any MRPDU carrying it leaves, and cleared
+// before the participants holding it are destroyed: by a link restart, before
+// the new participants declare again, and by destroy.
+std::vector<std::pair<uint32_t,uint32_t>> pub_trace;
+void pub_writes(void*, bool write, uint32_t off, uint32_t value) {
+    if (write && off>=MBX_PUB_BASE && off<MBX_PUB_BASE+MBX_N_IF*MBX_PUB_STRIDE) pub_trace.emplace_back(off,value);
+}
+
+TEST_F(Srp, PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst) {
+    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
+    settle();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB TALKER_DECL holds every declared source from startup";
+        EXPECT_EQ(pub_of(model,i).licence,0u) << "PUB and is not the licence: no Listener is registered";
+    }
+    const unsigned last=MBX_N_IF-1u;
+    const uint32_t block=MBX_PUB_BASE+MBX_PUB_STRIDE*last;
+    // a value the firmware did not write, then a link restart: the
+    // declarations are withdrawn, then published again before the restart's
+    // first declaration leaves
+    mbx_model_write(&model,block+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    pub_trace.clear(); mbx_host_trace(pub_writes,nullptr);
+    mbx_model_set_link(&model,last,false); settle();
+    mbx_host_trace(nullptr,nullptr);
+    std::size_t withdrawn=SIZE_MAX, recreated=SIZE_MAX;
+    for (std::size_t n=0;n<pub_trace.size();++n) {
+        if (pub_trace[n].first==block+MBX_PUB_REG_TALKER_DECL && pub_trace[n].second==0u && withdrawn==SIZE_MAX)
+            withdrawn=n;
+        if (pub_trace[n].first==block+MBX_PUB_REG_SR_DOMAIN && recreated==SIZE_MAX) recreated=n;
+    }
+    EXPECT_TRUE(withdrawn!=SIZE_MAX && recreated!=SIZE_MAX && withdrawn<recreated)
+        << "PUB a link restart withdraws TALKER_DECL before the new participants declare";
+    EXPECT_EQ(pub_of(model,last).talker_decl,all) << "PUB and publishes it again as they declare";
+    commits_seen.clear(); traced_model=&model; mbx_host_trace(commit_trace,nullptr);
+    const uint32_t first=model.tx_sent;
+    mbx_model_write(&model,block+MBX_PUB_REG_TALKER_DECL,0u,0xFu);
+    mbx_model_set_link(&model,last,true); settle();
+    advance(200);
+    mbx_host_trace(nullptr,nullptr);
+    capture();
+    unsigned talkers=0;
+    for (const auto &d:declarations) {
+        if (d.interface!=last || d.ethertype!=0x22ea || d.frame<first || commit_of(d.frame)==nullptr) continue;
+        if (d.type!=1 && d.type!=2) continue;
+        ++talkers;
+        EXPECT_EQ(commit_of(d.frame)->pub[last].talker_decl,all)
+            << "PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again";
+    }
+    EXPECT_GT(talkers,0u) << "PUB the restarted interface declared its Talkers again";
+    for (unsigned i=0;i+1u<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "PUB another interface keeps its own declarations";
+    }
+    srp_mbx_destroy(&adapter);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,0u) << "PUB destroy withdraws every declaration from the datapath";
+    }
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+}
+
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);

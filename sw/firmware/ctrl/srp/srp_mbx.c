@@ -19,8 +19,8 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 // This recovery limit does not extend the 10 ms service budget.
 #define SRP_RX_RETRY_MS 1000u
 
-// Every source has its bit of the publication block's LICENCE.
-_Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE bit");
+// Every source has its bit of the publication block's LICENCE and TALKER_DECL.
+_Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE and a TALKER_DECL bit");
 
 static struct srp_mbx *timer_owner;
 static void tick(void);
@@ -68,6 +68,18 @@ static void publish_licence(const struct srp_interface *i)
         active |= (i->active[k] ? 1u : 0u) << k;
     }
     (void)mbx_pub_licence(i->index,active);
+}
+
+// The interface's Talker declarations as the fabric datapath reads them (the
+// publication block's TALKER_DECL, bit s source s): set by declare_sources
+// before the declarations it describes are sent, and cleared here before the
+// participants holding them are destroyed, so the datapath tags a stream's
+// frames only while its Talker attribute is declared (802.1Q 35.1.2: a bridge
+// prunes a tagged stream with none). A creation that fails declared nothing
+// the block shows: declare_sources publishes only once every source joined.
+static void withdraw_declared(unsigned index)
+{
+    (void)mbx_pub_talker_decl(index,0u);
 }
 
 static struct srp_interface *from_ctx(struct msrp_ctx *ctx)
@@ -145,6 +157,7 @@ static bool declare_sources(struct srp_interface *i)
 {
     struct srp_mbx *m = i->owner;
     uint64_t used = 0;
+    uint32_t declared = 0;
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         struct msrp_talker_failed value = {.talker=i->sources[n].value};
         value.talker.vlan_id = i->domain.vid;
@@ -167,10 +180,13 @@ static bool declare_sources(struct srp_interface *i)
                          &value,true) != 0) {
             return false;
         }
+        declared |= 1u << n;
     }
-    // The admitted bandwidth (IDLE_SLOPE), before these declarations are sent.
-    // used is at most three quarters of a 32-bit link rate.
+    // The admitted bandwidth (IDLE_SLOPE) and the declared sources
+    // (TALKER_DECL), before these declarations are sent. used is at most
+    // three quarters of a 32-bit link rate.
     (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
+    (void)mbx_pub_talker_decl(i->index,declared);
     return true;
 }
 
@@ -336,6 +352,7 @@ void srp_mbx_destroy(struct srp_mbx *m)
                 m->config.licence(m->config.ctx,n,k,false);
             }
         }
+        withdraw_declared(n);
         msrp_app_destroy(i->msrp); i->msrp = NULL;
         mvrp_app_destroy(i->mvrp); i->mvrp = NULL;
     }
@@ -723,6 +740,7 @@ static void reset_interface(struct srp_interface *i)
             m->config.licence(m->config.ctx,i->index,k,false);
         }
     }
+    withdraw_declared(i->index);
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
     i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
