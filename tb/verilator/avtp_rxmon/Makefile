@@ -38,13 +38,36 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_nx_wrap.sv
-.PHONY: all run clean coverage
+# #640 M6 lockstep leg: the shipping context engine beside the pre-change
+# reference (reference/KL_avtp_rx_monitor_ctx_ref.sv, dev e8454e27's module
+# with only its name changed), at the shipping N=1 and the 8x8 shape's N=8.
+# RXMON_SRC and LS_MDIR are overridable so lockstep_mutants.py builds a
+# MUTATED copy of the engine through this exact recipe.
+RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv
+LS_MDIR   ?= obj_ls
+LSFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap \
+         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+LSSRCS = reference/KL_avtp_rx_monitor_ctx_ref.sv $(RXMON_SRC) \
+         avtp_rxmon_lockstep_wrap.sv
+.PHONY: all run clean coverage lockstep-build lockstep
 all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vavtp_rxmon_wrap_sim
 	./obj_dir/Vavtp_rxmon_wrap_sim
 	$(VERILATOR) $(NXFLAGS) --Mdir obj_nx $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
 	./obj_nx/Vavtp_rxmon_nx_sim
+	$(MAKE) lockstep
+	python3 lockstep_mutants.py
+lockstep-build:
+	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)1 -GN_LISTENERS_P=1 \
+	  -CFLAGS -DN_TB=1 $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)8 -GN_LISTENERS_P=8 \
+	  -CFLAGS -DN_TB=8 $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+lockstep: lockstep-build
+	./$(LS_MDIR)1/Vavtp_rxmon_lockstep
+	./$(LS_MDIR)8/Vavtp_rxmon_lockstep
 
 # Line+toggle coverage over the RX stack (parser + monitor + depacketizer).
 # Gate: LINE coverage of the two KL_ modules must be >= 95 % (defensive-only arms carry coverage_off pragmas).
@@ -57,4 +80,4 @@ coverage:
 	    | tail -2
 	@python3 cov_gate.py cov_annotated 95
 clean:
-	rm -rf obj_dir obj_cov coverage.dat cov_annotated
+	rm -rf obj_dir obj_ls1 obj_ls8 obj_cov coverage.dat cov_annotated
