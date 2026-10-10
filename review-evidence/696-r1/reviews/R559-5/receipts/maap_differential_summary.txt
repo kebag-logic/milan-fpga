@@ -1,0 +1,73 @@
+Summary of: python3 sw/firmware/ctrl/test/maap_differential.py --self-test --keep <scratch>/differential (rc=0); full 13 MB log kept unpublished
+49:== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+50:RESULT: PASS
+51:  verdict: PASS (12 tests, 0 failures, exit 0)
+263:== MAAP core and parent wire differential: checks: 12   failures: 7 ==
+264:RESULT: FAIL
+265:  verdict: FAIL (its tallies report 7 failure(s) across 12 checks, exit 1)
+266:[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+335:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+336:RESULT: FAIL
+337:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+338:[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+399:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+400:RESULT: FAIL
+401:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+402:[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+463:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+464:RESULT: FAIL
+465:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+466:[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+527:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+528:RESULT: FAIL
+529:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+530:[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+591:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+592:RESULT: FAIL
+593:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+594:[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+655:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+656:RESULT: FAIL
+657:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+658:[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+719:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+720:RESULT: FAIL
+721:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+722:[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+782:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+783:RESULT: FAIL
+784:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+785:[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+877:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+878:RESULT: FAIL
+879:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+880:[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+972:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+973:RESULT: FAIL
+974:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+975:[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+106065:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+106066:RESULT: FAIL
+106067:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+106068:[ok] differential mutant probe-1ms: MaapDifferential.ProbeTimingAndCount
+211158:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+211159:RESULT: FAIL
+211160:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+211161:[ok] differential mutant probe-500ms: MaapDifferential.ProbeTimingAndCount
+316251:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+316252:RESULT: FAIL
+316253:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+316254:[ok] differential mutant probe-600ms: MaapDifferential.ProbeTimingAndCount
+328610:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+328611:RESULT: FAIL
+328612:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+328613:[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+328670:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+328671:RESULT: FAIL
+328672:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+328673:[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+328736:== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+328737:RESULT: FAIL
+328738:  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+328739:[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+328740:differential mutants: 17/17 caught
