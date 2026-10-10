@@ -31,30 +31,28 @@
                   500..600 ms, announce strictly inside 30..32 s.
                   RX, only for a range that conflicts (note b: the ranges
                   share an address; an empty range never conflicts):
-                  PROBE while probing -> re-address; PROBE while announced
+                  PROBE while probing -> compare_MAC; PROBE while announced
                   -> DEFEND with the overlapping sub-range (B.2.7/B.2.8);
-                  DEFEND -> re-address; ANNOUNCE while probing ->
+                  DEFEND while probing -> re-address; while announced ->
+                  compare_MAC; ANNOUNCE while probing ->
                   re-address; ANNOUNCE while announced -> compare_MAC
                   (B.3.6.4), re-address only when this station is not the
                   lower. A DEFEND is judged on its conflict_* fields, a
                   PROBE or ANNOUNCE on its requested_* fields (B.2.5-B.2.8).
 
                 Deviations (documented in MAAP_FABRIC.md, outside #686's
-                items): no compare_MAC in the rProbe!/PROBE and
-                rDefend!/DEFEND cells; a DEFEND carries this station's
-                range, not the PROBE's, in requested_* (B.3.6.6); a 16-bit
-                station-MAC-seeded LFSR draws the offset (B.3.6.1); no
-                PortOperational! input; RX parse is untagged-only (a tagged
-                MAAP PDU is ignored); a PROBE parsed while a frame is on
-                the wire is not defended; a supplied seed is not
-                range-checked.
+                items): the offset folds a generator draw into the pool
+                rather than drawing uniformly (B.3.6.1); RX is untagged-only.
+                One response buffer retains a PROBE during PROBE/ANNOUNCE
+                transmission; further PROBEs while a DEFEND is pending or
+                transmitting are lost.
+                Supplied seeds are validated against Table B.9.
 
                 Persistence (reference load/save_state) is softcore
                 provisioning: software may seed seed_offset_i +
                 seed_valid_i before enable to re-probe the previously won
                 block (Table B.7 note a). A random draw is clipped to the
-                pool; the supplied seed is used as given, so provisioning
-                must supply a block that fits inside the 0xFE00 pool.
+                pool; an invalid supplied seed falls back to a random draw.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -81,7 +79,9 @@ module KL_maap #(
   input  wire         rst_n,             //! Active-low synchronous reset
 
   input  wire         enable_i,          //! CSR MAAP_CTRL.en (0 = engine idle)
+  input  wire         port_operational_i, //! axis-clock link level; rising re-probes
   input  wire [7:0]   count_i,           //! block size to claim (reference: 8)
+  input  wire [31:0]  realtime_ns_i,     //! local real-time clock, synchronous
   input  wire [47:0]  station_mac_i,     //! source MAC ([47:40] = first wire byte)
   input  wire [15:0]  seed_offset_i,     //! provisioning: preferred offset
   input  wire         seed_valid_i,      //! 1 = first probe uses seed_offset_i
@@ -138,21 +138,23 @@ module KL_maap #(
   logic         tick_ms_w;
   assign tick_ms_w = (tickdiv_r == '0);
 
-  //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded.
-  //! All-zero is its only fixed point and no other state reaches it (the
-  //! step is an invertible linear map), so the reset seed is never zero:
-  //! a MAC that folds to zero (mac[15:0] ^ mac[31:16] == 0xACE1) takes the
-  //! constant instead, and the B.3.4 timer draws stay random for every MAC.
-  logic [15:0]  lfsr_r;
-  wire  [15:0]  lfsr_next_w = {lfsr_r[14:0],
-                               lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]};
-  wire  [15:0]  mac_seed_w  = 16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16];
+  //! B.3.6.1: 32-bit Fibonacci LFSR, period 2^32 - 1.
+  //! First enable samples the low 32 bits of MAC plus local real-time clock.
+  //! The all-zero seed takes a nonzero fallback to avoid the fixed point.
+  logic [31:0]  lfsr_r;
+  logic         rng_seeded_r;           //! first enable follows MAC programming
+  wire  [31:0]  lfsr_next_w = {lfsr_r[30:0],
+                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]};
+  wire  [31:0]  mac_seed_w  = station_mac_i[31:0] + realtime_ns_i;
+  wire  [31:0]  enable_seed_w = (mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w;
 
   // ---- claim state ----------------------------------------------------------
   logic [15:0]  offset_r;
   logic [2:0]   probe_left_r;            //! PROBEs still to send, 4..1
   logic [15:0]  timer_ms_r;              //! counts down to the next TX event
   logic         seed_used_r;
+  logic         port_operational_r;
+  wire port_operational_p = port_operational_i && !port_operational_r;
   assign offset_o = offset_r;
   assign addr_o   = {POOL_BASE_HI_C, offset_r};
   assign addr_valid_o = (state_r == ANNOUNCE_S);
@@ -187,6 +189,10 @@ module KL_maap #(
   logic [15:0]  rx_start_r;              //! range offset
   logic [15:0]  rx_cnt_r;                //! range count
   logic         rx_done_p;               //! pulse: full PDU parsed
+  logic         rx_bytes_valid_r;        //! every required earlier byte present
+  wire [7:0] rx_required_keep_w = (rbeat_r < 3'd5) ? 8'hFF
+                                   : (rbeat_r == 3'd5) ? 8'h03 : 8'h00;
+  wire rx_beat_complete_w = ((rx_tkeep_i & rx_required_keep_w) == rx_required_keep_w);
 
   //! byte lane accessor (little lane order: lane j = wire byte 8b+j)
   function automatic [7:0] lane(input [63:0] w, input [2:0] j);
@@ -206,6 +212,10 @@ module KL_maap #(
   wire        conflict_w = rx_pool_r && (rx_cnt_r != 16'd0) && (count_i != 8'd0)
                            && ({1'b0, rx_start_r} < our_end_w)
                            && ({1'b0, offset_r} < req_end_w);
+  //! One response buffer holds a pending or transmitting DEFEND. PROBE and
+  //! ANNOUNCE use separate own-range snapshots, leaving that buffer available.
+  //! Further PROBEs while the response buffer is occupied cannot be queued.
+  logic defend_pending_r;
   //! the overlapping sub-range a DEFEND reports (B.2.7/B.2.8)
   wire [15:0] conf_start_w = (rx_start_r > offset_r) ? rx_start_r : offset_r;
   wire [16:0] conf_end_w   = (req_end_w < our_end_w) ? req_end_w : our_end_w;
@@ -220,21 +230,26 @@ module KL_maap #(
 
   // ---- TX frame builder -----------------------------------------------------
   //! 60-byte padded frame, 8 beats, last keep 0x0F. Every per-frame field a
-  //! protocol event can change (message type, destination, requested offset,
+  //! protocol event can change (message type, destination, requested range,
   //! conflict range) is latched at the send request, so a Restart! (or the
   //! next RX PDU) taken while a frame is on the wire cannot rewrite that
-  //! frame. requested_count and the source MAC follow count_i and
-  //! station_mac_i and are not protected against reconfiguration during a
-  //! frame.
+  //! frame. The source MAC follows station_mac_i and is not protected
+  //! against reconfiguration during a frame.
   logic        tx_busy_r;
   logic [1:0]  tx_msg_r;
   logic [47:0] tx_dst_r;                 //! DEFEND only: the prober's MAC
-  logic [15:0] tx_off_r;                 //! requested_start offset
+  logic [15:0] tx_off_r;                 //! own requested_start snapshot
+  logic [7:0]  tx_own_cnt_r;             //! own requested_count snapshot
+  logic [15:0] tx_defend_off_r;          //! PROBE requested_start echo
+  logic [15:0] tx_cnt_r;                 //! requested_count, full PROBE echo
   logic [15:0] tx_conf_start_r, tx_conf_cnt_r;
   logic [2:0]  tx_beat_r;
 
   function automatic [63:0] tx_beat(input [2:0] b);
     logic [7:0] f [0:63];
+    logic [15:0] requested_start, requested_count;
+    requested_start = (tx_msg_r == MSG_DEFEND_C) ? tx_defend_off_r : tx_off_r;
+    requested_count = (tx_msg_r == MSG_DEFEND_C) ? tx_cnt_r : {8'd0, tx_own_cnt_r};
     for (int i = 0; i < 64; i++) f[i] = 8'h00;
     //! B.2.1: a DEFEND to the triggering PROBE's source, others multicast
     {f[0],f[1],f[2],f[3],f[4],f[5]} = (tx_msg_r == MSG_DEFEND_C) ? tx_dst_r
@@ -247,8 +262,8 @@ module KL_maap #(
     f[17] = CDL_C;                                   // control_data_length
     // stream_id bytes 18..25 = 0
     {f[26],f[27],f[28],f[29]} = POOL_BASE_HI_C;      // request_start
-    f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];
-    f[32] = 8'h00; f[33] = count_i;                  // request_count
+    f[30] = requested_start[15:8]; f[31] = requested_start[7:0];
+    f[32] = requested_count[15:8]; f[33] = requested_count[7:0];
     if (tx_msg_r == MSG_DEFEND_C) begin              // DEFEND: conflict fields
       {f[34],f[35],f[36],f[37]} = POOL_BASE_HI_C;
       f[38] = tx_conf_start_r[15:8]; f[39] = tx_conf_start_r[7:0];
@@ -268,19 +283,29 @@ module KL_maap #(
   wire rx_hit_w = rx_done_p && (state_r != IDLE_S) && conflict_w;
   //! INITIAL/Restart!: re-address and probe again
   wire restart_w = rx_hit_w &&
-                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S)) ||
-                    (rx_msg_r == {2'b00, MSG_DEFEND_C}) ||
+                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S) && !mac_lower_w) ||
+                    ((rx_msg_r == {2'b00, MSG_DEFEND_C}) &&
+                     ((state_r != ANNOUNCE_S) || !mac_lower_w)) ||
                     ((rx_msg_r == {2'b00, MSG_ANNOUNCE_C}) &&
                      ((state_r == PROBE_S) || !mac_lower_w)));
-  //! sDefend; a PROBE parsed while a frame is in flight goes unanswered
-  wire defend_w  = rx_hit_w && (rx_msg_r == {2'b00, MSG_PROBE_C})
-                   && (state_r == ANNOUNCE_S) && !tx_busy_r;
+  wire probe_hit_w = rx_hit_w && (rx_msg_r == {2'b00, MSG_PROBE_C})
+                     && (state_r == ANNOUNCE_S);
+  wire defend_w = defend_pending_r
+                  && (state_r == ANNOUNCE_S) && !tx_busy_r;
+  //! Keep the single response buffer stable until its frame drains.
+  wire save_probe_w = probe_hit_w && !defend_pending_r
+                     && !(tx_busy_r && tx_msg_r == MSG_DEFEND_C);
 
   // ---- main SM ---------------------------------------------------------------
-  //! generate_address for Begin!: the provisioning seed once (note a), used
-  //! as given (not range-checked); otherwise a random draw clipped to the pool
-  wire [15:0] new_off_w = seed_valid_i && !seed_used_r
-                          ? seed_offset_i : rand_offset(lfsr_next_w, count_i);
+  //! Table B.9: reject supplied ranges extending outside the dynamic pool.
+  wire [16:0] seed_end_w = {1'b0, seed_offset_i} + {9'd0, count_i};
+  wire seed_in_pool_w = (seed_offset_i < POOL_SIZE_C)
+                         && (seed_end_w <= {1'b0, POOL_SIZE_C});
+  //! generate_address for Begin!: use a valid provisioning seed once (note a).
+  //! An invalid seed falls back to the normal bounded random draw.
+  wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
+                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w[15:0]
+                                                                    : enable_seed_w[15:0], count_i);
 
   always_ff @(posedge clk_i) begin : maap_sm
     if (!rst_n) begin
@@ -289,17 +314,23 @@ module KL_maap #(
       probe_left_r <= '0;
       timer_ms_r   <= '0;
       tickdiv_r    <= '0;
-      lfsr_r       <= (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
+      lfsr_r       <= 32'hACE1;
+      rng_seeded_r <= 1'b0;
       seed_used_r  <= 1'b0;
+      port_operational_r <= 1'b0;
       conflicts_o  <= '0;
       defends_o    <= '0;
       tx_busy_r    <= 1'b0;
       tx_msg_r     <= '0;
       tx_dst_r     <= '0;
       tx_off_r     <= '0;
+      tx_own_cnt_r <= '0;
+      tx_defend_off_r <= '0;
+      tx_cnt_r     <= '0;
       tx_conf_start_r <= '0;
       tx_conf_cnt_r   <= '0;
       tx_beat_r    <= '0;
+      defend_pending_r <= 1'b0;
       rbeat_r      <= '0;
       is_maap_r    <= 1'b0;
       rx_msg_r     <= '0;
@@ -308,12 +339,20 @@ module KL_maap #(
       rx_start_r   <= '0;
       rx_cnt_r     <= '0;
       rx_done_p    <= 1'b0;
+      rx_bytes_valid_r <= 1'b0;
     end
     else begin
       rx_done_p <= 1'b0;
+      port_operational_r <= port_operational_i;
 
-      //! free-running entropy + ms tick
+      //! free-running generator + ms tick
       lfsr_r    <= lfsr_next_w;
+      //! Firmware programs the MAC after reset. Sample MAC + clock at first enable,
+      //! then keep the generator running across Release!/Begin! retries.
+      if (enable_i && !rng_seeded_r) begin
+        lfsr_r       <= enable_seed_w;
+        rng_seeded_r <= 1'b1;
+      end
       tickdiv_r <= (tickdiv_r == '0) ? ($bits(tickdiv_r))'(TICK_DIV_C - 1)
                                      : tickdiv_r - 1'b1;
       if (tick_ms_w && timer_ms_r != '0) timer_ms_r <= timer_ms_r - 16'd1;
@@ -329,6 +368,7 @@ module KL_maap #(
 
       // ---- RX monitor tap parse ------------------------------------------
       if (in_acc_w) begin
+        rx_bytes_valid_r <= rx_beat_complete_w && ((rbeat_r == '0) || rx_bytes_valid_r);
         rbeat_r <= (rbeat_r == 3'd7) ? 3'd7 : rbeat_r + 3'd1;
         if (rbeat_r == 3'd0)
           rx_src_r[47:32] <= {lane(rx_tdata_i, 3'd6), lane(rx_tdata_i, 3'd7)};
@@ -350,8 +390,25 @@ module KL_maap #(
           rx_cnt_r <= {lane(rx_tdata_i, 3'd0), lane(rx_tdata_i, 3'd1)};
         if (rx_tlast_i) begin
           rbeat_r   <= '0;
-          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i;
+          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i
+                       && rx_bytes_valid_r && rx_beat_complete_w;
           is_maap_r <= 1'b0;
+        end
+      end
+
+      //! Response ownership ends with the allocation. Never defend a released
+      //! range after a link-return, disable or conflicting-announcement restart.
+      if (!enable_i || restart_w || port_operational_p)
+        defend_pending_r <= 1'b0;
+      else begin
+        if (defend_w) defend_pending_r <= 1'b0;
+        if (save_probe_w) begin
+          defend_pending_r <= 1'b1;
+          tx_dst_r        <= rx_src_r;
+          tx_defend_off_r <= rx_start_r;
+          tx_cnt_r        <= rx_cnt_r;
+          tx_conf_start_r <= conf_start_w;
+          tx_conf_cnt_r   <= conf_cnt_w;
         end
       end
 
@@ -373,25 +430,23 @@ module KL_maap #(
 
         PROBE_S, ANNOUNCE_S : begin
           if (!enable_i) state_r <= IDLE_S;
-          else if (restart_w) begin             //! Restart! -> ReserveAddress!
-            offset_r     <= rand_offset(lfsr_r, count_i);
+          else if (restart_w || port_operational_p) begin //! Table B.7 restart
+            offset_r     <= rand_offset(lfsr_r[15:0], count_i);
             probe_left_r <= 3'(PROBE_SENDS_C);
             timer_ms_r   <= '0;                 //! sProbe at once
             state_r      <= PROBE_S;
-            conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
+            if (restart_w)
+              conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
           end
           else if (defend_w) begin              //! sDefend the overlap
             tx_msg_r        <= MSG_DEFEND_C;
-            tx_dst_r        <= rx_src_r;
-            tx_off_r        <= offset_r;
-            tx_conf_start_r <= conf_start_w;
-            tx_conf_cnt_r   <= conf_cnt_w;
             tx_busy_r       <= 1'b1;
             defends_o <= (&defends_o) ? defends_o : defends_o + 8'd1;
           end
           else if (timer_ms_r == '0 && !tx_busy_r) begin
             tx_busy_r <= 1'b1;
             tx_off_r  <= offset_r;
+            tx_own_cnt_r <= count_i;
             if (state_r == ANNOUNCE_S) begin    //! announcetimer!: sAnnounce
               tx_msg_r   <= MSG_ANNOUNCE_C;
               timer_ms_r <= announce_iv_w;

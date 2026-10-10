@@ -29,13 +29,65 @@ RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
 BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                "            state_r      <= PROBE_S;\n          end")
 RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
-                 "            state_r      <= PROBE_S;\n            conflicts_o")
+                 "            state_r      <= PROBE_S;\n            if (restart_w)")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
-SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
+SEED = "(mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w"
 SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
+    ("m3_short_period", "M3",
+     "{lfsr_r[30:0],\n                               lfsr_r[31] ^ lfsr_r[21] ^ lfsr_r[1] ^ lfsr_r[0]}",
+     "{16'd0, lfsr_r[14:0], lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]}",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_trap_outside_basis", "M3",
+     "lfsr_next_w = {lfsr_r[30:0],",
+     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : {lfsr_r[30:0],",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_ignores_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0]", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_xors_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0] ^ realtime_ns_i", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_reseeds_after_release", "M3", "enable_i && !rng_seeded_r", "enable_i",
+     "M3 Release/Begin retains the generator sequence"),
+    ("m6_overwrite_active_response", "M6",
+     "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
+     "M6 occupied response buffer preserves active DEFEND"),
+    ("m6_replace_pending_response", "M6",
+     "probe_hit_w && !defend_pending_r", "probe_hit_w",
+     "M6 pending response preserves prober and requested range"),
+    ("m6_pending_survives_release", "M6",
+     "if (!enable_i || restart_w || port_operational_p)", "if (1'b0)",
+     "M6 pending response cancelled with allocation"),
+    ("m6_drop_busy_probe", "M6", "if (save_probe_w) begin", "if (1'b0) begin",
+     "M6 busy PROBE gets DEFEND after wire is free"),
+    ("m6_pending_source_not_saved", "M6", "tx_dst_r        <= rx_src_r;",
+     "tx_dst_r        <= 48'd0;", "M6 pending response preserves prober and requested range"),
+    ("m5_ignore_link_return", "M5", "else if (restart_w || port_operational_p)", "else if (restart_w)",
+     "M5 B.3.5.9 link return revokes and reprobes"),
+    ("m5_level_restarts", "M5", "port_operational_i && !port_operational_r",
+     "port_operational_i", "M5 B.3.5.9 link return restarts PROBE"),
+    ("m5_restart_on_link_loss", "M5", "port_operational_i && !port_operational_r",
+     "!port_operational_i && port_operational_r",
+     "M5 B.3.5.9 link loss is no event; return reprobes"),
+    ("m1_probe_no_compare", "M1", "(state_r == PROBE_S) && !mac_lower_w",
+     "(state_r == PROBE_S)", "M1 rProbe/PROBE lower MAC keeps range"),
+    ("m1_defend_no_compare", "M1", "((state_r != ANNOUNCE_S) || !mac_lower_w)",
+     "1'b1", "M1 rDefend/DEFEND lower MAC keeps range"),
+    ("m8_early_last_accepted", "M8", "(rbeat_r >= 3'd5)", "1'b1",
+     "M8 B.2 truncated PROBE-state input has no effect"),
+    ("m8_missing_bytes_accepted", "M8", "&& rx_bytes_valid_r && rx_beat_complete_w", "",
+     "M8 B.2 truncated DEFEND-state input has no effect"),
+    ("m7_accept_invalid_seed", "M7", " && seed_in_pool_w", "",
+     "M7 Table B.9 invalid supplied range refused"),
+    ("m7_reject_valid_boundary", "M7", "seed_end_w <= {1'b0, POOL_SIZE_C}",
+     "seed_end_w < {1'b0, POOL_SIZE_C}",
+     "M7 Table B.9 valid supplied boundary retained"),
+    ("m2_own_requested_start", "M2", "tx_defend_off_r <= rx_start_r;",
+     "tx_defend_off_r <= offset_r;", "M2 B.3.6.6 requested start echoes PROBE"),
+    ("m2_own_requested_count", "M2", "tx_cnt_r        <= rx_cnt_r;",
+     "tx_cnt_r        <= {8'd0, count_i};",
+     "M2 B.3.6.6 requested count echoes all 16 bits"),
     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
      "B.2.1 cdl 16 (Begin! PROBE 1)"),
     ("defend_to_multicast", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
@@ -84,7 +136,7 @@ MUTANTS = (
      "                timer_ms_r <= announce_iv_w;\n",
      "T.B7 probeCount!: ANNOUNCE at once (Begin!)"),
     ("restart_rewrites_the_frame_on_the_wire", SUPPORTING,
-     "f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];",
+     "f[30] = requested_start[15:8]; f[31] = requested_start[7:0];",
      "f[30] = offset_r[15:8]; f[31] = offset_r[7:0];", "frame on the wire keeps its offset"),
     ("overlap_count_to_our_end", SUPPORTING, "16'(conf_end_w - {1'b0, conf_start_w})",
      "16'(our_end_w - {1'b0, conf_start_w})", "B.2.8 conflict_count = overlap (below)"),
@@ -96,13 +148,17 @@ MUTANTS = (
 )
 
 
-def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
+def run_case(work: Path, name: str, source: str, failure: str | None,
+             integration: bool = False) -> bool:
     """A compiler error or abnormal termination never counts as a kill."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
     mdir = work / f"obj_{name}"
+    target = "integration-build" if integration else "build"
+    directory = "DP_MDIR" if integration else "MDIR"
     result = subprocess.run(
-        ["make", "-s", "-C", str(HERE), "build", f"MAAP_RTL={rtl}", f"MDIR={mdir}",
+        ["make", "-j8", "-s", "-C", str(HERE), target, f"MAAP_RTL={rtl}",
+         f"{directory}={mdir}",
          f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}",
          f"VERILATOR_JOBS={os.environ.get('VERILATOR_JOBS', '0')}"],
         capture_output=True, text=True, check=False)
@@ -110,7 +166,8 @@ def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
         print(result.stdout[-2000:] + result.stderr[-2000:])
         print(f"[ESCAPED] {name}: compilation failed")
         return False
-    result = subprocess.run([str(mdir / "VKL_maap_sim")],
+    executable = "maap_integration" if integration else "VKL_maap_sim"
+    result = subprocess.run([str(mdir / executable)], cwd=mdir,
                             capture_output=True, text=True, check=False)
     output = result.stdout + result.stderr
     if failure is None:
@@ -134,7 +191,7 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, interrupted)
     source = RTL.read_text()
-    items = {item for _, item, _, _, _ in MUTANTS} - {SUPPORTING}
+    items = {item for _, item, _, _, _ in MUTANTS if isinstance(item, int)} - {SUPPORTING}
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
@@ -149,6 +206,32 @@ def main() -> int:
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
+        results.append(run_case(work, "m4_datapath_clean", source, None, True))
+        anchor = "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;"
+        replacement = "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M4: expected exactly one reset-seed anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m4_reset_time_sampling", source.replace(anchor, replacement),
+                "M4 datapath: programmed MAC changes probe intervals", True))
+        anchor = "else if (restart_w || port_operational_p)"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M5: expected exactly one link-return anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m5_datapath_ignores_link", source.replace(anchor, "else if (restart_w)"),
+                "M5 datapath: link return starts four fresh PROBEs", True))
+        anchor = "station_mac_i[31:0] + realtime_ns_i"
+        if source.count(anchor) != 1:
+            print("[ESCAPED] M3: expected exactly one clock-seed anchor")
+            results.append(False)
+        else:
+            results.append(run_case(
+                work, "m3_datapath_ignores_clock", source.replace(anchor, "station_mac_i[31:0]"),
+                "M3 datapath: real-time clock changes probe intervals", True))
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

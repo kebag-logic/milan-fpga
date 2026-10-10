@@ -264,8 +264,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! EVERYTHING in docs/AAF_LATENCY_TAPS.md: the CAP-SOF/SOF-EOF/EOF-MAC
   //! silicon numbers cannot be reproduced on a pruned bitstream.
   parameter int LTAP_P = 1,
-  //! MAAP engine (KL_maap, 515 LUT / 278 FF by syn/yosys/ooc.sh). 0 prunes
-  //! it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
+  //! MAAP engine (KL_maap). Measured area: docs/design/MAAP_FABRIC.md.
+  //! 0 prunes it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
   //! that is the state a build with MAAP_CTRL.en = 0 is in today:
   //! eff_aaf_dmac falls back to the CSR-provisioned AAF_DMAC and the
   //! admission gate's MAAP term (~cfg_maap_enable | maap_addr_valid) is
@@ -7168,6 +7168,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
+    .port_operational_i (eff_link_w),
+    .realtime_ns_i     (ptp_now_w[31:0]),
     .count_i  (cfg_maap_count),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],

@@ -53,7 +53,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
 | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
 | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
-| Gate comparison | With the current record, WNS >= +0.049 ns also preserves the 0.25 ns fall limit |
+| Gate comparison | At the current +0.114 ns WNS record, the +0.030 ns floor binds first, after a fall of 0.084 ns; the 0.25 ns fall limit is unchanged |
 | Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
 | Delivery | Milestone 12 by 2026-12-15, before P3 |
 
@@ -107,7 +107,10 @@ Its deltas therefore inform planning, not a comparable gate verdict.
 
 ### Current processor inventory
 
-These are the current record's source-scope references.
+These are the source-scope references of the gate's current record, [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [re-baseline of 2026-10-10](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696).
+It measured merge result `0df48637` of dev `8b61b709`, with processor `2ad2f845`.
+Against the baseline above, only the route figures changed; both standalone endpoints keep every figure.
+The levers and the ledger keep the baseline's route figures.
 The routed hierarchy is rebuilt and can absorb neighbouring logic.
 Use standalone scopes to estimate removable source functionality.
 Parent rows include descendants; never add both to a saving.
@@ -115,32 +118,33 @@ The [historical inventory](#inventory) supplies functions, clauses and construct
 
 | Scope relative to wrapper | Route LUT | OOC 1x1 LUT | OOC 8x8 LUT | Split disposition |
 |---|---:|---:|---:|---|
-| `wrapper` | 23,345 | 23,179 | 30,135 | Replaced after every control function qualifies |
-| `u_pp` | 22,794 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
-| `u_pp/u_aecp` | 8,084 | 6,150 | 7,298 | F5; includes the following five children |
-| `u_pp/u_aecp/u_d3` | 1,781 | 1,703 | 2,297 | F1/F5 saved-state ownership |
-| `u_pp/u_aecp/u_dyn` | 1,440 | 134 | 497 | F5; fabric media state stays authoritative |
+| `wrapper` | 22,873 | 23,179 | 30,135 | Replaced after every control function qualifies |
+| `u_pp` | 22,318 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
+| `u_pp/u_aecp` | 7,733 | 6,150 | 7,298 | F5; includes the following five children |
+| `u_pp/u_aecp/u_d3` | 1,871 | 1,703 | 2,297 | F1/F5 saved-state ownership |
+| `u_pp/u_aecp/u_dyn` | 1,054 | 134 | 497 | F5; fabric media state stays authoritative |
 | `u_pp/u_aecp/u_store` | 979 | 1,026 | 1,119 | F5 validated image and names |
-| `u_pp/u_aecp/u_ucpu` | 1,727 | 1,553 | 1,651 | F5; no second M10 credit |
-| `u_pp/u_aecp/u_resp` | 345 | 432 | 416 | F5 response serving |
-| `u_pp/u_notify` | 2,259 | 2,125 | 2,114 | F5 registry, notification and counter serving |
-| `u_pp/u_srp` | 3,682 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
-| `u_pp/u_srp/u_encoder` | 1,358 | 1,479 | 1,466 | Included in SRP |
-| `u_pp/u_srp/u_decoder` | 579 | 588 | 922 | Included in SRP |
+| `u_pp/u_aecp/u_ucpu` | 1,763 | 1,553 | 1,651 | F5; no second M10 credit |
+| `u_pp/u_aecp/u_resp` | 339 | 432 | 416 | F5 response serving |
+| `u_pp/u_notify` | 2,199 | 2,125 | 2,114 | F5 registry, notification and counter serving |
+| `u_pp/u_srp` | 3,639 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
+| `u_pp/u_srp/u_encoder` | 1,355 | 1,479 | 1,466 | Included in SRP |
+| `u_pp/u_srp/u_decoder` | 580 | 588 | 922 | Included in SRP |
 | `u_pp/u_listener` | 1,451 | 1,560 | 1,681 | F3 ACMP listener |
-| `u_pp/u_talker` | 641 | 823 | 1,472 | F3 ACMP talker |
-| `u_pp/u_adp` | 385 | 523 | 696 | F0/F3 advertisement and discovery |
-| `u_pp/u_originator` | 687 | 697 | 682 | F3/F5 originated transactions |
-| `u_pp/u_nvm_shadow` | 792 | 808 | 780 | F1/F3 binding persistence |
+| `u_pp/u_talker` | 664 | 823 | 1,472 | F3 ACMP talker |
+| `u_pp/u_adp` | 384 | 523 | 696 | F0/F3 advertisement and discovery |
+| `u_pp/u_originator` | 688 | 697 | 682 | F3/F5 originated transactions |
+| `u_pp/u_nvm_shadow` | 791 | 808 | 780 | F1/F3 binding persistence |
 | `u_pp/u_nvm_port` | 513 | 526 | 524 | F1 store and flash service |
-| `u_nvm` | 486 | 581 | 1,116 | F1 replaces container backend |
-| `u_pp/u_timer` | 882 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
-| `u_pp/u_dispatch` | 665 | 887 | 908 | Replaced routing; no separate credit |
+| `u_nvm` | 488 | 581 | 1,116 | F1 replaces container backend |
+| `u_pp/u_timer` | 881 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
+| `u_pp/u_dispatch` | 666 | 887 | 908 | Replaced routing; no separate credit |
 | `u_pp/u_trace` | 31 | 37 | 28 | Equivalent diagnostics retained; no credit |
 
 The [#232](https://github.com/kebag-logic/milan-fpga/issues/232) registry, [#230](https://github.com/kebag-logic/milan-fpga/issues/230) SRP storage and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) rings/listener changes
 are already included; their savings cannot be subtracted again.
 [#686](https://github.com/kebag-logic/milan-fpga/issues/686) also changed MAAP, before [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) refreshed the record.
+[#696](https://github.com/kebag-logic/milan-fpga/issues/696) changed MAAP again before the current record.
 
 ## Baseline at dev `e6172750`
 
@@ -646,8 +650,8 @@ Firmware presence therefore earns no engine-removal credit.
 | M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
 
 No route was started; no new resource figure is claimed.
-The last accepted gate record remains unchanged.
-Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+[#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it at 50,230 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
 These are stored figures, not measurements of this lane.
 The partial memory ledger still requires actual allocation and reconciliation.
 Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
