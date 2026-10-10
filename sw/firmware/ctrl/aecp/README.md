@@ -122,16 +122,18 @@ at 100% lines and branches without a new exclusion.
 
 [`aecp_wire.py`](../test/aecp_wire.py) builds unchanged processor RTL in scratch,
 feeds the same commands to that model and the portable core, and independently
-grades the resulting bytes. The single-interface reference is the pinned
-`2ad2f845dd583f8310075fa2380cb60a04fd091a`; the two-interface reference is
-the merged #69 revision `c9f74b6866a63dd3c0e4534724bfc07a86ad142b`.
+grades the resulting bytes. The single-interface reference is
+`2ad2f845dd583f8310075fa2380cb60a04fd091a`, the processor pin when F5 was
+measured; #708 later moved the pin, so its command takes a checkout of that
+revision. The two-interface reference is the merged #69 revision
+`c9f74b6866a63dd3c0e4534724bfc07a86ad142b`.
 Both source inventories are content-pinned. The wrapper's name capacity follows
 the generated shape. Only the bench's external observation/format/map providers
 are adapted to that shape. A generated verification-only second sampling rate
 exercises a real rate change. No product configuration or RTL is edited.
 
 ```sh
-python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference protocol-processor \
+python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference "$PROCESSOR_F5_REFERENCE" \
   --interfaces 1 --output "$F5_SCRATCH/wire-one" --verilator "$PINNED_VERILATOR"
 python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference "$PROCESSOR_69_REFERENCE" \
   --interfaces 2 --output "$F5_SCRATCH/wire-two" --verilator "$PINNED_VERILATOR"
