@@ -1,0 +1,5 @@
+Reviewer rerun of the published tools from review-evidence/629-tone-r1/author/tools at evidence commit 06148614c910d3986991dd130f95d073b4bbe491 (packet manifests: 182/182 published_sha256 match).
+b6_thdn.py controls rc=0 sha256 7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e packet controls/controls.json 7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e cmp=BYTE-EQUAL
+b9_thdn.py controls rc=0 sha256 728a4f0ec2393b16a127ac8009a5038da67f93e5412209faf9bb1771d66575aa packet controls/b9-controls.json 728a4f0ec2393b16a127ac8009a5038da67f93e5412209faf9bb1771d66575aa cmp=BYTE-EQUAL
+tone_points_b15.py control (synthetic stream ID and source address placeholders replaced by synthetic values, no other change) rc=0; JSON content equal to packet controls/b15-tap-controls.json: True
+align_b15.py control: not rerunnable (needs pts1's raw tap capture, kept on the bench host); its compare() exercised by probe_b15_tools.py P2 instead.

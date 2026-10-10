@@ -1,0 +1,167 @@
+{
+ "P1_presence_sensitivity": {
+  "floor_only": {
+   "rms_dbfs": -141.49,
+   "share_997": 0.000412,
+   "verdict": "TONE ABSENT"
+  },
+  "with_tone": [
+   {
+    "tone_dbfs_peak": -20,
+    "rms_dbfs": -23.01,
+    "share_997": 0.998383,
+    "verdict": "ONE TONE PRESENT"
+   },
+   {
+    "tone_dbfs_peak": -40,
+    "rms_dbfs": -43.01,
+    "share_997": 0.998383,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -45,
+    "rms_dbfs": -48.01,
+    "share_997": 0.998383,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -60,
+    "rms_dbfs": -63.01,
+    "share_997": 0.998383,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -80,
+    "rms_dbfs": -83.01,
+    "share_997": 0.998382,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -100,
+    "rms_dbfs": -103.01,
+    "share_997": 0.998289,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -120,
+    "rms_dbfs": -123.02,
+    "share_997": 0.988957,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -130,
+    "rms_dbfs": -132.12,
+    "share_997": 0.91234,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -135,
+    "rms_dbfs": -137.4,
+    "share_997": 0.695577,
+    "verdict": "TONE ABSENT"
+   },
+   {
+    "tone_dbfs_peak": -140,
+    "rms_dbfs": -138.09,
+    "share_997": 0.61825,
+    "verdict": "TONE ABSENT"
+   }
+  ]
+ },
+ "P2_alignment": {
+  "cases": [
+   {
+    "probe": "exact copy",
+    "verdict": "SAMPLE-EXACT",
+    "matches_of_first_window": 1,
+    "slips": [],
+    "frames_differing": 0,
+    "compared_equal": 480000,
+    "result": "PASS"
+   },
+   {
+    "probe": "one frame dropped",
+    "verdict": "DIFFERENT",
+    "matches_of_first_window": 1,
+    "slips": [
+     {
+      "recording_frame": 200000,
+      "step": 1
+     }
+    ],
+    "frames_differing": 0,
+    "compared_equal": 480000,
+    "result": "PASS"
+   },
+   {
+    "probe": "one frame repeated",
+    "verdict": "DIFFERENT",
+    "matches_of_first_window": 1,
+    "slips": [
+     {
+      "recording_frame": 250000,
+      "step": -1
+     }
+    ],
+    "frames_differing": 0,
+    "compared_equal": 480000,
+    "result": "PASS"
+   },
+   {
+    "probe": "one sample changed",
+    "verdict": "DIFFERENT",
+    "matches_of_first_window": 1,
+    "slips": [],
+    "frames_differing": 1,
+    "compared_equal": 479999,
+    "result": "PASS"
+   },
+   {
+    "probe": "channels 0 and 1 swapped",
+    "verdict": "NO MATCH",
+    "matches_of_first_window": null,
+    "slips": null,
+    "frames_differing": null,
+    "compared_equal": null,
+    "result": "PASS"
+   },
+   {
+    "probe": "channels 2 and 3 swapped",
+    "verdict": "NO MATCH",
+    "matches_of_first_window": null,
+    "slips": null,
+    "frames_differing": null,
+    "compared_equal": null,
+    "result": "PASS"
+   },
+   {
+    "probe": "constant zero recording",
+    "verdict": "NO MATCH",
+    "matches_of_first_window": null,
+    "slips": null,
+    "frames_differing": null,
+    "compared_equal": null,
+    "result": "PASS"
+   },
+   {
+    "probe": "another stretch, channel 0 negated",
+    "verdict": "NO MATCH",
+    "matches_of_first_window": null,
+    "slips": null,
+    "frames_differing": null,
+    "compared_equal": null,
+    "result": "PASS"
+   },
+   {
+    "probe": "channel 1 dead",
+    "verdict": "NO MATCH",
+    "matches_of_first_window": null,
+    "slips": null,
+    "frames_differing": null,
+    "compared_equal": null,
+    "result": "PASS"
+   }
+  ],
+  "all_pass": true
+ }
+}

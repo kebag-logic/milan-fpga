@@ -1,0 +1,36 @@
+OK   raw-hash rows found :: 11 rows
+OK   raw b15-tapprobe-peer.pcap :: page 54,510 5a8bdcecfcfa
+OK   raw b15-tapprobe-dut.pcap :: page 54,336 9ea90bd6add9
+OK   raw pts1/tap-peer.pcap :: page 36,979,626 6abff9059487
+OK   raw pts1/tap-dut.pcap :: page 36,979,440 3e1d81ba2e50
+OK   raw pts1/mcasp-all.raw :: page 15,360,000 7e059d75bf3c
+OK   raw pts1/extcap.raw :: page Withheld 7040fae17dc8
+OK   raw pts2/tap-peer.pcap :: page 90,982,432 9d408d762790
+OK   raw pts2/tap-dut.pcap :: page 90,981,496 88c41bc5c8d7
+OK   raw pts2/mcasp-all.raw :: page 15,360,000 1a331755a46b
+OK   raw pts2/extcap.raw :: page Withheld fa771dccc383
+OK   raw pts2/b6-loop.raw :: page 1,536,000 566d3dfae6eb
+OK   levels pts1 (a) :: -141.09 / -141.10 / -141.48 / -141.49
+OK   pdus pts1 (a) :: 191843 {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191843}
+OK   levels pts1 (b) :: -141.09 / -141.10 / -141.48 / -141.49
+OK   pdus pts1 (b) :: 191842 {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191842}
+OK   levels pts1 (c) :: -141.09 / -141.10 / -141.48 / -141.49
+OK   (c) channels 4-7 zero pts1
+OK   align pts1 :: {"compared_equal": 480000, "slips": [], "verdict": "SAMPLE-EXACT"}
+OK   levels pts2 (a) :: -141.09 / -141.10 / -141.48 / -141.48
+OK   pdus pts2 (a) :: 191639 {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191639}
+OK   levels pts2 (b) :: -141.09 / -141.10 / -141.48 / -141.48
+OK   pdus pts2 (b) :: 191637 {'fmt=0x02 nsr=5 cpf=4 depth=32 sdl=96': 191637}
+OK   levels pts2 (c) :: -141.09 / -141.10 / -141.48 / -141.48
+OK   (c) channels 4-7 zero pts2
+OK   align pts2 :: {"compared_equal": 480000, "slips": [], "verdict": "SAMPLE-EXACT"}
+OK   counters pts1 :: FRAMES_RX +191998 over 24.487 s; TIMESTAMP_VALID +195893
+OK   counters pts2 :: FRAMES_RX +199998 over 24.530 s; TIMESTAMP_VALID +196239
+OK   census :: "same": 45, "compared": 46
+OK   control ctl-peer-tap-dut-talker.json ch0 997 :: 15 of 23
+OK   control ctl-peer-tap-dut-talker.json ch1 9973 :: 15 of 23
+OK   control ctl-dut-tap-dut-talker.json ch0 997 :: 15 of 23
+OK   control ctl-dut-tap-dut-talker.json ch1 9973 :: 15 of 23
+OK   control extcap 997 :: 13 of 16
+OK   control extcap 9973 :: 13 of 16
+mismatches: 0
