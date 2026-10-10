@@ -5,14 +5,21 @@ VERILATOR ?= verilator
 VERILATOR_JOBS ?= 2
 DP_MDIR ?= obj_integration
 MAAP_RTL ?= ../../../hdl/ieee1722/maap/KL_maap.sv
-DP_SRCS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
+# MAKEFLAGS= : GNU make 4.3 (the hosted runner) leaks "Entering directory" lines into a
+# $(shell) capture under an inherited w flag inside a recursive -j parent, even with
+# --no-print-directory; the sibling suites (milan_dp_mclk, milan_dp_render, pp_shadow)
+# clear the inherited flags the same way. The job bound is passed explicitly.
+DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
 ifneq ($(.SHELLSTATUS),0)
 $(error datapath source derivation failed)
+endif
+ifeq ($(strip $(DP_SRCS)),)
+$(error datapath source list is empty)
 endif
 ifneq ($(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS)),)
 $(error datapath source list names non-files: $(firstword $(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS))))
 endif
-DP_FLAGS := $(shell $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags)
+DP_FLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags VERILATOR_JOBS=$(VERILATOR_JOBS))
 ifneq ($(.SHELLSTATUS),0)
 $(error datapath flag derivation failed)
 endif
