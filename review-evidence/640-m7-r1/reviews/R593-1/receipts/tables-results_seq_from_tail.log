@@ -1,0 +1,26 @@
+label=results_seq_from_tail probe=results_seq_from_tail verilator=Verilator 5.050 2026-07-01 rev v5.050
+APPLIED results_seq_from_tail to hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv expect=fail:results lockstep
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.140 MB sources in 19 modules, into 0.876 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 7.496 s (elab=0.038, cvt=0.152, bld=7.234); cpu 0.273 s on 3 threads; allocated 229.934 MB
+stimulus: 29100030 cycles, 86663 mixed and 168 peer frames, 1 pdelay answers
+rx_fifo: 41128 good, 33527 overflow, 12175 bad, lanes 0xff, 256 beats deep
+tx_fifo: 4 frames, counts 0x110, 191488 stalled cycles, 9 beats deep
+ledger: 3691249 compared, heads 0x03, 1 deep
+results: 3 compared, heads 0x03, 1 deep
+timer: 14426 compared, slots 0x05
+plane: flags 0x0, 1 programs run, 114 tap drops, 948 parser drops, 2223 event drops, 0 lost results, 0 barriers
+  [FAIL] results lockstep: mismatching cycles     got=2 exp=0
+  [FAIL] tx_fifo coverage: frames transmitted
+  [FAIL] tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276
+  [FAIL] tx_fifo coverage: over 16 beats queued behind a stall
+  [FAIL] ledger coverage: every entry was the head got=3 exp=255
+  [FAIL] ledger coverage: three or more entries outstanding
+  [FAIL] results coverage: head compared
+  [FAIL] results coverage: every entry was the head got=3 exp=255
+  [FAIL] timer coverage: slots 0 to 5             got=5 exp=63
+== gptp_tables: checks: 21   failures: 9 ==
+RESULT: FAIL
+make: *** [Makefile:54: run] Error 1

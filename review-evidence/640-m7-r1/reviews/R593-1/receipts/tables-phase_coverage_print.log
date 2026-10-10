@@ -1,0 +1,24 @@
+label=phase_coverage_print probe=phase_coverage_print verilator=Verilator 5.050 2026-07-01 rev v5.050
+APPLIED phase_coverage_print to tb/verilator/gptp_tables/sim_main.cpp expect=pass
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.139 MB sources in 19 modules, into 0.877 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 7.491 s (elab=0.033, cvt=0.139, bld=7.250); cpu 0.261 s on 3 threads; allocated 229.934 MB
+PHASE begin cyc=8 prog=0 ledcmp=0 rescmp=0 tmrcmp=0 txframes=0 rxgood=0 evdrop=0
+PHASE begin cyc=2600008 prog=1675 ledcmp=30777 rescmp=97 tmrcmp=4341 txframes=97 rxgood=2734 evdrop=3
+PHASE begin cyc=8600008 prog=8986 ledcmp=1131023 rescmp=3481 tmrcmp=11730 txframes=3013 rxgood=9150 evdrop=90
+PHASE begin cyc=9100008 prog=10858 ledcmp=1348510 rescmp=4275 tmrcmp=12729 txframes=3807 rxgood=15115 evdrop=3144
+PHASE begin cyc=18100019 prog=0 ledcmp=10269458 rescmp=4470 tmrcmp=22218 txframes=4002 rxgood=24515 evdrop=0
+PHASE begin cyc=22100019 prog=4708 ledcmp=11087251 rescmp=6309 tmrcmp=29356 txframes=5841 rxgood=28756 evdrop=103
+PHASE begin cyc=25100019 prog=8186 ledcmp=11928741 rescmp=7667 tmrcmp=35333 txframes=7199 rxgood=31992 evdrop=319
+PHASE begin cyc=25600030 prog=0 ledcmp=12147534 rescmp=8446 tmrcmp=36335 txframes=7978 rxgood=37953 evdrop=0
+stimulus: 29100030 cycles, 86688 mixed and 188 peer frames, 11 pdelay answers
+rx_fifo: 41121 good, 33528 overflow, 12226 bad, lanes 0xff, 256 beats deep
+tx_fifo: 7979 frames, counts 0x114, 11219927 stalled cycles, 27 beats deep
+ledger: 15646614 compared, heads 0xff, 3 deep
+results: 8446 compared, heads 0xff, 1 deep
+timer: 40477 compared, slots 0x3f
+plane: flags 0x0, 7 programs run, 127 tap drops, 947 parser drops, 2210 event drops, 0 lost results, 0 barriers
+== gptp_tables: checks: 21   failures: 0 ==
+RESULT: PASS

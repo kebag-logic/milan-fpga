@@ -1,0 +1,14 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.405 MB sources in 7 modules, into 0.382 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.742 s (elab=0.008, cvt=0.043, bld=5.666); cpu 0.082 s on 16 threads; allocated 567.652 MB
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1613 checks: 1613 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1613 checks: 1613 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1613 checks: 1613 PASS, 0 FAIL

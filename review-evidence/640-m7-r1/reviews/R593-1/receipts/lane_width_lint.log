@@ -1,0 +1,53 @@
+=== TDATA_WIDTH_P=8
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 16:9 outside 12:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 16:9 outside 12:0
+%Warning-SELRANGE: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:302:31: Selection index out of range: 39:32 outside 7:0
+%Warning-SELRANGE: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:302:50: Selection index out of range: 47:40 outside 7:0
+rc=0
+=== TDATA_WIDTH_P=32
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 40:33 outside 36:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 40:33 outside 36:0
+%Warning-SELRANGE: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:302:31: Selection index out of range: 39:32 outside 31:0
+%Warning-SELRANGE: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:302:50: Selection index out of range: 47:40 outside 31:0
+rc=0
+=== TDATA_WIDTH_P=48
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 53:48 outside 52:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 56:49 outside 52:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 56:49 outside 52:0
+rc=0
+=== TDATA_WIDTH_P=56
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 62:56 outside 60:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 64:57 outside 60:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 64:57 outside 60:0
+rc=0
+=== TDATA_WIDTH_P=64
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 71:64 outside 68:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 72:65 outside 68:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 72:65 outside 68:0
+rc=0
+=== TDATA_WIDTH_P=72
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 80:72 outside 76:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 76:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 76:0
+%Warning-USERERROR: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:270:5: KL_gptp_shadow: TDATA_WIDTH_P=72 gives 9 byte lanes; the byte serializer and the frame FIFOs' lane fields cover 1 to 8 lanes.
+rc=0
+=== TDATA_WIDTH_P=128
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 143:128 outside 132:0
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 136:129 outside 132:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 136:129 outside 132:0
+%Warning-USERERROR: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:270:5: KL_gptp_shadow: TDATA_WIDTH_P=128 gives 16 byte lanes; the byte serializer and the frame FIFOs' lane fields cover 1 to 8 lanes.
+rc=0

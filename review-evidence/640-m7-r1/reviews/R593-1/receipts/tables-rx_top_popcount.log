@@ -1,0 +1,18 @@
+label=rx_top_popcount probe=rx_top_popcount verilator=Verilator 5.050 2026-07-01 rev v5.050
+APPLIED rx_top_popcount to hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv expect=fail:rx_fifo lockstep
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.140 MB sources in 19 modules, into 0.878 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.747 s (elab=0.033, cvt=0.140, bld=6.519); cpu 0.241 s on 3 threads; allocated 229.906 MB
+stimulus: 29100030 cycles, 86278 mixed and 189 peer frames, 12 pdelay answers
+rx_fifo: 41179 good, 33128 overflow, 12160 bad, lanes 0xff, 256 beats deep
+tx_fifo: 8722 frames, counts 0x114, 11509744 stalled cycles, 27 beats deep
+ledger: 12473216 compared, heads 0xff, 3 deep
+results: 9192 compared, heads 0xff, 1 deep
+timer: 42000 compared, slots 0x3f
+plane: flags 0x5, 3280 programs run, 120 tap drops, 1204 parser drops, 21 event drops, 0 lost results, 0 barriers
+  [FAIL] rx_fifo lockstep: mismatching cycles     got=101132 exp=0
+== gptp_tables: checks: 21   failures: 1 ==
+RESULT: FAIL
+make: *** [Makefile:54: run] Error 1
