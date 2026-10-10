@@ -104,7 +104,7 @@ define.
 the wrapper or an included file: the reviewers' escaping reads (a wire renamed
 off the class-D prefix, a case item label, positional and implicit ``.name``
 ports, a function's return) and the forms already refused; the reviewers'
-escaping cone hops from a status consumer and a processor consumer (a
+escaping cone hops from a status consumer and an answer-face consumer (a
 positional and an implicit ``.name`` port, a case item label, a function's
 return, an event control, an input port named like an output), each with its
 plain-assign control, and further hops (a relational ``<=`` in a case label,

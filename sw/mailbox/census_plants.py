@@ -65,7 +65,7 @@ def anchored(decl: str) -> tuple[tuple[str, str], ...]:
     return ((CRF_DECL, decl + CRF_DECL),)
 
 
-#: The status and processor consumers the cone plants route, and the row each read is keyed by.
+#: The status and answer-face consumers the cone plants route, and the row each read is keyed by.
 TALKER_DECLARED = "lwsrp_talker_declared"
 GSI_TKDCL = "gsi_tkdcl_w"
 RES_ACTIVE = "lwsrp_res_active"
@@ -90,7 +90,7 @@ def unclassified(line: str) -> str:
 def cone_plants(sig: str) -> list[Plant]:
     """R582-3's part 1 forms, each routing sig onto the CRF talker's
     vlan_en_i, and R583-3's event control and _o-named input port, for one
-    status or processor consumer."""
+    status or answer-face consumer."""
     return [
         Plant(f"R582-3: {sig} routed to the wire by a plain assign (its control)", "datapath",
               routed(f"  wire probe_w;\n  assign probe_w = {sig}[0];\n"), reaches(sig, "crf_tx.vlan_en_i")),
