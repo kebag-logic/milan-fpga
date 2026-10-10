@@ -1,0 +1,10 @@
+clean rc=0
+  [ ok ] M2 B.3.6.6 requested start echoes PROBE      = 160395285233965
+  [ ok ] R558 probe: requested start echoes a PROBE starting below = 160395285233957
+  [ ok ] M2 B.3.6.6 requested count echoes all 16 bits = 4660
+KL_maap: 178 checks, 0 failures
+q1 rc=1
+  [ ok ] M2 B.3.6.6 requested start echoes PROBE      = 160395285233965
+  [FAIL] R558 probe: requested start echoes a PROBE starting below got=160395285233961 exp=160395285233957
+  [ ok ] M2 B.3.6.6 requested count echoes all 16 bits = 4660
+KL_maap: 178 checks, 1 failures
