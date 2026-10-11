@@ -1,0 +1,27 @@
+01	0	python3 scripts/docs_check.py
+02	0	python3 scripts/docs_check.py --selftest
+03	0	venv-python scripts/check_em_dash.py --base 8c8f82f628a24223e4ff7459f46a51735915351e
+04	0	venv-python scripts/check_em_dash.py --selftest
+05	0	python3 scripts/check_doc_style.py
+06	0	python3 scripts/check_doc_style.py --selftest
+07	0	python3 docs/DOC_MAP.gen.py --check
+08	0	python3 scripts/check_solution_docs.py
+09	0	python3 docs/diagrams/submodule_boundaries.gen.py --check
+10	0	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+11	0	python3 scripts/check_submodule_docs.py
+12	0	python3 scripts/check_submodule_docs.py --selftest
+13	0	python3 scripts/check_diagram_pngs.py
+14	0	python3 scripts/check_diagram_pngs.py --selftest
+15	0	python3 scripts/check_nvm_capture.py
+16	0	python3 scripts/measure_test_evidence.py --check
+17	0	python3 scripts/check_hygiene.py --check
+18	0	python3 scripts/check_cpp_idiom.py
+19	0	python3 scripts/check_py_idiom.py
+20	0	python3 scripts/ci_events.py --check
+21	0	python3 scripts/ci_events.py --selftest
+22	0	python3 scripts/check_doc_paths.py
+23	0	python3 scripts/check_archive.py
+24	0	venv-python scripts/gen_toc.py --selftest
+25	0	venv-python scripts/gen_toc.py --verify-anchors
+26	0	venv-python scripts/gen_toc.py --check
+27	0	git diff --check 8c8f82f628a24223e4ff7459f46a51735915351e HEAD
