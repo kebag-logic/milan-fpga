@@ -1,0 +1,9 @@
+[i] pool=0xFE00 taps=[31, 21, 1, 0] offset_rows=['0x81', '0x10400000', '0x8100040', '0x10080002', '0x4000220', '0x48002000', '0x80080040', '0x80808000', '0x20008001', '0x111000', '0x8200000', '0x10000084', '0x44800', '0x2100008', '0x20104', '0x1000410'] probe_rows=['0x24200880', '0x409', '0x2841420', '0x49008050', '0x804a4200', '0x10112104']
+PASS A every carry run x every word x counts 1..8 disjoint (violations 0, least spare 1)
+PASS B every carry run draws a different first probe fold (violations 0)
+PASS C seed bits 16..31 -> offset word rank 16
+PASS D offset+probe joint rank 22
+PASS E offset map rank 16
+[i] F two independent words, count 8: overlap rate 0.000237 = 15.4 in 65,024
+[i] seed uses station_mac_i[31:0] only; MACs differing only in bits 32..47 share a seed at an equal clock
+rc=0
