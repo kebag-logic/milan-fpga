@@ -1185,6 +1185,9 @@ The RV32 SDK this job installs serves one member the same way.
 `test_ctrl_memory` (#640 M8a) links a probe through the split placement's
 link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
 SDK step installs; without a compiler that member declares a skip too.
+Its SoC arm runs the end-station builder, so it needs the PyYAML this job
+installs, and exports the split 1x1 SoC. The split CPU is its own VexiiRiscv
+argument set, so a cold metadata cache pays one more Scala run for it.
 
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume

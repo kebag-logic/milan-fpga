@@ -695,13 +695,23 @@ storage call, and arrays that register their read address. Each must fail its
 named check.
 
 `test_ctrl_memory.py` (#640 M8a) grades the split placement's firmware
-memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan and its
-named refusals, the three planted controls (an allocation over budget, a
-memory-map overlap, a staging buffer of another shape), the real
-`milan_soc.CtrlMemory` in simulation with its planted defects, and a probe
-linked by [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld). The
-link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
-pinned SDK); without one the member declares a skip.
+memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan, a
+planted defect for every rule in `ctrl_memory.RULES` refused by that rule
+(the 56.0 RAMB36 budget accepted and 56.5 refused), the real
+`milan_soc.CtrlMemory` in simulation at the largest image's banks across the
+whole decoded window, and a probe linked by
+[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld). Its SoC arm runs
+`milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
+Vivado: the three planted controls (an allocation over budget, a memory-map
+overlap, a staging buffer of another shape) and the two lone flags are
+refused, and the split export holds the image's banks and no BIOS memory.
+It requires the
+[split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
+rule table to equal `ctrl_memory.RULES`. Its forty mutants each rebuild one
+function or class with a rule or property removed or weakened, and each must
+turn its arm red by name. The link arm needs an RV32 compiler
+(`sw/firmware/gtest/fw_rv32.py` finds the pinned SDK); without one the member
+declares a skip.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.

@@ -172,16 +172,24 @@ WILDCARD_EXCEPTIONS = {
 }
 
 #: `eval`/`exec` on a non-literal, with the guard that makes each safe. An entry
-#: is a (path, reason) pair; a site not listed here is refused. All three read a
+#: is a (path, reason) pair; a site not listed here is refused. Three read a
 #: number out of a source file that is the contract, rather than restating it
-#: where the two could drift, and all three prove the text is arithmetic before
-#: evaluating it. That proof is the entry fee: an unguarded `eval` on file text
+#: where the two could drift, and prove the text is arithmetic before
+#: evaluating it. The fourth rebuilds a definition its test has already
+#: imported, from that definition's own source, and proves the text is that
+#: one definition. A proof is the entry fee: an unguarded `eval` on file text
 #: is refused however good the reason.
 DYNAMIC_EXEC_INVENTORY = {
     "sw/builder/test_builder.py":
         "reads a C `#define` bit expression out of the firmware source. Guarded "
         "by `re.fullmatch(r'[0-9A-Fa-fxX()~|&^<>+\\-\\s]*')` and a second pass "
         "refusing any residual identifier, with `__builtins__` emptied.",
+    "sw/litex/test_ctrl_memory.py":
+        "rebuilds one function or class of ctrl_memory.py or milan_soc.py, both "
+        "already imported, from its own `inspect.getsource` text with one edit "
+        "from the test's mutant table, for the standing mutation check. Guarded "
+        "by the edit matching exactly once and by `ast.parse` of the result being "
+        "exactly one definition of that name; it runs in that module's namespace.",
     "sw/trace/test_trace_roundtrip.py":
         "reads MILAN_TRACE_BUDGET_BYTES_PER_HOUR and MILAN_TRACE_MIN_FLUSH_BYTES "
         "out of milan_trace.h, which is the ABI. `_c_define_int` parses the "

@@ -22,7 +22,10 @@ not built. This file is the one statement of that memory map. The SoC reads it
   bytes each, a RAMB18 counting half (#640 ruling 6101485877).
 
 Every refusal names its check: `reset entry`, `memory map`, `memory-map
-overlap`, `allocation over budget` and `staging buffer`.
+overlap`, `allocation over budget` and `staging buffer`. RULES lists each
+rule a check enforces, as docs/design/SPLIT_CONTROL_MEMORY.md section 3 does,
+and a refusal names its rule too; test_ctrl_memory.py requires every rule to
+have an arm that fails when the rule is removed.
 
     python3 sw/litex/ctrl_memory.py regions <directory>
     python3 sw/litex/ctrl_memory.py plan <elf> [--stage-bytes N]
@@ -53,17 +56,52 @@ STAGE_SYMBOL = "nvm_stage"
 _PT_LOAD = 1
 _SHT_SYMTAB = 2
 _SHT_NOBITS = 8
+_SHF_WRITE = 0x1
 _SHF_ALLOC = 0x2
 _EM_RISCV = 243
 
 
-class Refusal(ValueError):
-    """An image or a map the split placement cannot hold, named by its check."""
+@dataclass(frozen=True)
+class Rule:
+    """One documented refusal: the check that names it and what it refuses."""
 
-    def __init__(self, check: str, detail: str) -> None:
-        """Keep the check's name apart from the detail, for callers that test it."""
-        super().__init__(f"{check}: {detail}")
-        self.check = check
+    check: str
+    refuses: str
+
+
+#: Every refusal rule, keyed by rule, in the order of SPLIT_CONTROL_MEMORY.md
+#: section 3, whose table test_ctrl_memory.py requires to equal this one.
+RULES: dict[str, Rule] = {
+    "entry address": Rule("reset entry", "An image entering anywhere but `rom`'s first byte"),
+    "entry bytes": Rule("reset entry", "An image with no initial bytes at the reset address"),
+    "cpu origins": Rule("reset entry", "A CPU whose reset address or `sram` origin is not this map's"),
+    "elf class": Rule("memory map", "A file that is not a little-endian ELF32 file"),
+    "elf machine": Rule("memory map", "An ELF32 file for a machine other than RISC-V"),
+    "elf truncated": Rule("memory map", "A header, table, name or load segment running past the end of the file"),
+    "outside regions": Rule("memory map", "A section outside both regions"),
+    "loads outside rom": Rule("memory map", "Initial bytes loading outside `rom`, the only region the bitstream "
+                                            "initialises"),
+    "nobits in rom": Rule("memory map", "A NOBITS section in `rom`, which the firmware cannot write"),
+    "writable in rom": Rule("memory map", "A writable section with initial bytes running in `rom`, which drops "
+                                          "its writes"),
+    "regions": Rule("memory-map overlap", "The two regions sharing an address"),
+    "addresses": Rule("memory-map overlap", "Two sections sharing an address"),
+    "initial bytes": Rule("memory-map overlap", "Two sections sharing a load address"),
+    "budget": Rule("allocation over budget", "Banks totalling more than 56 RAMB36, a RAMB18 counting half"),
+    "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
+    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
+                                         "container plus one record header"),
+}
+
+
+class Refusal(ValueError):
+    """An image or a map the split placement cannot hold, named by its check and rule."""
+
+    def __init__(self, rule: str, detail: str) -> None:
+        """Keep the check's and the rule's names apart from the detail, for callers that test them."""
+        self.rule = rule
+        self.check = RULES[rule].check
+        super().__init__(f"{self.check}: {detail}")
 
 
 @dataclass(frozen=True)
@@ -98,6 +136,7 @@ class Section:
     lma: int
     size: int
     loaded: bool       # it has initial bytes in the file (not NOBITS)
+    writable: bool     # SHF_WRITE: the firmware writes it
 
 
 @dataclass(frozen=True)
@@ -143,23 +182,41 @@ def banks(need: int) -> tuple[int, ...]:
                  if granules >> bit & 1)
 
 
-def _string(data: bytes, offset: int) -> str:
+def _unpack(path: Path, data: bytes, layout: str, offset: int, what: str) -> tuple[int, ...]:
+    """`struct.unpack_from`, refused by name when the field runs past the end of the file."""
+    if offset + struct.calcsize(layout) > len(data):
+        raise Refusal("elf truncated", f"{path}: the {what} at byte {offset} runs past the end "
+                      f"of the {len(data)}-byte file")
+    return struct.unpack_from(layout, data, offset)
+
+
+def _string(path: Path, data: bytes, offset: int) -> str:
     """The NUL-terminated string at `offset`."""
-    return data[offset:data.index(b"\0", offset)].decode()
+    end = data.find(b"\0", offset)
+    if end < 0:
+        raise Refusal("elf truncated", f"{path}: the name at byte {offset} runs past the end "
+                      f"of the {len(data)}-byte file")
+    return data[offset:end].decode()
 
 
 def read_elf(path: Path) -> Image:
     """The entry, allocated sections, symbols and load bytes of a little-endian RV32 ELF."""
     data = path.read_bytes()
     if data[:6] != b"\x7fELF\x01\x01":
-        raise Refusal("memory map", f"{path} is not a little-endian ELF32 file")
+        raise Refusal("elf class", f"{path} is not a little-endian ELF32 file")
     (_, machine, _, entry, phoff, shoff, _, _, phentsize, phnum, shentsize, shnum,
-     shstrndx) = struct.unpack_from("<HHIIIIIHHHHHH", data, 16)
+     shstrndx) = _unpack(path, data, "<HHIIIIIHHHHHH", 16, "ELF header")
     if machine != _EM_RISCV:
-        raise Refusal("memory map", f"{path} is not a RISC-V image")
-    headers = [struct.unpack_from("<10I", data, shoff + i * shentsize) for i in range(shnum)]
-    programs = [struct.unpack_from("<8I", data, phoff + i * phentsize) for i in range(phnum)]
+        raise Refusal("elf machine", f"{path} is not a RISC-V image")
+    headers = [_unpack(path, data, "<10I", shoff + i * shentsize, f"section header {i}")
+               for i in range(shnum)]
+    programs = [_unpack(path, data, "<8I", phoff + i * phentsize, f"program header {i}")
+                for i in range(phnum)]
     loads = [p for p in programs if p[0] == _PT_LOAD]
+    for _, offset, _, _, filesz, _, _, _ in loads:
+        if offset + filesz > len(data):
+            raise Refusal("elf truncated", f"{path}: the {filesz} initial bytes at byte {offset} "
+                          f"run past the end of the {len(data)}-byte file")
     names = headers[shstrndx][4]
 
     def lma(vma: int) -> int:
@@ -172,46 +229,48 @@ def read_elf(path: Path) -> Image:
     sections, symbols = [], {}
     for name, kind, flags, addr, offset, size, link, _, _, entsize in headers:
         if flags & _SHF_ALLOC and size:
-            sections.append(Section(_string(data, names + name), addr, lma(addr), size,
-                                    kind != _SHT_NOBITS))
+            sections.append(Section(_string(path, data, names + name), addr, lma(addr), size,
+                                    kind != _SHT_NOBITS, bool(flags & _SHF_WRITE)))
         if kind == _SHT_SYMTAB:
             strings = headers[link][4]
             for at in range(offset, offset + size, entsize):
-                st_name, value, st_size = struct.unpack_from("<III", data, at)
+                st_name, value, st_size = _unpack(path, data, "<III", at, "symbol")
                 if st_name:
-                    symbols[_string(data, strings + st_name)] = (value, st_size)
+                    symbols[_string(path, data, strings + st_name)] = (value, st_size)
     segments = tuple((p[3], data[p[1]:p[1] + p[4]]) for p in loads if p[4])
     return Image(entry, tuple(sections), symbols, segments)
 
 
-def _overlap(kind: str, spans: list[tuple[int, int, str]]) -> None:
+def _overlap(rule: str, spans: list[tuple[int, int, str]]) -> None:
     """Refuse the first two of `spans` ([start, end) and name) that share an address."""
     spans = sorted(spans)
     for (start, end, name), (other, _, second) in zip(spans, spans[1:]):
         if other < end:
-            raise Refusal("memory-map overlap",
-                          f"{second} at 0x{other:08x} lies inside {name} "
-                          f"[0x{start:08x}, 0x{end:08x}) ({kind})")
+            raise Refusal(rule, f"{second} at 0x{other:08x} lies inside {name} "
+                          f"[0x{start:08x}, 0x{end:08x}) ({rule})")
 
 
 def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
     """The reset entry, every section inside its region, and no two sharing an address."""
     _overlap("regions", [(r.origin, r.end, r.name) for r in (rom, ram)])
     if image.entry != rom.origin:
-        raise Refusal("reset entry", f"the image enters at 0x{image.entry:08x}, not at the "
+        raise Refusal("entry address", f"the image enters at 0x{image.entry:08x}, not at the "
                       f"CPU's reset address 0x{rom.origin:08x}, the start of {rom.name}")
     if not any(s.loaded and s.vma <= image.entry < s.vma + s.size for s in image.sections):
-        raise Refusal("reset entry", f"no initial bytes at the reset address 0x{image.entry:08x}")
+        raise Refusal("entry bytes", f"no initial bytes at the reset address 0x{image.entry:08x}")
     for s in image.sections:
         home = next((r for r in (rom, ram) if r.holds(s.vma, s.vma + s.size)), None)
         if home is None:
-            raise Refusal("memory map", f"{s.name} [0x{s.vma:08x}, 0x{s.vma + s.size:08x}) "
+            raise Refusal("outside regions", f"{s.name} [0x{s.vma:08x}, 0x{s.vma + s.size:08x}) "
                           f"is outside {rom.name} and {ram.name}")
         if s.loaded and not rom.holds(s.lma, s.lma + s.size):
-            raise Refusal("memory map", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
+            raise Refusal("loads outside rom", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
                           f"outside {rom.name}, the only region the bitstream initialises")
         if not s.loaded and home is rom:
-            raise Refusal("memory map", f"{s.name} reserves {rom.name}, which the firmware cannot write")
+            raise Refusal("nobits in rom", f"{s.name} reserves {rom.name}, which the firmware cannot write")
+        if s.writable and home is rom:
+            raise Refusal("writable in rom", f"{s.name} is writable and runs at 0x{s.vma:08x} in "
+                          f"{rom.name}, which drops writes; it runs in {ram.name}, loaded from {rom.name}")
     _overlap("addresses", [(s.vma, s.vma + s.size, s.name) for s in image.sections])
     _overlap("initial bytes", [(s.lma, s.lma + s.size, s.name) for s in image.sections if s.loaded])
 
@@ -226,7 +285,7 @@ def plan(image: Image, rom: Region = ROM, ram: Region = RAM,
     need = Plan(rom_end - rom.origin, ram_end - ram.origin,
                 banks(rom_end - rom.origin), banks(ram_end - ram.origin))
     if need.tiles > budget:
-        raise Refusal("allocation over budget",
+        raise Refusal("budget",
                       f"{need.tiles:g} RAMB36 ({rom.name} {need.rom_bytes} bytes in "
                       f"{sum(need.rom_banks)}, {ram.name} {need.ram_bytes} bytes in "
                       f"{sum(need.ram_banks)}) exceeds the {budget}-RAMB36 budget")
@@ -263,10 +322,10 @@ def stage_bytes(shape: object, donor: object) -> int:
 def check_stage(image: Image, stage: int, shape: str) -> None:
     """Refuse an image whose staging buffer was built for another shape."""
     if STAGE_SYMBOL not in image.symbols:
-        raise Refusal("staging buffer", f"the image has no {STAGE_SYMBOL}")
+        raise Refusal("stage symbol", f"the image has no {STAGE_SYMBOL}")
     size = image.symbols[STAGE_SYMBOL][1]
     if size != stage:
-        raise Refusal("staging buffer", f"{STAGE_SYMBOL} is {size} bytes; the {shape} "
+        raise Refusal("stage size", f"{STAGE_SYMBOL} is {size} bytes; the {shape} "
                       f"shape stages {stage}")
 
 

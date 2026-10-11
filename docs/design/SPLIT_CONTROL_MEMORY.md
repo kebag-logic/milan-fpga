@@ -61,21 +61,49 @@ The default build passes neither, and its export is digest-identical to the base
 
 ## 3. Named refusals
 
-Every refusal raises `ctrl_memory.Refusal`, whose `check` names it.
+Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `rule` names the rule that refused.
+`ctrl_memory.RULES` registers each rule, and this table lists the same rules in the same order:
 
-| Check | Refuses |
-|---|---|
-| `reset entry` | An image entering anywhere but `rom`'s first byte, or with no initial bytes there |
-| `memory map` | A section outside both regions, initial bytes outside `rom`, or a NOBITS section in `rom` |
-| `memory-map overlap` | Two sections sharing an address or a load address, or the two regions overlapping |
-| `allocation over budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half |
-| `staging buffer` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
+| Check | Rule | Refuses |
+|---|---|---|
+| `reset entry` | `entry address` | An image entering anywhere but `rom`'s first byte |
+| `reset entry` | `entry bytes` | An image with no initial bytes at the reset address |
+| `reset entry` | `cpu origins` | A CPU whose reset address or `sram` origin is not this map's |
+| `memory map` | `elf class` | A file that is not a little-endian ELF32 file |
+| `memory map` | `elf machine` | An ELF32 file for a machine other than RISC-V |
+| `memory map` | `elf truncated` | A header, table, name or load segment running past the end of the file |
+| `memory map` | `outside regions` | A section outside both regions |
+| `memory map` | `loads outside rom` | Initial bytes loading outside `rom`, the only region the bitstream initialises |
+| `memory map` | `nobits in rom` | A NOBITS section in `rom`, which the firmware cannot write |
+| `memory map` | `writable in rom` | A writable section with initial bytes running in `rom`, which drops its writes |
+| `memory-map overlap` | `regions` | The two regions sharing an address |
+| `memory-map overlap` | `addresses` | Two sections sharing an address |
+| `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
+| `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half |
+| `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
+| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
-The SoC build runs the first four while it builds the memory.
+An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+`add_ctrl_memory` checks the CPU's origins, then plans the image, which runs every rule up to `budget`.
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
-The three planted controls fail by name in [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) and in the SoC build itself:
+[`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
+It also requires this table to equal `ctrl_memory.RULES`.
+For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
+
+The three planted controls fail by name in the test and in the SoC build itself.
+The test drives `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv, with ELFs it writes:
+
+- an allocation over budget, 58 RAMB36, refused by `budget`;
+- a memory-map overlap, `.bss` at `.data`'s address, refused by `addresses`;
+- a staging buffer of another shape, the 8x8 stage in the 1x1 build, refused by `stage size`.
+
+Each is refused before any Verilog is written.
+`--ctrl-mailbox` alone and `--ctrl-firmware` alone are each refused.
+The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
+
+The same three controls, on the linked firmware, were also run once through the SoC build:
 
 - an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;

@@ -2740,7 +2740,7 @@ class CtrlMemory(LiteXModule):
 def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
     """Build rom and sram from the linked control firmware; rom's first word is the reset entry."""
     if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
-        raise ctrl_memory.Refusal("reset entry", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
+        raise ctrl_memory.Refusal("cpu origins", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
                                   f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
     soc.ctrl_image = ctrl_memory.read_elf(firmware)
