@@ -93,8 +93,8 @@ pull-request update and on every push to `dev`. It produces one stable
   The capture's recorder is compiled C; to each compile it adds a dependency pass, a preprocessing of that compile's source.
   The compiler's own expansion runs once for each distinct argument vector and is reused for the rest.
   Its budget is the job's own 30 minutes.
-  On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at this lane's head took 651 s, 36% of 1800 s.
-  Of that the builds took 584 s: the control gate's 286 s, the coverage gate's 211 s, the store's 77 s and the RV32 self-test's 10 s.
+  On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at `0a9c5fa8` took 682 s, 38% of 1800 s.
+  Of that the builds took 614 s: the control gate's 299 s, the coverage gate's 226 s, the store's 80 s and the RV32 self-test's 9 s.
 - the same TSN stack boundary over the compiles only the builders that need
   Verilator make, `firmware-verilator` (#697), when RTL or its tooling
   changes: the mailbox bench at its default target, the MAAP differential
