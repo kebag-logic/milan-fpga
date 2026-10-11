@@ -1,0 +1,8 @@
+{"command": ["python3", "-B", "tb/aecp_cmds/mutants.py", "--jobs", "4", "--verilator", "$REVIEWS/pp73-r609-2-packet/scratch/bounded-compiler", "--output", "$REVIEWS/pp73-r609-2-packet/receipts/decode-controls", "--only", "q1-set-clock-source-to-gclks", "q2-set-clock-source-decoded-on-get", "mvu-sub-decode-other-command-type", "gdi-record-length"], "cwd": "$REVIEWS/pp73-r609-2-packet/scratch/focused-head"}
+{"variant": "golden", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "q1-set-clock-source-to-gclks", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (the fresh sweep)"], "passed": true}
+{"variant": "q2-set-clock-source-decoded-on-get", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (the fresh sweep)"], "passed": true}
+{"variant": "mvu-sub-decode-other-command-type", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_MILAN_INFO: the table's entries name MVUINFO, which the engine never dispatches MVU 0x0000 to (the fresh sweep)"], "passed": true}
+{"variant": "gdi-record-length", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record"], "passed": true}
+{"variant": "restored", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+AECP command decode controls: 4 of 4 detected by their named failures; golden and restored PASS
