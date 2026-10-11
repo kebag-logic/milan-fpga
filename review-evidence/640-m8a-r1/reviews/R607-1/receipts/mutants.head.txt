@@ -1,0 +1,18 @@
+budget_slack_1p5	SURVIVED	budget check admits up to 57.5 RAMB36	0 FAIL line(s)
+budget_ge	SURVIVED	budget check refuses exactly 56 RAMB36 (ruling: up to 56)	0 FAIL line(s)
+nobits_in_rom_off	SURVIVED	a NOBITS section in rom is accepted	0 FAIL line(s)
+lma_overlap_off	SURVIVED	two sections sharing a load address are accepted	0 FAIL line(s)
+no_bytes_at_entry_off	SURVIVED	an image with no initial bytes at the reset address is accepted	0 FAIL line(s)
+regions_overlap_off	KILLED	overlapping regions accepted	1 FAIL line(s)
+    FAIL: PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory map' (memory map: .data [0x10000000, 0x10000040) is outside rom and sram)
+lma_identity	ERROR rc=1	load addresses read as virtual addresses	0 FAIL line(s)
+stage_lt	KILLED	a larger staging buffer accepted	1 FAIL line(s)
+    FAIL: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected a 'staging buffer' refusal
+low_minus1	SURVIVED	decode one word-address bit short: the top of the region aliases banks	0 FAIL line(s)
+hole_gt	KILLED	the first word past the last bank answers nothing	2 FAIL line(s)
+    FAIL: rom past its last bank answers err at once
+    FAIL: sram past its last bank answers err at once
+rom_init_offset	KILLED	every rom bank initialised from the image start	1 FAIL line(s)
+    FAIL: rom reads its image at the first, second and last word of each of 3 banks
+err_held	SURVIVED	the hole holds err for a second cycle	0 FAIL line(s)
+rc=0

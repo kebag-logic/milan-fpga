@@ -1,0 +1,37 @@
+test_ctrl_memory: the split placement's firmware memory (#640 M8a)
+  [ok  ] 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [])
+  [ok  ] a zero need builds no bank
+  [ok  ] a plan counts a 2 KiB bank as one RAMB18, half a tile
+  [ok  ] the plan's needs are rom to the end of .data's initial bytes, sram to the stack's top (12068, 48256)
+  [ok  ] rom holds .text at the reset address, .rodata after it and .data's initial bytes at their load address
+  [ok  ] a staging buffer of the shape's size is accepted
+  [ok  ] PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own): refused by 'allocation over budget' (allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] PLANTED: a memory-map overlap (.bss over .data): refused by 'memory-map overlap' (memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory-map overlap' (memory-map overlap: sram at 0x00020000 lies inside rom [0x00000000, 0x00038000) (regions))
+  [ok  ] PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): refused by 'staging buffer' (staging buffer: nvm_stage is 3344 bytes; the 8x8 shape stages 13264)
+  [FAIL] PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected a 'staging buffer' refusal
+  [ok  ] an image entering away from the reset address: refused by 'reset entry' (reset entry: the image enters at 0x00000100, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] initial bytes of .data left in sram, which nothing initialises: refused by 'memory map' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] a section outside rom and sram: refused by 'memory map' (memory map: .bss [0x40000000, 0x40009c40) is outside rom and sram)
+  [ok  ] regions.ld states both regions at the CPU's origins, each the whole 224 KiB budget
+  [ok  ] rom reads its image at the first, second and last word of each of 3 banks
+  [ok  ] a write to rom changes nothing
+  [ok  ] rom past its last bank answers err at once
+  [ok  ] sram keeps each byte lane written at every bank's edges, the other lanes intact
+  [ok  ] sram past its last bank answers err at once
+  [ok  ] a write past the last bank lands in no bank
+  [ok  ] PLANTED DEFECT 'banks smallest first' is caught (4 red)
+  [ok  ] PLANTED DEFECT 'the hole answers nothing' is caught (2 red)
+  [ok  ] PLANTED DEFECT 'a writable rom' is caught (1 red)
+  [ok  ] PLANTED DEFECT 'the map check off' is caught (6 red)
+  [ok  ] PLANTED DEFECT 'the budget check off' is caught (2 red)
+  [ok  ] PLANTED DEFECT 'the staging check off' is caught (2 red)
+  [ok  ] the probe enters at the reset address, whose first word is the reset entry's auipc sp
+  [ok  ] .data runs in sram and its initial value 7 loads from rom
+  [ok  ] the stack tops the sram need
+  [ok  ] the probe's nvm_stage passes as the shape's stage
+  [ok  ] PLANTED link script: no AT > rom on .data: refused by 'memory map' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] PLANTED link script: ENTRY(main): refused by 'reset entry' (reset entry: the image enters at 0x0000005c, not at the CPU's reset address 0x00000000, the start of rom)
+FAIL: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected a 'staging buffer' refusal
+test_ctrl_memory: 1 failure(s)
+RESULT: FAIL

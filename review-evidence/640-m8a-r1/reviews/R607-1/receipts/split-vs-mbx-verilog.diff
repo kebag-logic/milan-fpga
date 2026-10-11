@@ -1,0 +1,698 @@
+14c14
+< // Date       : 2026-10-11 05:15:37
+---
+> // Date       : 2026-10-11 05:17:06
+1965a1966,2147
+> wire          milansoc_ctrlmemory0_bus_ack;
+> wire   [29:0] milansoc_ctrlmemory0_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_bus_cti;
+> wire          milansoc_ctrlmemory0_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_bus_dat_w;
+> wire          milansoc_ctrlmemory0_bus_err;
+> wire    [3:0] milansoc_ctrlmemory0_bus_sel;
+> wire          milansoc_ctrlmemory0_bus_stb;
+> wire          milansoc_ctrlmemory0_bus_we;
+> reg           milansoc_ctrlmemory0_hole_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_hole_adr;
+> wire    [1:0] milansoc_ctrlmemory0_hole_bte;
+> wire    [2:0] milansoc_ctrlmemory0_hole_cti;
+> wire          milansoc_ctrlmemory0_hole_cyc;
+> reg    [31:0] milansoc_ctrlmemory0_hole_dat_r = 32'd0;
+> wire   [31:0] milansoc_ctrlmemory0_hole_dat_w;
+> reg           milansoc_ctrlmemory0_hole_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_hole_sel;
+> wire          milansoc_ctrlmemory0_hole_stb;
+> wire          milansoc_ctrlmemory0_hole_we;
+> reg     [5:0] milansoc_ctrlmemory0_slave_sel = 6'd0;
+> wire    [5:0] milansoc_ctrlmemory0_slave_sel_r;
+> wire   [13:0] milansoc_ctrlmemory0_sram0_adr;
+> reg           milansoc_ctrlmemory0_sram0_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory0_sram0_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_sram0_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_sram0_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_sram0_bus_cti;
+> wire          milansoc_ctrlmemory0_sram0_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_sram0_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_sram0_bus_dat_w;
+> reg           milansoc_ctrlmemory0_sram0_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_sram0_bus_sel;
+> wire          milansoc_ctrlmemory0_sram0_bus_stb;
+> wire          milansoc_ctrlmemory0_sram0_bus_we;
+> wire   [31:0] milansoc_ctrlmemory0_sram0_dat_r;
+> wire   [11:0] milansoc_ctrlmemory0_sram1_adr;
+> reg           milansoc_ctrlmemory0_sram1_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory0_sram1_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_sram1_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_sram1_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_sram1_bus_cti;
+> wire          milansoc_ctrlmemory0_sram1_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_sram1_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_sram1_bus_dat_w;
+> reg           milansoc_ctrlmemory0_sram1_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_sram1_bus_sel;
+> wire          milansoc_ctrlmemory0_sram1_bus_stb;
+> wire          milansoc_ctrlmemory0_sram1_bus_we;
+> wire   [31:0] milansoc_ctrlmemory0_sram1_dat_r;
+> wire   [10:0] milansoc_ctrlmemory0_sram2_adr;
+> reg           milansoc_ctrlmemory0_sram2_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory0_sram2_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_sram2_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_sram2_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_sram2_bus_cti;
+> wire          milansoc_ctrlmemory0_sram2_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_sram2_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_sram2_bus_dat_w;
+> reg           milansoc_ctrlmemory0_sram2_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_sram2_bus_sel;
+> wire          milansoc_ctrlmemory0_sram2_bus_stb;
+> wire          milansoc_ctrlmemory0_sram2_bus_we;
+> wire   [31:0] milansoc_ctrlmemory0_sram2_dat_r;
+> wire    [9:0] milansoc_ctrlmemory0_sram3_adr;
+> reg           milansoc_ctrlmemory0_sram3_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory0_sram3_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_sram3_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_sram3_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_sram3_bus_cti;
+> wire          milansoc_ctrlmemory0_sram3_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_sram3_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_sram3_bus_dat_w;
+> reg           milansoc_ctrlmemory0_sram3_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_sram3_bus_sel;
+> wire          milansoc_ctrlmemory0_sram3_bus_stb;
+> wire          milansoc_ctrlmemory0_sram3_bus_we;
+> wire   [31:0] milansoc_ctrlmemory0_sram3_dat_r;
+> wire    [8:0] milansoc_ctrlmemory0_sram4_adr;
+> reg           milansoc_ctrlmemory0_sram4_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory0_sram4_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory0_sram4_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory0_sram4_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory0_sram4_bus_cti;
+> wire          milansoc_ctrlmemory0_sram4_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory0_sram4_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory0_sram4_bus_dat_w;
+> reg           milansoc_ctrlmemory0_sram4_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory0_sram4_bus_sel;
+> wire          milansoc_ctrlmemory0_sram4_bus_stb;
+> wire          milansoc_ctrlmemory0_sram4_bus_we;
+> wire   [31:0] milansoc_ctrlmemory0_sram4_dat_r;
+> wire          milansoc_ctrlmemory1_bus_ack;
+> wire   [29:0] milansoc_ctrlmemory1_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory1_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory1_bus_cti;
+> wire          milansoc_ctrlmemory1_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory1_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_bus_dat_w;
+> wire          milansoc_ctrlmemory1_bus_err;
+> wire    [3:0] milansoc_ctrlmemory1_bus_sel;
+> wire          milansoc_ctrlmemory1_bus_stb;
+> wire          milansoc_ctrlmemory1_bus_we;
+> reg           milansoc_ctrlmemory1_hole_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory1_hole_adr;
+> wire    [1:0] milansoc_ctrlmemory1_hole_bte;
+> wire    [2:0] milansoc_ctrlmemory1_hole_cti;
+> wire          milansoc_ctrlmemory1_hole_cyc;
+> reg    [31:0] milansoc_ctrlmemory1_hole_dat_r = 32'd0;
+> wire   [31:0] milansoc_ctrlmemory1_hole_dat_w;
+> reg           milansoc_ctrlmemory1_hole_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory1_hole_sel;
+> wire          milansoc_ctrlmemory1_hole_stb;
+> wire          milansoc_ctrlmemory1_hole_we;
+> reg     [4:0] milansoc_ctrlmemory1_slave_sel = 5'd0;
+> wire    [4:0] milansoc_ctrlmemory1_slave_sel_r;
+> wire   [12:0] milansoc_ctrlmemory1_sram5_adr;
+> reg           milansoc_ctrlmemory1_sram5_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory1_sram5_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory1_sram5_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory1_sram5_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory1_sram5_bus_cti;
+> wire          milansoc_ctrlmemory1_sram5_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory1_sram5_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram5_bus_dat_w;
+> reg           milansoc_ctrlmemory1_sram5_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory1_sram5_bus_sel;
+> wire          milansoc_ctrlmemory1_sram5_bus_stb;
+> wire          milansoc_ctrlmemory1_sram5_bus_we;
+> wire   [31:0] milansoc_ctrlmemory1_sram5_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram5_dat_w;
+> reg     [3:0] milansoc_ctrlmemory1_sram5_we = 4'd0;
+> wire   [10:0] milansoc_ctrlmemory1_sram6_adr;
+> reg           milansoc_ctrlmemory1_sram6_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory1_sram6_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory1_sram6_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory1_sram6_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory1_sram6_bus_cti;
+> wire          milansoc_ctrlmemory1_sram6_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory1_sram6_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram6_bus_dat_w;
+> reg           milansoc_ctrlmemory1_sram6_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory1_sram6_bus_sel;
+> wire          milansoc_ctrlmemory1_sram6_bus_stb;
+> wire          milansoc_ctrlmemory1_sram6_bus_we;
+> wire   [31:0] milansoc_ctrlmemory1_sram6_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram6_dat_w;
+> reg     [3:0] milansoc_ctrlmemory1_sram6_we = 4'd0;
+> wire    [9:0] milansoc_ctrlmemory1_sram7_adr;
+> reg           milansoc_ctrlmemory1_sram7_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory1_sram7_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory1_sram7_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory1_sram7_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory1_sram7_bus_cti;
+> wire          milansoc_ctrlmemory1_sram7_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory1_sram7_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram7_bus_dat_w;
+> reg           milansoc_ctrlmemory1_sram7_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory1_sram7_bus_sel;
+> wire          milansoc_ctrlmemory1_sram7_bus_stb;
+> wire          milansoc_ctrlmemory1_sram7_bus_we;
+> wire   [31:0] milansoc_ctrlmemory1_sram7_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram7_dat_w;
+> reg     [3:0] milansoc_ctrlmemory1_sram7_we = 4'd0;
+> wire    [8:0] milansoc_ctrlmemory1_sram8_adr;
+> reg           milansoc_ctrlmemory1_sram8_adr_burst = 1'd0;
+> reg           milansoc_ctrlmemory1_sram8_bus_ack = 1'd0;
+> wire   [29:0] milansoc_ctrlmemory1_sram8_bus_adr;
+> wire    [1:0] milansoc_ctrlmemory1_sram8_bus_bte;
+> wire    [2:0] milansoc_ctrlmemory1_sram8_bus_cti;
+> wire          milansoc_ctrlmemory1_sram8_bus_cyc;
+> wire   [31:0] milansoc_ctrlmemory1_sram8_bus_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram8_bus_dat_w;
+> reg           milansoc_ctrlmemory1_sram8_bus_err = 1'd0;
+> wire    [3:0] milansoc_ctrlmemory1_sram8_bus_sel;
+> wire          milansoc_ctrlmemory1_sram8_bus_stb;
+> wire          milansoc_ctrlmemory1_sram8_bus_we;
+> wire   [31:0] milansoc_ctrlmemory1_sram8_dat_r;
+> wire   [31:0] milansoc_ctrlmemory1_sram8_dat_w;
+> reg     [3:0] milansoc_ctrlmemory1_sram8_we = 4'd0;
+3739,3752d3920
+< wire   [14:0] milansoc_milansoc_milansoc_adr;
+< reg           milansoc_milansoc_milansoc_adr_burst = 1'd0;
+< wire   [31:0] milansoc_milansoc_milansoc_dat_r;
+< reg           milansoc_milansoc_milansoc_ram_bus_ack = 1'd0;
+< wire   [29:0] milansoc_milansoc_milansoc_ram_bus_adr;
+< wire    [1:0] milansoc_milansoc_milansoc_ram_bus_bte;
+< wire    [2:0] milansoc_milansoc_milansoc_ram_bus_cti;
+< wire          milansoc_milansoc_milansoc_ram_bus_cyc;
+< wire   [31:0] milansoc_milansoc_milansoc_ram_bus_dat_r;
+< wire   [31:0] milansoc_milansoc_milansoc_ram_bus_dat_w;
+< reg           milansoc_milansoc_milansoc_ram_bus_err = 1'd0;
+< wire    [3:0] milansoc_milansoc_milansoc_ram_bus_sel;
+< wire          milansoc_milansoc_milansoc_ram_bus_stb;
+< wire          milansoc_milansoc_milansoc_ram_bus_we;
+3754,3769d3921
+< wire   [10:0] milansoc_milansoc_ram_adr;
+< reg           milansoc_milansoc_ram_adr_burst = 1'd0;
+< reg           milansoc_milansoc_ram_bus_ram_bus_ack = 1'd0;
+< wire   [29:0] milansoc_milansoc_ram_bus_ram_bus_adr;
+< wire    [1:0] milansoc_milansoc_ram_bus_ram_bus_bte;
+< wire    [2:0] milansoc_milansoc_ram_bus_ram_bus_cti;
+< wire          milansoc_milansoc_ram_bus_ram_bus_cyc;
+< wire   [31:0] milansoc_milansoc_ram_bus_ram_bus_dat_r;
+< wire   [31:0] milansoc_milansoc_ram_bus_ram_bus_dat_w;
+< reg           milansoc_milansoc_ram_bus_ram_bus_err = 1'd0;
+< wire    [3:0] milansoc_milansoc_ram_bus_ram_bus_sel;
+< wire          milansoc_milansoc_ram_bus_ram_bus_stb;
+< wire          milansoc_milansoc_ram_bus_ram_bus_we;
+< wire   [31:0] milansoc_milansoc_ram_dat_r;
+< wire   [31:0] milansoc_milansoc_ram_dat_w;
+< reg     [3:0] milansoc_milansoc_ram_we = 4'd0;
+7254,7255c7406,7407
+<     socbushandler0_slave_sel[0] = (socbushandler0_shared_adr[29:15] == 1'd0);
+<     socbushandler0_slave_sel[1] = (socbushandler0_shared_adr[29:11] == 16'h8000);
+---
+>     socbushandler0_slave_sel[0] = (socbushandler0_shared_adr[29:16] == 1'd0);
+>     socbushandler0_slave_sel[1] = (socbushandler0_shared_adr[29:16] == 11'h400);
+7261,7274c7413,7426
+< assign milansoc_milansoc_milansoc_ram_bus_adr = socbushandler0_shared_adr;
+< assign milansoc_milansoc_milansoc_ram_bus_dat_w = socbushandler0_shared_dat_w;
+< assign milansoc_milansoc_milansoc_ram_bus_sel = socbushandler0_shared_sel;
+< assign milansoc_milansoc_milansoc_ram_bus_stb = socbushandler0_shared_stb;
+< assign milansoc_milansoc_milansoc_ram_bus_we = socbushandler0_shared_we;
+< assign milansoc_milansoc_milansoc_ram_bus_cti = socbushandler0_shared_cti;
+< assign milansoc_milansoc_milansoc_ram_bus_bte = socbushandler0_shared_bte;
+< assign milansoc_milansoc_ram_bus_ram_bus_adr = socbushandler0_shared_adr;
+< assign milansoc_milansoc_ram_bus_ram_bus_dat_w = socbushandler0_shared_dat_w;
+< assign milansoc_milansoc_ram_bus_ram_bus_sel = socbushandler0_shared_sel;
+< assign milansoc_milansoc_ram_bus_ram_bus_stb = socbushandler0_shared_stb;
+< assign milansoc_milansoc_ram_bus_ram_bus_we = socbushandler0_shared_we;
+< assign milansoc_milansoc_ram_bus_ram_bus_cti = socbushandler0_shared_cti;
+< assign milansoc_milansoc_ram_bus_ram_bus_bte = socbushandler0_shared_bte;
+---
+> assign milansoc_ctrlmemory0_bus_adr = socbushandler0_shared_adr;
+> assign milansoc_ctrlmemory0_bus_dat_w = socbushandler0_shared_dat_w;
+> assign milansoc_ctrlmemory0_bus_sel = socbushandler0_shared_sel;
+> assign milansoc_ctrlmemory0_bus_stb = socbushandler0_shared_stb;
+> assign milansoc_ctrlmemory0_bus_we = socbushandler0_shared_we;
+> assign milansoc_ctrlmemory0_bus_cti = socbushandler0_shared_cti;
+> assign milansoc_ctrlmemory0_bus_bte = socbushandler0_shared_bte;
+> assign milansoc_ctrlmemory1_bus_adr = socbushandler0_shared_adr;
+> assign milansoc_ctrlmemory1_bus_dat_w = socbushandler0_shared_dat_w;
+> assign milansoc_ctrlmemory1_bus_sel = socbushandler0_shared_sel;
+> assign milansoc_ctrlmemory1_bus_stb = socbushandler0_shared_stb;
+> assign milansoc_ctrlmemory1_bus_we = socbushandler0_shared_we;
+> assign milansoc_ctrlmemory1_bus_cti = socbushandler0_shared_cti;
+> assign milansoc_ctrlmemory1_bus_bte = socbushandler0_shared_bte;
+7303,7304c7455,7456
+< assign milansoc_milansoc_milansoc_ram_bus_cyc = (socbushandler0_shared_cyc & socbushandler0_slave_sel[0]);
+< assign milansoc_milansoc_ram_bus_ram_bus_cyc = (socbushandler0_shared_cyc & socbushandler0_slave_sel[1]);
+---
+> assign milansoc_ctrlmemory0_bus_cyc = (socbushandler0_shared_cyc & socbushandler0_slave_sel[0]);
+> assign milansoc_ctrlmemory1_bus_cyc = (socbushandler0_shared_cyc & socbushandler0_slave_sel[1]);
+7309c7461
+< assign socbushandler0_shared_err = (((((milansoc_milansoc_milansoc_ram_bus_err | milansoc_milansoc_ram_bus_ram_bus_err) | milansoc_socbushandler_adapted_interface_err) | milansoc_adapted_interface_err) | milansoc_ctrlmailbox_bus_err) | interface0_err);
+---
+> assign socbushandler0_shared_err = (((((milansoc_ctrlmemory0_bus_err | milansoc_ctrlmemory1_bus_err) | milansoc_socbushandler_adapted_interface_err) | milansoc_adapted_interface_err) | milansoc_ctrlmailbox_bus_err) | interface0_err);
+7315,7316c7467,7468
+<     socbushandler0_shared_ack = (((((milansoc_milansoc_milansoc_ram_bus_ack | milansoc_milansoc_ram_bus_ram_bus_ack) | milansoc_socbushandler_adapted_interface_ack) | milansoc_adapted_interface_ack) | milansoc_ctrlmailbox_bus_ack) | interface0_ack);
+<     socbushandler0_shared_dat_r = (((((({32{socbushandler0_slave_sel_r[0]}} & milansoc_milansoc_milansoc_ram_bus_dat_r) | ({32{socbushandler0_slave_sel_r[1]}} & milansoc_milansoc_ram_bus_ram_bus_dat_r)) | ({32{socbushandler0_slave_sel_r[2]}} & milansoc_socbushandler_adapted_interface_dat_r)) | ({32{socbushandler0_slave_sel_r[3]}} & milansoc_adapted_interface_dat_r)) | ({32{socbushandler0_slave_sel_r[4]}} & milansoc_ctrlmailbox_bus_dat_r)) | ({32{socbushandler0_slave_sel_r[5]}} & interface0_dat_r));
+---
+>     socbushandler0_shared_ack = (((((milansoc_ctrlmemory0_bus_ack | milansoc_ctrlmemory1_bus_ack) | milansoc_socbushandler_adapted_interface_ack) | milansoc_adapted_interface_ack) | milansoc_ctrlmailbox_bus_ack) | interface0_ack);
+>     socbushandler0_shared_dat_r = (((((({32{socbushandler0_slave_sel_r[0]}} & milansoc_ctrlmemory0_bus_dat_r) | ({32{socbushandler0_slave_sel_r[1]}} & milansoc_ctrlmemory1_bus_dat_r)) | ({32{socbushandler0_slave_sel_r[2]}} & milansoc_socbushandler_adapted_interface_dat_r)) | ({32{socbushandler0_slave_sel_r[3]}} & milansoc_adapted_interface_dat_r)) | ({32{socbushandler0_slave_sel_r[4]}} & milansoc_ctrlmailbox_bus_dat_r)) | ({32{socbushandler0_slave_sel_r[5]}} & interface0_dat_r));
+8773,8784d8924
+< assign milansoc_milansoc_milansoc_adr = milansoc_milansoc_milansoc_ram_bus_adr[14:0];
+< assign milansoc_milansoc_milansoc_ram_bus_dat_r = milansoc_milansoc_milansoc_dat_r;
+< always @(*) begin
+<     milansoc_milansoc_ram_we = 4'd0;
+<     milansoc_milansoc_ram_we[0] = (((milansoc_milansoc_ram_bus_ram_bus_cyc & milansoc_milansoc_ram_bus_ram_bus_stb) & milansoc_milansoc_ram_bus_ram_bus_we) & milansoc_milansoc_ram_bus_ram_bus_sel[0]);
+<     milansoc_milansoc_ram_we[1] = (((milansoc_milansoc_ram_bus_ram_bus_cyc & milansoc_milansoc_ram_bus_ram_bus_stb) & milansoc_milansoc_ram_bus_ram_bus_we) & milansoc_milansoc_ram_bus_ram_bus_sel[1]);
+<     milansoc_milansoc_ram_we[2] = (((milansoc_milansoc_ram_bus_ram_bus_cyc & milansoc_milansoc_ram_bus_ram_bus_stb) & milansoc_milansoc_ram_bus_ram_bus_we) & milansoc_milansoc_ram_bus_ram_bus_sel[2]);
+<     milansoc_milansoc_ram_we[3] = (((milansoc_milansoc_ram_bus_ram_bus_cyc & milansoc_milansoc_ram_bus_ram_bus_stb) & milansoc_milansoc_ram_bus_ram_bus_we) & milansoc_milansoc_ram_bus_ram_bus_sel[3]);
+< end
+< assign milansoc_milansoc_ram_adr = milansoc_milansoc_ram_bus_ram_bus_adr[10:0];
+< assign milansoc_milansoc_ram_bus_ram_bus_dat_r = milansoc_milansoc_ram_dat_r;
+< assign milansoc_milansoc_ram_dat_w = milansoc_milansoc_ram_bus_ram_bus_dat_w;
+8982a9123,9285
+> assign milansoc_ctrlmemory0_sram0_adr = milansoc_ctrlmemory0_sram0_bus_adr[13:0];
+> assign milansoc_ctrlmemory0_sram0_bus_dat_r = milansoc_ctrlmemory0_sram0_dat_r;
+> assign milansoc_ctrlmemory0_sram1_adr = milansoc_ctrlmemory0_sram1_bus_adr[11:0];
+> assign milansoc_ctrlmemory0_sram1_bus_dat_r = milansoc_ctrlmemory0_sram1_dat_r;
+> assign milansoc_ctrlmemory0_sram2_adr = milansoc_ctrlmemory0_sram2_bus_adr[10:0];
+> assign milansoc_ctrlmemory0_sram2_bus_dat_r = milansoc_ctrlmemory0_sram2_dat_r;
+> assign milansoc_ctrlmemory0_sram3_adr = milansoc_ctrlmemory0_sram3_bus_adr[9:0];
+> assign milansoc_ctrlmemory0_sram3_bus_dat_r = milansoc_ctrlmemory0_sram3_dat_r;
+> assign milansoc_ctrlmemory0_sram4_adr = milansoc_ctrlmemory0_sram4_bus_adr[8:0];
+> assign milansoc_ctrlmemory0_sram4_bus_dat_r = milansoc_ctrlmemory0_sram4_dat_r;
+> always @(*) begin
+>     milansoc_ctrlmemory0_slave_sel = 6'd0;
+>     milansoc_ctrlmemory0_slave_sel[0] = (milansoc_ctrlmemory0_bus_adr[15:14] == 1'd0);
+>     milansoc_ctrlmemory0_slave_sel[1] = (milansoc_ctrlmemory0_bus_adr[15:12] == 3'd4);
+>     milansoc_ctrlmemory0_slave_sel[2] = (milansoc_ctrlmemory0_bus_adr[15:11] == 4'd10);
+>     milansoc_ctrlmemory0_slave_sel[3] = (milansoc_ctrlmemory0_bus_adr[15:10] == 5'd22);
+>     milansoc_ctrlmemory0_slave_sel[4] = (milansoc_ctrlmemory0_bus_adr[15:9] == 6'd46);
+>     milansoc_ctrlmemory0_slave_sel[5] = (milansoc_ctrlmemory0_bus_adr[15:0] >= 15'h5e00);
+> end
+> assign milansoc_ctrlmemory0_slave_sel_r = milansoc_ctrlmemory0_slave_sel;
+> assign milansoc_ctrlmemory0_sram0_bus_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_sram0_bus_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_sram0_bus_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_sram0_bus_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_sram0_bus_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_sram0_bus_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_sram0_bus_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_sram1_bus_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_sram1_bus_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_sram1_bus_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_sram1_bus_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_sram1_bus_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_sram1_bus_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_sram1_bus_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_sram2_bus_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_sram2_bus_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_sram2_bus_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_sram2_bus_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_sram2_bus_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_sram2_bus_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_sram2_bus_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_sram3_bus_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_sram3_bus_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_sram3_bus_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_sram3_bus_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_sram3_bus_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_sram3_bus_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_sram3_bus_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_sram4_bus_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_sram4_bus_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_sram4_bus_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_sram4_bus_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_sram4_bus_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_sram4_bus_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_sram4_bus_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_hole_adr = milansoc_ctrlmemory0_bus_adr;
+> assign milansoc_ctrlmemory0_hole_dat_w = milansoc_ctrlmemory0_bus_dat_w;
+> assign milansoc_ctrlmemory0_hole_sel = milansoc_ctrlmemory0_bus_sel;
+> assign milansoc_ctrlmemory0_hole_stb = milansoc_ctrlmemory0_bus_stb;
+> assign milansoc_ctrlmemory0_hole_we = milansoc_ctrlmemory0_bus_we;
+> assign milansoc_ctrlmemory0_hole_cti = milansoc_ctrlmemory0_bus_cti;
+> assign milansoc_ctrlmemory0_hole_bte = milansoc_ctrlmemory0_bus_bte;
+> assign milansoc_ctrlmemory0_sram0_bus_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[0]);
+> assign milansoc_ctrlmemory0_sram1_bus_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[1]);
+> assign milansoc_ctrlmemory0_sram2_bus_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[2]);
+> assign milansoc_ctrlmemory0_sram3_bus_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[3]);
+> assign milansoc_ctrlmemory0_sram4_bus_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[4]);
+> assign milansoc_ctrlmemory0_hole_cyc = (milansoc_ctrlmemory0_bus_cyc & milansoc_ctrlmemory0_slave_sel[5]);
+> assign milansoc_ctrlmemory0_bus_ack = (((((milansoc_ctrlmemory0_sram0_bus_ack | milansoc_ctrlmemory0_sram1_bus_ack) | milansoc_ctrlmemory0_sram2_bus_ack) | milansoc_ctrlmemory0_sram3_bus_ack) | milansoc_ctrlmemory0_sram4_bus_ack) | milansoc_ctrlmemory0_hole_ack);
+> assign milansoc_ctrlmemory0_bus_err = (((((milansoc_ctrlmemory0_sram0_bus_err | milansoc_ctrlmemory0_sram1_bus_err) | milansoc_ctrlmemory0_sram2_bus_err) | milansoc_ctrlmemory0_sram3_bus_err) | milansoc_ctrlmemory0_sram4_bus_err) | milansoc_ctrlmemory0_hole_err);
+> assign milansoc_ctrlmemory0_bus_dat_r = (((((({32{milansoc_ctrlmemory0_slave_sel_r[0]}} & milansoc_ctrlmemory0_sram0_bus_dat_r) | ({32{milansoc_ctrlmemory0_slave_sel_r[1]}} & milansoc_ctrlmemory0_sram1_bus_dat_r)) | ({32{milansoc_ctrlmemory0_slave_sel_r[2]}} & milansoc_ctrlmemory0_sram2_bus_dat_r)) | ({32{milansoc_ctrlmemory0_slave_sel_r[3]}} & milansoc_ctrlmemory0_sram3_bus_dat_r)) | ({32{milansoc_ctrlmemory0_slave_sel_r[4]}} & milansoc_ctrlmemory0_sram4_bus_dat_r)) | ({32{milansoc_ctrlmemory0_slave_sel_r[5]}} & milansoc_ctrlmemory0_hole_dat_r));
+> always @(*) begin
+>     milansoc_ctrlmemory1_sram5_we = 4'd0;
+>     milansoc_ctrlmemory1_sram5_we[0] = (((milansoc_ctrlmemory1_sram5_bus_cyc & milansoc_ctrlmemory1_sram5_bus_stb) & milansoc_ctrlmemory1_sram5_bus_we) & milansoc_ctrlmemory1_sram5_bus_sel[0]);
+>     milansoc_ctrlmemory1_sram5_we[1] = (((milansoc_ctrlmemory1_sram5_bus_cyc & milansoc_ctrlmemory1_sram5_bus_stb) & milansoc_ctrlmemory1_sram5_bus_we) & milansoc_ctrlmemory1_sram5_bus_sel[1]);
+>     milansoc_ctrlmemory1_sram5_we[2] = (((milansoc_ctrlmemory1_sram5_bus_cyc & milansoc_ctrlmemory1_sram5_bus_stb) & milansoc_ctrlmemory1_sram5_bus_we) & milansoc_ctrlmemory1_sram5_bus_sel[2]);
+>     milansoc_ctrlmemory1_sram5_we[3] = (((milansoc_ctrlmemory1_sram5_bus_cyc & milansoc_ctrlmemory1_sram5_bus_stb) & milansoc_ctrlmemory1_sram5_bus_we) & milansoc_ctrlmemory1_sram5_bus_sel[3]);
+> end
+> assign milansoc_ctrlmemory1_sram5_adr = milansoc_ctrlmemory1_sram5_bus_adr[12:0];
+> assign milansoc_ctrlmemory1_sram5_bus_dat_r = milansoc_ctrlmemory1_sram5_dat_r;
+> assign milansoc_ctrlmemory1_sram5_dat_w = milansoc_ctrlmemory1_sram5_bus_dat_w;
+> always @(*) begin
+>     milansoc_ctrlmemory1_sram6_we = 4'd0;
+>     milansoc_ctrlmemory1_sram6_we[0] = (((milansoc_ctrlmemory1_sram6_bus_cyc & milansoc_ctrlmemory1_sram6_bus_stb) & milansoc_ctrlmemory1_sram6_bus_we) & milansoc_ctrlmemory1_sram6_bus_sel[0]);
+>     milansoc_ctrlmemory1_sram6_we[1] = (((milansoc_ctrlmemory1_sram6_bus_cyc & milansoc_ctrlmemory1_sram6_bus_stb) & milansoc_ctrlmemory1_sram6_bus_we) & milansoc_ctrlmemory1_sram6_bus_sel[1]);
+>     milansoc_ctrlmemory1_sram6_we[2] = (((milansoc_ctrlmemory1_sram6_bus_cyc & milansoc_ctrlmemory1_sram6_bus_stb) & milansoc_ctrlmemory1_sram6_bus_we) & milansoc_ctrlmemory1_sram6_bus_sel[2]);
+>     milansoc_ctrlmemory1_sram6_we[3] = (((milansoc_ctrlmemory1_sram6_bus_cyc & milansoc_ctrlmemory1_sram6_bus_stb) & milansoc_ctrlmemory1_sram6_bus_we) & milansoc_ctrlmemory1_sram6_bus_sel[3]);
+> end
+> assign milansoc_ctrlmemory1_sram6_adr = milansoc_ctrlmemory1_sram6_bus_adr[10:0];
+> assign milansoc_ctrlmemory1_sram6_bus_dat_r = milansoc_ctrlmemory1_sram6_dat_r;
+> assign milansoc_ctrlmemory1_sram6_dat_w = milansoc_ctrlmemory1_sram6_bus_dat_w;
+> always @(*) begin
+>     milansoc_ctrlmemory1_sram7_we = 4'd0;
+>     milansoc_ctrlmemory1_sram7_we[0] = (((milansoc_ctrlmemory1_sram7_bus_cyc & milansoc_ctrlmemory1_sram7_bus_stb) & milansoc_ctrlmemory1_sram7_bus_we) & milansoc_ctrlmemory1_sram7_bus_sel[0]);
+>     milansoc_ctrlmemory1_sram7_we[1] = (((milansoc_ctrlmemory1_sram7_bus_cyc & milansoc_ctrlmemory1_sram7_bus_stb) & milansoc_ctrlmemory1_sram7_bus_we) & milansoc_ctrlmemory1_sram7_bus_sel[1]);
+>     milansoc_ctrlmemory1_sram7_we[2] = (((milansoc_ctrlmemory1_sram7_bus_cyc & milansoc_ctrlmemory1_sram7_bus_stb) & milansoc_ctrlmemory1_sram7_bus_we) & milansoc_ctrlmemory1_sram7_bus_sel[2]);
+>     milansoc_ctrlmemory1_sram7_we[3] = (((milansoc_ctrlmemory1_sram7_bus_cyc & milansoc_ctrlmemory1_sram7_bus_stb) & milansoc_ctrlmemory1_sram7_bus_we) & milansoc_ctrlmemory1_sram7_bus_sel[3]);
+> end
+> assign milansoc_ctrlmemory1_sram7_adr = milansoc_ctrlmemory1_sram7_bus_adr[9:0];
+> assign milansoc_ctrlmemory1_sram7_bus_dat_r = milansoc_ctrlmemory1_sram7_dat_r;
+> assign milansoc_ctrlmemory1_sram7_dat_w = milansoc_ctrlmemory1_sram7_bus_dat_w;
+> always @(*) begin
+>     milansoc_ctrlmemory1_sram8_we = 4'd0;
+>     milansoc_ctrlmemory1_sram8_we[0] = (((milansoc_ctrlmemory1_sram8_bus_cyc & milansoc_ctrlmemory1_sram8_bus_stb) & milansoc_ctrlmemory1_sram8_bus_we) & milansoc_ctrlmemory1_sram8_bus_sel[0]);
+>     milansoc_ctrlmemory1_sram8_we[1] = (((milansoc_ctrlmemory1_sram8_bus_cyc & milansoc_ctrlmemory1_sram8_bus_stb) & milansoc_ctrlmemory1_sram8_bus_we) & milansoc_ctrlmemory1_sram8_bus_sel[1]);
+>     milansoc_ctrlmemory1_sram8_we[2] = (((milansoc_ctrlmemory1_sram8_bus_cyc & milansoc_ctrlmemory1_sram8_bus_stb) & milansoc_ctrlmemory1_sram8_bus_we) & milansoc_ctrlmemory1_sram8_bus_sel[2]);
+>     milansoc_ctrlmemory1_sram8_we[3] = (((milansoc_ctrlmemory1_sram8_bus_cyc & milansoc_ctrlmemory1_sram8_bus_stb) & milansoc_ctrlmemory1_sram8_bus_we) & milansoc_ctrlmemory1_sram8_bus_sel[3]);
+> end
+> assign milansoc_ctrlmemory1_sram8_adr = milansoc_ctrlmemory1_sram8_bus_adr[8:0];
+> assign milansoc_ctrlmemory1_sram8_bus_dat_r = milansoc_ctrlmemory1_sram8_dat_r;
+> assign milansoc_ctrlmemory1_sram8_dat_w = milansoc_ctrlmemory1_sram8_bus_dat_w;
+> always @(*) begin
+>     milansoc_ctrlmemory1_slave_sel = 5'd0;
+>     milansoc_ctrlmemory1_slave_sel[0] = (milansoc_ctrlmemory1_bus_adr[15:13] == 1'd0);
+>     milansoc_ctrlmemory1_slave_sel[1] = (milansoc_ctrlmemory1_bus_adr[15:11] == 3'd4);
+>     milansoc_ctrlmemory1_slave_sel[2] = (milansoc_ctrlmemory1_bus_adr[15:10] == 4'd10);
+>     milansoc_ctrlmemory1_slave_sel[3] = (milansoc_ctrlmemory1_bus_adr[15:9] == 5'd22);
+>     milansoc_ctrlmemory1_slave_sel[4] = (milansoc_ctrlmemory1_bus_adr[15:0] >= 14'h2e00);
+> end
+> assign milansoc_ctrlmemory1_slave_sel_r = milansoc_ctrlmemory1_slave_sel;
+> assign milansoc_ctrlmemory1_sram5_bus_adr = milansoc_ctrlmemory1_bus_adr;
+> assign milansoc_ctrlmemory1_sram5_bus_dat_w = milansoc_ctrlmemory1_bus_dat_w;
+> assign milansoc_ctrlmemory1_sram5_bus_sel = milansoc_ctrlmemory1_bus_sel;
+> assign milansoc_ctrlmemory1_sram5_bus_stb = milansoc_ctrlmemory1_bus_stb;
+> assign milansoc_ctrlmemory1_sram5_bus_we = milansoc_ctrlmemory1_bus_we;
+> assign milansoc_ctrlmemory1_sram5_bus_cti = milansoc_ctrlmemory1_bus_cti;
+> assign milansoc_ctrlmemory1_sram5_bus_bte = milansoc_ctrlmemory1_bus_bte;
+> assign milansoc_ctrlmemory1_sram6_bus_adr = milansoc_ctrlmemory1_bus_adr;
+> assign milansoc_ctrlmemory1_sram6_bus_dat_w = milansoc_ctrlmemory1_bus_dat_w;
+> assign milansoc_ctrlmemory1_sram6_bus_sel = milansoc_ctrlmemory1_bus_sel;
+> assign milansoc_ctrlmemory1_sram6_bus_stb = milansoc_ctrlmemory1_bus_stb;
+> assign milansoc_ctrlmemory1_sram6_bus_we = milansoc_ctrlmemory1_bus_we;
+> assign milansoc_ctrlmemory1_sram6_bus_cti = milansoc_ctrlmemory1_bus_cti;
+> assign milansoc_ctrlmemory1_sram6_bus_bte = milansoc_ctrlmemory1_bus_bte;
+> assign milansoc_ctrlmemory1_sram7_bus_adr = milansoc_ctrlmemory1_bus_adr;
+> assign milansoc_ctrlmemory1_sram7_bus_dat_w = milansoc_ctrlmemory1_bus_dat_w;
+> assign milansoc_ctrlmemory1_sram7_bus_sel = milansoc_ctrlmemory1_bus_sel;
+> assign milansoc_ctrlmemory1_sram7_bus_stb = milansoc_ctrlmemory1_bus_stb;
+> assign milansoc_ctrlmemory1_sram7_bus_we = milansoc_ctrlmemory1_bus_we;
+> assign milansoc_ctrlmemory1_sram7_bus_cti = milansoc_ctrlmemory1_bus_cti;
+> assign milansoc_ctrlmemory1_sram7_bus_bte = milansoc_ctrlmemory1_bus_bte;
+> assign milansoc_ctrlmemory1_sram8_bus_adr = milansoc_ctrlmemory1_bus_adr;
+> assign milansoc_ctrlmemory1_sram8_bus_dat_w = milansoc_ctrlmemory1_bus_dat_w;
+> assign milansoc_ctrlmemory1_sram8_bus_sel = milansoc_ctrlmemory1_bus_sel;
+> assign milansoc_ctrlmemory1_sram8_bus_stb = milansoc_ctrlmemory1_bus_stb;
+> assign milansoc_ctrlmemory1_sram8_bus_we = milansoc_ctrlmemory1_bus_we;
+> assign milansoc_ctrlmemory1_sram8_bus_cti = milansoc_ctrlmemory1_bus_cti;
+> assign milansoc_ctrlmemory1_sram8_bus_bte = milansoc_ctrlmemory1_bus_bte;
+> assign milansoc_ctrlmemory1_hole_adr = milansoc_ctrlmemory1_bus_adr;
+> assign milansoc_ctrlmemory1_hole_dat_w = milansoc_ctrlmemory1_bus_dat_w;
+> assign milansoc_ctrlmemory1_hole_sel = milansoc_ctrlmemory1_bus_sel;
+> assign milansoc_ctrlmemory1_hole_stb = milansoc_ctrlmemory1_bus_stb;
+> assign milansoc_ctrlmemory1_hole_we = milansoc_ctrlmemory1_bus_we;
+> assign milansoc_ctrlmemory1_hole_cti = milansoc_ctrlmemory1_bus_cti;
+> assign milansoc_ctrlmemory1_hole_bte = milansoc_ctrlmemory1_bus_bte;
+> assign milansoc_ctrlmemory1_sram5_bus_cyc = (milansoc_ctrlmemory1_bus_cyc & milansoc_ctrlmemory1_slave_sel[0]);
+> assign milansoc_ctrlmemory1_sram6_bus_cyc = (milansoc_ctrlmemory1_bus_cyc & milansoc_ctrlmemory1_slave_sel[1]);
+> assign milansoc_ctrlmemory1_sram7_bus_cyc = (milansoc_ctrlmemory1_bus_cyc & milansoc_ctrlmemory1_slave_sel[2]);
+> assign milansoc_ctrlmemory1_sram8_bus_cyc = (milansoc_ctrlmemory1_bus_cyc & milansoc_ctrlmemory1_slave_sel[3]);
+> assign milansoc_ctrlmemory1_hole_cyc = (milansoc_ctrlmemory1_bus_cyc & milansoc_ctrlmemory1_slave_sel[4]);
+> assign milansoc_ctrlmemory1_bus_ack = ((((milansoc_ctrlmemory1_sram5_bus_ack | milansoc_ctrlmemory1_sram6_bus_ack) | milansoc_ctrlmemory1_sram7_bus_ack) | milansoc_ctrlmemory1_sram8_bus_ack) | milansoc_ctrlmemory1_hole_ack);
+> assign milansoc_ctrlmemory1_bus_err = ((((milansoc_ctrlmemory1_sram5_bus_err | milansoc_ctrlmemory1_sram6_bus_err) | milansoc_ctrlmemory1_sram7_bus_err) | milansoc_ctrlmemory1_sram8_bus_err) | milansoc_ctrlmemory1_hole_err);
+> assign milansoc_ctrlmemory1_bus_dat_r = ((((({32{milansoc_ctrlmemory1_slave_sel_r[0]}} & milansoc_ctrlmemory1_sram5_bus_dat_r) | ({32{milansoc_ctrlmemory1_slave_sel_r[1]}} & milansoc_ctrlmemory1_sram6_bus_dat_r)) | ({32{milansoc_ctrlmemory1_slave_sel_r[2]}} & milansoc_ctrlmemory1_sram7_bus_dat_r)) | ({32{milansoc_ctrlmemory1_slave_sel_r[3]}} & milansoc_ctrlmemory1_sram8_bus_dat_r)) | ({32{milansoc_ctrlmemory1_slave_sel_r[4]}} & milansoc_ctrlmemory1_hole_dat_r));
+21112,21119d21414
+<     milansoc_milansoc_milansoc_ram_bus_ack <= 1'd0;
+<     if (((milansoc_milansoc_milansoc_ram_bus_cyc & milansoc_milansoc_milansoc_ram_bus_stb) & ((~milansoc_milansoc_milansoc_ram_bus_ack) | milansoc_milansoc_milansoc_adr_burst))) begin
+<         milansoc_milansoc_milansoc_ram_bus_ack <= 1'd1;
+<     end
+<     milansoc_milansoc_ram_bus_ram_bus_ack <= 1'd0;
+<     if (((milansoc_milansoc_ram_bus_ram_bus_cyc & milansoc_milansoc_ram_bus_ram_bus_stb) & ((~milansoc_milansoc_ram_bus_ram_bus_ack) | milansoc_milansoc_ram_adr_burst))) begin
+<         milansoc_milansoc_ram_bus_ram_bus_ack <= 1'd1;
+<     end
+21208a21504,21541
+>     milansoc_ctrlmemory0_hole_err <= ((milansoc_ctrlmemory0_hole_cyc & milansoc_ctrlmemory0_hole_stb) & (~milansoc_ctrlmemory0_hole_err));
+>     milansoc_ctrlmemory0_sram0_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory0_sram0_bus_cyc & milansoc_ctrlmemory0_sram0_bus_stb) & ((~milansoc_ctrlmemory0_sram0_bus_ack) | milansoc_ctrlmemory0_sram0_adr_burst))) begin
+>         milansoc_ctrlmemory0_sram0_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory0_sram1_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory0_sram1_bus_cyc & milansoc_ctrlmemory0_sram1_bus_stb) & ((~milansoc_ctrlmemory0_sram1_bus_ack) | milansoc_ctrlmemory0_sram1_adr_burst))) begin
+>         milansoc_ctrlmemory0_sram1_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory0_sram2_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory0_sram2_bus_cyc & milansoc_ctrlmemory0_sram2_bus_stb) & ((~milansoc_ctrlmemory0_sram2_bus_ack) | milansoc_ctrlmemory0_sram2_adr_burst))) begin
+>         milansoc_ctrlmemory0_sram2_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory0_sram3_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory0_sram3_bus_cyc & milansoc_ctrlmemory0_sram3_bus_stb) & ((~milansoc_ctrlmemory0_sram3_bus_ack) | milansoc_ctrlmemory0_sram3_adr_burst))) begin
+>         milansoc_ctrlmemory0_sram3_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory0_sram4_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory0_sram4_bus_cyc & milansoc_ctrlmemory0_sram4_bus_stb) & ((~milansoc_ctrlmemory0_sram4_bus_ack) | milansoc_ctrlmemory0_sram4_adr_burst))) begin
+>         milansoc_ctrlmemory0_sram4_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory1_hole_err <= ((milansoc_ctrlmemory1_hole_cyc & milansoc_ctrlmemory1_hole_stb) & (~milansoc_ctrlmemory1_hole_err));
+>     milansoc_ctrlmemory1_sram5_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory1_sram5_bus_cyc & milansoc_ctrlmemory1_sram5_bus_stb) & ((~milansoc_ctrlmemory1_sram5_bus_ack) | milansoc_ctrlmemory1_sram5_adr_burst))) begin
+>         milansoc_ctrlmemory1_sram5_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory1_sram6_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory1_sram6_bus_cyc & milansoc_ctrlmemory1_sram6_bus_stb) & ((~milansoc_ctrlmemory1_sram6_bus_ack) | milansoc_ctrlmemory1_sram6_adr_burst))) begin
+>         milansoc_ctrlmemory1_sram6_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory1_sram7_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory1_sram7_bus_cyc & milansoc_ctrlmemory1_sram7_bus_stb) & ((~milansoc_ctrlmemory1_sram7_bus_ack) | milansoc_ctrlmemory1_sram7_adr_burst))) begin
+>         milansoc_ctrlmemory1_sram7_bus_ack <= 1'd1;
+>     end
+>     milansoc_ctrlmemory1_sram8_bus_ack <= 1'd0;
+>     if (((milansoc_ctrlmemory1_sram8_bus_cyc & milansoc_ctrlmemory1_sram8_bus_stb) & ((~milansoc_ctrlmemory1_sram8_bus_ack) | milansoc_ctrlmemory1_sram8_adr_burst))) begin
+>         milansoc_ctrlmemory1_sram8_bus_ack <= 1'd1;
+>     end
+24059,24060d24391
+<         milansoc_milansoc_milansoc_ram_bus_ack <= 1'd0;
+<         milansoc_milansoc_ram_bus_ram_bus_ack <= 1'd0;
+24099a24431,24441
+>         milansoc_ctrlmemory0_sram0_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory0_sram1_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory0_sram2_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory0_sram3_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory0_sram4_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory0_hole_err <= 1'd0;
+>         milansoc_ctrlmemory1_sram5_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory1_sram6_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory1_sram7_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory1_sram8_bus_ack <= 1'd0;
+>         milansoc_ctrlmemory1_hole_err <= 1'd0;
+24709,24742d25050
+< // Memory rom: 13289-words x 32-bit
+< //------------------------------------------------------------------------------
+< // Port 0 | Read: Sync  | Write: ---- | 
+< reg [31:0] rom[0:13288];
+< initial begin
+< 	$readmemh("alinx_ax7101_rom.init", rom);
+< end
+< reg [31:0] rom_dat0;
+< always @(posedge sys_clk) begin
+< 	rom_dat0 <= rom[milansoc_milansoc_milansoc_adr];
+< end
+< assign milansoc_milansoc_milansoc_dat_r = rom_dat0;
+< 
+< 
+< //------------------------------------------------------------------------------
+< // Memory sram: 2048-words x 32-bit
+< //------------------------------------------------------------------------------
+< // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+< reg [31:0] sram[0:2047];
+< initial begin
+< 	$readmemh("alinx_ax7101_sram.init", sram);
+< end
+< reg [10:0] sram_adr0;
+< always @(posedge sys_clk) begin : mem_write_block
+< 	integer we_index;
+< 	for(we_index = 0; we_index < 4; we_index=we_index+1)
+< 		if (milansoc_milansoc_ram_we[we_index])
+< 			sram[milansoc_milansoc_ram_adr][we_index*8 +: 8] <= milansoc_milansoc_ram_dat_w[we_index*8 +: 8];
+< 	sram_adr0 <= milansoc_milansoc_ram_adr;
+< end
+< assign milansoc_milansoc_ram_dat_r = sram[sram_adr0];
+< 
+< 
+< //------------------------------------------------------------------------------
+24801a25110,25248
+> // Memory rom_bank0: 16384-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> reg [31:0] rom_bank0[0:16383];
+> initial begin
+> 	$readmemh("alinx_ax7101_rom_bank0.init", rom_bank0);
+> end
+> reg [31:0] rom_bank0_dat0;
+> always @(posedge sys_clk) begin
+> 	rom_bank0_dat0 <= rom_bank0[milansoc_ctrlmemory0_sram0_adr];
+> end
+> assign milansoc_ctrlmemory0_sram0_dat_r = rom_bank0_dat0;
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory rom_bank1: 4096-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> reg [31:0] rom_bank1[0:4095];
+> initial begin
+> 	$readmemh("alinx_ax7101_rom_bank1.init", rom_bank1);
+> end
+> reg [31:0] rom_bank1_dat0;
+> always @(posedge sys_clk) begin
+> 	rom_bank1_dat0 <= rom_bank1[milansoc_ctrlmemory0_sram1_adr];
+> end
+> assign milansoc_ctrlmemory0_sram1_dat_r = rom_bank1_dat0;
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory rom_bank2: 2048-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> reg [31:0] rom_bank2[0:2047];
+> initial begin
+> 	$readmemh("alinx_ax7101_rom_bank2.init", rom_bank2);
+> end
+> reg [31:0] rom_bank2_dat0;
+> always @(posedge sys_clk) begin
+> 	rom_bank2_dat0 <= rom_bank2[milansoc_ctrlmemory0_sram2_adr];
+> end
+> assign milansoc_ctrlmemory0_sram2_dat_r = rom_bank2_dat0;
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory rom_bank3: 1024-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> reg [31:0] rom_bank3[0:1023];
+> initial begin
+> 	$readmemh("alinx_ax7101_rom_bank3.init", rom_bank3);
+> end
+> reg [31:0] rom_bank3_dat0;
+> always @(posedge sys_clk) begin
+> 	rom_bank3_dat0 <= rom_bank3[milansoc_ctrlmemory0_sram3_adr];
+> end
+> assign milansoc_ctrlmemory0_sram3_dat_r = rom_bank3_dat0;
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory rom_bank4: 512-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: ---- | 
+> reg [31:0] rom_bank4[0:511];
+> initial begin
+> 	$readmemh("alinx_ax7101_rom_bank4.init", rom_bank4);
+> end
+> reg [31:0] rom_bank4_dat0;
+> always @(posedge sys_clk) begin
+> 	rom_bank4_dat0 <= rom_bank4[milansoc_ctrlmemory0_sram4_adr];
+> end
+> assign milansoc_ctrlmemory0_sram4_dat_r = rom_bank4_dat0;
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory sram_bank0: 8192-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+> reg [31:0] sram_bank0[0:8191];
+> reg [12:0] sram_bank0_adr0;
+> always @(posedge sys_clk) begin : mem_write_block
+> 	integer we_index;
+> 	for(we_index = 0; we_index < 4; we_index=we_index+1)
+> 		if (milansoc_ctrlmemory1_sram5_we[we_index])
+> 			sram_bank0[milansoc_ctrlmemory1_sram5_adr][we_index*8 +: 8] <= milansoc_ctrlmemory1_sram5_dat_w[we_index*8 +: 8];
+> 	sram_bank0_adr0 <= milansoc_ctrlmemory1_sram5_adr;
+> end
+> assign milansoc_ctrlmemory1_sram5_dat_r = sram_bank0[sram_bank0_adr0];
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory sram_bank1: 2048-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+> reg [31:0] sram_bank1[0:2047];
+> reg [10:0] sram_bank1_adr0;
+> always @(posedge sys_clk) begin : mem_write_block_1
+> 	integer we_index_1;
+> 	for(we_index_1 = 0; we_index_1 < 4; we_index_1=we_index_1+1)
+> 		if (milansoc_ctrlmemory1_sram6_we[we_index_1])
+> 			sram_bank1[milansoc_ctrlmemory1_sram6_adr][we_index_1*8 +: 8] <= milansoc_ctrlmemory1_sram6_dat_w[we_index_1*8 +: 8];
+> 	sram_bank1_adr0 <= milansoc_ctrlmemory1_sram6_adr;
+> end
+> assign milansoc_ctrlmemory1_sram6_dat_r = sram_bank1[sram_bank1_adr0];
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory sram_bank2: 1024-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+> reg [31:0] sram_bank2[0:1023];
+> reg [9:0] sram_bank2_adr0;
+> always @(posedge sys_clk) begin : mem_write_block_2
+> 	integer we_index_2;
+> 	for(we_index_2 = 0; we_index_2 < 4; we_index_2=we_index_2+1)
+> 		if (milansoc_ctrlmemory1_sram7_we[we_index_2])
+> 			sram_bank2[milansoc_ctrlmemory1_sram7_adr][we_index_2*8 +: 8] <= milansoc_ctrlmemory1_sram7_dat_w[we_index_2*8 +: 8];
+> 	sram_bank2_adr0 <= milansoc_ctrlmemory1_sram7_adr;
+> end
+> assign milansoc_ctrlmemory1_sram7_dat_r = sram_bank2[sram_bank2_adr0];
+> 
+> 
+> //------------------------------------------------------------------------------
+> // Memory sram_bank3: 512-words x 32-bit
+> //------------------------------------------------------------------------------
+> // Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8
+> reg [31:0] sram_bank3[0:511];
+> reg [8:0] sram_bank3_adr0;
+> always @(posedge sys_clk) begin : mem_write_block_3
+> 	integer we_index_3;
+> 	for(we_index_3 = 0; we_index_3 < 4; we_index_3=we_index_3+1)
+> 		if (milansoc_ctrlmemory1_sram8_we[we_index_3])
+> 			sram_bank3[milansoc_ctrlmemory1_sram8_adr][we_index_3*8 +: 8] <= milansoc_ctrlmemory1_sram8_dat_w[we_index_3*8 +: 8];
+> 	sram_bank3_adr0 <= milansoc_ctrlmemory1_sram8_adr;
+> end
+> assign milansoc_ctrlmemory1_sram8_dat_r = sram_bank3[sram_bank3_adr0];
+> 
+> 
+> //------------------------------------------------------------------------------
+30561c31008
+< // Instance VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae of VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae Module.
+---
+> // Instance VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 of VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 Module.
+30563c31010
+< VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae(
+---
+> VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432(
+31337c31784
+< //  Auto-Generated by LiteX on 2026-10-11 05:15:38.
+---
+> //  Auto-Generated by LiteX on 2026-10-11 05:17:07.

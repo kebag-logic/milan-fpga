@@ -1,0 +1,49 @@
+diff of normalized alinx_ax7101.v: dev ac2c5e77 --ctrl-mailbox (<) vs head --ctrl-mailbox --ctrl-firmware 1x1 (>)
+698
+removed-line identifiers:
+      3 milansoc_milansoc_milansoc_adr
+      2 milansoc_milansoc_milansoc_adr_burst
+      3 milansoc_milansoc_milansoc_dat_r
+      6 milansoc_milansoc_milansoc_ram_bus_ack
+      3 milansoc_milansoc_milansoc_ram_bus_adr
+      2 milansoc_milansoc_milansoc_ram_bus_bte
+      2 milansoc_milansoc_milansoc_ram_bus_cti
+      3 milansoc_milansoc_milansoc_ram_bus_cyc
+      3 milansoc_milansoc_milansoc_ram_bus_dat_r
+      2 milansoc_milansoc_milansoc_ram_bus_dat_w
+      2 milansoc_milansoc_milansoc_ram_bus_err
+      2 milansoc_milansoc_milansoc_ram_bus_sel
+      3 milansoc_milansoc_milansoc_ram_bus_stb
+      2 milansoc_milansoc_milansoc_ram_bus_we
+      4 milansoc_milansoc_ram_adr
+      2 milansoc_milansoc_ram_adr_burst
+      6 milansoc_milansoc_ram_bus_ram_bus_ack
+      3 milansoc_milansoc_ram_bus_ram_bus_adr
+      2 milansoc_milansoc_ram_bus_ram_bus_bte
+      2 milansoc_milansoc_ram_bus_ram_bus_cti
+      7 milansoc_milansoc_ram_bus_ram_bus_cyc
+      3 milansoc_milansoc_ram_bus_ram_bus_dat_r
+      3 milansoc_milansoc_ram_bus_ram_bus_dat_w
+      2 milansoc_milansoc_ram_bus_ram_bus_err
+      6 milansoc_milansoc_ram_bus_ram_bus_sel
+      7 milansoc_milansoc_ram_bus_ram_bus_stb
+      6 milansoc_milansoc_ram_bus_ram_bus_we
+      3 milansoc_milansoc_ram_dat_r
+      3 milansoc_milansoc_ram_dat_w
+      7 milansoc_milansoc_ram_we
+      1 socbushandler0_slave_sel[0])
+      1 socbushandler0_slave_sel[0] = (socbushandler0_shared_adr[29:15] == 1'd0)
+      1 socbushandler0_slave_sel[1])
+      1 socbushandler0_slave_sel[1] = (socbushandler0_shared_adr[29:11] == 16'h8000)
+added non-memory lines:
+>     socbushandler0_slave_sel[0] = (socbushandler0_shared_adr[29:16] == 1'd0);
+>     socbushandler0_slave_sel[1] = (socbushandler0_shared_adr[29:16] == 11'h400);
+> reg [31:0] sram_bank0[0:8191];
+> reg [12:0] sram_bank0_adr0;
+> reg [31:0] sram_bank1[0:2047];
+> reg [10:0] sram_bank1_adr0;
+> reg [31:0] sram_bank2[0:1023];
+> reg [9:0] sram_bank2_adr0;
+> reg [31:0] sram_bank3[0:511];
+> reg [8:0] sram_bank3_adr0;
+> VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432(

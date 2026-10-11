@@ -1,0 +1,20 @@
+test_ctrl_memory: the split placement's firmware memory (#640 M8a)
+  [ok  ] 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [])
+  [ok  ] a zero need builds no bank
+  [ok  ] a plan counts a 2 KiB bank as one RAMB18, half a tile
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut3/lma_identity/sw/litex/test_ctrl_memory.py", line 422, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut3/lma_identity/sw/litex/test_ctrl_memory.py", line 407, in main
+    check_arms(problems, Path(tmp))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut3/lma_identity/sw/litex/test_ctrl_memory.py", line 172, in check_arms
+    plan = ctrl_memory.plan(good)
+  File "$PACKET/scratch/mut3/lma_identity/sw/litex/ctrl_memory.py", line 222, in plan
+    check_map(image, rom, ram)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut3/lma_identity/sw/litex/ctrl_memory.py", line 211, in check_map
+    raise Refusal("memory map", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
+                  f"outside {rom.name}, the only region the bitstream initialises")
+ctrl_memory.Refusal: memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises
