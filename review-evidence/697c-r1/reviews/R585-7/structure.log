@@ -1,0 +1,18 @@
+{"old": "adp/adp.c", "new": "src/adp.c", "tokens_equal": true, "tokens": 1736, "token_sha256": "085cc48007ae6f223d253a7ba82a4cf3a7bc6ce10dea5bfebd31400d706d910f"}
+{"old": "acmp/acmp.c", "new": "src/acmp.c", "tokens_equal": true, "tokens": 7586, "token_sha256": "7c3075ba047606ab478ecd05bde16b671ddab1d3e6397177ca8c1e4e75c9bd3f"}
+{"old": "maap/maap.c", "new": "src/maap.c", "tokens_equal": true, "tokens": 2064, "token_sha256": "21e365c4658ae357913cd5ba5f8767c1d15c01af57b5dd9d1a0df28667ad94c9"}
+{"old": "adp/adp.h", "new": "include/adp.h", "tokens_equal": true, "tokens": 497, "token_sha256": "d91f5e47d34796efd235ed1e0131bd8b1f5d2263a8c14d107ead0fc1b424d1cf"}
+{"old": "acmp/acmp.h", "new": "include/acmp.h", "tokens_equal": true, "tokens": 1137, "token_sha256": "854fce4a7cfaea7f10807e7374c7014bc6e847d968bc144695ff5ff0e4c0edfb"}
+{"old": "maap/maap.h", "new": "include/maap.h", "tokens_equal": true, "tokens": 394, "token_sha256": "beef2b63e2249c41a5adfc63922b153840ccc38313774331967438a588837715"}
+{"old": "wire/wire.h", "new": "include/wire.h", "tokens_equal": true, "tokens": 202, "token_sha256": "11d53931a3c23b6f8b2bedcbb6d0503f0dd39857b76719f212c1e9631752db36"}
+Surviving first-party production C/H changes after inherited dev merge: ['sw/firmware/ctrl/mbx/mbx_wire.h']
+Surviving production change is token-identical
+RTL and processor pin changes: []
+unchanged gitlink: third_party/lwSRP 9197193e47a6bb1c45a56d90a18c1784123aba44
+unchanged gitlink: protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a
+unchanged gitlink: gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+unchanged gitlink: third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+parent control mutants: 471
+boundary controls: 109 defects: 101 passing: 8 + shared baseline
+ratchet delta: sw/firmware/ctrl/srp/srp_mbx.c (515, 515, 478, 478) -> (514, 514, 478, 478)
+structural checks: PASS

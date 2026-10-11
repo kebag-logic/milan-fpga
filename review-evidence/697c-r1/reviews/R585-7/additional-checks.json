@@ -1,0 +1,45 @@
+[
+  {
+    "name": "coverage-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "tail": " fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5\n[ok] a test, a host model and a source outside the tree are not measured: no finding\n[ok] the stack's sources and headers are measured, its tests and examples are not: no finding\n[ok] an exception edge is not a branch: no finding\n[ok] gcc and gcov on this host read as planted: no finding\n[ok] gcc: a compensating swap, the control measurement: no finding\n[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]\n[ok] gcc: a condition over two lines, the control measurement: no finding\n[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]\ncoverage self-test: 29 of 29 planted cases read as planted\n"
+  },
+  {
+    "name": "ci-events",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "tail": "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both\nci_events: OK (1902 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)\n"
+  },
+  {
+    "name": "submodule-docs",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "tail": "submodule documentation: OK (6 exact gitlinks)\n"
+  },
+  {
+    "name": "diagram",
+    "command": [
+      "python3",
+      "-B",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "tail": "submodule diagram: OK (6 exact gitlinks, decoded PNG)\n"
+  }
+]
