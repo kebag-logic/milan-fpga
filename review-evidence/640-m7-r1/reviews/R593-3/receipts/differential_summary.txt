@@ -1,0 +1,15 @@
+# differential: gptp_shadow bench stimulus, change trace of plane-visible outputs (scripts/add_trace.py)
+# base = parent e8454e27 + gptp-processor 5dce647a; head = parent 354f7818 + gptp-processor 18dd997b; verilog-axis 48ff7a7e both
+57403e63727eff5a0484c1e583f6a66e4eaf770a559418c0ff0774dbd19bec90  trace_base/tb/verilator/gptp_shadow/review_trace.txt
+57403e63727eff5a0484c1e583f6a66e4eaf770a559418c0ff0774dbd19bec90  trace_head/tb/verilator/gptp_shadow/review_trace.txt
+   3612 trace_base/tb/verilator/gptp_shadow/review_trace.txt
+   3612 trace_head/tb/verilator/gptp_shadow/review_trace.txt
+   7224 total
+cmp: IDENTICAL
+
+# suite summary output, base vs head (verilator report lines dropped)
+shadow: identical
+plane: identical
+txts base: == gptp_txts: checks: 85   failures: 0 ==
+txts head: == gptp_txts: checks: 85   failures: 0 ==
+txts run output (from ./obj_dir line on): identical

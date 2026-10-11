@@ -1,0 +1,48 @@
+# job PR_tmr_write_alias
+# dir $REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables
+# cmd make run
+# start 2026-10-11T03:23:44Z
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+verilator --cc --exe --build -j 2 --top-module gptp_tables_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -Wno-PINMISSING -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables -Wall -Wextra" waivers.vlt gptp_tables_wrap.sv ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_tables_sim
+make[1]: Entering directory '$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_tables_wrap.cpp Vgptp_tables_wrap___024root__0.cpp Vgptp_tables_wrap__ConstPool__0__Slow.cpp Vgptp_tables_wrap___024root__Slow.cpp Vgptp_tables_wrap___024root__0__Slow.cpp Vgptp_tables_wrap__Syms__Slow.cpp > Vgptp_tables_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables -Wall -Wextra   -c -o Vgptp_tables_wrap__ALL.o Vgptp_tables_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_tables_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_tables_sim
+rm Vgptp_tables_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/640-m7-r593-3-packet/scratch/probes/tmr_write_alias/tb/verilator/gptp_tables/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.198 MB sources in 19 modules, into 0.911 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 9.569 s (elab=0.031, cvt=0.123, bld=9.362); cpu 0.209 s on 2 threads; allocated 227.797 MB
+./obj_dir/Vgptp_tables_sim one_valued.tsv
+stimulus: 32100038 cycles, 88657 mixed and 14275 peer frames, 7045 pdelay answers
+rx_fifo: 57301 good, 33123 overflow, 12506 bad, lanes 0xff, 256 beats deep
+tx_fifo: 16463 frames, counts 0x110, 13087926 stalled cycles, 25 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 18361837 compared, heads 0xff, 3 deep
+results: 22272 compared, heads 0xff, 3 deep, 317 written behind a waiting result
+timer: 22375 compared, slots 0x05
+plane: flags 0x0, 1 programs run, 113 tap drops, 944 parser drops, 2186 event drops, 0 lost results, 0 barriers
+  [FAIL] timer lockstep: mismatching cycles       got=22375 exp=0
+  [FAIL] tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276
+  [FAIL] timer coverage: slots 0 to 5             got=5 exp=63
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 2 distinct: 0x4 0x8
+ledger values: type: 3 distinct: 0x2 0x3 0xa
+ledger values: seq: 9948 distinct, 0x0 to 0xfd05
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 16205 distinct, 0x95f4 to 0xa0f032c
+results values: seq: 9945 distinct, 0x0 to 0xfd05
+results values: type: 3 distinct: 0x2 0x3 0xa
+results values: ok: 1 distinct: 0x1, declared 0x1
+results values: gen: 1 distinct: 0x1, declared 0x1
+timer values: deadline: 1 distinct: 0x0
+  [FAIL] timer values: deadline
+== gptp_tables: checks: 36   failures: 4 ==
+RESULT: FAIL
+make: *** [Makefile:57: run] Error 1
+# end 2026-10-11T03:24:06Z rc=2
