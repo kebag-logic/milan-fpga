@@ -102,7 +102,7 @@ alias harmlessly.
 
 ```sh
 git submodule update --init third_party/verilog-axis gptp-processor   # once
-make        # regenerates gptp_ucode.hex, builds, runs, then mutants.py
+make        # checks the limits table, regenerates gptp_ucode.hex, builds, runs, then mutants.py
 ```
 
 Exit 0 = PASS; the tally line is the record.
