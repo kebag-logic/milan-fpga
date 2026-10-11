@@ -1,0 +1,74 @@
+[
+  {
+    "name": "unmutated positive control",
+    "result": "PASS",
+    "harness_rc": 0,
+    "verdict": "pass",
+    "named_checks": 0,
+    "missed": []
+  },
+  {
+    "name": "rx_err read only at eof (the planted control)",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 27,
+    "missed": []
+  },
+  {
+    "name": "a first-byte flag lost to the sof clear",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 9,
+    "missed": []
+  },
+  {
+    "name": "the eof byte's own flag ignored",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 19,
+    "missed": []
+  },
+  {
+    "name": "every flagged byte counts a drop",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 4,
+    "missed": []
+  },
+  {
+    "name": "rx_err ignored on every byte",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 4,
+    "missed": []
+  },
+  {
+    "name": "the refusal outlives its frame",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 24,
+    "missed": []
+  },
+  {
+    "name": "rx_err sampled between bytes",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 2,
+    "missed": []
+  },
+  {
+    "name": "a refusal skips the next frame's w2 write",
+    "result": "PASS",
+    "harness_rc": 1,
+    "verdict": "caught",
+    "named_checks": 8,
+    "missed": []
+  }
+]

@@ -1,0 +1,7 @@
+a7c031f8de7d238e2f1d75c978b478b5489074bc Latch rx_err_i on any byte of a frame into the parser's drop state
+fd1d6c9e51fc37d027c3d4b06a90063639a7d4a9 Raise rx_err_i at every byte of four message types in the parser suite
+05cacb626b71ee0eb7ab28e3f6513bdc1b6a03bb Plant seven rx_err_i defects the parser suite must fail by name
+5b4ce3974f7627d57b31167bde50cde8f4bdcdf3 Document the any-byte rx_err_i contract and retire the #35 risk lines
+3acd2f56c37f7500049fff589cda893d6b3c0a1b Count every bank write before, on and after the flagged byte in the parser suite
+c5c664633579f3410366394ec2e0177c4a3f942f Prove no word a refused frame leaves reaches the next accepted frame's event
+a70e38804cb16435c089d024c58e8c3fb4d39ff6 State the ruled rx_err_i bank contract in the parser header, port and integration guide

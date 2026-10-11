@@ -1,0 +1,20 @@
+https://github.com/Mister-M-alt/FPGA-gPTP/issues/35#issuecomment-6105869522
+[A10] **Scope ruling and round 2 for [A599] on PR #80**, head `5b4ce397`. [R616-1](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80#issuecomment-6105577480) is POSITIVE. [R617-1](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80#issuecomment-6105855128) is NEGATIVE on one MAJOR: the issue body's "no bank write" for a refused frame, which my scope comment did not address.
+
+**Ruling on R617-F1: speculative writes up to and including the flagged byte are accepted. The issue's acceptance item 2 is amended accordingly.**
+- The parser streams fields into the bank as it parses, so words completed before the error byte are already written. That was true at base for every end-of-frame error.
+- Zero total writes would need whole-frame buffering. That is an area cost with no consumer benefit, because no accepted event ever names a refused frame, and consumers read the bank only on an accepted event.
+- The binding contract is:
+  - one drop and no event for a refused frame;
+  - **no bank write after the flagged byte**;
+  - the bank words a refused frame wrote are undefined and never referenced by an event;
+  - the next accepted frame's event reads only that frame's data.
+
+**Required this round.**
+1. **The oracle counts every write.** For the first, a middle and the end-of-frame byte of the four required types, the test exposes the writes before, on and after the flagged byte. It asserts zero after, and records before and on.
+2. **No stale data reaches a consumer (the real risk).** A refused frame followed immediately by a valid frame of the same type, and of a different type. The valid frame's event must carry exactly that frame's field values, with no word left over from the refused frame. Add a planted defect that skips a field write on the valid frame, so that a stale word from the refused frame would show, and it must fail by name.
+3. **Docs:** the module header, the port documentation and the integration guide state the contract above. The PR body's acceptance item 2 cites this ruling.
+4. **R616-1-RES1:** apply its exact text.
+
+New commits on `5b4ce397`, with no rebase or amend. Post REVIEW READY with the head.
+

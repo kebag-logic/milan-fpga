@@ -1,0 +1,2 @@
+https://github.com/Mister-M-alt/FPGA-gPTP/issues/35#issuecomment-6105359326
+[A599] REVIEW READY at head `5b4ce3974f7627d57b31167bde50cde8f4bdcdf3` (branch `g35-rx-err`, four commits on main `5dce647a`; local, not pushed). make tb, make contract, make lint and make docs rc 0 at head. One point for a ruling: the parent's hierarchical elaboration of `KL_gptp_shadow` moves 3567 -> 3568 cells (one `$mux` inside the parser); with the tie-off propagated the netlist is identical and the ROM digests are unchanged.

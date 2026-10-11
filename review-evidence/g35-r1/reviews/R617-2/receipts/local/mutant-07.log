@@ -1,0 +1,26 @@
+FAIL rx_err in every gap between bytes: sync event got 0000000000000000 exp 0000000000000001
+FAIL rx_err in every gap between bytes: no drop got 000000000000015d exp 000000000000015c
+INFO sync after a refused sync: it left 6 of its 6 words, 0 of them outside the sync words
+INFO sync after a refused pdresp: it left 8 of its 8 words, 2 of them outside the sync words
+INFO fu after a refused fu: it left 7 of its 7 words, 0 of them outside the fu words
+INFO fu after a refused pdresp: it left 8 of its 8 words, 2 of them outside the fu words
+INFO pdreq after a refused pdreq: it left 4 of its 4 words, 0 of them outside the pdreq words
+INFO pdreq after a refused sync: it left 6 of its 6 words, 2 of them outside the pdreq words
+INFO pdresp after a refused pdresp: it left 8 of its 8 words, 0 of them outside the pdresp words
+INFO pdresp after a refused fu: it left 7 of its 7 words, 1 of them outside the pdresp words
+INFO sync rx_err at byte 0 of 58: drops +1, events 0, writes before 0, on 0, after 0
+INFO sync rx_err at byte 29 of 58: drops +1, events 0, writes before 0, on 1, after 0
+INFO sync rx_err at byte 57 of 58: drops +1, events 0, writes before 5, on 1, after 0
+INFO fu rx_err at byte 0 of 90: drops +1, events 0, writes before 0, on 0, after 0
+INFO fu rx_err at byte 29 of 90: drops +1, events 0, writes before 0, on 1, after 0
+INFO fu rx_err at byte 89 of 90: drops +1, events 0, writes before 7, on 0, after 0
+INFO pdreq rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdreq rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdreq rx_err at byte 67 of 68: drops +1, events 0, writes before 4, on 0, after 0
+INFO pdresp rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdresp rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdresp rx_err at byte 67 of 68: drops +1, events 0, writes before 7, on 1, after 0
+INFO ann rx_err at byte 0 of 78: drops +1, events 0, writes before 0, on 0, after 0
+INFO ann rx_err at byte 29 of 78: drops +1, events 0, writes before 0, on 1, after 0
+INFO ann rx_err at byte 77 of 78: drops +1, events 0, writes before 6, on 1, after 0
+337 checks: 335 PASS, 2 FAIL

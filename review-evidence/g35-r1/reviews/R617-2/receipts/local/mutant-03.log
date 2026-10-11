@@ -1,0 +1,65 @@
+FAIL rx_err drop: no event    got 0000000000000001 exp 0000000000000000
+FAIL drop count advanced      got 000000000000003b exp 000000000000003c
+FAIL sync rx_err at every byte: one drop got 0000000000000039 exp 000000000000003a
+FAIL sync rx_err at every byte: no event got 0000000000000039 exp 000000000000003a
+  sync: rx_err at byte 57 of 58 was not refused cleanly
+FAIL fu rx_err at every byte: one drop got 0000000000000059 exp 000000000000005a
+FAIL fu rx_err at every byte: no event got 0000000000000059 exp 000000000000005a
+  fu: rx_err at byte 89 of 90 was not refused cleanly
+FAIL pdreq rx_err at every byte: one drop got 0000000000000043 exp 0000000000000044
+FAIL pdreq rx_err at every byte: no event got 0000000000000043 exp 0000000000000044
+  pdreq: rx_err at byte 67 of 68 was not refused cleanly
+FAIL pdresp rx_err at every byte: one drop got 0000000000000043 exp 0000000000000044
+FAIL pdresp rx_err at every byte: no event got 0000000000000043 exp 0000000000000044
+  pdresp: rx_err at byte 67 of 68 was not refused cleanly
+FAIL sync after a refused sync: one drop got 0000000000000157 exp 0000000000000158
+FAIL sync after a refused sync: event got 0000000000000000 exp 0000000000013542
+INFO sync after a refused sync: it left 6 of its 6 words, 0 of them outside the sync words
+FAIL sync after a refused pdresp: one drop got 0000000000000157 exp 0000000000000158
+FAIL sync after a refused pdresp: event got 0000000000000000 exp 0000000000013544
+INFO sync after a refused pdresp: it left 8 of its 8 words, 2 of them outside the sync words
+FAIL fu after a refused fu: one drop got 0000000000000157 exp 0000000000000158
+FAIL fu after a refused fu: event got 0000000000000000 exp 0000000000023546
+INFO fu after a refused fu: it left 7 of its 7 words, 0 of them outside the fu words
+FAIL fu after a refused pdresp: one drop got 0000000000000157 exp 0000000000000158
+FAIL fu after a refused pdresp: event got 0000000000000000 exp 0000000000023548
+INFO fu after a refused pdresp: it left 8 of its 8 words, 2 of them outside the fu words
+FAIL pdreq after a refused pdreq: one drop got 0000000000000157 exp 0000000000000158
+FAIL pdreq after a refused pdreq: event got 0000000000000000 exp 000000000004354a
+INFO pdreq after a refused pdreq: it left 4 of its 4 words, 0 of them outside the pdreq words
+FAIL pdreq after a refused sync: one drop got 0000000000000157 exp 0000000000000158
+FAIL pdreq after a refused sync: event got 0000000000000000 exp 000000000004354c
+INFO pdreq after a refused sync: it left 6 of its 6 words, 2 of them outside the pdreq words
+FAIL pdresp after a refused pdresp: one drop got 0000000000000157 exp 0000000000000158
+FAIL pdresp after a refused pdresp: event got 0000000000000000 exp 000000000005354e
+INFO pdresp after a refused pdresp: it left 8 of its 8 words, 0 of them outside the pdresp words
+FAIL pdresp after a refused fu: one drop got 0000000000000157 exp 0000000000000158
+FAIL pdresp after a refused fu: event got 0000000000000000 exp 0000000000053550
+INFO pdresp after a refused fu: it left 7 of its 7 words, 1 of them outside the pdresp words
+INFO sync rx_err at byte 0 of 58: drops +1, events 0, writes before 0, on 0, after 0
+INFO sync rx_err at byte 29 of 58: drops +1, events 0, writes before 0, on 1, after 0
+INFO sync rx_err at byte 57 of 58: drops +0, events 1, writes before 5, on 1, after 0
+FAIL sync rx_err at first, middle, eof: one drop got 0000000000000002 exp 0000000000000003
+FAIL sync rx_err at first, middle, eof: no event got 0000000000000002 exp 0000000000000003
+INFO fu rx_err at byte 0 of 90: drops +1, events 0, writes before 0, on 0, after 0
+INFO fu rx_err at byte 29 of 90: drops +1, events 0, writes before 0, on 1, after 0
+INFO fu rx_err at byte 89 of 90: drops +0, events 1, writes before 7, on 0, after 0
+FAIL fu rx_err at first, middle, eof: one drop got 0000000000000002 exp 0000000000000003
+FAIL fu rx_err at first, middle, eof: no event got 0000000000000002 exp 0000000000000003
+INFO pdreq rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdreq rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdreq rx_err at byte 67 of 68: drops +0, events 1, writes before 4, on 0, after 0
+FAIL pdreq rx_err at first, middle, eof: one drop got 0000000000000002 exp 0000000000000003
+FAIL pdreq rx_err at first, middle, eof: no event got 0000000000000002 exp 0000000000000003
+INFO pdresp rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdresp rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdresp rx_err at byte 67 of 68: drops +0, events 1, writes before 7, on 1, after 0
+FAIL pdresp rx_err at first, middle, eof: one drop got 0000000000000002 exp 0000000000000003
+FAIL pdresp rx_err at first, middle, eof: no event got 0000000000000002 exp 0000000000000003
+INFO ann rx_err at byte 0 of 78: drops +1, events 0, writes before 0, on 0, after 0
+INFO ann rx_err at byte 29 of 78: drops +1, events 0, writes before 0, on 1, after 0
+INFO ann rx_err at byte 77 of 78: drops +0, events 1, writes before 6, on 1, after 1
+FAIL ann rx_err at first, middle, eof: one drop got 0000000000000002 exp 0000000000000003
+FAIL ann rx_err at first, middle, eof: no event got 0000000000000002 exp 0000000000000003
+FAIL ann rx_err at first, middle, eof: no write after got 0000000000000002 exp 0000000000000003
+337 checks: 300 PASS, 37 FAIL

@@ -1,0 +1,16 @@
+https://github.com/Mister-M-alt/FPGA-gPTP/issues/35#issuecomment-6104916029
+[A10] **Lane for #35: a mid-frame `rx_err_i` drops the frame.** Executor [A599], reviewers [R616] (internal) and [R617] (external). Branch `g35-rx-err` from main `5dce647a`.
+
+**Ruling: the safer default.** `rx_err_i` raised on any byte of a frame latches into the drop state. The frame is refused and counts exactly one drop, wherever the pulse falls, including the first byte and the end-of-frame byte. The port documentation and the module header state that contract.
+
+**Scope.**
+- `hdl/wire/KL_gptp_rx_parser.sv` and its docs only. Frames without an error behave exactly as before.
+- The parent ties `.rx_err_i(1'b0)` (`KL_gptp_shadow.sv`), so the parent's elaborated netlist and ROM digests must not change. Show this with the parent's Yosys elaboration of the gPTP plane, in a scratch parent at dev `ac2c5e77` with the gitlink at your head.
+
+**Proof.**
+- A directed test that raises `rx_err_i` for one byte at every byte position of a Sync, a Follow_Up, a Pdelay_Req and a Pdelay_Resp: each is dropped with drops +1 and events +0. Error-free controls dispatch. A held-to-eof error still drops exactly once.
+- A planted control restoring the end-of-frame-only read fails by name.
+- The donor gates pass: `make tb` (engine, gaskets, tsngen mutants), `make contract`, `make lint`, `make docs`.
+
+No parent adoption is needed until the next batched adoption. Post TAKEN, then REVIEW READY (or STOP) with the head.
+

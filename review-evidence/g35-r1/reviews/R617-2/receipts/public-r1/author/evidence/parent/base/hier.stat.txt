@@ -1,0 +1,387 @@
+7. Printing statistics.
+
+=== $paramod$67bd6e85fdb7f2d6f7bfcac5a2e8caa25a115346\KL_gptp_ucpu ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      777 wires
+     8944 wire bits
+      114 public wires
+     2038 public wire bits
+       42 ports
+      542 port bits
+        2 memories
+    50176 memory bits
+      767 cells
+       19   $add
+        3   $and
+       36   $dff
+      225   $eq
+        1   $ge
+        4   $gt
+        1   $le
+       28   $logic_and
+       51   $logic_not
+        8   $logic_or
+        3   $lt
+        1   $meminit_v2
+        4   $memrd
+        1   $memwr_v2
+        1   $mul
+      285   $mux
+        3   $ne
+        1   $not
+        2   $or
+       49   $pmux
+       10   $reduce_bool
+       22   $reduce_or
+        7   $sub
+        2   $xor
+
+=== KL_gptp_shadow ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      451 wires
+     9188 wire bits
+      175 public wires
+     3787 public wire bits
+       67 ports
+     1486 port bits
+        1 memories
+     2048 memory bits
+      350 cells
+       13   $add
+       29   $and
+       35   $dff
+       17   $eq
+        1   $ge
+        1   $gt
+        7   $le
+        5   $logic_and
+       13   $logic_not
+        4   $logic_or
+        1   $memrd
+        1   $memwr_v2
+        3   $mul
+      159   $mux
+        6   $ne
+        6   $neg
+       17   $not
+       10   $or
+        4   $pmux
+        1   $reduce_and
+        5   $reduce_or
+        6   $shift
+        1   $shiftx
+        1   $shl
+        4   $sub
+        5 submodules
+        1   $paramod$6b54d87769cc6c8d81b951432629a9d27dea1505\KL_gptp_txticket
+        1   $paramod$79d8d8273d06b81fce560d579b9fab929317cdca\KL_gptp_txret
+        1   $paramod$ad34f6a55105097900a4016731b93d93a93e8965\axis_fifo
+        1   $paramod$ad96d7f70f6abb602dc686c0c0dd9dd0c14d97ec\axis_fifo
+        1   $paramod$cbb1a2ba54ff240d669dc1c7782a616d466c59b3\KL_gptp_engine
+
+=== $paramod$ad34f6a55105097900a4016731b93d93a93e8965\axis_fifo ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      133 wires
+     1726 wire bits
+       61 public wires
+      752 public wire bits
+       25 ports
+      215 port bits
+        1 memories
+    18944 memory bits
+       93 cells
+        3   $add
+       13   $dff
+        3   $eq
+        6   $logic_and
+        1   $logic_not
+        6   $logic_or
+        1   $memrd
+        1   $memwr_v2
+       52   $mux
+        4   $not
+        1   $or
+        2   $sub
+
+=== $paramod$cbb1a2ba54ff240d669dc1c7782a616d466c59b3\KL_gptp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      755 wires
+    24800 wire bits
+      150 public wires
+     3633 public wire bits
+       43 ports
+     1074 port bits
+        7 memories
+    11264 memory bits
+      865 cells
+        8   $add
+        1   $and
+       60   $dff
+      117   $eq
+        2   $ge
+        1   $gt
+        8   $le
+       44   $logic_and
+       41   $logic_not
+        4   $logic_or
+        1   $meminit
+      160   $meminit_v2
+       10   $memrd
+        1   $memrd_v2
+        8   $memwr_v2
+        2   $mul
+      364   $mux
+        1   $ne
+        2   $neg
+        1   $not
+        1   $or
+       16   $pmux
+        4   $reduce_bool
+        1   $reduce_or
+        2   $shift
+        1   $shiftx
+        4   $sub
+        4 submodules
+        1   $paramod$67bd6e85fdb7f2d6f7bfcac5a2e8caa25a115346\KL_gptp_ucpu
+        1   $paramod$acd69b86d17da29e6984b4a02e311d3255c6c020\KL_gptp_timer
+        1   KL_gptp_rx_parser
+        1   KL_gptp_tx_slot
+
+=== $paramod$ad96d7f70f6abb602dc686c0c0dd9dd0c14d97ec\axis_fifo ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      144 wires
+     1732 wire bits
+       62 public wires
+      749 public wire bits
+       25 ports
+      215 port bits
+        1 memories
+    18688 memory bits
+      103 cells
+        3   $add
+       14   $dff
+        3   $eq
+        7   $logic_and
+        2   $logic_not
+        8   $logic_or
+        1   $memrd
+        1   $memwr_v2
+       57   $mux
+        4   $not
+        1   $or
+        2   $sub
+
+=== $paramod$6b54d87769cc6c8d81b951432629a9d27dea1505\KL_gptp_txticket ===
+
+        +----------Local Count, excluding submodules.
+        | 
+       86 wires
+      455 wire bits
+       28 public wires
+      126 public wire bits
+       17 ports
+       72 port bits
+       77 cells
+        4   $add
+        7   $and
+       12   $dff
+        6   $eq
+        1   $le
+       40   $mux
+        4   $not
+        1   $or
+        1   $reduce_or
+        1   $sub
+
+=== $paramod$79d8d8273d06b81fce560d579b9fab929317cdca\KL_gptp_txret ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      564 wires
+     3862 wire bits
+      126 public wires
+      969 public wire bits
+       51 ports
+      425 port bits
+        9 memories
+      888 memory bits
+      604 cells
+       15   $add
+       36   $and
+       42   $dff
+       13   $eq
+        2   $ge
+        1   $le
+       27   $logic_and
+       20   $logic_not
+       11   $logic_or
+       13   $memrd
+       89   $memwr_v2
+      286   $mux
+        5   $ne
+        1   $neg
+       17   $not
+        7   $or
+        9   $reduce_bool
+        2   $reduce_or
+        8   $sub
+
+=== KL_gptp_tx_slot ===
+
+        +----------Local Count, excluding submodules.
+        | 
+       80 wires
+      464 wire bits
+       26 public wires
+      148 public wire bits
+       15 ports
+       75 port bits
+        1 memories
+     1024 memory bits
+       69 cells
+        2   $add
+        8   $dff
+        7   $eq
+        2   $logic_and
+        3   $logic_not
+        1   $memrd
+        1   $memwr_v2
+       40   $mux
+        2   $pmux
+        1   $reduce_bool
+        2   $sub
+
+=== KL_gptp_rx_parser ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      542 wires
+     4764 wire bits
+       60 public wires
+      653 public wire bits
+       16 ports
+      190 port bits
+      529 cells
+       10   $add
+       30   $dff
+       76   $eq
+        2   $ge
+        3   $gt
+        3   $le
+       36   $logic_and
+       23   $logic_not
+       12   $logic_or
+        2   $lt
+      306   $mux
+        9   $ne
+        6   $pmux
+        3   $reduce_bool
+        4   $reduce_or
+        4   $sub
+
+=== $paramod$acd69b86d17da29e6984b4a02e311d3255c6c020\KL_gptp_timer ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      110 wires
+     1097 wire bits
+       19 public wires
+      173 public wire bits
+        9 ports
+       75 port bits
+        1 memories
+      256 memory bits
+      110 cells
+        5   $add
+        2   $and
+        8   $dff
+        6   $eq
+        1   $le
+        7   $logic_and
+        3   $logic_not
+        1   $memrd
+        9   $memwr_v2
+       53   $mux
+        4   $neg
+        2   $not
+        2   $or
+        1   $reduce_bool
+        4   $shift
+        1   $shiftx
+        1   $sub
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+     3567 KL_gptp_shadow
+       77 $paramod$6b54d87769cc6c8d81b951432629a9d27dea1505\KL_gptp_txticket
+      604 $paramod$79d8d8273d06b81fce560d579b9fab929317cdca\KL_gptp_txret
+       93 $paramod$ad34f6a55105097900a4016731b93d93a93e8965\axis_fifo
+      103 $paramod$ad96d7f70f6abb602dc686c0c0dd9dd0c14d97ec\axis_fifo
+      865 $paramod$cbb1a2ba54ff240d669dc1c7782a616d466c59b3\KL_gptp_engine
+      767   $paramod$67bd6e85fdb7f2d6f7bfcac5a2e8caa25a115346\KL_gptp_ucpu
+      110   $paramod$acd69b86d17da29e6984b4a02e311d3255c6c020\KL_gptp_timer
+      529   KL_gptp_rx_parser
+       69   KL_gptp_tx_slot
+
+        +----------Count including submodules.
+        | 
+     3642 wires
+    57032 wire bits
+      821 public wires
+    13028 public wire bits
+      310 ports
+     4369 port bits
+       23 memories
+   103288 memory bits
+        - processes
+     3567 cells
+       82   $add
+       78   $and
+      258   $dff
+      473   $eq
+        8   $ge
+        9   $gt
+       22   $le
+      162   $logic_and
+      157   $logic_not
+       53   $logic_or
+        5   $lt
+        1   $meminit
+      161   $meminit_v2
+       32   $memrd
+        1   $memrd_v2
+      111   $memwr_v2
+        6   $mul
+     1642   $mux
+       24   $ne
+       13   $neg
+       50   $not
+       25   $or
+       77   $pmux
+        1   $reduce_and
+       28   $reduce_bool
+       35   $reduce_or
+       12   $shift
+        3   $shiftx
+        1   $shl
+       35   $sub
+        2   $xor
+        5 submodules
+        1   $paramod$6b54d87769cc6c8d81b951432629a9d27dea1505\KL_gptp_txticket
+        1   $paramod$79d8d8273d06b81fce560d579b9fab929317cdca\KL_gptp_txret
+        1   $paramod$ad34f6a55105097900a4016731b93d93a93e8965\axis_fifo
+        1   $paramod$ad96d7f70f6abb602dc686c0c0dd9dd0c14d97ec\axis_fifo
+        1   $paramod$cbb1a2ba54ff240d669dc1c7782a616d466c59b3\KL_gptp_engine
+

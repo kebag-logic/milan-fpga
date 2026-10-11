@@ -1,0 +1,905 @@
+diff --git a/README.md b/README.md
+index a99ba9a..c0f5211 100644
+--- a/README.md
++++ b/README.md
+@@ -43,8 +43,6 @@ Detailed commands appear in the [test guide](docs/TEST_DEVELOPER.md).
+ 
+ ## Known risks
+ 
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) tracks mid-frame error handling.
+-
+ No certification claim is made.
+ 
+ ## Documentation
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 49aa7a6..8e212ce 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -26,6 +26,8 @@ The parser accepts one byte each valid cycle.
+ 
+ It validates headers before dispatching events.
+ 
++A receive error on any byte refuses its frame.
++
+ Accepted data enters ping-pong message banks.
+ 
+ Ingress timestamps follow the same bank selection.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index b18a95e..da4cad3 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -44,7 +44,7 @@ Keep every input synchronous to `clk_i`.
+ | `rx_data_i[7:0]` | Input | Carries destination-MAC-first bytes |
+ | `rx_sof_i` | Input | Marks the first byte |
+ | `rx_eof_i` | Input | Marks the final byte |
+-| `rx_err_i` | Input | Qualifies terminal frame failure |
++| `rx_err_i` | Input | Refuses the frame from any byte |
+ | `rx_ts_i[63:0]` | Input | Stable during the SOF transfer |
+ 
+ Parent sends preclassified `0x88F7` frames.
+@@ -57,11 +57,29 @@ The engine never backpressures receive traffic.
+ 
+ `rx_valid_i` may insert gaps between bytes.
+ 
+-Assert receive errors with the final byte.
++Assert receive errors with any byte of the frame.
++
++Each refused frame counts exactly one drop.
++
++A refused frame raises no event.
++
++No bank write follows the flagged byte's own edge.
++
++Words written up to that edge are undefined.
++
++No event references a refused frame's words.
++
++The next accepted event reads only its own frame.
++
++Pulsed and held errors refuse alike.
++
++Errors raised between valid bytes are ignored.
+ 
+ Current parent integration drives `rx_err_i` low.
+ 
+-[Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) tracks mid-frame error handling.
++[Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) records this any-byte contract.
++
++[Its bank ruling](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35#issuecomment-6105869522) sets the write boundary.
+ 
+ ## Transmit interface
+ 
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 7ffb6bf..325e732 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -81,7 +81,6 @@ The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping
+ 
+ ## Open risks
+ 
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) covers mid-frame receive errors.
+ - Parent gitlink updates require separate review.
+ - Physical acceptance remains product-specific.
+ 
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index f2b3418..1035d42 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -9,7 +9,8 @@ Line numbers describe the current branch layout.
+ |---|---|---|
+ | Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L58) | `make lint` |
+ | Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L160) | `make lint` |
+-| Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L374) | Parser suite |
++| Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
++| Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L393) | Parser suite |
+ | Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L405) | Engine suite |
+ | Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L432) | Engine suite |
+ | Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L343) | Engine suite |
+@@ -29,16 +30,13 @@ Line numbers describe the current branch layout.
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L929), [word 3](../hdl/top/KL_gptp_engine.sv#L934), [policy](../hdl/ucode/gen_gptp_ucode.py#L837) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L456) | Engine suite |
++| Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L475) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+ | PHC and result face contract | [`check_phc_contract.py`](../tb/check_phc_contract.py) | `make contract` |
+ | Load-bearing engine checks | [`mutants.py`](../tb/verilator/engine/mutants.py) | Engine suite |
+ | Parent default enabled | [Pinned parent source](https://github.com/kebag-logic/milan-fpga/blob/3178b13638d11d67376a24ca52ee1332cbe23ad3/hdl/milan/milan_datapath.sv#L89) | Parent integration gates |
+ 
+-Open issues qualify unresolved claims.
+-
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) qualifies receive error handling.
+-
+ Closed work still binds its interface.
+ 
+ - [Issue #31](https://github.com/Mister-M-alt/FPGA-gPTP/issues/31) defines the result face above.
++- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) defines the receive refusal above.
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 557dd73..90ab606 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -32,6 +32,7 @@ No handwritten C harness exists.
+ | `make -C tb/verilator/parser` | Frame parsing and refusal paths |
+ | `make -C tb/verilator/engine` | Whole-plane protocol behavior |
+ | `make -C tb/verilator/engine mutants` | Engine mutation controls |
++| `make -C tb/verilator/parser mutants` | Parser receive-error mutation controls |
+ | `make -C bench/arty test` | MII timestamp-tag transport |
+ | `make lint` | Engine and bench lint |
+ | `make` | Every required local gate |
+@@ -90,6 +91,10 @@ Prefer independent protocol formulas and frame builders.
+ - Checks bank writes and emitted events.
+ - Covers valid, malformed, truncated, and padded frames.
+ - Exercises error and domain refusal paths.
++- Raises receive errors at every byte position.
++- Counts bank writes before, on, and after errors.
++- Proves refused frames leave no stale words.
++- Proves those error checks through planted defects.
+ 
+ ### Engine suite
+ 
+diff --git a/hdl/wire/KL_gptp_rx_parser.sv b/hdl/wire/KL_gptp_rx_parser.sv
+index 53bd013..45421ab 100644
+--- a/hdl/wire/KL_gptp_rx_parser.sv
++++ b/hdl/wire/KL_gptp_rx_parser.sv
+@@ -29,7 +29,7 @@
+ //                a Follow_Up whose information TLV header is not the
+ //                one 11.4.4.3 prescribes (Table 11-9 makes the TLV a
+ //                field of the 76-octet Follow_Up, 11.4.4.2.2 places it
+-//                first), rx_err_i. The domain and messageLength arms
++//                first), rx_err_i (below). The domain and messageLength arms
+ //                sit at header bytes 4 and 2..3, ahead of every
+ //                message-bank write, so a foreign-domain or short-
+ //                declared frame leaves nothing a handler could read.
+@@ -49,6 +49,22 @@
+ //                parsed (11.4.1: ignore a TLV and attempt the next), so
+ //                a messageLength above 76 is accepted.
+ //
++//                rx_err_i contract (FPGA-gPTP #35): the flag is sampled
++//                with every byte of a frame (rx_valid_i high), the first
++//                and the last included, and wherever it falls the frame
++//                is consumed to its eof and refused with exactly one
++//                counted drop and no event, however many of its bytes
++//                carry it. A driver may pulse it on the corrupt byte or
++//                hold it to eof; both refuse the frame once. Raised
++//                between bytes, with rx_valid_i low, it belongs to no
++//                byte and is ignored. No bank write follows the flagged
++//                byte's own edge; words written up to and including it
++//                stay in the write bank like those of any refused frame,
++//                unnamed by any event. Their contents are undefined: the
++//                next accepted frame writes every word its event names
++//                before raising it, so that event reads only that frame's
++//                data (FPGA-gPTP #35, the bank ruling).
++//
+ //                Message bank map (64-bit words, region 0 of the µCPU
+ //                state port):
+ //                  w0  {8'd0, msgType, seqId, domain, flags, logInterval}
+@@ -94,7 +110,10 @@ module KL_gptp_rx_parser
+     input  wire  [7:0]  rx_data_i,
+     input  wire         rx_sof_i,     //! asserted with the first byte
+     input  wire         rx_eof_i,     //! asserted with the last byte
+-    input  wire         rx_err_i,     //! abort: drop silently
++    //! abort, with any byte: one counted drop, no event and no bank
++    //! write after that byte's own edge; the words written up to and
++    //! including it are undefined and named by no event (header)
++    input  wire         rx_err_i,
+     input  wire  [63:0] local_clock_id_i, //! complete PathTrace loop check
+     input  wire         local_clock_valid_i,
+ 
+@@ -605,7 +624,8 @@ module KL_gptp_rx_parser
+           //! bad_r is sampled as registered. Fixed header/FU poison arms sit
+           //! below their type minima. Announce TLV headers and the first path
+           //! identity can legitimately end on EOF, so their current-byte bad
+-          //! terms and chain completion are included explicitly below.
++          //! terms and chain completion are included explicitly below, as
++          //! is the eof byte's own rx_err_i (an earlier one is in bad_r).
+           if (rx_eof_i) begin
+             run_r    <= 1'b0;
+             fin_r    <= 1'b1;
+@@ -623,6 +643,13 @@ module KL_gptp_rx_parser
+           // one-byte frame: malformed by construction, counted above
+           run_r <= 1'b0;
+         end
++
++        //! rx_err_i with ANY byte poisons its frame, the first and the last
++        //! included: consumed to eof, one counted drop, no event (FPGA-gPTP
++        //! #35). Below the sof arm, so the flag on a first byte outlasts
++        //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
++        //! directly, since this register settles on the same edge
++        if (rx_err_i) bad_r <= 1'b1;
+       end
+     end
+   end
+diff --git a/tb/verilator/parser/Makefile b/tb/verilator/parser/Makefile
+index 825e36a..2e4440e 100644
+--- a/tb/verilator/parser/Makefile
++++ b/tb/verilator/parser/Makefile
+@@ -11,9 +11,21 @@ VFLAGS = --cc --exe --build -j 0 \
+ SRCS = $(RTL_DIR)/ucpu/gptp_ucpu_pkg.sv $(RTL_DIR)/wire/KL_gptp_rx_parser.sv
+ CPP  = sim_main.cpp
+ 
++.PHONY: all run mutants clean
++.DEFAULT_GOAL := all
++all: run mutants
++
+ run:
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vparser_sim
+ 	./obj_dir/Vparser_sim
+ 
++# Rule 8: prove the rx_err_i checks above are load-bearing. Eight defects
++# are injected into the real parser RTL, one at a time, and each must fail
++# every check it names in the SAME harness; the unmutated build must still
++# pass. Mutants are built in a temporary directory, so nothing is written
++# into the tree.
++mutants:
++	python3 mutants.py
++
+ clean:
+ 	rm -rf obj_dir
+diff --git a/tb/verilator/parser/README.md b/tb/verilator/parser/README.md
+index 492614f..435405c 100644
+--- a/tb/verilator/parser/README.md
++++ b/tb/verilator/parser/README.md
+@@ -13,6 +13,12 @@ The harness builds independent wire-format frames.
+ 
+ It checks acceptance, refusal, and message-bank writes.
+ 
++It proves refused frames leave no stale words.
++
++Its mutation arm plants receive-error defects in the RTL.
++
++Each defect must fail the checks it names.
++
+ See the [test developer guide](../../../docs/TEST_DEVELOPER.md).
+ 
+ Dated details remain [archived](../../../docs/history/v1/testing/PARSER_TEST_RECORD.md).
+diff --git a/tb/verilator/parser/mutants.py b/tb/verilator/parser/mutants.py
+new file mode 100644
+index 0000000..91fa3fe
+--- /dev/null
++++ b/tb/verilator/parser/mutants.py
+@@ -0,0 +1,245 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Mutation arm for the parser suite: prove its rx_err_i checks are load-bearing.
++
++Why this exists. FPGA-gPTP #35: `rx_err_i` was read only in the end-of-frame
++branch, so a flag on any earlier byte was ignored and the frame dispatched,
++and the suite stayed green because it only ever raised the flag with the
++last byte. The repair latches the flag on any byte, and `sim_main.cpp` now
++raises it at every byte position of four message types, and splits every
++bank write of a flagged frame into those before, on and after the flagged
++byte, none allowed after it (the ruling in #35). Checks that never
++fail are indistinguishable from checks that assert nothing, so each defect
++below is planted in the real parser RTL, one at a time, and the SAME harness
++must fail on it. The unmutated build must still pass, without which the arm
++would be satisfied by a harness that fails on everything.
++
++"Caught" is stricter here than a red tally: every check a mutant names must
++appear in a FAIL line, so an unrelated failure cannot stand in for the
++evidence. See tb/mutation_verdict.py for why a non-zero exit alone is not a
++catch. Everything is staged into a temporary directory, so nothing is
++written into the tree.
++
++The first mutant is the planted control the issue asks for: it deletes the
++latch and so restores exactly the end-of-frame-only read the base shipped.
++The last is the defect the ruling in #35 asks for: a refused frame's words
++may stay in the write bank, so a clean frame behind it that skips one field
++write would hand its event the refused frame's word.
++"""
++
++from __future__ import annotations
++
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++HDL = (HERE / "../../../hdl").resolve()
++sys.path.insert(0, str((HERE / "../../").resolve()))
++
++from mutation_verdict import verdict  # noqa: E402
++
++#: the RTL the suite builds, in the order the Makefile lists it
++RTL_SOURCES = ("ucpu/gptp_ucpu_pkg.sv", "wire/KL_gptp_rx_parser.sv")
++PARSER = "wire/KL_gptp_rx_parser.sv"
++
++VFLAGS = [
++    "--cc", "--exe", "--build", "-j", "0", "--top-module", "KL_gptp_rx_parser",
++    "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
++    "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
++]
++
++LATCH = "        if (rx_err_i) bad_r <= 1'b1;\n"
++EOF_TERM = "fin_ok_r <= !bad_r && !rx_err_i && (cnt_r >= min_end_w) &&"
++TYPES = ("sync", "fu", "pdreq", "pdresp")
++#: the before/on/after oracle adds an Announce, whose deferred hop-count
++#: word is the one write that can land after an eof
++ORACLE_TYPES = TYPES + ("ann",)
++
++
++def each(check: str, types: tuple[str, ...] = TYPES) -> tuple[str, ...]:
++    """The named check, once per message type the sweep covers."""
++    return tuple(f"{t} {check}" for t in types)
++
++
++def oracle(check: str) -> tuple[str, ...]:
++    """The named first/middle/eof oracle check, once per type it covers."""
++    return each(f"rx_err at first, middle, eof: {check}", ORACLE_TYPES)
++
++
++#: (clean, refused) pairs of the stale-word check
++PAIRS = (("sync", "sync"), ("sync", "pdresp"), ("fu", "fu"), ("fu", "pdresp"),
++         ("pdreq", "pdreq"), ("pdreq", "sync"), ("pdresp", "pdresp"),
++         ("pdresp", "fu"))
++
++
++def pairs(check: str) -> tuple[str, ...]:
++    """The named stale-word check, once per pair it covers."""
++    return tuple(f"{c} after a refused {r}: {check}" for c, r in PAIRS)
++
++
++#: (name, [(pattern, replacement), ...] in the parser, checks that must FAIL)
++MUTATIONS = [
++    ("rx_err read only at eof (the planted control)",
++     [(LATCH, "")],
++     each("rx_err at every byte: one drop") +
++     each("rx_err at every byte: no event") +
++     each("rx_err at every byte: no later write") +
++     oracle("one drop") + oracle("no event") + oracle("no write after")),
++    ("a first-byte flag lost to the sof clear",
++     [(LATCH, ""),
++      ("      if (rx_valid_i) begin\n        if (rx_sof_i) begin\n",
++       "      if (rx_valid_i) begin\n" + LATCH + "        if (rx_sof_i) begin\n")],
++     each("rx_err at every byte: one drop") + oracle("one drop")),
++    ("the eof byte's own flag ignored",
++     [(EOF_TERM, "fin_ok_r <= !bad_r && (cnt_r >= min_end_w) &&")],
++     each("rx_err at every byte: one drop") +
++     each("rx_err at every byte: no event") +
++     oracle("one drop") + oracle("no event") +
++     ("ann rx_err at first, middle, eof: no write after",)),
++    ("every flagged byte counts a drop",
++     [(LATCH, "        if (rx_err_i) begin\n"
++              "          bad_r <= 1'b1;\n"
++              "          drop_cnt_r <= drop_cnt_r + 16'd1;\n"
++              "        end\n")],
++     each("rx_err held from byte 20 to eof: one drop")),
++    ("rx_err ignored on every byte",
++     [(LATCH, ""),
++      (EOF_TERM, "fin_ok_r <= !bad_r && (cnt_r >= min_end_w) &&")],
++     each("rx_err held from byte 20 to eof: no event")),
++    ("the refusal outlives its frame",
++     [("          bad_r    <= 1'b0;\n", "")],
++     each("control after the errors: event") +
++     each("control after the errors: no drop") +
++     pairs("one drop") + pairs("event")),
++    ("rx_err sampled between bytes",
++     [(LATCH + "      end\n", "      end\n      if (rx_err_i) bad_r <= 1'b1;\n")],
++     ("rx_err in every gap between bytes: sync event",
++      "rx_err in every gap between bytes: no drop")),
++    # the planted defect the ruling in #35 asks for: the clean frame behind
++    # a refused one skips its source-identity write, so the refused frame's
++    # w2 is what its event would read
++    ("a refusal skips the next frame's w2 write",
++     [("  logic        bad_r;          //! poisoned: consume to eof, then drop\n",
++       "  logic        bad_r;          //! poisoned: consume to eof, then drop\n"
++       "  logic        was_bad_r;\n"),
++      ("      bad_r       <= 1'b0;\n",
++       "      bad_r       <= 1'b0;\n      was_bad_r   <= 1'b0;\n"),
++      ("          bad_r    <= 1'b0;\n",
++       "          bad_r    <= 1'b0;\n          was_bad_r <= bad_r;\n"),
++      ("              bank_we_o    <= !bad_r;\n              bank_addr_o  <= 5'd2;\n",
++       "              bank_we_o    <= !bad_r && !was_bad_r;\n"
++       "              bank_addr_o  <= 5'd2;\n")],
++     pairs("every word is this frame's")),
++]
++
++
++def stage(work: Path, tag: str,
++          edits: list[tuple[str, str]] | None = None) -> Path:
++    """A directory holding the RTL, with the parser edited by `edits`.
++    Nothing outside the returned directory is written."""
++    srcdir = work / f"src_{tag}"
++    for name in RTL_SOURCES:
++        target = srcdir / name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        text = (HDL / name).read_text(encoding="utf-8")
++        if edits and name == PARSER:
++            for pattern, replacement in edits:
++                text = text.replace(pattern, replacement)
++        target.write_text(text, encoding="utf-8")
++    return srcdir
++
++
++def build(srcdir: Path, work: Path, tag: str) -> Path | None:
++    """Build the harness against the RTL in `srcdir`; the exe, or None."""
++    mdir = work / f"obj_{tag}"
++    exe_name = f"Vparser_{tag}"
++    out = subprocess.run(
++        ["verilator", *VFLAGS, "--Mdir", str(mdir),
++         "-CFLAGS", f"-std=c++17 -O2 -I{HERE} -Wall -Wextra",
++         *[str(srcdir / s) for s in RTL_SOURCES],
++         str(HERE / "sim_main.cpp"), "-o", exe_name],
++        capture_output=True, text=True)
++    exe = mdir / exe_name
++    if out.returncode != 0 or not exe.is_file():
++        return None
++    return exe
++
++
++def run_harness(exe: Path) -> tuple[int, str]:
++    """(rc, output) of one harness run. The suite is a fixed directed
++    sequence with no open-ended wait, so it needs no host deadline."""
++    out = subprocess.run([str(exe)], capture_output=True, text=True)
++    return out.returncode, out.stdout + out.stderr
++
++
++def main() -> int:
++    """Run the control and every mutant, and report the arm's exit status.
++
++    0 when the unmutated RTL passes and every mutant fails each check it
++    names; 1 when any mutant survived, missed a named check, failed to
++    build, or no longer matches its pattern.
++    """
++    passes = fails = 0
++    with tempfile.TemporaryDirectory(prefix="parser-mutants-") as td:
++        work = Path(td)
++
++        # -- positive control: the real RTL must still pass ------------------
++        exe = build(stage(work, "clean"), work, "clean")
++        answer = verdict(*run_harness(exe)) if exe else "did not compile"
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated parser still passes the harness")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated parser does NOT pass ({answer}) - "
++                  f"every mutant result below is meaningless")
++
++        # -- each mutant must fail every check it names ------------------------
++        src = (HDL / PARSER).read_text(encoding="utf-8")
++        for name, edits, breaks in MUTATIONS:
++            stale = [p for p, _ in edits if src.count(p) != 1]
++            if stale:
++                fails += 1
++                print(f"[FAIL] mutation {name!r}: a pattern no longer appears "
++                      f"exactly once in {PARSER}. The RTL moved and this "
++                      f"mutant is no longer mutating anything - fix the "
++                      f"pattern, do not delete the arm.")
++                continue
++            tag = "".join(c if c.isalnum() else "_" for c in name)
++            exe = build(stage(work, tag, edits), work, tag)
++            if exe is None:
++                fails += 1
++                print(f"[FAIL] mutation {name!r} did not compile; a mutant "
++                      f"that cannot build proves nothing about the harness")
++                continue
++            rc, output = run_harness(exe)
++            answer = verdict(rc, output)
++            failed = [line for line in output.splitlines()
++                      if line.startswith("FAIL ")]
++            missed = [check for check in breaks
++                      if not any(check in line for line in failed)]
++            if answer == "caught" and missed:
++                answer = f"missed its named check(s): {', '.join(missed)}"
++            if answer == "caught":
++                passes += 1
++                print(f"[PASS] mutant caught: {name} - fails all "
++                      f"{len(breaks)} named check(s), first "
++                      f"\"{breaks[0]}\"")
++            elif answer == "pass":
++                fails += 1
++                print(f"[FAIL] mutant SURVIVED: {name}. The harness does not "
++                      f"prove \"{breaks[0]}\".")
++            else:
++                fails += 1
++                print(f"[FAIL] mutant {name!r} {answer}")
++
++    total = passes + fails
++    print(f"\n{total} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/parser/sim_main.cpp b/tb/verilator/parser/sim_main.cpp
+index 3e72749..e86e6e7 100644
+--- a/tb/verilator/parser/sim_main.cpp
++++ b/tb/verilator/parser/sim_main.cpp
+@@ -11,8 +11,10 @@
+ // transportSpecific, wrong PTP version, foreign domainNumber, truncation,
+ // a short messageLength (one arm per type the per-type table names), a
+ // Follow_Up without its information TLV, a Pdelay_Req shorter than its
+-// two reserved fields, rx_err; and that a Sync padded to the 60-byte
+-// Ethernet minimum is accepted.
++// two reserved fields, rx_err at eof and at every other byte, with every
++// bank write of a flagged frame counted; that no word a refused frame
++// leaves reaches the next accepted frame's event; and that a Sync padded
++// to the 60-byte Ethernet minimum is accepted.
+ 
+ #include <cstdint>
+ #include <cstdio>
+@@ -141,6 +143,9 @@ class RxParserHarness {
+   void feed(const std::vector<uint8_t> &bytes, bool err_at_eof);
+   void feed_gap(const std::vector<uint8_t> &a,
+                 const std::vector<uint8_t> &b, int gap);
++  void feed_err(const std::vector<uint8_t> &bytes, size_t from, size_t to);
++  void feed_refused_then(const std::vector<uint8_t> &refused,
++                         const std::vector<uint8_t> &clean);
+   void reset_the_parser();
+   void check_announce_with_a_two_hop_path_trace();
+   void check_a_declared_suffix_binds_parsing_to_the_message();
+@@ -160,6 +165,9 @@ class RxParserHarness {
+   void check_unlisted_message_types_are_refused();
+   void check_adjacent_refusals_are_each_counted();
+   void check_the_drop_count_advanced();
++  void check_rx_err_on_any_byte_drops_the_frame();
++  void check_rx_err_writes_before_on_and_after_the_flag();
++  void check_a_refused_frame_leaves_no_stale_word();
+   int report();
+ 
+   const milan::tb::Model<VKL_gptp_rx_parser> model;
+@@ -174,6 +182,17 @@ class RxParserHarness {
+   bool ev_seen = false;
+   uint8_t ev_code = 0;
+   uint16_t ev_seq = 0;
++  //! the bank as the latest event saw it, and as feed_refused_then's
++  //! refused frame left it
++  std::map<uint32_t, uint64_t> ev_bank;
++  std::map<uint32_t, uint64_t> refused_left;
++  //! every bank write since reset, and feed_err's split of one feed's
++  //! writes at the edge of the first byte it flagged: before that edge,
++  //! on it, and after it
++  int bank_writes = 0;
++  int writes_before_err = 0;
++  int writes_on_err = 0;
++  int writes_after_err = 0;
+ 
+   //! the drop count before the drop arms, so the last check can assert the
+   //! total every arm between them added
+@@ -196,13 +215,17 @@ void RxParserHarness::expect_eq(const char *what, uint64_t got, uint64_t exp) {
+ void RxParserHarness::tick() {
+   dut->clk_i = 0; dut->eval();
+   dut->clk_i = 1; dut->eval();
+-  if (dut->bank_we_o) bank[dut->bank_addr_o] = dut->bank_wdata_o;
++  if (dut->bank_we_o) {
++    bank[dut->bank_addr_o] = dut->bank_wdata_o;
++    bank_writes++;
++  }
+   if (dut->ev_valid_o) {
+     ev_seen = true;
+     ev_code = dut->ev_code_o;
+     ev_seq = dut->ev_seq_o;
+     ev_count++;
+     ev_w0.push_back(bank.count(0) ? bank[0] : 0);
++    ev_bank = bank;
+   }
+ }
+ 
+@@ -241,6 +264,56 @@ void RxParserHarness::feed_gap(const std::vector<uint8_t> &a,
+   for (int i = 0; i < kDrainTicks; i++) tick();
+ }
+ 
++//! stream one frame with rx_err_i raised on bytes [from, to] and on no
++//! other, and split every bank write of the feed at the first flagged
++//! byte: those of the earlier bytes' edges, the one of its own edge, and
++//! those after it, of the later bytes and of the deferred end-of-frame
++void RxParserHarness::feed_err(const std::vector<uint8_t> &bytes,
++                               size_t from, size_t to) {
++  bank.clear(); ev_seen = false; ev_count = 0; ev_w0.clear();
++  const int writes0 = bank_writes;
++  int writes_before = bank_writes, writes_through = bank_writes;
++  for (size_t i = 0; i < bytes.size(); i++) {
++    if (i == from) writes_before = bank_writes;
++    dut->rx_valid_i = 1;
++    dut->rx_data_i  = bytes[i];
++    dut->rx_sof_i   = (i == 0);
++    dut->rx_eof_i   = (i + 1 == bytes.size());
++    dut->rx_err_i   = (i >= from) && (i <= to);
++    tick();
++    if (i == from) writes_through = bank_writes;
++  }
++  dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
++  dut->rx_err_i = 0;
++  for (int i = 0; i < kDrainTicks; i++) tick();
++  writes_before_err = writes_before - writes0;
++  writes_on_err = writes_through - writes_before;
++  writes_after_err = bank_writes - writes_through;
++}
++
++//! stream a frame flagged on its eof byte and, with no idle cycle between,
++//! a clean frame behind it, keeping the bank across both: the engine moves
++//! to its other bank only on an accepted event (bank_sel_r in
++//! KL_gptp_engine.sv), so a refused frame and its successor share one
++void RxParserHarness::feed_refused_then(const std::vector<uint8_t> &refused,
++                                        const std::vector<uint8_t> &clean) {
++  ev_seen = false; ev_count = 0; ev_w0.clear(); ev_bank.clear();
++  for (const std::vector<uint8_t> *f : {&refused, &clean}) {
++    for (size_t i = 0; i < f->size(); i++) {
++      dut->rx_valid_i = 1;
++      dut->rx_data_i  = (*f)[i];
++      dut->rx_sof_i   = (i == 0);
++      dut->rx_eof_i   = (i + 1 == f->size());
++      dut->rx_err_i   = (f == &refused) && (i + 1 == f->size());
++      tick();
++    }
++    if (f == &refused) refused_left = bank;
++  }
++  dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
++  dut->rx_err_i = 0;
++  for (int i = 0; i < kDrainTicks; i++) tick();
++}
++
+ // reset
+ void RxParserHarness::reset_the_parser() {
+   dut->rst_n = 0; dut->rx_valid_i = 0; dut->rx_sof_i = 0;
+@@ -1176,6 +1249,258 @@ void RxParserHarness::check_the_drop_count_advanced() {
+             static_cast<uint16_t>(drops0 + 44));
+ }
+ 
++// rx_err_i with any byte of a frame refuses that frame (FPGA-gPTP #35).
++// It used to be read only in the end-of-frame branch, so a flag on any
++// earlier byte was ignored and the frame dispatched: on a 58-byte Sync an
++// error at byte 20 or 40 gave drops +0 and events +1, and only one at
++// byte 57, the eof, gave drops +1 and events +0. For a Sync, a Follow_Up,
++// a Pdelay_Req and a Pdelay_Resp the flag is raised for one byte at every
++// position, sof and eof included, and each frame must count exactly one
++// drop, raise no event and see no bank write after the flagged byte's own
++// edge.
++// Then the flag held from byte 20 through eof, the shape a MAC that holds
++// it produces, still counts exactly one drop; then the same frame without
++// the flag dispatches, so a refusal does not outlive its frame. Last, a
++// flag raised in every gap of a frame streamed with rx_valid_i low
++// between its bytes belongs to no byte, and that frame dispatches.
++//! the four message types the rx_err sweeps cover, each a valid frame with
++//! the event code it raises
++struct ErrArm { const char *tag; Frame f; uint8_t ev; };
++static std::vector<ErrArm> rx_err_arms() {
++  Hdr hs; hs.mtype = 0x0; hs.seq = 0x3500; hs.flags = 0x0208;
++  hs.srcid = 0xAABBCCFFFE001122ull; hs.srcpn = 1; hs.logint = 0xFD;
++  Frame sync = common(hs, 10);
++  sync.u48(0x000012345678ull); sync.u32(0x1DCD6500);
++  Hdr hq; hq.mtype = 0x2; hq.seq = 0x3502; hq.srcid = 0x00220FFFFE334455ull;
++  hq.srcpn = 2;
++  Frame pdreq = common(hq, 20);
++  for (int i = 0; i < 20; i++) pdreq.u8(0);
++  Hdr hr; hr.mtype = 0x3; hr.seq = 0x3503; hr.flags = 0x0200;
++  hr.srcid = 0x00220FFFFE334455ull; hr.srcpn = 2;
++  Frame pdresp = common(hr, 20);
++  pdresp.u48(0x00000000ABCDull); pdresp.u32(0x075BCD15);
++  pdresp.u64(0xDEADBEEFCAFEF00Dull); pdresp.u16(1);
++  return {
++    {"sync", sync, 1},
++    {"fu", fu_frame(0x3508, 0x0003, 28, 0x0080C2, 1), 2},
++    {"pdreq", pdreq, 4},
++    {"pdresp", pdresp, 5},
++  };
++}
++
++//! a frame of one of the four swept types with every field drawn from
++//! `salt`, and the words its event names packed from those fields alone
++struct Salted { const char *tag; Frame f; uint8_t ev; uint16_t seq;
++                std::map<uint32_t, uint64_t> words; };
++static Salted salted(uint8_t mtype, unsigned salt) {
++  const uint64_t s = salt;
++  Hdr h; h.mtype = mtype; h.seq = static_cast<uint16_t>(0x3540 + s);
++  h.flags = static_cast<uint16_t>(0x0200 | s);
++  h.corr = 0x0011223344550000ull | (s << 8) | s;
++  h.srcid = 0xAABBCCFFFE000000ull | (s << 8) | s;
++  h.srcpn = static_cast<uint16_t>(0x0100 + s);
++  h.logint = static_cast<uint8_t>(0xE0 + s);
++  const uint64_t sec = 0x000012340000ull + s;
++  const uint32_t ns = 0x1DCD0000u + salt;
++  Salted r{"pdreq", common(h, 20), 4, h.seq,
++           {{0, w0_of(h)}, {1, h.corr}, {2, h.srcid}, {3, h.srcpn}}};
++  if (mtype == 0x0) {
++    r.tag = "sync"; r.ev = 1; r.f = common(h, 10);
++    r.f.u48(sec); r.f.u32(ns);
++    r.words[4] = sec; r.words[5] = ns;
++  } else if (mtype == 0x8) {
++    const uint32_t csro = 0xFFFFF000u + salt;
++    const uint16_t tbi = static_cast<uint16_t>(0x0700 + s);
++    r.tag = "fu"; r.ev = 2; r.f = common(h, 10 + 32);
++    r.f.u48(sec); r.f.u32(ns);
++    r.f.u16(0x0003); r.f.u16(28);                    // info TLV
++    r.f.u8(0x00); r.f.u8(0x80); r.f.u8(0xC2);        // orgId
++    r.f.u8(0); r.f.u8(0); r.f.u8(1);                 // orgSubType
++    r.f.u32(csro); r.f.u16(tbi);
++    for (int i = 0; i < 12; i++) r.f.u8(0);          // lastGmPhaseChange
++    r.f.u32(0x00000123);                             // scaledLastGmFreq
++    r.words[4] = sec; r.words[5] = ns;
++    r.words[11] = (static_cast<uint64_t>(csro) << 32) |
++                  (static_cast<uint64_t>(tbi) << 16);
++  } else if (mtype == 0x3) {
++    const uint64_t rqid = 0xDEADBEEFCAFE0000ull + s;
++    const uint16_t rqpn = static_cast<uint16_t>(0x0200 + s);
++    r.tag = "pdresp"; r.ev = 5; r.f = common(h, 20);
++    r.f.u48(sec); r.f.u32(ns); r.f.u64(rqid); r.f.u16(rqpn);
++    r.words[4] = sec; r.words[5] = ns; r.words[6] = rqid; r.words[7] = rqpn;
++  } else {
++    for (int i = 0; i < 20; i++) r.f.u8(0);          // two reserved fields
++  }
++  return r;
++}
++
++void RxParserHarness::check_rx_err_on_any_byte_drops_the_frame() {
++  const std::vector<ErrArm> arms = rx_err_arms();
++  Frame sync = arms[0].f;
++  for (const ErrArm &a : arms) {
++    char n[80];
++    const size_t len = a.f.b.size();
++    size_t dropped = 0, silent = 0, unwritten = 0;
++    std::vector<size_t> missed;
++    for (size_t p = 0; p < len; p++) {
++      uint16_t d0 = dut->drop_cnt_o;
++      feed_err(a.f.b, p, p);
++      const bool one = dut->drop_cnt_o == static_cast<uint16_t>(d0 + 1);
++      dropped += one;
++      silent += (ev_count == 0);
++      unwritten += (writes_after_err == 0);
++      if (!one || ev_count || writes_after_err) missed.push_back(p);
++    }
++    snprintf(n, sizeof n, "%s rx_err at every byte: one drop", a.tag);
++    expect_eq(n, dropped, len);
++    snprintf(n, sizeof n, "%s rx_err at every byte: no event", a.tag);
++    expect_eq(n, silent, len);
++    snprintf(n, sizeof n, "%s rx_err at every byte: no later write", a.tag);
++    expect_eq(n, unwritten, len);
++    for (size_t p : missed)
++      printf("  %s: rx_err at byte %zu of %zu was not refused cleanly\n",
++             a.tag, p, len);
++
++    uint16_t d0 = dut->drop_cnt_o;
++    feed_err(a.f.b, 20, len - 1);
++    snprintf(n, sizeof n, "%s rx_err held from byte 20 to eof: one drop",
++             a.tag);
++    expect_eq(n, dut->drop_cnt_o, static_cast<uint16_t>(d0 + 1));
++    snprintf(n, sizeof n, "%s rx_err held from byte 20 to eof: no event",
++             a.tag);
++    expect_eq(n, ev_count, 0);
++
++    d0 = dut->drop_cnt_o;
++    feed(a.f.b, false);
++    snprintf(n, sizeof n, "%s control after the errors: event", a.tag);
++    expect_eq(n, ev_seen ? ev_code : 0, a.ev);
++    snprintf(n, sizeof n, "%s control after the errors: no drop", a.tag);
++    expect_eq(n, dut->drop_cnt_o, d0);
++  }
++  {
++    uint16_t d0 = dut->drop_cnt_o;
++    bank.clear(); ev_seen = false; ev_count = 0; ev_w0.clear();
++    for (size_t i = 0; i < sync.b.size(); i++) {
++      if (i > 0) {                     // a gap cycle carrying the flag
++        dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
++        dut->rx_err_i = 1;
++        tick();
++      }
++      dut->rx_valid_i = 1;
++      dut->rx_data_i  = sync.b[i];
++      dut->rx_sof_i   = (i == 0);
++      dut->rx_eof_i   = (i + 1 == sync.b.size());
++      dut->rx_err_i   = 0;
++      tick();
++    }
++    dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
++    for (int i = 0; i < kDrainTicks; i++) tick();
++    expect_eq("rx_err in every gap between bytes: sync event",
++              ev_seen ? ev_code : 0, 1);
++    expect_eq("rx_err in every gap between bytes: no drop",
++              dut->drop_cnt_o, d0);
++  }
++}
++
++// The oracle the ruling on #35 asks for (comment 6105869522) counts every
++// bank write of a flagged frame and splits them at the flagged byte's own
++// edge: before it, on it and after it. The parser streams each field into
++// the bank as it completes, so the ruling accepts the words written up to
++// and including that edge and forbids any after it. On the first byte, a
++// middle one (byte 29, whose edge completes correctionField's word w1) and
++// the eof byte of the four swept types and of an Announce, the one type
++// with a write that lands after its eof (the deferred hop-count word w12),
++// the frame counts one drop, raises no event and writes nothing after the
++// flag; the writes before and on it are printed as the record.
++void RxParserHarness::check_rx_err_writes_before_on_and_after_the_flag() {
++  std::vector<ErrArm> arms = rx_err_arms();
++  arms.push_back({"ann", announce_frame(0x350B, AGM, 0, ASRC, {}), 3});
++  for (const ErrArm &a : arms) {
++    char n[80];
++    const size_t len = a.f.b.size();
++    size_t dropped = 0, silent = 0, unwritten = 0;
++    for (size_t p : {size_t{0}, size_t{29}, len - 1}) {
++      uint16_t d0 = dut->drop_cnt_o;
++      feed_err(a.f.b, p, p);
++      const int drops = dut->drop_cnt_o - d0;
++      dropped += (drops == 1);
++      silent += (ev_count == 0);
++      unwritten += (writes_after_err == 0);
++      printf("INFO %s rx_err at byte %zu of %zu: drops +%d, events %d, "
++             "writes before %d, on %d, after %d\n", a.tag, p, len, drops,
++             ev_count, writes_before_err, writes_on_err, writes_after_err);
++    }
++    snprintf(n, sizeof n, "%s rx_err at first, middle, eof: one drop", a.tag);
++    expect_eq(n, dropped, 3);
++    snprintf(n, sizeof n, "%s rx_err at first, middle, eof: no event", a.tag);
++    expect_eq(n, silent, 3);
++    snprintf(n, sizeof n, "%s rx_err at first, middle, eof: no write after",
++             a.tag);
++    expect_eq(n, unwritten, 3);
++  }
++}
++
++// The ruling on #35 (comment 6105869522) leaves a refused frame's words in
++// the write bank, undefined and named by no event, so the real risk is one
++// of them reaching the next accepted frame's handler. A frame refused by a
++// flag on its eof byte, which leaves every word it writes, is followed with
++// no idle cycle by a clean frame of the same type, and then of a different
++// one whose words cover most of the clean frame's. The pair counts the one
++// drop, the clean frame raises the one event with its own code and
++// sequence, and as that event sees the bank every word its type names holds
++// that frame's own field. Each frame draws its fields from its own salt, so
++// no word of the refused frame, or of any earlier one, equals the clean
++// frame's: a word the clean frame failed to write shows as stale.
++void RxParserHarness::check_a_refused_frame_leaves_no_stale_word() {
++  //! {clean, refused} message types
++  const uint8_t pairs[][2] = {{0x0, 0x0}, {0x0, 0x3}, {0x8, 0x8}, {0x8, 0x3},
++                              {0x2, 0x2}, {0x2, 0x0}, {0x3, 0x3}, {0x3, 0x8}};
++  unsigned salt = 1;
++  for (const auto &pair : pairs) {
++    const Salted r = salted(pair[1], salt++);
++    const Salted v = salted(pair[0], salt++);
++    char n[96];
++    uint16_t d0 = dut->drop_cnt_o;
++    feed_refused_then(r.f.b, v.f.b);
++    snprintf(n, sizeof n, "%s after a refused %s: one drop", v.tag, r.tag);
++    expect_eq(n, dut->drop_cnt_o, static_cast<uint16_t>(d0 + 1));
++    snprintf(n, sizeof n, "%s after a refused %s: event", v.tag, r.tag);
++    expect_eq(n, ev_count == 1 ? (static_cast<uint64_t>(ev_code) << 16) | ev_seq
++                               : 0,
++              (static_cast<uint64_t>(v.ev) << 16) | v.seq);
++    size_t own = 0;
++    for (const auto &[addr, word] : v.words) {
++      const auto seen = ev_bank.find(addr);
++      if (seen != ev_bank.end() && seen->second == word) {
++        own++;
++        continue;
++      }
++      const auto was = r.words.find(addr);
++      const bool stale = seen != ev_bank.end() && was != r.words.end() &&
++                         was->second == seen->second;
++      printf("  %s after a refused %s: w%u holds %016llx, not %016llx%s\n",
++             v.tag, r.tag, addr,
++             static_cast<unsigned long long>(
++                 seen != ev_bank.end() ? seen->second : 0),
++             static_cast<unsigned long long>(word),
++             stale ? ", the refused frame's word" : "");
++    }
++    snprintf(n, sizeof n, "%s after a refused %s: every word is this frame's",
++             v.tag, r.tag);
++    expect_eq(n, own, v.words.size());
++    size_t kept = 0, beyond = 0;
++    for (const auto &[addr, word] : r.words) {
++      const auto at = refused_left.find(addr);
++      if (at == refused_left.end() || at->second != word) continue;
++      kept++;
++      beyond += !v.words.count(addr);
++    }
++    printf("INFO %s after a refused %s: it left %zu of its %zu words, "
++           "%zu of them outside the %s words\n", v.tag, r.tag, kept,
++           r.words.size(), beyond, v.tag);
++  }
++}
++
+ int RxParserHarness::report() {
+   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+   return fails ? 1 : 0;
+@@ -1201,6 +1526,9 @@ int RxParserHarness::run() {
+   check_unlisted_message_types_are_refused();
+   check_adjacent_refusals_are_each_counted();
+   check_the_drop_count_advanced();
++  check_rx_err_on_any_byte_drops_the_frame();
++  check_a_refused_frame_leaves_no_stale_word();
++  check_rx_err_writes_before_on_and_after_the_flag();
+   return report();
+ }
+ 
