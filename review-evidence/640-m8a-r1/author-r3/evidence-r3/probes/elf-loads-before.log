@@ -1,0 +1,10 @@
+CONTROL: 12068 ROM bytes; 3017 initial words
+no-load-segments REFUSED memory map loads outside rom
+reset-segment-empty ACCEPTED planned_rom_bytes 12068 initial_words 3017 first_two_words [0, 0]
+reset-segment-short ACCEPTED planned_rom_bytes 12068 initial_words 3017 first_two_words [403769859, 0]
+header-cut 6 REFUSED memory map elf truncated
+header-cut 7 REFUSED memory map elf truncated
+header-cut 16 REFUSED memory map elf truncated
+header-cut 20 REFUSED memory map elf truncated
+header-cut 40 REFUSED memory map elf truncated
+header-cut 51 REFUSED memory map elf truncated
