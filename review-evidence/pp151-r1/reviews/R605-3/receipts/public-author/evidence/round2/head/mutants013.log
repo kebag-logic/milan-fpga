@@ -1,0 +1,448 @@
+control: rc=0 PASS
+KL_acmp_nvm_shadow.g_backoff_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/acmp/KL_acmp_nvm_shadow.sv:538:5: KL_acmp_nvm_shadow: RET
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_backoff_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/acmp/KL_acmp_nvm_shadow.sv:538:5: KL_acmp_nvm_shadow: RETR
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_backoff_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_backoff_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/acmp/KL_acmp_nvm_shadow.sv:538:5: KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least
+    FAIL: ELAB  yosys KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=1: rc 1: no output
+KL_acmp_nvm_shadow.g_backoff_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_rs_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: KL_acmp_nvm_shadow: RS_TMO_CYC_
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_rs_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_rs_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_acmp_nvm_shadow.g_rs_tmo_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+    FAIL: ELAB  yosys KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: no output
+KL_acmp_nvm_shadow.g_rs_tmo_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_acmp_listener.g_strm_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/acmp/KL_pp_acmp_listener.sv:347:5: STRM_TIMEOUT_CYC_P mu
+    FAIL: GUARD yosys KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_acmp_listener.g_strm_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/acmp/KL_pp_acmp_listener.sv:347:5: STRM_TIMEOUT_CYC_P mus
+    FAIL: GUARD yosys KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_acmp_listener.g_strm_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/acmp/KL_pp_acmp_listener.sv:312:9: Ascending bit range ve
+KL_pp_acmp_listener.g_strm_tmo_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/acmp/KL_pp_acmp_listener.sv:347:5: STRM_TIMEOUT_CYC_P must be greater than zero
+    FAIL: ELAB  yosys KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=1: rc 1: no output
+KL_pp_acmp_listener.g_strm_tmo_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/acmp/KL_pp_acmp_listener.sv:312:9: Ascending bit range ve
+    FAIL: GUARD yosys KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_line_align:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=577 must be a 
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_line_align:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=577 must be a m
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_line_align:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_line_align:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=576: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=576 must be a multiple of 8 (64-bit lanes)
+    FAIL: ELAB  yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=576: rc 1: no output
+KL_aecp_desc_store.gen_g_line_align:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_beats:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_desc_store.sv:267:5: a burst exceeds the 9-bit mem_r
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_beats:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_desc_store.sv:267:5: a burst exceeds the 9-bit mem_re
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_beats:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_beats:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4088: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:267:5: a burst exceeds the 9-bit mem_req_beats_o field
+    FAIL: ELAB  yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4088: rc 1: no output
+KL_aecp_desc_store.gen_g_beats:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_names:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_desc_store.sv:270:5: NAME_ENTRIES_P=1025 must be i
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_names:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_desc_store.sv:270:5: NAME_ENTRIES_P=1025 must be in
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_names:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_names:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1024: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:270:5: NAME_ENTRIES_P=1024 must be in 1..1024
+    FAIL: ELAB  yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1024: rc 1: no output
+KL_aecp_desc_store.gen_g_names:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_base_align:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_desc_store.sv:273:5: DESC_BASE_P=20000001 
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_base_align:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_desc_store.sv:273:5: DESC_BASE_P=20000001 m
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_base_align:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: elaborated; the guard did not stop it
+KL_aecp_desc_store.gen_g_base_align:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000000: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:273:5: DESC_BASE_P=20000000 must be 8-byte aligned
+    FAIL: ELAB  yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000000: rc 1: no output
+KL_aecp_desc_store.gen_g_base_align:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_frame_fit:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:944:5: a maximum AECP response (618 
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_frame_fit:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_engine.sv:944:5: a maximum AECP response (618 B
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_frame_fit:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_frame_fit:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=618: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:944:5: a maximum AECP response (618 B) exceeds the oversize slot (618
+    FAIL: ELAB  yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=618: rc 1: no output
+KL_aecp_engine.gen_g_frame_fit:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_resp_cap_fit:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:949:5: response buffer (523 B) i
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: all.v:6223: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_resp_cap_fit:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_engine.sv:949:5: response buffer (523 B) is
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: all.v:6223: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_resp_cap_fit:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=575 must
+KL_aecp_engine.gen_g_resp_cap_fit:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=576 fixture: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:949:5: response buffer (524 B) is smaller than GET_DYNAMIC_INFO l
+    FAIL: ELAB  yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=576 fixture: rc 1: no output
+KL_aecp_engine.gen_g_resp_cap_fit:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=575 must
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: not refused as a $fatal of this guard: all.v:6226: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_line_step:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:964:5: DESC_LINE_BYTES_P=577 is not a multi
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: all.v:4615: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_line_step:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_engine.sv:964:5: DESC_LINE_BYTES_P=577 is not a multip
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: all.v:4615: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_line_step:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=577 must be a multi
+KL_aecp_engine.gen_g_line_step:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=576: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:964:5: DESC_LINE_BYTES_P=576 is not a multiple of 8 (legal: 576..1008 in ste
+    FAIL: ELAB  yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=576: rc 1: no output
+KL_aecp_engine.gen_g_line_step:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=577 must be a multi
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: all.v:4615: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_gamap_page_fit:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:968:5: DESC_LINE_BYTES_P=568 i
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_gamap_page_fit:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_engine.sv:968:5: DESC_LINE_BYTES_P=568 is
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_gamap_page_fit:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_gamap_page_fit:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=576 fixture: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:968:5: DESC_LINE_BYTES_P=576 is below 576: no room for a 71-rec
+    FAIL: ELAB  yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=576 fixture: rc 1: no output
+KL_aecp_engine.gen_g_gamap_page_fit:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: elaborated; the guard did not stop it
+KL_aecp_engine.gen_g_line_ceiling:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:972:5: DESC_LINE_BYTES_P=1016 i
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: all.v:11539: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_line_ceiling:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_engine.sv:972:5: DESC_LINE_BYTES_P=1016 is
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: all.v:11539: ERROR: System task `$finish' executed.
+KL_aecp_engine.gen_g_line_ceiling:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 o
+KL_aecp_engine.gen_g_line_ceiling:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:972:5: DESC_LINE_BYTES_P=1008 is above 1008: 16 + line passes th
+    FAIL: ELAB  yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: rc 1: no output
+KL_aecp_engine.gen_g_line_ceiling:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 o
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: all.v:11542: ERROR: System task `$finish' executed.
+KL_aecp_notify.g_rows_guard:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} n
+    FAIL: GUARD yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: elaborated; the guard did not stop it
+KL_aecp_notify.g_rows_guard:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} ne
+    FAIL: GUARD yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: elaborated; the guard did not stop it
+KL_aecp_notify.g_rows_guard:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: not refused as a $fatal of this guard: %Error: hdl/aecp/KL_aecp_notify.sv:915:30: Size-changing cast to zero or negative size: 0
+KL_aecp_notify.g_rows_guard:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} need N_IF_P=2 a power of two and N
+    FAIL: ELAB  yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: rc 1: no output
+KL_aecp_notify.g_rows_guard:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: not refused as a $fatal of this guard: %Error: hdl/aecp/KL_aecp_notify.sv:915:30: Size-changing cast to zero or negative size: 0
+    FAIL: GUARD yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_shape_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgro
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_shape_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgrow
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_shape_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_shape_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgrows its record-id block
+    FAIL: ELAB  yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: rc 1: no output
+KL_aecp_nvm_writer.g_shape_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_backoff_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_nvm_writer.sv:318:5: KL_aecp_nvm_writer: RET
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_backoff_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_nvm_writer.sv:318:5: KL_aecp_nvm_writer: RETR
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_backoff_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_backoff_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:318:5: KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least
+    FAIL: ELAB  yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=1: rc 1: no output
+KL_aecp_nvm_writer.g_backoff_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_nvm_writer.sv:322:5: KL_aecp_nvm_writer: RS_TMO_CYC_
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_nvm_writer.sv:322:5: KL_aecp_nvm_writer: RS_TMO_CYC_P
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_tmo_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:322:5: KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1
+    FAIL: ELAB  yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: no output
+KL_aecp_nvm_writer.g_rs_tmo_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_agg_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_nvm_writer.sv:326:5: KL_aecp_nvm_writer: RS_AGG_CYC_
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_agg_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_nvm_writer.sv:326:5: KL_aecp_nvm_writer: RS_AGG_CYC_P
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_agg_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_nvm_writer.g_rs_agg_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:326:5: KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1
+    FAIL: ELAB  yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=1: rc 1: no output
+KL_aecp_nvm_writer.g_rs_agg_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_base_align:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_resp_buf.sv:194:5: RESP_BASE_P=20100001 must
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_base_align:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_resp_buf.sv:194:5: RESP_BASE_P=20100001 must 
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_base_align:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_base_align:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100000: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:194:5: RESP_BASE_P=20100000 must be 8-byte aligned
+    FAIL: ELAB  yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100000: rc 1: no output
+KL_aecp_resp_buf.gen_g_base_align:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_size:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=16 leaves no payload abov
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_size:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=16 leaves no payload above
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_size:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_size:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=17 leaves no payload above the header record
+    FAIL: ELAB  yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: rc 1: no output
+KL_aecp_resp_buf.gen_g_size:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_beats:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_resp_buf.sv:201:5: a read burst of 512 beats exceeds t
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_beats:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_resp_buf.sv:201:5: a read burst of 512 beats exceeds th
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_beats:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: elaborated; the guard did not stop it
+KL_aecp_resp_buf.gen_g_beats:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4088: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:201:5: a read burst of 511 beats exceeds the 9-bit mem_req_beats_o field
+    FAIL: ELAB  yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4088: rc 1: no output
+KL_aecp_resp_buf.gen_g_beats:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: elaborated; the guard did not stop it
+KL_aecp_ucpu.gen_g_d8_cap:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 outside 52
+    FAIL: GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: elaborated; the guard did not stop it
+KL_aecp_ucpu.gen_g_d8_cap:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 outside 524
+    FAIL: GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: elaborated; the guard did not stop it
+KL_aecp_ucpu.gen_g_d8_cap:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: elaborated; the guard did not stop it
+KL_aecp_ucpu.gen_g_d8_cap:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1024: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1024 outside 524..1024 (the 10-bit cursor)
+    FAIL: ELAB  yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1024: rc 1: no output
+KL_aecp_ucpu.gen_g_d8_cap:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/packet_engine/KL_pp_nvm_port.sv:189:5: KL_pp_nvm_port: MEM_TIMEOUT_
+    FAIL: GUARD yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/packet_engine/KL_pp_nvm_port.sv:189:5: KL_pp_nvm_port: MEM_TIMEOUT_C
+    FAIL: GUARD yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_tmo_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/packet_engine/KL_pp_nvm_port.sv:189:5: KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=1 is outside 1 to 214748364
+    FAIL: ELAB  yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=1: rc 1: no output
+KL_pp_nvm_port.g_tmo_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_maxp_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD
+    FAIL: GUARD yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_maxp_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_
+    FAIL: GUARD yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_maxp_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_maxp_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65527: rc 1: %Warning-USERFATAL: hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_P=65527 is above 65527: 8 + it o
+    FAIL: ELAB  yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65527: rc 1: no output
+KL_pp_nvm_port.g_maxp_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: elaborated; the guard did not stop it
+KL_pp_originator.g_inflight_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/packet_engine/KL_pp_originator.sv:149:5: KL_pp_originator: INFLIGH
+    FAIL: GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: elaborated; the guard did not stop it
+KL_pp_originator.g_inflight_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/packet_engine/KL_pp_originator.sv:149:5: KL_pp_originator: INFLIGHT
+    FAIL: GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: elaborated; the guard did not stop it
+KL_pp_originator.g_inflight_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: %Warning-SELRANGE: hdl/packet_engine/KL_pp_originator.sv:508:35: Extracting 17 bits from o
+KL_pp_originator.g_inflight_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_pp_originator.g_inflight_check INFLIGHT_P=16: rc 1: %Warning-USERFATAL: hdl/packet_engine/KL_pp_originator.sv:149:5: KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibb
+    FAIL: ELAB  yosys KL_pp_originator.g_inflight_check INFLIGHT_P=16: rc 1: no output
+KL_pp_originator.g_inflight_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: %Warning-SELRANGE: hdl/packet_engine/KL_pp_originator.sv:508:35: Extracting 17 bits from o
+    FAIL: GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: elaborated; the guard did not stop it
+KL_pp_release_merge.g_slot_count_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/packet_engine/KL_pp_release_merge.sv:38:5: KL_pp_release_merge:
+    FAIL: GUARD yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: elaborated; the guard did not stop it
+KL_pp_release_merge.g_slot_count_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/packet_engine/KL_pp_release_merge.sv:38:5: KL_pp_release_merge: 
+    FAIL: GUARD yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: elaborated; the guard did not stop it
+KL_pp_release_merge.g_slot_count_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/packet_engine/KL_pp_release_merge.sv:41:9: Ascending bit range v
+KL_pp_release_merge.g_slot_count_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=1: rc 1: %Warning-USERFATAL: hdl/packet_engine/KL_pp_release_merge.sv:38:5: KL_pp_release_merge: N_SLOTS_P must be positive
+    FAIL: ELAB  yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=1: rc 1: no output
+KL_pp_release_merge.g_slot_count_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/packet_engine/KL_pp_release_merge.sv:41:9: Ascending bit range v
+    FAIL: GUARD yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: elaborated; the guard did not stop it
+KL_srp_encoder.g_depth_check:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/srp/KL_srp_encoder.sv:148:5: DEPTH_P drain cannot fit a standard T
+    FAIL: GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+KL_srp_encoder.g_depth_check:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/srp/KL_srp_encoder.sv:148:5: DEPTH_P drain cannot fit a standard TX
+    FAIL: GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+KL_srp_encoder.g_depth_check:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+KL_srp_encoder.g_depth_check:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=558: rc 1: %Warning-USERFATAL: hdl/srp/KL_srp_encoder.sv:148:5: DEPTH_P drain cannot fit a standard TX slot
+    FAIL: ELAB  yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=558: rc 1: no output
+KL_srp_encoder.g_depth_check:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_avb_if:error: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=3 is outsi
+    FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:8502: ERROR: System task `$finish' executed.
+protocol_processor_top.gen_g_avb_if:warning: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=3 is outsid
+    FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:8502: ERROR: System task `$finish' executed.
+protocol_processor_top.gen_g_avb_if:initial: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} 
+protocol_processor_top.gen_g_avb_if:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=2 is outside 1 to 2 (P-N-AVB-INTERFACES)
+    FAIL: ELAB  yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: rc 1: no output
+protocol_processor_top.gen_g_avb_if:loosened: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} 
+    FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:8502: ERROR: System task `$finish' executed.
+protocol_processor_top.gen_g_tmr_aw:error: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 c
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_aw:warning: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 ca
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_aw:initial: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:956:8: Input port connec
+protocol_processor_top.gen_g_tmr_aw:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_aw defaults fixture: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=128
+    FAIL: ELAB  yosys protocol_processor_top.gen_g_tmr_aw defaults fixture: rc 1: no output
+protocol_processor_top.gen_g_tmr_aw:loosened: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:956:8: Input port connec
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_fit:error: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_fit:warning: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91 
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_fit:initial: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_fit:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_fit defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91 but P-TIMER-SLOTS=91
+    FAIL: ELAB  yosys protocol_processor_top.gen_g_tmr_fit defaults: rc 1: no output
+protocol_processor_top.gen_g_tmr_fit:loosened: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: elaborated; the guard did not stop it
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_overlap:error: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot grou
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_overlap:warning: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot group
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_overlap:initial: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_overlap:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_overlap defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot groups OVERLAP at SI=8 SO=8
+    FAIL: ELAB  yosys protocol_processor_top.gen_g_tmr_overlap defaults: rc 1: no output
+protocol_processor_top.gen_g_tmr_overlap:loosened: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: elaborated; the guard did not stop it
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_owner_overlap:error: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:911:5:
+    FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:9923: ERROR: System task `$finish' executed.
+protocol_processor_top.gen_g_owner_overlap:warning: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:911:5: 
+    FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:9923: ERROR: System task `$finish' executed.
+protocol_processor_top.gen_g_owner_overlap:initial: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL
+protocol_processor_top.gen_g_owner_overlap:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:911:5: F08.4: owner tags OVERLAP at SI=
+    FAIL: ELAB  yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: rc 1: no output
+protocol_processor_top.gen_g_owner_overlap:loosened: rc=1 KILLED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL
+    FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:9923: ERROR: System task `$finish' executed.
+bench:unlisted: rc=1 KILLED
+    FAIL: inventory KL_pp_release_merge.g_unlisted_check: hdl/packet_engine/KL_pp_release_merge.sv:42 is a severity task no guard in GUARDS accounts for
+bench:deleted: rc=1 KILLED
+    FAIL: inventory KL_aecp_engine.gen_g_line_step: 0 severity tasks, not 1
+    FAIL: GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=577 must be a multi
+    FAIL: GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: not refused as a $fatal of this guard: all.v:4615: ERROR: System task `$finish' executed.
+bench:message: rc=1 KILLED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/packet_engine/KL_pp_nvm_port.sv:189:5: KL_pp_nvm_port: MEM_TIMEOUT_
+bench:deadline_user: rc=1 KILLED
+    FAIL: ELAB  verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: %Warning-USERWARN: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: planted deadline warning
+bench:deadline_other_warning: rc=1 KILLED
+    FAIL: ELAB  verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: %Warning-ASCRANGE: hdl/acmp/KL_acmp_nvm_shadow.sv:544:9: Ascending bit range vector: left < right of bit range: [-1:0]
+elab guard mutants: 160 of 160 killed

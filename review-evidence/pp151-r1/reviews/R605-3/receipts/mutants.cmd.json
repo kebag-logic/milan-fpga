@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "tb/elab_guards/mutants.py",
+    "--frontend",
+    "verilator",
+    "--verilator",
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "--jobs",
+    "4",
+    "--output",
+    "$REVIEWS/pp151-r605-3-packet/receipts/mutant-logs"
+  ],
+  "cwd": "$REVIEWS/r605-3-pp151",
+  "TMPDIR": "$REVIEWS/pp151-r605-3-packet/scratch"
+}

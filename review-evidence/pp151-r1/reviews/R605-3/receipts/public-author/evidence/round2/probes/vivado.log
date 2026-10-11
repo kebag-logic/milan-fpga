@@ -1,0 +1,156 @@
+inventory KL_acmp_nvm_shadow.g_backoff_check: hdl/acmp/KL_acmp_nvm_shadow.sv:538
+inventory KL_acmp_nvm_shadow.g_rs_tmo_check: hdl/acmp/KL_acmp_nvm_shadow.sv:545
+inventory KL_pp_acmp_listener.g_strm_tmo_check: hdl/acmp/KL_pp_acmp_listener.sv:347
+inventory KL_aecp_desc_store.gen_g_line_align: hdl/aecp/KL_aecp_desc_store.sv:263
+inventory KL_aecp_desc_store.gen_g_beats: hdl/aecp/KL_aecp_desc_store.sv:267
+inventory KL_aecp_desc_store.gen_g_names: hdl/aecp/KL_aecp_desc_store.sv:270
+inventory KL_aecp_desc_store.gen_g_base_align: hdl/aecp/KL_aecp_desc_store.sv:273
+inventory KL_aecp_engine.gen_g_frame_fit: hdl/aecp/KL_aecp_engine.sv:944
+inventory KL_aecp_engine.gen_g_resp_cap_fit: hdl/aecp/KL_aecp_engine.sv:949
+inventory KL_aecp_engine.gen_g_line_step: hdl/aecp/KL_aecp_engine.sv:964
+inventory KL_aecp_engine.gen_g_gamap_page_fit: hdl/aecp/KL_aecp_engine.sv:968
+inventory KL_aecp_engine.gen_g_line_ceiling: hdl/aecp/KL_aecp_engine.sv:972
+inventory KL_aecp_notify.g_rows_guard: hdl/aecp/KL_aecp_notify.sv:367
+inventory KL_aecp_nvm_writer.g_shape_check: hdl/aecp/KL_aecp_nvm_writer.sv:315
+inventory KL_aecp_nvm_writer.g_backoff_check: hdl/aecp/KL_aecp_nvm_writer.sv:318
+inventory KL_aecp_nvm_writer.g_rs_tmo_check: hdl/aecp/KL_aecp_nvm_writer.sv:322
+inventory KL_aecp_nvm_writer.g_rs_agg_check: hdl/aecp/KL_aecp_nvm_writer.sv:326
+inventory KL_aecp_resp_buf.gen_g_base_align: hdl/aecp/KL_aecp_resp_buf.sv:194
+inventory KL_aecp_resp_buf.gen_g_size: hdl/aecp/KL_aecp_resp_buf.sv:197
+inventory KL_aecp_resp_buf.gen_g_beats: hdl/aecp/KL_aecp_resp_buf.sv:201
+inventory KL_aecp_ucpu.gen_g_d8_cap: hdl/aecp/KL_aecp_ucpu.sv:297
+inventory KL_pp_nvm_port.g_tmo_check: hdl/packet_engine/KL_pp_nvm_port.sv:189
+inventory KL_pp_nvm_port.g_maxp_check: hdl/packet_engine/KL_pp_nvm_port.sv:198
+inventory KL_pp_originator.g_inflight_check: hdl/packet_engine/KL_pp_originator.sv:149
+inventory KL_pp_release_merge.g_slot_count_check: hdl/packet_engine/KL_pp_release_merge.sv:38
+inventory KL_srp_encoder.g_depth_check: hdl/srp/KL_srp_encoder.sv:148
+inventory protocol_processor_top.gen_g_avb_if: hdl/top/protocol_processor_top.sv:876
+inventory protocol_processor_top.gen_g_tmr_aw: hdl/top/protocol_processor_top.sv:880
+inventory protocol_processor_top.gen_g_tmr_fit: hdl/top/protocol_processor_top.sv:884
+inventory protocol_processor_top.gen_g_tmr_overlap: hdl/top/protocol_processor_top.sv:897
+inventory protocol_processor_top.gen_g_owner_overlap: hdl/top/protocol_processor_top.sv:911
+GUARD xsim KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1 [<lane>/hdl/acmp/KL_acmp_nvm_shadow.sv:538]
+ELAB  xsim KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD xsim KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1 [<lane>/hdl/acmp/KL_acmp_nvm_shadow.sv:545]
+ELAB  xsim KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: elaborates
+GUARD xsim KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : STRM_TIMEOUT_CYC_P must be greater than zero [<lane>/hdl/acmp/KL_pp_acmp_listener.sv:347]
+ELAB  xsim KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=1: elaborates
+GUARD xsim KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: ERROR: [VRFC 10-8279] $fatal : LINE_BYTES_P=577 must be a multiple of 8 (64-bit lanes) [<lane>/hdl/aecp/KL_aecp_desc_store.sv:263]
+ELAB  xsim KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=576: elaborates
+GUARD xsim KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: ERROR: [VRFC 10-8279] $fatal : a burst exceeds the 9-bit mem_req_beats_o field [<lane>/hdl/aecp/KL_aecp_desc_store.sv:267]
+ELAB  xsim KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4088: elaborates
+GUARD xsim KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: ERROR: [VRFC 10-8279] $fatal : NAME_ENTRIES_P=1025 must be in 1..1024 [<lane>/hdl/aecp/KL_aecp_desc_store.sv:270]
+ELAB  xsim KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1024: elaborates
+GUARD xsim KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: ERROR: [VRFC 10-8279] $fatal : DESC_BASE_P=20000001 must be 8-byte aligned [<lane>/hdl/aecp/KL_aecp_desc_store.sv:273]
+ELAB  xsim KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000000: elaborates
+GUARD xsim KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: ERROR: [VRFC 10-8279] $fatal : a maximum AECP response (618 B) exceeds the oversize slot (617 B) [<lane>/hdl/aecp/KL_aecp_engine.sv:944]
+ELAB  xsim KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=618: elaborates
+GUARD xsim KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: ERROR: [VRFC 10-8279] $fatal : response buffer (523 B) is smaller than GET_DYNAMIC_INFO limit (524 B) [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_resp_cap_fit-context/hdl/aecp/KL_aecp_engine.sv:949]
+ELAB  xsim KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=576 fixture: elaborates
+GUARD xsim KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: ERROR: [VRFC 10-8279] $fatal : DESC_LINE_BYTES_P=577 is not a multiple of 8 (legal: 576..1008 in steps of 8) [<lane>/hdl/aecp/KL_aecp_engine.sv:964]
+ELAB  xsim KL_aecp_engine.gen_g_line_step LINE_BYTES_P=576: elaborates
+GUARD xsim KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: ERROR: [VRFC 10-8279] $fatal : DESC_LINE_BYTES_P=568 is below 576: no room for a 71-record GET_AUDIO_MAP page [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_gamap_page_fit-context/hdl/aecp/KL_aecp_engine.sv:968]
+ELAB  xsim KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=576 fixture: elaborates
+GUARD xsim KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: ERROR: [VRFC 10-8279] $fatal : DESC_LINE_BYTES_P=1016 is above 1008: 16 + line passes the 1024-byte cursor [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_line_ceiling-context/hdl/aecp/KL_aecp_engine.sv:972]
+ELAB  xsim KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: elaborates
+GUARD xsim KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: ERROR: [VRFC 10-8279] $fatal : KL_aecp_notify: rows {index, port} need N_IF_P=2 a power of two and N_CTRL_P=1 above 1 [<lane>/hdl/aecp/KL_aecp_notify.sv:367]
+ELAB  xsim KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: elaborates
+GUARD xsim KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: a group outgrows its record-id block [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:315]
+ELAB  xsim KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: elaborates
+GUARD xsim KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1 [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:318]
+ELAB  xsim KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD xsim KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1 [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:322]
+ELAB  xsim KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=1: elaborates
+GUARD xsim KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1 [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:326]
+ELAB  xsim KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=1: elaborates
+GUARD xsim KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: ERROR: [VRFC 10-8279] $fatal : RESP_BASE_P=20100001 must be 8-byte aligned [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:194]
+ELAB  xsim KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100000: elaborates
+GUARD xsim KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: ERROR: [VRFC 10-8279] $fatal : RESP_BYTES_P=16 leaves no payload above the header record [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:197]
+ELAB  xsim KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: elaborates
+GUARD xsim KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: ERROR: [VRFC 10-8279] $fatal : a read burst of 512 beats exceeds the 9-bit mem_req_beats_o field [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:201]
+ELAB  xsim KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4088: elaborates
+GUARD xsim KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: ERROR: [VRFC 10-8279] $fatal : RESP_D8_CAP_BYTES_P=1025 outside 524..1024 (the 10-bit cursor) [<lane>/hdl/aecp/KL_aecp_ucpu.sv:297]
+ELAB  xsim KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1024: elaborates
+GUARD xsim KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: ERROR: [VRFC 10-8279] $fatal : KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=0 is outside 1 to 2147483647 [<lane>/hdl/packet_engine/KL_pp_nvm_port.sv:189]
+ELAB  xsim KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=1: elaborates
+GUARD xsim KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: ERROR: [VRFC 10-8279] $fatal : KL_pp_nvm_port: MAX_PAYLOAD_P=65528 is above 65527: 8 + it overflows dev_len_o [<lane>/hdl/packet_engine/KL_pp_nvm_port.sv:198]
+ELAB  xsim KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65527: elaborates
+GUARD xsim KL_pp_originator.g_inflight_check INFLIGHT_P=17: ERROR: [VRFC 10-8279] $fatal : KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble) [<lane>/hdl/packet_engine/KL_pp_originator.sv:149]
+ELAB  xsim KL_pp_originator.g_inflight_check INFLIGHT_P=16: elaborates
+GUARD xsim KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: ERROR: [VRFC 10-8279] $fatal : KL_pp_release_merge: N_SLOTS_P must be positive [<lane>/hdl/packet_engine/KL_pp_release_merge.sv:38]
+ELAB  xsim KL_pp_release_merge.g_slot_count_check N_SLOTS_P=1: elaborates
+GUARD xsim KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: ERROR: [VRFC 10-8279] $fatal : DEPTH_P drain cannot fit a standard TX slot [<lane>/hdl/srp/KL_srp_encoder.sv:148]
+ELAB  xsim KL_srp_encoder.g_depth_check TX_STD_BYTES_P=558: elaborates
+GUARD xsim protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: ERROR: [VRFC 10-8279] $fatal : F01.5: N_AVB_IF_P=3 is outside 1 to 2 (P-N-AVB-INTERFACES) [<lane>/hdl/top/protocol_processor_top.sv:876]
+ELAB  xsim protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: elaborates
+GUARD xsim protocol_processor_top.gen_g_tmr_aw planted shape fixture: ERROR: [VRFC 10-8279] $fatal : F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=129 [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_aw/hdl/top/protocol_processor_top.sv:880]
+ELAB  xsim protocol_processor_top.gen_g_tmr_aw defaults fixture: elaborates
+GUARD xsim protocol_processor_top.gen_g_tmr_fit planted shape: ERROR: [VRFC 10-8279] $fatal : F08.4: slot map ends at 91 but P-TIMER-SLOTS=90 [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_fit/hdl/top/protocol_processor_top.sv:884]
+ELAB  xsim protocol_processor_top.gen_g_tmr_fit defaults: elaborates
+GUARD xsim protocol_processor_top.gen_g_tmr_overlap planted shape: ERROR: [VRFC 10-8279] $fatal : F08.4: timer-slot groups OVERLAP at SI=8 SO=8 [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_overlap/hdl/top/protocol_processor_top.sv:897]
+ELAB  xsim protocol_processor_top.gen_g_tmr_overlap defaults: elaborates
+GUARD xsim protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: ERROR: [VRFC 10-8279] $fatal : F08.4: owner tags OVERLAP at SI=16 SO=17 (8-bit expiry bus) [<lane>/hdl/top/protocol_processor_top.sv:911]
+ELAB  xsim protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: elaborates
+GUARD synth KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1  [<lane>/hdl/acmp/KL_acmp_nvm_shadow.sv:538]
+ELAB  synth KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD synth KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1  [<lane>/hdl/acmp/KL_acmp_nvm_shadow.sv:545]
+ELAB  synth KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: elaborates
+GUARD synth KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: STRM_TIMEOUT_CYC_P must be greater than zero  [<lane>/hdl/acmp/KL_pp_acmp_listener.sv:347]
+ELAB  synth KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=1: elaborates
+GUARD synth KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: ERROR: [Synth 8-6058] Synth Error: LINE_BYTES_P=577 must be a multiple of 8 (64-bit lanes)  [<lane>/hdl/aecp/KL_aecp_desc_store.sv:263]
+ELAB  synth KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=576: elaborates
+GUARD synth KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: ERROR: [Synth 8-6058] Synth Error: a burst exceeds the 9-bit mem_req_beats_o field  [<lane>/hdl/aecp/KL_aecp_desc_store.sv:267]
+ELAB  synth KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4088: elaborates
+GUARD synth KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: ERROR: [Synth 8-6058] Synth Error: NAME_ENTRIES_P=1025 must be in 1..1024  [<lane>/hdl/aecp/KL_aecp_desc_store.sv:270]
+ELAB  synth KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1024: elaborates
+GUARD synth KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: ERROR: [Synth 8-6058] Synth Error: DESC_BASE_P=20000001 must be 8-byte aligned  [<lane>/hdl/aecp/KL_aecp_desc_store.sv:273]
+ELAB  synth KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000000: elaborates
+GUARD synth KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: ERROR: [Synth 8-6058] Synth Error: a maximum AECP response (618 B) exceeds the oversize slot (617 B)  [<lane>/hdl/aecp/KL_aecp_engine.sv:944]
+ELAB  synth KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=618: elaborates
+GUARD synth KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: ERROR: [Synth 8-6058] Synth Error: response buffer (523 B) is smaller than GET_DYNAMIC_INFO limit (524 B)  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_resp_cap_fit-context/hdl/aecp/KL_aecp_engine.sv:949]
+ELAB  synth KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=576 fixture: elaborates
+GUARD synth KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: ERROR: [Synth 8-6058] Synth Error: DESC_LINE_BYTES_P=577 is not a multiple of 8 (legal: 576..1008 in steps of 8)  [<lane>/hdl/aecp/KL_aecp_engine.sv:964]
+ELAB  synth KL_aecp_engine.gen_g_line_step LINE_BYTES_P=576: elaborates
+GUARD synth KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: ERROR: [Synth 8-6058] Synth Error: DESC_LINE_BYTES_P=568 is below 576: no room for a 71-record GET_AUDIO_MAP page  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_gamap_page_fit-context/hdl/aecp/KL_aecp_engine.sv:968]
+ELAB  synth KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=576 fixture: elaborates
+GUARD synth KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: ERROR: [Synth 8-6058] Synth Error: DESC_LINE_BYTES_P=1016 is above 1008: 16 + line passes the 1024-byte cursor  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/KL_aecp_engine.gen_g_line_ceiling-context/hdl/aecp/KL_aecp_engine.sv:972]
+ELAB  synth KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: elaborates
+GUARD synth KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: ERROR: [Synth 8-6058] Synth Error: KL_aecp_notify: rows {index, port} need N_IF_P=2 a power of two and N_CTRL_P=1 above 1  [<lane>/hdl/aecp/KL_aecp_notify.sv:367]
+ELAB  synth KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: elaborates
+GUARD synth KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: ERROR: [Synth 8-6058] Synth Error: KL_aecp_nvm_writer: a group outgrows its record-id block  [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:315]
+ELAB  synth KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: elaborates
+GUARD synth KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1  [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:318]
+ELAB  synth KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD synth KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1  [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:322]
+ELAB  synth KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=1: elaborates
+GUARD synth KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1  [<lane>/hdl/aecp/KL_aecp_nvm_writer.sv:326]
+ELAB  synth KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=1: elaborates
+GUARD synth KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: ERROR: [Synth 8-6058] Synth Error: RESP_BASE_P=20100001 must be 8-byte aligned  [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:194]
+ELAB  synth KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100000: elaborates
+GUARD synth KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: ERROR: [Synth 8-6058] Synth Error: RESP_BYTES_P=16 leaves no payload above the header record  [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:197]
+ELAB  synth KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: elaborates
+GUARD synth KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: ERROR: [Synth 8-6058] Synth Error: a read burst of 512 beats exceeds the 9-bit mem_req_beats_o field  [<lane>/hdl/aecp/KL_aecp_resp_buf.sv:201]
+ELAB  synth KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4088: elaborates
+GUARD synth KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: ERROR: [Synth 8-6058] Synth Error: RESP_D8_CAP_BYTES_P=1025 outside 524..1024 (the 10-bit cursor)  [<lane>/hdl/aecp/KL_aecp_ucpu.sv:297]
+ELAB  synth KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1024: elaborates
+GUARD synth KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: ERROR: [Synth 8-6058] Synth Error: KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=0 is outside 1 to 2147483647  [<lane>/hdl/packet_engine/KL_pp_nvm_port.sv:189]
+ELAB  synth KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=1: elaborates
+GUARD synth KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: ERROR: [Synth 8-6058] Synth Error: KL_pp_nvm_port: MAX_PAYLOAD_P=65528 is above 65527: 8 + it overflows dev_len_o  [<lane>/hdl/packet_engine/KL_pp_nvm_port.sv:198]
+ELAB  synth KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65527: elaborates
+GUARD synth KL_pp_originator.g_inflight_check INFLIGHT_P=17: ERROR: [Synth 8-6058] Synth Error: KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)  [<lane>/hdl/packet_engine/KL_pp_originator.sv:149]
+ELAB  synth KL_pp_originator.g_inflight_check INFLIGHT_P=16: elaborates
+GUARD synth KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: ERROR: [Synth 8-6058] Synth Error: KL_pp_release_merge: N_SLOTS_P must be positive  [<lane>/hdl/packet_engine/KL_pp_release_merge.sv:38]
+ELAB  synth KL_pp_release_merge.g_slot_count_check N_SLOTS_P=1: elaborates
+GUARD synth KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: ERROR: [Synth 8-6058] Synth Error: DEPTH_P drain cannot fit a standard TX slot  [<lane>/hdl/srp/KL_srp_encoder.sv:148]
+ELAB  synth KL_srp_encoder.g_depth_check TX_STD_BYTES_P=558: elaborates
+GUARD synth protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: ERROR: [Synth 8-6058] Synth Error: F01.5: N_AVB_IF_P=3 is outside 1 to 2 (P-N-AVB-INTERFACES)  [<lane>/hdl/top/protocol_processor_top.sv:876]
+ELAB  synth protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: elaborates
+GUARD synth protocol_processor_top.gen_g_tmr_aw planted shape fixture: ERROR: [Synth 8-6058] Synth Error: F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=129  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_aw/hdl/top/protocol_processor_top.sv:880]
+ELAB  synth protocol_processor_top.gen_g_tmr_aw defaults fixture: elaborates
+GUARD synth protocol_processor_top.gen_g_tmr_fit planted shape: ERROR: [Synth 8-6058] Synth Error: F08.4: slot map ends at 91 but P-TIMER-SLOTS=90  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_fit/hdl/top/protocol_processor_top.sv:884]
+ELAB  synth protocol_processor_top.gen_g_tmr_fit defaults: elaborates
+GUARD synth protocol_processor_top.gen_g_tmr_overlap planted shape: ERROR: [Synth 8-6058] Synth Error: F08.4: timer-slot groups OVERLAP at SI=8 SO=8  [<scratch>/r2/tmp/elab-guards-5gz_mrcz/protocol_processor_top.gen_g_tmr_overlap/hdl/top/protocol_processor_top.sv:897]
+ELAB  synth protocol_processor_top.gen_g_tmr_overlap defaults: elaborates
+GUARD synth protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: ERROR: [Synth 8-6058] Synth Error: F08.4: owner tags OVERLAP at SI=16 SO=17 (8-bit expiry bus)  [<lane>/hdl/top/protocol_processor_top.sv:911]
+ELAB  synth protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: elaborates
+elab guards: 155 checks: 155 PASS, 0 FAIL
