@@ -73,7 +73,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
 [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
 the campaign it runs, so those two records are relevant by directory.
 
-Six pages under `docs/` are relevant because Python in a classifier-gated
+Seven pages under `docs/` are relevant because Python in a classifier-gated
 job names them. The behave suite of `bdd-conformance`, which no docs job runs,
 asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
@@ -91,6 +91,10 @@ Its reader is absent from `DOCS_JOB_PY`.
 [MAILBOX_CONTRACT.md](../reference/MAILBOX_CONTRACT.md) with the page it
 generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
 (#665). No `docs-check` step runs it.
+`sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
+requires the rule table in section 3 of
+[SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
+`ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
 The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
 Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
