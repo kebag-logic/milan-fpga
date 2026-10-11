@@ -1,0 +1,5 @@
+[A600] REVIEW READY at head `7cc9c492145dd9e7c5c0e1d4695a261ea8025850` on `g48-readme` (local commit).
+
+All four acceptance items are met. Five Markdown pages now cite parent `ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5` for default-on fabric ownership and the verification-only option-off path. Remaining donor and physical-acceptance gaps stay issue-linked; dated history retains its original account with a forward note.
+
+At head: `make -j16 docs`, `make -j16 diagrams-check`, and all six underlying documentation gates/self-tests returned 0. The current-page default-off search has no matches. All 31 parent citation occurrences resolve to 14 exact targets; planted search and citation mutants fail. `git diff bd466e60 HEAD --check` is clean. No RTL, script, or test changes. HANDOFF.md and PR-BODY.md are complete.
