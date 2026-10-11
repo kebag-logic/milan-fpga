@@ -1,0 +1,22 @@
+token-identical src/adp.c 1736
+token-identical src/acmp.c 7586
+token-identical src/maap.c 2064
+token-identical include/adp.h 497
+token-identical include/acmp.h 1137
+token-identical include/maap.h 394
+token-identical include/wire.h 202
+surviving product C/H change is comment-only sw/firmware/ctrl/mbx/mbx_wire.h
+round-9 changed paths:
+  sw/firmware/ctrl/README.md
+  sw/firmware/ctrl/test/ctrl_boundary.py
+  sw/firmware/ctrl/test/ctrl_build.py
+  sw/firmware/ctrl/test/ctrl_pin.py
+no HDL, synthesis, or mailbox-contract change from source base
+unchanged gitlink 160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+unchanged gitlink 160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+unchanged gitlink 160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+unchanged gitlink 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+image manifest images-dev.sha256 35 rows de8ae063d8046a72b90cf180b5d1dcf129c43400cd7f139a2ea26a897c86ebd0
+image manifest images-round8.sha256 35 rows de8ae063d8046a72b90cf180b5d1dcf129c43400cd7f139a2ea26a897c86ebd0
+image manifest images-head.sha256 35 rows de8ae063d8046a72b90cf180b5d1dcf129c43400cd7f139a2ea26a897c86ebd0
+35/35 published ELF hashes equal at dev aef7ac66, round 8 and round 9; no images relinked in this review
