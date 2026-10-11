@@ -90,8 +90,12 @@ A control's planted builder compiles the copy, through a capture of its own,
 as the builders do (the image builder's compile, the arms' flags and include
 path) or in a spelling of its own; what it compiled is judged, with the run's
 capture beside it for what a capture must hold. Then the pin controls
-(ctrl_pin.pin_controls). --require-rv32 refuses, rather than skips, the RV32
-arm when no RV32 compiler is found.
+(ctrl_pin.pin_controls). Then the firmware's README must give the self-test's
+own population (figures): its defects and passing controls in the firmware
+builders' run, its defects in the Verilator builders' run and its pin
+controls; a copy of the page with each figure one more is refused by name.
+--require-rv32 refuses, rather than skips, the RV32 arm when no RV32 compiler
+is found.
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
@@ -107,6 +111,7 @@ capture is missing, empty or incomplete).
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import sys
 import tempfile
@@ -144,6 +149,16 @@ NOT_OURS = "which is neither the stack's nor the C implementation's"
 TARGET = "__riscv"
 #: Copies of the trees a control plants into, at once.
 JOBS = 4
+#: The firmware's page, which gives the self-test's population (figures). Its name is joined from stem and
+#: suffix for the reason fw_coverage.README gives.
+README = CTRL / ("README" + ".md")
+#: Each figure the page gives of the self-test's population: what it counts, and the sentence it is in.
+FIGURES = (("defects in the firmware builders' run", re.compile(r"It then plants (\d+) defects, each refused by name")),
+           ("passing controls in the firmware builders' run",
+            re.compile(r"each refused by name, and (\d+) passing controls, where the firmware builders' capture is")),
+           ("defects in the Verilator builders' run",
+            re.compile(r"Where the Verilator builders' capture is, it plants (\d+) more")),
+           ("pin controls", re.compile(r"(\d+) pin controls follow the boundary controls")))
 
 
 # ---- where a file lives -------------------------------------------------------------------
@@ -388,6 +403,43 @@ def controls(work: Path, run: Capture, scope: Scope) -> tuple[int, int]:
     return bad, 1 + len(plants)
 
 
+# ---- the README's figures of the self-test -------------------------------------------------------
+
+
+def population(pins: int) -> dict[str, int]:
+    """The self-test's own population, counted from its controls, for each figure the page gives."""
+    firmware = [plant for plant in PLANTS if not plant.needs]
+    return dict(zip((what for what, _ in FIGURES),
+                    (sum(bool(p.needle) for p in firmware), sum(not p.needle for p in firmware),
+                     sum(plant.needs == "verilator" for plant in PLANTS), pins), strict=True))
+
+
+def figures(text: str, counts: dict[str, int]) -> list[str]:
+    """Each figure the page (`text`) gives that is not the self-test's own count, or that it gives not once."""
+    findings = []
+    for what, sentence in FIGURES:
+        said = [int(n) for n in sentence.findall(text)]
+        if said != [counts[what]]:
+            findings.append(f"{README.relative_to(ROOT)} gives the {what} as "
+                            f"{', '.join(map(str, said)) or 'nothing'}, where the self-test has {counts[what]}")
+    return findings
+
+
+def figure_controls(text: str, counts: dict[str, int]) -> tuple[int, int]:
+    """The page with each figure one more, which must be refused naming that figure; the misbehaving count and
+    the controls run."""
+    bad = 0
+    for what, sentence in FIGURES:
+        found = sentence.search(text)
+        planted = text[:found.start(1)] + str(int(found[1]) + 1) + text[found.end(1):] if found else text
+        named = [f for f in figures(planted, counts) if what in f]
+        ok = found is not None and len(named) == 1
+        print(f"[{'ok' if ok else 'ESCAPED'}] figure control, the page's {what} one more: "
+              f"{named[0] if named else 'no finding'}", flush=True)
+        bad += not ok
+    return bad, len(FIGURES)
+
+
 def summary(capture: Capture, scope: Scope, ran: list[str]) -> None:
     """What the run judges: the capture's invocations and builders, those left out, and the gate's own runs."""
     known = [b.path for b in BUILDERS if b.path in capture.builders]
@@ -446,15 +498,20 @@ def main(argv: list[str] | None = None) -> int:
             capture = sum(given[1:], given[0]) + ctrl_capture.load(mine) + Capture((), (), (), tuple(named))
             held(capture, scope)
             summary(capture, scope, ran)
-            bad = pins = planted_count = 0
+            bad = pins = planted_count = figure_count = 0
+            stated = []
             if args.selftest:
                 bad, planted_count = controls(work / "controls", capture, scope)
                 (work / "pins").mkdir()
                 misbehaved, pins = pin_controls(work / "pins", makefiles())
                 bad += misbehaved
+                page = README.read_text(encoding="utf-8")
+                stated = figures(page, population(pins))
+                misbehaved, figure_count = figure_controls(page, population(pins))
+                bad += misbehaved
             findings = judge(capture, (ROOT,), scope)
             counts = counted(capture, Places((ROOT.resolve(),), targets(capture, (ROOT,))))
-            findings += makefile_findings(makefiles(), work / "makefiles") + proof_census()
+            findings += makefile_findings(makefiles(), work / "makefiles") + proof_census() + stated
             if own is not None:
                 said, tested = own.result()
                 refused += tested
@@ -465,7 +522,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     for finding in findings:
         print(f"  [FAIL] {finding}")
-    tested = f", {planted_count} boundary and {pins} pin controls, {bad} misbehaved" if args.selftest else ""
+    tested = (f", {planted_count} boundary, {pins} pin and {figure_count} figure controls, {bad} misbehaved"
+              if args.selftest else "")
     print(f"ctrl_boundary: {sum(counts.values())} compiled sources of {len(capture.invocations)} recorded invocations "
           f"({counts[FIRMWARE]} the firmware's, {counts['stack']} the stack's, {counts['rest']} test equipment's "
           f"and builders' own), each judged by what its dependency output lists, host{' and RV32' if rv32 else ''}, "

@@ -148,17 +148,19 @@ The run that holds the firmware builders checks this.
 It also runs the stack's own boundary gate, beside the rest.
 `--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
 Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
-It then plants 95 defects, each refused by name, and eight passing controls, where the firmware builders' capture is.
+It then plants 96 defects, each refused by name, and 8 passing controls, where the firmware builders' capture is.
 Two of them are a known builder whose own run compiles nothing and a builder dropped from the known set, each one the coverage gate still runs.
 A control's planted builder compiles the planted copy through a capture of its own, and what it compiled is judged.
 It compiles the copy as the builders do (the image builder's and the arms' own compile functions), in a spelling of its own, or as a replay: a compile of the run's capture run again with the copy's trees in its arguments (the SRP image builder's).
 Among them are R584-6's N1 (a store source reaching the stack's `examples/`, as the image builder compiles it) and R585-6's Q7 (a store platform header that shadows `stdbool.h` for the stack in the image build).
 Among them too are each spelling a compiler takes a mode or a file read first in (`-Wp,`, `-Xpreprocessor`, the long options, a response file, `-imacros`, `-include`, a precompiled header), each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
 A passing compile whose pass gives no list is refused (its standard input; a builder's own `-Wp,-MD`, which overrides the pass's rule), and a compile that fails passes (a header nobody supplies; a source that is no file).
-Where the Verilator builders' capture is, it plants five more, each a replay or an alteration of that capture.
+Where the Verilator builders' capture is, it plants 5 more, each a replay or an alteration of that capture.
 In three, a header the wire comparison reaches includes a stack file only under a mode its one-interface or its two-interface reference gives (`PP_TOP_TIM_DEFAULTS`, `PP_TOP_IF2`, `AECP_WIRE_INTERFACES=2`).
 The fourth is a header only the MAAP differential's C++ source reaches, and the fifth is that capture without the wire comparison's compiles.
 A run names each control of the other run as left out.
+The self-test refuses this section where one of these figures, or the pin controls' below, is not its own count of its controls.
+A copy of this page with each figure one more is refused by name.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
@@ -174,7 +176,7 @@ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP di
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-Thirty pin controls follow the boundary controls.
+30 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's README is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
