@@ -1,0 +1,100 @@
+occurrences 31 targets 14
+
+== ac2c5e77 hdl/milan/milan_datapath.sv L73  cited x5 at README.md:21, docs/INTEGRATION.md:10, docs/MANAGER.md:18, docs/SOURCE_EVIDENCE.md:36, docs/history/v1/PROJECT_STATUS.md:22
+      73|   parameter bit GPTP_PLANE_EN_P = 1'b1,
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L6  cited x5 at README.md:22, docs/INTEGRATION.md:12, docs/MANAGER.md:19, docs/SOURCE_EVIDENCE.md:37, docs/history/v1/PROJECT_STATUS.md:23
+       6| Fabric gPTP owns product time synchronization.
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L49  cited x3 at README.md:23, docs/INTEGRATION.md:16, docs/MANAGER.md:122
+      49| - Option-off elaboration exists only for verification.
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L48  cited x1 at docs/INTEGRATION.md:14
+      48| - One atomic bank supplies every public consumer.
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L43-L44  cited x2 at docs/INTEGRATION.md:18, docs/MANAGER.md:121
+      43| - Product configurations enable `GPTP_PLANE_EN_P`.
+      44| - The builder rejects product configurations without it.
+
+== ac2c5e77 docs/ARCHITECTURE_HW_SW_SPLIT.md L165  cited x1 at docs/INTEGRATION.md:35
+     165| `GPTP_PLANE_EN_P=0` remains verification-only, with no product image.
+
+== ac2c5e77 README.md L167-L170  cited x5 at docs/INTEGRATION.md:37, docs/INTEGRATION.md:44, docs/INTEGRATION.md:45, docs/INTEGRATION.md:46, docs/INTEGRATION.md:47
+     167| it. The verification-only option-OFF elaboration is deliberately ownerless:
+     168| its GM, parent, path and peer-delay publications are zero, sync/asCapable are
+     169| zero, and `tu` is one. Writes to the retained address-map slots are inert and
+     170| cannot manufacture live state. In the product build, fabric count 0 and 1 are
+
+== ac2c5e77 hdl/milan/milan_datapath.sv L7614-L7624  cited x1 at docs/INTEGRATION.md:41
+    7614|   end else begin : g_gptp_off
+    7615|     //! option off: the control lane passes straight through, the PHC
+    7616|     //! knobs constant-fold to the CSR face, the publish words read zero
+    7617|     assign txarb_locked_w[4] = 1'b0;
+    7618|     assign txarb_abort_w [4] = 1'b0;
+    7619|     assign txarb_stall_w [4] = 1'b0;
+    7620|     assign ctlg3_tdata  = ctlg2_tdata;
+    7621|     assign ctlg3_tkeep  = ctlg2_tkeep;
+    7622|     assign ctlg3_tvalid = ctlg2_tvalid;
+    7623|     assign ctlg3_tlast  = ctlg2_tlast;
+    7624|     assign ctlg2_tready = ctlg3_tready;
+
+== ac2c5e77 hdl/milan/milan_datapath.sv L2850-L2858  cited x1 at docs/INTEGRATION.md:42
+    2850|   //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
+    2851|   //! (constant-folds to the CSR face when the option is off); settime
+    2852|   //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
+    2853|   wire [31:0] eff_ptp_adj_w    = (GPTP_PLANE_EN_P != 1'b0)
+    2854|                                ? unsigned'(gptp_adj_w)   : cfg_ptp_adj;
+    2855|   wire [63:0] eff_ptp_offset_w = (GPTP_PLANE_EN_P != 1'b0)
+    2856|                                ? gptp_step_w             : cfg_ptp_offset;
+    2857|   wire        eff_ptp_adjust_w = (GPTP_PLANE_EN_P != 1'b0)
+    2858|                                ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
+
+== ac2c5e77 hdl/milan/milan_datapath.sv L2850-L2852  cited x1 at docs/INTEGRATION.md:43
+    2850|   //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
+    2851|   //! (constant-folds to the CSR face when the option is off); settime
+    2852|   //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
+
+== ac2c5e77 docs/ARCHITECTURE_HW_SW_SPLIT.md L165-L175  cited x3 at docs/MANAGER.md:20, docs/SOURCE_EVIDENCE.md:38, docs/history/v1/PROJECT_STATUS.md:24
+     165| `GPTP_PLANE_EN_P=0` remains verification-only, with no product image.
+     166| This is independent of control-protocol placement.
+     167| Both supported control placements retain the product fabric gPTP owner.
+     168| 
+     169| In the ownerless test form:
+     170| 
+     171| - GM, parent, PathTrace and peer delay read zero;
+     172| - sync and asCapable are zero;
+     173| - AVTP `tu` is one;
+     174| - retired publication writes remain inert; and
+     175| - writes cannot create notifications, counters or ownership changes.
+
+== ac2c5e77 docs/guides/gptp/MANAGER.md L33-L35  cited x1 at docs/MANAGER.md:109
+      33| | Physical calibration | Incomplete | Issue #64 |
+      34| | Propagation asymmetry | Excluded for v1.2 | Issue #511 |
+      35| | Physical acceptance against the reference peer | Incomplete | Issue #117 |
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L350-L366  cited x1 at docs/MANAGER.md:111
+     350| This record settles the design boundary of issue #511.
+     351| 
+     352| The [owner decision](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257) excludes delayAsymmetry for v1.2.
+     353| 
+     354| It cites REQ-PTP-06's constants and the single cabled port.
+     355| 
+     356| | Question | v1.2 answer | Authority |
+     357| |---|---|---|
+     358| | Is delayAsymmetry modelled? | No. Its value is zero. | IEEE 802.1AS-2011 8.3 does not require measuring it; 10.2.4.8 makes an unmodelled value zero |
+     359| | Where would it enter? | In three terms, listed under [Where the term enters](#where-the-term-enters). At zero all three vanish. It never enters the Pdelay mean. | IEEE 802.1AS-2011 10.2.12 (Figure 10-9, two assignments), 11.2.13.2.1 f) and 11.2.15.2.4 |
+     360| | Is it managed? | No. The product claims no 802.1AS management, so no managed object exists. No CSR or configuration key carries the value either. | IEEE 802.1AS-2011 Table 14-6 (14.6.25; Cor1's replacement table keeps the row): read-write, conformance `Tdot3FD`, "Required for time-aware IEEE 802.3 full-duplex port". So such a port must carry it wherever 802.1AS management is implemented. Its "(recommended)" qualifies the `scaledNs` data type, as 14.3.2 states for `offsetFromMaster`. 14.6.9 defines the object without grading it. Management is optional: PICS item `MGT` (A.5) is `O` |
+     361| | Can a configuration set it? | No. The builder refuses every `gptp` key it does not know (`_known_gp`). | [`endstation_builder.py`](../../sw/builder/endstation_builder.py) |
+     362| | Does the engine take it? | No. The pinned gPTP processor has no asymmetry input. | Outside its historic prototype pages the pinned tree never names it ([donor issue 58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58)) |
+     363| | What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
+     364| | Is the donor's latch compensation adopted? | No. Its ingress/egress latch correction would apply the same pair a second time. | REQ-PTP-06: no correction can be applied twice |
+     365| | What fixes a one-way split error? | Re-measured constants (#64, #488). Never a second asymmetry term. | REQ-PTP-06 names one owner |
+     366| | Is live tuning allowed? | No. The donor's UART Y/I/E tuner stays donor-bench-only. | REQ-PTP-06 constants; REQ-PTP-09 |
+
+== ac2c5e77 docs/design/GPTP_PLANE.md L363-L366  cited x1 at docs/MANAGER.md:113
+     363| | What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
+     364| | Is the donor's latch compensation adopted? | No. Its ingress/egress latch correction would apply the same pair a second time. | REQ-PTP-06: no correction can be applied twice |
+     365| | What fixes a one-way split error? | Re-measured constants (#64, #488). Never a second asymmetry term. | REQ-PTP-06 names one owner |
+     366| | Is live tuning allowed? | No. The donor's UART Y/I/E tuner stays donor-bench-only. | REQ-PTP-06 constants; REQ-PTP-09 |
+
+unresolved 0
