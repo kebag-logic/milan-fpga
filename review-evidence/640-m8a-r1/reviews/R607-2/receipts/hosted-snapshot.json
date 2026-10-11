@@ -1,0 +1,177 @@
+{
+  "observed_utc": "2026-10-11T07:41:39.785909+00:00",
+  "runs": [
+    {
+      "id": 38120478802,
+      "head_sha": "76605880a20005cbc2acad1b23ba2ccebde64ca8",
+      "name": "elaborate",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478802",
+      "jobs": [
+        {
+          "name": "elaborate",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478802/job/114413985967",
+          "failed_steps": [
+            "Decide whether this head needs an elaboration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 38120478799,
+      "head_sha": "76605880a20005cbc2acad1b23ba2ccebde64ca8",
+      "name": "rtl-fast",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799",
+      "jobs": [
+        {
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114413985761",
+          "failed_steps": [
+            "Classify the change conservatively"
+          ]
+        },
+        {
+          "name": "bdd-conformance",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114413985936",
+          "failed_steps": []
+        },
+        {
+          "name": "rtl-fast",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114414069491",
+          "failed_steps": [
+            "Require every applicable fast gate to pass"
+          ]
+        },
+        {
+          "name": "firmware-unit",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114414070009",
+          "failed_steps": []
+        },
+        {
+          "name": "yosys-elaboration",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114414070010",
+          "failed_steps": []
+        },
+        {
+          "name": "verilator-lint",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478799/job/114414070076",
+          "failed_steps": []
+        }
+      ]
+    },
+    {
+      "id": 38120478819,
+      "head_sha": "76605880a20005cbc2acad1b23ba2ccebde64ca8",
+      "name": "rtl-full",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819",
+      "jobs": [
+        {
+          "name": "full-ci-gate",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114413985937",
+          "failed_steps": [
+            "Decide whether this exact head needs the exhaustive gates"
+          ]
+        },
+        {
+          "name": "verilator-suites",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114414051914",
+          "failed_steps": [
+            "Require every shard to have validated this run's SHA",
+            "Prove exhaustive ownership and tally every log",
+            "Require every Verilator worker to pass"
+          ]
+        },
+        {
+          "name": "Yosys shard ${{ matrix.shard }}/${{ matrix.total }}",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114414052407",
+          "failed_steps": []
+        },
+        {
+          "name": "Physical gPTP (nightly and manual)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114414052482",
+          "failed_steps": []
+        },
+        {
+          "name": "Verilator shard ${{ matrix.shard }}/${{ matrix.total }}",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114414052800",
+          "failed_steps": []
+        },
+        {
+          "name": "yosys-portability",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478819/job/114414078687",
+          "failed_steps": [
+            "Require every shard to have validated this run's SHA",
+            "Reconcile the live inventory and structural gates",
+            "Require every Yosys worker to pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 38120478831,
+      "head_sha": "76605880a20005cbc2acad1b23ba2ccebde64ca8",
+      "name": "docs",
+      "event": "pull_request",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478831",
+      "jobs": [
+        {
+          "name": "docs-check-no-git",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478831/job/114413985556",
+          "failed_steps": []
+        },
+        {
+          "name": "docs-check",
+          "status": "in_progress",
+          "conclusion": null,
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478831/job/114413985695",
+          "failed_steps": []
+        },
+        {
+          "name": "wire-accountability",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38120478831/job/114413985724",
+          "failed_steps": []
+        }
+      ]
+    }
+  ]
+}
