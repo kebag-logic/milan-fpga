@@ -3,9 +3,19 @@
 """ctrl_pin.py - the TSN stack's pin, held at every gate that builds the stack (#697).
 
 The pin check itself is ctrl_build.stack_pin: the submodule at its gitlink,
-every file of its sources, headers, tests, examples, scripts and CMake files
-hashing to the gitlink's tree. Every Python gate that builds the stack calls it
-first. This module holds the rest, for the boundary gate (ctrl_boundary.py).
+and its checkout the gitlink's whole tree (the same paths, types and modes,
+every file hashing to the tree's blob). Every Python gate that builds the stack
+calls it first. This module holds the rest, for the boundary gate
+(ctrl_boundary.py).
+
+THE CENSUS (census). The pin proof is ctrl_build.py and this module, and it
+starts git only through ctrl_build.git, whose environment (ctrl_build.git_env)
+ignores replacement objects and names a graft file that does not exist, so git
+reads the real objects only. The census refuses a string either module holds,
+outside that helper and the docstrings, that names the git program (a command
+list's, a shell line's, a program a Python one runs), and a helper environment
+that would read a replacement or a graft. A program name assembled at run time
+is not seen.
 
 THE MAKEFILES. A Makefile among the firmware's builders is read with make's
 own database (make -p) and dry run (make -n -B --trace), never restated here,
@@ -18,10 +28,17 @@ could be checked in its place.
 
 THE CONTROLS (pin_controls, under ctrl_boundary.py --selftest). The pin check
 passes a clone of the stack at its gitlink and refuses, by name, the clone with
-a source, a test, a script or a CMake file edited, with an edit hidden from
-git status, with a file the tree does not hold, and at another revision. The
-MAAP differential (both its modes) and the AECP lane's arms, campaign and wire
-comparison refuse an edited clone before building it. Then every target of
+a source, a test, a script, a CMake file or a file no gate builds edited, with
+an edit the index hides, with a file the tree does not hold, with a symbolic
+link standing in for a file, with a file made executable, and at another
+revision. It refuses, by the edited source's name, an edit that a replacement
+of the pinned tree's src/ or of the pinned commit would make git read as
+pinned, one beside a graft file, and one a clean filter given through the
+clone's attributes turns back into the pinned bytes. The census refuses a git
+command started outside the helper, and a helper environment without either
+of its two settings. The MAAP differential (both its modes) and the AECP
+lane's arms, campaign and wire comparison refuse an edited clone before
+building it. Then every target of
 every Makefile builder whose dry run reaches the stack is run for real, in a
 scratch copy of its directory (the rest of the checkout linked, so its paths
 reach what they reach in the checkout), with the system's compilers and a
@@ -33,15 +50,26 @@ must be refused by name.
 
 from __future__ import annotations
 
+import ast
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
-from ctrl_build import HERE, PP, ROOT, STACK, Refusal, stack_gitlink, stack_pin
+from ctrl_build import HERE, PP, ROOT, STACK, Refusal, git, git_env, stack_gitlink, stack_pin
 from ctrl_capture import COMPILER
+
+#: The pin proof's modules, which start git only through the helper (ctrl_build.git).
+PROOF = (HERE / "ctrl_build.py", HERE / "ctrl_pin.py")
+#: The helper: the one function, of ctrl_build.py, that may name the git program, after which it is named (so
+#: no string of this module names the program either).
+HELPER = git.__name__
+#: The git program named in a string: the word alone, not part of a longer name (gitlink, .git, a URL's .git).
+GIT_WORD = re.compile(rf"(?<![\w.-]){HELPER}(?![\w-])")
 
 #: A target make's database does not hold: asked for so make prints the database and runs nothing.
 NO_GOAL = "ctrl-pin-no-such-goal"
@@ -78,6 +106,43 @@ def run(argv: list[str], cwd: Path | None = None, env: dict[str, str] | None = N
     except subprocess.TimeoutExpired:
         return 124, f"timed out after {timeout} s"
     return res.returncode, res.stdout
+
+
+def census(texts: dict[str, str], env: dict[str, str]) -> list[str]:
+    """Each way the pin proof (`texts`: each module's path and text) could start git other than through the
+    helper: a string outside the helper and the docstrings that names the git program, and ctrl_build.py without
+    the helper; and each setting of the helper's environment (`env`) that would let git read a replacement
+    object or a graft."""
+    findings = []
+    for rel, text in texts.items():
+        tree = ast.parse(text, rel)
+        bodies = [n.body for n in ast.walk(tree) if isinstance(n, (ast.Module, ast.ClassDef, ast.FunctionDef))]
+        exempt = {id(body[0].value) for body in bodies
+                  if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant)}
+        if Path(rel).name == "ctrl_build.py":
+            helpers = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == HELPER]
+            if not helpers:
+                findings.append(f"{rel} holds no Git helper ({HELPER})")
+            exempt |= {id(n) for helper in helpers for n in ast.walk(helper)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)) and id(node) not in exempt:
+                value = node.value if isinstance(node.value, str) else node.value.decode("latin-1")
+                if GIT_WORD.search(value):
+                    findings.append(f"{rel}:{node.lineno} names the Git program outside the helper "
+                                    f"ctrl_build.{HELPER}: {value!r}")
+    if env.get("GIT_NO_REPLACE_OBJECTS") != "1":
+        findings.append("the pin proof's Git environment does not set GIT_NO_REPLACE_OBJECTS=1, so Git would read "
+                        "a replacement object")
+    graft = env.get("GIT_GRAFT_FILE")
+    if not graft or Path(graft).exists(follow_symlinks=False):
+        findings.append(f"the pin proof's Git environment gives GIT_GRAFT_FILE {graft or 'no value'}, so Git would "
+                        f"read a graft file")
+    return findings
+
+
+def proof_census() -> list[str]:
+    """The census of the pin proof as the checkout holds it, with the helper's own environment."""
+    return census({p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}, git_env())
 
 
 def make(makefile: Path, *args: str, timeout: int | None = None, env: dict[str, str] | None = None) -> tuple[int, str]:
@@ -187,10 +252,10 @@ def mirror(directory: Path, into: Path) -> Path:
             if entry.name != part:
                 (there / entry.name).symlink_to(entry)
         here, there = here / part, there / part
-    rc, out = run(["git", "-C", str(directory), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "."])
-    if rc:
-        raise Refusal(f"cannot list {directory.relative_to(ROOT)}: {out.strip()}")
-    for name in filter(None, out.split("\0")):
+    listed = git(directory, "ls-files", "-z", "--cached", "--others", "--exclude-standard", ".")
+    if listed.returncode:
+        raise Refusal(f"cannot list {directory.relative_to(ROOT)}: {listed.stderr.strip()}")
+    for name in filter(None, listed.stdout.split("\0")):
         if (directory / name).is_file():
             (there / name).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(directory / name, there / name)
@@ -245,41 +310,148 @@ def bench_arms(makefiles: list[Path], clone: Path, work: Path, edited: str) -> l
     return arms
 
 
-def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
-    """The shared pin check passes a clone of the stack at its gitlink and refuses, by name, the clone with a
-    source, a test, a script or a CMake file edited, with an edit hidden from git status, with a header the
-    gitlink's tree does not hold, and at another revision; the MAAP differential (both modes) and the AECP
-    lane's arms, campaign and wire comparison refuse an edited one before building it; every Makefile
-    builder's target that reaches the stack refuses a poisoned one on the pin check. Returns the misbehaving
-    count and the number of controls."""
-    pin = stack_gitlink()
-    clone = work / "pin-clone"
-    edited = f"differs from the pinned {pin[:8]}: "
+@dataclass(frozen=True)
+class Clone:
+    """The scratch clone of the stack each pin control spoils (`path`, under `work`), at the gitlink `pin`."""
 
-    def fresh() -> None:
+    work: Path
+    pin: str
+
+    @property
+    def path(self) -> Path:
+        """The clone's checkout."""
+        return self.work / "pin-clone"
+
+    def fresh(self) -> None:
         """A new clone of the stack at its gitlink, for the next control."""
-        if clone.exists():
-            shutil.rmtree(clone)
-        if run(["git", "clone", "--quiet", "--no-hardlinks", str(STACK), str(clone)])[0] or \
-                run(["git", "-C", str(clone), "-c", "advice.detachedHead=false", "checkout", "--quiet", pin])[0]:
-            raise Refusal(f"cannot clone {STACK.relative_to(ROOT)} at {pin} for the pin controls")
+        if self.path.exists():
+            shutil.rmtree(self.path)
+        if git(self.work, "clone", "--quiet", "--no-hardlinks", str(STACK), str(self.path)).returncode or \
+                git(self.path, "-c", "advice.detachedHead=false", "checkout", "--quiet", self.pin).returncode:
+            raise Refusal(f"cannot clone {STACK.relative_to(ROOT)} at {self.pin} for the pin controls")
 
-    def append(rel: str) -> None:
+    def answer(self, *args: str, stdin: str | None = None) -> str:
+        """What a command of the clone's repository prints; a failure refuses the control's setup."""
+        res = git(self.path, *args, stdin=stdin)
+        if res.returncode:
+            raise Refusal(f"a pin control's setup failed ({' '.join(args[:2])}): {res.stderr.strip()}")
+        return res.stdout
+
+    def append(self, rel: str) -> None:
         """One line added to a file of the clone."""
-        (clone / rel).write_text((clone / rel).read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        (self.path / rel).write_text((self.path / rel).read_text(encoding="utf-8") + "\n", encoding="utf-8")
 
-    def hidden() -> None:
-        """A source edited and hidden from git status by the index's assume-unchanged flag."""
-        append("src/adp.c")
-        if run(["git", "-C", str(clone), "update-index", "--assume-unchanged", "src/adp.c"])[0]:
-            raise Refusal("cannot hide the pin control's edit from git status")
+    def hidden(self) -> None:
+        """A source edited and hidden from the index's comparison by its assume-unchanged flag."""
+        self.append("src/adp.c")
+        self.answer("update-index", "--assume-unchanged", "src/adp.c")
 
-    def direct() -> tuple[bool, str]:
+    def linked(self) -> None:
+        """A source replaced by a symbolic link to a copy of its own bytes outside the clone."""
+        copy = self.work / "adp.c"
+        shutil.copyfile(self.path / "src/adp.c", copy)
+        (self.path / "src/adp.c").unlink()
+        (self.path / "src/adp.c").symlink_to(copy)
+
+    def executable(self) -> None:
+        """A script made executable, its bytes unchanged."""
+        script = self.path / "scripts/check_boundary.py"
+        script.chmod(script.stat().st_mode | stat.S_IXUSR)
+
+    def remade(self, tree: str, name: str, oid: str) -> str:
+        """A tree written into the clone's objects: `tree` with its entry `name` holding `oid` instead."""
+        entries = []
+        for entry in filter(None, self.answer("ls-tree", "-z", tree).split("\0")):
+            meta, entry_name = entry.split("\t", 1)
+            mode, kind, _ = meta.split()
+            entries.append(f"{mode} {kind} {oid}\t{name}" if entry_name == name else entry)
+        return self.answer("mktree", "-z", stdin="\0".join(entries) + "\0").strip()
+
+    def substitutes(self) -> tuple[str, str, str]:
+        """src/adp.c edited on disk, and the trees that would make the pinned commit hold the edit written into the
+        clone's objects: the pinned src/ tree, its substitute, and the substitute of the pinned commit's tree."""
+        self.append("src/adp.c")
+        blob = self.answer("hash-object", "-w", "--no-filters", "src/adp.c").strip()
+        src = self.answer("rev-parse", f"{self.pin}:src").strip()
+        new_src = self.remade(src, "adp.c", blob)
+        return src, new_src, self.remade(self.answer("rev-parse", f"{self.pin}^{{tree}}").strip(), "src", new_src)
+
+    def replaced_tree(self) -> None:
+        """The edit on disk, and the pinned src/ tree replaced by the one holding it (refs/replace)."""
+        src, new_src, _ = self.substitutes()
+        self.answer("replace", src, new_src)
+
+    def replaced_commit(self) -> None:
+        """The edit on disk, and the pinned commit replaced by a copy of it whose tree holds the edit; HEAD still
+        names the pin."""
+        _, _, new_root = self.substitutes()
+        commit = self.answer("cat-file", "commit", self.pin)
+        old_root = self.answer("rev-parse", f"{self.pin}^{{tree}}").strip()
+        if not commit.startswith(f"tree {old_root}\n"):
+            raise Refusal(f"the pinned commit {self.pin[:8]} does not begin with its tree")
+        copy = self.answer("hash-object", "-t", "commit", "-w", "--stdin",
+                           stdin=commit.replace(old_root, new_root, 1)).strip()
+        self.answer("replace", self.pin, copy)
+
+    def grafted(self) -> None:
+        """A source edited, and a graft file in the clone's repository that makes the pinned commit a root."""
+        self.append("src/adp.c")
+        (self.path / ".git/info/grafts").write_text(f"{self.pin}\n", encoding="utf-8")
+
+    def filtered(self) -> None:
+        """A source edited, and a clean filter given it through the clone's attributes that cuts the edit off, so
+        a hash through the filter is the pinned blob (checked here, or the control would prove nothing)."""
+        size = (self.path / "src/adp.c").stat().st_size
+        self.append("src/adp.c")
+        self.answer("config", "filter.pin-control.clean", f"head -c {size}")
+        (self.path / ".git/info/attributes").write_text("src/adp.c filter=pin-control\n", encoding="utf-8")
+        if self.answer("hash-object", "src/adp.c").strip() != self.answer("rev-parse", f"{self.pin}:src/adp.c").strip():
+            raise Refusal("the pin control's clean filter does not turn its edit back into the pinned blob")
+
+    def direct(self) -> tuple[bool, str]:
         """The pin check itself on the clone: accepted, and what it said."""
         try:
-            return True, f"accepted {stack_pin(clone, pin)}"
+            return True, f"accepted {stack_pin(self.path, self.pin)}"
         except Refusal as exc:
             return False, str(exc)
+
+
+def counted(texts: dict[str, str] | None = None, env: dict[str, str] | None = None) -> tuple[bool, str]:
+    """The census of the pin proof with planted texts or a planted environment: no finding, and its first."""
+    found = census(texts or {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF},
+                   git_env() if env is None else env)
+    return not found, found[0] if found else "no finding"
+
+
+def outside() -> tuple[bool, str]:
+    """The census of ctrl_build.py with the pin check reading HEAD by a Git command of its own."""
+    build = HERE / "ctrl_build.py"
+    text = build.read_text(encoding="utf-8")
+    old, new = f'{HELPER}(stack, "rev-parse", "HEAD")', f'run(["{HELPER}", "-C", str(stack), "rev-parse", "HEAD"])'
+    if text.count(old) != 1:
+        raise Refusal(f"the census control's anchor occurs {text.count(old)} times in ctrl_build.py")
+    return counted({build.relative_to(ROOT).as_posix(): text.replace(old, new)})
+
+
+def without(name: str) -> dict[str, str]:
+    """The helper's environment without one of its settings."""
+    return {k: v for k, v in git_env().items() if k != name}
+
+
+def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
+    """The shared pin check passes a clone of the stack at its gitlink and refuses, by name, the clone with a
+    source, a test, a script, a CMake file or a file no gate builds edited, with an edit the index hides, with a
+    header the gitlink's tree does not hold, with a symbolic link standing in for a file, with a file made
+    executable, and at another revision; and, by the edited source's name, the clone whose src/ tree or whose
+    pinned commit is replaced by one holding the edit, the clone with a graft file beside the edit, and the clone
+    whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The census
+    refuses a Git command started outside the helper and a helper environment without either setting. The MAAP
+    differential (both modes) and the AECP lane's arms, campaign and wire comparison refuse an edited clone before
+    building it; every Makefile builder's target that reaches the stack refuses a poisoned one on the pin check.
+    Returns the misbehaving count and the number of controls."""
+    pin = stack_gitlink()
+    clone = Clone(work, pin)
+    edited = f"differs from the pinned {pin[:8]}: "
 
     def tool(argv: list[str], env: dict[str, str] | None = None) -> tuple[bool, str]:
         """A gate run on the clone: accepted (exit 0), and its last line about the stack."""
@@ -289,45 +461,64 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
 
     def differential(*extra: str) -> tuple[bool, str]:
         """The MAAP differential on the clone, with a simulator that always fails."""
-        return tool([sys.executable, "-B", str(HERE / "maap_differential.py"), "--stack", str(clone), *extra],
+        return tool([sys.executable, "-B", str(HERE / "maap_differential.py"), "--stack", str(clone.path), *extra],
                     {"VERILATOR": "false"})
 
     def aecp(script: str, *extra: str) -> tuple[bool, str]:
         """One of the AECP lane's tools on the clone, with a simulator that always fails."""
-        return tool([sys.executable, "-B", str(HERE / script), "--stack", str(clone), "--output",
+        return tool([sys.executable, "-B", str(HERE / script), "--stack", str(clone.path), "--output",
                      str(work / "aecp-out"), *extra], {"VERILATOR": "false"})
 
-    arms = [("the pinned clone, unmodified", lambda: None, direct, ""),
-            ("a core source edited", lambda: append("src/adp.c"), direct, edited + "src/adp.c"),
-            ("a core test edited", lambda: append("tests/test_adp.cpp"), direct, edited + "tests/test_adp.cpp"),
-            ("a stack script edited", lambda: append("scripts/check_boundary.py"), direct,
+    arms = [("the pinned clone, unmodified", lambda: None, clone.direct, ""),
+            ("a core source edited", lambda: clone.append("src/adp.c"), clone.direct, edited + "src/adp.c"),
+            ("a core test edited", lambda: clone.append("tests/test_adp.cpp"), clone.direct,
+             edited + "tests/test_adp.cpp"),
+            ("a stack script edited", lambda: clone.append("scripts/check_boundary.py"), clone.direct,
              edited + "scripts/check_boundary.py"),
-            ("a CMake file edited", lambda: append("CMakeLists.txt"), direct, edited + "CMakeLists.txt"),
-            ("an edit hidden from git status (assume-unchanged)", hidden, direct, edited + "src/adp.c"),
-            ("a header the pinned tree does not hold", lambda: (clone / "include/stdint.h").write_text(""), direct,
-             edited + "include/stdint.h"),
-            ("another revision checked out",
-             lambda: run(["git", "-C", str(clone), "checkout", "--quiet", "HEAD~1"]), direct, "is not the pinned"),
-            ("the MAAP differential, a core source edited", lambda: append("src/maap.c"), differential,
+            ("a CMake file edited", lambda: clone.append("CMakeLists.txt"), clone.direct, edited + "CMakeLists.txt"),
+            ("a file no gate builds edited", lambda: clone.append("README.md"), clone.direct, edited + "README.md"),
+            ("an edit the index hides (assume-unchanged)", clone.hidden, clone.direct, edited + "src/adp.c"),
+            ("a header the pinned tree does not hold", lambda: (clone.path / "include/stdint.h").write_text(""),
+             clone.direct, edited + "include/stdint.h"),
+            ("a symbolic link standing in for a source, to its own bytes", clone.linked, clone.direct,
+             edited + "src/adp.c"),
+            ("a script made executable (a mode change)", clone.executable, clone.direct,
+             edited + "scripts/check_boundary.py"),
+            ("another revision checked out", lambda: clone.answer("checkout", "--quiet", "HEAD~1"), clone.direct,
+             "is not the pinned"),
+            ("a source edited, the pinned src/ tree replaced by one holding the edit", clone.replaced_tree,
+             clone.direct, edited + "src/adp.c"),
+            ("a source edited, the pinned commit replaced by one holding the edit", clone.replaced_commit,
+             clone.direct, edited + "src/adp.c"),
+            ("a source edited beside a graft file", clone.grafted, clone.direct, edited + "src/adp.c"),
+            ("a source edited, a clean filter given through attributes turning it back into the pinned blob",
+             clone.filtered, clone.direct, edited + "src/adp.c"),
+            ("the census, a Git command started outside the helper", lambda: None, outside, "ctrl_build.py:"),
+            ("the census, the helper's environment without GIT_NO_REPLACE_OBJECTS", lambda: None,
+             lambda: counted(env=without("GIT_NO_REPLACE_OBJECTS")), "GIT_NO_REPLACE_OBJECTS"),
+            ("the census, the helper's environment without GIT_GRAFT_FILE", lambda: None,
+             lambda: counted(env=without("GIT_GRAFT_FILE")), "GIT_GRAFT_FILE"),
+            ("the MAAP differential, a core source edited", lambda: clone.append("src/maap.c"), differential,
              edited + "src/maap.c"),
-            ("the MAAP differential's self-test, a core source edited", lambda: append("src/maap.c"),
+            ("the MAAP differential's self-test, a core source edited", lambda: clone.append("src/maap.c"),
              lambda: differential("--self-test"), edited + "src/maap.c"),
-            ("the AECP arms, a core source edited", lambda: append("src/acmp.c"), lambda: aecp("aecp_arms.py", "--app"),
-             edited + "src/acmp.c"),
-            ("the AECP campaign, a core source edited", lambda: append("src/acmp.c"),
+            ("the AECP arms, a core source edited", lambda: clone.append("src/acmp.c"),
+             lambda: aecp("aecp_arms.py", "--app"), edited + "src/acmp.c"),
+            ("the AECP campaign, a core source edited", lambda: clone.append("src/acmp.c"),
              lambda: aecp("aecp_mutants.py", "--shard", "0", "1000"), edited + "src/acmp.c"),
-            ("the AECP wire comparison, the stack's wire layer edited", lambda: append("include/wire.h"),
+            ("the AECP wire comparison, the stack's wire layer edited", lambda: clone.append("include/wire.h"),
              lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h")]
-    fresh()
-    arms += bench_arms(makefiles, clone, work, edited)
+    clone.fresh()
+    arms += bench_arms(makefiles, clone.path, work, edited)
     bad = 0
     for what, spoil, check, needle in arms:
-        fresh()
+        clone.fresh()
         spoil()
         accepted, detail = check()
         ok = accepted if not needle else (not accepted and needle in detail)
         print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
         bad += not ok
-    for scratch in (clone, work / "aecp-out", work / "bench", work / "unpinned"):
+    for scratch in (clone.path, work / "aecp-out", work / "bench", work / "unpinned"):
         shutil.rmtree(scratch, ignore_errors=True)
+    (work / "adp.c").unlink(missing_ok=True)
     return bad, len(arms)

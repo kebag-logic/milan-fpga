@@ -76,10 +76,12 @@ and clang, and its objects' symbols), runs as well.
 
 THE PIN (ctrl_pin.py). Every gate that builds the stack first runs the shared
 pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
-every file of its sources, headers, tests, examples, scripts and CMake files
-must hash to the gitlink's tree. This gate does too. Every target of a
-Makefile builder whose recipe builds against the stack must have the pin check
-as a prerequisite, read from make's own dry run.
+its checkout the gitlink's whole tree (the same paths, types and modes, every
+file hashing to the tree's blob), git reading the real objects only. This gate
+does too, and holds the pin proof's census (ctrl_pin.census): the proof starts
+git only through its helper. Every target of a Makefile builder whose recipe
+builds against the stack must have the pin check as a prerequisite, read from
+make's own dry run.
 
 --selftest first judges an unplanted copy of the firmware and the stack, the
 base every control shares, which must pass; then plants defects in copies,
@@ -120,7 +122,7 @@ import fw_rv32  # noqa: E402
 from ctrl_build import CTRL, NVM_DIR, ROOT, STACK, STACK_INCLUDE, STACK_PARTS, Refusal, stack_pin  # noqa: E402
 from ctrl_capture import Capture, CaptureError, Deps, Invocation  # noqa: E402
 from ctrl_configs import BUILDERS, COMPILED, NEEDS, Scope, command, failed, held, makefiles, once  # noqa: E402
-from ctrl_pin import makefile_findings, named_compilers, pin_controls  # noqa: E402
+from ctrl_pin import makefile_findings, named_compilers, pin_controls, proof_census  # noqa: E402
 from ctrl_plants import BASE, PLANTS, Plant  # noqa: E402
 from ctrl_runs import captures, control_capture, owned, stack_gate  # noqa: E402
 
@@ -452,7 +454,7 @@ def main(argv: list[str] | None = None) -> int:
                 bad += misbehaved
             findings = judge(capture, (ROOT,), scope)
             counts = counted(capture, Places((ROOT.resolve(),), targets(capture, (ROOT,))))
-            findings += makefile_findings(makefiles(), work / "makefiles")
+            findings += makefile_findings(makefiles(), work / "makefiles") + proof_census()
             if own is not None:
                 said, tested = own.result()
                 refused += tested
@@ -467,7 +469,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"ctrl_boundary: {sum(counts.values())} compiled sources of {len(capture.invocations)} recorded invocations "
           f"({counts[FIRMWARE]} the firmware's, {counts['stack']} the stack's, {counts['rest']} test equipment's "
           f"and builders' own), each judged by what its dependency output lists, host{' and RV32' if rv32 else ''}, "
-          f"and every Makefile builder's pin prerequisites; {len(findings)} finding(s){tested}")
+          f"every Makefile builder's pin prerequisites and the pin proof's census; {len(findings)} finding(s)"
+          f"{tested}")
     print(f"ctrl_boundary: {'FAIL' if findings or bad else 'PASS'}")
     return 1 if findings or bad else 0
 

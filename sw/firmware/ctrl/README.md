@@ -162,15 +162,25 @@ A run names each control of the other run as left out.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
-Every file of its sources, headers, tests, examples, scripts and CMake files must hash to the gitlink's tree, and no other file may be there.
-The hashes are read from the files, never from the index, so an edit hidden from `git status` is refused too.
+Its checkout, all but its own `.git`, must be the gitlink's whole tree: the same paths, each of the same type and mode, every file and symbolic link hashing to the tree's blob.
+The hashes are taken from the files' own bytes, never from the index and through no Git attribute or filter, so an edit hidden from `git status` is refused too.
+The pin proof is [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and every Git command it runs goes through one helper.
+The helper sets `GIT_NO_REPLACE_OBJECTS=1` and gives `GIT_GRAFT_FILE` a path that does not exist, so Git reads the real objects only.
+So a replacement object (`refs/replace`) or a graft cannot make another tree read as the pin's.
+`ctrl_boundary.py` holds a census of the proof on every run.
+A string of either module, outside the helper and the docstrings, that names the Git program is refused, and so is a helper environment without either setting.
+A program name assembled at run time is not seen.
 The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-Twenty pin controls follow the boundary controls.
+Thirty pin controls follow the boundary controls.
 A clean clone passes the check.
-An edited source, test, script or CMake file is refused, and so are an edit hidden by `assume-unchanged`, an added header and another revision.
+An edited source, test, script, CMake file or the stack's README is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
+An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
+So it is when a clean filter given through the clone's attributes turns it back into the pinned blob, as `git status` would read it.
+A graft changes only a commit's parents, which the check never reads; the census holds the helper's graft setting.
+The census refuses a planted Git command outside the helper, and the helper's environment without each of its two settings.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
 Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
 At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.

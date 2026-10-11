@@ -23,6 +23,7 @@ import argparse
 import hashlib
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -174,67 +175,87 @@ def sources(tree: Tree, names: tuple[str, ...]) -> list[Path]:
     return [source(tree.src, tree.stack, n) for n in names]
 
 
+#: The graft file every git command of the pin proof is given: a path under a file, which no directory can
+#: be, so no graft file is ever read.
+NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
+
+
+def git_env() -> dict[str, str]:
+    """The environment of every git command of the pin proof: the caller's, with replacement objects
+    (refs/replace) ignored and a graft file that does not exist, so git reads the real objects only."""
+    return {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS}
+
+
+def git(directory: Path, *args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
+    """One git command in `directory`, its output captured: the only way the pin proof (this module and
+    ctrl_pin.py) starts git, which ctrl_pin.census holds."""
+    return subprocess.run(["git", "-C", str(directory), *args], input=stdin, capture_output=True, check=False,
+                          env=git_env(), encoding="utf-8", errors="surrogateescape")
+
+
 def stack_gitlink(root: Path = ROOT) -> str:
     """The tsn-c-stack revision the repository at `root` records: one stage-0 gitlink, or a Refusal."""
     rel = STACK.relative_to(ROOT).as_posix()
-    entry = run(["git", "-C", str(root), "ls-files", "--stage", "--", rel]).stdout.split()
+    entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()
     if len(entry) != 4 or entry[0] != "160000" or entry[2] != "0":
         raise Refusal(f"{rel} is not one stage-0 gitlink")
     return entry[1]
 
 
-#: What the pin check proves file by file: everything of the stack a gate builds, runs or searches (its
-#: sources, public headers, tests, examples, scripts and CMake files).
-STACK_PROVEN = ("src", "include", "tests", "examples", "scripts", "cmake", "CMakeLists.txt")
-
-
 def blob_id(path: Path, algorithm: str) -> str:
-    """The object id git gives `path`'s content as a blob (a symbolic link's is its target), read from the
-    file itself and never from an index."""
+    """The object id git gives `path`'s content as a blob (a symbolic link's is its target), hashed here from
+    the file's own bytes: never read from an index, and through no attribute or filter."""
     data = os.readlink(path).encode() if path.is_symlink() else path.read_bytes()
     return hashlib.new(algorithm, b"blob %d\0" % len(data) + data).hexdigest()
 
 
-def worktree_files(stack: Path) -> set[str]:
-    """Every file and symbolic link on disk under STACK_PROVEN, relative to the stack."""
-    found = set()
-    for part in STACK_PROVEN:
-        top = stack / part
-        if top.is_symlink() or top.is_file():
-            found.add(part)
-        for here, dirs, files in os.walk(top):
-            found |= {(Path(here) / n).relative_to(stack).as_posix() for n in files}
-            found |= {(Path(here) / n).relative_to(stack).as_posix() for n in dirs if (Path(here) / n).is_symlink()}
+def on_disk(stack: Path, algorithm: str) -> dict[str, tuple[str, str, str]]:
+    """Every entry of the stack's checkout but its own .git, as a tree records it (mode, type, blob id): a
+    directory is a tree, a symbolic link a blob of its target, a file a blob of its bytes, executable when its
+    owner may execute it; anything else is of no type a tree holds."""
+    found = {}
+    for here, dirs, files in os.walk(stack):
+        if Path(here) == stack:
+            dirs[:] = [d for d in dirs if d != ".git"]
+            files = [f for f in files if f != ".git"]
+        for name in dirs + files:
+            path = Path(here) / name
+            rel, mode = path.relative_to(stack).as_posix(), path.lstat().st_mode
+            if stat.S_ISLNK(mode):
+                found[rel] = ("120000", "blob", blob_id(path, algorithm))
+            elif stat.S_ISDIR(mode):
+                found[rel] = ("040000", "tree", "")
+            elif stat.S_ISREG(mode):
+                found[rel] = ("100755" if mode & stat.S_IXUSR else "100644", "blob", blob_id(path, algorithm))
+            else:
+                found[rel] = ("", "", "")
     return found
 
 
 def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
-    """Refuse a stack checkout that is not at the recorded gitlink, or whose content under STACK_PROVEN is not
-    the gitlink's tree: every file is hashed as git hashes a blob and compared with that tree, and a file the
-    tree does not hold is refused too. The index is never consulted, so an edit hidden from `git status`
-    (assume-unchanged, skip-worktree) is refused like any other: every gate builds the pinned stack or none."""
+    """Refuse a stack checkout that is not at the recorded gitlink, or that is not the gitlink's whole tree:
+    the same paths, each of the same type and mode, every file and symbolic link hashed as git hashes a blob
+    and equal to the tree's. git reads the real objects only (git_env), so a replacement or a graft changes
+    nothing it reads; and the index is never consulted, so an edit hidden from `git status` (assume-unchanged,
+    skip-worktree) is refused like any other: every gate builds the pinned stack or none."""
     pin = pin or stack_gitlink()
-    top = run(["git", "-C", str(stack), "rev-parse", "--show-toplevel"])
+    top = git(stack, "rev-parse", "--show-toplevel")
     if top.returncode or Path(top.stdout.strip()).resolve() != stack.resolve():
         raise Refusal(f"{stack} is not its own checkout: initialise the tsn-c-stack submodule")
-    head = run(["git", "-C", str(stack), "rev-parse", "HEAD"]).stdout.strip()
+    head = git(stack, "rev-parse", "HEAD").stdout.strip()
     if head != pin:
         raise Refusal(f"tsn-c-stack at {head or 'no HEAD'} is not the pinned {pin}")
-    algorithm = run(["git", "-C", str(stack), "rev-parse", "--show-object-format"]).stdout.strip()
-    tree = run(["git", "-C", str(stack), "ls-tree", "-r", "-z", "--full-tree", pin, "--", *STACK_PROVEN])
+    algorithm = git(stack, "rev-parse", "--show-object-format").stdout.strip()
+    tree = git(stack, "ls-tree", "-r", "-t", "-z", "--full-tree", pin)
     if tree.returncode or algorithm not in hashlib.algorithms_available:
         raise Refusal(f"cannot read the pinned tree {pin[:8]} of {stack}: {tree.stderr.strip()}")
     want = {}
     for entry in filter(None, tree.stdout.split("\0")):
         meta, name = entry.split("\t", 1)
         mode, kind, oid = meta.split()
-        want[name] = (mode, kind, oid)
-    differ = []
-    for name in sorted(want.keys() | worktree_files(stack)):
-        path, (mode, kind, oid) = stack / name, want.get(name, ("", "", ""))
-        if kind != "blob" or path.is_symlink() != (mode == "120000") or not (path.is_symlink() or path.is_file()) \
-                or blob_id(path, algorithm) != oid:
-            differ.append(name)
+        want[name] = (mode, kind, "" if kind == "tree" else oid)
+    found = on_disk(stack, algorithm)
+    differ = sorted(name for name in want.keys() | found.keys() if want.get(name) != found.get(name))
     if differ:
         raise Refusal(f"tsn-c-stack differs from the pinned {pin[:8]}: {', '.join(differ)}")
     return head
