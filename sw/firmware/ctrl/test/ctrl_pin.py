@@ -21,8 +21,11 @@ raises. While the proof runs (a function of DECISION, in any thread,
 or the top level of one of the proof's modules), the hook refuses every
 process start the interpreter audits but the helper's: the subprocess module
 starting, for the helper's own code, the Git program PATH named when the proof
-was loaded (ctrl_build.GIT), with GIT_NO_REPLACE_OBJECTS=1 and a
-GIT_GRAFT_FILE that cannot exist, so Git reads the real objects only. It
+was loaded (ctrl_build.GIT), with exactly the proof's own environment
+(ctrl_build.GIT_ENVIRONMENT), each key and value a plain str, so that what
+Git is given is what the hook judged: GIT_NO_REPLACE_OBJECTS=1, a
+GIT_GRAFT_FILE that cannot exist, no system or global configuration, and
+nothing the proof inherits. It
 refuses every thread start there too, since a thread could change a start's
 arguments after the hook has read them. It
 refuses exec, compile and an import of importlib, and the reaches into its own
@@ -107,7 +110,11 @@ and a trace function. Code of this module filed under another name, then
 exec, is refused at that name's line; the Git program rebound, for the
 program the helper would start; and the helper's environment without either
 of its two settings, and with the builtins a hook could look up rebound, by
-the setting's name. The MAAP differential (both its modes) and the AECP
+the setting's name. The helper's environment the caller's again, with a
+variable added (GIT_DIR), and with a key or a value that is not a plain str,
+are refused at the helper's line, the variable by its name. The
+inherited-environment controls follow (ctrl_pin_env.py). The MAAP
+differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
 every Makefile builder whose dry run reaches the stack is run for real, in a
@@ -135,6 +142,7 @@ from pathlib import Path
 from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STACK, Refusal, audited, git, git_env,
                         stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
+from ctrl_pin_env import inherited_arms
 import fw_gtest
 
 #: This module's code is the pin proof's: under the audit hook from here on, as ctrl_build.py's is (THE HOOK).
@@ -199,8 +207,8 @@ UNPINNED = (ROOT / "tb/verilator/mbx/Makefile", "run-if2: if2-gen | stack-pin\n"
 BENCH_TIMEOUT_S = 900
 #: The pin proof run from a census's texts in a fresh interpreter (exercised): each module compiled from its text
 #: under its own path in the checkout, so its lines are its file's; ctrl_build.py first, which installs the audit
-#: hook, then ctrl_pin.py; then the command line's pin check. Its arguments: the checkout, and the texts (a JSON
-#: file, by path from the checkout).
+#: hook, then ctrl_pin.py; then the command line's pin check. Its arguments: the checkout, the texts (a JSON
+#: file, by path from the checkout) and the stack checkout to check.
 PROOF_RUN = '''import json
 import sys
 import types
@@ -214,7 +222,7 @@ for name in ("ctrl_build", "ctrl_pin"):
             module.__file__ = str(root / rel)
             sys.modules[name] = module
             exec(compile(text, module.__file__, "exec"), module.__dict__)
-sys.exit(sys.modules["ctrl_build"].main(["--stack-pin"]))
+sys.exit(sys.modules["ctrl_build"].main(["--stack-pin", sys.argv[3]]))
 '''
 #: How long that run may take before it is a failure.
 PROOF_RUN_TIMEOUT_S = 300
@@ -235,6 +243,36 @@ PLAIN = '''def plain(directory: Path, *args: str, stdin: str | None = None) -> o
 
 
 ctrl_build.git = plain
+'''
+#: A key of the helper's environment that the hook would read as GIT_NO_REPLACE_OBJECTS, but Git is given as another.
+KEYED = '''import ctrl_build  # noqa: E402
+
+
+class Key(str):
+    """Equal to any key, under GIT_NO_REPLACE_OBJECTS's hash."""
+
+    def __eq__(self, other: object) -> bool:
+        return True
+
+    def __hash__(self) -> int:
+        return hash("GIT_NO_REPLACE_OBJECTS")
+
+
+OWN = {k: v for k, v in ctrl_build.GIT_ENVIRONMENT.items() if k != "GIT_NO_REPLACE_OBJECTS"}
+ctrl_build.git_env = lambda: {Key("GIT_NO_REPLACE"): "1", **OWN}
+'''
+#: A value of the helper's environment that the hook would read as 1, but Git is given as 0.
+VALUED = '''import ctrl_build  # noqa: E402
+
+
+class Value(str):
+    """The text 1, encoded as 0."""
+
+    def encode(self, *args: object) -> bytes:
+        return b"0"
+
+
+ctrl_build.git_env = lambda: {**ctrl_build.GIT_ENVIRONMENT, "GIT_NO_REPLACE_OBJECTS": Value("1")}
 '''
 #: The pin proof's standing controls under its audit hook: what each plants; in which pin-proof module; the anchor
 #: it replaces there (None: it is added at the module's end); the planted text; the words the hook's refusal must
@@ -319,6 +357,16 @@ HOOK_PLANTS = (
      'import ctrl_build  # noqa: E402\nctrl_build.git_env = lambda: dict(os.environ)\n'
      'ctrl_build.type = ctrl_build.dict = ctrl_build.isinstance = ctrl_build.any = lambda *args: True\n',
      "without GIT_NO_REPLACE_OBJECTS=1", False),
+    ("the caller's environment passed to Git again, git_env rebound in ctrl_pin.py", "ctrl_pin.py", None,
+     'import ctrl_build  # noqa: E402\nctrl_build.git_env = lambda: {**os.environ, **ctrl_build.GIT_ENVIRONMENT}\n',
+     "in its environment, which the pin proof's own does not set", False),
+    ("a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py", "ctrl_pin.py", None,
+     'import ctrl_build  # noqa: E402\nctrl_build.GIT_ENVIRONMENT["GIT_DIR"] = "elsewhere"\n',
+     "with GIT_DIR in its environment", False),
+    ("a key of the helper's environment that is another's to the hook (a str subclass)", "ctrl_pin.py", None, KEYED,
+     "not all plain str", False),
+    ("a value of the helper's environment that Git is given as another (a str subclass)", "ctrl_pin.py", None,
+     VALUED, "not all plain str", False),
 )
 
 
@@ -467,22 +515,28 @@ def reach(rel: str, tree: ast.Module) -> list[str]:
     return found
 
 
-def exercised(texts: dict[str, str]) -> list[str]:
+def proof_run(texts: dict[str, str], stack: Path = STACK, inherited: dict[str, str] | None = None) -> tuple[int, str]:
     """The pin proof run from `texts` (each module's path and text) under its audit hook, in a fresh interpreter
-    and before any build (PROOF_RUN): each refusal of the hook, at the line of the proof that asked; or, if the run
-    did not reach the pin check's verdict, how it ended. The run's environment holds neither of the helper's two
-    settings, so only the helper's own environment can give them."""
+    and before any build (PROOF_RUN), on `stack`, with `inherited` added to the environment it inherits: its exit
+    status, and its output then its errors. That environment holds neither of the helper's two settings, so only
+    the helper's own environment can give them."""
     env = {k: v for k, v in os.environ.items() if k not in ("GIT_NO_REPLACE_OBJECTS", "GIT_GRAFT_FILE")}
     with tempfile.TemporaryDirectory(prefix="ctrl-pin-") as scratch:
         given = Path(scratch) / "texts.json"
         given.write_text(json.dumps(texts), encoding="utf-8")
-        res = fw_gtest.run([sys.executable, "-I", "-B", "-c", PROOF_RUN, str(ROOT), str(given)],
-                           timeout=PROOF_RUN_TIMEOUT_S, env={**env, "LC_ALL": "C"})
-    out = res.stdout + res.stderr
+        res = fw_gtest.run([sys.executable, "-I", "-B", "-c", PROOF_RUN, str(ROOT), str(given), str(stack)],
+                           timeout=PROOF_RUN_TIMEOUT_S, env={**env, "LC_ALL": "C", **(inherited or {})})
+    return res.returncode, res.stdout + res.stderr
+
+
+def exercised(texts: dict[str, str]) -> list[str]:
+    """The pin proof run from `texts` under its audit hook (proof_run): each refusal of the hook, at the line of the
+    proof that asked; or, if the run did not reach the pin check's verdict, how it ended."""
+    rc, out = proof_run(texts)
     refused = [ln.removeprefix(HOOK_REFUSED) for ln in out.splitlines() if ln.startswith(HOOK_REFUSED)]
-    if refused or (res.returncode == 0 and "tsn-c-stack at " in res.stdout):
+    if refused or (rc == 0 and "tsn-c-stack at " in out):
         return list(dict.fromkeys(refused))
-    return [f"the pin proof did not reach its verdict under its audit hook: exit {res.returncode}: "
+    return [f"the pin proof did not reach its verdict under its audit hook: exit {rc}: "
             f"{out.strip().splitlines()[-1] if out.strip() else 'no output'}"]
 
 
@@ -903,6 +957,8 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
              lambda: aecp("aecp_mutants.py", "--shard", "0", "1000"), edited + "src/acmp.c"),
             ("the AECP wire comparison, the stack's wire layer edited", lambda: clone.append("include/wire.h"),
              lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h")]
+    texts = {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}
+    arms += inherited_arms(clone.path, pin, work, lambda stack, env: proof_run(texts, stack, env))
     clone.fresh()
     arms += bench_arms(makefiles, clone.path, work, edited)
     bad = 0
@@ -913,7 +969,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
         ok = accepted if not needle else (not accepted and needle in detail)
         print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
         bad += not ok
-    for scratch in (clone.path, work / "aecp-out", work / "bench", work / "unpinned"):
+    for scratch in (clone.path, work / "aecp-out", work / "bench", work / "unpinned", work / "inherited"):
         shutil.rmtree(scratch, ignore_errors=True)
     (work / "adp.c").unlink(missing_ok=True)
     return bad, len(arms)

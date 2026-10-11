@@ -167,14 +167,15 @@ The submodule must be at its gitlink.
 Its checkout, all but its own `.git`, must be the gitlink's whole tree: the same paths, each of the same type and mode, every file and symbolic link hashing to the tree's blob.
 The hashes are taken from the files' own bytes, never from the index and through no Git attribute or filter, so an edit hidden from `git status` is refused too.
 The pin proof's modules are [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and in them only one helper names a process-launch facility: it runs Git.
-The helper sets `GIT_NO_REPLACE_OBJECTS=1` and gives `GIT_GRAFT_FILE` a path that does not exist, so Git reads the real objects only.
-So a replacement object (`refs/replace`) or a graft cannot make another tree read as the pin's.
+The helper starts Git with an environment of the proof's own and nothing the proof inherits (`ctrl_build.GIT_ENVIRONMENT`): `GIT_NO_REPLACE_OBJECTS=1`, a `GIT_GRAFT_FILE` that does not exist, and no system or global configuration.
+So Git reads the real objects only, and a replacement object (`refs/replace`) or a graft cannot make another tree read as the pin's.
+No variable the proof inherits (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE`, `HOME` and the rest) can redirect Git's repository, object store, configuration or replacement refs.
 What decides the pin is `stack_gitlink`, `stack_pin` and the command line's `main`.
 Before the proof's first Git call, where `ctrl_build.py` defines the helper, the proof installs a PEP 578 audit hook, which stays for the life of the process.
 An audit hook cannot be removed, and this one binds all it judges by as it is installed: the helper's code, the module's namespace, the Git program, and every function, builtin and constant it uses.
 So no later rebinding of a name changes how it judges an event; what it judges is the events the interpreter raises, as below.
 While the proof runs (a function that decides the pin, in any thread, or the top level of one of the two modules), the hook refuses every process start the interpreter audits but the helper's, and every thread start, since a thread could change a start's arguments after the hook has read them.
-The helper's is the `subprocess` module starting, for the helper's own code, the Git program that `PATH` named when the proof was loaded, with both settings.
+The helper's is the `subprocess` module starting, for the helper's own code, the Git program that `PATH` named when the proof was loaded, with exactly the proof's own environment, each key and value a plain `str`, so that what Git is given is what the hook judged.
 The hook refuses `exec`, `compile` and an import of `importlib` while a function that decides the pin runs, and wherever the proof's own code asks for them, the helper's included.
 In the same places it refuses the reaches into its own state: the collector's lists of objects, and a trace or profile function.
 At any time it refuses a replacement of what a function of the proof runs, its code or its defaults.
@@ -202,20 +203,27 @@ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP di
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-58 pin controls follow the boundary controls.
+79 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
 So it is when a clean filter given through the clone's attributes turns it back into the pinned blob, as `git status` would read it.
 A graft changes only a commit's parents, which the check never reads; the hook holds the helper's graft setting.
 The proof as the checkout holds it runs to its verdict under the hook.
-Each of 30 bypasses planted in the proof, which is then run under the hook, ends in the hook's refusal before any build.
+Each of 34 bypasses planted in the proof, which is then run under the hook, ends in the hook's refusal before any build.
 Twenty-five are refused at the plant's line, and code of `ctrl_pin.py` filed under another name at the line of that name.
 They are a Git command run by the harness's runner, under a computed name (`git.__name__`), as a dashed program (`git-ls-tree`) and by the Git program's path with the helper's environment; one whose refusal is caught and ignored; an aliased import (`from subprocess import run as r`); `os.system`; and `exec` of a string.
 They are also the helper's name rebound by attribute assignment, in either module; `os.walk` rebound to start Git; `inspect.builtins.exec`, `eval` and `compile`; dynamic code a library runs where the pin is decided (`collections.namedtuple`); code of `ctrl_pin.py` filed under another name (`code.replace`), then `exec`; an import of `importlib.metadata`; `pkgutil.importlib.import_module`; and `exec`, `eval` and `compile` inside the helper.
 The rest are `ctrl_pin.py`'s code kept from the hook by rebinding `sys.audit`, then `exec`; a thread started, the decision's code replaced (`stack_pin.__code__`), the collector's list of objects (`gc.get_objects`) and a trace function (`sys.settrace`).
 The Git program rebound is refused for the program the helper would start.
 The helper's environment without each of its two settings, and also with the builtins a hook could look up rebound, is refused by the setting's name.
+The caller's environment given to Git again, a variable added to the proof's own (`GIT_DIR`), and a key or a value that is not a plain `str` (one that compares equal to another key, one that encodes as another value) are refused at the helper's line, the variable by its name.
+Seventeen controls ([`ctrl_pin_env.py`](test/ctrl_pin_env.py)) set, in the environment of the process that runs the proof, each variable that would redirect what Git reads.
+They are `GIT_DIR` (a repository whose `HEAD` and gitlink are a commit holding an edit), `GIT_INDEX_FILE` (an index whose gitlink is the revision the clone is at), `GIT_WORK_TREE`, `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`, `GIT_ALTERNATE_OBJECT_DIRECTORIES` (the clone's objects, which its own store no longer holds) and `GIT_REPLACE_REF_BASE`.
+They are also `core.fsmonitor` naming a program, through `GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `HOME` and `XDG_CONFIG_HOME`.
+Each ends in the verdict the clone itself earns, and Git starts no program they name.
+A clean filter given through `GIT_CONFIG_COUNT`, and one whose attribute `GIT_ATTR_SOURCE` gives, would each turn an edit back into the pinned blob; the edit is refused by name.
+With every variable at once the pinned clone is accepted, and the hook's judge refuses a `fork_exec` entry list that gives a key twice.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
 Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
 At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.

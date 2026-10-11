@@ -179,12 +179,19 @@ def sources(tree: Tree, names: tuple[str, ...]) -> list[Path]:
 #: The graft file every git command of the pin proof is given: a path under a file, which no directory can
 #: be, so no graft file is ever read.
 NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
+#: The whole environment of every git command of the pin proof, its allowlist: these settings and nothing of the
+#: caller's, so no variable it inherits (GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY,
+#: GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_REPLACE_REF_BASE, GIT_CONFIG_*, GIT_ATTR_*, HOME and the rest) can
+#: redirect Git's repository, object store, configuration or replacement refs. Replacement objects (refs/replace)
+#: are ignored, the graft file does not exist, and no configuration but the repository's own is read.
+GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "GIT_CONFIG_NOSYSTEM": "1",
+                   "GIT_CONFIG_GLOBAL": os.devnull}
 
 
 def git_env() -> dict[str, str]:
-    """The environment of every git command of the pin proof: the caller's, with replacement objects
-    (refs/replace) ignored and a graft file that does not exist, so git reads the real objects only."""
-    return {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS}
+    """The environment of every git command of the pin proof: GIT_ENVIRONMENT, so git reads the real objects
+    only, and from no repository, object store or configuration the caller's environment names."""
+    return dict(GIT_ENVIRONMENT)
 
 
 @dataclass(frozen=True)
@@ -225,12 +232,59 @@ class AuditRefusal(Refusal):
     """A refusal of the pin proof's audit hook (audited): the line of the proof that asked, and what it asked for."""
 
 
+def environment_judge(own: dict[str, str]) -> Callable[[str, object], str | None]:
+    """The audit hook's judge of the environment the helper starts Git with, binding as it is made, as the hook
+    does, all it judges by (audited makes it when it installs the hook). An environment is the helper's when it is
+    a plain dict (on CPython 3.14's fork_exec, the list of its entries, each key once) whose every key and value is
+    a plain str, so that what Git is given is what was judged; when it sets GIT_NO_REPLACE_OBJECTS=1 and
+    GIT_GRAFT_FILE to an absolute path under a file; and when it is `own` (GIT_ENVIRONMENT), key for key."""
+    want, kind, text, raw, mapping, listed, decode, size = dict(own), type, str, bytes, dict, list, os.fsdecode, len
+    stat_of, is_dir, failed = os.stat, stat.S_ISDIR, (OSError, ValueError)
+
+    def judged(event: str, env: object) -> str | None:
+        """Why the helper may not start Git (`event`) with `env` (None: it may)."""
+        if kind(env) is listed:
+            given = size(env)
+            env = {decode(k): decode(v) for k, _, v in (e.partition(b"=") for e in env if kind(e) is raw)}
+            if size(env) != given:
+                return f"has the helper start Git ({event}) with an environment whose entries are not each a key " \
+                       f"given once, so what Git is given is not what was judged"
+        if kind(env) is not mapping:
+            return f"has the helper start Git ({event}) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a " \
+                   f"replacement object"
+        for key, value in env.items():
+            if kind(key) is not text or kind(value) is not text:
+                return f"has the helper start Git ({event}) with an environment whose keys and values are not all " \
+                       f"plain str, so what Git is given is not what was judged"
+        if env.get("GIT_NO_REPLACE_OBJECTS") != "1":
+            return f"has the helper start Git ({event}) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a " \
+                   f"replacement object"
+        graft = env.get("GIT_GRAFT_FILE")
+        try:
+            under = kind(graft) is text and graft.startswith("/") and not is_dir(stat_of(graft.rpartition("/")[0])
+                                                                                .st_mode)
+        except failed:
+            under = False
+        if not under:
+            return f"has the helper start Git ({event}) with GIT_GRAFT_FILE {graft}, a path that can exist, so Git " \
+                   f"would read a graft file"
+        for key in [*env, *want]:
+            if env.get(key) != want.get(key):
+                return f"has the helper start Git ({event}) " + (f"without the pin proof's own {key}={want[key]}"
+                                                                 if key in want else
+                                                                 f"with {key} in its environment, which the pin "
+                                                                 f"proof's own does not set")
+        return None
+
+    return judged
+
+
 def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
     """The helper, after installing beside it, before the pin proof's first Git call, the proof's audit hook (PEP
     578), which binds as it is installed all it judges by (THE HOOK, ctrl_pin.py). While the proof runs (a function
     of DECISION in any thread, or the top level of one of its modules), it refuses every process or thread start
-    but the helper's: the subprocess module starting GIT, as a string, for the helper's own code, with a plain
-    environment that sets GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE to an absolute path under a file. It refuses
+    but the helper's: the subprocess module starting GIT, as a string, for the helper's own code, with exactly the
+    proof's own environment (GIT_ENVIRONMENT, environment_judge). It refuses
     DYNAMIC_EVENTS and an import of importlib while a function of DECISION runs, or where the proof's own code (from
     its files, or in its namespaces) asks for them, the helper's included; and, at any time, a replacement of what
     a function of the proof runs (RUNS). Each refusal is an AuditRefusal naming the proof's line that asked."""
@@ -239,10 +293,9 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
     files = frozenset({code.co_filename, f"{HERE}/ctrl_build.py", f"{HERE}/ctrl_pin.py",
                        f"{code.co_filename.rpartition('/')[0]}/ctrl_pin.py"})
     runs, joined, said, refusal, root = RUNS, PROOF_EVENT, HOOK_REFUSED, AuditRefusal, f"{ROOT}/"
-    frame_at, frames, write, stat_of, is_dir, decode = sys._getframe, sys._current_frames, os.write, os.stat, \
-        stat.S_ISDIR, os.fsdecode
-    kind, text, raw, mapping, ordered, listed = type, str, bytes, dict, tuple, list
-    function, failed = type(helper), (OSError, ValueError)
+    frame_at, frames, write, decode, judged = sys._getframe, sys._current_frames, os.write, os.fsdecode, \
+        environment_judge(GIT_ENVIRONMENT)
+    kind, text, raw, ordered, function = type, str, bytes, tuple, type(helper)
 
     def ours(frame: FrameType) -> bool:
         """Whether `frame` runs the code of a module of the pin proof: from its files, or in its namespaces."""
@@ -289,19 +342,7 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
         if not (kind(given) is text and given == program) and not (forked and kind(given) is ordered and
                                                                       {decode(g) for g in given} == {program}):
             return f"has the helper start {given} ({event}), not the Git program PATH names, {program}"
-        if forked and kind(env) is listed:
-            env = {decode(k): decode(v) for k, _, v in (e.partition(b"=") for e in env if kind(e) is raw)}
-        if kind(env) is not mapping or env.get("GIT_NO_REPLACE_OBJECTS") != "1":
-            return f"has the helper start Git ({event}) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a " \
-                   f"replacement object"
-        graft = env.get("GIT_GRAFT_FILE")
-        try:
-            under = kind(graft) is text and graft.startswith("/") and not is_dir(stat_of(graft.rpartition("/")[0])
-                                                                                .st_mode)
-        except failed:
-            under = False
-        return None if under else f"has the helper start Git ({event}) with GIT_GRAFT_FILE {graft}, a path that " \
-                                  f"can exist, so Git would read a graft file"
+        return judged(event, env)
 
     def hook(event: str, args: tuple) -> None:
         """The pin proof's audit hook."""
@@ -329,7 +370,7 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
 def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
     """One git command in `directory`, its output captured: the helper, the only code of the pin proof's modules
     (this one and ctrl_pin.py) that names a process-launch facility, and the only one whose process the pin
-    proof's audit hook lets start while the proof runs (audited): GIT, with git_env's two settings."""
+    proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it."""
     import subprocess
     res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT, input=stdin, capture_output=True,
                          check=False, env=git_env(), encoding="utf-8", errors="surrogateescape")
