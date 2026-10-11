@@ -112,8 +112,8 @@ IMAGE = ('def image(shape="endstation_ax7101_1x1_tdm8"):\n'
          '                               Path(STACK))\n'
          '    except ctrl_image.Refusal:\n'
          '        pass\n\n\n')
-#: A stack file outside its public headers that preprocesses on its own, in C and C++, from a directory of the ctrl
-#: tree and from the store's.
+#: A stack file outside its public headers that preprocesses on its own, in C and C++, and its path from a directory
+#: of the ctrl tree (or of the store's plat/); the stack's example header, included from one.
 STRING = "third_party/tsn-c-stack/examples/rv32/include/string.h"
 FROM_CTRL = "../../../../" + STRING
 EXAMPLE = '#include "../../../../third_party/tsn-c-stack/examples/adp_port.h"\n'
@@ -128,7 +128,7 @@ CXX_HEADER = f'#ifdef __cplusplus\n#include "{FROM_CTRL}"\n#endif\n'
 CXX_NEEDLE = f"firmware: sw/firmware/ctrl/adp/adp_r5.h includes {STRING_NAMED}, not one of the stack's public headers"
 #: A header whose include a macro computes, reaching a stack file outside its public headers in C++.
 COMPUTED = f'#ifdef __cplusplus\n#define H "{FROM_CTRL}"\n#include H\n#endif\n'
-#: A C++ source an installed tool would hold, whose include a macro computes: the firmware's adapter header.
+#: A C++ source of a builder's own whose include a macro computes: the firmware's adapter header.
 INSTALLED = '#define H "adp_mbx.h"\n#include H\n'
 
 
@@ -183,7 +183,7 @@ def makefile(recipe: str, head: str = "") -> str:
 
 #: A planted Makefile's compile of the copy's ADP adapter, its flags before the include path.
 MAKE_SRC = "$(PLANT_INCLUDES) -c $(PLANT_CTRL)/adp/adp_mbx.c -o planted.o"
-#: The two parts of the stack every one of the stack's own controls below reaches the platform from.
+#: What a stack-side finding says of a file the stack may not read.
 NOT_OURS = "which is neither the stack's nor the C implementation's"
 
 PLANTS = (
