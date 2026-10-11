@@ -43,39 +43,32 @@ WHAT IT GRADES, per shipped shape, all on bytes:
  11. an open record beside an unaligned closed predecessor keeps its staged
      bytes while the predecessor's change commits byte-identically;
  12. rejected shape/identity startup never heartbeats under console input;
- 13. a boot read fault leaves the authority unknown (#671): a slot read
-     whose bytes are wrong (a header, sequence or record-area byte, the
-     blank slot's, an all-0xFF read, or the other slot's container on a
-     re-stage), walked over every boot read of either slot, with one slot
-     valid and the other blank at sequence 1, 0x5A5A5, 0x80000000 and
-     0xFFFFFFFF or both valid across 0x5A5A5 and the wrap to 0, both ways
-     round, on the cold boot or on a writer restart without a fabric reset
-     (the re-attach path, `writer_restart.py`), is followed by a change, its
-     commit and a clean reboot. The boot line names each slot as its bytes
-     read or UNREAD and offers the newer slot it accepts, the window is that
-     slot's container byte for byte (a restart leaves it as it was), and
-     every saved record and the change survive, or the writer was HELD,
-     persisted nothing and said so; one faulty read never holds, a slot left
-     unread always does, a fault lasting the whole boot opens exactly the
-     reads the per-slot bound allows, no boot opens more than the bound, and
-     the console names the hold only when there is one;
+ 13. a boot read fault leaves the authority unknown (#671): every fault
+     window starting at a read a clean boot opens, one read long to one past
+     the per-loop bound, and the whole boot (`read_fault_cases.fault_cases`,
+     on the cold boot and on a writer restart without a fabric reset,
+     `writer_restart.py`), over a header, sequence or record-area byte, the
+     blank or older slot's, an all-0xFF read or the other slot's container,
+     one slot valid and the other blank or both valid, both ways round, is
+     followed by a change, its commit and a clean reboot. The boot line
+     names each slot as its bytes read or UNREAD and offers the newer slot it
+     accepts, the window is that slot's container byte for byte (a restart
+     leaves it as it was), and every saved record and the change survive, or
+     the writer was HELD, persisted nothing and named each unread slot and
+     why; the reads opened and the hold are the reference model's
+     (`read_fault_cases.expect`);
  14. a cleanly read but refused slot names no generation: with no slot
      accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants sixteen writer defects into a copy
+NEGATIVE CONTROLS. `--self-test` plants eighteen writer defects into a copy
 of the firmware, one at a time, and requires the suite to redden on each:
 the ascending-id check removed, the heartbeat dropped from the erase poll
 loop, the read-back verify skipped, the erased-record rule accepting a header
-alone, a word copy crossing into an open neighbour, and eleven #671 defects
-(`read_fault_cases.READ_FAULT_MUTATIONS`), each planted into the first shape
-and both product shapes and caught there by its own named finding: the hold
-removed (the restart at sequence 0), the read retry unbounded, a generation
-taken from a refused slot, two reads compared by verdict instead of by
-bytes, a refusal digest over the header alone, the window filled by a fresh
-read, an unread pick offering nothing, an unread pick not marked UNREAD, a
-re-stage taking any sequence, the hold removed from the re-attach path
-alone, and a judgement taking four reads. A control that stays green is
-reported as the finding it is.
+alone, a word copy crossing into an open neighbour, and thirteen #671
+defects, each planted into the first shape and both product shapes and
+caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
+says what each is). A control that stays green is reported as the finding
+it is.
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -119,8 +112,8 @@ from flash_map import literal                                  # noqa: E402
 from boot_policy import fabric_constants                       # noqa: E402
 from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE,  # noqa: E402
                               PRODUCT_SHAPES, READ_FAULT_MUTATIONS, RETIRE_CAUSES,
-                              UNREAD_RE, FaultCase, fault_cases, line_findings,
-                              read_findings, restart_findings)
+                              UNREAD_RE, FaultCase, expect, fault_cases, hold_findings,
+                              line_findings, read_findings, restart_findings)
 from writer_restart import host_restart                        # noqa: E402
 
 FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
@@ -679,11 +672,17 @@ def boot_findings(bench: Bench, case: FaultCase, boot: re.Match, unread: int,
     return f
 
 
-def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path) -> list[str]:
+def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path,
+                    seen: dict | None = None) -> list[str]:
     """The clean reboot after a faulty boot. Every saved record and the
     change survive it, or the faulty boot held and it restores every saved
     record; a held case then runs on through a change, its commit and
-    another clean reboot, which must restore that change and the rest."""
+    another clean reboot, which must restore that change and the rest. The
+    harness is deterministic, so `seen` keeps each reboot's findings by the
+    slots it boots, and a case leaving the same slots is not booted again."""
+    key = (held, (w / "rf_a1.bin").read_bytes(), (w / "rf_b1.bin").read_bytes())
+    if seen is not None and key in seen:
+        return [f"{name}: {x}" for x in seen[key]]
     tail = ("--change", f"{fr.off}:{fr.changes[1].hex()}", "--idle-ms", "1500",
             "--dump-slot-a", str(w / "rf_a2.bin"), "--dump-slot-b", str(w / "rf_b2.bin")) \
         if held else ()
@@ -691,32 +690,34 @@ def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path) 
                        "--boot", "--dump-ddr", str(w / "rf_ddr1.bin"), *tail)
     f = []
     _check(f, boot is not None and HELD_LINE not in out and boot.group(5) != "-",
-           f"{name}: the clean reboot did not offer a slot: {boot and boot.group(0)}")
+           f"the clean reboot did not offer a slot: {boot and boot.group(0)}")
     if not held:
         got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[1], fr.key)
         _check(f, got == fr.want[1][fr.key],
-               f"{name}: the change committed after the faulty boot was lost on the clean reboot: "
+               f"the change committed after the faulty boot was lost on the clean reboot: "
                f"it restored {got and got[:4].hex()}, want {fr.want[1][fr.key][:4].hex()}")
-        _check(f, lost == 0, f"{name}: {lost} other saved record(s) did not survive the faulty "
+        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the faulty "
                              "boot's commit and the clean reboot")
-        return f
-    got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[0], fr.key)
-    _check(f, got == fr.want[0][fr.key] and lost == 0,
-           f"{name}: the held boot changed the saved state: the clean reboot restored "
-           f"{got and got[:4].hex()}, want the saved {fr.want[0][fr.key][:4].hex()}, and "
-           f"{lost} other saved record(s) differ")
-    _check(f, s.get("acks") == 1, f"{name}: the writer did not recover on the clean reboot: {s}")
-    run(bench, "--slot-a", str(w / "rf_a2.bin"), "--slot-b", str(w / "rf_b2.bin"),
-        "--boot", "--dump-ddr", str(w / "rf_ddr2.bin"))
-    got, lost = restored(bench, w / "rf_ddr2.bin", fr.want[2], fr.key)
-    _check(f, got == fr.want[2][fr.key],
-           f"{name}: the change committed after the recovery was lost on the clean reboot")
-    _check(f, lost == 0, f"{name}: {lost} other saved record(s) did not survive the recovery")
-    return f
+    else:
+        got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[0], fr.key)
+        _check(f, got == fr.want[0][fr.key] and lost == 0,
+               f"the held boot changed the saved state: the clean reboot restored "
+               f"{got and got[:4].hex()}, want the saved {fr.want[0][fr.key][:4].hex()}, and "
+               f"{lost} other saved record(s) differ")
+        _check(f, s.get("acks") == 1, f"the writer did not recover on the clean reboot: {s}")
+        run(bench, "--slot-a", str(w / "rf_a2.bin"), "--slot-b", str(w / "rf_b2.bin"),
+            "--boot", "--dump-ddr", str(w / "rf_ddr2.bin"))
+        got, lost = restored(bench, w / "rf_ddr2.bin", fr.want[2], fr.key)
+        _check(f, got == fr.want[2][fr.key],
+               "the change committed after the recovery was lost on the clean reboot")
+        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the recovery")
+    if seen is not None:
+        seen[key] = f
+    return [f"{name}: {x}" for x in f]
 
 
 def grade_restart_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
-                       tail: tuple[str, ...]) -> list[str]:
+                       tail: tuple[str, ...], seen: dict | None = None) -> list[str]:
     """One check-13 case on a writer restart: a clean cold boot, the fault
     armed for the restart's own reads, the restart with the fabric kept,
     then `tail` (a change, the debounce, the slots dumped) and the clean
@@ -728,21 +729,25 @@ def grade_restart_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
     f, held = restart_findings(case, restart, BOOT_RE.search(restart), host_state(restart), s)
     if (w / "rf_ddr_r.bin").read_bytes() != (w / "rf_ddr0.bin").read_bytes():
         f.append(f"{case.name}: the writer restart reloaded the window it re-attached to")
-    return f + reboot_findings(bench, fr, case.name, held, w)
+    return f + reboot_findings(bench, fr, case.name, held, w, seen)
 
 
-def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> list[str]:
+def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
+                     seen: dict | None = None) -> list[str]:
     """One check-13 case, its files in `w`: the faulty boot (or restart), a
-    real change, the debounce commit, then the clean reboot."""
+    real change, the debounce commit, then the clean reboot (`seen`, as
+    `reboot_findings` keeps it)."""
     newer = fr.containers[(case.seq, False)]
     other = fr.containers[(case.seq, True)] if case.older else b"\xff" * SLOT
     slots = {case.valid.upper(): newer, case.other.upper(): other}
     (w / "rf_a.bin").write_bytes(slots["A"])
     (w / "rf_b.bin").write_bytes(slots["B"])
-    tail = ("--change", f"{fr.off}:{fr.changes[0].hex()}", "--idle-ms", "3000" if case.restart else "1500",
+    # a restart the model holds idles past T-NVM-WRITER-ALIVE, so its claim lapses
+    tail = ("--change", f"{fr.off}:{fr.changes[0].hex()}",
+            "--idle-ms", "3000" if case.restart and expect(case).unread else "1500",
             "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
     if case.restart:
-        return grade_restart_case(bench, fr, case, w, tail)
+        return grade_restart_case(bench, fr, case, w, tail, seen)
     out, s, boot = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"),
                        *case.fault, "--boot", "--dump-ddr", str(w / "rf_ddr0.bin"), *tail)
     name = case.name
@@ -752,11 +757,7 @@ def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> li
     tally = UNREAD_RE.search(out)
     unread = int(tally.group(2)) if tally else 0
     held = HELD_LINE in out
-    f += boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin")
-    if case.count == 1 and held:
-        f.append(f"{name}: one faulty read held the writer; the bound must resolve it")
-    if (unread or (case.skip, case.count) == (0, 64)) and not held:
-        f.append(f"{name}: a slot no read returned twice did not hold the writer")
+    f += boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin") + hold_findings(case, held, unread, out)
     if held:
         _check(f, s.get("erases") == 0 and s.get("programs") == 0 and
                s.get("starts") == 0 and s.get("acks") == 0 and s.get("backed") == 0
@@ -766,7 +767,7 @@ def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path) -> li
     else:
         _check(f, s.get("acks") == 1 and s.get("dirty") == 0,
                f"{name}: the change was neither committed nor refused: {s}")
-    return f + reboot_findings(bench, fr, name, held, w)
+    return f + reboot_findings(bench, fr, name, held, w, seen)
 
 
 def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
@@ -786,7 +787,7 @@ def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
     """
     fr = fault_run(bench)
     cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
-    found = threading.Event()
+    found, seen = threading.Event(), {}
 
     def walk(k: int) -> list[tuple[int, list[str]]]:
         """Every bench.jobs-th case from the k-th, until a named finding."""
@@ -796,7 +797,7 @@ def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
         for i in range(k, len(cases), bench.jobs):
             if found.is_set():
                 break
-            got = grade_fault_case(bench, fr, cases[i], w)
+            got = grade_fault_case(bench, fr, cases[i], w, seen)
             if until and any(until in item for item in got):
                 found.set()
             done.append((i, got))

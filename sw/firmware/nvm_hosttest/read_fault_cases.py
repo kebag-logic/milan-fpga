@@ -47,7 +47,9 @@ READ_FAULT_MUTATIONS = {
           "\t\trd.digest = nvm_crc32(NVM_STG, KLJ2_HDR);"),),
         "on reads that returned different bytes"),
     # R603-1's: the window filled by a fresh read of the slot, as before #671,
-    # not from the stage that was judged
+    # not from the stage that was judged. The read is one the rule does not
+    # make, after the boot's last; no window starts there, and the exact read
+    # count sees it on every boot that fills the window
     "r_fill_from_flash": (
         (("\tif (chosen == NVM_SLOT_NONE)\n\t\tnvm_stage_blank_image();\n"
           "\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\tNVM_IMG[i] = NVM_STG[i];\n",
@@ -56,7 +58,7 @@ READ_FAULT_MUTATIONS = {
           "\t\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\t\tNVM_IMG[i] = src[i];\n"
           "\t} else {\n\t\tnvm_stage_blank_image();\n"
           "\t\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\t\tNVM_IMG[i] = NVM_STG[i];\n\t}\n"),),
-        "is not the container it judged"),
+        "want exactly"),
     # R603-1's: a pick that never reads back offers nothing, not the other slot
     "r_restage_fail_offers_none": (
         (("\t\tchosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);\n\t}\n",
@@ -88,6 +90,21 @@ READ_FAULT_MUTATIONS = {
           "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
           "\t\tif (rd.vd == VD_OK ||"),),
         "want exactly"),
+    # R602-3's F1 probe: the re-stage loses its bound, so a fault that starts
+    # after the judgement reads the slot until it ends
+    "p_restage_unbounded": (
+        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK && rd.seq == seq)",
+          "\tfor (n = 0; n != 0xffffffffu; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
+        "want exactly"),
+    # R603-3's F1 probe: a re-stage takes four reads, over the stated three
+    "r_restage_four_tries": (
+        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK && rd.seq == seq)",
+          "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+          "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
+        "want exactly"),
 }
 
 #: the product shapes, which the #671 controls are planted into besides the
@@ -106,28 +123,31 @@ RETIRE_CAUSES = (
      "refused 4 window loads; the window is not validated", "writer retired"))
 
 #: the sequences the ticket names (1, far above 1, the int32 half-range and
-#: the wrap value), and the fault windows (the first SKIP reads from
-#: power-on clean, the next COUNT faulty) that walk a fault over every boot
-#: read of both slots, plus one window that lasts the whole boot
+#: the wrap value); with both slots valid, the newer container's sequence, the
+#: older one below it, so 0 is the wrap (the newer at 0, the older at 0xFFFFFFFF)
 FAULT_SEQS = (1, 0x5A5A5, 0x8000_0000, 0xFFFF_FFFF)
-WHOLE = (0, 64)
-FAULT_WINDOWS = tuple((skip, count) for skip in range(6) for count in (1, 2, 3)) + (WHOLE,)
-#: both slots valid: the newer container's sequence, the older one below it,
-#: so 0 is the wrap (the newer at 0, the older at 0xFFFFFFFF)
 BOTH_VALID_SEQS = (0x5A5A5, 0)
-#: the newer slot's re-stage reads when both slots are valid: read 0 is the
-#: AEM image and reads 1 and 2 judge A and B
-RESTAGE_WINDOWS = ((3, 1), (3, 2), (3, 3))
-#: a writer restart's reads, counted from its first (a restart reads no AEM
-#: image): one faulty read at each of the first four, which reach both slots'
-#: judgements and the re-stage, and with both slots valid the newer slot's
-#: three re-stage reads after one judgement read of each
-RESTART_WINDOWS = tuple((skip, 1) for skip in range(4))
-RESTART_RESTAGE = (2, 3)
 #: the firmware's NVM_READ_TRIES, and the most reads a boot may open: the AEM
 #: image, then NVM_READ_TRIES judgements and as many re-stages of each slot
 READ_TRIES = 3
 BOOT_READ_BOUND = 1 + 4 * READ_TRIES
+#: the fault window that lasts the whole boot (the first SKIP reads clean, the
+#: next COUNT faulty)
+WHOLE = (0, 64)
+#: check 13's fault groups (#671): whether the other slot holds an older
+#: container (else it is blank), the slot the fault answers wrongly (the valid
+#: or newer one, or the other), its manners of fault, and the sequences the
+#: newer container takes in turn. A byte fault flips the magic
+#: byte, the top byte of the sequence word or a record-area byte, by another
+#: value on each faulty read; --read-ff reads the slot all 0xFF; --read-other
+#: answers with the other slot's bytes, an address fault (R603-3).
+GROUPS = ((False, "valid", ("magic", "seq", "body", "--read-ff"), FAULT_SEQS),
+          (False, "other", ("magic", "--read-other"), FAULT_SEQS),
+          (True, "valid", ("magic", "body", "--read-other"), BOTH_VALID_SEQS),
+          (True, "other", ("magic", "body"), BOTH_VALID_SEQS))
+#: a flipped byte: its offset (None is the record area's middle byte, which
+#: depends on the shape) and the first faulty read's XOR
+FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8)}
 HELD_LINE = "the writer is HELD until reset"
 #: what a held writer restart prints on re-attaching (R603-2-S2)
 REATTACH_HELD = "re-attached and HELD"
@@ -165,65 +185,118 @@ class FaultCase:
         return {self.valid.upper(): ("VD_OK", self.seq), self.other.upper(): other}
 
 
-def restart_cases(body: int) -> list[FaultCase]:
-    """Check 13's cases on a writer restart without a fabric reset, the
-    re-attach path (#671), both ways round, each after a clean cold boot.
-    With the other slot blank, the valid slot is faulted for the whole
-    restart at every sequence by a header byte and once by `body`, and by
-    one faulty read at each of the restart's first four; with both slots
-    valid, the newer is faulted for the whole restart or on its re-stage."""
-    cases = []
-    for valid in "ab":
-        cases += [FaultCase(valid, False, seq, ("--read-fault", f"{valid}:0:0:64"), *WHOLE, True)
-                  for seq in FAULT_SEQS]
-        cases.append(FaultCase(valid, False, 0x5A5A5, ("--read-fault", f"{valid}:{body}:0:64"), *WHOLE, True))
-        cases += [FaultCase(valid, False, 0x5A5A5, ("--read-fault", f"{valid}:11:{skip}:{count}:128"),
-                            skip, count, True) for skip, count in RESTART_WINDOWS]
-        cases += [FaultCase(valid, True, seq, ("--read-fault", f"{valid}:0:{skip}:{count}"), skip, count, True)
-                  for seq in BOTH_VALID_SEQS for skip, count in (WHOLE, RESTART_RESTAGE)]
-    return cases
+def windows(clean: int) -> tuple[tuple[int, int], ...]:
+    """Check 13's fault windows, generated, never picked (R602-3-F1,
+    R603-3-F1): the window that lasts the whole boot, and every read a boot
+    opens as the first faulty one, times every length from one read to one
+    past NVM_READ_TRIES, the most reads one judgement or one re-stage gives a
+    slot, the longest first. `clean` is the reads the boot opens with no
+    fault: the reads before a window are clean, so one starting later never
+    meets the boot, which has ended where a clean one does."""
+    return (WHOLE,) + tuple((skip, count) for count in range(READ_TRIES + 1, 0, -1) for skip in range(clean))
 
 
 def fault_cases(body: int) -> list[FaultCase]:
-    """Check 13's cases, both ways round: the writer restarts first, then
-    the cold boots. With the other slot blank, the
-    valid slot is faulted at every sequence and window, by one byte of its
-    header or sequence word and by `body`, a byte of its record area, which
-    only the CRC over every byte read refuses; the blank slot is faulted at
-    one sequence; and one all-0xFF read is walked over the boot. With both
-    slots valid, the newer is faulted over every window and the older over
-    the whole boot, and the newer's re-stage reads are answered with the
-    older's container."""
-    cases = restart_cases(body)
-    for valid in "ab":
-        other = "b" if valid == "a" else "a"
-        for seq in FAULT_SEQS:
-            for skip, count in FAULT_WINDOWS:
-                byte, base = (0x0B, 0x80) if (skip + count) % 2 else (0, 8)
-                cases += [FaultCase(valid, False, seq,
-                                    ("--read-fault", f"{valid}:{off}:{skip}:{count}:{base}"),
-                                    skip, count) for off in (byte, body)]
-        for skip, count in FAULT_WINDOWS:
-            cases.append(FaultCase(valid, False, 0x5A5A5,
-                                   ("--read-fault", f"{other}:0:{skip}:{count}"), skip, count))
-        for skip in range(6):
-            cases.append(FaultCase(valid, False, 0x5A5A5, ("--read-ff", f"{valid}:{skip}:1"), skip, 1))
-        for seq in BOTH_VALID_SEQS:
-            for skip, count in FAULT_WINDOWS:
-                off = 0 if (skip + count) % 2 else body
-                cases.append(FaultCase(valid, True, seq,
-                                       ("--read-fault", f"{valid}:{off}:{skip}:{count}"), skip, count))
-            cases.append(FaultCase(valid, True, seq, ("--read-fault", f"{other}:{body}:0:64"), 0, 64))
-            cases += [FaultCase(valid, True, seq, ("--read-other", f"{valid}:{skip}:{count}"),
-                                skip, count) for skip, count in RESTAGE_WINDOWS]
-    return cases
+    """Check 13's cases: each group's every manner of fault over every
+    window, both ways round, on a writer restart and on a cold boot. A
+    group's sequences are taken in turn, so the sequence set is spread over
+    the windows, not crossed with them (the full cross exceeds the suite's
+    time). A case outside the rule's stated detection limit is not run, and
+    every window keeps its byte faults, which are always inside it: there
+    two faulty reads of one judgement return the same bytes (all 0xFF
+    twice), or a faulty read returns the other slot's valid container and it
+    stands, and no rule over the bytes sees either (`expect`). The groups'
+    lists are interleaved, so a planted control meets every group early.
+    `body` is the shape's record-area byte."""
+    lists = []
+    for restart in (True, False):
+        for older, faulted, manners, seqs in GROUPS:
+            for turn, valid in enumerate("ab"):
+                slot = valid if faulted == "valid" else ("b" if valid == "a" else "a")
+                clean = expect(FaultCase(valid, older, seqs[0], ("--read-fault", f"{slot}:0:0:0"), 0, 0, restart))
+                cases = (FaultCase(valid, older, seqs[(w + m + turn) % len(seqs)],
+                                   fault(manner, slot, skip, count, body), skip, count, restart)
+                         for w, (skip, count) in enumerate(windows(clean.reads))
+                         for m, manner in enumerate(manners))
+                lists.append([case for case in cases if expect(case).within])
+    return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
+
+
+def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str, str]:
+    """The harness option and argument for one manner of fault."""
+    if manner.startswith("--"):
+        return manner, f"{slot}:{skip}:{count}"
+    off, base = FLIPS[manner]
+    return "--read-fault", f"{slot}:{body if off is None else off}:{skip}:{count}:{base}"
+
+
+@dataclass(frozen=True)
+class Expect:
+    """What the reference model says a case's boot (or restart) does."""
+
+    reads: int                  # the flash reads it opens
+    unread: str                 # the slots it leaves UNREAD: "", "A", "B" or "AB"
+    unstaged: str               # of those, the ones judged that did not read back as judged
+    within: bool                # every slot ends as its bytes say, or UNREAD
+
+
+def expect(case: FaultCase) -> Expect:
+    """The reference model of the writer's reads (#671), written once from
+    the rule and not from the firmware. A cold boot reads the AEM image
+    first. Each slot, A then B, is judged by at most READ_TRIES reads: a
+    VD_OK read stands alone, any other verdict on a read that returned the
+    same bytes as an earlier one; a slot with no standing verdict is UNREAD.
+    The newer VD_OK slot (A on a tie) is re-staged by at most READ_TRIES
+    reads until one is VD_OK at the sequence it was judged at; one that is
+    never so is UNREAD, and the other VD_OK slot is re-staged in turn. A
+    clean read returns the slot's container or blank; a faulty one returns
+    bytes no other read returns, a blank read, or the other slot's clean
+    read, as the case's option says."""
+    clean = {case.valid.upper(): ("OK", case.seq, "newer"),
+             case.other.upper(): ("OK", (case.seq - 1) & SEQ_MASK, "older") if case.older else ("BLANK",)}
+    option, arg = case.fault
+    reads = 0 if case.restart else 1
+
+    def read(slot: str) -> tuple:
+        """The next read of `slot`, as the case's fault answers it."""
+        nonlocal reads
+        reads += 1
+        if slot != arg[0].upper() or not case.skip <= reads - 1 < case.skip + case.count:
+            return clean[slot]
+        return {"--read-fault": ("REFUSED", reads), "--read-ff": ("BLANK",)}.get(
+            option, clean["BA"["AB".index(slot)]])
+
+    def judge(slot: str) -> tuple:
+        """The slot's standing verdict, or UNREAD."""
+        seen = []
+        for _ in range(READ_TRIES):
+            got = read(slot)
+            if got[0] == "OK" or got in seen:
+                return got
+            seen.append(got)
+        return ("UNREAD",)
+
+    verdict = {slot: judge(slot) for slot in "AB"}
+    unstaged, staged = "", None
+    while staged is None and any(v[0] == "OK" for v in verdict.values()):
+        ok = [slot for slot in "AB" if verdict[slot][0] == "OK"]
+        pick = ok[0] if len(ok) == 1 or (verdict["A"][1] - verdict["B"][1]) & SEQ_MASK < 0x8000_0000 else "B"
+        staged = next((got for got in (read(pick) for _ in range(READ_TRIES))
+                       if got[0] == "OK" and got[1] == verdict[pick][1]), None)
+        if staged is None:
+            verdict[pick], unstaged = ("UNREAD",), unstaged + pick
+        elif staged != clean[pick]:
+            verdict[pick] = staged
+    unread = "".join(slot for slot in "AB" if verdict[slot] == ("UNREAD",))
+    return Expect(reads, unread, "".join(sorted(unstaged)),
+                  all(verdict[slot] in (clean[slot], ("UNREAD",)) for slot in "AB"))
 
 
 def judged(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
     """Each slot's boot verdict is what its bytes say when read cleanly, or
     the slot is UNREAD: VD_LEN, no sequence, its bit in `unread=`. Every
-    fault the cases plant returns other bytes on every faulty read, so no
-    other verdict may stand."""
+    case check 13 runs is inside the rule's detection limit (`fault_cases`),
+    so no other verdict may stand."""
     findings = []
     for n, letter in enumerate("AB"):
         vd, seq, bit = boot.group(1 + 2 * n), int(boot.group(2 + 2 * n)), (unread >> n) & 1
@@ -254,41 +327,56 @@ def line_findings(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
 
 
 def read_findings(case: FaultCase, reads: int) -> list[str]:
-    """The reads a boot opened: never over the bound, and with one slot
-    faulted for the whole boot exactly the AEM image (a restart reads none),
-    three of that slot and two of the other, two agreeing blank reads or a
-    judgement and a re-stage (R603-2-S1), so the per-slot bound is pinned."""
+    """The reads a boot opened: never over the bound, and exactly the reads
+    the reference model opens for the case (R602-3-F1, R603-3-F1), so each
+    judgement's and each re-stage's bound is pinned from both sides."""
     first = 0 if case.restart else 1
     what = "writer restart" if case.restart else "boot"
     if reads > BOOT_READ_BOUND - 1 + first:
         return [f"{case.name}: the {what} read the flash {reads} times, "
                 f"over the bound of {BOOT_READ_BOUND - 1 + first}"]
-    if (case.skip, case.count) == WHOLE and reads != first + READ_TRIES + 2:
-        return [f"{case.name}: with one slot faulted on every read the {what} read the flash "
-                f"{reads} times, want exactly {first + READ_TRIES + 2}"]
+    want = expect(case).reads
+    if reads != want:
+        return [f"{case.name}: the {what} read the flash {reads} times, want exactly {want}"]
     return []
+
+
+def hold_findings(case: FaultCase, held: bool, unread: int, out: str) -> list[str]:
+    """Whether a boot (or restart) held, by its own line's tally and by the
+    reference model: a slot left unread holds the writer, a fault the bound
+    resolves never does, and a held boot's console names each slot it left
+    unread and why, a missing verdict or a re-stage that did not read back
+    as judged (R603-3-S1)."""
+    e = expect(case)
+    if held and not e.unread:
+        what = "one faulty read" if case.count == 1 else "a fault the bound resolves"
+        return [f"{case.name}: {what} held the writer; the bound must resolve it"]
+    if not held:
+        if not (unread or e.unread or (case.skip, case.count) == WHOLE):
+            return []
+        return [f"{case.name}: " + ("the restart left a slot unread, yet the writer re-attached live"
+                                    if case.restart else "a slot no read returned twice did not hold the writer")]
+    want = "Milan NVM: " + " and ".join(
+        f"slot {s} {'did not read back as it was judged' if s in e.unstaged else 'gave no standing verdict'} "
+        f"in {READ_TRIES} reads" for s in e.unread) + "; its authority is unknown"
+    return [] if want in out else [f"{case.name}: the hold names another cause than its reads gave: want {want!r}"]
 
 
 def restart_findings(case: FaultCase, restart: str, boot: re.Match | None,
                      before: dict[str, int], after: dict[str, int]) -> tuple[list[str], bool]:
     """A writer restart's transcript, and the harness state when it began
     and after its change and debounce (#671 on the re-attach path). The
-    line is graded as a cold boot's. A slot left unread, or a fault lasting
-    the whole restart, HOLDS the writer: it says so, erases, programs,
-    starts, acknowledges and heartbeats nothing more, and the fabric
-    revokes nvm_backed. Otherwise the change commits. Returns the findings
-    and whether the restart held."""
+    line and the hold are graded as a cold boot's. A held restart says so,
+    erases, programs, starts, acknowledges and heartbeats nothing more, and
+    the fabric revokes nvm_backed. Otherwise the change commits. Returns the
+    findings and whether the restart held."""
     f = read_findings(case, after.get("restart_reads", 0))
     if boot is None:
         return f + [f"{case.name}: the writer restart printed no boot line"], False
     tally = UNREAD_RE.search(restart)
     unread = int(tally.group(2)) if tally else 0
     held = HELD_LINE in restart
-    f += line_findings(case, boot, unread)
-    if case.count == 1 and held:
-        f.append(f"{case.name}: one faulty read held the writer; the bound must resolve it")
-    if (unread or (case.skip, case.count) == WHOLE) and not held:
-        f.append(f"{case.name}: the restart left a slot unread, yet the writer re-attached live")
+    f += line_findings(case, boot, unread) + hold_findings(case, held, unread, restart)
     if not held:
         if after.get("acks") != before.get("acks", 0) + 1 or after.get("dirty") != 0:
             f.append(f"{case.name}: the change was neither committed nor refused: {after}")
