@@ -1,0 +1,9 @@
+2026-10-11T02:25:09Z
++ python3 -B <packet>/scripts/probe_plants.py <packet>/scratch/probe-tree <packet>/receipts/probes 8 p_no_restage,p_blank_one_read,p_hold_both_only,p_console_unnamed,p_seq_from_flash,p_reattach_held_no_publish
+p_no_restage                 endstation_arty_4x4          findings=542 {'want exactly': 14, 'did not survive': 50, 'was lost on the clean reboot': 236, 'not the container it judged': 167, 'another valid container': 40}
+p_blank_one_read             endstation_arty_4x4          findings=30 {'want exactly': 26, 'on reads that returned different bytes': 2, 'did not survive': 1, 'was lost on the clean reboot': 1}
+p_hold_both_only             endstation_arty_4x4          findings=210 {'re-attached live': 18, 'neither committed nor refused': 13, 'was lost on the clean reboot': 28, 'did not survive': 57, 'did not hold the writer': 80, 'did not refuse the console': 1}
+p_console_unnamed            endstation_arty_4x4          findings=1 {'did not refuse the console': 1}
+p_seq_from_flash             endstation_arty_4x4          findings=42 {'one faulty read held': 14, 'want exactly': 14, 'another valid container': 2, 'was lost on the clean reboot': 2, 'did not survive': 4}
+p_reattach_held_no_publish   endstation_arty_4x4          findings=0 {}
+2026-10-11T02:26:08Z

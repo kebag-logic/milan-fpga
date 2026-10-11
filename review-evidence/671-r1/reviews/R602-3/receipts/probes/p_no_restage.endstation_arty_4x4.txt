@@ -1,0 +1,542 @@
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64 on a writer restart: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:3 on a writer restart: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:64 on a writer restart: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:64 on a writer restart: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:2:3 on a writer restart: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:0:1:128 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:1:1:128 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:2:1:128 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:3:1:128 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:3 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:0:64 on a writer restart: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:2:3 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:2422:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:0:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:2422:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:0:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:2422:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:0:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:0:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:0:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:1:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:1:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:1:3:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:2:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:2:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:2:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:3:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:3:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:3:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:4:1:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:4:2:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:4:3:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:5:1:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:5:2:128: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:5:3:8: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:0:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:2422:0:64:8: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:2: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:3: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:1:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:1:2: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:1:3: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:1:3: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:2: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:2: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:3: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:2:3: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:2: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:2: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:3: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:3:3: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:4:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:4:2: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:4:3: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:5:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:5:2: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:5:3: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:64: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:64: the held boot changed the saved state: the clean reboot restored None, want the saved 22334455, and 87 other saved record(s) differ
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:0:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:1:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:2:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:3:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:4:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:5:1: the window the boot loaded is not the container it judged: it reads VD_BLANK
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:1:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:1:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:1:3: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:1:3: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:2:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:2:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:3:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:3:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:3:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:4:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:4:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:4:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:4:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:4:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:4:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:5:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:5:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:5:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:5:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:5:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:5:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:64: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:64: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: the window the boot loaded is not the container it judged: it reads VD_CRC
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:2: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:1:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:1:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:1:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:1:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:1:3: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:1:3: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:2:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:2:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:2:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:2:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:2:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:2:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:3:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:3:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:3:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:3:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:4:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:4:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:4:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:4:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:4:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:4:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:5:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:5:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:5:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:5:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:5:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:5:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:64: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:64: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault b:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault b:2422:0:64: the window the boot loaded is not the container it judged: it reads VD_CRC
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault b:2422:0:64: the held boot changed the saved state: the clean reboot restored 11121314, want the saved 22334455, and 1 other saved record(s) differ
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault b:2422:0:64: 1 other saved record(s) did not survive the recovery
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:1: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:1: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:2: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-other a:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:11:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:0:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x1, --read-fault b:2422:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:2422:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:11:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:0:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x80000000, --read-fault b:2422:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:0:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:0:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:0:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:1:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:1:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:1:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:2:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:2:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:2:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:3:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:3:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:3:3:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:4:1:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:4:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:4:3:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:5:1:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:11:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:5:2:128: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:5:3:8: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:0:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0xffffffff, --read-fault b:2422:0:64:8: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:0:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:0:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:0:3: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:1:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:1:2: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:1:3: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:2:2: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:2:3: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:4:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:4:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:4:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:5:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:5:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:5:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault a:0:0:64: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:0:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:1:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:4:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-ff b:5:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:1:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:1:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:1:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:2:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:3: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:3: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:4:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:4:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:4:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:5:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:5:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:5:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: the window the boot loaded is not the container it judged: it reads VD_CRC
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:2422:0:64: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault a:2422:0:64: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:0:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:0:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:0:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:1:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:1:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:1:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:2:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:2:3: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:2:3: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:4:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:4:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:4:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:5:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:5:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:5:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:0:64: the window the boot loaded is not the container it judged: it reads VD_CRC
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:2422:0:64: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault a:2422:0:64: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault a:2422:0:64: the change committed after the recovery was lost on the clean reboot
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-other b:3:1: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-other b:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243
+endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-other b:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243

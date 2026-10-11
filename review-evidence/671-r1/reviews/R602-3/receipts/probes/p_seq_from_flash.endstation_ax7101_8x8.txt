@@ -1,0 +1,42 @@
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:11:3:1:128 on a writer restart: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 6 times, want exactly 5
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 6 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:11:3:1:128 on a writer restart: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 6 times, want exactly 5
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 6 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A valid at seq 0x80000000, --read-fault a:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A valid at seq 0xffffffff, --read-fault a:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault b:0:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-ff a:4:1: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-fault a:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-fault b:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:3: slot A reads VD_OK seq 0x5a5a4 unread bit 0, but holds VD_OK seq 0x5a5a5: Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370084; offered A seq 370084 (VD_OK)
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:3: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-fault a:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-fault b:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-other a:3:1: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-other a:3:3: slot A reads VD_OK seq 0xffffffff unread bit 0, but holds VD_OK seq 0x0: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 4294967295; offered A seq 4294967295 (VD_OK)
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-other a:3:3: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-other a:3:3: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243
+endstation_ax7101_8x8: slot B valid at seq 0x1, --read-fault b:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B valid at seq 0x80000000, --read-fault b:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B valid at seq 0xffffffff, --read-fault b:11:4:1:128: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault a:0:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-ff b:4:1: one faulty read held the writer; the bound must resolve it
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault a:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:2: slot B reads VD_OK seq 0x5a5a4 unread bit 0, but holds VD_OK seq 0x5a5a5: Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370084; offered A seq 370084 (VD_OK)
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:3: slot B reads VD_OK seq 0x5a5a4 unread bit 0, but holds VD_OK seq 0x5a5a5: Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370084; offered A seq 370084 (VD_OK)
+endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-other b:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-fault b:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-fault a:6646:0:64: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-other b:3:2: slot B reads VD_OK seq 0xffffffff unread bit 0, but holds VD_OK seq 0x0: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 4294967295; offered A seq 4294967295 (VD_OK)
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-other b:3:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-other b:3:3: slot B reads VD_OK seq 0xffffffff unread bit 0, but holds VD_OK seq 0x0: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 4294967295; offered A seq 4294967295 (VD_OK)
+endstation_ax7101_8x8: slot B newer at seq 0x0, the other older, --read-other b:3:3: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot

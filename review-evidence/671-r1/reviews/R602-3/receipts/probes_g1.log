@@ -1,0 +1,12 @@
+2026-10-11T02:25:09Z
++ python3 -B <packet>/scripts/probe_plants.py <packet>/scratch/probe-tree <packet>/receipts/probes 8 p_cold_goes_live,p_held_heartbeats,p_agree_first_only,p_judge_unread_unmarked,p_judge_keeps_verdict,p_restage_unbounded
+p_cold_goes_live             endstation_arty_4x4          findings=169 {'did not hold the writer': 80, 'did not survive': 52, 'neither committed nor refused': 8, 'was lost on the clean reboot': 20, 'did not refuse the console': 1}
+p_held_heartbeats            endstation_arty_4x4          findings=99 {'persisted something': 98, 'did not refuse the console': 1}
+host build failed: gcc -std=gnu11 -O1 -g -Wall -Wextra -Werror -I<packet>/receipts/probes/r602probe.p83y064m/p_agree_first_only.endstation_arty_4x4 -I<packet>/scratch/probe-tree/sw/firmware/nvm_hosttest/stubs -Wno-format -c <packet>/receipts/probes/r602probe.p83y064m/p_agree_first_only.endstation_arty_4x4/milan_baremetal.c -o <packet>/receipts/probes/r602probe.p83y064m/p_agree_first_only.endstation_arty_4x4/fw.o
+<packet>/receipts/probes/r602probe.p83y064m/p_agree_first_only.endstation_arty_4x4/milan_baremetal.c: In function ‘nvm_judge_slot’:
+<packet>/receipts/probes/r602probe.p83y064m/p_agree_first_only.endstation_arty_4x4/milan_baremetal.c:784:25: error: variable ‘second’ set but not used [-Werror=unused-but-set-variable=]
+  784 |         struct nvm_read second = first;
+      |                         ^~~~~~
+cc1: all warnings being treated as errors
+
+2026-10-11T02:25:31Z

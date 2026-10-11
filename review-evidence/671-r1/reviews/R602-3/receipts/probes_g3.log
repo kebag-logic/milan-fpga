@@ -1,0 +1,7 @@
+2026-10-11T02:26:54Z
++ python3 -B <packet>/scripts/probe_plants.py <packet>/scratch/probe-tree <packet>/receipts/probes 8 p_agree_first_only,p_judge_unread_unmarked,p_judge_keeps_verdict,p_restage_unbounded
+p_agree_first_only           endstation_arty_4x4          findings=2 {'one faulty read held': 2}
+p_judge_unread_unmarked      endstation_arty_4x4          findings=202 {'does not name it unread': 70, 're-attached live': 14, 'neither committed nor refused': 13, 'was lost on the clean reboot': 24, 'did not survive': 37, 'did not hold the writer': 26, 'did not refuse the console': 1, 'named the slot on the console': 4}
+p_judge_keeps_verdict        endstation_arty_4x4          findings=70 {'on reads that returned different bytes': 66}
+p_restage_unbounded          endstation_arty_4x4          findings=0 {}
+2026-10-11T02:27:36Z

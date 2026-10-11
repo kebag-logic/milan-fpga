@@ -1,0 +1,20 @@
+2026-10-11T02:28:47Z
++ python3 -B <packet>/scripts/probe_restage_bound.py <packet>/scratch/probe-tree <packet>/receipts/probes endstation_ax7101_8x8
+check 13 cases: 472; cases faulting more than 3 consecutive reads that do not also fault the judgement (skip>0): 0
+head                 endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=0
+head                 endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=0
+head                 endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=0
+head                 endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=0
+restage_four_tries   endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=0
+restage_four_tries   endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=0
+restage_four_tries   endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=0
+restage_four_tries   endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=0
+restage_unbounded    endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=1
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: the boot read the flash 68 times, over the bound of 13
+restage_unbounded    endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=1
+    - slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: the boot read the flash 68 times, over the bound of 13
+restage_unbounded    endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=1
+    - slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: the boot read the flash 69 times, over the bound of 13
+restage_unbounded    endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=1
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: the writer restart read the flash 67 times, over the bound of 12
+2026-10-11T02:28:52Z

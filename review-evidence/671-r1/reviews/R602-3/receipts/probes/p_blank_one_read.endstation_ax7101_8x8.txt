@@ -1,0 +1,30 @@
+endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0x80000000, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0xffffffff, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:6646:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0x1, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0x80000000, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0xffffffff, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:6646:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 4 times, want exactly 5
+endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-fault a:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x80000000, --read-fault a:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x80000000, --read-fault a:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0xffffffff, --read-fault a:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0xffffffff, --read-fault a:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-ff a:1:1: slot A was taken as VD_BLANK on reads that returned different bytes: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)
+endstation_ax7101_8x8: slot A valid at seq 0x5a5a5, --read-ff a:1:1: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+endstation_ax7101_8x8: slot B valid at seq 0x1, --read-fault b:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x1, --read-fault b:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-fault b:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x80000000, --read-fault b:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x80000000, --read-fault b:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0xffffffff, --read-fault b:0:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0xffffffff, --read-fault b:6646:0:64:8: with one slot faulted on every read the boot read the flash 5 times, want exactly 6
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-ff b:2:1: slot B was taken as VD_BLANK on reads that returned different bytes: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)
+endstation_ax7101_8x8: slot B valid at seq 0x5a5a5, --read-ff b:2:1: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243

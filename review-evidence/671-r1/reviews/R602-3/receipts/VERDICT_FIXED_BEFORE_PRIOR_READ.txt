@@ -1,0 +1,7 @@
+Provisional verdict written before reading any prior-round review report (2026-10-11T02:4xZ):
+[R602] NEGATIVE - exact head fc0c517cd55111d81a9fc2aeaa2edd3a82c9ee08
+F1 MINOR Tests, Docs: re-stage retry bound not pinned by check 13 (0/472 cases; unbounded re-stage plant 0 findings; demonstrator shows the head's own bound check would catch it given one post-judgement persistent-fault case).
+F2 MINOR Docs: PR body reproduction figure "645 findings per product shape, 124 lost, graded by this head's checks" is the round-2 harness's; at this head the base firmware cannot be built by the head harness without narrowing the restart model, and with it gives 743 / 135 per product shape.
+S1 SUGGESTION: held re-attach publishes a sequence re-derived without the unread slot (evidence-only word); not graded.
+Ledger: Conformance CLEAN; RTL CLEAN; Robustness CLEAN; Tests UNCLEAN (F1); Docs UNCLEAN (F1, F2).
+2026-10-11T02:32:19Z
