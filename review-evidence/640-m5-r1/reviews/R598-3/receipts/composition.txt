@@ -1,0 +1,79 @@
+# merge-tree recomputation
+git merge-tree --write-tree 1a042affc c0cba330f -> 0fc0841bebece392d6facb87cd209d2f5e96e565
+candidate tree: 0fc0841bebece392d6facb87cd209d2f5e96e565
+git merge-tree --write-tree ac2c5e77b ee0fc6fd9 -> 9ef4b6a221a43ec301f137501e948ba8ad2b9239 ; 1a042affc tree 9ef4b6a221a43ec301f137501e948ba8ad2b9239
+live dev (ls-remote): ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5	refs/heads/dev
+merge-base(1a042affc,c0cba330f) = e8454e2751d05b02ee8e5a571857589ab358ab86
+
+# files changed by both sides since merge base
+docs/design/MARK_II_AREA_PLAN.md
+scripts/measure_test_evidence_readers.py
+
+# M5 source files: blob at source head vs candidate
+DIFFERS docs/design/MARK_II_AREA_PLAN.md src=40d7309db2cb900bd7594fc905155a1105c65818 cand=98304fd185af1018b273c5ba975fabe3e527dbef
+identical hdl/common/csr/doc/milan_csr.md src=d407f098875bdcad4344e52cdd4a6a529615e4ff cand=d407f098875bdcad4344e52cdd4a6a529615e4ff
+identical hdl/common/csr/milan_csr.sv src=8535a4474b12d7c1866058fbd8fde7d4e4af25d0 cand=8535a4474b12d7c1866058fbd8fde7d4e4af25d0
+DIFFERS scripts/measure_test_evidence_readers.py src=4f83a980bd18737f6ce2fb484fd5f25568e8ec4e cand=3f4ad689b13daf453c028e5866f26727699a23d3
+identical tb/verilator/csr/Makefile src=4e56e9400d7874405fc8e0da43a4f46e36aeb8a4 cand=4e56e9400d7874405fc8e0da43a4f46e36aeb8a4
+identical tb/verilator/csr/README.md src=94a1fe812d86570a242a0719b2eb5425728c7397 cand=94a1fe812d86570a242a0719b2eb5425728c7397
+identical tb/verilator/csr/gen_lockstep.py src=6442c3262c0222f11a5d74c3e780802c4d2b2752 cand=6442c3262c0222f11a5d74c3e780802c4d2b2752
+identical tb/verilator/csr/lock_mutants.py src=e1e515be3aba92f0af1713fa82e97cf5db566beb cand=e1e515be3aba92f0af1713fa82e97cf5db566beb
+identical tb/verilator/csr/milan_csr_ref.sv src=a7c6972a5b93411f8083d2906717e0842247d63a cand=a7c6972a5b93411f8083d2906717e0842247d63a
+identical tb/verilator/csr/sim_lock.cpp src=efc1551d5f30165cd7910903ee3b0beef69a1d7f cand=efc1551d5f30165cd7910903ee3b0beef69a1d7f
+
+# predecessor files: blob at parent vs candidate
+identical docs/design/AREA_BUDGET.md
+DIFFERS docs/design/MARK_II_AREA_PLAN.md
+identical docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+identical docs/findings/B14_BENCH_5603C353.md
+identical docs/findings/README.md
+identical docs/litex/CLOCK_DOMAINS.md
+identical docs/testing/TESTING.md
+identical hdl/ieee1722/aaf/KL_chan_map_capture.sv
+identical hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+identical hdl/milan/KL_pp_shadow.sv
+identical hdl/milan/milan_datapath.sv
+DIFFERS scripts/measure_test_evidence_readers.py
+identical scripts/run_litex_sims.sh
+identical sw/litex/gen_mac_tx_model.py
+identical sw/litex/milan_soc.py
+identical sw/litex/test_retained_cdc_storage.py
+identical tb/verilator/avtp_rxmon/Makefile
+identical tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv
+identical tb/verilator/avtp_rxmon/lockstep_mutants.py
+identical tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+identical tb/verilator/avtp_rxmon/sim_lockstep.cpp
+identical tb/verilator/capture_coherence/mutants.py
+identical tb/verilator/chmap_capture/Makefile
+identical tb/verilator/chmap_capture/chmap_lockstep_wrap.sv
+identical tb/verilator/chmap_capture/lockstep_mutants.py
+identical tb/verilator/chmap_capture/reference/KL_chan_map_capture_ref.sv
+identical tb/verilator/chmap_capture/sim_lockstep.cpp
+identical tb/verilator/gptp_txts/generated/mac_tx_chain.v
+identical tb/verilator/gptp_txts/generated/manifest.json
+
+# patch-id of each overlapping file's delta: source (e8454e27..c0cba330) vs composed (1a042aff..8f0f2051)
+docs/design/MARK_II_AREA_PLAN.md src=5df1472d1009518c06b2d2f92c99f9bc43389520 comp=5df1472d1009518c06b2d2f92c99f9bc43389520
+scripts/measure_test_evidence_readers.py src=64137cf07dbb36d55aa702996759c1d38a44b7cd comp=64137cf07dbb36d55aa702996759c1d38a44b7cd
+
+# predecessor hunks in milan_datapath.sv (csr instance at 2445-2472)
+@@ -3450 +3450,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -3504 +3505,4 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -3505,0 +3510 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -3507,14 +3512,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -3522,0 +3530,4 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+@@ -6326,6 +6337,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+
+# patch-id of each overlapping file's predecessor delta: (e8454e27..1a042aff) vs (c0cba330..8f0f2051)
+docs/design/MARK_II_AREA_PLAN.md pred=021bad15b154a052c2eaaf2d9c4df950df6685d3 comp=021bad15b154a052c2eaaf2d9c4df950df6685d3
+scripts/measure_test_evidence_readers.py pred=7fb2233c4dabcea0b549ced42c8c832f9f019322 comp=7fb2233c4dabcea0b549ced42c8c832f9f019322
+
+# heading uniqueness in the composed plan
+(no DUPLICATE lines above = unique)
+# in-page anchors used by the three measurement sections
+m2-intermediate-measurement refs=1
+m5-intermediate-measurement refs=1
+m6-intermediate-measurement refs=1
+l3-ram-friendly-retained-tables refs=2
+l8-csr-read-path refs=1
+l9-media-context-tables refs=1
