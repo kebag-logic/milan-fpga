@@ -1,0 +1,69 @@
+== prev-15981b5 :: unmutated :: 0 finding(s)
+== prev-15981b5 :: F1 echo-hide with EAVL also in shared_entries (file) :: 1 finding(s)
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 160017de1821): sweep this engine with make -C tb/aecp_cmds record
+== prev-15981b5 :: F2 echo-hide exactly as the self-test (file) :: 1 finding(s)
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 160017de1821): sweep this engine with make -C tb/aecp_cmds record
+== prev-15981b5 :: F3 owned single-use first entry GCLKS in echo_entries (file) :: 0 finding(s)
+== prev-15981b5 :: F4 unowned shared TIZ4NS in echo_entries (file; ruling branch 1 allows) :: 0 finding(s)
+== prev-15981b5 :: F5 private RDESCENT in echo_entries (file) :: 0 finding(s)
+== prev-15981b5 :: F6 echo_entries removed (file) :: 32 finding(s)
+  fields: echo_entries: registry entry has no such table field
+  decode: LOCK_ENTITY: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: READ_DESCRIPTOR: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_FORMAT: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_INFO: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_INFO: NSUPPE answered NOT_SUPPORTED at the command's own length, and the table's response is no echo
+  decode: GET_SAMPLING_RATE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_CLOCK_SOURCE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+== prev-15981b5 :: F7 echo_entries a string (file) :: 31 finding(s)
+  decode: LOCK_ENTITY: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: READ_DESCRIPTOR: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_FORMAT: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_INFO: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_INFO: NSUPPE answered NOT_SUPPORTED at the command's own length, and the table's response is no echo
+  decode: GET_SAMPLING_RATE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_CLOCK_SOURCE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_AVB_INFO: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+== prev-15981b5 :: F8 NSUPPE dropped from shared_entries (file) :: 0 finding(s)
+== prev-15981b5 :: M0 NOTIMPL removed from echo_entries (load-bearing?) :: 4 finding(s)
+  decode: GET_AUDIO_MAP: NOTIMPL answered NOT_IMPLEMENTED at the command's own length, and the table's response is no echo
+  decode: GET_MILAN_INFO: NOTIMPL answered NOT_IMPLEMENTED at the command's own length, and the table's response is no echo
+  rom: GET_AUDIO_MAP: E_NOTIMPL answers NOT_IMPLEMENTED at cdl 12, the table's response is 24 + 8·N
+  rom: GET_MILAN_INFO: E_NOTIMPL answers NOT_IMPLEMENTED at cdl 12, the table's response is 32
+== prev-15981b5 :: M0 BADARG removed from echo_entries (load-bearing?) :: 22 finding(s)
+  decode: LOCK_ENTITY: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: READ_DESCRIPTOR: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_FORMAT: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_STREAM_INFO: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_SAMPLING_RATE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_CLOCK_SOURCE: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_AVB_INFO: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+  decode: GET_AS_PATH: BADARG answered BAD_ARGUMENTS at the command's own length, and the table's response is no echo
+== prev-15981b5 :: M0 NSUPPE removed from echo_entries (load-bearing?) :: 5 finding(s)
+  decode: GET_STREAM_INFO: NSUPPE answered NOT_SUPPORTED at the command's own length, and the table's response is no echo
+  decode: GET_AVB_INFO: NSUPPE answered NOT_SUPPORTED at the command's own length, and the table's response is no echo
+  rom: LOCK_ENTITY: E_NSUPPE answers NOT_SUPPORTED at cdl 12, the table's response is 28
+  rom: GET_STREAM_INFO: E_NSUPPE answers NOT_SUPPORTED at cdl 12, the table's response is 68
+  rom: GET_AVB_INFO: E_NSUPPE answers NOT_SUPPORTED at cdl 12, the table's response is 32 + 4·N
+== prev-15981b5 :: M1 ROM: E_BADARG answers SUCCESS (shared echo, non-echo commands) :: 10 finding(s)
+  rom: LOCK_ENTITY: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: GET_STREAM_FORMAT: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: GET_STREAM_INFO: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: IDENTIFY_NOTIFICATION: status SUCCESS is answered by a path of its programs and missing from the table's status set
+  rom: IDENTIFY_NOTIFICATION: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: GET_AVB_INFO: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: GET_AS_PATH: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+  rom: GET_COUNTERS: status BAD_ARGUMENTS is in the table's status set and no path of its programs can answer it
+== prev-15981b5 :: M2 ROM: E_NSUPPE answers SUCCESS :: 7 finding(s)
+  rom: ACQUIRE_ENTITY: status SUCCESS is answered by a path of its programs and missing from the table's status set
+  rom: ACQUIRE_ENTITY: status NOT_SUPPORTED is in the table's status set and no path of its programs can answer it
+  rom: LOCK_ENTITY: status NOT_SUPPORTED is in the table's status set and no path of its programs can answer it
+  rom: SET_STREAM_INFO: status NOT_SUPPORTED is in the table's status set and no path of its programs can answer it
+  rom: GET_STREAM_INFO: status NOT_SUPPORTED is in the table's status set and no path of its programs can answer it
+  rom: GET_AVB_INFO: status NOT_SUPPORTED is in the table's status set and no path of its programs can answer it
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 5c1957dc2bb6): sweep this engine with make -C tb/aecp_cmds record
+== prev-15981b5 :: M3 ROM: E_NOTIMPL answers SUCCESS :: 2 finding(s)
+  rom: GET_AUDIO_MAP: status NOT_IMPLEMENTED is in the table's status set and no path of its programs can answer it
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 5b3b6f2983f5): sweep this engine with make -C tb/aecp_cmds record
+== prev-15981b5 :: M4 record: GET_STREAM_INFO's BADARG answers SUCCESS at the echo length :: 0 finding(s)
+== prev-15981b5 :: M5 record: GET_AUDIO_MAP's NOTIMPL answers SUCCESS at the echo length :: 0 finding(s)

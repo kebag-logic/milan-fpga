@@ -1,0 +1,32 @@
+field drift: commands[].command.cdl: caught: decode: GET_COUNTERS:; command cdl
+field drift: commands[].command.floor: caught: decode: ACQUIRE_ENTITY:; floor is 16
+field drift: commands[].command.per: caught: decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+field drift: commands[].entries: caught: decode: GET_COUNTERS:; entries
+field drift: commands[].gdi: caught: decode:; GET_CONTROL
+field drift: commands[].hazard: caught: classifier: GET_COUNTERS:
+field drift: commands[].lock: caught: rom: SET_NAME:; lock false
+field drift: commands[].message: caught: decode: GET_COUNTERS:
+field drift: commands[].notify: caught: rom: SET_CONFIGURATION:; notification class
+field drift: commands[].notify.body: caught: decode:; SET_CONFIGURATION
+field drift: commands[].notify.class: caught: rom: SET_CONFIGURATION:; notification class
+field drift: commands[].notify.kind: caught: notify: SET_CONFIGURATION:; PP_UNS_NAME_C
+field drift: commands[].opcode: caught: engine: GET_COUNTERS:; opcode
+field drift: commands[].response.cdl: caught: rom: GET_AUDIO_MAP:; response
+field drift: commands[].response.echo: caught: rom: SET_STREAM_INFO:; E_SINFO answers; table's response
+field drift: commands[].response.engine: caught: decode: GET_DYNAMIC_INFO:; without a program
+field drift: commands[].response.per: caught: rom: GET_AVB_INFO:; response
+field drift: commands[].response.stub: caught: rom: READ_DESCRIPTOR:; response
+field drift: commands[].rtl: caught: engine: GET_COUNTERS:; OP_MISSING_C
+field drift: commands[].status: caught: rom: SET_CONFIGURATION:; STREAM_IS_RUNNING
+field drift: documented[].gdi: caught: decode:; GET_DYNAMIC_INFO; 0x000B
+field drift: documented[].opcode: caught: engine: GET_VIDEO_FORMAT:
+field drift: documented[].rtl: caught: engine: GET_VIDEO_FORMAT:; GDI_MISSING_C
+field drift: echo_entries: caught: schema: echo_entries: EAVL; nor listed in shared_entries
+field drift: fields: caught: fields: fields: export
+field drift: hazard_classes.*: caught: classifier: hazard class RO_SNAPSHOT
+field drift: schema: caught: schema:; declares
+field drift: status_codes.*.code: caught: schema: status SUCCESS; 13
+field drift: status_codes.*.rtl: caught: status: SUCCESS; ST_MISSING_C
+field drift: unserved: caught: decode:; is no table command; not only DLKILL
+aecp commands selftest: 231 planted defects, 231 caught by name, OK
+aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK

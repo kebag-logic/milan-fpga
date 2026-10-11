@@ -1,0 +1,270 @@
+commit 4029dc5de2a0a540d6a015c747319fbee7abba2e
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Sun Oct 11 20:46:07 2026 +0200
+
+    Hold shared echo exemptions to membership and non-success responses
+
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 8590fd5..0e898cf 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -532,7 +532,7 @@ verification).
+ | REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A | [GAP-10](#gap-10) | F01.5 + single-source rules; `make check` `ids` fails any P-/T- ID without its F01.5/F08.1 row | 01 §7, docs/README §2, 09 §7 | lint |
+ | REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A | [GAP-11](#gap-11) | verification plan | 09 §3, 09 §7 | — |
+-| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A (the tree: P, per Arch) | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 29 held within their declared scope; 33 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.10 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.10 | lint |
++| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A (the tree: P, per Arch) | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 30 held within their declared scope; 32 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.10 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. echo_entries membership is held, and its size exemption covers non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.10 | lint |
+ | REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
+ | REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+ 
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 6c54540..24ced50 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -487,6 +487,7 @@ F06.14 rows of the commands the engine does not serve, and a `fields` reference.
+ | `ucpu_pkg.sv` `ST_*_C` | hand-written, gated | each code against the table's, and the table's codes against IEEE 1722.1-2021 Table 7-141 (STREAM_IS_RUNNING has no RTL constant) |
+ | the generated µcode | hand-written µprograms, gated | every path from every entry, walked with the µCPU's own semantics: exactly the lock-protected commands reach `CHECK_LOCK`; each program enqueues the table's notification class; path statuses agree with the command set subject to the trusted common_status and engine_status exemptions; no path runs into the fill. Every response and unsolicited body has the table's size. A fixed rule must match exactly, and so must a failure stub. A per-record rule must be its fixed part plus whole records of its record size: the walk keeps the fixed part where a loop widens it, and some SUCCESS path must build the per-record part. A descriptor rule must be a copy that starts at its fixed part |
+ | the table's echo rows | — | an echo row's response size is its command size |
++| `echo_entries` | hand-written, gated | each member is shared by commands without a first-entry owner, or explicitly listed in `shared_entries`. Its size exemption covers non-SUCCESS answers only, in both the ROM walk and the observed responses; SUCCESS must fit the command's response rule. `BADARG` and `NSUPPE` are explicitly shared because they also own first entries |
+ | 06 §8.1 | hand-written, gated | lists exactly the served commands |
+ 
+ The RTL is gated rather than generated for three reasons: the lane that introduced the
+@@ -650,8 +651,10 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+   rtl._gdi_consts. Check: unimplemented GDI constant.
+ - documented[].section: held to nothing. F06.14 rendering group and sort order; schema checks the allowed
+   groups, not semantic placement.
+-- echo_entries: held to nothing. Trusted shared echo exceptions in size checks; membership is not
+-  independently held.
++- echo_entries: held. Each member is shared by commands without a first-entry owner, or listed in
++  shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.
++  Consumer: table._echo_entries; rom._entries; record._answers. Check: shared echo membership and
++  non-SUCCESS scope.
+ - fields: held. Sibling registry filename. Consumer: fields.check_fields. Check: export registry.
+ - hazard_classes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
+   fields below.
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index 5c1fd21..0ce27a1 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -41,6 +41,8 @@
+   "unserved": "NOTIMPL",
+   "echo_entries": ["NOTIMPL", "BADARG", "NSUPPE"],
+   "shared_entries": {
++    "BADARG": "the shared BAD_ARGUMENTS echo; also the first entry of IDENTIFY_NOTIFICATION and the engine-built GET_DYNAMIC_INFO aggregate",
++    "NSUPPE": "the shared NOT_SUPPORTED echo; also the first entry of ACQUIRE_ENTITY, which never succeeds",
+     "DLKILL": "the deadline kill's arm (03 section 6 rule (e)): every AEM command's ENTITY_MISBEHAVING",
+     "NOTIMPL": "the NOT_IMPLEMENTED echo of every command the engine does not serve, on every message type",
+     "NOSEND": "an unsolicited job whose kind has no program: retired without a frame",
+diff --git a/hdl/aecp/ucode/aecp_fields.json b/hdl/aecp/ucode/aecp_fields.json
+index 1dc75d3..ad193f6 100644
+--- a/hdl/aecp/ucode/aecp_fields.json
++++ b/hdl/aecp/ucode/aecp_fields.json
+@@ -692,8 +692,29 @@
+   },
+   {
+     "path": "echo_entries",
+-    "status": "held to nothing",
+-    "reason": "Trusted shared echo exceptions in size checks; membership is not independently held."
++    "status": "held",
++    "reason": "Each member is shared by commands without a first-entry owner, or listed in shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.",
++    "consumer": "table._echo_entries; rom._entries; record._answers",
++    "check": "shared echo membership and non-SUCCESS scope",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "echo_entries"
++          ],
++          "value": [
++            "NOTIMPL",
++            "BADARG",
++            "NSUPPE",
++            "EAVL"
++          ]
++        }
++      ],
++      "words": [
++        "schema: echo_entries: EAVL",
++        "nor listed in shared_entries"
++      ]
++    }
+   },
+   {
+     "path": "fields",
+diff --git a/scripts/aecp_gate/field_docs.py b/scripts/aecp_gate/field_docs.py
+index 287aca0..9b51b3d 100644
+--- a/scripts/aecp_gate/field_docs.py
++++ b/scripts/aecp_gate/field_docs.py
+@@ -35,7 +35,8 @@ def arch(entries: list) -> str:
+             f"Explicitly held to nothing: {', '.join(free)}. Status-path claims trust these "
+             "status exemptions. Every held field has a standing named mutation. "
+             "F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are "
+-            "observed or gated. Echo command cdl with a declared floor is held only by echo "
++            "observed or gated. echo_entries membership is held, and its size exemption covers "
++            "non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo "
+             "equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is "
+             "held exactly by accepted-offset gcd. Six documented GDI rows have semantic "
+             "opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still "
+diff --git a/scripts/aecp_gate/plants.py b/scripts/aecp_gate/plants.py
+index 589b40d..3e8c333 100644
+--- a/scripts/aecp_gate/plants.py
++++ b/scripts/aecp_gate/plants.py
+@@ -59,6 +59,14 @@ def drop_all(inp: Inputs, entry: str, op: str) -> None:
+             uc.rom[pc] = 0
+ 
+ 
++def echo_success(inp: Inputs, symbolic: bool = False) -> None:
++    """A declared shared EAVL still cannot hide a short SUCCESS response."""
++    inp.table["echo_entries"].append("EAVL")
++    inp.table["shared_entries"]["EAVL"] = "planted shared program"
++    drop_all(inp, "EAVL", "BUILD_FLD")
++    aem(inp, 0x0002)["EAVL"]["answers"] = {"0": "echo" if symbolic else "12"}
++
++
+ def into_fill(inp: Inputs, entry: str) -> None:
+     """Make the word after E_entry's SEND_RESPONSE branch into the ROM fill."""
+     uc = ucode_of(inp)
+@@ -125,6 +133,25 @@ def rename(d: dict, old: str, new: str) -> None:
+ 
+ #: (what, mutation, words each failure line must carry) per planted defect
+ MUTANTS = (
++    ("echo_entries is not a list", lambda i: i.table.update(echo_entries=None),
++     ("schema: echo_entries must be a list of program names",)),
++    ("echo_entries contains a non-name", lambda i: i.table["echo_entries"].append(0),
++     ("schema: echo_entries must be a list of program names",)),
++    ("echo_entries names no shared program", lambda i: i.table["echo_entries"].append("ABSENT"),
++     ("schema: echo_entries: ABSENT", "nor listed in shared_entries")),
++    ("echo_entries names a private secondary program", lambda i: i.table["echo_entries"].append("RDESCENT"),
++     ("schema: echo_entries: RDESCENT", "nor listed in shared_entries")),
++    ("echo_entries names an owned first entry used elsewhere", lambda i: (
++        i.table["echo_entries"].append("EAVL"), cmd(i, "GET_CONFIGURATION")["entries"].append("EAVL")),
++     ("schema: echo_entries: EAVL", "first-entry owner")),
++    ("a first-entry echo needs its shared declaration", lambda i: i.table["shared_entries"].pop("NSUPPE"),
++     ("schema: echo_entries: NSUPPE", "nor listed in shared_entries")),
++    ("a shared echo cannot exempt ROM SUCCESS (R608-3 echo-hide)", echo_success,
++     ("rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12",)),
++    ("a shared echo cannot exempt observed SUCCESS (R608-3 echo-hide)", echo_success,
++     ("decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12",)),
++    ("a shared echo cannot exempt a symbolic SUCCESS", lambda i: echo_success(i, True),
++     ("decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at the command's own length",)),
+     ("an opcode renumbered in the table only",
+      lambda i: cmd(i, "GET_SAMPLING_RATE").update(opcode="0x001E"),
+      ("engine: GET_SAMPLING_RATE", "0x001E")),
+diff --git a/scripts/aecp_gate/record.py b/scripts/aecp_gate/record.py
+index a5b517d..8612b99 100644
+--- a/scripts/aecp_gate/record.py
++++ b/scripts/aecp_gate/record.py
+@@ -315,7 +315,6 @@ def _answers(t: dict, c: dict, progs: dict, at: str, ck: _Checks) -> None:
+     allowed = set(c["status"]) | set(t["common_status"].get(c["message"], [])) \
+         | set(c.get("engine_status", []))
+     for pn, info in sorted(progs.items()):
+-        echo_ok = pn in echo_shared or bool(rsp.get("echo"))
+         who = "its engine-built answer" if pn == "engine" else pn
+         sent = set(unranges(info["cdls"]))
+         for s, spec in info["answers"].items():
+@@ -324,6 +323,7 @@ def _answers(t: dict, c: dict, progs: dict, at: str, ck: _Checks) -> None:
+                     ck.p.append(f"  decode: {name}: {at} dispatched to {pn} sent no frame")
+                 continue
+             st = code_of.get(int(s), f"status {s}")
++            echo_ok = (int(s) != 0 and pn in echo_shared) or bool(rsp.get("echo"))
+             if st not in allowed:
+                 ck.p.append(f"  decode: {name}: {who} answered {st}, which is not in the "
+                             "table's status set")
+diff --git a/scripts/aecp_gate/rom.py b/scripts/aecp_gate/rom.py
+index 9e9ebaa..f548659 100644
+--- a/scripts/aecp_gate/rom.py
++++ b/scripts/aecp_gate/rom.py
+@@ -333,7 +333,8 @@ def _entries(t: dict, c: dict, uc: Ucode, paths: _Paths) -> list:
+         paths.notes |= m.notify
+         paths.success |= {(ln, cp) for s, ln, cp in m.sends if s == 0}
+         for s, ln, cp in sorted(m.sends, key=str):
+-            if not fits(ln, rsp, e in echo_shared or bool(rsp.get("echo")), s, cp):
++            echo_ok = (s != 0 and e in echo_shared) or bool(rsp.get("echo"))
++            if not fits(ln, rsp, echo_ok, s, cp):
+                 copy = f" (its copy starting at {cp})" if cp is not None and rsp.get("plus") else ""
+                 p.append(f"  rom: {name}: E_{e} answers {code_of.get(s, s)} at cdl "
+                          f"{ln}{copy}, "
+diff --git a/scripts/aecp_gate/selftest.py b/scripts/aecp_gate/selftest.py
+index f82b527..02ea98f 100644
+--- a/scripts/aecp_gate/selftest.py
++++ b/scripts/aecp_gate/selftest.py
+@@ -41,9 +41,24 @@ def named(t: dict, name: str) -> dict:
+     return next(c for c in t["commands"] if c["name"] == name)
+ 
+ 
++def echo_hide(root: Path) -> None:
++    """R608-3's file-copy drift: NOP EAVL's three fields and exempt EAVL."""
++    path = root / UCODE
++    text = path.read_text(encoding="utf-8")
++    old = ("    u('BUILD_FLD', ra=3, fmt=FMT_D),             # flags                  @24\n"
++           "    u('BUILD_FLD', ra=2, fmt=FMT_Q),             # acquired_controller_id @28\n"
++           "    u('BUILD_FLD', ra=1, fmt=FMT_Q),             # locked_controller_id   @36\n")
++    if text.count(old) != 1:
++        raise GateError("selftest fixture: echo-hide needs EAVL's three BUILD_FLD words")
++    path.write_text(text.replace(old, "    u('NOP'),\n" * 3), encoding="utf-8")
++    _edit(root, lambda t: t["echo_entries"].append("EAVL"))
++
++
+ #: (what, mutation of a copy of the input files, words) per refusal that
+ #: happens while the inputs are read, and per table defect the generator reads
+ FILE_MUTANTS = (
++    ("R608-3 echo-hide: short EAVL SUCCESS hidden by echo_entries", echo_hide,
++     ("schema: echo_entries: EAVL", "nor listed in shared_entries")),
+     ("an unreadable registry", lambda d: (d / FIELDS).unlink(),
+      ("gate refused", "cannot read an input", "aecp_fields.json")),
+     ("a registry that is not JSON", lambda d: (d / FIELDS).write_text("[", encoding="utf-8"),
+diff --git a/scripts/aecp_gate/table.py b/scripts/aecp_gate/table.py
+index 59d4dfd..99afb8f 100644
+--- a/scripts/aecp_gate/table.py
++++ b/scripts/aecp_gate/table.py
+@@ -4,6 +4,7 @@
+ the fields gen_ucode.py reads, so a table it cannot use is refused by name
+ before it runs; and the size rules every consumer compares with."""
+ import re
++from collections import Counter
+ from dataclasses import dataclass, field
+ 
+ from .inputs import COLUMNS, HDR, SCHEMA, SECTIONS, TABLE, UCODE
+@@ -165,6 +166,19 @@ def _documented(t: dict) -> list:
+     return p
+ 
+ 
++def _echo_entries(t: dict) -> list:
++    """Only shared programs may exempt non-SUCCESS answers from a size rule."""
++    echoes = t.get("echo_entries")
++    if not isinstance(echoes, list) or not all(isinstance(e, str) for e in echoes):
++        return ["  schema: echo_entries must be a list of program names"]
++    owners = {c["entries"][0] for c in t["commands"]}
++    uses = Counter(e for c in t["commands"] for e in c["entries"])
++    shared = set(t.get("shared_entries", {}))
++    return [f"  schema: echo_entries: {e} is neither a shared program without a "
++            "first-entry owner nor listed in shared_entries"
++            for e in echoes if e not in shared and (e in owners or uses[e] < 2)]
++
++
+ def check_schema(t: dict) -> list:
+     """The table's own shape: the fields every consumer reads, spelled once,
+     and the fields gen_ucode.py reads, so a table it cannot use is refused by
+@@ -189,4 +203,4 @@ def check_schema(t: dict) -> list:
+     if ("MVU", "GET_MILAN_INFO") not in {(c.get("message"), c.get("name")) for c in cmds}:
+         p.append("  schema: GET_MILAN_INFO: no command with message MVU, whose opcode "
+                  f"{UCODE} reads as its command_type")
+-    return p + _documented(t)
++    return p + _documented(t) + (_echo_entries(t) if not p else [])
+diff --git a/scripts/check_aecp_commands.py b/scripts/check_aecp_commands.py
+index 97d7f40..d4ca172 100644
+--- a/scripts/check_aecp_commands.py
++++ b/scripts/check_aecp_commands.py
+@@ -112,8 +112,10 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+   rtl._gdi_consts. Check: unimplemented GDI constant.
+ - documented[].section: held to nothing. F06.14 rendering group and sort order; schema checks the allowed
+   groups, not semantic placement.
+-- echo_entries: held to nothing. Trusted shared echo exceptions in size checks; membership is not
+-  independently held.
++- echo_entries: held. Each member is shared by commands without a first-entry owner, or listed in
++  shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.
++  Consumer: table._echo_entries; rom._entries; record._answers. Check: shared echo membership and
++  non-SUCCESS scope.
+ - fields: held. Sibling registry filename. Consumer: fields.check_fields. Check: export registry.
+ - hazard_classes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
+   fields below.

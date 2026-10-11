@@ -1,0 +1,24 @@
+figures selftest: 17 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp73-r608-4-packet/scratch/head/scripts/check-figures.py", line 242, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp73-r608-4-packet/scratch/head/scripts/check-figures.py", line 238, in main
+    return selftest() if args.selftest else check(args.root)
+                                            ~~~~~^^^^^^^^^^^
+  File "$REVIEWS/pp73-r608-4-packet/scratch/head/scripts/check-figures.py", line 118, in check
+    files = listed_files(root, str(DIAGRAMS))
+  File "$REVIEWS/pp73-r608-4-packet/scratch/head/scripts/check-figures.py", line 41, in listed_files
+    out = subprocess.run(
+          ~~~~~~~~~~~~~~^
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "--exclude-standard", "--", *trees],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True).stdout.decode("utf-8")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp73-r608-4-packet/scratch/head', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'docs/diagrams']' returned non-zero exit status 128.
+make: *** [Makefile:61: figures] Error 1
