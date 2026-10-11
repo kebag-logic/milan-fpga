@@ -400,14 +400,16 @@ struct nvm_cap {
  * One read of a journal slot into the private stage (#671): its section 6.2
  * verdict, the sequence it names when that verdict is VD_OK and 0 otherwise
  * (no generation is ever taken from bytes that failed validation), and for a
- * refusal a CRC-32 over every byte the read delivered, with their count. The
- * verdict is judged on exactly those bytes, so two reads that return the same
- * bytes are judged alike, and two that do not were not both read cleanly.
+ * refusal the count of bytes the read delivered, a CRC-32 over all of them but
+ * the last four, and those four whole. The verdict is judged on exactly those
+ * bytes, so two reads that return the same bytes are judged alike, and two
+ * that do not were not both read cleanly.
  */
 struct nvm_read {
 	unsigned int vd;
 	uint32_t seq;
 	uint32_t digest;
+	uint32_t tail;
 	uint32_t bytes;
 };
 /* A slot is read whole into the stage, so the stage must hold the longest
@@ -739,7 +741,7 @@ static uint32_t nvm_seq_of(const volatile uint8_t *img)
  */
 static struct nvm_read nvm_read_slot(uint32_t slot)
 {
-	struct nvm_read rd = {VD_LEN, 0u, 0u, KLJ2_HDR};
+	struct nvm_read rd = {VD_LEN, 0u, 0u, 0u, KLJ2_HDR};
 	const volatile uint8_t *src = nvm_slot(slot);
 	uint32_t i;
 
@@ -757,17 +759,24 @@ static struct nvm_read nvm_read_slot(uint32_t slot)
 		}
 		rd.vd = nvm_validate(NVM_STG);
 	}
-	if (rd.vd == VD_OK)
+	if (rd.vd == VD_OK) {
 		rd.seq = nvm_seq_of(NVM_STG);
-	else
-		rd.digest = nvm_crc32(NVM_STG, rd.bytes);
+	} else {
+		/* Not one CRC-32 over every byte: over a container and the
+		 * trailer that closes it, that is the same constant for every
+		 * such container, however its bytes differ (R603-4-F1). */
+		rd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);
+		rd.tail = nvm_rd32(NVM_STG + rd.bytes - KLJ2_TRAILER);
+	}
 	return rd;
 }
 
-/* Whether two refused reads of one slot returned the same bytes. */
+/* Whether two refused reads of one slot returned the same bytes: as many,
+ * the same CRC-32 over all but the last four, and the same last four. */
 static int nvm_reads_agree(struct nvm_read a, struct nvm_read b)
 {
-	return a.vd == b.vd && a.digest == b.digest && a.bytes == b.bytes;
+	return a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&
+	       a.tail == b.tail;
 }
 
 /*
@@ -783,7 +792,7 @@ static int nvm_reads_agree(struct nvm_read a, struct nvm_read b)
  */
 static struct nvm_read nvm_judge_slot(uint32_t slot)
 {
-	struct nvm_read first = {VD_LEN, 0u, 0u, 0u};
+	struct nvm_read first = {VD_LEN, 0u, 0u, 0u, 0u};
 	struct nvm_read second = first;
 	struct nvm_read rd;
 	unsigned int n;

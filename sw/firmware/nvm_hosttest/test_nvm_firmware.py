@@ -48,7 +48,8 @@ WHAT IT GRADES, per shipped shape, all on bytes:
      the per-loop bound, and the whole boot (`read_fault_cases.fault_cases`,
      on the cold boot and on a writer restart without a fabric reset,
      `writer_restart.py`), over a header, sequence or record-area byte, the
-     blank or older slot's, an all-0xFF read or the other slot's container,
+     blank or older slot's, an entity or record-area byte under a CRC closed
+     over the faulty bytes, an all-0xFF read or the other slot's container,
      one slot valid and the other blank or both valid, both ways round, is
      followed by a change, its commit and a clean reboot. The boot line
      names each slot as its bytes read or UNREAD and offers the newer slot it
@@ -60,11 +61,11 @@ WHAT IT GRADES, per shipped shape, all on bytes:
  14. a cleanly read but refused slot names no generation: with no slot
      accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants eighteen writer defects into a copy
+NEGATIVE CONTROLS. `--self-test` plants nineteen writer defects into a copy
 of the firmware, one at a time, and requires the suite to redden on each:
 the ascending-id check removed, the heartbeat dropped from the erase poll
 loop, the read-back verify skipped, the erased-record rule accepting a header
-alone, a word copy crossing into an open neighbour, and thirteen #671
+alone, a word copy crossing into an open neighbour, and fourteen #671
 defects, each planted into the first shape and both product shapes and
 caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
 says what each is). A control that stays green is reported as the finding

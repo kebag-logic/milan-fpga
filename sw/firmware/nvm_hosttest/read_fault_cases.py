@@ -31,20 +31,31 @@ READ_FAULT_MUTATIONS = {
           "\t\tif (rd.vd == VD_OK ||"),),
         "over the bound"),
     "generation_from_refused_slot": (
-        (("\tif (rd.vd == VD_OK)\n\t\trd.seq = nvm_seq_of(NVM_STG);\n\telse\n",
-          "\trd.seq = nvm_seq_of(NVM_STG);\n\tif (rd.vd != VD_OK)\n"),
+        (("\tif (rd.vd == VD_OK) {\n\t\trd.seq = nvm_seq_of(NVM_STG);\n\t} else {\n",
+          "\trd.seq = nvm_seq_of(NVM_STG);\n\tif (rd.vd != VD_OK) {\n"),
          ("\t\tnvm_seq = 0;\n", "\t\tnvm_seq = (seq_a > seq_b) ? seq_a : seq_b;\n")),
         "generation was taken from a refused slot"),
     # R501-3's probe on #665: two refusals alike by verdict, not by bytes
     "verdict_only_agreement": (
-        (("\treturn a.vd == b.vd && a.digest == b.digest && a.bytes == b.bytes;",
+        (("\treturn a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&\n"
+          "\t       a.tail == b.tail;",
           "\treturn a.vd == b.vd;"),),
         "was lost on the clean reboot"),
     # R603-1's: a refusal's digest spans the header alone, so two reads whose
     # record areas differ agree, and a refusal decided after the header stands
     "r_digest_header_only": (
-        (("\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes);",
+        (("\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);",
           "\t\trd.digest = nvm_crc32(NVM_STG, KLJ2_HDR);"),),
+        "on reads that returned different bytes"),
+    # R603-4-F1: the round-4 digest, one CRC-32 over every byte read, the
+    # trailer included, and nothing else compared; over any container whose
+    # CRC closes that is one constant, so two such refusals agree
+    "r_digest_with_trailer": (
+        (("\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);",
+          "\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes);"),
+         ("\treturn a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&\n"
+          "\t       a.tail == b.tail;",
+          "\treturn a.vd == b.vd && a.digest == b.digest && a.bytes == b.bytes;")),
         "on reads that returned different bytes"),
     # R603-1's: the window filled by a fresh read of the slot, as before #671,
     # not from the stage that was judged. The read is one the rule does not
@@ -139,15 +150,23 @@ WHOLE = (0, 64)
 #: or newer one, or the other), its manners of fault, and the sequences the
 #: newer container takes in turn. A byte fault flips the magic
 #: byte, the top byte of the sequence word or a record-area byte, by another
-#: value on each faulty read; --read-ff reads the slot all 0xFF; --read-other
-#: answers with the other slot's bytes, an address fault (R603-3).
-GROUPS = ((False, "valid", ("magic", "seq", "body", "--read-ff"), FAULT_SEQS),
+#: value on each faulty read; a sealed one flips the entity ID's low byte or a
+#: record-area byte so and closes the CRC over the faulty bytes, so no two
+#: faulty reads agree and each is refused after its CRC passes (R603-4-F1);
+#: --read-ff reads the slot all 0xFF; --read-other answers with the other
+#: slot's bytes, an address fault (R603-3). A blank slot has no CRC to close.
+GROUPS = ((False, "valid", ("magic", "seq", "body", "sealed-entity", "sealed-body", "--read-ff"),
+           FAULT_SEQS),
           (False, "other", ("magic", "--read-other"), FAULT_SEQS),
-          (True, "valid", ("magic", "body", "--read-other"), BOTH_VALID_SEQS),
-          (True, "other", ("magic", "body"), BOTH_VALID_SEQS))
+          (True, "valid", ("magic", "body", "sealed-entity", "sealed-body", "--read-other"),
+           BOTH_VALID_SEQS),
+          (True, "other", ("magic", "body", "sealed-entity", "sealed-body"), BOTH_VALID_SEQS))
 #: a flipped byte: its offset (None is the record area's middle byte, which
 #: depends on the shape) and the first faulty read's XOR
 FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8)}
+#: a flipped byte under a closing CRC (--read-sealed): VD_ENT, or VD_REC by
+#: the flipped record's CRC-16
+SEALED = {"sealed-entity": (20, 8), "sealed-body": (None, 8)}
 HELD_LINE = "the writer is HELD until reset"
 #: what a held writer restart prints on re-attaching (R603-2-S2)
 REATTACH_HELD = "re-attached and HELD"
@@ -226,8 +245,9 @@ def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str
     """The harness option and argument for one manner of fault."""
     if manner.startswith("--"):
         return manner, f"{slot}:{skip}:{count}"
-    off, base = FLIPS[manner]
-    return "--read-fault", f"{slot}:{body if off is None else off}:{skip}:{count}:{base}"
+    option, (off, base) = ("--read-sealed", SEALED[manner]) if manner in SEALED else \
+        ("--read-fault", FLIPS[manner])
+    return option, f"{slot}:{body if off is None else off}:{skip}:{count}:{base}"
 
 
 @dataclass(frozen=True)
@@ -263,8 +283,8 @@ def expect(case: FaultCase) -> Expect:
         reads += 1
         if slot != arg[0].upper() or not case.skip <= reads - 1 < case.skip + case.count:
             return clean[slot]
-        return {"--read-fault": ("REFUSED", reads), "--read-ff": ("BLANK",)}.get(
-            option, clean["BA"["AB".index(slot)]])
+        return {"--read-fault": ("REFUSED", reads), "--read-sealed": ("REFUSED", reads),
+                "--read-ff": ("BLANK",)}.get(option, clean["BA"["AB".index(slot)]])
 
     def judge(slot: str) -> tuple:
         """The slot's standing verdict, or UNREAD."""
