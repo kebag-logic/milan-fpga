@@ -1,0 +1,24 @@
+ Makefile                                         |   1 +
+ README.md                                        |  15 +-
+ docs/HDL_DEVELOPER.md                            |  52 +++
+ docs/INTEGRATION.md                              |  56 ++-
+ docs/MANAGER.md                                  |  56 ++-
+ docs/SOURCE_EVIDENCE.md                          |  14 +-
+ docs/TEST_DEVELOPER.md                           |   5 +
+ docs/history/v1/PROJECT_STATUS.md                |  18 +
+ docs/history/v1/RESOURCE_VALIDATION.md           |   9 +
+ docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md |   9 +
+ docs/history/v1/prototype/INTEGRATION_GUIDE.md   |   9 +
+ docs/history/v1/prototype/IP_BLOCKS.md           |   9 +
+ docs/history/v1/prototype/RESOURCE_VALIDATION.md |   9 +
+ hdl/wire/KL_gptp_rx_parser.sv                    |  33 +-
+ syn/ooc/check_ooc_clock.py                       | 417 +++++++++++++++++++++++
+ syn/ooc/engine_ooc.tcl                           |  18 +-
+ syn/ooc/ooc_clock.xdc                            |   9 +
+ syn/ooc/run.sh                                   |   7 +
+ syn/ooc/ucpu_ooc.tcl                             |  19 +-
+ tb/verilator/parser/Makefile                     |  12 +
+ tb/verilator/parser/README.md                    |   6 +
+ tb/verilator/parser/mutants.py                   | 245 +++++++++++++
+ tb/verilator/parser/sim_main.cpp                 | 334 +++++++++++++++++-
+ 23 files changed, 1315 insertions(+), 47 deletions(-)

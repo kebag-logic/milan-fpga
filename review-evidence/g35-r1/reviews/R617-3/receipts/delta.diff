@@ -1,0 +1,951 @@
+diff --git a/Makefile b/Makefile
+index 5d07713..26f80bc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,6 +36,7 @@ diagrams-check:
+ 	python3 scripts/generate_diagrams.py --selftest
+ 
+ ooc:
++	python3 syn/ooc/check_ooc_clock.py --selftest
+ 	syn/ooc/run.sh
+ 
+ clean:
+diff --git a/README.md b/README.md
+index c0f5211..ba8f44e 100644
+--- a/README.md
++++ b/README.md
+@@ -18,8 +18,9 @@ The engine keeps protocol work inside programmable logic.
+ 
+ ## Current shape
+ 
+-- Parent integration enables this plane by default.
+-- The disabled mode supports comparison builds only.
++- Parent `GPTP_PLANE_EN_P` [defaults on](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
++- [Fabric gPTP](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) owns product time synchronization.
++- The disabled mode supports [verification-only comparison builds only](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
+ - One synchronous clock domain carries all processing.
+ - RX consumes validated, preclassified gPTP frames.
+ - TX honors downstream byte-level backpressure.
+@@ -29,6 +30,10 @@ The engine keeps protocol work inside programmable logic.
+ - Admission credit postpones only initiating transmissions.
+ - Publication outputs expose committed protocol state.
+ 
++Parent evidence is pinned at `ac2c5e77`.
++
++The [integration guide](docs/INTEGRATION.md#option-off-behavior) details option-off behavior.
++
+ ## Verify quickly
+ 
+ ```sh
+@@ -43,6 +48,12 @@ Detailed commands appear in the [test guide](docs/TEST_DEVELOPER.md).
+ 
+ ## Known risks
+ 
++- [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) remains open: asymmetry, calibration, and live tuning.
++- [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) still owes physical acceptance against the reference peer.
++- [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64) and [#488](https://github.com/kebag-logic/milan-fpga/issues/488) still owe physical timestamp calibration.
++
++The [manager guide](docs/MANAGER.md#open-risks) separates donor and product gaps.
++
+ No certification claim is made.
+ 
+ ## Documentation
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 8e212ce..6f73cf3 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -173,6 +173,55 @@ Consumers sample only during `pub_commit_o`.
+ 
+ Inactive path entries must remain zero.
+ 
++## Out-of-context measurement
++
++`make ooc` synthesizes both tops out of context.
++
++Each script first reads `syn/ooc/ooc_clock.xdc`.
++
++That file defines the 10 ns `clk_i` clock.
++
++Synthesis therefore optimizes against that period.
++
++`syn/ooc/check_ooc_clock.py` fails runs that break this order.
++
++It checks both scripts before Vivado starts.
++
++Afterwards it checks each log and timing report.
++
++The log must parse this repository's XDC inside synthesis.
++
++Neither log may carry a critical warning.
++
++Each timing report must show `clk` at 10 ns.
++
++Its `report_clocks` section must bind `clk` to `clk_i`.
++
++No register may lack a clock.
++
++Measured at main `5dce647a` on 2026-10-11:
++
++| Top | Flow | LUTs | Registers | BRAM tiles | DSPs | WNS |
++|---|---|---:|---:|---:|---:|---:|
++| `KL_gptp_engine` | Constrained | 4,852 | 3,652 | 1.5 | 4 | +1.773 ns |
++| `KL_gptp_engine` | Unconstrained | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
++| `KL_gptp_ucpu` | Constrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++| `KL_gptp_ucpu` | Unconstrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++
++Both flows used Vivado 2026.1 and `xc7a100tfgg484-2`.
++
++Both used `-mode out_of_context` and the default directive.
++
++Constrained runs read the clock before `synth_design`.
++
++Unconstrained runs created it after `synth_design`.
++
++Unconstrained slack is only a post-synthesis report.
++
++This repository's `syn/ooc` figures before #70 were unconstrained.
++
++No placement or routing runs here.
++
+ ## Change checklist
+ 
+ - Preserve single-clock assumptions.
+@@ -188,4 +237,5 @@ Inactive path entries must remain zero.
+ - Update both WaveDrom sources when timing changes.
+ - Update Draw.io after structural changes.
+ - Regenerate every committed diagram.
++- Keep the OOC clock ahead of synthesis.
+ - Run lint and complete simulations.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index da4cad3..abeea33 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -7,13 +7,19 @@ This guide defines the external engine contract.
+ 
+ ## Parent ownership
+ 
+-Parent integration enables `GPTP_PLANE_EN_P` by default.
++Parent integration enables [`GPTP_PLANE_EN_P` by default](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
+ 
+-The disabled mode supports comparison builds only.
++[Fabric gPTP](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) owns product time synchronization.
+ 
+-This repository contains no nested submodules.
++[One atomic bank](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L48) supplies every public consumer.
++
++The disabled mode supports [verification-only comparison builds only](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
++
++Product configurations [cannot disable the plane](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L43-L44).
+ 
+-[Pinned parent source](https://github.com/kebag-logic/milan-fpga/blob/3178b13638d11d67376a24ca52ee1332cbe23ad3/hdl/milan/milan_datapath.sv#L89) records that default.
++These references pin parent `dev` at `ac2c5e77`.
++
++This repository contains no nested submodules.
+ 
+ Parent integration owns these surrounding services:
+ 
+@@ -24,6 +30,24 @@ Parent integration owns these surrounding services:
+ - Publication capture after commit.
+ - Per-configuration microcode generation.
+ 
++### Option-off behavior
++
++`GPTP_PLANE_EN_P=0` has [no supported product image](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165).
++
++This verification path has [zero runtime gPTP owners](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170).
++
++| Surface | Option-off behavior | Parent evidence |
++|---|---|---|
++| Control TX | Passes straight through | [Datapath bypass](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L7614-L7624) |
++| PHC rate and phase controls | Select the CSR face | [PHC selection](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L2850-L2858) |
++| PHC settime | Remains on the CSR face | [Epoch control](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L2850-L2852) |
++| GM, parent, PathTrace, peer delay | Zero | [Safe publications](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| Sync and asCapable | Zero | [Safe health](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| AVTP `tu` | One | [Uncertain time](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| Publication writes | Inert; cannot manufacture live state | [Write behavior](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++
++Review the [remaining acceptance gaps](MANAGER.md#open-risks) before product adoption.
++
+ ## Clock and reset
+ 
+ - `clk_i` clocks every functional engine block.
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 325e732..2090821 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -15,31 +15,49 @@ This page summarizes value, readiness, evidence, and risk.
+ 
+ | Area | Current state | Evidence |
+ |---|---|---|
+-| Parent ownership | Enabled by default | [Integration evidence](INTEGRATION.md#parent-ownership) |
++| Parent default | `GPTP_PLANE_EN_P` enabled | [Parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) |
++| Product time owner | Fabric gPTP | [Parent ownership](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) |
++| Option-off | Verification-only comparison; no product image | [Parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) |
+ | Receive path | Implemented and regression-tested | [HDL guide](HDL_DEVELOPER.md#receive-path) |
+ | Transmit path | Backpressure-tested | [TX timing](HDL_DEVELOPER.md#transmit-timing) |
+ | PHC control | Addend, step, and slew-level outputs implemented | [Integration guide](INTEGRATION.md#phc-control) |
+ | Publication | Atomic commit pulse implemented | [Integration guide](INTEGRATION.md#publication) |
+ | Bench evidence | Historical silicon campaigns available | [History](history/v1/README.md) |
+ 
++Parent ownership references pin `dev` at `ac2c5e77`.
++
+ Current RTL remains reviewable and regression-tested.
+ 
+ No certification claim is made.
+ 
+ ## Latest measured snapshot
+ 
+-Measurements used Vivado 2026.1.
++Measurements used Vivado 2026.1 out-of-context synthesis.
+ 
+ The target was `xc7a100tfgg484-2` at 100 MHz.
+ 
+-Measurements finished on 2026-09-24 for PR #76.
++Both flows measured main `5dce647a` on 2026-10-11.
++
++| Block | Flow | LUTs | Registers | BRAM tiles | DSPs | WNS |
++|---|---|---:|---:|---:|---:|---:|
++| Complete engine | Constrained | 4,852 | 3,652 | 1.5 | 4 | +1.773 ns |
++| Complete engine | Unconstrained | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
++| Standalone microCPU | Constrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++| Standalone microCPU | Unconstrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++
++The constrained flow reads the clock before synthesis.
++
++The unconstrained flow created the clock after synthesis.
++
++Only constrained WNS reflects a synthesis timing target.
++
++Constraining the clock removed one engine LUT; nothing else moved.
++
++The [HDL guide](HDL_DEVELOPER.md#out-of-context-measurement) describes both flows.
+ 
+-| Block | LUTs | Registers | BRAM tiles | DSPs | WNS |
+-|---|---:|---:|---:|---:|---:|
+-| Complete engine | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
+-| Standalone microCPU | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++PR #76 measurements finished on 2026-09-24.
+ 
+-These figures describe one synthesis instrument.
++They used the unconstrained flow.
+ 
+ PR #76 adds 80 LUTs and six registers.
+ 
+@@ -81,13 +99,26 @@ The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping
+ 
+ ## Open risks
+ 
+-- Parent gitlink updates require separate review.
+-- Physical acceptance remains product-specific.
++| Gap | Status | Tracking |
++|---|---|---|
++| Donor asymmetry input, calibration triple, live tuner | Open | [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) |
++| Physical synchronization, GM recovery, conformance, and fabric publication | Acceptance still owed against the reference peer | [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) |
++| Physical timestamp calibration and ingress/egress split | Incomplete | [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64), [parent #488](https://github.com/kebag-logic/milan-fpga/issues/488) |
++
++The [parent status](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/guides/gptp/MANAGER.md#L33-L35) keeps calibration and physical acceptance incomplete.
++
++Parent v1.2 [excludes propagation asymmetry](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L350-L366).
++
++Its [timestamp corrections](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L363-L366) remain parent-owned constants, applied once.
++
++Donor #58's live tuner remains outside that product contract.
++
++Parent gitlink updates require separate review.
+ 
+ ## Management decisions
+ 
+-- Keep product integration enabled.
+-- Retain disabled builds for comparisons only.
++- Keep [product integration enabled](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L43-L44).
++- Retain disabled builds for [verification-only comparisons](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
+ - Track every open correctness issue explicitly.
+ - Require exact-head verification before parent updates.
+ - Preserve dated campaigns within versioned history.
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 1035d42..b24851b 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -34,7 +34,11 @@ Line numbers describe the current branch layout.
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+ | PHC and result face contract | [`check_phc_contract.py`](../tb/check_phc_contract.py) | `make contract` |
+ | Load-bearing engine checks | [`mutants.py`](../tb/verilator/engine/mutants.py) | Engine suite |
+-| Parent default enabled | [Pinned parent source](https://github.com/kebag-logic/milan-fpga/blob/3178b13638d11d67376a24ca52ee1332cbe23ad3/hdl/milan/milan_datapath.sv#L89) | Parent integration gates |
++| Parent default enabled | [Pinned parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) | Parent integration gates |
++| Fabric owns product time | [Pinned parent contract](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) | Parent integration gates |
++| Option-off verifies comparisons only | [Pinned parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) | Parent integration gates |
++
++These parent ownership citations resolve at `ac2c5e77`.
+ 
+ Closed work still binds its interface.
+ 
+diff --git a/docs/history/v1/PROJECT_STATUS.md b/docs/history/v1/PROJECT_STATUS.md
+index 43b6f45..5cf0872 100644
+--- a/docs/history/v1/PROJECT_STATUS.md
++++ b/docs/history/v1/PROJECT_STATUS.md
+@@ -7,6 +7,24 @@
+ > Archived: 2026-08-31
+ >
+ > Current successor: [current project guide](../../../README.md)
++>
++> Flow note (2026-10-10, issue #70): this page names `syn/ooc` as the
++> recipe of its out-of-context figures. From the first commit `c99f7a8`
++> through main `5dce647a` that recipe issued `create_clock` after
++> `synth_design`, so those figures come from unconstrained synthesis and
++> each slack is a post-synthesis report, not a synthesis-time result.
++> Figures quoted from other repositories keep their own recipes.
++> Constrained figures sit beside unconstrained ones in the
++> [manager guide](../../MANAGER.md#latest-measured-snapshot).
++
++> Integration note (2026-10-11, issue #48): the default-off account below
++> preserves the earlier state, also recorded in closed [issue #13](https://github.com/Mister-M-alt/FPGA-gPTP/issues/13).
++> Parent `dev` at `ac2c5e77` now [defaults `GPTP_PLANE_EN_P` on](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
++> [Fabric gPTP owns product time](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6).
++> [Option-off remains verification-only and ownerless](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175), with safe failure publications.
++> See the [current integration contract](../../INTEGRATION.md#parent-ownership)
++> and [remaining issue-linked gaps](../../MANAGER.md#open-risks).
++> Parent [#117](https://github.com/kebag-logic/milan-fpga/issues/117) still owns physical acceptance against the reference peer.
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # gptp-processor — the 802.1AS time-sync plane
+diff --git a/docs/history/v1/RESOURCE_VALIDATION.md b/docs/history/v1/RESOURCE_VALIDATION.md
+index bfd468c..17068bf 100644
+--- a/docs/history/v1/RESOURCE_VALIDATION.md
++++ b/docs/history/v1/RESOURCE_VALIDATION.md
+@@ -7,6 +7,15 @@
+ > Archived: 2026-08-31
+ >
+ > Current successor: [current manager guide](../../MANAGER.md)
++>
++> Flow note (2026-10-10, issue #70): this page names `syn/ooc` as the
++> recipe of its out-of-context figures. From the first commit `c99f7a8`
++> through main `5dce647a` that recipe issued `create_clock` after
++> `synth_design`, so those figures come from unconstrained synthesis and
++> each slack is a post-synthesis report, not a synthesis-time result.
++> Figures quoted from other repositories keep their own recipes.
++> Constrained figures sit beside unconstrained ones in the
++> [manager guide](../../MANAGER.md#latest-measured-snapshot).
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # Resource validation — the gPTP plane, measured 2026-08-14
+diff --git a/docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md b/docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+index eb9e03c..34a03d6 100644
+--- a/docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
++++ b/docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+@@ -7,6 +7,15 @@
+ > Archived: 2026-09-01
+ >
+ > Current successor: [current manager guide](../../../MANAGER.md)
++>
++> Flow note (2026-10-10, issue #70): the out-of-context figures here came
++> from the prototype line's `syn/ooc` recipe, which started from the round
++> that created this repository. In that round's commit `c99f7a8` the recipe
++> issued `create_clock` after `synth_design`, so its figures come from
++> unconstrained synthesis and each slack is a post-synthesis report. The
++> prototype line's later scripts are not retained here; the order is
++> verified for `c99f7a8` only. Constrained figures sit beside unconstrained
++> ones in the [manager guide](../../../MANAGER.md#latest-measured-snapshot).
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # Wire truth through the TAP — 2026-08-15, afternoon
+diff --git a/docs/history/v1/prototype/INTEGRATION_GUIDE.md b/docs/history/v1/prototype/INTEGRATION_GUIDE.md
+index 9b9fca4..778fe86 100644
+--- a/docs/history/v1/prototype/INTEGRATION_GUIDE.md
++++ b/docs/history/v1/prototype/INTEGRATION_GUIDE.md
+@@ -7,6 +7,15 @@
+ > Archived: 2026-09-01
+ >
+ > Current successor: [current integration guide](../../../INTEGRATION.md)
++>
++> Flow note (2026-10-10, issue #70): the out-of-context figures here came
++> from the prototype line's `syn/ooc` recipe, which started from the round
++> that created this repository. In that round's commit `c99f7a8` the recipe
++> issued `create_clock` after `synth_design`, so its figures come from
++> unconstrained synthesis and each slack is a post-synthesis report. The
++> prototype line's later scripts are not retained here; the order is
++> verified for `c99f7a8` only. Constrained figures sit beside unconstrained
++> ones in the [manager guide](../../../MANAGER.md#latest-measured-snapshot).
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # Deploying the gPTP engine on an FPGA — step by step
+diff --git a/docs/history/v1/prototype/IP_BLOCKS.md b/docs/history/v1/prototype/IP_BLOCKS.md
+index ace01d1..09c1726 100644
+--- a/docs/history/v1/prototype/IP_BLOCKS.md
++++ b/docs/history/v1/prototype/IP_BLOCKS.md
+@@ -7,6 +7,15 @@
+ > Archived: 2026-09-01
+ >
+ > Current successor: [current HDL guide](../../../HDL_DEVELOPER.md)
++>
++> Flow note (2026-10-10, issue #70): the out-of-context figures here came
++> from the prototype line's `syn/ooc` recipe, which started from the round
++> that created this repository. In that round's commit `c99f7a8` the recipe
++> issued `create_clock` after `synth_design`, so its figures come from
++> unconstrained synthesis and each slack is a post-synthesis report. The
++> prototype line's later scripts are not retained here; the order is
++> verified for `c99f7a8` only. Constrained figures sit beside unconstrained
++> ones in the [manager guide](../../../MANAGER.md#latest-measured-snapshot).
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # The IP design book — every block, six ways
+diff --git a/docs/history/v1/prototype/RESOURCE_VALIDATION.md b/docs/history/v1/prototype/RESOURCE_VALIDATION.md
+index 9739e31..1dbeda3 100644
+--- a/docs/history/v1/prototype/RESOURCE_VALIDATION.md
++++ b/docs/history/v1/prototype/RESOURCE_VALIDATION.md
+@@ -7,6 +7,15 @@
+ > Archived: 2026-09-01
+ >
+ > Current successor: [current manager guide](../../../MANAGER.md)
++>
++> Flow note (2026-10-10, issue #70): the out-of-context figures here came
++> from the prototype line's `syn/ooc` recipe, which started from the round
++> that created this repository. In that round's commit `c99f7a8` the recipe
++> issued `create_clock` after `synth_design`, so its figures come from
++> unconstrained synthesis and each slack is a post-synthesis report. The
++> prototype line's later scripts are not retained here; the order is
++> verified for `c99f7a8` only. Constrained figures sit beside unconstrained
++> ones in the [manager guide](../../../MANAGER.md#latest-measured-snapshot).
+ 
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # Resource validation — the gPTP plane, measured 2026-08-14
+diff --git a/syn/ooc/check_ooc_clock.py b/syn/ooc/check_ooc_clock.py
+new file mode 100755
+index 0000000..7ade597
+--- /dev/null
++++ b/syn/ooc/check_ooc_clock.py
+@@ -0,0 +1,417 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Hold the OOC clock: synth_design must see the 10 ns clock and use it (#70).
++
++Without arguments the check reads both OOC scripts and ooc_clock.xdc. With
++--log it reads the Vivado logs those scripts wrote, and the timing report
++named after each log, which proves what Vivado actually ran: this
++repository's ooc_clock.xdc parsed inside synthesis, clk at 10 ns bound to
++clk_i, no unclocked register and no critical warning. --selftest plants
++each defect and expects its finding by name.
++"""
++
++from __future__ import annotations
++
++import argparse
++import re
++import sys
++import tempfile
++from pathlib import Path
++
++
++HERE = Path(__file__).resolve().parent
++SCRIPTS = ("ucpu_ooc.tcl", "engine_ooc.tcl")
++XDC = "ooc_clock.xdc"
++# The one argument read_xdc may take: the scripts set SPEC to the repository
++# root, so this names this repository's file, not any file of that basename.
++XDC_READ = "$SPEC/syn/ooc/" + XDC
++PERIOD_NS = 10.0
++CLOCK_PORT = "clk_i"
++# The one row the timing report's Clock Summary may hold, whitespace joined.
++CLOCK_SUMMARY = "clk {0.000 5.000} 10.000 100.000"
++NAME = "ooc clock order"
++
++# Commands that define or load timing constraints. None may follow
++# synth_design: a clock created afterwards only annotates a netlist that was
++# synthesized without it.
++CONSTRAINT_COMMANDS = {"create_clock", "create_generated_clock", "read_xdc", "source"}
++
++CLOCK_RE = re.compile(
++    r"^create_clock\s+-period\s+([0-9.]+)\s+-name\s+\S+\s+\[get_ports\s+(\S+)\]$"
++)
++LOG_SYNTH_COMMAND_RE = re.compile(r"^Command: synth_design\b")
++LOG_SYNTH_START_RE = re.compile(r"^Starting synth_design\b")
++LOG_SYNTH_DONE_RE = re.compile(r"^synth_design completed successfully\b")
++LOG_MAPPING_RE = re.compile(r"^Start Technology Mapping\b")
++LOG_READ_RE = re.compile(r"^# read_xdc " + re.escape(XDC_READ) + r"$")
++LOG_ECHO_RE = re.compile(r"^# (\S+)")
++LOG_CRITICAL_RE = re.compile(r"^CRITICAL WARNING:")
++# Vivado's running message count; the last one in a log closes the session.
++LOG_COUNT_RE = re.compile(
++    r"^\d+ Infos, \d+ Warnings, (\d+) Critical Warnings and \d+ Errors encountered\.$"
++)
++RPT_SUMMARY_RE = re.compile(r"^Clock\s+Waveform\(ns\)\s+Period\(ns\)")
++RPT_CLOCKS_RE = re.compile(r"^Clock\s+Period\(ns\)\s+Waveform\(ns\)\s+Attributes\s+Sources")
++RPT_SOURCES_RE = re.compile(r"\{([^}]*)\}$")
++RPT_NO_CLOCK_RE = re.compile(r"^\d+\. checking no_clock \((\d+)\)")
++
++
++def tcl_commands(text: str) -> list[tuple[int, list[str]]]:
++    """Return (line, words) per command; comments dropped, continuations joined."""
++    commands: list[tuple[int, list[str]]] = []
++    pending = ""
++    first = 0
++    for number, raw in enumerate(text.splitlines(), start=1):
++        if not pending:
++            if not raw.strip() or raw.lstrip().startswith("#"):
++                continue
++            first = number
++        if raw.endswith("\\"):
++            pending += raw[:-1] + " "
++            continue
++        pending += raw
++        for part in pending.split(";"):
++            if part.strip():
++                commands.append((first, part.split()))
++        pending = ""
++    return commands
++
++
++def script_findings(path: Path) -> list[str]:
++    """Report a script whose clock file is not read before its synth_design."""
++    name = path.name
++    if not path.is_file():
++        return [f"{name}: missing"]
++    commands = tcl_commands(path.read_text(encoding="utf-8"))
++    synth = [index for index, (_line, words) in enumerate(commands)
++             if words[0] == "synth_design"]
++    if len(synth) != 1:
++        return [f"{name}: expected one synth_design, found {len(synth)}"]
++    findings: list[str] = []
++    before = commands[:synth[0]]
++    if not any(words == ["read_xdc", XDC_READ] for _line, words in before):
++        findings.append(f"{name}: {XDC_READ} is not read before synth_design")
++    for line, words in commands[synth[0] + 1:]:
++        if words[0] in CONSTRAINT_COMMANDS:
++            findings.append(f"{name}:{line}: {words[0]} after synth_design")
++    return findings
++
++
++def xdc_findings(path: Path) -> list[str]:
++    """Report a constraints file without exactly one 10 ns clock on clk_i."""
++    if not path.is_file():
++        return [f"{path.name}: missing"]
++    clocks = [
++        CLOCK_RE.match(" ".join(words))
++        for _line, words in tcl_commands(path.read_text(encoding="utf-8"))
++        if words[0] == "create_clock"
++    ]
++    if len(clocks) != 1 or clocks[0] is None:
++        return [f"{path.name}: expected one create_clock -period -name [get_ports]"]
++    period, port = clocks[0].groups()
++    if float(period) != PERIOD_NS or port != CLOCK_PORT:
++        return [f"{path.name}: clock is {period} ns on {port}, "
++                f"expected {PERIOD_NS:.3f} ns on {CLOCK_PORT}"]
++    return []
++
++
++def check(root: Path = HERE) -> list[str]:
++    """Check both scripts and the constraints file they share."""
++    findings = xdc_findings(root / XDC)
++    for script in SCRIPTS:
++        findings.extend(script_findings(root / script))
++    return findings
++
++
++def first(lines: list[str], pattern: re.Pattern[str], start: int = 0,
++          stop: int | None = None) -> int | None:
++    """Return the index of the first matching line in [start, stop)."""
++    for index in range(start, len(lines) if stop is None else stop):
++        if pattern.search(lines[index]):
++            return index
++    return None
++
++
++def table(lines: list[str], header: re.Pattern[str]) -> list[str]:
++    """Return the rows under a report table header, whitespace joined."""
++    index = first(lines, header)
++    rows: list[str] = []
++    for line in [] if index is None else lines[index + 1:]:
++        if not line.strip():
++            break
++        if not line.startswith("-"):
++            rows.append(" ".join(line.split()))
++    return rows
++
++
++def timing_findings(path: Path) -> list[str]:
++    """Report a timing report in which clk did not take effect on clk_i."""
++    name = path.name
++    if not path.is_file():
++        return [f"{name}: missing"]
++    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
++    findings: list[str] = []
++    summary = table(lines, RPT_SUMMARY_RE)
++    if summary != [CLOCK_SUMMARY]:
++        findings.append(f"{name}: Clock Summary is {summary}, expected [{CLOCK_SUMMARY!r}]")
++    # The Clock Summary has no source column; report_clocks, appended to the
++    # same file by the script, names the port each clock is bound to.
++    sources = [match.group(1).split() for row in table(lines, RPT_CLOCKS_RE)
++               if row.split()[0] == "clk" and (match := RPT_SOURCES_RE.search(row))]
++    if sources != [[CLOCK_PORT]]:
++        findings.append(f"{name}: clock clk is not bound to {CLOCK_PORT} (sources {sources})")
++    no_clock = [match.group(1) for line in lines if (match := RPT_NO_CLOCK_RE.match(line))]
++    if no_clock[:1] != ["0"]:
++        findings.append(f"{name}: checking no_clock reports {no_clock[:1]}, expected ['0']")
++    return findings
++
++
++def log_findings(path: Path, xdc: Path = HERE / XDC) -> list[str]:
++    """Report a Vivado log of synthesis without the clock, or with a critical warning."""
++    name = path.name
++    if not path.is_file():
++        return [f"{name}: missing"]
++    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
++    command = first(lines, LOG_SYNTH_COMMAND_RE)
++    start = first(lines, LOG_SYNTH_START_RE, command or 0)
++    if command is None or start is None:
++        return [f"{name}: synth_design never started"]
++    done = first(lines, LOG_SYNTH_DONE_RE, start)
++    if done is None:
++        return [f"{name}: synth_design did not complete"]
++    findings: list[str] = []
++    if first(lines, LOG_READ_RE, 0, command) is None:
++        findings.append(f"{name}: {XDC_READ} is not read before synth_design")
++    mapping = first(lines, LOG_MAPPING_RE, start, done)
++    # Matched by full path: a file of the same basename elsewhere is not it.
++    parse = re.compile(r"^Parsing XDC File \[" + re.escape(str(xdc)) + r"\]$")
++    if first(lines, parse, start, done if mapping is None else mapping) is None:
++        findings.append(f"{name}: synth_design did not parse {xdc} before mapping")
++    for index in range(done + 1, len(lines)):
++        echo = LOG_ECHO_RE.match(lines[index])
++        if echo and echo.group(1) in CONSTRAINT_COMMANDS:
++            findings.append(f"{name}:{index + 1}: {echo.group(1)} after synth_design")
++    for index, line in enumerate(lines):
++        if LOG_CRITICAL_RE.match(line):
++            findings.append(f"{name}:{index + 1}: {line}")
++    counts = [index for index, line in enumerate(lines) if LOG_COUNT_RE.match(line)]
++    if not counts:
++        findings.append(f"{name}: no session message count")
++    elif (critical := LOG_COUNT_RE.match(lines[counts[-1]]).group(1)) != "0":
++        findings.append(f"{name}:{counts[-1] + 1}: session ends with {critical} critical warnings")
++    return findings
++
++
++def post_findings(log: Path, xdc: Path = HERE / XDC) -> list[str]:
++    """Check one synthesis: its log and the timing report named after it."""
++    report = log.with_name(log.name.removesuffix("_ooc.log") + "_timing.rpt")
++    return log_findings(log, xdc) + timing_findings(report)
++
++
++GOOD_TCL = """# fixture
++set SPEC .
++read_xdc $SPEC/syn/ooc/ooc_clock.xdc
++read_verilog -sv a.sv \\
++    b.sv
++synth_design -mode out_of_context -top T -part P \\
++    -generic UCODE_HEX_P=gptp_ucode.hex
++report_timing_summary -file fixture_timing.rpt
++report_clocks -append -file fixture_timing.rpt
++"""
++GOOD_XDC = "# fixture\ncreate_clock -period 10.000 -name clk [get_ports clk_i]\n"
++# @XDC@ stands for the fixture's ooc_clock.xdc, which the log names by full path.
++GOOD_LOG = """source x.tcl
++# set SPEC .
++# read_xdc $SPEC/syn/ooc/ooc_clock.xdc
++# read_verilog -sv a.sv b.sv
++# synth_design -mode out_of_context -top T -part P
++Command: synth_design -mode out_of_context -top T -part P
++Starting synth_design
++Processing XDC Constraints
++Parsing XDC File [@XDC@]
++Finished Parsing XDC File [@XDC@]
++Start Technology Mapping
++Parsing XDC File [@XDC@]
++Finished Parsing XDC File [@XDC@]
++39 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
++synth_design completed successfully
++# report_timing_summary -file fixture_timing.rpt
++# report_clocks -append -file fixture_timing.rpt
++"""
++GOOD_RPT = """| Design       : T
++check_timing report
++
++Table of Contents
++-----------------
++1. checking no_clock (0)
++
++1. checking no_clock (0)
++------------------------
++ There are 0 register/latch pins with no clock.
++
++| Clock Summary
++| -------------
++------------------------------------------------------------------------------------------------
++
++Clock  Waveform(ns)       Period(ns)      Frequency(MHz)
++-----  ------------       ----------      --------------
++clk    {0.000 5.000}      10.000          100.000
++
++Clock Report
++
++Clock  Period(ns)  Waveform(ns)   Attributes  Sources
++clk    10.000      {0.000 5.000}  P           {clk_i}
++
++"""
++
++
++def selftest() -> int:
++    """Plant each defect and require the check to name it."""
++    read = "read_xdc $SPEC/syn/ooc/ooc_clock.xdc\n"
++    synth = "    -generic UCODE_HEX_P=gptp_ucode.hex\n"
++    clock = "create_clock -period 10.000 -name clk [get_ports clk_i]\n"
++    log_read = "# read_xdc $SPEC/syn/ooc/ooc_clock.xdc\n"
++    log_parse = "Parsing XDC File [@XDC@]\nFinished Parsing XDC File [@XDC@]\n"
++    log_done = "synth_design completed successfully\n"
++    log_count = "39 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.\n"
++    summary = "clk    {0.000 5.000}      10.000          100.000\n"
++    sources = "clk    10.000      {0.000 5.000}  P           {clk_i}\n"
++    with tempfile.TemporaryDirectory() as directory:
++        root = Path(directory)
++        xdc, tcl = root / XDC, root / SCRIPTS[-1]
++        log, report = root / "fixture_ooc.log", root / "fixture_timing.rpt"
++        good = {xdc: GOOD_XDC, log: GOOD_LOG, report: GOOD_RPT}
++        good.update({root / script: GOOD_TCL for script in SCRIPTS})
++        # R614-1's arm: the top's clock port renamed, so create_clock found
++        # no port, and synthesis and timing ran with no clock at all.
++        renamed = {
++            log: GOOD_LOG.replace(
++                "Finished Parsing", "CRITICAL WARNING: [Vivado 12-4739] create_clock:No valid "
++                "object(s) found for '-objects [get_ports clk_i]'. [@XDC@:9]\nFinished Parsing")
++            .replace(log_count, log_count.replace("0 Critical", "2 Critical")),
++            report: GOOD_RPT.replace("no_clock (0)", "no_clock (1003)")
++            .split("| Clock Summary")[0] + "Clock Report\n\nClock  Period(ns)  Waveform(ns)  "
++            "Attributes  Sources\n\n",
++        }
++        # (label, planted files, words a finding must carry; None deletes a file)
++        arms: list[tuple[str, dict[Path, str | None], list[str]]] = [
++            ("read_xdc moved after synth_design",
++             {tcl: GOOD_TCL.replace(read, "").replace(synth, synth + read)},
++             ["read_xdc after synth_design"]),
++            ("create_clock after synth_design (the pre-#70 order)",
++             {tcl: GOOD_TCL.replace(read, "").replace(synth, synth + clock)},
++             ["create_clock after synth_design"]),
++            ("no read_xdc", {tcl: GOOD_TCL.replace(read, "")}, ["is not read before"]),
++            ("read_xdc of another file",
++             {tcl: GOOD_TCL.replace("ooc_clock.xdc", "other.xdc")}, ["is not read before"]),
++            ("read_xdc of a foreign ooc_clock.xdc of the same basename",
++             {tcl: GOOD_TCL.replace(read, "read_xdc /elsewhere/ooc_clock.xdc\n")},
++             ["is not read before"]),
++            ("create_clock added after synth_design", {tcl: GOOD_TCL + clock},
++             ["create_clock after synth_design"]),
++            ("second synth_design", {tcl: GOOD_TCL + "synth_design -top T -part P\n"},
++             ["expected one synth_design"]),
++            ("8 ns period", {xdc: GOOD_XDC.replace("10.000", "8.000")}, ["clock is 8.000 ns"]),
++            ("clock on another port", {xdc: GOOD_XDC.replace("clk_i", "clk_o")}, ["on clk_o"]),
++            ("no clock", {xdc: "# fixture\n"}, ["expected one create_clock"]),
++            ("XDC with two create_clock lines", {xdc: GOOD_XDC + clock},
++             ["expected one create_clock"]),
++            ("read_xdc echoed after synth_design",
++             {log: GOOD_LOG.replace(log_read, "").replace(log_done, log_done + log_read)},
++             ["is not read before", "read_xdc after synth_design"]),
++            ("create_clock echoed after synth_design (the pre-#70 order)",
++             {log: GOOD_LOG.replace(log_read, "").replace(log_parse, "")
++              .replace(log_done, log_done + "# " + clock)},
++             ["create_clock after synth_design"]),
++            ("no read_xdc echo", {log: GOOD_LOG.replace(log_read, "")}, ["is not read before"]),
++            ("synthesis without the parsed XDC", {log: GOOD_LOG.replace(log_parse, "")},
++             ["did not parse"]),
++            ("foreign ooc_clock.xdc of the same basename read and parsed",
++             {log: GOOD_LOG.replace("$SPEC/syn/ooc/ooc_clock.xdc", "/elsewhere/ooc_clock.xdc")
++              .replace("@XDC@", "/elsewhere/ooc_clock.xdc")},
++             ["is not read before", "did not parse"]),
++            ("ooc_clock.xdc parsed from another checkout",
++             {log: GOOD_LOG.replace("@XDC@", "/elsewhere/syn/ooc/ooc_clock.xdc")},
++             ["did not parse"]),
++            ("create_clock echoed after a constrained synthesis", {log: GOOD_LOG + "# " + clock},
++             ["create_clock after synth_design"]),
++            ("synth_design that never started",
++             {log: GOOD_LOG.replace("Command: synth_design", "Command: report_timing")},
++             ["never started"]),
++            ("synth_design that never completed", {log: GOOD_LOG.replace(log_done, "")},
++             ["did not complete"]),
++            ("critical-warning count above zero",
++             {log: GOOD_LOG.replace("0 Critical Warnings", "1 Critical Warnings")},
++             ["session ends with 1 critical warnings"]),
++            ("no session message count", {log: GOOD_LOG.replace(log_count, "")},
++             ["no session message count"]),
++            ("critical warning after the session count",
++             {log: GOOD_LOG + "CRITICAL WARNING: [Timing 38-1] planted\n"},
++             ["CRITICAL WARNING: [Timing 38-1]"]),
++            ("wrong period",
++             {report: GOOD_RPT.replace("{0.000 5.000}      10.000          100.000",
++                                       "{0.000 4.000}      8.000           125.000")
++              .replace("10.000      {0.000 5.000}", "8.000       {0.000 4.000}")},
++             ["Clock Summary is"]),
++            ("second clock", {report: GOOD_RPT.replace(summary, summary + summary)},
++             ["Clock Summary is"]),
++            ("clock bound to another port",
++             {report: GOOD_RPT.replace(sources, sources.replace("clk_i", "rst_i"))},
++             ["not bound to clk_i"]),
++            ("unclocked registers", {report: GOOD_RPT.replace("no_clock (0)", "no_clock (12)")},
++             ["checking no_clock reports"]),
++            ("no timing report", {report: None}, ["fixture_timing.rpt: missing"]),
++            ("renamed clock port (R614-1)", renamed,
++             ["CRITICAL WARNING: [Vivado 12-4739]", "session ends with 2 critical warnings",
++              "Clock Summary is", "not bound to clk_i", "checking no_clock reports"]),
++        ]
++
++        def findings(planted: dict[Path, str | None]) -> list[str]:
++            for path, text in {**good, **planted}.items():
++                if text is None:
++                    path.unlink(missing_ok=True)
++                else:
++                    path.write_text(text.replace("@XDC@", str(xdc)), encoding="utf-8")
++            return check(root) + post_findings(log, xdc)
++
++        if clean := findings({}):
++            print(f"{NAME} selftest: clean fixture failed: {clean}")
++            return 1
++        for label, planted, words in arms:
++            found = findings(planted)
++            for word in words:
++                if not any(word in finding for finding in found):
++                    print(f"{NAME} selftest: {label} escaped (no finding names {word!r})")
++                    return 1
++    print(f"{NAME} selftest: PASS ({len(arms) + 1} arms)")
++    return 0
++
++
++def main() -> int:
++    """Run the script check, the post-synthesis check or the self-test."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--selftest", action="store_true")
++    parser.add_argument("--log", nargs="+", type=Path, metavar="LOG",
++                        help="Vivado logs of the OOC scripts to check, each with "
++                             "the <top>_timing.rpt written beside it")
++    args = parser.parse_args()
++    if args.selftest:
++        return selftest()
++    if args.log:
++        findings = [finding for log in args.log for finding in post_findings(log)]
++        subject = ", ".join(log.name for log in args.log) + " and their timing reports"
++    else:
++        findings = check()
++        subject = ", ".join((XDC,) + SCRIPTS)
++    if findings:
++        print(f"{NAME}: FAIL ({len(findings)} findings)")
++        for finding in findings:
++            print(f"  {finding}")
++        return 1
++    print(f"{NAME}: PASS ({subject})")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/syn/ooc/engine_ooc.tcl b/syn/ooc/engine_ooc.tcl
+index da5cdf0..a82a24d 100644
+--- a/syn/ooc/engine_ooc.tcl
++++ b/syn/ooc/engine_ooc.tcl
+@@ -2,12 +2,16 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ #
+ # Out-of-context synthesis of the whole gPTP engine — parser, µCPU, TX
+-# slot, timer, region map. Same instrument as every anchor in the
+-# protocol-processor resource record: post-synthesis hierarchical
+-# utilization, xc7a100t-2, 100 MHz OOC. This number is the measured
+-# replacement for the "+1,500…+2,500 LUT gPTP engine" ESTIMATE in the
+-# 2026-08-14 no-DDR3 resource study.
++# slot, timer, region map: post-synthesis hierarchical utilization,
++# xc7a100t-2, 100 MHz OOC. This number is the measured replacement for
++# the "+1,500…+2,500 LUT gPTP engine" ESTIMATE in the 2026-08-14 no-DDR3
++# resource study. Until #70 this was the same instrument as every anchor
++# in the protocol-processor resource record, and every figure it produced
++# came from an unconstrained synthesis: create_clock ran after
++# synth_design. The clock now comes from ooc_clock.xdc, read before
++# synth_design.
+ set SPEC [file normalize [file dirname [info script]]/../..]
++read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+ read_verilog -sv \
+     $SPEC/hdl/ucpu/gptp_ucpu_pkg.sv \
+     $SPEC/hdl/ucpu/KL_gptp_ucpu.sv \
+@@ -17,7 +21,9 @@ read_verilog -sv \
+     $SPEC/hdl/top/KL_gptp_engine.sv
+ synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 \
+     -generic UCODE_HEX_P=gptp_ucode.hex
+-create_clock -period 10.000 -name clk [get_ports clk_i]
+ report_utilization -hierarchical -file engine_util_hier.rpt
+ report_utilization -file engine_util.rpt
+ report_timing_summary -delay_type max -max_paths 3 -file engine_timing.rpt
++# The timing summary's Clock Summary has no source column; this names the
++# port clk is bound to, which check_ooc_clock.py requires to be clk_i.
++report_clocks -append -file engine_timing.rpt
+diff --git a/syn/ooc/ooc_clock.xdc b/syn/ooc/ooc_clock.xdc
+new file mode 100644
+index 0000000..74a7908
+--- /dev/null
++++ b/syn/ooc/ooc_clock.xdc
+@@ -0,0 +1,9 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++#
++# The one clock of both OOC measurements. engine_ooc.tcl and ucpu_ooc.tcl
++# read this file before synth_design, so synthesis optimizes against the
++# 10 ns target and the reported slack is a constrained result (#70).
++# check_ooc_clock.py holds that order; keep the clock here, not in the
++# scripts.
++create_clock -period 10.000 -name clk [get_ports clk_i]
+diff --git a/syn/ooc/run.sh b/syn/ooc/run.sh
+index 169ed9b..3279bac 100755
+--- a/syn/ooc/run.sh
++++ b/syn/ooc/run.sh
+@@ -2,6 +2,11 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ # Runs both OOC measurements into syn/ooc/work/. Needs Vivado 2026.1.
++# check_ooc_clock.py fails the run before Vivado unless both scripts read
++# this repository's ooc_clock.xdc before synth_design (#70). After both
++# syntheses it fails the run unless each log shows that file parsed inside
++# synthesis and no critical warning, and each timing report shows clk at
++# 10 ns bound to clk_i with no unclocked register.
+ #
+ # Rule 13 strict mode is `errexit` only here; the other two thirds are DECLINED
+ # and this is the record of why, not an oversight.
+@@ -23,6 +28,7 @@
+ #               not every /bin/sh implements.
+ set -e
+ HERE=$(cd "$(dirname "$0")" && pwd)
++python3 "$HERE/check_ooc_clock.py"
+ VIVADO_SETTINGS=${VIVADO_SETTINGS:-$HOME/Xilinx/2026.1/Vivado/settings64.sh}
+ . "$VIVADO_SETTINGS"
+ mkdir -p "$HERE/work"
+@@ -30,6 +36,7 @@ cd "$HERE/work"
+ python3 "$HERE/../../hdl/ucode/gen_gptp_ucode.py" -o gptp_ucode.hex
+ vivado -mode batch -source "$HERE/ucpu_ooc.tcl"   -nojournal -log ucpu_ooc.log
+ vivado -mode batch -source "$HERE/engine_ooc.tcl" -nojournal -log engine_ooc.log
++python3 "$HERE/check_ooc_clock.py" --log ucpu_ooc.log engine_ooc.log
+ echo "==== ucpu ===="
+ grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+ echo "==== engine ===="
+diff --git a/syn/ooc/ucpu_ooc.tcl b/syn/ooc/ucpu_ooc.tcl
+index b9fb77e..32e1dbb 100644
+--- a/syn/ooc/ucpu_ooc.tcl
++++ b/syn/ooc/ucpu_ooc.tcl
+@@ -1,16 +1,23 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ #
+-# Out-of-context synthesis of KL_gptp_ucpu — the SAME INSTRUMENT as the
+-# protocol-processor's syn/ooc/ucpu_ooc.tcl (post-synthesis hierarchical
+-# utilization, ship part, 100 MHz OOC). The delta against that repo's
+-# measurement of record (1,070 LUT / 491 FF / 3 RAMB36, 2026-08-13) prices
+-# the arithmetic ISA growth alone, because this module is a pure superset.
++# Out-of-context synthesis of KL_gptp_ucpu (post-synthesis hierarchical
++# utilization, ship part, 100 MHz OOC). Until #70 this was the SAME
++# INSTRUMENT as the protocol-processor's syn/ooc/ucpu_ooc.tcl: the delta
++# against that repo's measurement of record (1,070 LUT / 491 FF / 3 RAMB36,
++# 2026-08-13) priced the arithmetic ISA growth alone, because this module
++# is a pure superset, and every figure it produced came from an
++# unconstrained synthesis: create_clock ran after synth_design. The clock
++# now comes from ooc_clock.xdc, read before synth_design, so a delta
++# against that record needs a run in the old order.
+ set SPEC [file normalize [file dirname [info script]]/../..]
++read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+ read_verilog -sv $SPEC/hdl/ucpu/gptp_ucpu_pkg.sv $SPEC/hdl/ucpu/KL_gptp_ucpu.sv
+ synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 \
+     -generic UCODE_HEX_P=gptp_ucode.hex
+-create_clock -period 10.000 -name clk [get_ports clk_i]
+ report_utilization -hierarchical -file ucpu_util_hier.rpt
+ report_utilization -file ucpu_util.rpt
+ report_timing_summary -delay_type max -max_paths 3 -file ucpu_timing.rpt
++# The timing summary's Clock Summary has no source column; this names the
++# port clk is bound to, which check_ooc_clock.py requires to be clk_i.
++report_clocks -append -file ucpu_timing.rpt

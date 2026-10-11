@@ -1,0 +1,28 @@
+rx_err read only at eof (the planted control)
+sync rx_err at every byte: one drop
+fu rx_err at every byte: one drop
+pdreq rx_err at every byte: one drop
+pdresp rx_err at every byte: one drop
+sync rx_err at every byte: no event
+fu rx_err at every byte: no event
+pdreq rx_err at every byte: no event
+pdresp rx_err at every byte: no event
+sync rx_err at every byte: no later write
+fu rx_err at every byte: no later write
+pdreq rx_err at every byte: no later write
+pdresp rx_err at every byte: no later write
+sync rx_err at first, middle, eof: one drop
+fu rx_err at first, middle, eof: one drop
+pdreq rx_err at first, middle, eof: one drop
+pdresp rx_err at first, middle, eof: one drop
+ann rx_err at first, middle, eof: one drop
+sync rx_err at first, middle, eof: no event
+fu rx_err at first, middle, eof: no event
+pdreq rx_err at first, middle, eof: no event
+pdresp rx_err at first, middle, eof: no event
+ann rx_err at first, middle, eof: no event
+sync rx_err at first, middle, eof: no write after
+fu rx_err at first, middle, eof: no write after
+pdreq rx_err at first, middle, eof: no write after
+pdresp rx_err at first, middle, eof: no write after
+ann rx_err at first, middle, eof: no write after

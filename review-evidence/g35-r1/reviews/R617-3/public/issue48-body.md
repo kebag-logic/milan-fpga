@@ -1,0 +1,29 @@
+https://github.com/Mister-M-alt/FPGA-gPTP/issues/48
+
+## Objective
+
+Align donor integration guidance with the current parent default.
+
+## Evidence
+
+- `README.md:7-13` says `GPTP_PLANE_EN_P` defaults off.
+- Parent `milan_datapath.sv:89` defaults it on.
+- Parent root integration now treats fabric gPTP as product ownership.
+- Closed Issue #13 described the earlier default-off state.
+
+## Scope
+
+- Update donor integration status only.
+- Describe default-on parent ownership.
+- Preserve the explicit option-off comparison path.
+- Keep physical acceptance gaps explicit.
+- Avoid changing RTL behavior.
+
+## Acceptance
+
+- README matches the current parent integration.
+- Default ownership is stated unambiguously.
+- Option-off behavior remains documented.
+- Remaining donor and hardware gaps stay visible.
+
+Discovered during kebag-logic/milan-fpga#296.

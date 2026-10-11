@@ -1,0 +1,10 @@
+case0: clean: PASS; verdict=pass; named=0; missing=[]
+case1: rx_err read only at eof (the planted control): PASS; verdict=caught; named=27; missing=[]
+case2: a first-byte flag lost to the sof clear: PASS; verdict=caught; named=9; missing=[]
+case3: the eof byte's own flag ignored: PASS; verdict=caught; named=19; missing=[]
+case4: every flagged byte counts a drop: PASS; verdict=caught; named=4; missing=[]
+case5: rx_err ignored on every byte: PASS; verdict=caught; named=4; missing=[]
+case6: the refusal outlives its frame: PASS; verdict=caught; named=24; missing=[]
+case7: rx_err sampled between bytes: PASS; verdict=caught; named=2; missing=[]
+case8: a refusal skips the next frame's w2 write: PASS; verdict=caught; named=8; missing=[]
+9 checks: 9 PASS, 0 FAIL

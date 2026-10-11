@@ -1,0 +1,20 @@
+49b9d0f a70e388 155de13 Merge main into g35-rx-err, dropping the #35 gap rows this branch fixes
+155de13 bd466e6 7cc9c49 Merge pull request #81 from Mister-M-alt/g48-readme
+a70e388 c5c6646 State the ruled rx_err_i bank contract in the parser header, port and integration guide
+c5c6646 3acd2f5 Prove no word a refused frame leaves reaches the next accepted frame's event
+3acd2f5 5b4ce39 Count every bank write before, on and after the flagged byte in the parser suite
+7cc9c49 bd466e6 docs: align parent integration ownership at ac2c5e77
+bd466e6 5dce647 169073f Merge pull request #79 from Mister-M-alt/g70-ooc-clock
+169073f 74bfbf8 Describe the post-synthesis OOC clock checks in the HDL guide
+74bfbf8 f51aa68 Fail the OOC run unless each synthesis shows clk at 10 ns bound to clk_i with no critical warning
+f51aa68 26622e2 Scope the pre-#70 unconstrained note to this repository's syn/ooc figures
+5b4ce39 05cacb6 Document the any-byte rx_err_i contract and retire the #35 risk lines
+05cacb6 fd1d6c9 Plant seven rx_err_i defects the parser suite must fail by name
+fd1d6c9 a7c031f Raise rx_err_i at every byte of four message types in the parser suite
+a7c031f 5dce647 Latch rx_err_i on any byte of a frame into the parser's drop state
+26622e2 acb23f0 Record constrained and unconstrained OOC figures side by side with their flow
+acb23f0 adc344c State the unconstrained OOC flow on each archived page that quotes OOC figures
+adc344c 48051c5 Give each OOC clock rule a selftest arm that only it catches
+48051c5 5dce647 Read the OOC clock from an XDC before synth_design and gate that order
+5dce647 e5dcea6 6fd2ceb Merge PR #76: export a PHC policy-slew level so a consumer can discard measurements taken during a slew
+6fd2ceb 3face09 Split slew lifecycle checks into phases and annotate the evidence checker
