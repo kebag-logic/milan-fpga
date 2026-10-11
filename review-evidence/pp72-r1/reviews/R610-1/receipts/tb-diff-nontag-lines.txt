@@ -1,0 +1,19 @@
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#: the requirement tag statement, loaded by its path as the packer is
++tag_spec = importlib.util.spec_from_file_location(
++    "req_tag", Path(__file__).resolve().parents[1] / "common/req_tag.py")
++req_tag = importlib.util.module_from_spec(tag_spec)
++tag_spec.loader.exec_module(req_tag)
++REQ_TAG = req_tag.REQ_TAG
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"
++#include "../common/req_tag.hpp"

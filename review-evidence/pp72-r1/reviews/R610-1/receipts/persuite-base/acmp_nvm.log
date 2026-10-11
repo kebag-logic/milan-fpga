@@ -1,0 +1,21 @@
+verilator --cc --exe --build -j 0 --top-module acmp_nvm_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GDEB_TICKS_P=50 -GRS_TMO_CYC_P=3000 -GRETRY_BACKOFF_CYC_P=600 -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv acmp_nvm_wrap.sv sim_main.cpp -o Vacmp_nvm_sim
+make[1]: Entering directory '$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_dir/Vacmp_nvm_sim
+372 checks: 372 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module acmp_nvm_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GDEB_TICKS_P=50 -GRS_TMO_CYC_P=3000 -GRETRY_BACKOFF_CYC_P=600 -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm -Wall -Wextra" -GPORT_TMO_CYC_P=1000 +define+ACMP_NVM_PORT_DEADLINE \
+    -CFLAGS "-DACMP_NVM_PORT_DEADLINE -DACMP_NVM_PORT_TMO=1000 -Wall -Wextra" \
+    --Mdir obj_dl ../../hdl/common/pp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv acmp_nvm_wrap.sv sim_main.cpp -o Vacmp_nvm_dl
+make[1]: Entering directory '$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm/obj_dl'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/pp72-r610-1-packet/scratch/base/tb/acmp_nvm/obj_dl'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.018 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_dl/Vacmp_nvm_dl
+16 checks: 16 PASS, 0 FAIL
+388 checks: 388 PASS, 0 FAIL

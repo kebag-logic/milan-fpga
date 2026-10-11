@@ -1,0 +1,47 @@
+verilator --cc --exe --build -j 0 --top-module srp_walk_wrap --x-initial unique -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/srp_stream_fsms -Wall -Wextra" -GN_SOURCES_P=1 -GN_SINKS_P=1 \
+  -CFLAGS "-DTB_SOURCES=1 -DTB_SINKS=1 -Wall -Wextra" --Mdir obj_walk_1x1 \
+  ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_walk_wrap.sv walk_main.cpp -o Vsrp_walk_sim
+make[2]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.010 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_walk_1x1/Vsrp_walk_sim +verilator+rand+reset+2 +verilator+seed+230
+walk records: 1 sources, 1 sinks
+35 checks: 35 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module srp_walk_wrap --x-initial unique -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/srp_stream_fsms -Wall -Wextra" -GN_SOURCES_P=2 -GN_SINKS_P=2 \
+  -CFLAGS "-DTB_SOURCES=2 -DTB_SINKS=2 -Wall -Wextra" --Mdir obj_walk_2x2 \
+  ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_walk_wrap.sv walk_main.cpp -o Vsrp_walk_sim
+make[2]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_walk_2x2/Vsrp_walk_sim +verilator+rand+reset+2 +verilator+seed+230
+walk records: 2 sources, 2 sinks
+46 checks: 46 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module srp_walk_wrap --x-initial unique -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/srp_stream_fsms -Wall -Wextra" -GN_SOURCES_P=3 -GN_SINKS_P=5 \
+  -CFLAGS "-DTB_SOURCES=3 -DTB_SINKS=5 -Wall -Wextra" --Mdir obj_walk_3x5 \
+  ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_walk_wrap.sv walk_main.cpp -o Vsrp_walk_sim
+make[2]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_walk_3x5/Vsrp_walk_sim +verilator+rand+reset+2 +verilator+seed+230
+walk records: 3 sources, 5 sinks
+67 checks: 67 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module srp_walk_wrap --x-initial unique -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/srp_stream_fsms -Wall -Wextra" -GN_SOURCES_P=9 -GN_SINKS_P=9 \
+  -CFLAGS "-DTB_SOURCES=9 -DTB_SINKS=9 -Wall -Wextra" --Mdir obj_walk_9x9 \
+  ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_walk_wrap.sv walk_main.cpp -o Vsrp_walk_sim
+make[2]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_walk_9x9/Vsrp_walk_sim +verilator+rand+reset+2 +verilator+seed+230
+walk records: 9 sources, 9 sinks
+123 checks: 123 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module srp_stream_fsms_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp72-r610-1-packet/scratch/base/tb/srp_stream_fsms -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_stream_fsms_wrap.sv sim_main.cpp -o Vsrp_stream_fsms_sim
+make[2]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_dir/Vsrp_stream_fsms_sim
+1347 checks: 1347 PASS, 0 FAIL

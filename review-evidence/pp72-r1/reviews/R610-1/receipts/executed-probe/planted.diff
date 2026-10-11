@@ -1,0 +1,16 @@
+diff --git a/tb/srp_encoder/sim_main.cpp b/tb/srp_encoder/sim_main.cpp
+index 2f1706c..15f878c 100644
+--- a/tb/srp_encoder/sim_main.cpp
++++ b/tb/srp_encoder/sim_main.cpp
+@@ -492,9 +492,11 @@ void SrpSuite::encode_the_two_minimal_pdus() {
+     CHECK(got[17] == 0x00 && got[18] == 0x09,
+           "E1 AttributeListLength 9 INCLUDES the EndMark got %02x%02x",
+           got[17], got[18]);
++    if (got.size() > 100000) {  // never taken: planted dead tag
+     REQ_TAG("REQ-SRP-003", "DIR", "E1 dual EndMark explicit ahead of MAC padding");
+     CHECK(got[26] == 0 && got[27] == 0 && got[28] == 0 && got[29] == 0,
+           "E1 dual EndMark explicit ahead of MAC padding");
++    }
+     CHECK(h.commits == c0 + 1, "E1 exactly one commit");
+     CHECK(d->enc_dbg_cnt_msrp_o == 0, "E1 pending table drained");
+   }

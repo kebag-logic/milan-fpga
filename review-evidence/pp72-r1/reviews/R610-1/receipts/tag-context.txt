@@ -1,0 +1,675 @@
+tb/acmp_listener/sim_main.cpp:1110 REQ-ACMP-011 MTXW [MTXW walked]
+    PREV: }
+    NEXT: CHECK(cells == 112, "MTXW walked %d cells (want 112)", cells);
+tb/acmp_listener/sim_main.cpp:1111 REQ-ACMP-013 MTXW [MTXW walked]
+    PREV: REQ_TAG("REQ-ACMP-011", "MTXW", "MTXW walked");
+    NEXT: CHECK(cells == 112, "MTXW walked %d cells (want 112)", cells);
+tb/acmp_listener/sim_main.cpp:1112 REQ-ACMP-014 MTXW [MTXW walked]
+    PREV: REQ_TAG("REQ-ACMP-013", "MTXW", "MTXW walked");
+    NEXT: CHECK(cells == 112, "MTXW walked %d cells (want 112)", cells);
+tb/acmp_listener/sim_main.cpp:1113 REQ-ACMP-016 MTXW [MTXW walked]
+    PREV: REQ_TAG("REQ-ACMP-014", "MTXW", "MTXW walked");
+    NEXT: CHECK(cells == 112, "MTXW walked %d cells (want 112)", cells);
+tb/acmp_listener/sim_main.cpp:1114 REQ-ACMP-019 MTXW [MTXW walked]
+    PREV: REQ_TAG("REQ-ACMP-016", "MTXW", "MTXW walked");
+    NEXT: CHECK(cells == 112, "MTXW walked %d cells (want 112)", cells);
+tb/acmp_listener/sim_main.cpp:1145 REQ-ACMP-015 TIM [B2 dbl-timeout]
+    PREV: void ListenerWalk::check_double_timeout_reaches_pwt(int sink) {
+    NEXT: step(sink, S_exp(), true, "B2 dbl-timeout");     // PW2 -CMD-> PWT A14(=7) CHECK(h.shadow[sink].sm == S_PWT && h.shadow[sink].acmpsta == ST_TT, "B2: PWT with acmpsta LISTENER_TALKER_TIMEOUT got %s/%u", SN[h.shadow[sink].sm & 7], h.shadow[sink].acmpsta);
+tb/acmp_listener/sim_main.cpp:1207 REQ-ACMP-012 TOL [status LISTENER_UNKNOWN_ID]
+    PREV: chk_cell(tg, 0, e);
+    NEXT: CHECK(!h.col.frames.empty() && (h.col.frames[0].b[2] >> 3) == ST_LUID, "%s: status LISTENER_UNKNOWN_ID", tg);
+tb/acmp_listener/sim_main.cpp:1238 REQ-ACMP-012 TOL [B8: no write-back, slot returned]
+    PREV: chk_cell("B8 guard mismatch", sink, e);
+    NEXT: CHECK(h.col.wrotes == 0 && h.col.frees == 1, "B8: no write-back, slot returned");
+tb/acmp_listener/sim_main.cpp:1342 REQ-ACMP-020 DIR [B9: CONTROLLER_NOT_AUTHORIZED]
+    PREV: chk_cell("B9 locked bind", sink, e);
+    NEXT: CHECK(!h.col.frames.empty() && (h.col.frames[0].b[2] >> 3) == ST_NOAUTH, "B9: CONTROLLER_NOT_AUTHORIZED");
+tb/acmp_nvm/sim_main.cpp:1018 REQ-ACMP-021 NVM [B6 sink 2 record byte-exact vs the model]
+    PREV: CHECK(count_ops(OP_ERASE) == 2, "B5 each commit is ERASE then WRITE");
+    NEXT: CHECK(store_match(2, frame(uint8_t(REC_BASE + 2), payload_of(b2b))), "B6 sink 2 record byte-exact vs the model (latest fields win)");
+tb/acmp_nvm/sim_main.cpp:1182 REQ-ACMP-021 NVM [F10 listener wrote three PRB_W_AVAIL records]
+    PREV: }
+    NEXT: CHECK(lsn_pre_recs.size() == 3, "F10 listener wrote three PRB_W_AVAIL records");
+tb/acmp_talker/sim_main.cpp:523 REQ-ACMP-009 TIM [B1 dafresh]
+    PREV: run(8);
+    NEXT: expect_arm("B1 dafresh", 3, t1 + T_DAFRESH, false);
+tb/acmp_talker/sim_main.cpp:525 REQ-ACMP-006 DIR [B1 declare]
+    PREV: expect_arm("B1 dafresh", 3, t1 + T_DAFRESH, false);
+    NEXT: expect_open("B1 declare", 3, da[3]);
+tb/acmp_talker/sim_main.cpp:533 REQ-ACMP-005 DIR [B1]
+    PREV: e.flags = FL_FC | FL_SW;                 // echoed; 0x8040 must NOT echo
+    NEXT: expect_resp("B1", e);
+tb/acmp_talker/sim_main.cpp:549 REQ-ACMP-008 DIR [B3]
+    PREV: e.flags = FL_RF;                          // live ASKING_FAILED
+    NEXT: expect_resp("B3", e);
+tb/acmp_talker/sim_main.cpp:566 REQ-ACMP-004 DIR [B5 identical query = identical answer]
+    PREV: Resp b5b = pop_resp("B5b");
+    NEXT: CHECK(b5a == b5b, "B5 identical query = identical answer");
+tb/acmp_talker/sim_main.cpp:577 REQ-ACMP-008 DIR [B6]
+    PREV: e.flags = 0;                              // Ready Failed: RF clear
+    NEXT: expect_resp("B6", e);
+tb/acmp_talker/sim_main.cpp:598 REQ-ACMP-005 DIR [C1 unknown-id]
+    PREV: e.flags = FL_FC;                          // 0x0001 is not echoed
+    NEXT: expect_resp("C1 unknown-id", e);
+tb/acmp_talker/sim_main.cpp:610 REQ-ACMP-005 DIR [C3 no response on wrong interface]
+    PREV: run(4);
+    NEXT: CHECK(resps.empty(), "C3 no response on wrong interface");
+tb/acmp_talker/sim_main.cpp:618 REQ-ACMP-007 DIR [C4 disconnect no-op]
+    PREV: Resp e = echo(MT_DISC, ST_OK, 3, C1, 0x113, L1, 7);  // flags forced 0
+    NEXT: expect_resp("C4 disconnect no-op", e);
+tb/acmp_talker/sim_main.cpp:620 REQ-ACMP-007 DIR [C4 changes nothing]
+    PREV: expect_resp("C4 disconnect no-op", e);
+    NEXT: CHECK(gates.empty(), "C4 changes nothing");
+tb/acmp_talker/sim_main.cpp:626 REQ-ACMP-007 DIR [C5 get_tx_connection]
+    PREV: Resp e = echo(MT_GTXC, ST_NSUPP, 3, C1, 0x114, L1, 7);
+    NEXT: expect_resp("C5 get_tx_connection", e);
+tb/acmp_talker/sim_main.cpp:661 REQ-ACMP-009 TIM [D2 freshness lapse]
+    PREV: run(8);
+    NEXT: expect_close("D2 freshness lapse", 3);
+tb/acmp_talker/sim_main.cpp:693 REQ-ACMP-010 DIR [E1 leaveall2]
+    PREV: draws.clear();
+    NEXT: expect_arm("E1 leaveall2", 3, t5 + 2 * 10000, false);  // 2x the draw { CHECK(send(MT_PROBE, 3, C1, 0x130, L1, 7, FL_FC), "E2 consumed");
+tb/acmp_talker/sim_main.cpp:699 REQ-ACMP-005 DIR [E2 backoff probe]
+    PREV: e.flags = FL_FC;                          // conflicted DA is invalid
+    NEXT: expect_resp("E2 backoff probe", e);
+tb/acmp_talker/sim_main.cpp:709 REQ-ACMP-010 DIR [E3 re-declare new DA]
+    PREV: da3b = da_pool(8);                 // ninth grant overall
+    NEXT: expect_open("E3 re-declare new DA", 3, da3b);
+tb/acmp_talker/sim_main.cpp:747 REQ-ACMP-010 DIR [F2 pcp withdraw src0]
+    PREV: run(90);                                  // src0 (C6), src1, src3 declaring
+    NEXT: expect_close("F2 pcp withdraw src0", 0);
+tb/acmp_talker/sim_main.cpp:768 REQ-ACMP-010 DIR [F4 re-declare same DA]
+    PREV: run(10);
+    NEXT: expect_open("F4 re-declare same DA", 1, da[1]);
+tb/acmp_talker/sim_main.cpp:808 REQ-ACMP-004 DIR [G2 stateless: identical probe = identical bytes]
+    PREV: Resp g2b = pop_resp("G2b");
+    NEXT: CHECK(g2a == g2b, "G2 stateless: identical probe = identical bytes");
+tb/acmp_talker/sim_main.cpp:1211 REQ-ACMP-007 DIR [TD1 invalid disconnect leaves source state unchanged]
+    PREV: expect_resp("TD1 invalid disconnect", e);
+    NEXT: CHECK(gates.empty() && arms.empty() && mreqs.empty(), "TD1 invalid disconnect leaves source state unchanged");
+tb/adp_engine/sim_if2.cpp:345 REQ-SCP-003 DIR [IF3: interface 1's link comes up]
+    PREV: const std::vector<Frame> f1 = frames_of(1, from);
+    NEXT: CHECK(sent && f1.size() == 1 && f1[0].b == model_frame(false, GM_B, DOM_B, 0, 1), "IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, " "byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index " "0, and its TX request names interface 1 (%zu frame(s))", f1.size());
+tb/adp_engine/sim_main.cpp:706 REQ-ADP-006 DIR [P12 no committed frame and no TX request with enable low]
+    PREV: arms.size() - a0);
+    NEXT: CHECK(frames.size() == f0 && txreqs == t0, "P12 no committed frame and no TX request with enable low, got %zu", frames.size() - f0);
+tb/adp_engine/sim_main.cpp:749 REQ-ADP-002 DIR [P2 AVAILABLE byte]
+    PREV: last_frame().len);
+    NEXT: for (int i = 0; i < kAdpduBytes; ++i) CHECK(last_frame().b[i] == exp[i], "P2 AVAILABLE byte %d: got %02x want %02x", i, last_frame().b[i], exp[i]);
+tb/adp_engine/sim_main.cpp:758 REQ-ADP-011 DIR [P2 available_index incremented AFTER tx]
+    PREV: CHECK(!txreq_bad_slot, "P2 TX request carries the committed slot");
+    NEXT: CHECK(d->dbg_avail_index_o == 1, "P2 available_index incremented AFTER tx");
+tb/adp_engine/sim_main.cpp:762 REQ-ADP-001 TIM [P2 T-ADP-ADV armed at 5 s]
+    PREV: int a = last_arm_of(arms, arm0, SLOT_ADV, false);
+    NEXT: CHECK(a >= 0 && arms[a].deadline == now + 5000, "P2 T-ADP-ADV armed at 5 s (got %u want %u)", a >= 0 ? arms[a].deadline : 0, now + 5000);
+tb/adp_engine/sim_main.cpp:849 REQ-ADP-009 DIR [P5 frame after GM change]
+    PREV: CHECK(expire_slot(SLOT_ADV), "P5 delay expiry");
+    NEXT: CHECK(wait_for([&]{ return frames.size() > fn; }), "P5 frame after GM change");
+tb/adp_engine/sim_main.cpp:881 REQ-ADP-010 DIR [P6 NO departing on link-down]
+    PREV: idle(150);   // long enough for any illegally queued frame to build out
+    NEXT: CHECK(frames.size() == fn, "P6 NO departing on link-down (Milan §5.6.3.5.6)");
+tb/adp_engine/sim_main.cpp:898 REQ-ADP-010 DIR [P7 departing sent]
+    PREV: d->entity_enable_i = 0;
+    NEXT: CHECK(wait_for([&]{ return frames.size() > fn; }), "P7 departing sent");
+tb/adp_engine/sim_main.cpp:909 REQ-ADP-011 DIR [P7 index reset to 0 after DEPARTING]
+    PREV: idle(3);
+    NEXT: CHECK(d->dbg_avail_index_o == 0, "P7 index reset to 0 after DEPARTING");
+tb/adp_engine/sim_main.cpp:964 REQ-ADP-008 TIM [P8 every kind-1 draw <= 2000]
+    PREV: CHECK(n2 == 40, "P8 forty kind-2 draws, got %d", n2);
+    NEXT: CHECK(r1ok && max1 <= 2000, "P8 every kind-1 draw <= 2000 (max %u)", max1);
+tb/adp_engine/sim_main.cpp:966 REQ-ADP-008 TIM [P8 every kind-2 draw <= 4000]
+    PREV: CHECK(r1ok && max1 <= 2000, "P8 every kind-1 draw <= 2000 (max %u)", max1);
+    NEXT: CHECK(r2ok && max2 <= 4000, "P8 every kind-2 draw <= 4000 (max %u)", max2);
+tb/adp_engine/sim_main.cpp:997 REQ-ADP-014 TIM [P9a NOADP = rx valid_time (20 s)]
+    PREV: CHECK(a >= 0, "P9a T-ADP-NOADP armed");
+    NEXT: if (a >= 0) CHECK(arms[a].deadline == now + 20000, "P9a NOADP = rx valid_time (20 s), got +%u", arms[a].deadline - now);
+tb/adp_engine/sim_main.cpp:1030 REQ-ADP-013 DIR [P9d GM mismatch ignored]
+    PREV: idle(2);
+    NEXT: CHECK(evts.size() == en, "P9d GM mismatch ignored");
+tb/adp_engine/sim_main.cpp:1035 REQ-ADP-013 DIR [P9d domain mismatch ignored]
+    PREV: idle(2);
+    NEXT: CHECK(evts.size() == en, "P9d domain mismatch ignored");
+tb/adp_engine/sim_main.cpp:1051 REQ-ADP-013 DIR [P9e restart fires a pair]
+    PREV: idle(3);
+    NEXT: CHECK(evts.size() == en + 2, "P9e restart fires a pair, got %zu", evts.size() - en);
+tb/adp_engine/sim_main.cpp:1119 REQ-ADP-014 TIM [P9i aging fires EVT_TK_DEPARTED]
+    PREV: idle(3);
+    NEXT: CHECK(evts.size() == en + 1 && evts.back().departed && evts.back().sink == 0, "P9i aging fires EVT_TK_DEPARTED");
+tb/adp_engine/sim_main.cpp:1224 REQ-ADP-005 DIR [P11b advert byte-exact: only available_index (+1) and 64..65 moved]
+    PREV: model_frame(exp, false, GM1, DOM0, ia + 1, CFG_B);
+    NEXT: CHECK(memcmp(b.b, exp, kAdpduBytes) == 0, "P11b advert byte-exact: only available_index (+1) and 64..65 moved");
+tb/adp_engine/sim_main.cpp:1695 REQ-ADP-007 MTXW [P13 MTXW walked]
+    PREV: }
+    NEXT: CHECK(adv_cells == 45, "P13 MTXW walked %d F04.2 cells (want 45: 9 events x 5 columns)", adv_cells);
+tb/adp_engine/sim_main.cpp:1698 REQ-ADP-012 MTXW [P13 MTXW walked]
+    PREV: "P13 MTXW walked %d F04.2 cells (want 45: 9 events x 5 columns)", adv_cells);
+    NEXT: CHECK(disc_cells == 33, "P13 MTXW walked %d F04.3 cells (want 33: 11 events x 3 columns)", disc_cells);
+tb/aecp_notify/sim_main.cpp:798 REQ-AEM-025 DIR [DR1b: C alone receives its own DEREGISTER]
+    PREV: const UnsJob own{0, KIND_DEREG, 0, 0, 0, 0, 1, 0};
+    NEXT: CHECK(rest.size() == 2 && one_job(rest, MAC_C, own), "DR1b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once");
+tb/desc_store/test_gen_desc_image.py:285 REQ-ADP-003 DIR [LintTest.test_mutations]
+    PREV: and packs with the lint off."""
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:286 REQ-ADP-004 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-ADP-003", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:287 REQ-MDL-001 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-ADP-004", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:288 REQ-MDL-002 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-001", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:289 REQ-MDL-003 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-002", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:290 REQ-MDL-004 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-003", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:291 REQ-MDL-005 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-004", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:292 REQ-MDL-006 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-005", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:293 REQ-MDL-007 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-006", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:294 REQ-MDL-008 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-007", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:295 REQ-MDL-009 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-008", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:296 REQ-MDL-010 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-009", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:297 REQ-MDL-011 DIR [LintTest.test_mutations]
+    PREV: REQ_TAG("REQ-MDL-010", "DIR", "LintTest.test_mutations")
+    NEXT: for mutation in mut.MUTATIONS:
+tb/desc_store/test_gen_desc_image.py:783 REQ-ADP-003 DIR [IdentityTest.test_driven_values_agree]
+    PREV: """Driven values equal to the model's pass, and the report says so."""
+    NEXT: adp = {"entity_model_id": 0x020000FFFE00C801, "talker_sources": 1,
+tb/desc_store/test_gen_desc_image.py:784 REQ-ADP-004 DIR [IdentityTest.test_driven_values_agree]
+    PREV: REQ_TAG("REQ-ADP-003", "DIR", "IdentityTest.test_driven_values_agree")
+    NEXT: adp = {"entity_model_id": 0x020000FFFE00C801, "talker_sources": 1,
+tb/maap/sim_main.cpp:334 REQ-MAAP-001 DIR [U1: block fits the Table B.9 pool]
+    PREV: static_cast<unsigned long long>(base));
+    NEXT: CHECK(off <= POOL_SIZE - COUNT, "U1: block fits the Table B.9 pool, offset 0x%04x", off);
+tb/maap/sim_main.cpp:340 REQ-MAAP-002 DIR [U1: PROBE byte-exact]
+    PREV: probe_exp = maap_frame(MAAP_DA, OWN_MAC, 1, base, COUNT, 0, 0);
+    NEXT: CHECK(h.tx.size() == 1 && h.tx[0].b == probe_exp, "U1: PROBE byte-exact");
+tb/maap/sim_main.cpp:349 REQ-MAAP-003 MTXW [U2: 4 PROBEs + 1 ANNOUNCE on a cold walk]
+    PREV: void MaapAnnexBSuite::cold_walk_retransmits_then_announces() {
+    NEXT: CHECK(h.wait_frames(5, 4 * kProbeBudgetMs), "U2: 4 PROBEs + 1 ANNOUNCE on a cold walk");
+tb/maap/sim_main.cpp:357 REQ-MAAP-004 TIM [U2: probe interval]
+    PREV: // at most one compressed ms of walk jitter either way
+    NEXT: CHECK(dt >= 500 && dt <= 601, "U2: probe interval %d = %ld ms outside (500, 600)", k, dt);
+tb/maap/sim_main.cpp:365 REQ-MAAP-003 MTXW [U2: probeCount! sends the ANNOUNCE immediately]
+    PREV: long dt_ann = long(h.tx[4].ms) - long(h.tx[3].ms);
+    NEXT: CHECK(dt_ann <= 50, "U2: probeCount! sends the ANNOUNCE immediately (dt %ld ms)", dt_ann);
+tb/maap/sim_main.cpp:369 REQ-MAAP-003 MTXW [U2: DEFEND state, claim valid at the probed base]
+    PREV: }
+    NEXT: CHECK(d->state_o == 2 && d->addr_valid_o && d->addr_o == base, "U2: DEFEND state, claim valid at the probed base");
+tb/maap/sim_main.cpp:380 REQ-MAAP-004 TIM [U3: announce interval]
+    PREV: long dt = long(h.tx[5].ms) - long(h.tx[4].ms);
+    NEXT: CHECK(dt >= 30000 && dt <= 32001, "U3: announce interval %ld ms outside (30000, 32000)", dt);
+tb/maap/sim_main.cpp:434 REQ-MAAP-002 DIR [U5: DEFEND byte-exact]
+    PREV: base + 4, 4);
+    NEXT: CHECK(h.tx[n0].b == def_exp, "U5: DEFEND byte-exact (B.3.6.6 fields)");
+tb/maap/sim_main.cpp:435 REQ-MAAP-006 DIR [U5: DEFEND byte-exact]
+    PREV: REQ_TAG("REQ-MAAP-002", "DIR", "U5: DEFEND byte-exact");
+    NEXT: CHECK(h.tx[n0].b == def_exp, "U5: DEFEND byte-exact (B.3.6.6 fields)");
+tb/maap/sim_main.cpp:439 REQ-MAAP-005 MTXW [U5: defended, nothing yielded]
+    PREV: }
+    NEXT: CHECK(d->defends_o == 1 && d->conflicts_o == 0 && d->addr_valid_o, "U5: defended, nothing yielded");
+tb/maap/sim_main.cpp:455 REQ-MAAP-006 DIR [U5b: conflict_start is the first ALLOCATED address]
+    PREV: base, 4);
+    NEXT: CHECK(h.tx[n0].b == def_exp, "U5b: conflict_start is the first ALLOCATED address (B.3.6.6)");
+tb/maap/sim_main.cpp:479 REQ-MAAP-005 MTXW [U7: claim kept]
+    PREV: h.run_ms(50);
+    NEXT: CHECK(d->addr_valid_o && d->addr_o == base && d->conflicts_o == 0, "U7: claim kept — compare_MAC TRUE takes no action");
+tb/maap/sim_main.cpp:493 REQ-MAAP-005 MTXW [U8: yielded]
+    PREV: h.idle(50);
+    NEXT: CHECK(!d->addr_valid_o && d->conflicts_o == 1, "U8: yielded — claim invalid, re-address counted");
+tb/maap/sim_main.cpp:533 REQ-MAAP-005 MTXW [U9: compare_MAC TRUE]
+    PREV: h.run_ms(20);
+    NEXT: CHECK(d->addr_o == b9 && d->conflicts_o == 1, "U9: compare_MAC TRUE — our probe walk continues unmoved");
+tb/maap/sim_main.cpp:557 REQ-MAAP-005 MTXW [U10: PROBE-state rDefend! yields, no tie-break]
+    PREV: h.confl_srcs.clear();
+    NEXT: CHECK(d->conflicts_o == 2, "U10: PROBE-state rDefend! yields, no tie-break");
+tb/maap/sim_main.cpp:572 REQ-MAAP-002 DIR [U11: reserved message types change nothing]
+    PREV: h.run_ms(30);
+    NEXT: CHECK(h.tx.size() == n0 && d->conflicts_o == c0 && d->addr_valid_o, "U11: reserved message types change nothing");
+tb/maap/sim_main.cpp:591 REQ-MAAP-002 DIR [U13: a higher maap_version with a known type is still processed]
+    PREV: h.idle(50);
+    NEXT: CHECK(!d->addr_valid_o, "U13: a higher maap_version with a known type is still processed");
+tb/maap/sim_main.cpp:613 REQ-MAAP-007 DIR [U14: Release! sends NOTHING]
+    PREV: "U14: INITIAL after Release!, claim withdrawn");
+    NEXT: CHECK(h.tx.size() == n0, "U14: Release! sends NOTHING (Table B.7 Release!)");
+tb/maap/sim_main.cpp:691 REQ-MAAP-001 DIR [U17: the probed block ends at or below 91:E0:F0:00:FD:FF]
+    PREV: static_cast<unsigned long long>(b17));
+    NEXT: CHECK(b17 + MAX_COUNT - 1 <= POOL_LAST, "U17: the probed block ends at or below 91:E0:F0:00:FD:FF (ends %012llx)", static_cast<unsigned long long>(b17 + MAX_COUNT - 1));
+tb/maap/sim_main.cpp:928 REQ-MAAP-005 MTXW [U20: compare_MAC TRUE]
+    PREV: h.run_ms(50);
+    NEXT: CHECK(d->addr_valid_o && d->addr_o == b && d->conflicts_o == c0 && h.tx.size() == n0, "U20: compare_MAC TRUE — the claim stands, nothing sent");
+tb/maap/sim_main.cpp:1472 REQ-MAAP-007 DIR [U28: no new TX slot request follows the fall]
+    PREV: "U28: premise, the falls land in all %d walker states (mask 0x%03x)", WK_STATES, covered);
+    NEXT: CHECK(requested == 0, "U28: no new TX slot request follows the fall (a request already pending is retried " "until granted), in any walker state, for 33 s (%d of %d falls)", requested, kPoints);
+tb/originator/sim_main.cpp:882 REQ-AEM-005 RND [R: a seeded session of 16 owners' overlapping exchanges]
+    PREV: r_retries, r_fails, r_cancels, r_strays);
+    NEXT: CHECK(r_divergences == 0, "R: a seeded session of 16 owners' overlapping exchanges, " "zero divergence from the independent inflight model (%ld of %ld events)", r_divergences, r_events);
+tb/pp_top/d3_phases.hpp:1172 REQ-PER-002 NVM [D3R1 volatile: IDENTIFY reads 0 after the restore]
+    PREV: const auto g = ask(AEM_GET_CONTROL, ti(0x001A, 0));
+    NEXT: CHECK(x.d->dbg_identify_o == 0 && g.size() > 42 && g[42] == 0, "D3R1 volatile: IDENTIFY reads 0 after the restore (%u)", unsigned(x.d->dbg_identify_o));
+tb/pp_top/d3_phases.hpp:1179 REQ-PER-002 NVM [D3R1 volatile: the lock is free after the restore]
+    PREV: const int notes = unsolicited_to_ctlr(20);
+    NEXT: CHECK(unlocked && c2, "D3R1 volatile: the lock is free after the restore");
+tb/pp_top/d3_phases.hpp:1181 REQ-NOT-005 NVM [D3R1 volatile: the registry is empty after the restore]
+    PREV: CHECK(unlocked && c2, "D3R1 volatile: the lock is free after the restore");
+    NEXT: CHECK(notes == 0, "D3R1 volatile: the registry is empty after the restore " "(%d notifications)", notes);
+tb/pp_top/d3_phases.hpp:1190 REQ-PER-001 NVM [D3R1 cfg: configuration 1 restored]
+    PREV: auto g = ask(AEM_GET_CONFIGURATION, {});
+    NEXT: CHECK(d->dbg_dyn_cfg_v_o && d->dbg_dyn_cfg_o == 1 && g.size() >= 42 && fv_u64(g, 40, 2) == 1, "D3R1 cfg: configuration 1 restored with its valid flag, GET reads it");
+tb/pp_top/d3_phases.hpp:1191 REQ-PER-003 NVM [D3R1 cfg: configuration 1 restored]
+    PREV: REQ_TAG("REQ-PER-001", "NVM", "D3R1 cfg: configuration 1 restored");
+    NEXT: CHECK(d->dbg_dyn_cfg_v_o && d->dbg_dyn_cfg_o == 1 && g.size() >= 42 && fv_u64(g, 40, 2) == 1, "D3R1 cfg: configuration 1 restored with its valid flag, GET reads it");
+tb/pp_top/d3_phases.hpp:1196 REQ-PER-001 NVM [D3R1 rate: 48000 restored]
+    PREV: g = ask(AEM_GET_SAMPLING_RATE, ti(0x0002, 0));
+    NEXT: CHECK(d->dbg_dyn_rate_v_o && d->dbg_dyn_rate_o == 48000 && g.size() >= 46 && rd32(&g[42]) == 48000, "D3R1 rate: 48000 restored with its valid flag, GET reads it");
+tb/pp_top/d3_phases.hpp:1201 REQ-AEM-013 NVM [D3R1 clks: clock source 2 restored with its valid flag]
+    PREV: g = ask(AEM_GET_CLOCK_SOURCE, ti(0x0024, 0));
+    NEXT: CHECK(d->dbg_dyn_clk_v_o && d->dbg_dyn_clk_o == 2 && g.size() >= 44 && fv_u64(g, 42, 2) == 2, "D3R1 clks: clock source 2 restored with its valid flag, GET reads it");
+tb/pp_top/d3_phases.hpp:2974 REQ-AEM-013 NVM [D3C3 restore: clock source 9 restored with its valid flag]
+    PREV: const auto get = get_clock_source(g);
+    NEXT: CHECK(get.size() == 1 && get[0] == answer(AECP_SUCCESS, g, AEM_GET_CLOCK_SOURCE, LAST_AAF) && d->dbg_dyn_clk_v_o && d->dbg_dyn_clk_o == LAST_AAF && d->aecp_clk_src_index_o == LAST_AAF, "D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the " "top exports it (row %u valid %u, export %u)", unsigned(d->dbg_dyn_clk_o), unsigned(d->dbg_dyn_clk_v_o), unsigned(d->aecp_clk_src_in
+tb/pp_top/d3_phases.hpp:3214 REQ-AEM-011 NVM [D3N1 ordinal]
+    PREV: if (x.nvm_ops[i].op == 1 && x.nvm_ops[i].region == rid) wrote = x.nvm_ops[i].wr;
+    NEXT: CHECK(ops_on(ops0, rid, 2) == 1 && ops_on(ops0, rid, 1) == 1 && wrote == want && std::equal(want.begin(), want.end(), x.nv_mem[rid].begin()), "D3N1 ordinal %u: record 0x%02x erased and written once, byte-exact (%d writes)", unsigned(n.ordinal), unsigned(rid), ops_on(ops0, rid, 1));
+tb/pp_top/d3_phases.hpp:3275 REQ-PER-001 NVM [D3N3 ordinal]
+    PREV: unsigned(d->dbg_d3_blank_o), D3_RECORDS);
+    NEXT: for (const auto& n : named) CHECK(entry(n.ordinal) == n.name && get_reads(n, n.name), "D3N3 ordinal %u: the entry holds the saved name and GET_NAME reads it " "byte-exact", unsigned(n.ordinal));
+tb/pp_top/d3_phases.hpp:3543 REQ-ACMP-021 NVM [sink 0's saved binding restored, probing PASSIVE]
+    PREV: unsigned(d->dbg_d3_refused_o));
+    NEXT: CHECK(binding_waits_for_its_talker(), "D3K %s cut at %s: sink 0's saved binding restored, probing PASSIVE", r.group, at);
+tb/pp_top/d3_phases.hpp:3903 REQ-PER-002 NVM [D3V3: IDENTIFY reads 0 in every cycle]
+    PREV: const auto ctl = ask(AEM_GET_CONTROL, ti(0x001A, 0));
+    NEXT: CHECK(identifying == 0 && x.d->dbg_identify_o == 0 && ctl.size() > 42 && ctl[42] == 0, "D3V3: IDENTIFY reads 0 in every cycle from restore_go_i on (%ld cycles " "otherwise) and GET_CONTROL reads 0", identifying);
+tb/pp_top/d3_phases.hpp:3920 REQ-NOT-005 NVM [D3V5: a third controller's change after the cycle notifies neither]
+    PREV: D3ServicePhase::pl_clk(2), 30);
+    NEXT: CHECK(answer(got, C3_MAC, s) == AECP_SUCCESS && to(got, CTLR_MAC) == 0 && to(got, C2_MAC) == 0, "D3V5: a third controller's change after the cycle notifies neither " "former controller (%d and %d frames)", to(got, CTLR_MAC), to(got, C2_MAC));
+tb/pp_top/gsi_internal.hpp:83 REQ-ACMP-023 DIR [pbsta sink]
+    PREV: if (f.size() != 94) return;
+    NEXT: CHECK(f[90] >> 5 == pb, "GI %s %s: pbsta sink %u = %u, got %u", phase, kind, sink, pb, f[90] >> 5);
+tb/pp_top/gsi_internal.hpp:86 REQ-ACMP-023 DIR [acmpsta sink]
+    PREV: phase, kind, sink, pb, f[90] >> 5);
+    NEXT: CHECK((f[90] & 31) == acmp, "GI %s %s: acmpsta sink %u = %u, got %u", phase, kind, sink, acmp, f[90] & 31);
+tb/pp_top/gsi_internal.hpp:89 REQ-NET-003 DIR [failure code sink]
+    PREV: phase, kind, sink, acmp, f[90] & 31);
+    NEXT: CHECK(f[72] == code, "GI %s %s: failure code sink %u = %u, got %u", phase, kind, sink, code, f[72]);
+tb/pp_top/interface_phases.hpp:176 REQ-SCP-003 DIR [IF1: with two interfaces each advertise machine]
+    PREV: const Adv* a1 = first_on(1, 0);
+    NEXT: CHECK(a0 != nullptr && a1 != nullptr && a0->f == avail_on(0, 0) && a1->f == avail_on(1, 0), "IF1: with two interfaces each advertise machine sends its own ENTITY_AVAILABLE " "inside T-ADP-DELAY-START, byte-exact with interface_index 0 and 1 and " "available_index 0 (%zu ADPDU(s))", adp.size());
+tb/pp_top/interface_phases.hpp:238 REQ-SCP-003 DIR [IF3: C's REGISTER on interface 1]
+    PREV: "the unlock %zu\n", l0.size(), reg.pushes.size(), l1.size(), u1.size());
+    NEXT: CHECK(r0 && l0 == std::vector<unsigned>{0} && reg.ok && reg.after && reg.pushes == std::vector<unsigned>{1} && l1 == std::vector<unsigned>({0, 2}) && u1 == std::vector<unsigned>({1, 3}), "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes " "interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 " "and 3 (REGISTER %s, after the held pus
+tb/pp_top/notify_phases.hpp:246 REQ-AEM-026 TIM [ID1: one press sends three IDENTIFY_NOTIFICATION]
+    PREV: const auto v = idents(from);
+    NEXT: CHECK(v.size() == 3, "ID1: one press sends three IDENTIFY_NOTIFICATION " "frames (IEEE 7.5.1.2.1), got %zu", v.size());
+tb/pp_top/notify_phases.hpp:278 REQ-AEM-026 TIM [ID2d: burst]
+    PREV: printf("  [i] ID2d: burst %zu starts %ld clocks after burst %zu\n", b + 1, gap, b);
+    NEXT: CHECK(gap >= REARM && gap <= REARM + SLACK, "ID2d: burst %zu starts %ld clocks after burst %zu, want " "T-IDENT-REARM %ld to %ld (no faster than 1 s, from the first " "frame)", b + 1, gap, b, REARM, REARM + SLACK);
+tb/pp_top/notify_phases.hpp:1012 REQ-NOT-002 DIR [exactly one unsolicited response of this]
+    PREV: const auto at_other = pushes(other_mac, op, from);
+    NEXT: CHECK(at_other.size() == 1, "%s: exactly one unsolicited response of this " "command at the other registered controller, got %zu", tag, at_other.size());
+tb/pp_top/notify_phases.hpp:1146 REQ-NOT-001 STORM [ST1b: one change from row 15 reaches the other fifteen]
+    PREV: const int good = fan_out(ROW_MAC + 15, ROW_EID + 15, "Storm Full Registry", N_ROWS);
+    NEXT: CHECK(good == 15, "ST1b: one change from row 15 reaches the other fifteen " "rows byte-exact, each at its own sequence_id (0, 1 or 2), %d of 15", good);
+tb/pp_top/notify_phases.hpp:1211 REQ-NOT-003 STORM [ST2: descriptor]
+    PREV: unsigned(desc_type(d)), unsigned(desc_index(d)), r.size(), closest);
+    NEXT: CHECK(r.size() >= 3 && long(r.size()) <= window_ms / 1000 + 1, "ST2: descriptor %04x:%u churned at 10 Hz for %ld ms emitted %zu " "rounds, want at least 3 and at most one per second", unsigned(desc_type(d)), unsigned(desc_index(d)), window_ms, r.size());
+tb/pp_top/notify_phases.hpp:1216 REQ-NOT-003 STORM [ST2b: descriptor]
+    PREV: unsigned(desc_type(d)), unsigned(desc_index(d)), window_ms, r.size());
+    NEXT: CHECK(r.size() < 2 || closest >= 1000L * MS_CYC - MS_CYC, "ST2b: descriptor %04x:%u rounds %ld clocks apart, want at least " "1000 ms less the one tick the limiter reads (Milan Table 5.22)", unsigned(desc_type(d)), unsigned(desc_index(d)), closest);
+tb/pp_top/notify_phases.hpp:1356 REQ-NOT-003 STORM [churn started]
+    PREV: row, unsigned(desc_type(desc)), unsigned(desc_index(desc)), fewest);
+    NEXT: CHECK(fewest >= 3 && closest >= 1000L * MS_CYC - MS_CYC, "%s: churn started %ld clocks after ST's phase: every row's GET_COUNTERS rounds " "of each descriptor leave a second after its previous round's send, less the one " "tick the limiter reads; closest %ld clocks (row %u, descriptor %04x:%u), want at " "least %ld, and at least 3 rounds at each row (fewest %zu)", id, shift, closest, row, unsigned
+tb/pp_top/notify_phases.hpp:1635 REQ-AEM-016 RND [RN]
+    PREV: n_expired, n_refused_sets, n_pushes);
+    NEXT: CHECK(divergences == 0, "RN: %d seeded steps from %u controllers, zero " "divergence from the independent registry and lock model (%ld of " "%ld frame comparisons diverged)", STEPS, N_CTLR, divergences, frames_compared);
+tb/pp_top/notify_phases.hpp:1636 REQ-NOT-002 RND [RN]
+    PREV: REQ_TAG("REQ-AEM-016", "RND", "RN");
+    NEXT: CHECK(divergences == 0, "RN: %d seeded steps from %u controllers, zero " "divergence from the independent registry and lock model (%ld of " "%ld frame comparisons diverged)", STEPS, N_CTLR, divergences, frames_compared);
+tb/pp_top/notify_phases.hpp:1771 REQ-NET-002 DIR [<bench-switch-model>: the bridge's]
+    PREV: one_notification("DN1b", "DN1c", "the bridge's {3, 5} adopted", from, t0);
+    NEXT: CHECK(io.domain_changes == ch0 + 1 && class_a_is(ADOPT_VID) && io.d->srp_domain_adopted_o, "<bench-switch-model>: the bridge's {3, %u} is adopted with one DOMAIN_CHANGE (premise), saw %d, " "class-D {%u, %u, adopted %u}", unsigned(ADOPT_VID), io.domain_changes - ch0, unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o), unsigned(io.d->srp_domain_adopted_o));
+tb/pp_top/notify_phases.hpp:2351 REQ-AEM-003 TIM [TD1: T-LOCK-UNLOCK at its default]
+    PREV: const long lock_got = u >= 0 ? long(got - lock_ms) : -1L;
+    NEXT: CHECK(!lock.empty() && status_of(lock) == AECP_SUCCESS && u >= 0 && seen[u].f == want && got - lock_ms >= LOCK_MS && got - lock_ms <= LOCK_MS + SLACK_MS, "TD1: T-LOCK-UNLOCK at its default: the LOCK_ENTITY answers SUCCESS " "and its auto-unlock notification (LOCK_ENTITY, u = 1, locked_id 0) " "reaches the registered controller %u to %u ms after the command " "(got %ld ms)", LOCK_MS, LOCK_MS + SLAC
+tb/pp_top/notify_phases.hpp:2366 REQ-AEM-017 TIM [TD2: T-NOTIF-TIMELIMITED at its default]
+    PREV: }
+    NEXT: CHECK(!reg.empty() && status_of(reg) == AECP_SUCCESS && d >= 0 && seen[d].f == want && got - reg_ms >= TL_MS && got - reg_ms <= TL_MS + SLACK_MS, "TD2: T-NOTIF-TIMELIMITED at its default: the TIME_LIMITED REGISTER " "answers SUCCESS and its expiry DEREGISTER (u = 1) reaches the " "controller %u to %u ms after the command (got %ld ms; %d monitor " "probes answered)", TL_MS, TL_MS + SLACK_MS, d >= 0
+tb/pp_top/sim_main.cpp:2360 REQ-AEM-006 DIR [A2: NO_SUCH_DESCRIPTOR response is not byte-exact]
+    PREV: CHECK(!got.empty(), "A2: no response to a bad descriptor_index");
+    NEXT: CHECK(got == want, "A2: NO_SUCH_DESCRIPTOR response is not byte-exact");
+tb/pp_top/sim_main.cpp:2410 REQ-AEM-023 TOL [A5: NOT_IMPLEMENTED echo is not byte-exact]
+    PREV: CHECK(!got.empty(), "A5: an unimplemented opcode answered with silence");
+    NEXT: CHECK(got == want, "A5: NOT_IMPLEMENTED echo is not byte-exact");
+tb/pp_top/sim_main.cpp:2467 REQ-FWX-001 DIR [A5b: %s: the response is not the echoed command]
+    PREV: auto want = expect(AECP_NOT_IMPLEMENTED, c.op, niseq, p);
+    NEXT: CHECK(got == want, "A5b: %s: the response is not the echoed command", c.what);
+tb/pp_top/sim_main.cpp:2476 REQ-AEM-023 TOL [A5b: %s: cdl]
+    PREV: ? uint16_t(((got[16] & 0x07) << 8) | got[17]) : 0xFFFFu;
+    NEXT: CHECK(cdl == 12 + c.n, "A5b: %s: cdl %u, want %zu", c.what, (unsigned)cdl, 12 + c.n);
+tb/pp_top/sim_main.cpp:2492 REQ-AEM-026 DIR [A6: the opcode-specific BAD_ARGUMENTS]
+    PREV: CHECK(!got.empty(), "A6: IDENTIFY_NOTIFICATION command got no answer");
+    NEXT: CHECK(got == want, "A6: the opcode-specific BAD_ARGUMENTS is not " "byte-exact");
+tb/pp_top/sim_main.cpp:2755 REQ-AEM-011 DIR [N4: changed CLOCK_DOMAIN SET_NAME response is not byte-exact]
+    PREV: auto got = cmd(AEM_SET_NAME, seq, set_cd);
+    NEXT: CHECK(got == expect(CTLR_MAC, CTLR_EID, AECP_SUCCESS, AEM_SET_NAME, seq, set_cd), "N4: changed CLOCK_DOMAIN SET_NAME response is not byte-exact");
+tb/pp_top/sim_main.cpp:2761 REQ-AEM-011 DIR [N4b: GET_NAME does not observe the completed SET_NAME]
+    PREV: got = cmd(AEM_GET_NAME, seq, name_sel(0x0024, 0, 0));
+    NEXT: CHECK(got == expect(CTLR_MAC, CTLR_EID, AECP_SUCCESS, AEM_GET_NAME, seq, set_cd), "N4b: GET_NAME does not observe the completed SET_NAME");
+tb/pp_top/sim_main.cpp:2786 REQ-AEM-011 DIR [N5: ENTITY group SET_NAME response is not byte-exact]
+    PREV: auto got = cmd(AEM_SET_NAME, seq, set_group);
+    NEXT: CHECK(got == expect(CTLR_MAC, CTLR_EID, AECP_SUCCESS, AEM_SET_NAME, seq, set_group), "N5: ENTITY group SET_NAME response is not byte-exact");
+tb/pp_top/sim_main.cpp:2939 REQ-MVU-001 DIR [M1: the response protocol_id is not 00-1B-C5-0A-C1-00]
+    PREV: ((got[16] & 0x07) << 8) | got[17]);
+    NEXT: CHECK(std::equal(got.begin() + 36, got.begin() + 42, std::vector<uint8_t>{0x00, 0x1B, 0xC5, 0x0A, 0xC1, 0x00}.begin()), "M1: the response protocol_id is not 00-1B-C5-0A-C1-00");
+tb/pp_top/sim_main.cpp:2967 REQ-MVU-002 DIR [M2: protocol_version]
+    PREV: }
+    NEXT: CHECK(pv == 1u, "M2: protocol_version is %u, want 1 (Milan §4.2.4)", pv);
+tb/pp_top/sim_main.cpp:2969 REQ-MVU-002 DIR [M2: features_flags]
+    PREV: CHECK(pv == 1u, "M2: protocol_version is %u, want 1 (Milan §4.2.4)", pv);
+    NEXT: CHECK(ff == 0u, "M2: features_flags is 0x%08x, want 0 — this PAAD " "implements neither Table 5.20 feature", ff);
+tb/pp_top/sim_main.cpp:2970 REQ-SCP-002 DIR [M2: features_flags]
+    PREV: REQ_TAG("REQ-MVU-002", "DIR", "M2: features_flags");
+    NEXT: CHECK(ff == 0u, "M2: features_flags is 0x%08x, want 0 — this PAAD " "implements neither Table 5.20 feature", ff);
+tb/pp_top/sim_main.cpp:2973 REQ-MVU-002 DIR [M2: certification_version]
+    PREV: "implements neither Table 5.20 feature", ff);
+    NEXT: CHECK(cv == 0u, "M2: certification_version is 0x%08x, want 0 — no " "Milan certification has been passed", cv);
+tb/pp_top/sim_main.cpp:3105 REQ-MVU-001 DIR [M5: r = 1 was not echoed as NOT_IMPLEMENTED]
+    PREV: auto want = mvu_expect(AECP_NOT_IMPLEMENTED, 0xC004, rset);
+    NEXT: CHECK(got == want, "M5: r = 1 was not echoed as NOT_IMPLEMENTED");
+tb/pp_top/sim_main.cpp:3854 REQ-AEM-018 DIR [K1: GET_COUNTERS response is not byte-exact]
+    PREV: got.size(), 38 + 136);
+    NEXT: CHECK(got == want, "K1: GET_COUNTERS response is not byte-exact");
+tb/pp_top/sim_main.cpp:3924 REQ-AEM-018 DIR [K4b: STREAM_OUTPUT]
+    PREV: ctr_expect_pl(0x0006, ix));
+    NEXT: CHECK(got == want, "K4b: STREAM_OUTPUT %u carries its byte-exact block", ix);
+tb/pp_top/sim_main.cpp:3945 REQ-AEM-018 DIR [K4c: AVB_INTERFACE 0 carries the store's 0x23 block byte-exact]
+    PREV: ctr_expect_pl(0x0009, 0));
+    NEXT: CHECK(got == want && valid_mask_of(got) == H::CTR_MASK_AVB, "K4c: AVB_INTERFACE 0 carries the store's 0x23 block byte-exact");
+tb/pp_top/sim_main.cpp:3952 REQ-AEM-018 DIR [K4d: CLOCK_DOMAIN 0 carries the store's 0x03 block byte-exact]
+    PREV: ctr_expect_pl(0x0024, 0));
+    NEXT: CHECK(got == want && valid_mask_of(got) == H::CTR_MASK_CKD, "K4d: CLOCK_DOMAIN 0 carries the store's 0x03 block byte-exact");
+tb/pp_top/sim_main.cpp:4128 REQ-AEM-020 DIR [Q1: GET_AUDIO_MAP response is not byte-exact]
+    PREV: CHECK(!got.empty(), "Q1: no GET_AUDIO_MAP response came back");
+    NEXT: CHECK(got == want, "Q1: GET_AUDIO_MAP response is not byte-exact");
+tb/pp_top/sim_main.cpp:4140 REQ-AEM-020 DIR [Q2: page 1 of port 1 is not byte-exact]
+    PREV: auto want = expect(AECP_SUCCESS, 0xE002, am_expect_pl(DT_SPI, 1, 1, 3, 3));
+    NEXT: CHECK(got == want, "Q2: page 1 of port 1 is not byte-exact");
+tb/pp_top/sim_main.cpp:4458 REQ-AEM-021 DIR [R1: a conflicting full command did not return BAD_ARGUMENTS]
+    PREV: auto got = cmd(ADD, 0xE100, p);
+    NEXT: CHECK(got == expect(AECP_BAD_ARGUMENTS, ADD, 0xE100, p), "R1: a conflicting full command did not return BAD_ARGUMENTS");
+tb/pp_top/sim_main.cpp:4513 REQ-AEM-021 DIR [R7: duplicated REMOVE rows were not ignored safely]
+    PREV: auto got = cmd(REMOVE, 0xE10B, p);
+    NEXT: CHECK(got == expect(AECP_SUCCESS, REMOVE, 0xE10B, p) && h.amap_edit_in0.empty(), "R7: duplicated REMOVE rows were not ignored safely");
+tb/pp_top/sim_main.cpp:4548 REQ-AEM-021 DIR [R10: running-output ADD recheck did not refuse the edit]
+    PREV: h.amap_edit_reject_commit = false;
+    NEXT: CHECK(got == expect(AECP_BAD_ARGUMENTS, ADD, 0xE112, p), "R10: running-output ADD recheck did not refuse the edit");
+tb/pp_top/sim_main.cpp:4569 REQ-AEM-021 DIR [R11a: required dynamic Stream Port Input was not supported]
+    PREV: auto got = cmd(ADD, 0xE116, p);
+    NEXT: CHECK(got == expect(AECP_SUCCESS, ADD, 0xE116, p), "R11a: required dynamic Stream Port Input was not supported");
+tb/pp_top/sim_main.cpp:4844 REQ-AEM-017 TOL [U2: 2013-format REGISTER accepted and answered in its own format]
+    PREV: 0x7002, 0x0024, {});
+    NEXT: CHECK(!f.empty() && f == want, "U2: 2013-format REGISTER accepted and answered in its own format");
+tb/pp_top/sim_main.cpp:4921 REQ-AEM-017 TIM [U5c: unsolicited DEREGISTER byte-exact]
+    PREV: CHECK(!uns.empty(), "U5b: the expiry notification arrives");
+    NEXT: CHECK(uns == exp_uns, "U5c: unsolicited DEREGISTER byte-exact (u=1, entry seq 0)");
+tb/pp_top/sim_main.cpp:4926 REQ-AEM-025 TIM [U5d: sent only to this controller, once]
+    PREV: auto more = h.wait_any(h.q_aecp, 300);
+    NEXT: CHECK(more.empty(), "U5d: sent only to this controller, once (Milan Table 5.22)");
+tb/pp_top/sim_main.cpp:4989 REQ-NOT-001 DIR [U8c: only the other controller receives the changed name]
+    PREV: name_uns[36] |= 0x80;
+    NEXT: CHECK(uns == name_uns, "U8c: only the other controller receives the changed name, seq 0");
+tb/pp_top/sim_main.cpp:5118 REQ-AEM-002 DIR [L1: ACQUIRE answers NOT_SUPPORTED]
+    PREV: 0x0000, acq);
+    NEXT: CHECK(!f.empty() && f == want, "L1: ACQUIRE answers NOT_SUPPORTED, command echoed (Milan 5.4.2.1)");
+tb/pp_top/sim_main.cpp:5148 REQ-ACMP-020 DIR [L4b: CONTROLLER_NOT_AUTHORIZED for sink 2]
+    PREV: CHECK(!f.empty(), "L4: locked BIND_RX from a foreign controller answered");
+    NEXT: CHECK(!f.empty() && (f[15] & 0x0F) == 7 && ((f[16] >> 3) & 0x1F) == 16 && f.size() > 53 && ((f[52] << 8) | f[53]) == 2, "L4b: CONTROLLER_NOT_AUTHORIZED for sink 2 (msg %d st %d)", f.empty() ? -1 : (f[15] & 0x0F), f.empty() ? -1 : ((f[16] >> 3) & 0x1F));
+tb/pp_top/sim_main.cpp:5269 REQ-AEM-003 TIM [L6d: 60 s auto-unlock notifies]
+    PREV: wantu[36] |= 0x80;
+    NEXT: CHECK(!uns.empty() && uns == wantu, "L6d: 60 s auto-unlock notifies (Milan Table 5.22), locked_id 0, seq 3");
+tb/pp_top/sim_main.cpp:5284 REQ-AEM-003 DIR [L7: locking STREAM_INPUT refuses NOT_SUPPORTED]
+    PREV: 0x0001, pld);
+    NEXT: CHECK(!f.empty() && f == want, "L7: locking STREAM_INPUT refuses NOT_SUPPORTED (Milan 5.4.2.2)");
+tb/pp_top/sim_main.cpp:5312 REQ-AEM-006 DIR [L9: READ_DESCRIPTOR from a non-holder answers while locked]
+    PREV: auto got = h.wait_any(h.q_aecp, 400);
+    NEXT: CHECK(!got.empty() && ((got[16] >> 3) & 0x1F) == 0, "L9: READ_DESCRIPTOR from a non-holder answers while locked");
+tb/pp_top/sim_main.cpp:5384 REQ-AEM-010 DIR [G1: STREAM_INPUT[0] Milan 80-byte response byte-exact]
+    PREV: 0x7401, 0x000F, gsi_body(0x0005, 0, true, 0x20));
+    NEXT: CHECK(!f.empty() && f == want, "G1: STREAM_INPUT[0] Milan 80-byte response byte-exact (cdl 68)");
+tb/pp_top/sim_main.cpp:5600 REQ-NET-001 DIR [V1: GET_AVB_INFO byte-exact]
+    PREV: CTLR_EID, 0x7501, 0x0027, body);
+    NEXT: CHECK(!f.empty() && f == want, "V1: GET_AVB_INFO byte-exact, both mappings in order");
+tb/pp_top/sim_main.cpp:5620 REQ-NET-001 DIR [V2: GET_AS_PATH byte-exact]
+    PREV: CTLR_EID, 0x7502, 0x0028, body);
+    NEXT: CHECK(!f.empty() && f == want, "V2: GET_AS_PATH byte-exact, the path in order");
+tb/pp_top/sim_main.cpp:5689 REQ-NET-001 DIR [V6: both gPTP notifications arrive on a GM change]
+    PREV: auto u2 = h.wait_any(h.q_aecp, 500);
+    NEXT: CHECK(!u1.empty() && !u2.empty(), "V6: both gPTP notifications arrive on a GM change");
+tb/pp_top/sim_main.cpp:5907 REQ-AEM-022 DIR [W8b: a missing descriptor is a per-record status]
+    PREV: CTLR_EID, 0x7661, AEM_GET_DYNAMIC_INFO, body);
+    NEXT: CHECK(!f.empty() && f == want, "W8b: a missing descriptor is a per-record status");
+tb/pp_top/sim_main.cpp:5923 REQ-AEM-022 DIR [W8c: forbidden GET_AUDIO_MAP rejects the complete batch]
+    PREV: CTLR_EID, 0x7662, AEM_GET_DYNAMIC_INFO, req);
+    NEXT: CHECK(!f.empty() && f == want, "W8c: forbidden GET_AUDIO_MAP rejects the complete batch");
+tb/pp_top/sim_main.cpp:5953 REQ-AEM-022 DIR [W8d: overflow skips one record and continues with the next]
+    PREV: CTLR_EID, 0x7663, AEM_GET_DYNAMIC_INFO, body);
+    NEXT: CHECK(!f.empty() && f == want, "W8d: overflow skips one record and continues with the next");
+tb/pp_top/sim_main.cpp:6374 REQ-AEM-015 DIR [W21a: STOP_STREAMING on a bound Stream Input is SUCCESS]
+    PREV: auto f = ask(OP_STOP, ti(DT_STREAM_INPUT, 0), 0x7700);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_SUCCESS, "W21a: STOP_STREAMING on a bound Stream Input is SUCCESS (st=%d)", f.empty() ? -1 : st(f));
+tb/pp_top/sim_main.cpp:6411 REQ-AEM-015 DIR [W21h: START_STREAMING did not set the started bit]
+    PREV: unsigned sb = started();
+    NEXT: CHECK((sb & 1u) == 1u, "W21h: START_STREAMING did not set the started bit " "(started=0x%02X)", sb);
+tb/pp_top/sim_main.cpp:6421 REQ-AEM-015 DIR [W21i: START_STREAMING on a Stream Output is NOT_SUPPORTED]
+    PREV: auto f = ask(OP_START, ti(DT_STREAM_OUTPUT, 0), 0x7703);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_NOT_SUPPORTED, "W21i: START_STREAMING on a Stream Output is NOT_SUPPORTED " "(st=%d)", f.empty() ? -1 : st(f));
+tb/pp_top/sim_main.cpp:6759 REQ-AEM-008 DIR [W23d: a shrink that orphans a mapping refuses and writes nothing]
+    PREV: auto f = ask(AEM_SET_STREAM_FORMAT, sf_pl(0x0005, 0, ALT), 0x7693);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_BAD_ARGUMENTS && cdl(f) == 24 && h.fmt_row(false, 0) == MAIN, "W23d: a shrink that orphans a mapping refuses and writes nothing");
+tb/pp_top/sim_main.cpp:6807 REQ-AEM-008 DIR [W23h: a bound Stream Input refuses STREAM_IS_RUNNING]
+    PREV: sf_pl(0x0005, 0, MAIN));
+    NEXT: CHECK(!f.empty() && f == want, "W23h: a bound Stream Input refuses STREAM_IS_RUNNING with the " "current format");
+tb/pp_top/sim_main.cpp:6941 REQ-AEM-004 DIR [W1: ENTITY_AVAILABLE byte-exact]
+    PREV: CTLR_EID, 0x7601, AEM_ENTITY_AVAILABLE, body);
+    NEXT: CHECK(!f.empty() && f == want, "W1: ENTITY_AVAILABLE byte-exact, flags 0, both ids 0");
+tb/pp_top/sim_main.cpp:6964 REQ-AEM-004 DIR [W2b: ENTITY_AVAILABLE carries ENTITY_LOCKED + the holder eid]
+    PREV: CTLR_EID, 0x7603, AEM_ENTITY_AVAILABLE, body);
+    NEXT: CHECK(!f.empty() && f == want, "W2b: ENTITY_AVAILABLE carries ENTITY_LOCKED + the holder eid");
+tb/pp_top/sim_main.cpp:7233 REQ-AEM-012 DIR [W9: SET_SAMPLING_RATE byte-exact]
+    PREV: CTLR_EID, 0x7670, AEM_SET_SAMPLING_RATE, body);
+    NEXT: CHECK(!f.empty() && f == want, "W9: SET_SAMPLING_RATE byte-exact, echoing the value it stored");
+tb/pp_top/sim_main.cpp:7249 REQ-AEM-012 DIR [W9b2: GET_SAMPLING_RATE reads]
+    PREV: | (static_cast<unsigned long>(g[44]) << 8) | g[45];
+    NEXT: CHECK(got == 48000ul, "W9b2: GET_SAMPLING_RATE reads %lu, the SET stored 48000", got);
+tb/pp_top/sim_main.cpp:7464 REQ-MDL-005 DIR [W10e: SET_CLOCK_SOURCE]
+    PREV: auto r = ask(AEM_SET_CLOCK_SOURCE, pl, uint16_t(0x76A0 + (bad & 1)));
+    NEXT: CHECK(!r.empty() && st(r) == AECP_BAD_ARGUMENTS && cdl(r) == 20, "W10e: SET_CLOCK_SOURCE(%u) past clock_sources_count is " "BAD_ARGUMENTS at cdl 20", bad);
+tb/pp_top/sim_main.cpp:7522 REQ-AEM-014 DIR [W12c: Milan 5.3.12 makes the reset value 0]
+    PREV: CHECK(cdl(g) == 17, "W12b: cdl is 17 (5 payload bytes), got %d", cdl(g));
+    NEXT: CHECK(g.size() > 42 && g[42] == 0, "W12c: Milan 5.3.12 makes the reset value 0, got %u", g.size() > 42 ? (unsigned)g[42] : 999u);
+tb/pp_top/sim_main.cpp:7540 REQ-AEM-014 DIR [W12f: GET_CONTROL now reads 255]
+    PREV: g = ask(AEM_GET_CONTROL, ti(0x001A, 0), 0x7682);
+    NEXT: CHECK(g.size() > 42 && g[42] == 255, "W12f: GET_CONTROL now reads 255, got %u", g.size() > 42 ? (unsigned)g[42] : 999u);
+tb/pp_top/sim_main.cpp:7564 REQ-AEM-014 DIR [W13: SET_CONTROL 128 is BAD_ARGUMENTS]
+    PREV: auto f = ask(AEM_SET_CONTROL, pl, 0x7685);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_BAD_ARGUMENTS, "W13: SET_CONTROL 128 is BAD_ARGUMENTS (step 255)");
+tb/pp_top/sim_main.cpp:7596 REQ-AEM-007 DIR [W15b: SET_CONFIGURATION refuses STREAM_IS_RUNNING]
+    PREV: auto f = ask(AEM_SET_CONFIGURATION, pl, 0x7695);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_STREAM_IS_RUNNING, "W15b: SET_CONFIGURATION refuses STREAM_IS_RUNNING while a sink " "is bound, got status %d", st(f));
+tb/pp_top/sim_main.cpp:7731 REQ-AEM-007 DIR [W17h: SET_CONFIGURATION refuses STREAM_IS_RUNNING]
+    PREV: auto f = ask(AEM_SET_CONFIGURATION, pl, 0x769B);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_STREAM_IS_RUNNING, "W17h: SET_CONFIGURATION refuses STREAM_IS_RUNNING while a " "Stream Output is streaming, got status %d", st(f));
+tb/pp_top/sim_main.cpp:7995 REQ-AEM-007 DIR [W19g: SET_CONFIGURATION from a foreign controller]
+    PREV: auto f = ask2(AEM_SET_CONFIGURATION, pl, 0x76B4);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_ENTITY_LOCKED, "W19g: SET_CONFIGURATION from a foreign controller is " "ENTITY_LOCKED, got %d", st(f));
+tb/pp_top/sim_main.cpp:8113 REQ-AEM-009 DIR [W24a: SET_STREAM_INFO(ACC_LAT) byte-exact echo]
+    PREV: si_pl(0x0006, 0, ACC_LAT, 1000000));
+    NEXT: CHECK(!f.empty() && f == want, "W24a: SET_STREAM_INFO(ACC_LAT) byte-exact echo");
+tb/pp_top/sim_main.cpp:8132 REQ-AEM-009 DIR [W24c: SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED]
+    PREV: si_pl(0x0005, 0, ACC_LAT, 1000000), 0x76A2);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_NOT_SUPPORTED && cdl(f) == 96, "W24c: SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED");
+tb/pp_top/sim_main.cpp:8140 REQ-AEM-009 DIR [W24d: an extra flag refuses whole and writes nothing]
+    PREV: si_pl(0x0006, 0, ACC_LAT | 0x8u, 640000), 0x76A3);
+    NEXT: CHECK(!f.empty() && st(f) == AECP_NOT_SUPPORTED && h.d->aecp_pt_offset_o.at(0) == 1000000, "W24d: an extra flag refuses whole and writes nothing");
+tb/pp_top/sim_main.cpp:8702 REQ-NOT-004 TIM [U10c: first probe arrived after]
+    PREV: }
+    NEXT: CHECK(!ca1.empty() && ca1_ms - reg_ms >= 27000 && ca1_ms - reg_ms <= 66000, "U10c: first probe arrived after %u ms", ca1_ms - reg_ms);
+tb/pp_top/sim_main.cpp:8718 REQ-NOT-004 TIM [U10e: the single retry arrived after]
+    PREV: "U10d: colliding or wrong-target responses do not suppress retry");
+    NEXT: CHECK(!ca_retry.empty() && retry_ms - ca1_ms <= 260, "U10e: the single retry arrived after %u ms", retry_ms - ca1_ms);
+tb/pp_top/sim_main.cpp:8728 REQ-AEM-025 TIM [U10f: probe failure sends targeted deregistration]
+    PREV: ca_dereg_want[36] |= 0x80;
+    NEXT: CHECK(ca_dereg == ca_dereg_want, "U10f: probe failure sends targeted deregistration at seq 0");
+tb/pp_top/sim_main.cpp:8729 REQ-NOT-004 TIM [U10f: probe failure sends targeted deregistration]
+    PREV: REQ_TAG("REQ-AEM-025", "TIM", "U10f: probe failure sends targeted deregistration");
+    NEXT: CHECK(ca_dereg == ca_dereg_want, "U10f: probe failure sends targeted deregistration at seq 0");
+tb/pp_top/sim_main.cpp:8775 REQ-NOT-004 TIM [U10k: response re-armed the monitor]
+    PREV: }
+    NEXT: CHECK(!ca3.empty() && ca3_ms - ca_rsp_ms >= 27000 && ca3_ms - ca_rsp_ms <= 66000, "U10k: response re-armed the monitor for %u ms", ca3_ms - ca_rsp_ms);
+tb/pp_top/sim_main.cpp:8892 REQ-NET-003 DIR [T1: Listener]
+    PREV: listener(EV_JOININ, a.decl);
+    NEXT: CHECK((h.snap(13) & 3) == unsigned(a.decl), "T1: Listener %s registered by MRPDU, lstn_reg_state[0] is %d, " "got %u", a.what, a.decl, h.snap(13) & 3);
+tb/pp_top/sim_main.cpp:9306 REQ-NET-002 DIR [DV4: the bridge's]
+    PREV: h2.run_ms(20);
+    NEXT: CHECK(domain_is(ADOPT_VID, true), "DV4: the bridge's {3, %u} is ADOPTED over the parameter", unsigned(ADOPT_VID));
+tb/pp_top/sim_main.cpp:9351 REQ-SRP-004 DIR [DV6: LINK_UP re-declares Domain New]
+    PREV: {EV_NEW}, {}}});
+    NEXT: CHECK(f == exp, "DV6: LINK_UP re-declares Domain New {6, 3, 0x%04x}", unsigned(SRP_DEF_VID));
+tb/pp_top/sim_main.cpp:9549 REQ-ACMP-002 DIR [AI1: PROBE_TX #1 byte-exact]
+    PREV: const uint32_t tp = h2.now_ms();
+    NEXT: CHECK(!p.empty() && p == probe_tx(0), "AI1: PROBE_TX #1 byte-exact (seq 0, FAST_CONNECT, listener uid 1)");
+tb/pp_top/sim_main.cpp:9558 REQ-ACMP-012 TOL [AI2: message types 7 and 14 raise no ACMP frame]
+    PREV: auto x = h2.wait_any(h2.q_acmp, 150 - int(h2.now_ms() - tp));
+    NEXT: CHECK(x.empty(), "AI2: message types 7 and 14 raise no ACMP frame");
+tb/pp_top/sim_main.cpp:9568 REQ-ACMP-003 TIM [AI3: the sink never left PRB_W_RESP]
+    PREV: const uint32_t dt = h2.now_ms() - tp;
+    NEXT: CHECK(!dup.empty() && dup == probe_tx(0) && dt >= 195 && dt <= 260, "AI3: the sink never left PRB_W_RESP: the exact duplicate probe " "follows at T-ACMP-CMD (%u ms)", dt);
+tb/pp_top/sim_main.cpp:9569 REQ-ACMP-015 TIM [AI3: the sink never left PRB_W_RESP]
+    PREV: REQ_TAG("REQ-ACMP-003", "TIM", "AI3: the sink never left PRB_W_RESP");
+    NEXT: CHECK(!dup.empty() && dup == probe_tx(0) && dt >= 195 && dt <= 260, "AI3: the sink never left PRB_W_RESP: the exact duplicate probe " "follows at T-ACMP-CMD (%u ms)", dt);
+tb/pp_top/sim_main.cpp:9590 REQ-ACMP-001 TOL [AL1: a 96-B UNBIND_RX is answered by the 56-B cdl-44 UNBIND_RX_RESPONSE]
+    PREV: 0, 0, 0x4502, 0, 0);
+    NEXT: CHECK(!u.empty() && u == uw, "AL1: a 96-B UNBIND_RX is answered by the 56-B cdl-44 UNBIND_RX_RESPONSE");
+tb/pp_top/sim_main.cpp:9623 REQ-ACMP-001 TOL [AL3: the 96-B PROBE_TX gets the same 56-B cdl-44 response]
+    PREV: auto l = wait_acmp(1, 0x4503, 400);
+    NEXT: CHECK(!l.empty() && l == rw && l == s, "AL3: the 96-B PROBE_TX gets the same 56-B cdl-44 response, byte for byte");
+tb/pp_top/sim_main.cpp:9647 REQ-ACMP-015 TIM [AS1: no talker discovered, so T-ACMP-RETRY re-probes nothing]
+    PREV: h2.run_ms(4600);                          // PW2 -> PWT -> T-ACMP-RETRY
+    NEXT: CHECK(h2.q_acmp.empty(), "AS1: no talker discovered, so T-ACMP-RETRY re-probes nothing " "(%zu ACMP frames)", h2.q_acmp.size());
+tb/pp_top/sim_main.cpp:9654 REQ-ACMP-022 DIR [AS1: GET_RX_STATE while probing]
+    PREV: LS, 0, 1, 0x4810, 0x0002, 0);
+    NEXT: CHECK(!g0.empty() && g0 == g0w, "AS1: GET_RX_STATE while probing: bound values, stream fields 0 " "(Milan Table 5.37), byte-exact");
+tb/pp_top/sim_main.cpp:9687 REQ-ACMP-022 DIR [AS2: GET_RX_STATE settled]
+    PREV: auto g = get_rx_state(0x4811);
+    NEXT: CHECK(!g.empty() && g == rx_state_settled(0x4811), "AS2: GET_RX_STATE settled: bound values and the response's " "{stream_id, DA, VLAN} (Milan Table 5.38), byte-exact");
+tb/pp_top/sim_main.cpp:9694 REQ-ACMP-018 DIR [AS2: nothing declared or registered before a matching talker]
+    PREV: }
+    NEXT: CHECK(lstn_decl() == 0 && tk_reg() == 0, "AS2: nothing declared or registered before a matching talker " "attribute (decl %u, reg %u)", lstn_decl(), tk_reg());
+tb/pp_top/sim_main.cpp:9715 REQ-ACMP-017 DIR [AS3: near misses (DA, VLAN, stream_id) put no Listener]
+    PREV: for (const auto& f : h2.q_msrp) declared |= has_listener(f, -1);
+    NEXT: CHECK(!declared, "AS3: near misses (DA, VLAN, stream_id) put no Listener " "declaration on the wire");
+tb/pp_top/sim_main.cpp:9742 REQ-ACMP-018 DIR [AS4: the matching Talker Advertise yields Listener Ready New]
+    PREV: });
+    NEXT: CHECK(!f.empty() && f == listener_pdu(EV_NEW), "AS4: the matching Talker Advertise yields Listener Ready New, " "byte-exact");
+tb/pp_top/sim_main.cpp:9830 REQ-ACMP-022 DIR [AS6: GET_RX_STATE unbound]
+    PREV: 0x4816, 0, 0);
+    NEXT: CHECK(!g.empty() && g == gw, "AS6: GET_RX_STATE unbound: every field 0 but the echoes, byte-exact");
+tb/pp_top/sim_main.cpp:10062 REQ-SRP-004 DIR [S1: Domain New {6,3,2} byte-exact]
+    PREV: auto exp = mrpdu_frame(true, OWN_MAC, {m});
+    NEXT: CHECK(f == exp, "S1: Domain New {6,3,2} byte-exact");
+tb/pp_top/sim_main.cpp:10107 REQ-SRP-006 DIR [S2: MVRP VID 2 New byte-exact]
+    PREV: });
+    NEXT: CHECK(g == expv, "S2: MVRP VID 2 New byte-exact");
+tb/pp_top/sim_main.cpp:10133 REQ-ADP-008 TIM [S3: first advertise inside 0..2 s]
+    PREV: if (!f.empty() && f != exp) { dump("got", f); dump("exp", exp); }
+    NEXT: CHECK(adv1_ms - t0 <= 2200, "S3: first advertise inside 0..2 s + margin (%u ms)", adv1_ms - t0);
+tb/pp_top/sim_main.cpp:10145 REQ-ADP-001 TIM [S3: T-ADP-ADV 5 s + 0-4 s anti-storm]
+    PREV: uint32_t gap = adv2_ms - adv1_ms;
+    NEXT: CHECK(gap >= 4800 && gap <= 9500, "S3: T-ADP-ADV 5 s + 0-4 s anti-storm, measured %u ms", gap);
+tb/pp_top/sim_main.cpp:10196 REQ-ACMP-002 DIR [S6: BIND_RX_RESPONSE SUCCESS byte-exact]
+    PREV: T1_UID, 0, 0, 1, 0x1234, 0, 0);
+    NEXT: CHECK(f == expr, "S6: BIND_RX_RESPONSE SUCCESS byte-exact");
+tb/pp_top/sim_main.cpp:10318 REQ-NET-002 DIR [S8: Domain Lv+New re-declaration byte-exact]
+    PREV: });
+    NEXT: CHECK(f == expd, "S8: Domain Lv+New re-declaration byte-exact");
+tb/pp_top/sim_main.cpp:10319 REQ-SRP-004 DIR [S8: Domain Lv+New re-declaration byte-exact]
+    PREV: REQ_TAG("REQ-NET-002", "DIR", "S8: Domain Lv+New re-declaration byte-exact");
+    NEXT: CHECK(f == expd, "S8: Domain Lv+New re-declaration byte-exact");
+tb/pp_top/sim_main.cpp:10336 REQ-NET-003 DIR [S8: acc_latency[2] latched]
+    PREV: "S8: tk_reg_state[2] ADVERTISE in class-D");
+    NEXT: CHECK(h.snap(16 + 2) == 0x00012345u, "S8: acc_latency[2] latched, got 0x%08x", h.snap(16 + 2));
+tb/pp_top/sim_main.cpp:10542 REQ-ACMP-021 NVM [BW2: a reset restores the same binding]
+    PREV: auto g3 = bw_acmp(11, 50);
+    NEXT: CHECK(g3 == get_rsp(0x0B21), "BW2: a reset restores the same binding");
+tb/pp_top/sim_main.cpp:10543 REQ-PER-001 NVM [BW2: a reset restores the same binding]
+    PREV: REQ_TAG("REQ-ACMP-021", "NVM", "BW2: a reset restores the same binding");
+    NEXT: CHECK(g3 == get_rsp(0x0B21), "BW2: a reset restores the same binding");
+tb/pp_top/sim_main.cpp:11913 REQ-AEM-001 DIR [OV2 AUDIO_MAP 1]
+    PREV: ov_read(0x0017, 0, cfg1_bodies[0], true, ov1.c_str());
+    NEXT: ov_read(0x0017, 1, cfg1_bodies[1], true, "OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578)");
+tb/pp_top/sim_main.cpp:11969 REQ-AEM-001 DIR [PG5 a 66-mapping page]
+    PREV: pg_page(65, "PG4 a 65-mapping page: SUCCESS, cdl 544, frame 570, a standard slot");
+    NEXT: pg_page(66, "PG5 a 66-mapping page: SUCCESS, cdl 552, frame 578, the oversize slot");
+tb/pp_top/sim_main.cpp:11974 REQ-AEM-020 DIR [PG8 a 176-mapping page]
+    PREV: pg_page(72, "PG7 a 72-mapping page: NO_RESOURCES, no record claimed");
+    NEXT: pg_page(176, "PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES");
+tb/pp_top/sim_main.cpp:12289 REQ-AEM-024 TIM [DL1: the forced response's first byte]
+    PREV: "after reception", kill);
+    NEXT: CHECK(first > io.dl_kill_first && first - t0 < RESP_CYC, "DL1: the forced response's first byte %ld clocks after reception, " "after the deadline and inside T-AECP-RESP (%ld)", first - t0, RESP_CYC);
+tb/pp_top/sim_main.cpp:12382 REQ-MVU-005 TIM [DL3: the queued GET_MILAN_INFO past its deadline]
+    PREV: "(status %d)", status(fa));
+    NEXT: CHECK(fb == aecp_frame(CTLR_MAC, OWN_MAC, VU_RESPONSE, AECP_NOT_IMPLEMENTED, EID, CTLR_EID, 0xD302, MVU_PID_HI, mvu_pl()), "DL3: the queued GET_MILAN_INFO past its deadline answers MVU " "NOT_IMPLEMENTED with the command echoed, byte-exact (status %d, " "%zu bytes)", status(fb), fb.size());
+tb/pp_top/sim_main.cpp:12922 REQ-MVU-005 TIM [TB1 GET_MILAN_INFO]
+    PREV: at.c_str());
+    NEXT: grade("TB1 GET_MILAN_INFO" + at, c, false);
+tb/pp_top/sim_main.cpp:12988 REQ-AEM-024 TIM [TB2 oversize READ_DESCRIPTOR]
+    PREV: "frame, byte-exact (%zu bytes)", at.c_str(), f.size());
+    NEXT: grade("TB2 oversize READ_DESCRIPTOR" + at, c, false);
+tb/pp_top/sim_main.cpp:12996 REQ-AEM-024 TIM [TB2 GET_DYNAMIC_INFO with all thirteen getters]
+    PREV: "524", at.c_str(), cdl);
+    NEXT: grade("TB2 GET_DYNAMIC_INFO with all thirteen getters" + at, c, false);
+tb/srp_decoder/sim_main.cpp:458 REQ-SRP-002 TOL [I prefix 3 evts]
+    PREV: 
+    NEXT: CHECK(h.evts.size() == 3, "I prefix 3 evts got %zu", h.evts.size());
+tb/srp_decoder/sim_main.cpp:519 REQ-SRP-002 TOL [K only the Domain prefix]
+    PREV: 
+    NEXT: CHECK(h.evts.size() == 2, "K only the Domain prefix got %zu", h.evts.size());
+tb/srp_encoder/sim_main.cpp:495 REQ-SRP-003 DIR [E1 dual EndMark explicit ahead of MAC padding]
+    PREV: got[17], got[18]);
+    NEXT: CHECK(got[26] == 0 && got[27] == 0 && got[28] == 0 && got[29] == 0, "E1 dual EndMark explicit ahead of MAC padding");
+tb/srp_stream_fsms/sim_main.cpp:563 REQ-SRP-005 MTXW [immediate IN->MT]
+    PREV: h.inject(true, 3, SID0 + 1, 0, 0, 5 /*Lv*/, 2);
+    NEXT: CHECK(h.t_reg(1) == 0 && h.t_lstn(1) == 0, "T reg: Δ13 immediate IN->MT");
+tb/srp_stream_fsms/sim_main.cpp:721 REQ-SRP-005 MTXW [rLv -> unregistered]
+    PREV: h.inject(true, 1, SID0, DA0, VID0, 5 /*Lv*/);
+    NEXT: CHECK(h.l_tkreg(0) == 0 && h.l_unreg[0] == 1, "L Δ13 rLv -> unregistered");
+tb/srp_top/sim_main.cpp:1803 REQ-SRP-006 DIR [R1: the VID New leaves ahead of the first Talker Advertise]
+    PREV: "R1: the wait is at most one join-paced MRPDU (%u ms)", rise_ms - ready_ms);
+    NEXT: CHECK(mv >= 0 && adv >= 0 && h.archive_accept[mv] < h.archive_accept[adv], "R1: the VID New leaves ahead of the first Talker Advertise, so a Ready that " "answers the Advertise never waits");
+tb/srp_top/sim_main.cpp:1843 REQ-SRP-006 DIR [R4: DECLARE_LISTENER on VID 7 yields a byte-exact MVRP VID 7 New]
+    PREV: });
+    NEXT: CHECK(f == exp_new, "R4: DECLARE_LISTENER on VID 7 yields a byte-exact MVRP VID 7 New");
+tb/srp_top/sim_main.cpp:1939 REQ-SRP-001 TIM [Q1: join-paced MRPDUs of one declaration are 180-240 ms apart]
+    PREV: && spaced(ladder, 180, 240, g);
+    NEXT: CHECK(join_ok, "Q1: join-paced MRPDUs of one declaration are 180-240 ms apart " "(%zu PDUs, %u-%u ms)", ladder.size(), g.lo, g.hi);
+tb/srp_top/sim_main.cpp:1966 REQ-SRP-001 TIM [Q2: periodic! re-joins recur every 900-1500 ms]
+    PREV: const bool vid_ok = vid.size() >= 5 && spaced(vid, 900, 1500, gv);
+    NEXT: CHECK(tk_ok && dom_ok && vid_ok, "Q2: periodic! re-joins recur every 900-1500 ms (Talker %zu x %u-%u, Domain %zu x %u-%u, " "VID %zu x %u-%u)", tk.size(), gt.lo, gt.hi, dom.size(), gd.lo, gd.hi, vid.size(), gv.lo, gv.hi);
+tb/srp_top/sim_main.cpp:1993 REQ-SRP-001 TIM [Q3: consecutive own LeaveAlls are 10-15 s apart]
+    PREV: const bool mvrp_ok = la_mvrp.size() >= 3 && spaced(la_mvrp, 10000, 15000, gv);
+    NEXT: CHECK(quiet && msrp_ok && mvrp_ok, "Q3: consecutive own LeaveAlls are 10-15 s apart (MSRP %zu x %u-%u, MVRP %zu x %u-%u)", la_msrp.size(), gm.lo, gm.hi, la_mvrp.size(), gv.lo, gv.hi);
