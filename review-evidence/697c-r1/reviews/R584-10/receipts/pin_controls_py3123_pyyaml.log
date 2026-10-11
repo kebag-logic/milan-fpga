@@ -1,0 +1,62 @@
+interpreter 3.12.3
+stack_pin 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+census findings 0
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+[ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 1a9f651c: LICENSE
+[ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, the pin proof as the checkout holds it, under its audit hook: the pin check's verdict, no refusal
+[ok] tsn-c-stack pin control, the audit hook, a Git command run by the harness's runner (ctrl_build.run): sw/firmware/ctrl/test/ctrl_build.py:388 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a program named by a computed name (git.__name__): sw/firmware/ctrl/test/ctrl_build.py:392 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a dashed program (git-ls-tree): sw/firmware/ctrl/test/ctrl_build.py:392 starts git-ls-tree (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the Git program by its path, with the helper's environment, by the harness's runner: sw/firmware/ctrl/test/ctrl_build.py:392 starts /usr/bin/git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a refusal caught and ignored: sw/firmware/ctrl/test/ctrl_build.py:393 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, an aliased import (from subprocess import run as r): sw/firmware/ctrl/test/ctrl_build.py:393 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:920 starts git ls-files (os.system) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, exec of a string: sw/firmware/ctrl/test/ctrl_build.py:342 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py: sw/firmware/ctrl/test/ctrl_build.py:344 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:925 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git: sw/firmware/ctrl/test/ctrl_build.py:344 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:921 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.eval: sw/firmware/ctrl/test/ctrl_build.py:343 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.compile: sw/firmware/ctrl/test/ctrl_build.py:393 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple): sw/firmware/ctrl/test/ctrl_build.py:343 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:922 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:920 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, pkgutil.importlib.import_module: sw/firmware/ctrl/test/ctrl_build.py:392 asks for exec in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, exec of a string inside the helper: sw/firmware/ctrl/test/ctrl_build.py:333 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, eval inside the helper: sw/firmware/ctrl/test/ctrl_build.py:333 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, compile inside the helper: sw/firmware/ctrl/test/ctrl_build.py:333 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:144 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:921 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:920 replaces __code__ of stack_pin, a function of the pin proof
+[ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:921 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:920 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_GRAFT_FILE: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FILE None, a path that can exist, so Git would read a graft file
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+SUMMARY interpreter=3.12.3 pin_controls=58 misbehaved=0 census=0

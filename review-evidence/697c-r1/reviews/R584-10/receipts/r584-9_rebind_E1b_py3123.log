@@ -1,0 +1,35 @@
+the pin proof's audit hook refused: sw/firmware/ctrl/test/ctrl_build.py:347 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+census findings: ['sw/firmware/ctrl/test/ctrl_build.py:347 starts git (subprocess.Popen) while the pin proof runs, not by the helper']
+ctrl_build.git is the helper defined as 'git': True
+ctrl_build.git: git
+Traceback (most recent call last):
+  File "<packet>/scratch/probes/R584-9/rebind_runtime_probe.py", line 33, in <module>
+    print("stack_pin:", ctrl_build.stack_pin())
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/rebind/E1b/sw/firmware/ctrl/test/ctrl_build.py", line 399, in stack_pin
+    pin = pin or stack_gitlink()
+                 ^^^^^^^^^^^^^^^
+  File "<packet>/scratch/rebind/E1b/sw/firmware/ctrl/test/ctrl_build.py", line 357, in stack_gitlink
+    entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/rebind/E1b/sw/firmware/ctrl/test/ctrl_build.py", line 347, in git
+    res = run(["git", "-C", str(directory), *args], env=git_env())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/probes/R584-9/rebind_runtime_probe.py", line 22, in logged
+    return real(argv, *a, **k)
+           ^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/rebind/E1b/sw/firmware/gtest/fw_gtest.py", line 118, in run
+    return subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True, check=False,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<cpython-3.12.3>/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<cpython-3.12.3>/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "<cpython-3.12.3>/lib/python3.12/subprocess.py", line 1823, in _execute_child
+    sys.audit("subprocess.Popen", executable, args, cwd, env)
+  File "<packet>/scratch/rebind/E1b/sw/firmware/ctrl/test/ctrl_build.py", line 312, in hook
+    refuse(frame_at(1), why)
+  File "<packet>/scratch/rebind/E1b/sw/firmware/ctrl/test/ctrl_build.py", line 274, in refuse
+    raise refusal(message)
+ctrl_build.AuditRefusal: sw/firmware/ctrl/test/ctrl_build.py:347 starts git (subprocess.Popen) while the pin proof runs, not by the helper

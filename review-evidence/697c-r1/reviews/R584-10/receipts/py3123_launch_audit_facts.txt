@@ -1,0 +1,7 @@
+interpreter: Python 3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]
+subprocess.py raises its launch event from Python:
+1534:            sys.audit("subprocess.Popen", executable, args, cwd, env)
+1823:            sys.audit("subprocess.Popen", executable, args, cwd, env)
+_posixsubprocess is built in: True
+occurrences of the event name _posixsubprocess.fork_exec in 3.12.3 libpython: 0
+occurrences in 3.14.7 _posixsubprocess: 1
