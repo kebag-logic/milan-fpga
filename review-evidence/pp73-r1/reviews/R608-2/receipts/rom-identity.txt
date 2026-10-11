@@ -1,0 +1,16 @@
+# generated ROM images, base 2cbed0a9 vs head 9975764
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  base-ucode.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  head-ucode.hex
+26624 base-ucode.hex
+26624 head-ucode.hex
+ucode: byte-identical
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  base-ltn_rom.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  head-ltn_rom.hex
+ 6138 base-ltn_rom.hex
+ 6138 head-ltn_rom.hex
+ltn_rom: byte-identical
+# hdl/ changes base..head (name-status)
+A	hdl/aecp/ucode/aecp_commands.json
+M	hdl/aecp/ucode/gen_ucode.py
+# .sv/.svh/.v changes anywhere base..head
+A	tb/aecp_cmds/aecp_cmds_wrap.sv

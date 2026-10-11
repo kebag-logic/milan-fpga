@@ -1,0 +1,253 @@
+{
+  "schema": "aecp-decode-record/1",
+  "about": [
+    "SPDX-License-Identifier: CERN-OHL-W-2.0",
+    "What KL_aecp_engine decodes and dispatches, observed by tb/aecp_cmds (issue #73). Regenerate with: make -C tb/aecp_cmds record. The suite holds a fresh sweep to this file; scripts/check_aecp_commands.py (make check) holds aecp_commands.json to it.",
+    "decode: per message bucket, groups of opcodes the engine treats alike; per program (the E_<name> the uCPU was handed): floor = the shortest cdl it was dispatched at, cdls = every swept cdl it was dispatched at, answers = status code -> the response cdls seen ('echo' = always the command's own cdl). 'engine' = answered without a program.",
+    "gdi: GET_DYNAMIC_INFO with one record of each command_type: members -> the program each record ran and the aggregate's status:record length (copied = a record answered by copying its data); refused -> the program that refused the whole command; empty -> the aggregate with no record.",
+    "unsolicited: per job kind, the program and the response's command_type:cdl."
+  ],
+  "sweep": {
+    "trials": 585760,
+    "timeouts": 0,
+    "opcodes": "0x0000-0x007F on every bucket; MVU: command_type 0x0000-0x007F",
+    "cdl": "12-100 with descriptor_type @24; 16, 24, 96 running; the other templates at their own lengths (tb/aecp_cmds/sim_main.cpp); every program replayed down to 12",
+    "descriptor_types": "0x0000-0x0028, 0xFFFF",
+    "build": "EN_IDENTIFY_NOTIF_P = 1 (the IDENTIFY_NOTIFICATION job has its program)",
+    "inputs": {
+      "hdl/common/pp_pkg.sv": "6cd0a143e3a33ba9995c536d8f82ed9b3a33fc6ca15d024f405a4c94ed110f86",
+      "hdl/aecp/ucpu_pkg.sv": "030d9dd714eddd4ff1f49e6480f752b4563025e951a966bfb7a4c3b95e956f9c",
+      "hdl/aecp/KL_aecp_ucpu.sv": "568201acb0c7efe9691981c83e9b9b52ba698801aee95f8d762c80dcb0159596",
+      "hdl/aecp/KL_aecp_desc_store.sv": "5addf2254aa6ba85b40ddcc18048a3a3655c42ca3a72fae45f383e660112ca1f",
+      "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+      "hdl/aecp/KL_aecp_nvm_writer.sv": "7c21ee4a9ff137d355a45fecdc596e79b8ed577566d642f2f5c664f739e10a7e",
+      "hdl/aecp/KL_aecp_resp_buf.sv": "45dbe0d0b1d2f0bc9f640ff73939de9f4f55ec5568e4d71ec07725254b91c4ea",
+      "hdl/aecp/KL_aecp_engine.sv": "4cdf9ddf59e1cd9f527f7f65ccec21ca82439bd11a47ae251ca85d647c95e61c",
+      "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+      "tb/aecp_cmds/sim_main.cpp": "6c1ea82ff657d5524d58be8672434d978fa26e768947647e5767d858a3de97e0",
+      "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+      "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
+      "ucode.hex (generated)": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+    }
+  },
+  "decode": {
+    "ADDRESS_ACCESS": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "AEM": [
+      {"opcodes": "0x0000", "programs": {
+        "NSUPPE": {"floor": 12, "cdls": "12-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0001", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-27", "answers": {"7": "echo"}},
+        "LOCKEN": {"floor": 28, "cdls": "28-100", "answers": {"0": "28"}},
+        "NSUPPE": {"floor": 28, "cdls": "28", "answers": {"11": "28"}}
+      }},
+      {"opcodes": "0x0002", "programs": {
+        "EAVL": {"floor": 12, "cdls": "12-100", "answers": {"0": "32"}}
+      }},
+      {"opcodes": "0x0003, 0x0005, 0x000A-0x000D, 0x0012-0x0013, 0x001A-0x0021, 0x002A, 0x002E-0x004A, 0x004C-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12-100", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x0004", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+        "RDESC": {"floor": 20, "cdls": "20, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
+        "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+        "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
+        "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},
+        "RDESCSI": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}},
+        "RDESCSO": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}}
+      }},
+      {"opcodes": "0x0006", "programs": {
+        "SCFG": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}},
+        "SCFGBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "SCFGRUN": {"floor": 16, "cdls": "16, 24, 96", "answers": {"12": "16"}}
+      }},
+      {"opcodes": "0x0007", "programs": {
+        "GCFG": {"floor": 12, "cdls": "12-100", "answers": {"0": "16"}}
+      }},
+      {"opcodes": "0x0008", "programs": {
+        "SFBAD": {"floor": 12, "cdls": "12-23", "answers": {"7": "24"}},
+        "SFMTI": {"floor": 24, "cdls": "24-100", "answers": {"7": "24"}},
+        "SFMTO": {"floor": 24, "cdls": "24-100", "answers": {"7": "24"}},
+        "SFRUN": {"floor": 24, "cdls": "24, 96", "answers": {"12": "24"}},
+        "TIZ8NS": {"floor": 24, "cdls": "24-100", "answers": {"11": "24"}}
+      }},
+      {"opcodes": "0x0009", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSFMT": {"floor": 16, "cdls": "16-100", "answers": {"0": "24"}},
+        "TIZ8NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "24"}}
+      }},
+      {"opcodes": "0x000E", "programs": {
+        "BADARG": {"floor": 96, "cdls": "96", "answers": {"7": "96"}},
+        "NSUPPE": {"floor": 96, "cdls": "96-100", "answers": {"11": "echo"}},
+        "SIBAD": {"floor": 12, "cdls": "12-95", "answers": {"7": "96"}},
+        "SINFO": {"floor": 96, "cdls": "96", "answers": {"0": "96"}},
+        "SIRUN": {"floor": 96, "cdls": "96", "answers": {"12": "96"}}
+      }},
+      {"opcodes": "0x000F", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSTRI": {"floor": 16, "cdls": "16-100", "answers": {"0": "68"}},
+        "NSUPPE": {"floor": 16, "cdls": "16-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0010", "programs": {
+        "NAMEBAD": {"floor": 12, "cdls": "12-83, 85-100", "answers": {"7": "84"}},
+        "SNAME": {"floor": 84, "cdls": "84", "answers": {"0": "84", "2": "84", "7": "84"}}
+      }},
+      {"opcodes": "0x0011", "programs": {
+        "GNAME": {"floor": 20, "cdls": "20-100", "answers": {"0": "84", "2": "84", "7": "84"}},
+        "NAMEBAD": {"floor": 12, "cdls": "12-19", "answers": {"7": "84"}}
+      }},
+      {"opcodes": "0x0014", "programs": {
+        "BADARG4": {"floor": 12, "cdls": "12-19", "answers": {"7": "20"}},
+        "SSRATE": {"floor": 20, "cdls": "20-100", "answers": {"7": "20"}},
+        "TIZ4NS": {"floor": 20, "cdls": "20-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0015", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSRATE": {"floor": 16, "cdls": "16-100", "answers": {"0": "20"}},
+        "TIZ4NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0016", "programs": {
+        "BADARG4": {"floor": 12, "cdls": "12-19", "answers": {"7": "20"}},
+        "SCLKS": {"floor": 20, "cdls": "20-100", "answers": {"0": "20", "7": "20"}},
+        "TIZ4NS": {"floor": 20, "cdls": "20-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0017", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GCLKS": {"floor": 16, "cdls": "16-100", "answers": {"0": "20"}},
+        "TIZ4NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0018", "programs": {
+        "BADARG1": {"floor": 12, "cdls": "12-16", "answers": {"7": "17"}},
+        "NSUPP1": {"floor": 17, "cdls": "17-100", "answers": {"11": "17"}},
+        "SCTRL": {"floor": 17, "cdls": "17-100", "answers": {"0": "17", "7": "17"}}
+      }},
+      {"opcodes": "0x0019", "programs": {
+        "BADARG1": {"floor": 12, "cdls": "12-15", "answers": {"7": "17"}},
+        "GCTRL": {"floor": 16, "cdls": "16-100", "answers": {"0": "17"}},
+        "NSUPP1": {"floor": 16, "cdls": "16-100", "answers": {"11": "17"}}
+      }},
+      {"opcodes": "0x0022", "programs": {
+        "STRMBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "STRMNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "16"}},
+        "STRT": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}}
+      }},
+      {"opcodes": "0x0023", "programs": {
+        "STOP": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}},
+        "STRMBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "STRMNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "16"}}
+      }},
+      {"opcodes": "0x0024", "programs": {
+        "REGUN": {"floor": 12, "cdls": "12-100", "answers": {"0": "echo"}}
+      }},
+      {"opcodes": "0x0025", "programs": {
+        "DEREG": {"floor": 12, "cdls": "12-100", "answers": {"0": "echo"}}
+      }},
+      {"opcodes": "0x0026", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "echo"}}
+      }},
+      {"opcodes": "0x0027", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GAVB": {"floor": 16, "cdls": "16-100", "answers": {"0": "32"}},
+        "NSUPPE": {"floor": 16, "cdls": "16-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0028", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GASP": {"floor": 16, "cdls": "16-100", "answers": {"0": "16", "2": "16"}}
+      }},
+      {"opcodes": "0x0029", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GCTRS": {"floor": 16, "cdls": "16-100", "answers": {"0": "148"}},
+        "GCTRSNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "148"}}
+      }},
+      {"opcodes": "0x002B", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+        "GAMAP": {"floor": 20, "cdls": "20-100", "answers": {"11": "24"}},
+        "GAMAPO": {"floor": 20, "cdls": "20-100", "answers": {"11": "24"}},
+        "NOTIMPL": {"floor": 20, "cdls": "20-100", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x002C", "programs": {
+        "AMADD": {"floor": 20, "cdls": "20, 28", "answers": {"11": "echo"}},
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100"}},
+        "NSUPPE": {"floor": 20, "cdls": "20, 28, 100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x002D", "programs": {
+        "AMREMOVE": {"floor": 20, "cdls": "20, 28", "answers": {"11": "echo"}},
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100"}},
+        "NSUPPE": {"floor": 20, "cdls": "20, 28, 100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x004B", "programs": {
+        "BADARG": {"floor": 13, "cdls": "13-100", "answers": {"7": "echo"}},
+        "engine": {"floor": 12, "cdls": "12", "answers": {"0": "12"}}
+      }}
+    ],
+    "AVC": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "EXTENDED": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "MVU": [
+      {"opcodes": "0x0000", "programs": {
+        "MVUINFO": {"floor": 20, "cdls": "20, 24, 32, 100", "answers": {"0": "32"}},
+        "NOTIMPL": {"floor": 12, "cdls": "12-19", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x0001-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12, 19-20, 24, 32, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "MVU/wrong-protocol-id": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12, 19-20, 24, 32, 100", "answers": {"1": "echo"}}
+      }}
+    ]
+  },
+  "gdi": {
+    "members": {
+      "0x0007": {"GCFG": "0:4", "copied": "0:4"},
+      "0x0009": {"GSFMT": "0:12", "TIZ8NS": "0:12", "copied": "0:0, 0:2, 0:4"},
+      "0x000B": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x000D": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x000F": {"GSTRI": "0:56", "copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0011": {"GNAME": "0:72", "copied": "0:0, 0:2, 0:4"},
+      "0x0013": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0015": {"GSRATE": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"},
+      "0x0017": {"GCLKS": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"},
+      "0x001D": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0029": {"GCTRS": "0:136", "GCTRSNS": "0:136", "copied": "0:0, 0:2, 0:4"},
+      "0x0048": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x004A": {"copied": "0:0, 0:2, 0:4, 0:8"}
+    },
+    "refused": {
+      "BADARG": "0x0000-0x0006, 0x0008, 0x000A, 0x000C, 0x000E, 0x0010, 0x0012, 0x0014, 0x0016, 0x0018-0x001C, 0x001E-0x0028, 0x002A-0x0047, 0x0049, 0x004B-0x007F"
+    },
+    "empty": {
+      "engine": "0:cdl 12"
+    }
+  },
+  "unsolicited": {
+    "PP_UNS_DEREG_C": {"UNSOK": ["0x0025:12"]},
+    "PP_UNS_LOCK_C": {"LOCKUNS": ["0x0001:28"]},
+    "PP_UNS_STRI_C": {"GSTRI": ["0x000F:68"]},
+    "PP_UNS_AVB_C": {"GAVB": ["0x0027:32"]},
+    "PP_UNS_ASP_C": {"GASP": ["0x0028:16"]},
+    "PP_UNS_AMAP_C": {"UNSOK": ["0x002C:20", "0x002D:20"]},
+    "PP_UNS_CTRS_C": {"GCTRS": ["0x0029:148"]},
+    "PP_UNS_SRATE_C": {"GSRATE": ["0x0014:20"]},
+    "PP_UNS_NAME_C": {"GNAME": ["0x0010:84"]},
+    "PP_UNS_CFG_C": {"GCFG": ["0x0006:16"]},
+    "PP_UNS_SFMT_C": {"GSFMT": ["0x0008:24"]},
+    "PP_UNS_SINFO_C": {"SINFOUNS": ["0x000E:96"]},
+    "PP_UNS_CTRL_C": {"GCTRL": ["0x0018:17"]},
+    "PP_UNS_CLKS_C": {"GCLKS": ["0x0016:20"]},
+    "PP_UNS_STRM_C": {"STRMUNS": ["0x0022:16", "0x0023:16"]},
+    "PP_UNS_IDENT_C": {"IDNOTIF": ["0x0026:16"]}
+  }
+}

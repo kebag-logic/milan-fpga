@@ -1,0 +1,68 @@
+response+4 ACQUIRE_ENTITY: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+command+4 ACQUIRE_ENTITY: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+response+4 LOCK_ENTITY: --write rc 0, gate rc 1: decode: LOCK_ENTITY: LOCKEN answered SUCCESS at cdl 28, the table's response is 32
+command+4 LOCK_ENTITY: --write rc 0, gate rc 1: decode: LOCK_ENTITY: the shortest AEM 0x0001 the engine dispatches to LOCKEN is cdl 28, the table's command cdl is 32
+response+4 ENTITY_AVAILABLE: --write rc 0, gate rc 1: decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 32, the table's response is 36
+command+4 ENTITY_AVAILABLE: --write rc 0, gate rc 1: decode: ENTITY_AVAILABLE: the shortest AEM 0x0002 the engine dispatches to EAVL is cdl 12, the table's command cdl is 16
+response+4 READ_DESCRIPTOR: --write rc 0, gate rc 1: rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 16 + a copy (its copy starting at 16), the table's response is 20 + descriptor
+command+4 READ_DESCRIPTOR: --write rc 0, gate rc 1: decode: READ_DESCRIPTOR: the shortest AEM 0x0004 the engine dispatches to RDESC is cdl 20, the table's command cdl is 24
+response+4 SET_CONFIGURATION: --write rc 0, gate rc 1: decode: SET_CONFIGURATION: SCFG answered SUCCESS at cdl 16, the table's response is 20
+command+4 SET_CONFIGURATION: --write rc 0, gate rc 1: decode: SET_CONFIGURATION: the shortest AEM 0x0006 the engine dispatches to SCFG is cdl 16, the table's command cdl is 20
+response+4 GET_CONFIGURATION: --write rc 0, gate rc 1: decode: GET_CONFIGURATION: GCFG answered SUCCESS at cdl 16, the table's response is 20
+command+4 GET_CONFIGURATION: --write rc 0, gate rc 1: decode: GET_CONFIGURATION: the shortest AEM 0x0007 the engine dispatches to GCFG is cdl 12, the table's command cdl is 16
+response+4 SET_STREAM_FORMAT: --write rc 0, gate rc 1: decode: SET_STREAM_FORMAT: SFBAD answered BAD_ARGUMENTS at cdl 24, the table's response is 28
+command+4 SET_STREAM_FORMAT: --write rc 0, gate rc 1: decode: SET_STREAM_FORMAT: the shortest AEM 0x0008 the engine dispatches to SFMTI is cdl 24, the table's command cdl is 28
+response+4 GET_STREAM_FORMAT: --write rc 0, gate rc 1: decode: GET_STREAM_FORMAT: GSFMT answered SUCCESS at cdl 24, the table's response is 28
+command+4 GET_STREAM_FORMAT: --write rc 0, gate rc 1: decode: GET_STREAM_FORMAT: the shortest AEM 0x0009 the engine dispatches to GSFMT is cdl 16, the table's command cdl is 20
+response+4 SET_STREAM_INFO: --write rc 0, gate rc 1: decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 96, the table's command cdl is 100
+command+4 SET_STREAM_INFO: --write rc 0, gate rc 1: decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 96, the table's command cdl is 100
+response+4 GET_STREAM_INFO: --write rc 0, gate rc 1: decode: GET_STREAM_INFO: GSTRI answered SUCCESS at cdl 68, the table's response is 72
+command+4 GET_STREAM_INFO: --write rc 0, gate rc 1: decode: GET_STREAM_INFO: the shortest AEM 0x000F the engine dispatches to GSTRI is cdl 16, the table's command cdl is 20
+response+4 SET_NAME: --write rc 0, gate rc 1: decode: SET_NAME: NAMEBAD answered BAD_ARGUMENTS at cdl 84, the table's response is 88
+command+4 SET_NAME: --write rc 0, gate rc 1: decode: SET_NAME: the shortest AEM 0x0010 the engine dispatches to SNAME is cdl 84, the table's command cdl is 88
+response+4 GET_NAME: --write rc 0, gate rc 1: decode: GET_NAME: GNAME answered SUCCESS at cdl 84, the table's response is 88
+command+4 GET_NAME: --write rc 0, gate rc 1: decode: GET_NAME: the shortest AEM 0x0011 the engine dispatches to GNAME is cdl 20, the table's command cdl is 24
+response+4 SET_SAMPLING_RATE: --write rc 0, gate rc 1: decode: SET_SAMPLING_RATE: BADARG4 answered BAD_ARGUMENTS at cdl 20, the table's response is 24
+command+4 SET_SAMPLING_RATE: --write rc 0, gate rc 1: decode: SET_SAMPLING_RATE: the shortest AEM 0x0014 the engine dispatches to SSRATE is cdl 20, the table's command cdl is 24
+response+4 GET_SAMPLING_RATE: --write rc 0, gate rc 1: decode: GET_SAMPLING_RATE: GSRATE answered SUCCESS at cdl 20, the table's response is 24
+command+4 GET_SAMPLING_RATE: --write rc 0, gate rc 1: decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20
+response+4 SET_CLOCK_SOURCE: --write rc 0, gate rc 1: decode: SET_CLOCK_SOURCE: BADARG4 answered BAD_ARGUMENTS at cdl 20, the table's response is 24
+command+4 SET_CLOCK_SOURCE: --write rc 0, gate rc 1: decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 20, the table's command cdl is 24
+response+4 GET_CLOCK_SOURCE: --write rc 0, gate rc 1: decode: GET_CLOCK_SOURCE: GCLKS answered SUCCESS at cdl 20, the table's response is 24
+command+4 GET_CLOCK_SOURCE: --write rc 0, gate rc 1: decode: GET_CLOCK_SOURCE: the shortest AEM 0x0017 the engine dispatches to GCLKS is cdl 16, the table's command cdl is 20
+response+4 SET_CONTROL: --write rc 0, gate rc 1: decode: SET_CONTROL: BADARG1 answered BAD_ARGUMENTS at cdl 17, the table's response is 21
+command+4 SET_CONTROL: --write rc 0, gate rc 1: decode: SET_CONTROL: the shortest AEM 0x0018 the engine dispatches to SCTRL is cdl 17, the table's command cdl is 21
+response+4 GET_CONTROL: --write rc 0, gate rc 1: decode: GET_CONTROL: BADARG1 answered BAD_ARGUMENTS at cdl 17, the table's response is 21
+command+4 GET_CONTROL: --write rc 0, gate rc 1: decode: GET_CONTROL: the shortest AEM 0x0019 the engine dispatches to GCTRL is cdl 16, the table's command cdl is 20
+response+4 START_STREAMING: --write rc 0, gate rc 1: decode: START_STREAMING: STRMBAD answered BAD_ARGUMENTS at cdl 16, the table's response is 20
+command+4 START_STREAMING: --write rc 0, gate rc 1: decode: START_STREAMING: the shortest AEM 0x0022 the engine dispatches to STRT is cdl 16, the table's command cdl is 20
+response+4 STOP_STREAMING: --write rc 0, gate rc 1: decode: STOP_STREAMING: STOP answered SUCCESS at cdl 16, the table's response is 20
+command+4 STOP_STREAMING: --write rc 0, gate rc 1: decode: STOP_STREAMING: the shortest AEM 0x0023 the engine dispatches to STOP is cdl 16, the table's command cdl is 20
+response+4 REGISTER_UNSOLICITED_NOTIFICATION: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+command+4 REGISTER_UNSOLICITED_NOTIFICATION: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+response+4 DEREGISTER_UNSOLICITED_NOTIFICATION: --write rc 0, gate rc 1: decode: DEREGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0025 the engine dispatches to DEREG is cdl 12, the table's command cdl is 16
+command+4 DEREGISTER_UNSOLICITED_NOTIFICATION: --write rc 0, gate rc 1: decode: DEREGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0025 the engine dispatches to DEREG is cdl 12, the table's command cdl is 16
+response+4 IDENTIFY_NOTIFICATION: --write rc 0, gate rc 1: decode: IDENTIFY_NOTIFICATION: its unsolicited IDNOTIF is cdl 16, the table's response is 20
+command+4 IDENTIFY_NOTIFICATION: --write rc 0, gate rc 1: decode: IDENTIFY_NOTIFICATION: its unsolicited IDNOTIF is cdl 16, the table's response is 20
+response+4 GET_AVB_INFO: --write rc 0, gate rc 1: decode: GET_AVB_INFO: GAVB answered SUCCESS at cdl 32, the table's response is 36 + 4·N
+command+4 GET_AVB_INFO: --write rc 0, gate rc 1: decode: GET_AVB_INFO: the shortest AEM 0x0027 the engine dispatches to GAVB is cdl 16, the table's command cdl is 20
+response+4 GET_AS_PATH: --write rc 0, gate rc 1: decode: GET_AS_PATH: GASP answered SUCCESS at cdl 16, the table's response is 20 + 8·N
+command+4 GET_AS_PATH: --write rc 0, gate rc 1: decode: GET_AS_PATH: the shortest AEM 0x0028 the engine dispatches to GASP is cdl 16, the table's command cdl is 20
+response+4 GET_COUNTERS: --write rc 0, gate rc 1: decode: GET_COUNTERS: GCTRS answered SUCCESS at cdl 148, the table's response is 152
+command+4 GET_COUNTERS: --write rc 0, gate rc 1: decode: GET_COUNTERS: the shortest AEM 0x0029 the engine dispatches to GCTRS is cdl 16, the table's command cdl is 20
+response+4 GET_AUDIO_MAP: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+command+4 GET_AUDIO_MAP: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: the shortest AEM 0x002B the engine dispatches to GAMAP is cdl 20, the table's command cdl is 24
+response+4 ADD_AUDIO_MAPPINGS: --write rc 0, gate rc 1: decode: ADD_AUDIO_MAPPINGS: the shortest AEM 0x002C the engine dispatches to AMADD is cdl 20, the table's command cdl is 24
+command+4 ADD_AUDIO_MAPPINGS: --write rc 0, gate rc 1: decode: ADD_AUDIO_MAPPINGS: the shortest AEM 0x002C the engine dispatches to AMADD is cdl 20, the table's command cdl is 24
+response+4 REMOVE_AUDIO_MAPPINGS: --write rc 0, gate rc 1: decode: REMOVE_AUDIO_MAPPINGS: the shortest AEM 0x002D the engine dispatches to AMREMOVE is cdl 20, the table's command cdl is 24
+command+4 REMOVE_AUDIO_MAPPINGS: --write rc 0, gate rc 1: decode: REMOVE_AUDIO_MAPPINGS: the shortest AEM 0x002D the engine dispatches to AMREMOVE is cdl 20, the table's command cdl is 24
+response+4 GET_DYNAMIC_INFO: --write rc 0, gate rc 1: decode: GET_DYNAMIC_INFO: its engine-built answer answered SUCCESS at cdl 12, the table's response is 16 + records
+command+4 GET_DYNAMIC_INFO: --write rc 0, gate rc 1: decode: GET_DYNAMIC_INFO: the shortest AEM 0x004B the engine answers without a program is cdl 12, the table's command cdl is 16
+response+4 GET_MILAN_INFO: --write rc 0, gate rc 1: decode: GET_MILAN_INFO: MVUINFO answered SUCCESS at cdl 32, the table's response is 36
+command+4 GET_MILAN_INFO: --write rc 0, gate rc 1: decode: GET_MILAN_INFO: the shortest MVU 0x0000 the engine dispatches to MVUINFO is cdl 20, the table's command cdl is 24
+GET_AUDIO_MAP response cdl 20: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+GET_AUDIO_MAP response cdl 24: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+GET_AUDIO_MAP response cdl 28: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+STREAM_IS_RUNNING 12->13: --write rc 1, gate rc 1: schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12
+documented row without name: --write rc 1, gate rc 1: schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells
+response+4: 29 of 31 fail the gate; command+4: 29 of 31 fail the gate
