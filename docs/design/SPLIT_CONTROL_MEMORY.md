@@ -127,7 +127,7 @@ Two Vivado optimisations put the ROM below its plan:
 
 That logic is most of each point's LUTs: 231 of the largest point's 328.
 The `sram` banks map exactly as planned, and their LUTs are the bank decode and read multiplexer.
-LiteX's memory emitter carries no `ROM_STYLE`, so this round keeps Vivado's default.
+LiteX's memory emitter carries no `ROM_STYLE`, so the build keeps Vivado's default.
 M8a-2's route weighs those LUTs against at most 1.5 tiles.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2.
