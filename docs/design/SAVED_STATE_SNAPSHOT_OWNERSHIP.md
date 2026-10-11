@@ -722,11 +722,15 @@ the backend publishes, never on an assumption about the previous boot.
   refuse a RELOAD anyway. It strobes RELEASE, which ends any capture the
   previous run left open and hands that capture's work back to dirty_live; it
   re-derives the authoritative slot and the sequence from the media,
-  publishes them and resumes service, unless a slot gives no standing
-  verdict in that re-derivation: the writer then publishes and HOLDS until
-  reset, as on a cold boot
-  ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). It does
-  not re-run a restore walk the fabric has already sequenced.
+  publishes them and resumes service, unless a slot is left unread in that
+  re-derivation, with no standing verdict or picked and not read back as
+  judged: the writer then publishes and HOLDS until reset, as on a cold boot
+  ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). What it
+  publishes is that re-derivation's verdict and sequence, which with the
+  newer slot unread are the older slot's, over a window it does not reload;
+  the backend holds both as evidence only, and `nvm_backed` falls once the
+  held writer stops answering the liveness deadline. It does not re-run a
+  restore walk the fabric has already sequenced.
 - **Load pending 0 with load accepted 0** (revision d; the terminal state
   above): the writer does NOT re-attach. No window load was accepted in this
   boot, so nothing in it may be captured or committed, and a re-attach could

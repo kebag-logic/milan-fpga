@@ -2039,11 +2039,17 @@ writer captures, erases and writes nothing of its own, refuses
 `milan_nvm commit`, and answers no liveness deadline, so `nvm_backed` reads
 0, as for a retired writer. An operator's explicit `milan_nvm wipe` still
 erases both slots while the writer is held, as it does for a retired writer.
-The boot line and `milan_nvm` name the hold. A boot that retires the writer
+The boot line and `milan_nvm` name the hold and each unread slot's cause:
+no standing verdict in its judgement's reads, or a pick that did not read
+back as judged in its re-stage's. A boot that retires the writer
 for another cause (the backend's contract, no accepted load, a window gone
 live or refused loads) names that cause, even with a slot unread. A writer
 restart without a fabric reset re-attaches under the same rule: a slot left
 unread in its re-derivation holds it, and it prints "re-attached and HELD".
+It still publishes that re-derivation's verdict and sequence, which with the
+newer slot unread are the older slot's, over the window it does not reload;
+the backend holds them as evidence only, and `nvm_backed` falls with the held
+writer's silence.
 The next reset reads every slot again, and a clean read ends the hold. A
 slot that never reads cleanly, because of a permanent read fault or because
 its reads differ on every boot, therefore holds the writer on every boot,
@@ -2164,14 +2170,16 @@ shape: the staged and committed containers equal the Python encoder's byte for
 byte, the verdict the firmware prints for every section 6.2 refusal equals
 `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
 transaction failures and the heartbeat through a 3 s erase, and the read
-faults of #671 (a header, sequence or record-area byte, the blank slot, an
-all-`0xFF` read, and the other slot's container answering a re-stage) walked
-over every boot read of both slots at the sequence boundaries, with the
-other slot blank or both valid across the wrap, on the cold boot and on a
-writer restart without a fabric reset (the re-attach path), each followed
-by a change, its commit and a clean reboot; `--self-test` plants sixteen
-writer defects and requires each to be caught, the eleven #671 ones on the
-first shape and both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
+faults of #671 (a header, sequence or record-area byte, the blank or older
+slot's, an all-`0xFF` read, and the other slot's container) over every
+window starting at a read the boot opens, one to four reads long or the
+whole boot, with the other slot blank or both valid across the wrap, at the
+sequence boundaries, on the cold boot and on a writer restart without a
+fabric reset (the re-attach path), each followed by a change, its commit
+and a clean reboot, with every case's reads and hold pinned to a reference
+model of the writer's reads; `--self-test` plants eighteen writer defects
+and requires each to be caught, the thirteen #671 ones on the first shape
+and both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
