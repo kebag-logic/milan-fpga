@@ -1,0 +1,80 @@
+head 1a042affce2f252f10ed40b3ec25659611b3974b tree 9ef4b6a221a43ec301f137501e948ba8ad2b9239
+parents ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 ee0fc6fd9abd393ac48d5d5f4f9e2452dc5f6937
+merge-base e8454e2751d05b02ee8e5a571857589ab358ab86
+merge-tree 9ef4b6a221a43ec301f137501e948ba8ad2b9239
+== files both lanes change since the merge base
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/testing/TESTING.md
+== candidate vs dev minus PR file set (empty = exact)
+== candidate vs PR head minus dev file set (empty = exact)
+== hdl/ and tb/ paths differing between candidate and PR head
+tb/verilator/gptp_txts/generated/mac_tx_chain.v
+tb/verilator/gptp_txts/generated/manifest.json
+== M6 port/parameter lines changed in the datapath and shadow
+0
+== suite texts in docs/testing/TESTING.md
+681:`test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
+582:| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_
+587:| [`tb/verilator/chmap_capture`](../../tb/verilator/chmap_capture) | `KL_cha
+== ledger arithmetic
+PASS M2 routed delta LUT: got -128 want -128
+PASS M2 routed delta FF: got -59 want -59
+PASS M2 routed delta Slices: got -8 want -8
+PASS M2 base row equals record 50,267 LUT: got '50,267' want '50,267'
+PASS M2 WNS delta: got 0.007 want 0.007
+PASS M2 WHS delta: got -0.012 want -0.012
+PASS M2 routed LUT delta stated: got 128 want 128
+PASS M2 post-synthesis delta stated: got 34 want 34
+PASS M6 routed delta LUT: got -706 want -706
+PASS M6 routed delta FF: got -958 want -958
+PASS M6 routed delta Slices: got 12 want 12
+PASS M6 base row equals record 50,267 LUT: got '50,267' want '50,267'
+PASS M6 WNS delta: got -0.158 want -0.158
+PASS M6 WHS delta: got -0.013 want -0.013
+PASS M6 routed LUT delta stated: got 706 want 706
+PASS M6 post-synthesis delta stated: got 524 want 524
+PASS M6 credited routed saving: got 468 want 468
+PASS M6 credited post-synthesis saving: got 418 want 418
+PASS M6 text states 418/468: got True want True
+PASS M2 text states 34: got True want True
+PASS AREA_BUDGET M2 note: got True want True
+PASS AREA_BUDGET M6 note: got True want True
+PASS plan L3 M2 pointer: got True want True
+PASS plan L9 M6 pointer: got True want True
+PASS cumulative row 1 F0-F5, complete qualified flip / L2: got 36267 want 36267
+PASS cumulative row 2 M2: got 36067 want 36067
+PASS cumulative row 3 M5: got 35467 want 35467
+PASS cumulative row 4 M6: got 34867 want 34867
+PASS cumulative row 5 M7: got 34367 want 34367
+PASS cumulative row 6 M8a: got 33367 want 33367
+PASS cumulative row 7 M8b, conditional: got 31667 want 31667
+PASS cumulative row 8 M3 and M10: got 31667 want 31667
+PASS cumulative table lists M2 once: got 1 want 1
+PASS cumulative table lists M6 once: got 1 want 1
+PASS central headroom: got 6373 want 6373
+PASS budget lane row M2 retained SoC tables: got 36067 want 36067
+PASS budget lane row M5 CSR read path: got 35467 want 35467
+PASS budget lane row M6 media contexts: got 34867 want 34867
+PASS budget lane row M7 gPTP tables: got 34367 want 34367
+PASS budget lane row M8a on-chip main memory: got 33367 want 33367
+PASS budget lane row M8b smaller cacheless RV32I: got 31667 want 31667
+PASS budget lane row M3 residual fabric AECP: got 31667 want 31667
+PASS budget lane row M10 shared gPTP/AECP engine: got 31667 want 31667
+PASS budget lane table lists M2 once: got 1 want 1
+PASS budget lane table lists M6 once: got 1 want 1
+PASS: 0 failure(s)
+== integrity
+warning: unable to find all commit-graph files
+status-lines 0
+warning: unable to find all commit-graph files
+diff-index rc 0
+worktree-vs-index rc 0
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+-9197193e47a6bb1c45a56d90a18c1784123aba44 third_party/lwSRP
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)

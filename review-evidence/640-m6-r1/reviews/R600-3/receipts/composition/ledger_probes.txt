@@ -1,0 +1,12 @@
+FAIL M6 credited routed saving: got 478 want 468
+FAIL: 1 failure(s)
+probe [s/| Channel-map capture | 1,069 -> 813 |/| Channel-map capture | 1,069 -> 803 |/] rc=1
+FAIL cumulative row 4 M6: got 35049 want 34867
+FAIL: 1 failure(s)
+probe [s/| 4 | M6 | 600 | 34,867 |/| 4 | M6 | 418 | 34,867 |/] rc=1
+FAIL plan L3 M2 pointer: got False want True
+FAIL: 1 failure(s)
+probe [s/^M2 measured 34 LUTs post-synthesis/M2 measured 43 LUTs post-synthesis/] rc=1
+FAIL AREA_BUDGET M6 note: got False want True
+FAIL: 1 failure(s)
+probe [budget M6 note 481] rc=1
