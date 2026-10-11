@@ -1,0 +1,11 @@
+docs/design/MARK_II_AREA_PLAN.md         |   39 +
+ hdl/common/csr/doc/milan_csr.md          |   17 +-
+ hdl/common/csr/milan_csr.sv              |  137 +-
+ scripts/measure_test_evidence_readers.py |    5 +
+ tb/verilator/csr/Makefile                |   45 +-
+ tb/verilator/csr/README.md               |   15 +
+ tb/verilator/csr/gen_lockstep.py         |  181 ++
+ tb/verilator/csr/lock_mutants.py         |  199 ++
+ tb/verilator/csr/milan_csr_ref.sv        | 3174 ++++++++++++++++++++++++++++++
+ tb/verilator/csr/sim_lock.cpp            |  729 +++++++
+ 10 files changed, 4492 insertions(+), 49 deletions(-)

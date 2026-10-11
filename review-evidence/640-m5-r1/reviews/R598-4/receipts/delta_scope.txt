@@ -1,0 +1,15 @@
+# PR-own diff (6bfeeb13..2bef9e50) vs reviewed PR-own diff (e8454e27..c0cba330), excluding the plan
+hdl/common/csr/doc/milan_csr.md reviewed=ff89a262ba046c07 head=ff89a262ba046c07 SAME
+hdl/common/csr/milan_csr.sv reviewed=bc5c190cc744a4bb head=bc5c190cc744a4bb SAME
+scripts/measure_test_evidence_readers.py reviewed=1fa590bd15cb8050 head=9cfb4cab2b700df7 DIFFERENT
+tb/verilator/csr reviewed=13c47b0c07aa439d head=13c47b0c07aa439d SAME
+# blob equality c0cba330 vs 2bef9e50 for PR-owned non-plan paths
+hdl/common/csr/milan_csr.sv 8535a4474b12d7c1866058fbd8fde7d4e4af25d0 8535a4474b12d7c1866058fbd8fde7d4e4af25d0
+hdl/common/csr/doc/milan_csr.md d407f098875bdcad4344e52cdd4a6a529615e4ff d407f098875bdcad4344e52cdd4a6a529615e4ff
+tb/verilator/csr e8e843c655bc469274df4f9f33152e81732a6dcc e8e843c655bc469274df4f9f33152e81732a6dcc
+# files changed c0cba330..2bef9e50 (should be exactly dev's e8454e27..6bfeeb13 files + plan)
+file sets identical
+29
+# per-file: c0cba330..2bef9e50 equals e8454e27..6bfeeb13 except plan/readers
+DIFFERS: docs/design/MARK_II_AREA_PLAN.md
+done

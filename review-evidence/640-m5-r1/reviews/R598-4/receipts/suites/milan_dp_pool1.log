@@ -1,0 +1,1500 @@
+./obj_dir/Vmilan_dp_sim
+=== milan_datapath integration harness (§A.9 wrapper) ===
+[CSR] identity + reset values
+  [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+[CSR] eth guard: refused levers, magic unguard, junk re-arm
+  [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+  [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+  [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+  [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+  [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+  [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+  [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+  [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+[CSR] program classifier (identity map)
+  [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+  [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+[BOOT] PP_CTRL[1] starts the restore walk the listener waits for
+  [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+[ADP] served by the protocol processor; diag words are structural zeros
+  [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [GAP]  ADP advertisement cadence is unreachable at the silicon millisecond (T-ADP-DELAY-START is a 0..2000 ms PRNG draw = up to 2e8 cycles; measured: no ADPDU in 4e7). A_ADP_STATUS reads 0x00000000. The ADPDU decode lives in tb/verilator/pp_shadow.
+[ADP] shape 0x618=0x40010001 0x61C=0x48010002 (N_STREAMS=1, CRF source no, CRF sink yes)
+  [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+  [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+  [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+[ACMP] GET_TX_STATE -> RESPONSE through datapath
+  [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+  [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+  [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+  [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+  [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+  [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+  [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+  [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+  [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+  [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+[IRQ] o_irq_csr is driven
+  [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+[PTP] retained PHC CSR control
+  [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+  [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+[MILAN-TALKER] the admission gate, and the bypass escape
+  [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+  [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+  [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+  [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+  [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+  [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+  [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+  [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+  [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+  [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+  [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+  [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+  [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+  [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+  [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+  [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+  [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+  [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+[CLKV] option-off is permanently ownerless (#116)
+  [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+  [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+  [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+  [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+  [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+  [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+  [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+  [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+[ASPATH] option-off path publication is inert (#116)
+  [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+  [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)
+  [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+  [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+  [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+  [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+  [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+  [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+  [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+  [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+  [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+  [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+  [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+  [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+  [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+  [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+  [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+  [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+  [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+  [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+  [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+  [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+  [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+  [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+  [wire86] FRX delta=2 UNSUP 0x0->0x0
+  [wire124pad] FRX delta=1
+  [mkaaf86] FRX delta=1
+  [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+  [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+  [PASS] I2S left sample from payload       got=0x00000001 exp=0x00000001
+  [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+  [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+  [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+  [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+  [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+  [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+  [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+  [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+  [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+  [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+  [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+  [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+  [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+  [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+  [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+
+[CRF] Milan CRF media clock input engine
+  [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+  [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+  [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+  [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+  [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+  [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+  [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+  [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+  [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+  [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+  [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+  [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+  [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+  [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+  [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+
+[SERVO] clock_source resolves INTERNAL here (the live default; CRF runs in obj_aclk)
+  [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+  [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+  [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+  [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+
+[CRFTX] Milan CRF media clock output engine + rx loopback
+  [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+  [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+  [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+  [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+  [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+  [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+  [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+  [i]    CRFTX byte15 = 0x81 (mr=0, ownerless tu=1)
+  [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+  [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+  [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+  [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+  [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+  [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+  [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+  [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+  [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+  -- [H2] 10.4.3 mr: the level reaches the wire byte --
+  [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+  [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+  [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+  [i]    10.4.3 triggers REACH the media plane since #74: the resolved selection gates mr (obj_aclk's [MR] arm grades the received-toggle echo under CRF and its 10.4.3 silence at INTERNAL), and KL_media_clock_restart's clk_src_i is the live index, so the source-change trigger fires on a real SET_CLOCK_SOURCE.
+  [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+  [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+  [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+  [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+  [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+  [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+  [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+
+[S1CRF] ACMP sink-1 bind provisions the CRF engine
+  [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+  [i]    s1 probe: msg=0 len=70 teid=020000fffe000009 tuid=0001 luid=0001 seq=0001 sid=0000000000000000
+  [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+  [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+
+[LINKG] link guard integration drill
+  [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+[RMON] boundary good-frame lanes + STATS_CTRL snapshot
+  [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+  [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+  [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+  [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+  [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+[RMON] STATS_CAP lane capability mask (0x204)
+  [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+  [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+  [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+======================================================================
+milan_datapath: 236 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 1
+notify
+./obj_notify/Vmilan_dp_notify
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: ANSWERED, not silence = 0x1
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: sequence_id echoed = 0x4100
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: command_type echoed, u = 0 = 0x17
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: control_data_length is the clause's = 0x14
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_type @24 echoed = 0x24
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_index @26 echoed = 0x0
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: clock_source_index IS the model's = 0x0
+  [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: reserved @30 is zero = 0x0
+  [ok]   [AECP-MODEL] the model has CLOCK_DOMAIN 0      = 0x1
+  [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 clock_sources_offset is 76 (7.2.32) = 0x4c
+  [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 lists CLOCK_SOURCE 0..count-1 in order = 0x1
+  [ok]   [AECP-MODEL] one INTERNAL CLOCK_SOURCE (the aligned grid) = 0x1
+  [ok]   [AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF sink = 0x1
+  [ok]   [AECP-MODEL] one INPUT_STREAM CLOCK_SOURCE on every AAF listener, and only one (#629) = 0x1
+  [ok]   [AECP-MODEL] the class order of #629 D1: INTERNAL 0, CRF 1, AAF listener k at 2 + k = 0x1
+  [ok]   [AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow = 0x0
+  [ok]   [AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows = 0x3
+-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire (TIMED: one processor ms = 100 cycles) --
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [i]    command-to-push latency: 2630 cycles (SET_NAME injected to the unsolicited frame's last beat)
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A = 0x1
+  [ok]   [NOTIFY-CRF] ...and to B                       = 0x1
+  [ok]   [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body = 0x1
+  [ok]   [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) = 0xf3f
+  [ok]   [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer = 0x1
+  [ok]   [NOTIFY-CRF] ...and so is A's copy             = 0x1
+  [ok]   [NOTIFY-CRF] a second change inside the second is WITHHELD = 0x1
+  [ok]   [NOTIFY-CRF] ...and RELEASED exactly once after it = 0x2
+  [i]    CRF row pushes to B 1012 ms apart
+  [ok]   [NOTIFY-CRF] ...no earlier than one second after the first = 0x1
+  [ok]   [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change = 0x2
+  [ok]   [NOTIFY-CRF] ...nor to A                       = 0x2
+  [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+  [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+  [ok]   [OWNERLESS] domain write is inert              = 0x0
+  [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+  [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+  [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+  [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+  [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+  [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+  [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+  [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+  [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+  [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+  [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+  [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+  [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+  [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+  [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+  [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+  [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+  [i]    monitor arm: walking up to 70 s of processor time
+  [i]    CONTROLLER_AVAILABLE to B at 48427 ms, retry at 48677 ms, DEREGISTER push at 48928 ms (after B's last command)
+  [ok]   [NOTIFY-T] the entity ORIGINATED a CONTROLLER_AVAILABLE command to B = 0x1
+  [ok]   [NOTIFY-T] ...30 s to 60 s after B's last command = 0x1
+  [ok]   [NOTIFY-T] ...addressed to B (dst MAC, target_entity_id) from this entity (controller_entity_id), an AEM_COMMAND with cdl 12 = 0x1
+  [ok]   [NOTIFY-T] exactly ONE retry (IEEE 9.3.6: retried is a bit) = 0x1
+  [i]    probe-to-retry wire interval: 24949 cycles = 249.490 ms
+  [ok]   [NOTIFY-T] ...250 ms after the first on the wire (the 9.3.6 timeout, within 5 ms of it) = 0x1
+  [ok]   [NOTIFY-T] silence removes B: unsolicited DEREGISTER_UNSOLICITED_NOTIFICATION to B = 0x1
+  [ok]   [NOTIFY-T] ...within 1 s of the retry          = 0x1
+  [ok]   [NOTIFY-T] ...and to B ONLY (Table 5.22: 'this controller only') = 0x0
+  [ok]   [NOTIFY-T] A, which kept talking, was never probed = 0x1
+  [ok]   [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic = 0x0
+  [ok]   [NOTIFY-T] a change from A after B's removal is SUCCESS = 0x0
+  [ok]   [NOTIFY-T] ...and pushes nothing: the registry no longer holds B = 0x0
+  [ok]   [NOTIFY-T] B re-registers after its removal (SUCCESS) = 0x0
+  [ok]   [NOTIFY-T] ...and hears A's next change, sequence restarted at 0 = 0x1
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+-- [GSI] #508: probing/ACMP status and failure info from the processor's own state (one processor ms = 100 cycles) --
+  [ok]   [GSI] the shape has the AAF and the CRF sink the section drives = 0x2
+  [ok]   [GSI] REGISTER_UNSOLICITED_NOTIFICATION from A = 0x0
+  [ok]   [GSI] REGISTER_UNSOLICITED_NOTIFICATION from B = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G0 sink 0 unbound: probing_status        = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: acmp_status           = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: MSRP_FAILURE_VALID    = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: REGISTERING_FAILED    = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: msrp_failure_code     = 0x0
+  [ok]   [GSI] G0 sink 0 unbound: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G0 sink 1 unbound: probing_status        = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: acmp_status           = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: MSRP_FAILURE_VALID    = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: REGISTERING_FAILED    = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: msrp_failure_code     = 0x0
+  [ok]   [GSI] G0 sink 1 unbound: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G0 a missing STREAM_INPUT answers NO_SUCH_DESCRIPTOR = 0x2
+  [ok]   [GSI] G0 ...with the full cdl-68 body          = 0x44
+  [ok]   [GSI] G0 ...every field zero, the processor's included = 0x1
+  [ok]   [GSI] G1 sink 0 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [GSI] G1 sink 0 the bind sent its PROBE_TX     = 0x1
+  [ok]   [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G1 sink 0 bound: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G1 sink 0 bound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G1 sink 0 bound: probing_status          = 0x2
+  [ok]   [GSI] G1 sink 0 bound: acmp_status             = 0x0
+  [ok]   [GSI] G1 sink 0 bound: BOUND                   = 0x1
+  [ok]   [GSI] G1 sink 0 bound: MSRP_FAILURE_VALID      = 0x0
+  [ok]   [GSI] G1 sink 0 bound: REGISTERING_FAILED      = 0x0
+  [ok]   [GSI] G1 sink 0 bound: msrp_failure_code       = 0x0
+  [ok]   [GSI] G1 sink 0 bound: msrp_failure_bridge_id  = 0x0
+  [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: probing_status = 0x0
+  [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: acmp_status = 0x0
+  [ok]   [GSI] G1 sink 0 the probe timeout sent the duplicate PROBE_TX = 0x2
+  [ok]   [GSI] G1 sink 0 duplicate probe (no status change): unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+  [ok]   [GSI] G1 sink 0 duplicate probe (no status change): unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+  [ok]   [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G2 sink 0 two probes unanswered: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G2 sink 0 two probes unanswered: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G2 sink 0 two probes unanswered: probing_status = 0x2
+  [ok]   [GSI] G2 sink 0 two probes unanswered: acmp_status = 0x7
+  [ok]   [GSI] G2 sink 0 two probes unanswered: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G2 sink 0 two probes unanswered: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G2 sink 0 two probes unanswered: msrp_failure_code = 0x0
+  [ok]   [GSI] G2 sink 0 two probes unanswered: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G2 sink 1 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [GSI] G2 sink 1 the bind sent its PROBE_TX     = 0x1
+  [ok]   [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G2 sink 1 bound: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G2 sink 0 untouched by sink 1's bind: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+  [ok]   [GSI] G2 sink 0 untouched by sink 1's bind: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+  [ok]   [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G2 sink 1 probe refused: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G2 sink 1 probe refused: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G2 sink 1 probe refused: probing_status  = 0x2
+  [ok]   [GSI] G2 sink 1 probe refused: acmp_status     = 0x3
+  [ok]   [GSI] G2 sink 0 beside sink 1's refusal: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G2 sink 0 beside sink 1's refusal: probing_status = 0x2
+  [ok]   [GSI] G2 sink 0 beside sink 1's refusal: acmp_status = 0x7
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: probing_status = 0x1
+  [ok]   [GSI] G3 sink 0 retry, talker never seen: acmp_status = 0x0
+  [ok]   [GSI] G3 sink 0 no talker was discovered, so no new PROBE_TX = 0x2
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: probing_status = 0x1
+  [ok]   [GSI] G3 sink 1 retry, talker never seen: acmp_status = 0x0
+  [ok]   [GSI] G3 sink 0 quiet while sink 1 retries: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+  [ok]   [GSI] G3 sink 0 quiet while sink 1 retries: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+  [ok]   [GSI] G4 sink 0 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [GSI] G4 sink 0 unbound: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G4 sink 0 unbound: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G4 sink 0 unbound: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G4 sink 0 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G4 sink 0 unbound: probing_status        = 0x0
+  [ok]   [GSI] G4 sink 0 unbound: acmp_status           = 0x0
+  [ok]   [GSI] G4 sink 0 unbound: BOUND                 = 0x0
+  [ok]   [GSI] G4 sink 0 bound again: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G4 sink 0 bound again: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G4 sink 0 bound again: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G4 sink 0 bound again: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G4 sink 0 bound again: probing_status    = 0x2
+  [ok]   [GSI] G4 sink 0 bound again: acmp_status       = 0x0
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: probing_status = 0x3
+  [ok]   [GSI] G4 sink 0 probe answered SUCCESS: acmp_status = 0x0
+  [ok]   [GSI] G4 sink 0 settled: stream_id is the talker's = 0x211223344550000
+  [ok]   [GSI] G4 sink 1 bound again: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G4 sink 1 bound again: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G4 sink 1 bound again: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G4 sink 1 bound again: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G4 sink 1 bound again: probing_status    = 0x2
+  [ok]   [GSI] G4 sink 1 bound again: acmp_status       = 0x0
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: probing_status = 0x3
+  [ok]   [GSI] G4 sink 1 probe answered SUCCESS: acmp_status = 0x0
+  [ok]   [GSI] G4 sink 1 settled: stream_id is the talker's = 0x211223344550001
+  [ok]   [GSI] G5 sink 0 Talker Failed: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: probing_status  = 0x3
+  [ok]   [GSI] G5 sink 0 Talker Failed: acmp_status     = 0x0
+  [ok]   [GSI] G5 sink 0 Talker Failed: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: msrp_failure_code = 0x1
+  [ok]   [GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id = 0x123456789abcdef
+  [ok]   [GSI] G5 ...REGISTERING (flags_ex)             = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: probing_status  = 0x3
+  [ok]   [GSI] G5 sink 1 Talker Failed: acmp_status     = 0x0
+  [ok]   [GSI] G5 sink 1 Talker Failed: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G5 sink 1 Talker Failed: msrp_failure_code = 0x2
+  [ok]   [GSI] G5 sink 1 Talker Failed: msrp_failure_bridge_id = 0xfedcba9876543210
+  [ok]   [GSI] G5 ...REGISTERING (flags_ex)             = 0x1
+  [ok]   [GSI] G5 sink 0 beside the other sink's failure: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G5 sink 0 beside the other sink's failure: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G5 sink 0 beside the other sink's failure: msrp_failure_code = 0x1
+  [ok]   [GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id = 0x123456789abcdef
+  [ok]   [GSI] G5 sink 1 beside the other sink's failure: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G5 sink 1 beside the other sink's failure: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G5 sink 1 beside the other sink's failure: msrp_failure_code = 0x2
+  [ok]   [GSI] G5 sink 1 beside the other sink's failure: msrp_failure_bridge_id = 0xfedcba9876543210
+  [ok]   [GSI] G6 sink 0 unchanged refresh: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+  [ok]   [GSI] G6 sink 0 unchanged refresh: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+  [ok]   [GSI] G6 sink 1 unchanged refresh: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+  [ok]   [GSI] G6 sink 1 unchanged refresh: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: msrp_failure_code = 0x8
+  [ok]   [GSI] G7 sink 1 FailureInformation changed: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: msrp_failure_code = 0x1
+  [ok]   [GSI] G7 sink 0 untouched by sink 1's change: msrp_failure_bridge_id = 0x123456789abcdef
+  [ok]   [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A = 0x2
+  [ok]   [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B = 0x2
+  [ok]   [GSI] G8 sink 0 withdrawn: the push equals the solicited answer from the body on = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: probing_status = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: acmp_status = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_code = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to A: body equals the solicited answer = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: probing_status = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: acmp_status = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: msrp_failure_code = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to A: body equals the solicited answer = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: probing_status = 0x1
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: acmp_status = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_code = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G8 sink 0 registrar withdrawal to B: body equals the solicited answer = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: probing_status = 0x1
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: acmp_status = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: msrp_failure_code = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G8 sink 0 settlement teardown to B: body equals the solicited answer = 0x1
+  [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+  [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+  [ok]   [GSI] G8 sink 0 withdrawn: MSRP_FAILURE_VALID  = 0x0
+  [ok]   [GSI] G8 sink 0 withdrawn: REGISTERING_FAILED  = 0x0
+  [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_code   = 0x0
+  [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G8 sink 0 withdrawn: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G8 sink 0 withdrawn: probing_status      = 0x1
+  [ok]   [GSI] G8 sink 0 withdrawn: acmp_status         = 0x0
+  [ok]   [GSI] G8 sink 1 keeps its own failure: MSRP_FAILURE_VALID = 0x1
+  [ok]   [GSI] G8 sink 1 keeps its own failure: REGISTERING_FAILED = 0x1
+  [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_code = 0x8
+  [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+  [ok]   [GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS = 0x0
+  [ok]   [GSI] G9 ...pushes STOP_STREAMING to B         = 0x1
+  [ok]   [GSI] G9 ...and not to A, the requester        = 0x0
+  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+  [ok]   [GSI] G9 sink 1 stopped: STREAMING_WAIT        = 0x1
+  [ok]   [GSI] G9 sink 1 stopped: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G9 sink 1 stopped: probing_status        = 0x3
+  [ok]   [GSI] G9 sink 1 stopped: acmp_status           = 0x0
+  [i]    1 DUT LeaveAll MRPDU(s) re-declared against in this section
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [GSI] G10 sink 0 after a reset: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G10 sink 0 after a reset: probing_status = 0x0
+  [ok]   [GSI] G10 sink 0 after a reset: acmp_status    = 0x0
+  [ok]   [GSI] G10 sink 0 after a reset: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G10 sink 0 after a reset: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G10 sink 0 after a reset: msrp_failure_code = 0x0
+  [ok]   [GSI] G10 sink 0 after a reset: msrp_failure_bridge_id = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G10 sink 1 after a reset: probing_status = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: acmp_status    = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: MSRP_FAILURE_VALID = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: REGISTERING_FAILED = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: msrp_failure_code = 0x0
+  [ok]   [GSI] G10 sink 1 after a reset: msrp_failure_bridge_id = 0x0
+-- [UNB] #653: the UNBIND_RX response leaves before the push reporting its unlock (one processor ms = 100 cycles) --
+  [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from A = 0x0
+  [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from B = 0x0
+  [ok]   [UNB] AAF sink 0 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] AAF sink 0 the bind sent its PROBE_TX    = 0x1
+  [ok]   [UNB] AAF sink 0 locked: MEDIA_LOCKED          = 0x1
+  [ok]   [UNB] AAF sink 0 locked: MEDIA_UNLOCKED        = 0x0
+  [ok]   [UNB] AAF sink 0 the lock was pushed           = 0x1
+  [ok]   [UNB] AAF sink 0 the row pushed nothing in the second before the unbind = 0x1
+  [ok]   [UNB] AAF sink 0 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] AAF sink 0 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+  [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_LOCKED = 0x1
+  [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+  [ok]   [UNB] AAF sink 0 U3 right after the response: STREAM_INTERRUPTED = 0x0
+  [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached A = 0x1
+  [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached B = 0x1
+  [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] AAF sink 0 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+  [ok]   [UNB] AAF sink 0 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+  [ok]   [UNB] AAF sink 0 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+  [i]    [UNB] AAF sink 0 trace, cycles after the UNBIND_RX's last byte: response queued +220, bind level fell +226, MEDIA_UNLOCKED +231, Table 5.22 pulse +231, delivered +232, response left +774 (source LOCKED/UNLOCKED 1/1), push to A left +2694, push to B left +3394; GET_STREAM_INFO push to A +1384, to B +1994
+  [ok]   [UNB] CRF sink 1 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] CRF sink 1 the bind sent its PROBE_TX    = 0x1
+  [ok]   [UNB] CRF sink 1 locked: MEDIA_LOCKED          = 0x1
+  [ok]   [UNB] CRF sink 1 locked: MEDIA_UNLOCKED        = 0x0
+  [ok]   [UNB] CRF sink 1 the lock was pushed           = 0x1
+  [ok]   [UNB] CRF sink 1 the row pushed nothing in the second before the unbind = 0x1
+  [ok]   [UNB] CRF sink 1 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+  [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_LOCKED = 0x1
+  [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+  [ok]   [UNB] CRF sink 1 U3 right after the response: STREAM_INTERRUPTED = 0x0
+  [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached A = 0x1
+  [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached B = 0x1
+  [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+  [ok]   [UNB] CRF sink 1 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+  [ok]   [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+  [i]    [UNB] CRF sink 1 trace, cycles after the UNBIND_RX's last byte: response queued +193, bind level fell +199, MEDIA_UNLOCKED +200, Table 5.22 pulse +200, delivered +201, response left +277 (source LOCKED/UNLOCKED 1/1), push to A left +2294, push to B left +3057; GET_STREAM_INFO push to A +887, to B +1497
+--------------------------------------------------------------
+checks: 421   failures: 0
+RESULT: PASS
+crflic
+./obj_crflic/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim started
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  [t]       25.52 ms  listener PROBE_TX, uid 1 (1)
+  [t]       25.52 ms  listener PROBE_TX, uid 0 (1)
+  [t]       28.17 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]       34.00 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)               got=1 exp=1
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 2225.38 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  [t]     4028.17 ms  listener PROBE_TX, uid 1 (2)
+  [t]     4030.82 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]     4034.00 ms  listener PROBE_TX, uid 0 (2)
+  [t]     4036.65 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]     4070.82 ms  switch declares the FIRST Listener Ready, uid 1
+  [t]     4071.90 ms  CRF licence RISES, uid 1
+  [t]     4071.90 ms  ACTIVE RISES, uid 1
+  [t]     4076.65 ms  switch declares the FIRST Listener Ready, uid 0
+  [t]     4189.84 ms  first AAF PDU on the wire
+  [t]     4423.90 ms  first CRF PDU on the wire
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=407190 exp=407190
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=407773 exp=407773
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [t]     7025.60 ms  switch withdraws its Listener (Lv), uid 0
+  [t]    10203.52 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=702668 exp=702668
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [t]    19206.90 ms  DUT Talker Advertise LEAVE, uid 0
+  [t]    20193.52 ms  switch LeaveAll MRPDU (Run B layout) (1)
+  [t]    33203.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    43193.48 ms  switch LeaveAll MRPDU (Run B layout) (2)
+  [t]    53603.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    63593.48 ms  switch LeaveAll MRPDU (Run B layout) (3)
+  [t]    73803.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+  [i]    3 DUT LeaveAll MRPDUs followed a switch LeaveAll, the soonest 10210.00 ms after it
+  [PASS] each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    154 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 38, 154 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX = the intervals elapsed since STREAM_START (+-1)
+  [PASS] ...which is far fewer than the PDUs sent (>= 3 per interval here)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=154 exp=154
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [t]    80025.56 ms  listener PROBE_TX, uid 1 (3)
+  [t]    80028.21 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]    80526.64 ms  CRF licence FALLS, uid 1
+  [t]    80526.64 ms  ACTIVE FALLS, uid 1
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8052664 exp=8052664
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [t]    82526.64 ms  CRF licence RISES, uid 1
+  [t]    82526.64 ms  ACTIVE RISES, uid 1
+  [t]    83793.48 ms  switch LeaveAll MRPDU (Run B layout) (4)
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8252664 exp=8252664
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: it counts only the intervals since the restart (+1)
+[E] the CRF listener unbinds inside a fresh probe window
+  [t]    85025.56 ms  switch withdraws its Listener (Lv), uid 1
+  [t]    85026.64 ms  CRF licence FALLS, uid 1
+  [t]    85026.64 ms  ACTIVE FALLS, uid 1
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8502664 exp=8502664
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[G/H] #551: real admission ceiling and both round phases
+  [t]    92025.60 ms  listener PROBE_TX, uid 0 (3)
+  [t]    92025.60 ms  listener PROBE_TX, uid 1 (4)
+  [t]    92028.25 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]    92034.08 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 0, admission phase 0: refused re-declaration
+  [t]    92607.52 ms  listener PROBE_TX, uid 0 (4)
+  [t]    92610.17 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=9520991 exp=9520991
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+[H] source 0, admission phase 0: admitted re-declaration
+  [t]    97710.59 ms  listener PROBE_TX, uid 0 (5)
+  [t]    97713.24 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10031299 exp=10031299
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=0 ACTIVE=10031300 grant=10031305 licence=10031305 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 0, admission phase 0: refused re-declaration
+  [t]   102813.63 ms  listener PROBE_TX, uid 0 (6)
+  [t]   102816.28 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10541603 exp=10541603
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+[J] source 0, admission phase 0: admitted re-declaration
+  [t]   107916.71 ms  listener PROBE_TX, uid 0 (7)
+  [t]   107919.36 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11051911 exp=11051911
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=0 ACTIVE=11051912 grant=11051917 licence=11051917 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 0, admission phase 1: refused re-declaration
+  [t]   113019.75 ms  listener PROBE_TX, uid 0 (8)
+  [t]   113022.40 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11562214 exp=11562214
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+[H] source 0, admission phase 1: admitted re-declaration
+  [t]   118122.82 ms  listener PROBE_TX, uid 0 (9)
+  [t]   118125.47 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12072522 exp=12072522
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=1 ACTIVE=12072523 grant=12072528 licence=12072528 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 0, admission phase 1: refused re-declaration
+  [t]   123225.86 ms  listener PROBE_TX, uid 0 (10)
+  [t]   123228.51 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12582826 exp=12582826
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+[J] source 0, admission phase 1: admitted re-declaration
+  [t]   128328.94 ms  listener PROBE_TX, uid 0 (11)
+  [t]   128331.59 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13093134 exp=13093134
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=1 ACTIVE=13093135 grant=13093140 licence=13093140 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 1, admission phase 0: refused re-declaration
+  [t]   133613.90 ms  listener PROBE_TX, uid 1 (5)
+  [t]   133616.55 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   136216.30 ms  ACTIVE RISES, uid 1
+  [t]   136216.38 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=13621629 exp=13621629
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=160 exp=160
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=160 exp=160
+[H] source 1, admission phase 0: admitted re-declaration
+  [t]   138717.01 ms  listener PROBE_TX, uid 1 (6)
+  [t]   138719.66 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   141319.42 ms  ACTIVE RISES, uid 1
+  [t]   141319.45 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=14131941 exp=14131941
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=0 ACTIVE=14131942 grant=14131945 licence=14131945 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 1, admission phase 0: refused re-declaration
+  [t]   143820.05 ms  listener PROBE_TX, uid 1 (7)
+  [t]   143822.70 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   144320.06 ms  CRF licence FALLS, uid 1
+  [t]   144320.06 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   146422.46 ms  ACTIVE RISES, uid 1
+  [t]   146422.54 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=14642245 exp=14642245
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=166 exp=166
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=166 exp=166
+[J] source 1, admission phase 0: admitted re-declaration
+  [t]   148923.17 ms  listener PROBE_TX, uid 1 (8)
+  [t]   148925.82 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   151525.58 ms  ACTIVE RISES, uid 1
+  [t]   151525.61 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=15152557 exp=15152557
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=0 ACTIVE=15152558 grant=15152561 licence=15152561 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 1, admission phase 1: refused re-declaration
+  [t]   154026.21 ms  listener PROBE_TX, uid 1 (9)
+  [t]   154028.86 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   154526.22 ms  CRF licence FALLS, uid 1
+  [t]   154526.22 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   156628.61 ms  ACTIVE RISES, uid 1
+  [t]   156628.71 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=15662860 exp=15662860
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=172 exp=172
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=172 exp=172
+[H] source 1, admission phase 1: admitted re-declaration
+  [t]   159129.32 ms  listener PROBE_TX, uid 1 (10)
+  [t]   159131.97 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   161731.73 ms  ACTIVE RISES, uid 1
+  [t]   161731.78 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=16173172 exp=16173172
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=1 ACTIVE=16173173 grant=16173178 licence=16173178 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 1, admission phase 1: refused re-declaration
+  [t]   164232.36 ms  listener PROBE_TX, uid 1 (11)
+  [t]   164235.01 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   164732.37 ms  CRF licence FALLS, uid 1
+  [t]   164732.37 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   166834.77 ms  ACTIVE RISES, uid 1
+  [t]   166834.87 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=16683476 exp=16683476
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=178 exp=178
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=178 exp=178
+[J] source 1, admission phase 1: admitted re-declaration
+  [t]   169335.48 ms  listener PROBE_TX, uid 1 (12)
+  [t]   169338.13 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   171937.89 ms  ACTIVE RISES, uid 1
+  [t]   171937.94 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17193788 exp=17193788
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=1 ACTIVE=17193789 grant=17193794 licence=17193794 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   174438.53 ms  CRF licence FALLS, uid 1
+  [t]   174438.53 ms  ACTIVE FALLS, uid 1
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 174538.52 ms (17453852 cycles)
+checks: 417   failures: 0
+RESULT: PASS
+dynmap
+./obj_dynmap/Vmilan_dp_dynmap
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [DYNMAP] #658: the power-on maps, a format change under Milan 5.4.2.7, and a restored format --
+  [i]    STREAM_INPUT 0 0205022002006000 (8 ch), STREAM_OUTPUT 0 0205022002006000 (8 ch); clusters SPI 0 8, SPO 0 17
+  [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+  [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+  [i]    power-on SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+  [i]    power-on SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+  [i]    8->4 while 4..7 are mapped: STREAM_INPUT 0 format 0205022002006000
+  [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+  [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+  [i]    after REMOVE 4..7 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    8->4: STREAM_INPUT 0 format 0205022001006000
+  [i]    8->4 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+  [i]    8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+  [i]    4->8 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+  [i]    restored STREAM_INPUT 0 format 0205022001006000 (4 ch)
+  [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+  [i]    restored SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+  [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+  [i]    restored SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    restored 4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    restored 4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+  [i]    CSR hold, input: CSR commit at CLOSED-2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED-1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+0: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+3: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+4: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+5: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+6: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+7: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+8: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+9: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+10: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+11: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+12: store 0x00083, RAM 0x0083 (landed)
+  [ok]   [DYNMAP] CSR hold, input: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [i]    CSR hold, output: CSR commit at CLOSED-2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED-1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+0: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+3: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+4: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+5: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+6: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+7: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+8: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+9: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+10: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+11: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+12: store 0x10006, RAM 0x1203 (landed)
+  [ok]   [DYNMAP] CSR hold, output: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS = 0x0
+  [i]    edit meets the sweep: ADD answered 1190 clocks into the wait, the sweep held for 1000
+  [ok]   [DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS = 0x0
+  [ok]   [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word = 0x1203
+  [ok]   [DYNMAP] edit meets the sweep: the removed channel's capture key stays empty = 0x0
+  [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+--------------------------------------------------------------
+checks: 162   failures: 0
+RESULT: PASS
