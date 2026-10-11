@@ -131,7 +131,7 @@ Either way it runs the stack's own gate and the image builders under the capture
 The image builders take each shape through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-boundary` has it, and refuses without it.
 [`ctrl_configs.py`](test/ctrl_configs.py) lists the known builders that compile (`BUILDERS`).
 A missing or empty capture refuses the gate by name.
-So does a known builder the capture holds no invocation of.
+So does a known builder the capture holds no invocation of from a run of its own: a compile it makes only under another builder's run, as the coverage gate runs the control and store gates, holds that other one.
 So does an invocation the compiler could not expand: the expansion failed, printed fewer translation units than it ran (its output went to a response file's `-o`), compiled an input the recorder never saw (a response file's), or read a stand-in as an option's value.
 So does a precompiled header read first that no compile in the capture made.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
@@ -142,11 +142,14 @@ Each runs every configuration its own list holds: the bench's default target, th
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
 The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
-Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's; the run that holds the firmware builders checks this.
+Each must be a known builder, be listed in `PART_OF` with the builder it runs under, in `OUTSIDE` with the reason its compiles are none of the firmware's, or in `SUITES` with what it compiles only inside a suite; one that is no program (a Makefile, or a Python module with a `__main__` block, is one) may instead have compiled in the capture.
+So a builder dropped from the known set refuses the gate by name, even where another builder still runs it.
+The run that holds the firmware builders checks this.
 It also runs the stack's own boundary gate, beside the rest.
 `--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
 Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
-It then plants 93 defects, each refused by name, and eight passing controls, where the firmware builders' capture is.
+It then plants 95 defects, each refused by name, and eight passing controls, where the firmware builders' capture is.
+Two of them are a known builder whose own run compiles nothing and a builder dropped from the known set, each one the coverage gate still runs.
 A control's planted builder compiles the planted copy through a capture of its own, and what it compiled is judged.
 It compiles the copy as the builders do (the image builder's and the arms' own compile functions), in a spelling of its own, or as a replay: a compile of the run's capture run again with the copy's trees in its arguments (the SRP image builder's).
 Among them are R584-6's N1 (a store source reaching the stack's `examples/`, as the image builder compiles it) and R585-6's Q7 (a store platform header that shadows `stdbool.h` for the stack in the image build).

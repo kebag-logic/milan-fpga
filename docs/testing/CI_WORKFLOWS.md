@@ -73,8 +73,8 @@ pull-request update and on every push to `dev`. It produces one stable
   The suite builders run by their `--build-only`: the control gate builds and links every arm's binaries and its RV32 build, the store's gate every shape's binaries and its RV32 build, and the coverage gate both gates' coverage builds.
   None runs a binary, plants a defect or measures anything; each ends `BUILT`.
   The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
-  A builder dropped from the known set is still found by text, compiles nothing, and refuses the gate by name.
-  So does a known builder the capture holds nothing of.
+  A builder dropped from the known set is still found by text, and refuses the gate by name: a program that names the firmware's tree must be a known builder or listed with why it need not be, even where another builder still runs it.
+  So does a known builder the capture holds nothing of from a run of its own, though another builder's run compiles it, as the coverage gate's runs the control and store gates; two standing controls plant each.
   The builders found by text that compile only in a suite, the planted-defect campaigns and the coverage reader's planted cases, are listed with what they compile there (`ctrl_configs.SUITES`).
   The capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler has the real compiler expand each invocation and list what each source's compile reads, runs the real compiler unchanged and records both with its exit status.
   The gate judges exactly the sources the capture recorded as compiled, each by the compiler's own dependency output for that invocation: `-M` with the invocation's own arguments, directory and environment, and `-H`'s tree of what the source's own `#include` lines read.
