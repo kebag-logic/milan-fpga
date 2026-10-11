@@ -1,0 +1,62 @@
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/old-walk/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/old-walk/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/old-walk/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+old walk: arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 rc 1
+002300 accesses=255
+H-SRP if=1 path=Domain to declarations elapsed_ns=200994700 wait_ms=200 service_ns=994700 accesses=440
+H-SRP if=1 path=Talker RX to Listener elapsed_ns=200998800 wait_ms=200 service_ns=998800 accesses=627
+H-SRP if=1 path=unbind to withdrawal elapsed_ns=200999300 wait_ms=200 service_ns=999300 accesses=784
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001200 wait_ms=0 service_ns=1001200 accesses=668
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=1 path=RX storage recovery elapsed_ns=1983200 wait_ms=0 service_ns=1983200 accesses=264
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+
+ 1 FAILED TEST
+== ctrl SRP service latency: checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)
+old walk: arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8 rc 1
+2500 accesses=355
+H-SRP if=2 path=Domain to declarations elapsed_ns=200993000 wait_ms=200 service_ns=993000 accesses=577
+H-SRP if=2 path=Talker RX to Listener elapsed_ns=200995500 wait_ms=200 service_ns=995500 accesses=770
+H-SRP if=2 path=unbind to withdrawal elapsed_ns=201003400 wait_ms=200 service_ns=1003400 accesses=973
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=2 path=LeaveTime to stop elapsed_ns=1001200 wait_ms=0 service_ns=1001200 accesses=1000
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=2 path=RX storage recovery elapsed_ns=1978500 wait_ms=0 service_ns=1978500 accesses=365
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+
+ 1 FAILED TEST
+== ctrl SRP service latency: checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)
+restored exact bytes: True
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/head/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/head/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/711-r596-2-packet/scratch/probe/head/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+head walk: arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 rc 0
+head walk: arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8 rc 0
+PROBE OK

@@ -1,0 +1,171 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 7839f0a74..bd4d50bbf 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -296,7 +296,7 @@ flowchart TB
+   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
+   implementation drives the mailbox model and counts every access.
+ - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
+-  of lwSRP `9197193e47a6bb1c45a56d90a18c1784123aba44` (fetched from
++  of lwSRP `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` (fetched from
+   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
+   the host test's lwSRP arm refuses another revision or an edited `src/`):
+   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+index dc22294b4..ce6f8fabd 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,9 +9,9 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1760,
+-      "raster_sha256": "09cffde74983d366190d9516b3633f75ad6b9fe4cdf0a592f2e4b32d42f306ee",
++      "raster_sha256": "c25826685fa0434e1aaee02e1ed9de9b7f14848f6209d5c559e257f2a08cbdd1",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "3e6d5367c0a4eef6dfabaa10c06721dbad699938b766b607e208baca945cf5e9",
++      "source_sha256": "420e587e35fdefe4867724b682e275d74c1a54d6cfa73238867e8d09d4cf339a",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+index 85f3807a0..e1aba6dde 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 2ad2f845dd58&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 9197193e47a6&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="675" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1000" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 2ad2f845dd58&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="675" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1000" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+index 8ab6f16a6..ef2f837f8 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/diagrams/submodule_boundaries.svg b/docs/diagrams/submodule_boundaries.svg
+index 6fc7248b0..42c25f2a2 100644
+--- a/docs/diagrams/submodule_boundaries.svg
++++ b/docs/diagrams/submodule_boundaries.svg
+@@ -69,7 +69,7 @@
+ <text x="638" y="714" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">CORE SRP</text>
+ <text x="558" y="755" font-size="20" font-weight="bold" fill="#212121">third_party/lwSRP</text>
+ <text x="558" y="798" font-size="16" fill="#37474F">Bare-metal MRP, MSRP and MVRP library</text>
+-<text x="558" y="837" font-size="16" fill="#37474F">pin 9197193e47a6</text>
++<text x="558" y="837" font-size="16" fill="#37474F">pin 08ee86e812a0</text>
+ <text x="558" y="863" font-size="16" fill="#37474F">mailbox adapter:</text>
+ <text x="558" y="884" font-size="16" fill="#37474F">sw/firmware/ctrl/srp/</text>
+ <text x="558" y="905" font-size="16" fill="#37474F">srp_mbx.c</text>
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index c14b8636b..3f2f8bc62 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -23,7 +23,7 @@ Dirty submodules invalidate local evidence.
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+ | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+-| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
++| `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+ 
+@@ -226,7 +226,7 @@ lwSRP uses the HTTPS URL recorded in `.gitmodules`.
+ The repository is public; anonymous HTTPS fetch needs no credentials.
+ 
+ The pin is published on `main`.
+-It includes PR #12 and PR #15.
++It includes PR #12, PR #15 and PR #18.
+ 
+ The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
+ 
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 20efdb649..32b58826e 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -350,9 +350,9 @@ The CI firmware step also requires the control mutation campaign.
+ 
+ Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
+ An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+-`9197193e47a6bb1c45a56d90a18c1784123aba44`, with every compiled source unchanged.
++`08ee86e812a0eb5e1dc6cd61b494d8baf3491348`, with every compiled source unchanged.
+ Moving either pin requires a reviewed change.
+-The pin is published on public lwSRP `main`, including PR #12 and PR #15.
++The pin is published on public lwSRP `main`, including PR #12, PR #15 and PR #18.
+ Anonymous HTTPS checkout needs no repository credentials.
+ 
+ ## Linked size
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 3d9cf029a..391c1fe30 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -73,8 +73,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
+ Talker indications copy registration kinds into per-sink adapter state.
+ The receive-interest callback observes the preceding event from those copies.
+ It never calls its owning application.
+-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/doc/integrator.md#L321-L323)
+-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/src/include/shish_lan/mrp.h#L288-L290).
++This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
++and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
+ Registrar visits run outside callbacks, before and after receive.
+ Receive return observes the last event, including partial allocation refusal.
+ Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
+@@ -295,7 +295,7 @@ Higher-version messages and atomic invalid-value rejection have wire cases.
+ 
+ The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
+ merged as PR #15 at `9197193e`.
+-That public pin includes branch `f4-applicant-notes`.
++The current pin descends from it and includes branch `f4-applicant-notes`.
+ `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
+ `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
+ The `point-to-point-condition`, `pending-point-to-point-condition` and
+@@ -375,7 +375,9 @@ The desk callback proves output ordering, not a connected target licence registe
+ The mailbox SoC skeleton also needs its separate target integration and timing
+ validation. No register-map change is made here.
+ 
+-The lwSRP pin is public `main` at `9197193e`.
++The lwSRP pin is public `main` at `08ee86e8`.
++Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
++Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
+ Round 6 adapts to its recoverable receive-allocation contract.
+ The earlier claim that production needed no adaptation was incorrect.
+ Two independent reviews, candidate-merge gates and deployment
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index d9b4a139b..3775ef17f 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -357,10 +357,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
+ #: The lwSRP revision port/shlan_port.h is written against (it restates that
+ #: revision's src/ports/alloc.h). Fetch it with
+ #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
+-#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
++#:     git -C lwSRP checkout 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+ #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
+ LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
+-LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
++LWSRP_REV = "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
+ #: Every source and header the arm compiles lives under this directory.
+ LWSRP_TREE = "src"
+ 
+diff --git a/sw/firmware/ctrl/test/srp_latency.cpp b/sw/firmware/ctrl/test/srp_latency.cpp
+index 469a3ba0f..d193855a3 100644
+--- a/sw/firmware/ctrl/test/srp_latency.cpp
++++ b/sw/firmware/ctrl/test/srp_latency.cpp
+@@ -73,9 +73,15 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
+                 // LA appears on the first vector of each message.
+                 la=la || (f->bytes[off]&0x20u);
+                 if(!mvrp) off=end;
+-                else { const unsigned n=wire_be16(f->bytes+off)&8191u;
+-                       off+=2+width+(n+2)/3+2; }
++                else { // 802.1Q-2018 10.8.1.2: a Message holds vectors up to its EndMark.
++                       while(off+2<=f->len && (f->bytes[off] || f->bytes[off+1])) {
++                           const unsigned n=wire_be16(f->bytes+off)&8191u;
++                           off+=2+width+(n+2)/3;
++                       }
++                       off+=2; }
+             }
++            ASSERT_TRUE(off+2<=f->len && !f->bytes[off] && !f->bytes[off+1])
++                <<"walk must end on the MRPDU EndMark";
+             if(la && !seen[i][p]) {
+                 seen[i][p]=true; EXPECT_GE(ms,due[i][p]);
+                 const unsigned last=last_ms[i][p];
+diff --git a/third_party/lwSRP b/third_party/lwSRP
+index 9197193e4..08ee86e81 160000
+--- a/third_party/lwSRP
++++ b/third_party/lwSRP
+@@ -1 +1 @@
+-Subproject commit 9197193e47a6bb1c45a56d90a18c1784123aba44
++Subproject commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
