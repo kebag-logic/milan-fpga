@@ -15,6 +15,10 @@ A coverage build (Build.coverage) compiles the firmware and the tests at -O0
 with gcov's instrumentation, the host models and stubs without it;
 fw_coverage.py reads what the runs leave behind and measures only the
 firmware's own sources.
+
+A build-only run (a gate's --build-only, Execution) builds and links every
+binary and runs none: the TSN stack boundary gate's builds (#697), which
+need the compiles and not the tests. Such a gate ends BUILT, never PASS.
 """
 
 from __future__ import annotations
@@ -47,10 +51,25 @@ TEST_LIBS = ("-lgmock", "-lgtest", "-pthread")
 COVERAGE_FLAGS = ("-O0", "--coverage")
 #: How long one test binary may run before it is a failure, never a pass.
 RUN_TIMEOUT_S = 600
+#: What a binary's log says in a build-only run, where it is not run.
+NOT_RUN = "built, not run (--build-only)"
 
 
 class BuildError(Exception):
     """A source did not compile or a binary did not link: the caller refuses."""
+
+
+@dataclass
+class Execution:
+    """Whether this process runs the test binaries it builds. A gate's --build-only clears `run` once, before it
+    builds: every binary is then built and linked as before, run_binary runs none and answers NOT_RUN with no
+    failure, and the gate ends BUILT, never PASS."""
+
+    run: bool = True
+
+
+#: This process's.
+EXECUTION = Execution()
 
 
 @dataclass
@@ -196,7 +215,9 @@ def grade(rc: int, log: str) -> tuple[bool, str]:
 
 def run_binary(exe: Path, args: Sequence[str] = (), cwd: Path | None = None,
                env: Mapping[str, str] | None = None) -> tuple[bool, str]:
-    """Run one test binary; (passed, its log ending in the verdict)."""
+    """Run one test binary; (passed, its log ending in the verdict). In a build-only run, none is run."""
+    if not EXECUTION.run:
+        return True, f"  {exe.name}: {NOT_RUN}"
     res = run([str(exe), *args], cwd=cwd, timeout=RUN_TIMEOUT_S, env=env)
     log = res.stdout + res.stderr
     ok, why = grade(res.returncode, log)

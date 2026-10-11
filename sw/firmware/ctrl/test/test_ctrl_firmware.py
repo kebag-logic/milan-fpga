@@ -88,14 +88,21 @@ partitions instead. Each mode covers the entire table across its partitions.
 --coverage DIR builds the firmware with gcov's instrumentation into DIR and
 runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 
+--build-only builds and links every arm's binaries (with --coverage, the
+coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
+The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
+the boundary needs the compiles, not the tests (#697).
+
 Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 2/4
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
 
-Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
+Exit 0 = every arm passed and every planted defect reddened (with
+--build-only, every binary built); 1 = a finding;
 2 = refused (the processor pin, the tsn-c-stack pin or a modified stack, a
 missing compiler, an extraction marker).
 """
@@ -144,8 +151,13 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
         print(f"REFUSED: {exc}")
         return 2
     failed = ctrl_arms.report(outcomes)
-    print(f"test_ctrl_firmware coverage run: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware coverage run: {verdict(failed)}")
     return 1 if failed else 0
+
+
+def verdict(failed: bool) -> str:
+    """FAIL, PASS, or in a build-only run BUILT: it ran nothing, so it passed nothing."""
+    return "FAIL" if failed else "PASS" if fw_gtest.EXECUTION.run else "BUILT"
 
 
 def part(text: str) -> tuple[int, int]:
@@ -168,10 +180,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
+    ap.add_argument("--build-only", action="store_true",
+                    help="build and link every binary and run none (the TSN stack boundary gate's builds)")
     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
                     help="with --self-test: plant slice K of N of the defect table")
     args = ap.parse_args(argv)
     args.jobs = min(4, max(1, args.jobs))
+    if args.build_only and args.self_test:
+        ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
+    fw_gtest.EXECUTION.run = not args.build_only
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
@@ -227,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
                 except Refusal as exc:
                     print(f"REFUSED: {exc}")
                     return 2
-    print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware: {verdict(failed)}")
     return 1 if failed else 0
 
 

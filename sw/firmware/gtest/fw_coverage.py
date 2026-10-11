@@ -45,12 +45,18 @@ branch coverage falls below its recorded fraction is refused, and so is a
 measured file the ratchet does not record and a recorded one nothing
 measured. --write records the measurement, and refuses to record a drop.
 
+--build-only runs both gates' coverage builds with their --build-only: every
+binary built, none run, nothing measured. The TSN stack boundary gate's
+builds are such runs (sw/firmware/ctrl/test/ctrl_configs.py, BUILDERS): the
+boundary needs the compiles, not the tests (#697).
+
 Usage:
     python3 sw/firmware/gtest/fw_coverage.py --check [--lwsrp DIR] [--jobs N]
     python3 sw/firmware/gtest/fw_coverage.py --write [--lwsrp DIR] [--jobs N]
     python3 sw/firmware/gtest/fw_coverage.py --selftest
+    python3 sw/firmware/gtest/fw_coverage.py --build-only [--lwsrp DIR] [--jobs N]
 
-Exit 0 = at or over the ratchet; 1 = a drop, a stale or malformed exclusion,
+Exit 0 = at or over the ratchet (with --build-only, both gates built); 1 = a drop, a stale or malformed exclusion,
 or a file in one place and not the other; 2 = the measurement could not be
 taken (a gate failed, no gcov, no data).
 """
@@ -419,22 +425,27 @@ def report(raw: dict[str, Tally], kept: dict[str, Tally]) -> None:
               f"lines {float(fraction(k.lines)) * 100:6.2f} %  branches {float(fraction(k.branches)) * 100:6.2f} %")
 
 
-def measure(work: Path, lwsrp: Path | None, jobs: int) -> dict[str, Source]:
-    """Run both gates in coverage mode into `work` and read what they left."""
+def coverage_runs(work: Path, lwsrp: Path | None, jobs: int, build_only: bool = False) -> list[Path]:
+    """Run both gates in coverage mode into `work` (built only, with `build_only`); their directories."""
     dirs = []
     for name, gate in GATES:
         out = work / name
         argv = [sys.executable, str(gate), "--coverage", str(out)]
         if name == "ctrl" and lwsrp is not None:
             argv += ["--lwsrp", str(lwsrp)]
-        argv += ["--jobs", str(jobs)]
+        argv += ["--jobs", str(jobs), *(["--build-only"] if build_only else [])]
         res = subprocess.run(argv, capture_output=True, text=True, check=False)
         tail = "\n".join((res.stdout + res.stderr).strip().splitlines()[-8:])
         print(f"[{'ok' if res.returncode == 0 else 'FAIL'}] {name} coverage run\n{tail}")
         if res.returncode != 0:
             raise Unmeasured(f"the {name} gate failed in coverage mode (exit {res.returncode})")
         dirs.append(out)
-    return collect(dirs)
+    return dirs
+
+
+def measure(work: Path, lwsrp: Path | None, jobs: int) -> dict[str, Source]:
+    """Run both gates in coverage mode into `work` and read what they left."""
+    return collect(coverage_runs(work, lwsrp, jobs))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -444,6 +455,8 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--check", action="store_true", help="refuse any drop below the ratchet")
     mode.add_argument("--write", action="store_true", help="record the measurement (never a drop)")
     mode.add_argument("--selftest", action="store_true", help="the planted cases")
+    mode.add_argument("--build-only", action="store_true",
+                      help="both gates' coverage builds, none run and nothing measured (the boundary gate's builds)")
     ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout at the pin: also run the lwsrp arm")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel builds")
     ap.add_argument("--keep", type=Path, help="keep the coverage builds here")
@@ -455,6 +468,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_cases()
     try:
         with tempfile.TemporaryDirectory(prefix="fw-coverage.") as tmp:
+            if args.build_only:
+                coverage_runs(args.keep or Path(tmp), args.lwsrp, args.jobs, build_only=True)
+                print("firmware coverage: BUILT (both gates' coverage builds; nothing run, nothing measured)")
+                return 0
             merged = measure(args.keep or Path(tmp), args.lwsrp, args.jobs)
     except Unmeasured as exc:
         print(f"UNMEASURED: {exc}")
