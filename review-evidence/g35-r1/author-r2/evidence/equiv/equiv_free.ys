@@ -1,0 +1,11 @@
+read_verilog base.v head.v wrap_base_free.v wrap_head_free.v
+hierarchy -check
+proc
+flatten
+opt_clean
+async2sync
+equiv_make w_base w_head eq
+hierarchy -top eq
+equiv_simple -seq 2
+equiv_induct -seq 2
+equiv_status -assert

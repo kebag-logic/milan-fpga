@@ -1,0 +1,10 @@
+--- hdl/wire/KL_gptp_rx_parser.sv	2026-10-11 07:49:43.464000000 +0200
++++ $VALIDATION_STORAGE/g35-a599/r2/planted/hdl/wire/KL_gptp_rx_parser.sv	2026-10-11 07:52:50.551572043 +0200
+@@ -649,7 +649,6 @@
+         //! #35). Below the sof arm, so the flag on a first byte outlasts
+         //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+         //! directly, since this register settles on the same edge
+-        if (rx_err_i) bad_r <= 1'b1;
+       end
+     end
+   end

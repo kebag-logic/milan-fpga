@@ -1,0 +1,20 @@
+the eof byte's own flag ignored
+sync rx_err at every byte: one drop
+fu rx_err at every byte: one drop
+pdreq rx_err at every byte: one drop
+pdresp rx_err at every byte: one drop
+sync rx_err at every byte: no event
+fu rx_err at every byte: no event
+pdreq rx_err at every byte: no event
+pdresp rx_err at every byte: no event
+sync rx_err at first, middle, eof: one drop
+fu rx_err at first, middle, eof: one drop
+pdreq rx_err at first, middle, eof: one drop
+pdresp rx_err at first, middle, eof: one drop
+ann rx_err at first, middle, eof: one drop
+sync rx_err at first, middle, eof: no event
+fu rx_err at first, middle, eof: no event
+pdreq rx_err at first, middle, eof: no event
+pdresp rx_err at first, middle, eof: no event
+ann rx_err at first, middle, eof: no event
+ann rx_err at first, middle, eof: no write after

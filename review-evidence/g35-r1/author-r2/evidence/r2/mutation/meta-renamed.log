@@ -1,0 +1,11 @@
+[PASS] the unmutated parser still passes the harness
+[PASS] mutant caught: rx_err read only at eof (the planted control) - fails all 27 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: a first-byte flag lost to the sof clear - fails all 9 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: the eof byte's own flag ignored - fails all 19 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: every flagged byte counts a drop - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: one drop"
+[PASS] mutant caught: rx_err ignored on every byte - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: no event"
+[PASS] mutant caught: the refusal outlives its frame - fails all 24 named check(s), first "sync control after the errors: event"
+[PASS] mutant caught: rx_err sampled between bytes - fails all 2 named check(s), first "rx_err in every gap between bytes: sync event"
+[FAIL] mutant "a refusal skips the next frame's w2 write" missed its named check(s): sync after a refused sync: every word is this frame's, sync after a refused pdresp: every word is this frame's, fu after a refused fu: every word is this frame's, fu after a refused pdresp: every word is this frame's, pdreq after a refused pdreq: every word is this frame's, pdreq after a refused sync: every word is this frame's, pdresp after a refused pdresp: every word is this frame's, pdresp after a refused fu: every word is this frame's
+
+9 checks: 8 PASS, 1 FAIL

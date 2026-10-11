@@ -1,0 +1,35 @@
+--- hdl/wire/KL_gptp_rx_parser.sv	2026-10-11 05:47:13.973650501 +0200
++++ $VALIDATION_STORAGE/g35-a599/r2/stale-mutant/hdl/wire/KL_gptp_rx_parser.sv	2026-10-11 07:46:54.282442388 +0200
+@@ -204,6 +204,7 @@
+   logic [10:0] cnt_r;          //! absolute byte index of the CURRENT byte
+   logic        run_r;          //! a frame is being consumed
+   logic        bad_r;          //! poisoned: consume to eof, then drop
++  logic        was_bad_r;
+   logic [3:0]  mtype_r;
+   logic [15:0] seq_r;
+   logic [15:0] flags_r;
+@@ -347,6 +348,7 @@
+       cnt_r       <= '0;
+       run_r       <= 1'b0;
+       bad_r       <= 1'b0;
++      was_bad_r   <= 1'b0;
+       mtype_r     <= '0;
+       seq_r       <= '0;
+       flags_r     <= '0;
+@@ -402,6 +404,7 @@
+           cnt_r    <= 11'd1;
+           run_r    <= 1'b1;
+           bad_r    <= 1'b0;
++          was_bad_r <= bad_r;
+           mtype_r  <= '0;
+           msg_end_r <= '0;
+           steps_r  <= '0;
+@@ -456,7 +459,7 @@
+               bank_wdata_o <= acc_nxt_w;
+             end
+             11'(OFF_SRCID_END_C): begin
+-              bank_we_o    <= !bad_r;
++              bank_we_o    <= !bad_r && !was_bad_r;
+               bank_addr_o  <= 5'd2;
+               bank_wdata_o <= acc_nxt_w;
+             end
