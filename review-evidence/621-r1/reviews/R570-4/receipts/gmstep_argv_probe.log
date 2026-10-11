@@ -1,0 +1,5 @@
+args [obj_gmstep/aemi.bin --no-small-steps --no-small-steps] rc=2 usage: ./obj_gmstep/Vmilan_dp_gmstep <aem image> [feed delay cycles] [--no-small-steps]
+args [obj_gmstep/aemi.bin --bogus] rc=2 usage: ./obj_gmstep/Vmilan_dp_gmstep <aem image> [feed delay cycles] [--no-small-steps]
+args [--no-small-steps] rc=2 usage: ./obj_gmstep/Vmilan_dp_gmstep <aem image> [feed delay cycles] [--no-small-steps]
+args [obj_gmstep/aemi.bin 7 9] rc=2 usage: ./obj_gmstep/Vmilan_dp_gmstep <aem image> [feed delay cycles] [--no-small-steps]
+args [obj_gmstep/aemi.bin -5] rc=2 gmstep: the feed delay -5 is not a cycle count below 10^6
