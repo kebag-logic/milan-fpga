@@ -1,0 +1,42 @@
+budget_slack_1p5	KILLED	budget check admits up to 57.5 RAMB36	5 FAIL line(s)
+    FAIL: an allocation of 56.5 RAMB36, half a tile over: accepted, expected 'allocation over budget' rule 'budget'
+    FAIL: MUTANT 'budget off': ctrl_memory.plan: the edit matches 0 times, not once
+    FAIL: MUTANT 'budget refuses exactly 56': ctrl_memory.plan: the edit matches 0 times, not once
+budget_ge	KILLED	budget check refuses exactly 56 RAMB36 (ruling: up to 56)	6 FAIL line(s)
+    FAIL: an allocation of exactly 56 RAMB36 is accepted: raised Refusal (allocation over budget: 56 RAMB36 (rom 12068 bytes in 12288, sram 217088 bytes in 217088) exceeds the 56-RAMB36 budget)
+    FAIL: that allocation plans 56.0 RAMB36 (None)
+    FAIL: MUTANT 'budget off': ctrl_memory.plan: the edit matches 0 times, not once
+nobits_in_rom_off	KILLED	a NOBITS section in rom is accepted	2 FAIL line(s)
+    FAIL: .bss reserved in rom: refused by 'memory map' rule 'writable in rom' (memory map: .bss is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+    FAIL: MUTANT 'nobits in rom off': ctrl_memory.check_map: the edit matches 0 times, not once
+lma_overlap_off	KILLED	two sections sharing a load address are accepted	1 FAIL line(s)
+    FAIL: .data's initial bytes loading over .rodata's: accepted, expected 'memory-map overlap' rule 'initial bytes'
+no_bytes_at_entry_off	KILLED	an image with no initial bytes at the reset address is accepted	2 FAIL line(s)
+    FAIL: an image with no initial bytes at the reset address: accepted, expected 'reset entry' rule 'entry bytes'
+    FAIL: MUTANT 'entry bytes off': ctrl_memory.check_map: the edit matches 0 times, not once
+regions_overlap_off	KILLED	overlapping regions accepted	1 FAIL line(s)
+    FAIL: PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory map' rule 'outside regions' (memory map: .data [0x10000000, 0x10000040) is outside rom and sram)
+lma_identity	KILLED	load addresses read as virtual addresses	18 FAIL line(s)
+    FAIL: the good image is planned: raised Refusal (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+    FAIL: an allocation of exactly 56 RAMB36 is accepted: raised Refusal (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+    FAIL: that allocation plans 56.0 RAMB36 (None)
+stage_lt	KILLED	a larger staging buffer accepted	5 FAIL line(s)
+    FAIL: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected 'staging buffer' rule 'stage size'
+    FAIL: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog is written (rc 0: None)
+    FAIL: MUTANT 'stage size off': ctrl_memory.check_stage: the edit matches 0 times, not once
+low_minus1	KILLED	decode one word-address bit short: the top of the region aliases banks	5 FAIL line(s)
+    FAIL: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'ack'), ('0x8001', 'ack'), ('0x81f1', 'ack')])
+    FAIL: ram answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'ack'), ('0x8001', 'ack'), ('0x81f1', 'ack')])
+    FAIL: a write past the last bank lands in none of the 215 cells it would alias
+hole_gt	KILLED	the first word past the last bank answers nothing	5 FAIL line(s)
+    FAIL: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none')])
+    FAIL: ram answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none')])
+    FAIL: rom: a read presented on the cycle after an err acks with its own data ((('none', None), ('ack', 2671344821)))
+rom_init_offset	KILLED	every rom bank initialised from the image start	3 FAIL line(s)
+    FAIL: rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+    FAIL: the rom banks' init files hold the image word for word
+    FAIL: MUTANT 'rom banks from the image start': milan_soc.CtrlMemory: the edit matches 0 times, not once
+err_held	KILLED	the hole holds err for a second cycle	4 FAIL line(s)
+    FAIL: rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('err', 4175417604)))
+    FAIL: sram: a read presented on the cycle after an err acks with its own data ((('err', 0), ('err', 3198536019)))
+    FAIL: MUTANT 'hole answers nothing': milan_soc.CtrlMemory: the edit matches 0 times, not once
