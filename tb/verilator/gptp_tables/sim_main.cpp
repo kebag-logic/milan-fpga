@@ -23,6 +23,14 @@
 //            this stimulus never queues two. Every entry is the head in turn.
 //   timer    slots 0 to 5 of 8: the microcode arms no others.
 //
+// A lockstep cannot see a column stuck at the only value the stimulus gives
+// it, so every column of every table is also censused: the run collects the
+// distinct values the plane gave its consumer on the cycles the lockstep
+// compared that column. A column with one value must be declared in the
+// list the Makefile passes (one_valued.tsv), with that value and the reason
+// the stimulus gives no other; a declared column must show exactly that
+// value. Otherwise its "<table> values: <column>" check fails.
+//
 // Two sources share the tap. A PEER answers each of the engine's Pdelay_Req
 // frames, timed from the engine's own accepted egress result so the measured
 // link delay is 600 ns, and in most phases is a better master (Announce,
@@ -37,8 +45,13 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <deque>
+#include <fstream>
 #include <random>
+#include <set>
+#include <sstream>
+#include <string>
 #include <vector>
 #include <verilated.h>
 #include "Vgptp_tables_wrap.h"
@@ -103,8 +116,34 @@ struct Due {
   uint16_t seq;
 };
 
+//! One column of a converted table: the distinct values the plane gave its
+//! consumer on the cycles the lockstep compared the column.
+struct Column {
+  Column(const char* t, const char* n) : table(t), name(n) {}
+  void see(uint64_t v) {
+    if (any && v == last) return;
+    values.insert(v);
+    any = true;
+    last = v;
+  }
+  const char* table;
+  const char* name;
+  std::set<uint64_t> values;
+  bool any = false;
+  uint64_t last = 0;
+};
+
+//! A row of the declaration list: a column this stimulus gives one value.
+struct Declared {
+  std::string table;
+  std::string column;
+  uint64_t value;
+};
+
 class TablesHarness {
  public:
+  explicit TablesHarness(const char* declared_list) : declared_path(declared_list) {}
+
   int run() {
     dut->cnt_clr_i = 1;
     decode_check();
@@ -159,9 +198,22 @@ class TablesHarness {
   uint64_t frames_mixed = 0;
   uint64_t frames_peer = 0;
   uint64_t pdelay_answered = 0;
-  //! the directed decode check: counts driven, as a set, and wrong decodes
-  uint32_t dec_counts = 0;
+  //! the directed decode check: the enables the plane presented for each
+  //! count, and the counts that decoded to other enables
+  uint32_t dec_keep[kLaneBytes + 1] = {};
   uint32_t dec_wrong = 0;
+  //! the value census, in the order the run prints it
+  enum Col { kRxLane, kTxCount, kLedType, kLedSeq, kLedTag, kResNs, kResSeq,
+             kResType, kResOk, kResGen, kTmrDeadline, kColumns };
+  Column cols[kColumns] = {
+      {"rx_fifo", "lane"}, {"tx_fifo", "count"},
+      {"ledger", "type"},  {"ledger", "seq"},   {"ledger", "tag"},
+      {"results", "ns"},   {"results", "seq"},  {"results", "type"},
+      {"results", "ok"},   {"results", "gen"},  {"timer", "deadline"}};
+  //! a column with this many distinct values or fewer prints them all
+  static constexpr size_t kListed = kLaneBytes + 1;
+  const char* declared_path;
+  std::vector<Declared> declared;
 
   uint32_t draw(uint32_t lo, uint32_t hi) {
     return std::uniform_int_distribution<uint32_t>(lo, hi)(rng);
@@ -184,6 +236,7 @@ class TablesHarness {
     dut->tx_tready_i = tx_ready;
     dut->clk_i = 0;
     dut->eval();
+    census();
     //! Both observations are the values present immediately before the
     //! active edge: that is the edge the plane latches them on.
     const bool took = dut->rx_tvalid_i && dut->rx_tready_i;
@@ -201,6 +254,26 @@ class TablesHarness {
       if (beat.first) arrived(beat, phc_now);
     }
     cyc++;
+  }
+
+  //! Each column on the cycles its lockstep compares it, read before the
+  //! edge the wrapper's counters sample on.
+  void census() {
+    if (dut->rx_col_v_o) cols[kRxLane].see(dut->rx_col_lane_o);
+    if (dut->tx_col_v_o) cols[kTxCount].see(dut->tx_col_count_o);
+    if (dut->led_col_v_o) {
+      cols[kLedType].see(dut->led_col_type_o);
+      cols[kLedSeq].see(dut->led_col_seq_o);
+      cols[kLedTag].see(dut->led_col_tag_o);
+    }
+    if (dut->res_col_v_o) {
+      cols[kResNs].see(dut->res_col_ns_o);
+      cols[kResSeq].see(dut->res_col_seq_o);
+      cols[kResType].see(dut->res_col_type_o);
+      cols[kResOk].see(dut->res_col_ok_o);
+      cols[kResGen].see(dut->res_col_gen_o);
+    }
+    if (dut->tmr_col_v_o) cols[kTmrDeadline].see(dut->tmr_col_deadline_o);
   }
 
   void reset(int ticks) {
@@ -454,8 +527,8 @@ class TablesHarness {
       dut->kdec_en_i = 1;
       dut->kdec_cnt_i = static_cast<uint8_t>(n);
       dut->eval();
-      if (dut->tx_tkeep_o != static_cast<uint8_t>((1u << n) - 1u)) dec_wrong++;
-      dec_counts |= 1u << n;
+      dec_keep[n] = dut->tx_tkeep_o;
+      if (dec_keep[n] != ((1u << n) - 1u)) dec_wrong++;
     }
     dut->kdec_en_i = 0;
     dut->eval();
@@ -491,10 +564,11 @@ class TablesHarness {
                 dut->rx_hiwater_o);
     std::printf("tx_fifo: %u frames, counts 0x%03x, %u stalled cycles, %u beats deep\n",
                 dut->tx_frames_o, dut->tx_counts_o, dut->tx_stall_o, dut->tx_hiwater_o);
-    std::printf("tx_fifo decode: counts 0x%03x driven, %u decoded wrong\n",
-                dec_counts, dec_wrong);
-    std::printf("ledger: %u compared, heads 0x%02x, tags 0x%x, %u deep\n",
-                dut->led_cmp_o, dut->led_heads_o, dut->led_tags_o, dut->led_maxn_o);
+    std::printf("tx_fifo decode: counts 0 to 8 presented enables");
+    for (const uint32_t keep : dec_keep) std::printf(" %02x", keep);
+    std::printf(", %u decoded wrong\n", dec_wrong);
+    std::printf("ledger: %u compared, heads 0x%02x, %u deep\n",
+                dut->led_cmp_o, dut->led_heads_o, dut->led_maxn_o);
     std::printf("results: %u compared, heads 0x%02x, %u deep, %u written behind a waiting result\n",
                 dut->res_cmp_o, dut->res_heads_o, dut->res_maxn_o, dut->res_behind_o);
     std::printf("timer: %u compared, slots 0x%02x\n", dut->tmr_cmp_o, dut->tmr_slots_o);
@@ -519,7 +593,6 @@ class TablesHarness {
     check.dec("rx_fifo coverage: every highest lane delivered", dut->rx_tops_o, 0xFF);
     check.that("rx_fifo coverage: filled past half its depth", dut->rx_hiwater_o >= 128);
     check.that("tx_fifo coverage: frames transmitted", dut->tx_frames_o >= 200);
-    check.dec("tx_fifo coverage: decode driven with counts 0 to 8", dec_counts, 0x1FF);
     //! the engine's frames end in two, four or eight lanes
     check.dec("tx_fifo coverage: lane counts 2, 4 and 8", dut->tx_counts_o, 0x114);
     check.that("tx_fifo coverage: stalled with a beat waiting", dut->tx_stall_o >= 10000);
@@ -536,6 +609,73 @@ class TablesHarness {
     check.that("timer coverage: armed sweeps compared", dut->tmr_cmp_o >= 1000);
     //! slots 0-3 as a master, 4 and 5 as a synchronised slave
     check.dec("timer coverage: slots 0 to 5", dut->tmr_slots_o, 0x3F);
+
+    // ...and what each column held: one value is a limit, declared
+    const bool listed = read_declared();
+    check.that("values: the declaration list is read and well formed", listed);
+    for (const Column& c : cols) grade_column(c);
+    uint32_t stray = 0;
+    for (const Declared& d : declared) {
+      bool named = false;
+      for (const Column& c : cols) named = named || (d.table == c.table && d.column == c.name);
+      if (!named) stray++;
+    }
+    check.dec("values: declarations that name no censused column", stray, 0);
+  }
+
+  //! A column passes when it held two or more values and is not declared,
+  //! or held exactly the one value its declaration names.
+  void grade_column(const Column& c) {
+    const Declared* decl = nullptr;
+    for (const Declared& d : declared)
+      if (d.table == c.table && d.column == c.name) decl = &d;
+    std::printf("%s values: %s: %zu distinct", c.table, c.name, c.values.size());
+    if (c.values.size() <= kListed) {
+      std::printf(":");
+      for (const uint64_t v : c.values)
+        std::printf(" 0x%llx", static_cast<unsigned long long>(v));
+    } else {
+      std::printf(", 0x%llx to 0x%llx",
+                  static_cast<unsigned long long>(*c.values.begin()),
+                  static_cast<unsigned long long>(*c.values.rbegin()));
+    }
+    if (decl != nullptr)
+      std::printf(", declared 0x%llx", static_cast<unsigned long long>(decl->value));
+    std::printf("\n");
+    char label[64];
+    std::snprintf(label, sizeof label, "%s values: %s", c.table, c.name);
+    check.that(label, decl != nullptr
+                          ? (c.values.size() == 1 && *c.values.begin() == decl->value)
+                          : (c.values.size() >= 2));
+  }
+
+  //! Read the declaration list. A line starting with '#' is a comment, the
+  //! first other line is the header, and every row after it has five
+  //! tab-separated fields: table, column, value (hex), covered_by, reason.
+  bool read_declared() {
+    if (declared_path == nullptr) return false;
+    std::ifstream in(declared_path);
+    if (!in) return false;
+    bool header = true;
+    for (std::string line; std::getline(in, line);) {
+      if (line.empty() || line[0] == '#') continue;
+      std::vector<std::string> field;
+      std::stringstream cells(line);
+      for (std::string cell; std::getline(cells, cell, '\t');) field.push_back(cell);
+      if (field.size() != 5) return false;
+      if (header) {
+        if (field[0] != "table" || field[1] != "column" || field[2] != "value" ||
+            field[3] != "covered_by" || field[4] != "reason")
+          return false;
+        header = false;
+        continue;
+      }
+      char* end = nullptr;
+      const uint64_t value = std::strtoull(field[2].c_str(), &end, 16);
+      if (field[2].rfind("0x", 0) != 0 || *end != '\0') return false;
+      declared.push_back({field[0], field[1], value});
+    }
+    return !header;
   }
 };
 
@@ -543,6 +683,7 @@ class TablesHarness {
 
 int main(int argc, char** argv) {
   Verilated::commandArgs(argc, argv);
-  TablesHarness harness;
+  //! the declaration list: the Makefile passes one_valued.tsv
+  TablesHarness harness(argc > 1 ? argv[1] : nullptr);
   return harness.run();
 }

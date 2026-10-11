@@ -48,29 +48,48 @@ Results then wait in the queue, and a result is written behind one still
 waiting to be taken. Before the traffic starts, with the plane in reset, the
 transmit FIFO's lane count is forced to each value 0 to 8. The plane's own
 decode must give lanes 0 to count-1, which is what the old gearbox stored.
-Count 0 is a never-written FIFO word. `waivers.vlt` scopes the lint waiver
-these forces need to the three nets they drive.
+Count 0 is a never-written FIFO word. The run prints the enables the plane
+presented for each count. `waivers.vlt` scopes the lint waiver these forces
+need to the three nets they drive.
 
-Two limits of the evidence:
+Limits of the evidence. A lockstep cannot see a column stuck at the only
+value the stimulus gives it, because the column then matches its old form.
+So the run also takes a census of every column of every table. For each
+column it collects the distinct values the plane gave its consumer on the
+cycles the lockstep compared that column, and prints them. The transmit
+FIFO's lane count is read while a beat is offered, because only then does a
+consumer take it. A column with one value must be declared in
+[`one_valued.tsv`](one_valued.tsv) with that value, and a declared column must
+show exactly that value; otherwise its `<table> values: <column>` check fails.
+These are the declared columns. `one_valued.py` writes this table from the
+list, and `make` fails if the table is stale.
 
-- The ledger's tag column is one-valued. `KL_gptp_txticket` tags every frame
-  long enough to carry its sequenceId, and every frame the engine emits is
-  that long, so every reachable entry holds tag 1. The run prints the tag
-  values it compared (`tags 0x2`). A tag stuck at 0 is caught; a tag stuck
-  at 1 cannot be seen here or in the plane.
-- Coverage is graded over the whole run, not per reset segment. The plane's
-  transmit FIFO can pop under the departure fence, which can wedge the plane
-  after a warm reset ([#714](https://github.com/kebag-logic/milan-fpga/issues/714)).
-  Whether a run reaches it depends on timing. At this seed the plane stays
-  live after both warm resets, but a regression that silenced it after a
-  reset would still leave every check green. Per-segment coverage follows
-  the fix of #714.
+<!-- one-valued-columns:start -->
+| Column | Value | Why this stimulus gives no other | Covered by |
+|---|---|---|---|
+| `ledger` `tag` | `0x1` | `KL_gptp_txticket` tags every frame long enough to carry its sequenceId, and every frame the engine emits is that long. A tag stuck at 0 is caught here; a tag stuck at 1 cannot be seen here or in the plane. | none |
+| `results` `ok` | `0x1` | Every result is a measurement: the run prints 0 lost results. A result is a loss only for an entry a barrier cancelled, an untagged entry, an aborted record, an ineligible PHC window or an unexpected cycle distance, and this stimulus raises no barrier and ties record faults off. `gptp_shadow` drives record faults and barriers, and fails with this column stuck at 1. | [`gptp_shadow`](../gptp_shadow) |
+| `results` `gen` | `0x1` | The generation moves only at a barrier, and a reset restores 1; this stimulus raises no barrier (the run prints 0 barriers). The engine carries the generation at event bits 27:24, above its masked claim compare (`TXQ_MASK_C`), and it has no consumer past that compare. | none |
+<!-- one-valued-columns:end -->
+
+Coverage is graded over the whole run, not per reset segment. The plane's
+transmit FIFO can pop under the departure fence, which can wedge the plane
+after a warm reset ([#714](https://github.com/kebag-logic/milan-fpga/issues/714)).
+Whether a run reaches it depends on timing. At this seed the plane stays live
+after both warm resets, but a regression that silenced it after a reset would
+still leave every check green. Per-segment coverage follows the fix of #714.
 
 `mutants.py` plants three defects in each table: a wrong depth, a wrong read
 latency and an index alias. Two more aim at what those leave unexercised. The
 result queue written at its head instead of its tail must fail `results
 lockstep`, which needs a result waiting while the next is written. Odd lane
-counts decoded one lane short must fail `tx_fifo decode`. The driver edits
+counts decoded one lane short must fail `tx_fifo decode`. Five more stick one
+undeclared column of each table at a single value, and each must fail that
+column's `values` check. Four edit the list: the tag column's row made a
+comment, the tag declared with another value, and the ledger's type column
+declared one-valued must each fail that column's `values` check, and a row
+naming no censused column must fail `values: declarations that name no
+censused column`. The driver edits
 private copies of the inputs `make print-inputs` names, with the slice suite's
 input copier, and requires each control's own named check to fail. Each wrong
 depth is one the table's reachable use exposes. The tap FIFO is halved and the timer loses its upper

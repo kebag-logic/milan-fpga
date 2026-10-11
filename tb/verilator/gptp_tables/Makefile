@@ -45,22 +45,30 @@ SRCS = waivers.vlt \
        $(GPTP_DIR)/hdl/common/KL_gptp_timer.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
+#: the columns this stimulus gives one value, which the run's census reads
+DECLARED = one_valued.tsv
 
-.PHONY: all run mutants print-inputs clean
+.PHONY: all run mutants limits print-inputs clean
 
-all: mutants
+all: limits mutants
 
 run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_tables_sim
-	./obj_dir/Vgptp_tables_sim
+	./obj_dir/Vgptp_tables_sim $(DECLARED)
 
 #: A lockstep that cannot go red proves nothing. `mutants.py` plants, one at
 #: a time in private copies of the sources, a wrong depth, a wrong read
 #: latency and an index alias in each converted table, plus a result-queue
-#: write at the wrong index and odd lane counts decoded short, and requires
-#: each control's own named check to fail.
+#: write at the wrong index, odd lane counts decoded short, one undeclared
+#: column of each table stuck at one value, and two wrong declaration
+#: lists, and requires each control's own named check to fail.
 mutants: run
 	python3 mutants.py
+
+#: The README's table of one-valued columns is written from $(DECLARED);
+#: this fails when it no longer matches the list the run grades against.
+limits:
+	python3 one_valued.py --check
 
 gptp_ucode.hex: $(UCODE_GEN)
 	python3 $< --clk-hz $(ENGINE_CLK_HZ) --cease-ms 3000 -o $@
@@ -68,7 +76,7 @@ gptp_ucode.hex: $(UCODE_GEN)
 #: The tracked files `run` reads, relative to this directory, for the
 #: mutation driver's private copies.
 print-inputs:
-	@echo Makefile $(SRCS) $(CPP) $(UCODE_GEN)
+	@echo Makefile $(SRCS) $(CPP) $(DECLARED) $(UCODE_GEN)
 
 clean:
 	rm -rf obj_dir gptp_ucode.hex

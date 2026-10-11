@@ -10,8 +10,14 @@ conversion can introduce - a wrong depth, a wrong read latency and an index
 alias - one at a time, and requires the table's OWN named lockstep check to
 fail. Two more aim at what those three leave unexercised: the result
 queue's write index, which only a queue holding two results exposes, and
-the transmit lane decode at the counts no traffic reaches. A control that
-leaves its check green is a finding about the bench.
+the transmit lane decode at the counts no traffic reaches. A lockstep
+cannot see a column stuck at the one value the stimulus gives it, so the
+run censuses every column and a one-valued column must be declared in
+`one_valued.tsv`: one undeclared column of each table is stuck at a single
+value, and four wrong lists (a row commented out, a wrong value, a column
+with many values declared, a row naming no column) must each fail the
+census check they break. A control that leaves its check green is a
+finding about the bench.
 
 Every control edits private copies of exactly the files the build reads
 (`make print-inputs`), verified against their committed bytes and pinned
@@ -44,6 +50,7 @@ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 SHADOW = PLANE / "KL_gptp_shadow.sv"
 RET = PLANE / "KL_gptp_txret.sv"
 TIMER = REPO / "gptp-processor" / "hdl" / "common" / "KL_gptp_timer.sv"
+DECL = HERE / "one_valued.tsv"
 
 RX = "rx_fifo lockstep"
 TX = "tx_fifo lockstep"
@@ -51,6 +58,14 @@ LED = "ledger lockstep"
 RES = "results lockstep"
 TMR = "timer lockstep"
 DEC = "tx_fifo decode"
+#: the value census: one check per column, and one for the list itself
+RX_LANE = "rx_fifo values: lane"
+TX_COUNT = "tx_fifo values: count"
+LED_TYPE = "ledger values: type"
+LED_TAG = "ledger values: tag"
+RES_SEQ = "results values: seq"
+TMR_DEADLINE = "timer values: deadline"
+STRAY = "values: declarations that name no censused column"
 
 #: (name, file, old text, new text, the named check this must break)
 MUTATIONS = [
@@ -156,6 +171,47 @@ MUTATIONS = [
      "  assign delta_w = $signed(deadline_r[sweep_r] - ms_now_r);",
      "  assign delta_w = $signed(deadline_r[{1'b0, sweep_r[SW_C-2:0]}] - ms_now_r);",
      TMR),
+    # ---- the value census: one undeclared column of each table stuck -------
+    ("rx_fifo_lane_stuck", SHADOW,
+     "    .s_axis_tuser       ({fw_top_w, fw_user_w}),",
+     "    .s_axis_tuser       ({LANE_W_C'(7), fw_user_w}),",
+     RX_LANE),
+    ("tx_fifo_count_stuck", SHADOW,
+     "          st_cnt_r   <= CNT_W_C'(gb_idx_r) + CNT_W_C'(1);",
+     "          st_cnt_r   <= CNT_W_C'(8);",
+     TX_COUNT),
+    ("ledger_type_stuck", RET,
+     "      led_type_r[led_tail_w] <= alloc_type_i;",
+     "      led_type_r[led_tail_w] <= 4'd0;",
+     LED_TYPE),
+    ("results_seq_stuck", RET,
+     "      res_seq_r [res_tail_w] <= led_head_seq_w;",
+     "      res_seq_r [res_tail_w] <= 16'd0;",
+     RES_SEQ),
+    ("timer_deadline_stuck", TIMER,
+     "      deadline_r[arm_slot_i] <= ms_now_r + arm_delta_ms_i;",
+     "      deadline_r[arm_slot_i] <= 32'd5000;",
+     TMR_DEADLINE),
+    # ---- the declaration list ----------------------------------------------
+    #: the tag column is one-valued; with its row a comment it is undeclared
+    ("declaration_missing", DECL,
+     "ledger\ttag\t0x1\t",
+     "# ledger\ttag\t0x1\t",
+     LED_TAG),
+    ("declaration_wrong_value", DECL,
+     "ledger\ttag\t0x1\t",
+     "ledger\ttag\t0x0\t",
+     LED_TAG),
+    #: declaring a column one-valued does not hide one that holds several
+    ("declaration_many_valued", DECL,
+     "results\tok\t",
+     "ledger\ttype\t0x2\tnone\ta column the stimulus gives many values\n"
+     "results\tok\t",
+     LED_TYPE),
+    ("declaration_stray", DECL,
+     "results\tgen\t",
+     "results\tgeneration\t",
+     STRAY),
 ]
 
 #: the suite's tally: `== gptp_tables: checks: N   failures: M ==`

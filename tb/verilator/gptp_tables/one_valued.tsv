@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The columns of gptp_tables' converted tables that this stimulus gives one
+# value only. A lockstep cannot see such a column stuck at that value, so
+# each is declared here. The harness reads this list: a column it compared
+# with one value must be declared with that value, and a declared column
+# must show exactly that value, or its "<table> values: <column>" check
+# fails. one_valued.py writes the README's limits table from these rows.
+# Columns: table, column, value (hex), the suite that sees a defect in the
+# column (none if no suite does), and why this stimulus gives no other value.
+table	column	value	covered_by	reason
+ledger	tag	0x1	none	`KL_gptp_txticket` tags every frame long enough to carry its sequenceId, and every frame the engine emits is that long. A tag stuck at 0 is caught here; a tag stuck at 1 cannot be seen here or in the plane.
+results	ok	0x1	gptp_shadow	Every result is a measurement: the run prints 0 lost results. A result is a loss only for an entry a barrier cancelled, an untagged entry, an aborted record, an ineligible PHC window or an unexpected cycle distance, and this stimulus raises no barrier and ties record faults off. `gptp_shadow` drives record faults and barriers, and fails with this column stuck at 1.
+results	gen	0x1	none	The generation moves only at a barrier, and a reset restores 1; this stimulus raises no barrier (the run prints 0 barriers). The engine carries the generation at event bits 27:24, above its masked claim compare (`TXQ_MASK_C`), and it has no consumer past that compare.

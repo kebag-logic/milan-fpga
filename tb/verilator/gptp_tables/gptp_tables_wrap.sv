@@ -29,6 +29,9 @@
 //
 //                Each table counts its mismatches and the coverage that
 //                makes a zero count mean something; the harness grades both.
+//                Each column of each table is also published for a value
+//                census, so the harness can tell a column that held one
+//                value from one that held several.
 //                Two test-only forces reach what traffic does not: a slow
 //                engine that lets results queue, and every transmit lane
 //                count driven through the plane's decode.
@@ -103,14 +106,33 @@ module gptp_tables_wrap #(
     output logic [31:0] tx_hiwater_o,   //! deepest occupancy, beats
     output logic [31:0] led_cmp_o,      //! cycles the ledger head was compared
     output logic  [7:0] led_heads_o,    //! head entries compared, as a set
-    output logic  [1:0] led_tags_o,     //! head tag values compared, as a set
     output logic  [4:0] led_maxn_o,     //! deepest ledger occupancy
     output logic [31:0] res_cmp_o,      //! cycles a result head was compared
     output logic  [7:0] res_heads_o,    //! head entries compared, as a set
     output logic  [4:0] res_maxn_o,     //! deepest result occupancy
     output logic [31:0] res_behind_o,   //! results written behind a waiting one
     output logic [31:0] tmr_cmp_o,      //! armed sweep reads compared
-    output logic  [7:0] tmr_slots_o     //! slots compared, as a set
+    output logic  [7:0] tmr_slots_o,    //! slots compared, as a set
+
+    //! the value census: every column of every table above, as the plane
+    //! gives it to its consumer, and whether the lockstep compares it in
+    //! this cycle; the harness collects each column's distinct values
+    output wire         rx_col_v_o,
+    output wire   [2:0] rx_col_lane_o,
+    output wire         tx_col_v_o,
+    output wire   [3:0] tx_col_count_o,
+    output wire         led_col_v_o,
+    output wire   [3:0] led_col_type_o,
+    output wire  [15:0] led_col_seq_o,
+    output wire         led_col_tag_o,
+    output wire         res_col_v_o,
+    output wire  [63:0] res_col_ns_o,
+    output wire  [15:0] res_col_seq_o,
+    output wire   [3:0] res_col_type_o,
+    output wire         res_col_ok_o,
+    output wire   [3:0] res_col_gen_o,
+    output wire         tmr_col_v_o,
+    output wire  [31:0] tmr_col_deadline_o
 );
 
   // ======================================================================= //
@@ -443,6 +465,36 @@ module gptp_tables_wrap #(
       (tm_delta_w != u_bench.u_shadow.u_engine.u_timer.delta_w);
 
   // ======================================================================= //
+  //  The value census                                                       //
+  // ======================================================================= //
+  //! A lockstep says that a column matches its old storage form, not that
+  //! the column ever held a second value: a column stuck at the one value
+  //! the stimulus gives it matches too. So each column is published as the
+  //! plane gives it to its consumer, with the gate its lockstep compares it
+  //! under, and the harness counts its distinct values. The transmit FIFO
+  //! is compared in every cycle, but a consumer takes its lane count only
+  //! from an offered beat, so that is when the census reads it.
+  assign rx_col_v_o     = run_w && rr_valid_w;
+  assign rx_col_lane_o  = u_bench.u_shadow.ff_top_w;
+  assign tx_col_v_o     = run_w && rt_valid_w;
+  assign tx_col_count_o = u_bench.u_shadow.txf_cnt_w;
+  assign led_col_v_o    = led_on_w;
+  assign led_col_type_o = u_bench.u_shadow.u_txret.led_head_type_w;
+  assign led_col_seq_o  = u_bench.u_shadow.u_txret.led_head_seq_w;
+  assign led_col_tag_o  = u_bench.u_shadow.u_txret.led_head_tag_w;
+  assign res_col_v_o    = res_on_w;
+  assign res_col_ns_o   = u_bench.u_shadow.u_txret.txts_ns_o;
+  assign res_col_seq_o  = u_bench.u_shadow.u_txret.txts_seq_o;
+  assign res_col_type_o = u_bench.u_shadow.u_txret.txts_type_o;
+  assign res_col_ok_o   = u_bench.u_shadow.u_txret.txts_ok_o;
+  assign res_col_gen_o  = u_bench.u_shadow.u_txret.txts_gen_o;
+  assign tmr_col_v_o    = tmr_on_w;
+  //! the swept slot's deadline, as the sweep reads it: delta_w is that
+  //! deadline less the millisecond count
+  assign tmr_col_deadline_o = 32'(u_bench.u_shadow.u_engine.u_timer.delta_w) +
+                              u_bench.u_shadow.u_engine.u_timer.ms_now_r;
+
+  // ======================================================================= //
   //  Counters                                                               //
   // ======================================================================= //
   always_ff @(posedge clk_i) begin : counters
@@ -453,7 +505,7 @@ module gptp_tables_wrap #(
       rx_good_o <= '0; rx_ovf_o <= '0; rx_bad_o <= '0; rx_tops_o <= '0;
       rx_hiwater_o <= '0; tx_frames_o <= '0; tx_counts_o <= '0;
       tx_stall_o <= '0; tx_hiwater_o <= '0;
-      led_cmp_o <= '0; led_heads_o <= '0; led_tags_o <= '0; led_maxn_o <= '0;
+      led_cmp_o <= '0; led_heads_o <= '0; led_maxn_o <= '0;
       res_cmp_o <= '0; res_heads_o <= '0; res_maxn_o <= '0; res_behind_o <= '0;
       tmr_cmp_o <= '0; tmr_slots_o <= '0;
     end else if (run_w) begin
@@ -481,7 +533,6 @@ module gptp_tables_wrap #(
       if (led_on_w) begin
         led_cmp_o <= led_cmp_o + 32'd1;
         led_heads_o[rl_head_w] <= 1'b1;
-        led_tags_o[rl_tag_r[rl_head_w]] <= 1'b1;
       end
       if (rl_n_w > led_maxn_o) led_maxn_o <= rl_n_w;
       if (res_on_w) begin
