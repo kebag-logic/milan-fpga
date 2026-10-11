@@ -1,0 +1,15 @@
+No repository or ancestor AGENTS.md or CONTRIBUTING.md was present; session-supplied instructions applied.
+Repository docs/README.md truth order: current RTL/generated microcode, tests, current guides, dated history.
+Relevant interface: docs/INTEGRATION.md clock/reset contract; top clk_i clocks every functional block.
+No change under hdl, tb, bench, scripts:
+
+Source tree identities:
+hdl: base=head=8eb2c7eafab3f7f0aa51e8905a06010fabc68f0a
+tb: base=head=b9e6cd09ef485dd5c4cb7e2eee7c4cb9a0c8fb72
+bench: base=head=9014b9234432b70a91aaa45b0db574ad64f3a922
+scripts: base=head=b07c146714a08f69d7c4be39d7bfd673c3a8e6c8
+OOC script history before this PR:
+c99f7a8 The gPTP plane exists and is priced: grown-ISA uCPU +631 LUT over the AECP anchor, whole engine 2,878 LUT / 1.5 BRAM / 4 DSP at +1.9 ns OOC, both suites mutation-proven green
+
+engine_ooc.tcl: founding commit=base blob da5cdf0aa6fcc6907f4bc32c767f52a81554f89d
+ucpu_ooc.tcl: founding commit=base blob b9fb77ec524beda5682aefe2e6b3684c051bea84

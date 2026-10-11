@@ -1,0 +1,7 @@
+real engine clock rename: PASS run.sh rc=1
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+ooc clock order: FAIL (6 findings)
+  engine_ooc.log:568: session ends with 2 critical warnings
+  engine_timing.rpt: Clock Summary is [], expected ['clk {0.000 5.000} 10.000 100.000']
+  engine_timing.rpt: clock clk is not bound to clk_i (sources [])
+  engine_timing.rpt: checking no_clock reports ['4412'], expected ['0']

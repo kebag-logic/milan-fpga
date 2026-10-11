@@ -1,0 +1,35 @@
+two-clocks-rule rc=1 ooc clock order selftest: XDC with two create_clock lines escaped (no finding names 'expected one create_clock')
+echo-anywhere-rule rc=1 ooc clock order selftest: read_xdc echoed after synth_design escaped (no finding names 'is not read before')
+extra-generated-clock rc=0
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+
+extra-timing-exception rc=0
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+
+malformed-period rc=1
+Traceback (most recent call last):
+  File "<review-packet>/scratch/prior_probes/malformed-period/check_ooc_clock.py", line 417, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<review-packet>/scratch/prior_probes/malformed-period/check_ooc_clock.py", line 405, in main
+    findings = check()
+  File "<review-packet>/scratch/prior_probes/malformed-period/check_ooc_clock.py", line 121, in check
+    findings = xdc_findings(root / XDC)
+  File "<review-packet>/scratch/prior_probes/malformed-period/check_ooc_clock.py", line 113, in xdc_findings
+    if float(period) != PERIOD_NS or port != CLOCK_PORT:
+       ~~~~~^^^^^^^^
+ValueError: could not convert string to float: '10.0.0'
+
+missing-xdc rc=1
+ooc clock order: FAIL (1 findings)
+  ooc_clock.xdc: missing
+
+missing-ucpu rc=1
+ooc clock order: FAIL (1 findings)
+  ucpu_ooc.tcl: missing
+
+missing-engine rc=1
+ooc clock order: FAIL (1 findings)
+  engine_ooc.tcl: missing
+
+PASS: both prior mutation survivors now killed; optional XDC grammar/message hardening remains

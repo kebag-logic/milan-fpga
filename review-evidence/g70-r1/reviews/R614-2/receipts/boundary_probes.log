@@ -1,0 +1,115 @@
+ucpu-real-clean: PASS
+ucpu-late-parse-only: PASS
+  ucpu_ooc.log: synth_design did not parse <review-packet>/scratch/head/syn/ooc/ooc_clock.xdc before mapping
+ucpu-foreign-full-path: PASS
+  ucpu_ooc.log: synth_design did not parse <review-packet>/scratch/head/syn/ooc/ooc_clock.xdc before mapping
+ucpu-critical-after-summary: PASS
+  ucpu_ooc.log:503: CRITICAL WARNING: [Timing 38-1] planted
+ucpu-last-count-nonzero: PASS
+  ucpu_ooc.log:503: session ends with 1 critical warnings
+ucpu-absent-no-clock: PASS
+  ucpu_timing.rpt: checking no_clock reports [], expected ['0']
+ucpu-unclocked-register: PASS
+  ucpu_timing.rpt: checking no_clock reports ['1'], expected ['0']
+ucpu-wrong-period: PASS
+  ucpu_timing.rpt: Clock Summary is ['clk {0.000 4.000} 8.000 100.000'], expected ['clk {0.000 5.000} 10.000 100.000']
+ucpu-wrong-port: PASS
+  ucpu_timing.rpt: clock clk is not bound to clk_i (sources [['clock_renamed']])
+ucpu-multiple-sources: PASS
+  ucpu_timing.rpt: clock clk is not bound to clk_i (sources [['clk_i', 'rst_n']])
+ucpu-post-synth-source: PASS
+  ucpu_ooc.log:503: source after synth_design
+ucpu-post-synth-generated-clock: PASS
+  ucpu_ooc.log:503: create_generated_clock after synth_design
+engine-real-clean: PASS
+engine-late-parse-only: PASS
+  engine_ooc.log: synth_design did not parse <review-packet>/scratch/head/syn/ooc/ooc_clock.xdc before mapping
+engine-foreign-full-path: PASS
+  engine_ooc.log: synth_design did not parse <review-packet>/scratch/head/syn/ooc/ooc_clock.xdc before mapping
+engine-critical-after-summary: PASS
+  engine_ooc.log:582: CRITICAL WARNING: [Timing 38-1] planted
+engine-last-count-nonzero: PASS
+  engine_ooc.log:582: session ends with 1 critical warnings
+engine-absent-no-clock: PASS
+  engine_timing.rpt: checking no_clock reports [], expected ['0']
+engine-unclocked-register: PASS
+  engine_timing.rpt: checking no_clock reports ['1'], expected ['0']
+engine-wrong-period: PASS
+  engine_timing.rpt: Clock Summary is ['clk {0.000 4.000} 8.000 100.000'], expected ['clk {0.000 5.000} 10.000 100.000']
+engine-wrong-port: PASS
+  engine_timing.rpt: clock clk is not bound to clk_i (sources [['clock_renamed']])
+engine-multiple-sources: PASS
+  engine_timing.rpt: clock clk is not bound to clk_i (sources [['clk_i', 'rst_n']])
+engine-post-synth-source: PASS
+  engine_ooc.log:582: source after synth_design
+engine-post-synth-generated-clock: PASS
+  engine_ooc.log:582: create_generated_clock after synth_design
+make-clean: PASS rc=2 stub_reached=True
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+REVIEW_STUB_REACHED
+make: *** [Makefile:40: ooc] Error 7
+
+make-engine-late: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (2 findings)
+  engine_ooc.tcl: $SPEC/syn/ooc/ooc_clock.xdc is not read before synth_design
+  engine_ooc.tcl:29: read_xdc after synth_design
+make: *** [Makefile:40: ooc] Error 1
+
+make-ucpu-late: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (2 findings)
+  ucpu_ooc.tcl: $SPEC/syn/ooc/ooc_clock.xdc is not read before synth_design
+  ucpu_ooc.tcl:23: read_xdc after synth_design
+make: *** [Makefile:40: ooc] Error 1
+
+make-foreign-xdc: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (1 findings)
+  ucpu_ooc.tcl: $SPEC/syn/ooc/ooc_clock.xdc is not read before synth_design
+make: *** [Makefile:40: ooc] Error 1
+
+make-double-clock: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (1 findings)
+  ooc_clock.xdc: expected one create_clock -period -name [get_ports]
+make: *** [Makefile:40: ooc] Error 1
+
+make-wrong-period: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (1 findings)
+  ooc_clock.xdc: clock is 8.000 ns on clk_i, expected 10.000 ns on clk_i
+make: *** [Makefile:40: ooc] Error 1
+
+make-source-after: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (1 findings)
+  ucpu_ooc.tcl:24: source after synth_design
+make: *** [Makefile:40: ooc] Error 1
+
+make-generated-after: PASS rc=2 stub_reached=False
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (1 findings)
+  ucpu_ooc.tcl:24: create_generated_clock after synth_design
+make: *** [Makefile:40: ooc] Error 1
+
+SUMMARY 24 report/log probes + 8 make-flow probes; failures=[]
