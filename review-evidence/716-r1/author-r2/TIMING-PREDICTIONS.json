@@ -1,0 +1,43 @@
+{
+  "base_job_id": 114339840343,
+  "base_run_id": 38095263410,
+  "baseline_local_seconds": 2606.6558661519957,
+  "base_hosted_seconds": 2247.0,
+  "base_ratio": 0.8620240320856286,
+  "envelope_job_id": 114282060753,
+  "envelope_hosted_seconds": 2312.0,
+  "envelope_ratio": 0.8869601967877051,
+  "max_overhead_job_id": 114426026755,
+  "max_observed_overhead_seconds": 37.0,
+  "setup_allowance_seconds": 60,
+  "predictions": [
+    {
+      "job": "firmware-unit",
+      "local_seconds": 642.8302909809863,
+      "base_prediction_seconds": 615,
+      "envelope_prediction_seconds": 631,
+      "timeout_seconds": 2700
+    },
+    {
+      "job": "firmware-control-mutants",
+      "local_seconds": 922.9269024709938,
+      "base_prediction_seconds": 856,
+      "envelope_prediction_seconds": 879,
+      "timeout_seconds": 2700
+    },
+    {
+      "job": "firmware-aecp-mutants",
+      "local_seconds": 219.8620342980139,
+      "base_prediction_seconds": 250,
+      "envelope_prediction_seconds": 256,
+      "timeout_seconds": 2700
+    },
+    {
+      "job": "firmware-srp-mutants",
+      "local_seconds": 617.701499666,
+      "base_prediction_seconds": 593,
+      "envelope_prediction_seconds": 608,
+      "timeout_seconds": 2700
+    }
+  ]
+}

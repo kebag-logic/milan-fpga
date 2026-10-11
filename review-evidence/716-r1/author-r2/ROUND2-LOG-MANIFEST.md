@@ -1,0 +1,33 @@
+| Scratch log | Bytes | SHA-256 |
+|---|---:|---|
+| `round2-ci-events-check.log` | 167 | `4ae1c9197042c7f13ead839706634341f8d24e2f4ac84e497798e03f5c9770ce` |
+| `round2-ci-events-selftest.log` | 184068 | `c6b497eb75665fd129d7bdb0dbd39b65b62d3fce837704da7526626059658551` |
+| `round2-ci-scope-selftest.log` | 6877 | `252e18d4652df23f9c61205a31c0dbd5ddcc8c6c4eda1b22c135472b03a5e5e4` |
+| `round2-dev-coverage.log` | 4282 | `45a081c352cd5c5a8a16c8eba9fa9d204a472d2253c1bba463d1d85396e91f2c` |
+| `round2-doc-style-selftest.log` | 33 | `0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909` |
+| `round2-doc-style.log` | 47 | `1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd` |
+| `round2-docs-check.log` | 128 | `478b731bf9d3cb14b1b4d61bcb953f27679bacd5ab5ac00ddc4d17e673649901` |
+| `round2-em-dash-selftest.log` | 42 | `46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a` |
+| `round2-firmware-aecp-mutants-00-ci_rv32_sdk_selftest.log` | 6179 | `3bc77de6ddf8561497a6d21a7c9c5073d129cc6789fd618e50253279a34e48cb` |
+| `round2-firmware-aecp-mutants-01-ci_rv32_sdk.log` | 1485 | `1b7cd4b1cceb0a44cb36685ac4b5680ada9a9bc7692f756e83f60995deac80a8` |
+| `round2-firmware-aecp-mutants-02-test_ctrl_firmware.log` | 39948 | `8979e5af39cfcfa2a189883e6915a787136952b1cdc1cc7c6a816fe31291dc35` |
+| `round2-firmware-control-mutants-00-ci_rv32_sdk_selftest.log` | 6179 | `4eac3f24de1673e4885ffc725b64355cb85bc6229e213f7d28b316ebf680e466` |
+| `round2-firmware-control-mutants-01-ci_rv32_sdk.log` | 1485 | `1b7cd4b1cceb0a44cb36685ac4b5680ada9a9bc7692f756e83f60995deac80a8` |
+| `round2-firmware-control-mutants-02-test_ctrl_firmware.log` | 97698 | `7347698e3bbdb90b227c539faa0a2884148da36dfa4f5e881c233886b5df6a65` |
+| `round2-firmware-srp-mutants-00-ci_rv32_sdk_selftest.log` | 6179 | `0f532eaa103c7f6efa1630874b15d33a8b49584a4dfb9e2bc4c857223a1b8fb0` |
+| `round2-firmware-srp-mutants-01-ci_rv32_sdk.log` | 1485 | `1b7cd4b1cceb0a44cb36685ac4b5680ada9a9bc7692f756e83f60995deac80a8` |
+| `round2-firmware-srp-mutants-02-test_ctrl_firmware.log` | 124171 | `8d1cc4d4e93cc1b7352a29a38eba82b748617297f1bf8c8315f85d00b292dcdf` |
+| `round2-firmware-unit-00-tally_selftest.log` | 1972 | `43c27b34317f6d782297bbd32efffe92622eda34f58eebabf12a0234a8e88919` |
+| `round2-firmware-unit-01-ci_rv32_sdk_selftest.log` | 6179 | `568189a92cb4b1d38e6f7fb750d29fc1df00a03822281a2d17f356a7200e6cff` |
+| `round2-firmware-unit-02-ci_rv32_sdk.log` | 1485 | `1b7cd4b1cceb0a44cb36685ac4b5680ada9a9bc7692f756e83f60995deac80a8` |
+| `round2-firmware-unit-03-fw_rv32_selftest.log` | 793 | `9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94` |
+| `round2-firmware-unit-04-test_ctrl_firmware.log` | 72110 | `f984c8a17902cf2951aa7a9470622ceb1e5ca0c5265b461ff07b4900ada4a328` |
+| `round2-firmware-unit-05-test_ctrl_nvm.log` | 3981 | `aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175` |
+| `round2-firmware-unit-06-fw_coverage.log` | 3710 | `3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b` |
+| `round2-firmware-unit-07-fw_coverage.log` | 4282 | `45a081c352cd5c5a8a16c8eba9fa9d204a472d2253c1bba463d1d85396e91f2c` |
+| `round2-python-idiom-selftest.log` | 2531 | `d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d` |
+| `round2-python-idiom.log` | 461 | `d15d70ba756b7b85e546f3c8cb25a9d4299679716f442a5b133d6e18673ff309` |
+| `round2-shards-selftest.log` | 343 | `ad16e6cb34b9b54700a86a624af807fe90b1e1649c68b65f18441a7b722752a9` |
+| `round2-timings.log` | 1967 | `fbabe603ce6bd490db9c20e2c762f275c91ee20a96667ac1ee09511b2c1f500e` |
+| `round2-toc-check.log` | 94 | `4c7f7b6ceebb5529a99fe18140cdf19582c955d40e07e9a26f608d511d495e21` |
+| `round2-toc-selftest.log` | 38 | `d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32` |
