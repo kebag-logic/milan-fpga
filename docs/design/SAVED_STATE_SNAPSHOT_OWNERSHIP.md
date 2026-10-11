@@ -1626,16 +1626,18 @@ derives 3336 bytes at 1x1 and 13256 at 8x8.
 Timing. MEASURED on 2026-10-11 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) requires this remeasurement.
-Its console line for a held writer restart changes the product firmware again.
+The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) requires this remeasurement.
+The console now distinguishes failed judgements from failed re-stages.
+The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) required the previous one.
+That change named a held writer restart on the console.
 The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
 The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
-Measured commit: `4886f23100ec585a44371f26a8f5c49b9002f4c4`.
-Measured tree: `4f92a4db68bcdc84f9a49bfe75f21cb4fec58133`.
-Firmware SHA-256: `5f1748598a46400ae9dfa2e55b9e6b913010d14ffcc6792ec99b67fcf46b1687`.
+Measured commit: `cb30a99aafbcc53e2cbef8da4dac5c70da096941`.
+Measured tree: `ff75487ce209dac9429b90d5634b6b5e43711d8e`.
+Firmware SHA-256: `41000488944bea651733b9708fa0c3a72926ce2308034c51209f2dd95a27b2a2`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
