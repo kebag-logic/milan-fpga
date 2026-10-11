@@ -1,0 +1,8 @@
+R602-6 independent-pass ledger, written 2026-10-11T20:44:09Z BEFORE reading R602-5 / R603-5 findings or probes.
+Head c7d0ad63510cf1aaee41ef440675d110ad2730d7 tree 06f494ec738a0c0eb0147a22b7b57c3545f5d6f9
+Draft verdict: POSITIVE (pending re-run of prior probes and hosted check)
+Conformance CLEAN - firmware byte-identical to 0c276b62 (git diff --quiet); ruling items 1-5 satisfied (probe_check, probe_terms, gate)
+RTL CLEAN (not applicable: no hdl/ RTL, register map, gitlink in delta 0c276b62..c7d0ad63); host model C (nvm_host.c) reviewed
+Robustness CLEAN - comparison check fails closed on rename/drop/reorder/||, missing single place, moved window, wrong control (probe_check 21/21)
+Tests CLEAN - 384/384 class cases measured to differ in own term only; 4 controls 32/32 own class 0 elsewhere x3 shapes; 5 reviewer mutants caught by own class x3 shapes; gate --self-test rc 0
+Docs CLEAN with one RESIDUE candidate: nvm_hosttest/README.md term-class sentence lists only the blank-other sequences in its parenthetical while the 32 count includes both-valid layouts

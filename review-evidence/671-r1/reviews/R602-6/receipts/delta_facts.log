@@ -1,0 +1,15 @@
+head c7d0ad63510cf1aaee41ef440675d110ad2730d7 tree 06f494ec738a0c0eb0147a22b7b57c3545f5d6f9
+firmware sha256 497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed
+firmware and capture receipt unchanged since 0c276b62: yes
+delta 0c276b62..HEAD:
+ docs/design/SAVED_STATE_FASTCONNECT.md        |   3 +-
+ docs/integration/BAREMETAL_FIRMWARE.md        |  16 +++-
+ sw/firmware/nvm_hosttest/README.md            |  64 +++++++++++--
+ sw/firmware/nvm_hosttest/nvm_host.c           | 133 ++++++++++++++++++++------
+ sw/firmware/nvm_hosttest/read_fault_cases.py  | 129 +++++++++++++++++++++++--
+ sw/firmware/nvm_hosttest/test_nvm_firmware.py |  42 ++++----
+ 6 files changed, 312 insertions(+), 75 deletions(-)
+RTL/infra paths changed since e8454e27:
+0
+Python 3.14.7
+gcc (GCC) 16.2.1 20260810

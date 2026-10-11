@@ -1,0 +1,22 @@
+OK   shipped firmware and campaign: no comparison finding
+     cases=3550 cold=1839 restart=1711 term-class=128
+OK   docs' 3,550 / 1,839 cold / 1,711 restart / 128 term cases
+OK   eighteen #671 controls (have 18)
+OK   verdict: 32 cases, every FAULT_SEQS sequence, both orientations, both entry paths, two faulty reads
+OK   byte count: 32 cases, every FAULT_SEQS sequence, both orientations, both entry paths, two faulty reads
+OK   prefix CRC: 32 cases, every FAULT_SEQS sequence, both orientations, both entry paths, two faulty reads
+OK   trailer: 32 cases, every FAULT_SEQS sequence, both orientations, both entry paths, two faulty reads
+OK   verdict: one missing place is a finding: ["the comparison's verdict has no fault class at 1 place(s), first (False, True, 'a', 2147483648, True)"]
+OK   byte count: one missing place is a finding: ["the comparison's byte count has no fault class at 1 place(s), first (False, True, 'a', 2147483648, True)"]
+OK   prefix CRC: one missing place is a finding: ["the comparison's prefix CRC has no fault class at 1 place(s), first (False, True, 'a', 2147483648, True)"]
+OK   trailer: one missing place is a finding: ["the comparison's trailer has no fault class at 1 place(s), first (False, True, 'a', 2147483648, True)"]
+OK   verdict: a window moved off the judgement is a finding
+OK   byte count: a window moved off the judgement is a finding
+OK   prefix CRC: a window moved off the judgement is a finding
+OK   trailer: a window moved off the judgement is a finding
+OK   firmware plant 'renamed function' is a finding
+OK   firmware plant 'a term dropped' is a finding
+OK   firmware plant 'terms reordered' is a finding
+OK   firmware plant 'or for and' is a finding
+OK   a control that is not the term removed is a finding
+probe_check: OK
