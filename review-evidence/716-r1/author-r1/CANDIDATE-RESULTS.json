@@ -1,0 +1,259 @@
+[
+  {
+    "job": "firmware-unit",
+    "head": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+    "seconds": 642.8302909809863,
+    "commands": [
+      {
+        "name": "firmware-unit-00-tally_selftest",
+        "command": [
+          "python3",
+          "sw/firmware/gtest/tally_selftest.py"
+        ],
+        "seconds": 3.0772606010141317,
+        "rc": 0,
+        "bytes": 2152,
+        "sha256": "5bade7a0cbda044ef6c70f8298ced98787b9b4a3cd4f63d681e12fc5294ea1be"
+      },
+      {
+        "name": "firmware-unit-01-ci_rv32_sdk_selftest",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk_selftest.py"
+        ],
+        "seconds": 1.2365974920103326,
+        "rc": 0,
+        "bytes": 6863,
+        "sha256": "65a10b8e03c829351b4da5b85366cb26731fe79e0528a3a11a4c3991df25420e"
+      },
+      {
+        "name": "firmware-unit-02-ci_rv32_sdk",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk.py",
+          "--destination",
+          "$SCRATCH/rv32-sdk"
+        ],
+        "seconds": 1.7788849420030601,
+        "rc": 0,
+        "bytes": 1548,
+        "sha256": "65f46f1db91667d268b0b9361ba3f090333a0b59520fa195e56aff3a52577520"
+      },
+      {
+        "name": "firmware-unit-03-fw_rv32_selftest",
+        "command": [
+          "python3",
+          "sw/firmware/gtest/fw_rv32_selftest.py",
+          "--require-rv32"
+        ],
+        "seconds": 6.289991871977691,
+        "rc": 0,
+        "bytes": 946,
+        "sha256": "a43d1377ad34d1aa20caa1442ce2dbea00b5c124d6aab7c792ebb2b90512852b"
+      },
+      {
+        "name": "firmware-unit-04-test_ctrl_firmware",
+        "command": [
+          "python3",
+          "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+          "--require-rv32",
+          "--self-test",
+          "--jobs",
+          "4",
+          "--shard",
+          "0/4"
+        ],
+        "seconds": 289.3186756639916,
+        "rc": 0,
+        "bytes": 79035,
+        "sha256": "b156e85d00c41bc0e958abc9f92c374fccec91658e00717fe9830b4c4bcea5dc"
+      },
+      {
+        "name": "firmware-unit-05-test_ctrl_nvm",
+        "command": [
+          "python3",
+          "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+          "--require-rv32",
+          "--jobs",
+          "4"
+        ],
+        "seconds": 93.96167429798516,
+        "rc": 0,
+        "bytes": 4570,
+        "sha256": "335be097540b0274147bf7e6b7113dc3675435d743cd480c7870782a6135d860"
+      },
+      {
+        "name": "firmware-unit-06-fw_coverage",
+        "command": [
+          "python3",
+          "sw/firmware/gtest/fw_coverage.py",
+          "--selftest"
+        ],
+        "seconds": 0.3996230699995067,
+        "rc": 0,
+        "bytes": 3980,
+        "sha256": "015a322ed3ae7adc6e1fe76136496ecf87fa7f29c5fd9a6dd7c4d144d88d2418"
+      },
+      {
+        "name": "firmware-unit-07-fw_coverage",
+        "command": [
+          "python3",
+          "sw/firmware/gtest/fw_coverage.py",
+          "--check",
+          "--jobs",
+          "4",
+          "--keep",
+          "$SCRATCH/candidate-coverage"
+        ],
+        "seconds": 246.7633419840131,
+        "rc": 0,
+        "bytes": 4841,
+        "sha256": "114c27d8615946eb3776f5d07ef9805b0f8baaaa6a36ae215f30212a70d9a8ca"
+      }
+    ]
+  },
+  {
+    "job": "firmware-control-mutants",
+    "head": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+    "seconds": 922.9269024709938,
+    "commands": [
+      {
+        "name": "firmware-control-mutants-00-ci_rv32_sdk_selftest",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk_selftest.py"
+        ],
+        "seconds": 1.2049274060118478,
+        "rc": 0,
+        "bytes": 6863,
+        "sha256": "05df2be64527fdfe5793e762557de099761fe51e5ebdc292d162496a0275f475"
+      },
+      {
+        "name": "firmware-control-mutants-01-ci_rv32_sdk",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk.py",
+          "--destination",
+          "$SCRATCH/rv32-sdk"
+        ],
+        "seconds": 0.9129857359803282,
+        "rc": 0,
+        "bytes": 1548,
+        "sha256": "4b50ec05694dec7fe53cb079cfb9931f1920b1667b7e6d4b8c16e937bad435f7"
+      },
+      {
+        "name": "firmware-control-mutants-02-test_ctrl_firmware",
+        "command": [
+          "python3",
+          "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+          "--require-rv32",
+          "--self-test",
+          "--jobs",
+          "4",
+          "--shard",
+          "1/4"
+        ],
+        "seconds": 920.8060973879765,
+        "rc": 0,
+        "bytes": 100448,
+        "sha256": "68d50a5a3ff8f70891771f0918967afa185de38200b0503ffc266d18916229ea"
+      }
+    ]
+  },
+  {
+    "job": "firmware-aecp-mutants",
+    "head": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+    "seconds": 219.8620342980139,
+    "commands": [
+      {
+        "name": "firmware-aecp-mutants-00-ci_rv32_sdk_selftest",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk_selftest.py"
+        ],
+        "seconds": 1.5191625540028326,
+        "rc": 0,
+        "bytes": 6863,
+        "sha256": "2b5e0a7e286c537f15b1fd0a10c4a51466be574f1421af6158b3900bdbda869f"
+      },
+      {
+        "name": "firmware-aecp-mutants-01-ci_rv32_sdk",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk.py",
+          "--destination",
+          "$SCRATCH/rv32-sdk"
+        ],
+        "seconds": 1.6043760040192865,
+        "rc": 0,
+        "bytes": 1548,
+        "sha256": "0a2d847ed01c79e7e7bd3ed311985362b36bf832032488f891ff52e5ec6bb05b"
+      },
+      {
+        "name": "firmware-aecp-mutants-02-test_ctrl_firmware",
+        "command": [
+          "python3",
+          "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+          "--require-rv32",
+          "--self-test",
+          "--jobs",
+          "4",
+          "--shard",
+          "2/4"
+        ],
+        "seconds": 216.73645321500953,
+        "rc": 0,
+        "bytes": 41895,
+        "sha256": "74a2c5760ed95f21f1355b70d76d9a193712bdbff8c43cd40d6abd2f6330d4d5"
+      }
+    ]
+  },
+  {
+    "job": "firmware-srp-mutants",
+    "head": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+    "seconds": 617.701499666,
+    "commands": [
+      {
+        "name": "firmware-srp-mutants-00-ci_rv32_sdk_selftest",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk_selftest.py"
+        ],
+        "seconds": 1.4598039989941753,
+        "rc": 0,
+        "bytes": 6863,
+        "sha256": "85cdc31424996483702c9de4b07214c2d725c0a8f351c2bda8ffba78730cff36"
+      },
+      {
+        "name": "firmware-srp-mutants-01-ci_rv32_sdk",
+        "command": [
+          "python3",
+          "scripts/ci_rv32_sdk.py",
+          "--destination",
+          "$SCRATCH/rv32-sdk"
+        ],
+        "seconds": 1.1451082190033048,
+        "rc": 0,
+        "bytes": 1548,
+        "sha256": "51d9b7d52d03672faa227a80a3be629df7617f693d151280c4c2cb8360b12f60"
+      },
+      {
+        "name": "firmware-srp-mutants-02-test_ctrl_firmware",
+        "command": [
+          "python3",
+          "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+          "--require-rv32",
+          "--self-test",
+          "--jobs",
+          "4",
+          "--shard",
+          "3/4"
+        ],
+        "seconds": 615.0943197219749,
+        "rc": 0,
+        "bytes": 113847,
+        "sha256": "aa2d1d36812fbed975788fc509b414202d0075949d9a7362f8d4a1521ab51954"
+      }
+    ]
+  }
+]

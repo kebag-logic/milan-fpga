@@ -1,0 +1,62 @@
+# Local log identities
+
+Raw logs stay in scratch storage. All sizes are bytes.
+
+| Log | Bytes | SHA-256 |
+|---|---:|---|
+| baseline-coverage-selftest.log | 3980 | `082842e5794830b2f0ac161fe8f2cc50576a586846558fd90764219fc3c31832` |
+| baseline-coverage.log | 4841 | `6daef8c5b64f78c6540968d3d8d4af7350290fa9851893f4e85d2c728a533f06` |
+| baseline-ctrl.log | 334855 | `61770d54e0e003f18e66ae7464d011d11e5feca7bae41839bfb9d5ea247de2f8` |
+| baseline-nvm.log | 4570 | `79f9eeadd26219f5df24c0438433b2f6fbd8f12cfd58c74f06e5f1164d42d33a` |
+| baseline-run.log | 410 | `ccd83fc4aefa38dc305b3b76ae12b4bbf85d9861b1b90674853cead6cc2b68f6` |
+| baseline-rv32.log | 946 | `0cd777942f6c5700f080c979dd4cb72b253c62f4c203e93a9c4eec99193f0a59` |
+| baseline-sdk-selftest.log | 6863 | `5e0537569ed71fc41c6fb00dd119263989bdeca33736ca4016c639cefd75dedd` |
+| baseline-sdk-verify.log | 1548 | `660e085f751e5dccb1f978f02e03503ecb3ece12a28b42933ad7e899e7271093` |
+| baseline-tally.log | 2152 | `c795f02c30f7d4af6ce8537dadfec54ce600b9ea829f3ad3116dca9d37872dba` |
+| candidate-firmware-aecp-mutants-00-ci_rv32_sdk_selftest.log | 6863 | `2b5e0a7e286c537f15b1fd0a10c4a51466be574f1421af6158b3900bdbda869f` |
+| candidate-firmware-aecp-mutants-01-ci_rv32_sdk.log | 1548 | `0a2d847ed01c79e7e7bd3ed311985362b36bf832032488f891ff52e5ec6bb05b` |
+| candidate-firmware-aecp-mutants-02-test_ctrl_firmware.log | 41895 | `74a2c5760ed95f21f1355b70d76d9a193712bdbff8c43cd40d6abd2f6330d4d5` |
+| candidate-firmware-control-mutants-00-ci_rv32_sdk_selftest.log | 6863 | `05df2be64527fdfe5793e762557de099761fe51e5ebdc292d162496a0275f475` |
+| candidate-firmware-control-mutants-01-ci_rv32_sdk.log | 1548 | `4b50ec05694dec7fe53cb079cfb9931f1920b1667b7e6d4b8c16e937bad435f7` |
+| candidate-firmware-control-mutants-02-test_ctrl_firmware.log | 100448 | `68d50a5a3ff8f70891771f0918967afa185de38200b0503ffc266d18916229ea` |
+| candidate-firmware-srp-mutants-00-ci_rv32_sdk_selftest.log | 6863 | `85cdc31424996483702c9de4b07214c2d725c0a8f351c2bda8ffba78730cff36` |
+| candidate-firmware-srp-mutants-01-ci_rv32_sdk.log | 1548 | `51d9b7d52d03672faa227a80a3be629df7617f693d151280c4c2cb8360b12f60` |
+| candidate-firmware-srp-mutants-02-test_ctrl_firmware.log | 113847 | `aa2d1d36812fbed975788fc509b414202d0075949d9a7362f8d4a1521ab51954` |
+| candidate-firmware-unit-00-tally_selftest.log | 2152 | `5bade7a0cbda044ef6c70f8298ced98787b9b4a3cd4f63d681e12fc5294ea1be` |
+| candidate-firmware-unit-01-ci_rv32_sdk_selftest.log | 6863 | `65a10b8e03c829351b4da5b85366cb26731fe79e0528a3a11a4c3991df25420e` |
+| candidate-firmware-unit-02-ci_rv32_sdk.log | 1548 | `65f46f1db91667d268b0b9361ba3f090333a0b59520fa195e56aff3a52577520` |
+| candidate-firmware-unit-03-fw_rv32_selftest.log | 946 | `a43d1377ad34d1aa20caa1442ce2dbea00b5c124d6aab7c792ebb2b90512852b` |
+| candidate-firmware-unit-04-test_ctrl_firmware.log | 79035 | `b156e85d00c41bc0e958abc9f92c374fccec91658e00717fe9830b4c4bcea5dc` |
+| candidate-firmware-unit-05-test_ctrl_nvm.log | 4570 | `335be097540b0274147bf7e6b7113dc3675435d743cd480c7870782a6135d860` |
+| candidate-firmware-unit-06-fw_coverage.log | 3980 | `015a322ed3ae7adc6e1fe76136496ecf87fa7f29c5fd9a6dd7c4d144d88d2418` |
+| candidate-firmware-unit-07-fw_coverage.log | 4841 | `114c27d8615946eb3776f5d07ef9805b0f8baaaa6a36ae215f30212a70d9a8ca` |
+| candidate-run.log | 2166 | `0b2e6946913a1d7dd1e83e1a6bbd87912a6279fd27a330d2897d3c51a3885129` |
+| ci-events-check.log | 167 | `7853b578f8230bd78bb2444e3f91ce2e5cabc5777824a59e4cbd147a02c0f913` |
+| ci-events-selftest.log | 173366 | `dd79578773849e02c75be61006f9286cab35b1538bdd6bc270fec05860c5eb8c` |
+| ci-scope-selftest.log | 6877 | `1eb60568978729e26b6e6c5aea1247128eafc79b153c5d46988eb1744a847773` |
+| doc-style-selftest.log | 33 | `0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909` |
+| doc-style.log | 47 | `1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd` |
+| docs-check.log | 128 | `b311b14a06046b41cca0015322f473d8aa12b76f491146b78bb3d41fde767129` |
+| em-dash-selftest.log | 42 | `46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a` |
+| job-114282060753.log | 449269 | `c1f9138c525e5c9538376cc90625ce848f9c4ff64709e85c8835e8722ce1346b` |
+| job-114284710904.log | 450837 | `9e8818ed86e6a7cdd7b12706b55f20cf6b68729f2145604503f272ef032d4dd6` |
+| job-114323421935.log | 418047 | `59e57af92645c9cd9d6a222bc1ea00b8c71f426f9e38ec4962e62c8c2ab5857f` |
+| job-114327796960.log | 418037 | `07fb5669f0d76e294e54313198338e00119b29369d2f6f813d1dfc873c0370c9` |
+| job-114339713622.log | 417956 | `5966aa990080d739e461add88df66d58d9aa998feeeae9e0df8dd5ce205ec81c` |
+| job-114339840343.log | 416878 | `f3c1f288f6ecd9c52a30a7ecc3a47707d15ec8f8f158370e93a549ce032831b1` |
+| job-114342505501.log | 418129 | `5df2ca89575e7e5f208fa5b410301ec93f443a5706ae47e37e8b86ff6d613c50` |
+| job-114344992704.log | 453549 | `2766ed15e468f80f6a170e7dc59760e166c8f3b93709eeaee0aa652e3dc5982c` |
+| job-114345004883.log | 417955 | `232b103b51571440e55b59ebec33832a1fa356824f8206a79eb8b8863d325bb5` |
+| job-114351392059.log | 418037 | `b601a7d74af4a969882258f580f51b4e123554ba48db1cb7406ab3c4362f08e8` |
+| job-114357676596.log | 417954 | `e29293f26e4b4f20653b68896926fbbc1968fc50f236e70cd360c3d4a276874c` |
+| job-114364197967.log | 417956 | `7043d86c4922a0c80707bb8363a3406bd767cb2961a10823c0d7e1f5622865d1` |
+| job-114364816994.log | 418037 | `19a323cd5dfdde8ac2f6e7a7912aa3b70776c2ee6626ba2db487be7ebeeead09` |
+| job-114376381204.log | 418047 | `3076bcd1b1b1630b7aeeb94d25ef9b5e06d92eb55fcaa07fa070d00bddc35002` |
+| job-114388499315.log | 417955 | `7d0120595aa38f1aa66777ed95e1b77521ff05809480f871b865899daa9bea40` |
+| job-114414054241.log | 417955 | `2035994d448bc20215ecc1f590253b7de13a3a4acbb06612abdb4b3f1f1d611a` |
+| job-114426026755.log | 418659 | `df9a59878bf444bb02f3c5f296d407be8dec5ee6905ed6e7a666b14863fa4ff1` |
+| python-idiom-selftest.log | 2531 | `d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d` |
+| python-idiom.log | 461 | `e898376c0c0e0237eeab717a0a9b01cf6c3eb6b58f0b3c203fc0e37cdb43307f` |
+| shards-selftest.log | 343 | `6a5eb56fa7a4e198e9fb5dfdbc2944fb0c95f401f0876a352563619ff4453cdc` |
+| toc-check.log | 94 | `4c7f7b6ceebb5529a99fe18140cdf19582c955d40e07e9a26f608d511d495e21` |
+| toc-selftest.log | 38 | `d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32` |

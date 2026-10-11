@@ -1,0 +1,130 @@
+[
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.2655698880262207,
+    "bytes": 167,
+    "sha256": "7853b578f8230bd78bb2444e3f91ce2e5cabc5777824a59e4cbd147a02c0f913"
+  },
+  {
+    "name": "ci-scope-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 9.039550276997034,
+    "bytes": 6877,
+    "sha256": "1eb60568978729e26b6e6c5aea1247128eafc79b153c5d46988eb1744a847773"
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.18755972100189,
+    "bytes": 128,
+    "sha256": "b311b14a06046b41cca0015322f473d8aa12b76f491146b78bb3d41fde767129"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11494825998670422,
+    "bytes": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "name": "doc-style-selftest",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06435510600567795,
+    "bytes": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.833452565013431,
+    "bytes": 94,
+    "sha256": "4c7f7b6ceebb5529a99fe18140cdf19582c955d40e07e9a26f608d511d495e21"
+  },
+  {
+    "name": "toc-selftest",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.2173476919997483,
+    "bytes": 38,
+    "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+  },
+  {
+    "name": "em-dash-selftest",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.076811306003947,
+    "bytes": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a"
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.7293644579767715,
+    "bytes": 461,
+    "sha256": "e898376c0c0e0237eeab717a0a9b01cf6c3eb6b58f0b3c203fc0e37cdb43307f"
+  },
+  {
+    "name": "python-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.876861564000137,
+    "bytes": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "name": "shards-selftest",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+    ],
+    "rc": 0,
+    "seconds": 0.1645465720212087,
+    "bytes": 343,
+    "sha256": "6a5eb56fa7a4e198e9fb5dfdbc2944fb0c95f401f0876a352563619ff4453cdc"
+  }
+]
