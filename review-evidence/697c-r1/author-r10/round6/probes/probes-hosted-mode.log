@@ -1,0 +1,11 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+universe: 26 modes: ['ADP_TEST_COVERAGE', 'ADP_TEST_RELEASE', 'AECP_TEST_APP', 'AECP_TEST_INTERFACES', 'AECP_TEST_MAILBOX', 'AECP_TEST_NVM', 'CTRL_APP_TEST_SRP', 'CTRL_IMAGE_SRP', 'CTRL_MBX_BASE', 'CTRL_MBX_WFI', 'CTRL_REENTRY_ASSERT', 'CTRL_TEST_WINDOW_WORDS', 'FW_GTEST_LABEL', 'LWSRP_MILAN', 'MMIO_WINDOW_H', 'NDEBUG', 'NVM_DOCTORED_MAPIN', 'NVM_DOCTORED_NONAME', 'NVM_TALLY_SHAPE', 'PP_ENTITY_CAPS', 'SRP_EXPECT_SINKS', 'SRP_EXPECT_SOURCES', 'linux', 'mrp_transmit', 'shlan_calloc', 'unix']
+[CAUGHT] K0 harness control: a mode the capture records (CTRL_REENTRY_ASSERT): firmware rv32 [-DCTRL_REENTRY_ASSERT]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F1 -Wp,-D passes a mode to the preprocessor: firmware rv32 [-DCTRL_R584_WP]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F2 -Xpreprocessor -D passes a mode: firmware [-DCTRL_R584_XP]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F3 --define-macro=NAME: firmware [-DCTRL_R584_LONG]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F4 --define-macro NAME: firmware rv32 [-DCTRL_R584_LONG2]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F5 a response file holds the mode: firmware [-DCTRL_R584_RSP]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[CAUGHT] F6 -imacros of a file the builder writes defines the mode: firmware rv32 [-DCTRL_R584_IMACROS]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ESCAPED] F7 a shell command runs a compiler by its own path: ['no finding: the gate passes']
+probes: 7 caught, 1 escaped of 8

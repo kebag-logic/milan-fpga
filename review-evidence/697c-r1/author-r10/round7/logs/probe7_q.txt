@@ -1,0 +1,15 @@
+== Q7 sw/firmware/ctrl_nvm/plat/stdbool.h shadows the C library's in the image build: rc=1 (26 s)
+  [FAIL] stack: tsn-c-stack/src/acmp.c reads sw/firmware/ctrl_nvm/plat/stdbool.h (included by tsn-c-stack/include/acmp.h), which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+  [FAIL] stack: tsn-c-stack/include/acmp.h includes sw/firmware/ctrl_nvm/plat/stdbool.h, which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+ctrl_boundary: 22528 compiled sources of 23795 recorded invocations (3337 the firmware's, 1688 the stack's, 17503 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 6 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q8 sw/firmware/ctrl_nvm/stdbool.h shadows the C library's (comparison): rc=1 (25 s)
+  [FAIL] stack: tsn-c-stack/src/acmp.c reads sw/firmware/ctrl_nvm/stdbool.h (included by tsn-c-stack/include/acmp.h), which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+  [FAIL] stack: tsn-c-stack/include/acmp.h includes sw/firmware/ctrl_nvm/stdbool.h, which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+ctrl_boundary: 22528 compiled sources of 23795 recorded invocations (3337 the firmware's, 1688 the stack's, 17503 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 6 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q9 nothing planted after the probes (control): rc=0 (22 s)
+ctrl_boundary: 22528 compiled sources of 23795 recorded invocations (3337 the firmware's, 1688 the stack's, 17503 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS
