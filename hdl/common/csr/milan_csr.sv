@@ -1063,10 +1063,10 @@ module milan_csr #(
   //! Second read stage (the mux-split pipeline, 2026-08-15): the v47 route
   //! put the 13-level live/stream read mux on the failing-endpoint list at
   //! 100 MHz (rd_addr_q -> r_data, WNS -0.089). The wide case trees now
-  //! LAND in their own registers on rd_pend, and the final four-way select
-  //! into r_data runs a cycle later on rd_pend2 - the deep OR-trees and the
-  //! AXI output flops no longer have to close in one cycle or one placement
-  //! neighbourhood. One added cycle of CSR read latency; every AXI-Lite
+  //! LAND in their own registers on rd_pend, and stage 2 (an OR of the two
+  //! stage-1 words since lane M5 of #640) loads r_data a cycle later on
+  //! rd_pend2 - the deep OR-trees and the AXI output flops no longer have
+  //! to close in one cycle or one placement neighbourhood. One added cycle of CSR read latency; every AXI-Lite
   //! consumer in this tree waits on rvalid, and no read has a side effect
   //! keyed to the old timing.
   logic         rd_pend2;                //! staged-mux -> r_data stage
