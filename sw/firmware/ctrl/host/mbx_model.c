@@ -22,7 +22,9 @@
 //               posted only into four free words, in the priority link,
 //               grandmaster, lowest slot, tick;
 //   KL_mbx      the register file, the GM_LO snapshot, the sticky ERR, the
-//               refusal of a partial write, the interrupt levels.
+//               refusal of a partial write, the interrupt levels, the
+//               publication block (its fields masked, a hole reading 0 and
+//               taking no write, the stream_id taken only while SID_VALID).
 
 #include "mbx_model.h"
 
@@ -125,7 +127,7 @@ static void post(struct mbx_model *m)
 	for (;;) {
 		uint16_t used = (uint16_t)(m->evt_head - m->evt_tail);
 		uint16_t free_words = used > MBX_EVT_WORDS ? 0u : (uint16_t)(MBX_EVT_WORDS - used);
-		if (free_words < MBX_EV_WORDS || !next_source(m, w)) {
+		if (m->evt_paused || free_words < MBX_EV_WORDS || !next_source(m, w)) {
 			return;
 		}
 		w[0] |= mbx_place(m->seq, MBX_EVREC_W0_SEQ_LSB, MBX_EVREC_W0_SEQ_WIDTH);
@@ -279,6 +281,12 @@ void mbx_model_tx_pause(struct mbx_model *m, bool paused)
 {
 	m->tx_paused = paused;
 	tx_drain(m);
+}
+
+void mbx_model_evt_pause(struct mbx_model *m, bool paused)
+{
+	m->evt_paused = paused;
+	post(m);
 }
 
 // ---- the ingress filter ----------------------------------------------------------
@@ -599,6 +607,90 @@ static void write_bound(struct mbx_model *m, unsigned i, unsigned e, uint32_t re
 	}
 }
 
+// The publication block an offset falls in: interface *i and the offset *rel
+// inside that interface's block; false outside every interface's.
+static bool pub_at(uint32_t off, unsigned *i, uint32_t *rel)
+{
+	if (off < MBX_PUB_BASE || off >= MBX_PUB_BASE + MBX_PUB_STRIDE * MBX_N_IF) {
+		return false;
+	}
+	*i = (off - MBX_PUB_BASE) / MBX_PUB_STRIDE;
+	*rel = (off - MBX_PUB_BASE) % MBX_PUB_STRIDE;
+	return true;
+}
+
+static uint32_t ones(uint32_t lsb, uint32_t width)
+{
+	return mbx_place(0xFFFFFFFFu, lsb, width);
+}
+
+// The fields of the publication word at `rel` inside an interface's block: 0
+// for a hole, so a hole takes no write and reads 0.
+static uint32_t pub_mask(uint32_t rel)
+{
+	if (rel >= MBX_PUB_SINK_BASE) {
+		uint32_t in = (rel - MBX_PUB_SINK_BASE) % MBX_PUB_SINK_STRIDE;
+		if ((rel - MBX_PUB_SINK_BASE) / MBX_PUB_SINK_STRIDE >= MBX_N_PUB_SINKS) {
+			return 0;
+		}
+		switch (in) {
+		case MBX_PUB_SINK_REG_SID_LO:
+			return ones(MBX_SID_LO_SID_LSB, MBX_SID_LO_SID_WIDTH);
+		case MBX_PUB_SINK_REG_SID_HI:
+			return ones(MBX_SID_HI_SID_LSB, MBX_SID_HI_SID_WIDTH);
+		case MBX_PUB_SINK_REG_BINDING:
+			return ones(MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) |
+			       ones(MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) |
+			       ones(MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);
+		default:
+			return 0;
+		}
+	}
+	switch (rel) {
+	case MBX_PUB_REG_DA_GATE:
+		return ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
+	case MBX_PUB_REG_LICENCE:
+		return ones(MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH);
+	case MBX_PUB_REG_IDLE_SLOPE:
+		return ones(MBX_IDLE_SLOPE_BPS_LSB, MBX_IDLE_SLOPE_BPS_WIDTH);
+	case MBX_PUB_REG_SR_DOMAIN:
+		return ones(MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |
+		       ones(MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) |
+		       ones(MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH);
+	case MBX_PUB_REG_TALKER_DECL:
+		return ones(MBX_TALKER_DECL_DECLARED_LSB, MBX_TALKER_DECL_DECLARED_WIDTH);
+	default:
+		return 0;
+	}
+}
+
+void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mbx_model_pub *out)
+{
+	memset(out, 0, sizeof *out);
+	if (interface >= MBX_N_IF) {
+		return;
+	}
+	const uint32_t *w = m->pub[interface];
+	uint32_t domain = w[MBX_PUB_REG_SR_DOMAIN / 4u];
+	out->da_gate = mbx_field(w[MBX_PUB_REG_DA_GATE / 4u], MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
+	out->licence = mbx_field(w[MBX_PUB_REG_LICENCE / 4u], MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH);
+	out->idle_slope_bps = mbx_field(w[MBX_PUB_REG_IDLE_SLOPE / 4u], MBX_IDLE_SLOPE_BPS_LSB, MBX_IDLE_SLOPE_BPS_WIDTH);
+	out->vid = (uint16_t)mbx_field(domain, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH);
+	out->priority = (uint8_t)mbx_field(domain, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH);
+	out->adopted = mbx_field(domain, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) != 0u;
+	out->talker_decl = mbx_field(w[MBX_PUB_REG_TALKER_DECL / 4u], MBX_TALKER_DECL_DECLARED_LSB,
+				     MBX_TALKER_DECL_DECLARED_WIDTH);
+	for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+		const uint32_t *e = w + (MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u;
+		uint32_t binding = e[MBX_PUB_SINK_REG_BINDING / 4u];
+		out->bound[k] = mbx_field(binding, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) != 0u;
+		out->started[k] = mbx_field(binding, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH) != 0u;
+		if (mbx_field(binding, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) != 0u) {
+			out->sid[k] = ((uint64_t)e[MBX_PUB_SINK_REG_SID_HI / 4u] << 32) | e[MBX_PUB_SINK_REG_SID_LO / 4u];
+		}
+	}
+}
+
 // The bound-talker block an offset falls in: interface *i, entry *e and the
 // register's offset inside the entry; false outside it.
 static bool bound_at(uint32_t off, unsigned *i, unsigned *e, uint32_t *reg)
@@ -690,6 +782,9 @@ uint32_t mbx_model_read(struct mbx_model *m, uint32_t byte_offset)
 	uint32_t reg = 0;
 	if (bound_at(off, &i, &e, &reg)) {
 		return read_bound(m, i, e, reg);
+	}
+	if (pub_at(off, &i, &reg)) {
+		return m->pub[i][reg / 4u];
 	}
 	if (off < MBX_REGISTER_SPACE_BYTES) {
 		return read_global(m, off);
@@ -799,6 +894,8 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 				       value);
 	} else if (bound_at(off, &i, &e, &reg)) {
 		write_bound(m, i, e, reg, value);
+	} else if (pub_at(off, &i, &reg)) {
+		m->pub[i][reg / 4u] = value & pub_mask(reg);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {
 		write_global(m, off, value);
 	} else if (writable_ring(off)) {

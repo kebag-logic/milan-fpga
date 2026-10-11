@@ -415,9 +415,73 @@ ARMS += (
 )
 
 
-#: One defect per leaf and one in the skeleton, and one in the filter's tuple: the arms the suite's default target runs.
+#: ---- lane F-INT: the publication block (#665, comment 6088423771), one
+#: defect per rule through both adapters (the model's twins are in
+#: sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # the stream_id reaches the datapath only while SID_VALID is set, whole
+    *_both("top-pub-sid-valid-held-high", "KL_mbx.sv",
+           "pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), "
+           "MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C) != 0;",
+           "pub_sid_valid_o[MBX_N_PUB_SINKS_C*i + k] = 1'b1;",
+           "P3 with SID_VALID clear the datapath reads the stream_id as 0"),
+    *_both("top-pub-sid-halves-swapped", "KL_mbx.sv",
+           "= {pub_sid_hi_r[i][k], pub_sid_lo_r[i][k]};", "= {pub_sid_lo_r[i][k], pub_sid_hi_r[i][k]};",
+           "P3 with SID_VALID set the datapath reads SID_HI:SID_LO"),
+    # every field on its own output
+    *_both("top-pub-priority-from-vid", "KL_mbx.sv",
+           "(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_PRIORITY_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C));",
+           "(mbx_field_f(32'(pub_sr_domain_r[i]), MBX_SR_DOMAIN_VID_LSB_C, MBX_SR_DOMAIN_PRIORITY_WIDTH_C));",
+           "P2 every field reaches the datapath on its own output"),
+    *_both("top-pub-bound-from-sid-valid", "KL_mbx.sv",
+           "pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C,",
+           "pub_bound_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), "
+           "MBX_BINDING_SID_VALID_LSB_C,",
+           "P3 and BOUND alone is on its output"),
+    # each register keeps its own fields, at its own sink
+    *_both("top-pub-domain-unmasked", "KL_mbx.sv", "pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i & (",
+           "pub_sr_domain_r[pub_if_w] <= 25'(host_wdata_i | 32'd0 & (",
+           "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    *_both("top-pub-sink-index-dropped", "KL_mbx.sv", "pub_binding_r[pub_if_w][pub_k_w] <= 3'(",
+           "pub_binding_r[pub_if_w][0] <= 3'(",
+           "P1 each interface's registers and each sink's entry read back what was written"),
+    # nothing outside the registers takes a write: a hole aliasing a
+    # register, and (two interfaces) an index past the build aliasing one
+    *_both("top-pub-hole-aliases-a-register", "KL_mbx.sv",
+           "pub_reg_w  = pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1)) : in_if;",
+           "pub_reg_w  = pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1)) : (in_if & AW2_C'(32'hF));",
+           "P4 every hole of every interface block"),
+    *_both("top-pub-interface-unchecked", "KL_mbx.sv",
+           "                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n", "",
+           "P4 and none of those writes moved a register or an output", 2),
+    *_both("top-pub-partial-strobe-accepted", "KL_mbx.sv", "end else if (wr_w && pub_at_w) begin",
+           "end else if (host_req_i && host_we_i && pub_at_w) begin",
+           "P4 a write with a partial strobe leaves the register and the output"),
+    # a reset clears the whole block
+    *_both("top-pub-licence-kept-through-reset", "KL_mbx.sv", "        pub_licence_r[i] <= '0;\n", "",
+           "P5 a reset clears every publication register and every output"),
+    # round 3 (#665, comment 6092086337): each sink's started level and each
+    # source's Talker declaration, on their own outputs, stored and reset
+    *_both("top-pub-started-from-bound", "KL_mbx.sv",
+           "pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C,",
+           "pub_started_o[MBX_N_PUB_SINKS_C*i + k] = mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C,",
+           "P2 every field reaches the datapath on its own output"),
+    *_both("top-pub-started-not-stored", "KL_mbx.sv",
+           " | mbx_place_f(32'hFFFF_FFFF, MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)));", "));",
+           "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    *_both("top-pub-declarations-from-licence", "KL_mbx.sv",
+           "MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_talker_decl_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C,",
+           "MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_licence_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C,",
+           "P2 every field reaches the datapath on its own output"),
+    *_both("top-pub-declarations-kept-through-reset", "KL_mbx.sv", "        pub_talker_decl_r[i] <= '0;\n", "",
+           "P5 a reset clears every publication register and every output"),
+)
+
+
+#: One defect per leaf and one in the skeleton, one in the filter's tuple and
+#: one in the publication block: the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
-         "rx-dst-ignored")
+         "rx-dst-ignored", "top-pub-sid-valid-held-high")
 
 
 def recipe() -> list[str]:
