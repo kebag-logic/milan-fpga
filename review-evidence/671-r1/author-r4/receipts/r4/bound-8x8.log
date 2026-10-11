@@ -1,0 +1,26 @@
+check 13 cases: 670; cases faulting more than 3 consecutive reads that do not also fault the judgement (skip>0): 149
+head                 endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=0
+head                 endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=0
+head                 endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=0
+head                 endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=0
+restage_four_tries   endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=1
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: the boot read the flash 8 times, want exactly 7
+restage_four_tries   endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=1
+    - slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: the boot read the flash 8 times, want exactly 7
+restage_four_tries   endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=1
+    - slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: the boot read the flash 8 times, want exactly 7
+restage_four_tries   endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=1
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+restage_unbounded    endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: findings=2
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: the boot read the flash 68 times, over the bound of 13
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:3:64: a slot no read returned twice did not hold the writer
+restage_unbounded    endstation_ax7101_8x8      slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: findings=2
+    - slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: the boot read the flash 68 times, over the bound of 13
+    - slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:3:64: a slot no read returned twice did not hold the writer
+restage_unbounded    endstation_ax7101_8x8      slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: findings=2
+    - slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: the boot read the flash 69 times, over the bound of 13
+    - slot A valid at seq 0x5a5a5, --read-fault a:0:4:64: a slot no read returned twice did not hold the writer
+restage_unbounded    endstation_ax7101_8x8      slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: findings=2
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: the writer restart read the flash 67 times, over the bound of 12
+    - slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:64 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+elapsed=4.48 rc=0

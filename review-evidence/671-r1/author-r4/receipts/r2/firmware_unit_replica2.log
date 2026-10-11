@@ -1,0 +1,10 @@
+49d28e5a53ea0b666608ce796fdc8cb812ff9406
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/tally_selftest.py
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python scripts/ci_rv32_sdk_selftest.py
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_coverage.py --selftest
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_coverage.py --check --jobs 4
+steps: 7  failing: 0
+rc=0 elapsed=2822s

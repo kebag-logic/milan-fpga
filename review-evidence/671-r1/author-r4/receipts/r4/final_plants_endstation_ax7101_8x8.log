@@ -1,0 +1,7 @@
+p_restage_unbounded          endstation_ax7101_8x8: named 52 (26 restart / 26 cold) of 160 in 83s; {'re-attached live': 35, 'want exactly': 52, 'did not hold the writer': 35, 'over the bound': 16, 'printed no boot line': 16, 'reloaded the window': 6}
+    first: endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+r_restage_four_tries         endstation_ax7101_8x8: named 68 (32 restart / 36 cold) of 110 in 68s; {'re-attached live': 21, 'want exactly': 68, 'did not hold the writer': 21}
+    first: endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+r_judge_four_tries           endstation_ax7101_8x8: named 140 (65 restart / 75 cold) of 201 in 71s; {'want exactly': 140, 'did not hold the writer': 35, 're-attached live': 26}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5
+elapsed=223.11 rc=0

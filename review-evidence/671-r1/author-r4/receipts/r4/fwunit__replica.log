@@ -1,0 +1,6 @@
+rc=0  <scratch>/venv312/bin/python3 sw/firmware/gtest/tally_selftest.py
+rc=0  <scratch>/venv312/bin/python3 scripts/ci_rv32_sdk_selftest.py
+rc=0  <scratch>/venv312/bin/python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0  python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+Step 4 exit status verified from completed child; steps 5 to 7 continue with disk scratch in tail.log.
+FWUNIT-END rc=143
