@@ -1,0 +1,256 @@
+== stack 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/adp/adp.c ~ src/adp.c sha(base)=2d5e3cca0ed6 sha(stack)=be1748a6ef3d
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/adp/adp.h ~ include/adp.h sha(base)=86ba5211b43c sha(stack)=9f2f74f64855
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.c ~ src/acmp.c sha(base)=361ac852b68d sha(stack)=50b9bdc0ce48
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.h ~ include/acmp.h sha(base)=9444106ae0a1 sha(stack)=966bbe2856cd
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.c ~ src/maap.c sha(base)=ccc6d025cb0b sha(stack)=13e31f138745
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.h ~ include/maap.h sha(base)=23ee71f64824 sha(stack)=897479f15ed2
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/wire/wire.h ~ include/wire.h sha(base)=89ee8e024512 sha(stack)=a4d14ef1d312
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/test/acmp_fake.hpp ~ tests/acmp_fake.hpp sha(base)=3a9d7a79bc1b sha(stack)=b93a315d8e9b
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_acmp.cpp ~ tests/test_acmp.cpp sha(base)=01142b10e90e sha(stack)=a1f89bbb0dea
+      --- 
+      +++ 
+      @@ -152,32 +152,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "wire.h"
+      -F
+      -W
+      -_
+      -T
+      -A
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_adp_reentry.cpp ~ tests/test_adp_reentry.cpp sha(base)=f5cd67ebeb83 sha(stack)=4704f01f181b
+      --- 
+      +++ 
+      @@ -120,13 +120,4 @@
+       e
+       >
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+      -"fw_gtest.hpp"
+       e
+       x
+      @@ -197,96 +188,4 @@
+       i
+       f
+      -}
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_maap_debug.cpp ~ tests/test_maap_debug.cpp sha(base)=d7d69976474e sha(stack)=2bca4cb8c0a7
+      --- 
+      +++ 
+      @@ -64,32 +64,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "maap.h"
+      -F
+      -W
+      -_
+      -T
+      -A
+== stack 51870377c5012766a8ea1d9798e3c499ca1060a3
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/adp/adp.c ~ src/adp.c sha(base)=2d5e3cca0ed6 sha(stack)=fabf37f2ea29
+      --- 
+      +++ 
+      @@ -5267,4 +5267,102 @@
+       P
+       _
+      +F
+      +R
+      +A
+      +M
+      +E
+      +_
+      +B
+      +Y
+      +T
+      +E
+      +S
+      +|
+      +|
+      +w
+      +i
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/adp/adp.h ~ include/adp.h sha(base)=86ba5211b43c sha(stack)=9f2f74f64855
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.c ~ src/acmp.c sha(base)=361ac852b68d sha(stack)=50b9bdc0ce48
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.h ~ include/acmp.h sha(base)=9444106ae0a1 sha(stack)=966bbe2856cd
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.c ~ src/maap.c sha(base)=ccc6d025cb0b sha(stack)=13e31f138745
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.h ~ include/maap.h sha(base)=23ee71f64824 sha(stack)=897479f15ed2
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/wire/wire.h ~ include/wire.h sha(base)=89ee8e024512 sha(stack)=a4d14ef1d312
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/test/acmp_fake.hpp ~ tests/acmp_fake.hpp sha(base)=3a9d7a79bc1b sha(stack)=b93a315d8e9b
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_acmp.cpp ~ tests/test_acmp.cpp sha(base)=01142b10e90e sha(stack)=a1f89bbb0dea
+      --- 
+      +++ 
+      @@ -152,32 +152,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "wire.h"
+      -F
+      -W
+      -_
+      -T
+      -A
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_adp_reentry.cpp ~ tests/test_adp_reentry.cpp sha(base)=f5cd67ebeb83 sha(stack)=4704f01f181b
+      --- 
+      +++ 
+      @@ -120,13 +120,4 @@
+       e
+       >
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+      -"fw_gtest.hpp"
+       e
+       x
+      @@ -197,96 +188,4 @@
+       i
+       f
+      -}
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_maap_debug.cpp ~ tests/test_maap_debug.cpp sha(base)=d7d69976474e sha(stack)=2bca4cb8c0a7
+      --- 
+      +++ 
+      @@ -64,32 +64,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "maap.h"
+      -F
+      -W
+      -_
+      -T
+      -A
+== stack 98dc9e3076714bebe113982ee18c3c1c496cf3c9
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/adp/adp.c ~ src/adp.c sha(base)=2d5e3cca0ed6 sha(stack)=fabf37f2ea29
+      --- 
+      +++ 
+      @@ -5267,4 +5267,102 @@
+       P
+       _
+      +F
+      +R
+      +A
+      +M
+      +E
+      +_
+      +B
+      +Y
+      +T
+      +E
+      +S
+      +|
+      +|
+      +w
+      +i
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/adp/adp.h ~ include/adp.h sha(base)=86ba5211b43c sha(stack)=9f2f74f64855
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.c ~ src/acmp.c sha(base)=361ac852b68d sha(stack)=50b9bdc0ce48
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/acmp/acmp.h ~ include/acmp.h sha(base)=9444106ae0a1 sha(stack)=966bbe2856cd
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.c ~ src/maap.c sha(base)=ccc6d025cb0b sha(stack)=13e31f138745
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/maap/maap.h ~ include/maap.h sha(base)=23ee71f64824 sha(stack)=897479f15ed2
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/wire/wire.h ~ include/wire.h sha(base)=89ee8e024512 sha(stack)=a4d14ef1d312
+  TOKEN-SAME LINES-SAME sw/firmware/ctrl/test/acmp_fake.hpp ~ tests/acmp_fake.hpp sha(base)=3a9d7a79bc1b sha(stack)=b93a315d8e9b
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_acmp.cpp ~ tests/test_acmp.cpp sha(base)=01142b10e90e sha(stack)=a1f89bbb0dea
+      --- 
+      +++ 
+      @@ -152,32 +152,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "wire.h"
+      -F
+      -W
+      -_
+      -T
+      -A
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_adp_reentry.cpp ~ tests/test_adp_reentry.cpp sha(base)=f5cd67ebeb83 sha(stack)=4704f01f181b
+      --- 
+      +++ 
+      @@ -120,13 +120,4 @@
+       e
+       >
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+      -"fw_gtest.hpp"
+       e
+       x
+      @@ -197,96 +188,4 @@
+       i
+       f
+      -}
+  TOKEN-DIFF LINES-DIFF sw/firmware/ctrl/test/test_maap_debug.cpp ~ tests/test_maap_debug.cpp sha(base)=d7d69976474e sha(stack)=2bca4cb8c0a7
+      --- 
+      +++ 
+      @@ -64,32 +64,5 @@
+       d
+       e
+      -"fw_gtest.hpp"
+      -#
+      -i
+      -n
+      -c
+      -l
+      -u
+      -d
+      -e
+       "maap.h"
+      -F
+      -W
+      -_
+      -T
+      -A

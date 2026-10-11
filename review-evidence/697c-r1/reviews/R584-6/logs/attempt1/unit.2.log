@@ -1,0 +1,15 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+REFUSED: test_adp.cpp does not compile:
+In file included from $REVIEWS/r584-6-697c/third_party/tsn-c-stack/tests/test_adp.cpp:4:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h: In instantiation of ‘testing::AssertionResult testing::internal::CmpHelperEQ(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int]’:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1398:23:   required from ‘static testing::AssertionResult testing::internal::EqHelper::Compare(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int; typename std::enable_if<((! std::is_integral<_Tp>::value) || (! std::is_pointer<_Dp>::value))>::type* <anonymous> = 0]’
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$REVIEWS/r584-6-697c/third_party/tsn-c-stack/tests/test_adp.cpp:116:5:   required from here
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const unsigned int’ and ‘const int’ [-Werror=sign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~~^~~~~~
+cc1plus: all warnings being treated as errors
+

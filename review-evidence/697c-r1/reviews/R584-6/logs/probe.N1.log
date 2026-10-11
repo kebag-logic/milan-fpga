@@ -1,0 +1,31 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (24 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (166 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (195 s)
+capture: 845 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+  LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware steps judges (--only verilator)
+  the builders found by text are cross-checked by the run that holds the firmware steps
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (5 s)
+    ctrl_image_selftest.py: exit 0 (12 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+build modes, from the recorded invocations: AECP_WIRE_INTERFACES (-DAECP_WIRE_INTERFACES -DAECP_WIRE_INTERFACES=2); CTRL_IMAGE_SRP (-DCTRL_IMAGE_SRP); CTRL_MBX_BASE (-DCTRL_MBX_BASE=0x80000000u); LWSRP_MILAN (-DLWSRP_MILAN); NDEBUG (-DNDEBUG); PP_TOP_IF2 (-DPP_TOP_IF2); PP_TOP_TIM_DEFAULTS (-DPP_TOP_TIM_DEFAULTS); VERILATED_VPP_TOP_WRAP_H_ (-DVERILATED_VPP_TOP_WRAP_H_=); VERILATED_VPP_TOP_WRAP__PCH_H_ (-DVERILATED_VPP_TOP_WRAP__PCH_H_=); VERILATED_VPP_TOP_WRAP__SYMS_H_ (-DVERILATED_VPP_TOP_WRAP__SYMS_H_=); VERILATED_VPP_TOP_WRAP___024ROOT_H_ (-DVERILATED_VPP_TOP_WRAP___024ROOT_H_=); VERILATED_VTB_MBX_TOP_H_ (-DVERILATED_VTB_MBX_TOP_H_=); VERILATED_VTB_MBX_TOP_KL_MBX_PKG_H_ (-DVERILATED_VTB_MBX_TOP_KL_MBX_PKG_H_=); VERILATED_VTB_MBX_TOP__PCH_H_ (-DVERILATED_VTB_MBX_TOP__PCH_H_=); VERILATED_VTB_MBX_TOP__SYMS_H_ (-DVERILATED_VTB_MBX_TOP__SYMS_H_=); VERILATED_VTB_MBX_TOP___024ROOT_H_ (-DVERILATED_VTB_MBX_TOP___024ROOT_H_=); VERILATOR (-DVERILATOR); VL_PCH_INCLUDED (-DVL_PCH_INCLUDED=); VM_COVERAGE (-DVM_COVERAGE=0); VM_SC (-DVM_SC=0); VM_TIMING (-DVM_TIMING=0); VM_TRACE (-DVM_TRACE=0); VM_TRACE_FST (-DVM_TRACE_FST=0); VM_TRACE_SAIF (-DVM_TRACE_SAIF=0); VM_TRACE_VCD (-DVM_TRACE_VCD=0); VM_VPI (-DVM_VPI=0); linux (-Ulinux -Dlinux); unix (-Uunix -Dunix)
+shapes, the shipped configs: endstation_arty_4x4, endstation_arty_8ch, endstation_arty_current, endstation_ax7101_1x1_tdm8, endstation_ax7101_8x8 (default endstation_ax7101_1x1_tdm8); the image's stream counts (ctrl_image.shape_build): -DIMAGE_SINKS=5u -DIMAGE_SOURCES=5u; -DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u; -DIMAGE_SINKS=2u -DIMAGE_SOURCES=2u; -DIMAGE_SINKS=9u -DIMAGE_SOURCES=9u; mailbox contracts: the tracked one and 2 interfaces
+C++ sources the recorded invocations compile, and the files they read first: 142 (5 in the checkout, the rest as the capture kept them); installed tools' own, not followed: verilated.cpp, verilated_dpi.cpp, verilated_threads.cpp
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 51 firmware units (5 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 28 build modes from 845 recorded invocations, 5 shapes and 2 mailbox contracts (574 configurations, 575 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS

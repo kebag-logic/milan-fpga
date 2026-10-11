@@ -1,0 +1,12 @@
+== 1: python3 sw/firmware/ctrl/test/ctrl_capture.py --out $REVIEWS/697c-r584-6-packet/scratch/capA -- python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0
+== 2: python3 sw/firmware/ctrl/test/ctrl_capture.py --out $REVIEWS/697c-r584-6-packet/scratch/capA -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+rc=0
+== 3: python3 sw/firmware/ctrl/test/ctrl_capture.py --out $REVIEWS/697c-r584-6-packet/scratch/capA -- python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0
+== 4: python3 sw/firmware/ctrl/test/ctrl_capture.py --out $REVIEWS/697c-r584-6-packet/scratch/capA -- python3 sw/firmware/gtest/fw_coverage.py --selftest
+rc=0
+== 5: python3 sw/firmware/ctrl/test/ctrl_capture.py --out $REVIEWS/697c-r584-6-packet/scratch/capA -- python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+rc=0
+== 6: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture $REVIEWS/697c-r584-6-packet/scratch/capA --without verilator
+rc=0

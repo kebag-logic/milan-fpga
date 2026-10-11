@@ -1,0 +1,70 @@
+tsn-c-stack at 36759b9c8f6829a2823ce5055b36149bff6795a1
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (24 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (161 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (189 s)
+capture: 811 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+  LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware steps judges (--only verilator)
+  the builders found by text are cross-checked by the run that holds the firmware steps
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (14 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+build modes, from the recorded invocations: AECP_WIRE_INTERFACES (-DAECP_WIRE_INTERFACES -DAECP_WIRE_INTERFACES=2); CTRL_IMAGE_SRP (-DCTRL_IMAGE_SRP); CTRL_MBX_BASE (-DCTRL_MBX_BASE=0x80000000u); LWSRP_MILAN (-DLWSRP_MILAN); NDEBUG (-DNDEBUG); PP_TOP_IF2 (-DPP_TOP_IF2); PP_TOP_TIM_DEFAULTS (-DPP_TOP_TIM_DEFAULTS); VERILATED_VPP_TOP_WRAP_H_ (-DVERILATED_VPP_TOP_WRAP_H_=); VERILATED_VPP_TOP_WRAP__PCH_H_ (-DVERILATED_VPP_TOP_WRAP__PCH_H_=); VERILATED_VPP_TOP_WRAP__SYMS_H_ (-DVERILATED_VPP_TOP_WRAP__SYMS_H_=); VERILATED_VPP_TOP_WRAP___024ROOT_H_ (-DVERILATED_VPP_TOP_WRAP___024ROOT_H_=); VERILATED_VTB_MBX_TOP_H_ (-DVERILATED_VTB_MBX_TOP_H_=); VERILATED_VTB_MBX_TOP_KL_MBX_PKG_H_ (-DVERILATED_VTB_MBX_TOP_KL_MBX_PKG_H_=); VERILATED_VTB_MBX_TOP__PCH_H_ (-DVERILATED_VTB_MBX_TOP__PCH_H_=); VERILATED_VTB_MBX_TOP__SYMS_H_ (-DVERILATED_VTB_MBX_TOP__SYMS_H_=); VERILATED_VTB_MBX_TOP___024ROOT_H_ (-DVERILATED_VTB_MBX_TOP___024ROOT_H_=); VERILATOR (-DVERILATOR); VL_PCH_INCLUDED (-DVL_PCH_INCLUDED=); VM_COVERAGE (-DVM_COVERAGE=0); VM_SC (-DVM_SC=0); VM_TIMING (-DVM_TIMING=0); VM_TRACE (-DVM_TRACE=0); VM_TRACE_FST (-DVM_TRACE_FST=0); VM_TRACE_SAIF (-DVM_TRACE_SAIF=0); VM_TRACE_VCD (-DVM_TRACE_VCD=0); VM_VPI (-DVM_VPI=0); linux (-Ulinux -Dlinux); unix (-Uunix -Dunix)
+shapes, the shipped configs: endstation_arty_4x4, endstation_arty_8ch, endstation_arty_current, endstation_ax7101_1x1_tdm8, endstation_ax7101_8x8 (default endstation_ax7101_1x1_tdm8); the image's stream counts (ctrl_image.shape_build): -DIMAGE_SINKS=5u -DIMAGE_SOURCES=5u; -DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u; -DIMAGE_SINKS=2u -DIMAGE_SOURCES=2u; -DIMAGE_SINKS=9u -DIMAGE_SOURCES=9u; mailbox contracts: the tracked one and 2 interfaces
+C++ sources the recorded invocations compile, and the files they read first: 142 (5 in the checkout, the rest as the capture kept them); installed tools' own, not followed: verilated.cpp, verilated_dpi.cpp, verilated_threads.cpp
+    gcc: compiler boundary examination failed
+    [ 25%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+    [ 50%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+    [ 75%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+    $REVIEWS/697c-r584-6-packet/scratch/clone2/third_party/tsn-c-stack/src/maap.c:2:10: fatal error: mbx_hal.h: No such file or directory
+        2 | #include "mbx_hal.h"
+          |          ^~~~~~~~~~~
+    compilation terminated.
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:107: CMakeFiles/tsn.dir/src/maap.c.o] Error 1
+    make[2]: *** Waiting for unfinished jobs....
+    $REVIEWS/697c-r584-6-packet/scratch/clone2/third_party/tsn-c-stack/src/acmp.c:2:10: fatal error: nvm_state.h: No such file or directory
+        2 | #include "nvm_state.h"
+          |          ^~~~~~~~~~~~~
+    compilation terminated.
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:93: CMakeFiles/tsn.dir/src/acmp.c.o] Error 1
+    make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+    make: *** [Makefile:91: all] Error 2
+    
+    clang: compiler boundary examination failed
+    [ 25%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+    [ 50%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+    [ 75%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+    $REVIEWS/697c-r584-6-packet/scratch/clone2/third_party/tsn-c-stack/src/acmp.c:2:10: fatal error: 'nvm_state.h' file not found
+        2 | #include "nvm_state.h"
+          |          ^~~~~~~~~~~~~
+    $REVIEWS/697c-r584-6-packet/scratch/clone2/third_party/tsn-c-stack/src/maap.c:21:10: error generated.
+     fatal error: 'mbx_hal.h' file not found
+        2 | #include "mbx_hal.h"
+          |          ^~~~~~~~~~~
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:93: CMakeFiles/tsn.dir/src/acmp.c.o] Error 1
+    make[2]: *** Waiting for unfinished jobs....
+    1 error generated.
+    make[2]: *** [CMakeFiles/tsn.dir/build.make:107: CMakeFiles/tsn.dir/src/maap.c.o] Error 1
+    make[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/tsn.dir/all] Error 2
+    make: *** [Makefile:91: all] Error 2
+  [FAIL] host: the stack's src/acmp.c includes sw/firmware/ctrl_nvm/nvm_state.h
+  [FAIL] host: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+  [FAIL] rv32: the stack's src/acmp.c includes sw/firmware/ctrl_nvm/nvm_state.h
+  [FAIL] rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+  [FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused: exit 1
+ctrl_boundary: 51 firmware units (5 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 28 build modes from 811 recorded invocations, 5 shapes and 2 mailbox contracts (574 configurations, 575 preprocessed), and every Makefile builder's pin prerequisites; 5 finding(s)
+ctrl_boundary: FAIL

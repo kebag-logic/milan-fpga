@@ -1,0 +1,30 @@
+1	success	2026-10-11T00:30:29Z	2026-10-11T00:30:30Z	Set up job
+2	success	2026-10-11T00:30:30Z	2026-10-11T00:30:32Z	Run actions/checkout@v4
+3	success	2026-10-11T00:30:32Z	2026-10-11T00:30:36Z	Fetch RTL dependencies
+4	success	2026-10-11T00:30:36Z	2026-10-11T00:30:47Z	Install GoogleTest and GoogleMock and print the versions
+5	success	2026-10-11T00:30:47Z	2026-10-11T00:30:51Z	Prove the tally reads a failing and a crashing test as failures
+6	success	2026-10-11T00:30:51Z	2026-10-11T00:30:53Z	Cache the pinned RV32 SDK
+7	success	2026-10-11T00:30:53Z	2026-10-11T00:30:56Z	Install and verify the pinned RV32 SDK
+8	success	2026-10-11T00:30:56Z	2026-10-11T00:55:25Z	Run the control-plane firmware suites and RV32 builds
+9	success	2026-10-11T00:55:25Z	2026-10-11T00:56:43Z	Run the saved-state store suites and its RV32 build
+10	success	2026-10-11T00:56:43Z	2026-10-11T00:59:54Z	Hold the firmware coverage ratchet
+11	success	2026-10-11T00:59:54Z	2026-10-11T01:01:27Z	Hold the TSN stack boundary in both directions
+21	success	2026-10-11T01:01:27Z	2026-10-11T01:01:27Z	Post Cache the pinned RV32 SDK
+22	success	2026-10-11T01:01:27Z	2026-10-11T01:01:27Z	Post Run actions/checkout@v4
+23	success	2026-10-11T01:01:27Z	2026-10-11T01:01:27Z	Complete job
+
+1	success	2026-10-11T00:38:16Z	2026-10-11T00:38:17Z	Set up job
+2	success	2026-10-11T00:38:17Z	2026-10-11T00:38:20Z	Run actions/checkout@v4
+3	success	2026-10-11T00:38:20Z	2026-10-11T00:38:26Z	Fetch RTL dependencies
+4	success	2026-10-11T00:38:26Z	2026-10-11T00:38:39Z	Install GoogleTest and GoogleMock and print the versions
+5	success	2026-10-11T00:38:39Z	2026-10-11T00:38:41Z	Cache the pinned Verilator build
+6	skipped	2026-10-11T00:38:41Z	2026-10-11T00:38:41Z	Build Verilator from source on cache miss
+7	success	2026-10-11T00:38:41Z	2026-10-11T00:38:42Z	Put Verilator on PATH and prove the version
+8	success	2026-10-11T00:38:42Z	2026-10-11T00:38:45Z	Cache the pinned RV32 SDK
+9	success	2026-10-11T00:38:45Z	2026-10-11T00:38:46Z	Install and verify the pinned RV32 SDK
+10	success	2026-10-11T00:38:46Z	2026-10-11T00:46:04Z	Hold the TSN stack boundary over the Verilator builders' compiles
+18	success	2026-10-11T00:46:04Z	2026-10-11T00:46:04Z	Post Cache the pinned RV32 SDK
+19	success	2026-10-11T00:46:04Z	2026-10-11T00:46:05Z	Post Cache the pinned Verilator build
+20	success	2026-10-11T00:46:05Z	2026-10-11T00:46:05Z	Post Run actions/checkout@v4
+21	success	2026-10-11T00:46:05Z	2026-10-11T00:46:05Z	Complete job
+
