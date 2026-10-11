@@ -1,0 +1,19 @@
+MUTANT helper without GIT_NO_REPLACE_OBJECTS: 3 of 24 controls misbehaved
+    [ESCAPED] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    [ESCAPED] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    [ESCAPED] tsn-c-stack pin control, the census, the helper's environment without GIT_GRAFT_FILE: the pin proof's Git environment does not set GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+    the gate's census: ["the pin proof's Git environment does not set GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object"]
+MUTANT helper without GIT_GRAFT_FILE: 0 of 24 controls misbehaved
+    the gate's census: ["the pin proof's Git environment gives GIT_GRAFT_FILE no value, so Git would read a graft file"]
+MUTANT disk hashed through git's filters (hash-object): 1 of 24 controls misbehaved
+    [ESCAPED] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    the gate's census: no finding
+MUTANT modes not compared: 1 of 24 controls misbehaved
+    [ESCAPED] tsn-c-stack pin control, a script made executable (a mode change): accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    the gate's census: no finding
+MUTANT symbolic links followed (type not compared): 1 of 24 controls misbehaved
+    [ESCAPED] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    the gate's census: no finding
+MUTANT only the parts a gate builds compared (round 8's path set): 1 of 24 controls misbehaved
+    [ESCAPED] tsn-c-stack pin control, a file no gate builds edited: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    the gate's census: no finding
