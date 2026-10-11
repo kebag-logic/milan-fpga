@@ -1,0 +1,1 @@
+cd <lane> && make check

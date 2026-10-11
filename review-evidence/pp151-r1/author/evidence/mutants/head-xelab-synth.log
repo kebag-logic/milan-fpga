@@ -1,0 +1,38 @@
+control: rc=0 PASS
+KL_pp_acmp_listener.g_strm_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: ERROR: [VRFC 10-9955] illegal size casting to zero or negative value for width [/tmp/
+KL_pp_acmp_listener.g_strm_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: ERROR: [VRFC 10-9955] illegal size casting to zero or negative value for width [/tmp/
+    FAIL: GUARD synth KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_acmp_listener.g_strm_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: ERROR: [VRFC 10-9955] illegal size casting to zero or negative value for width [/tmp/
+KL_aecp_engine.gen_g_line_ceiling:warning: rc=1 KILLED
+    FAIL: GUARD xsim KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016: not refused as a $fatal of this guard: ERROR: [VRFC 10-8279] $fatal : RESP_D8_CAP_BYTES_P=1032 outside 524..1024 (the 10-bit curso
+    FAIL: GUARD synth KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016: not refused as a $fatal of this guard: ERROR: [Synth 8-6058] Synth Error: RESP_D8_CAP_BYTES_P=1032 outside 524..1024 (the 10-bit 
+KL_pp_nvm_port.g_tmo_check:error: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: ERROR: [XSIM 43-4462] File /tmp/elab-guards-mutants-mi25yk2x/hdl/packet_engine/KL_pp_nvm_port.sv
+KL_pp_nvm_port.g_tmo_check:warning: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+    FAIL: GUARD synth KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+KL_pp_nvm_port.g_tmo_check:initial: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+protocol_processor_top.gen_g_tmr_overlap:error: rc=1 KILLED
+    FAIL: GUARD xsim protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: ERROR: [XSIM 43-4462] File /tmp/elab-guards-6t476g56/protocol_processor_top.gen_g_tmr_ov
+protocol_processor_top.gen_g_owner_overlap:error: rc=1 KILLED
+    FAIL: GUARD xsim protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: a group outgro
+protocol_processor_top.gen_g_owner_overlap:warning: rc=1 KILLED
+    FAIL: GUARD xsim protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: a group outgro
+    FAIL: GUARD synth protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: ERROR: [Synth 8-6058] Synth Error: KL_aecp_nvm_writer: a group o
+protocol_processor_top.gen_g_owner_overlap:initial: rc=1 KILLED
+    FAIL: GUARD xsim protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: ERROR: [VRFC 10-8279] $fatal : KL_aecp_nvm_writer: a group outgro
+bench:deleted: rc=1 KILLED
+    FAIL: inventory KL_aecp_engine.gen_g_line_step: 0 severity tasks, not 1
+    FAIL: GUARD xsim KL_aecp_engine.gen_g_line_step LINE_BYTES_P=580: not refused as a $fatal of this guard: ERROR: [VRFC 10-8279] $fatal : LINE_BYTES_P=580 must be a multiple of 8 (64-bit lanes) [/tmp/el
+    FAIL: GUARD synth KL_aecp_engine.gen_g_line_step LINE_BYTES_P=580: not refused as a $fatal of this guard: ERROR: [Synth 8-6058] Synth Error: LINE_BYTES_P=580 must be a multiple of 8 (64-bit lanes)  [/
+bench:tightened: rc=1 KILLED
+    FAIL: ELAB  xsim KL_pp_originator.g_inflight_check INFLIGHT_P=16: rc 1: ERROR: [VRFC 10-8279] $fatal : KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble) [/tmp/elab-guards-mutants-ynklbpte/
+    FAIL: ELAB  synth KL_pp_originator.g_inflight_check INFLIGHT_P=16: rc 1: ERROR: [Synth 8-6058] Synth Error: KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)  [/tmp/elab-guards-mutants-ynk
+bench:loosened: rc=1 KILLED
+    FAIL: GUARD xsim KL_pp_originator.g_inflight_check INFLIGHT_P=17: elaborated; the guard did not stop it
+    FAIL: GUARD synth KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: ERROR: [Synth 8-524] part-select [16:0] out of range of prefix 'valid_r' [/tmp/elab-guards-mut
+elab guard mutants: 14 of 14 killed
