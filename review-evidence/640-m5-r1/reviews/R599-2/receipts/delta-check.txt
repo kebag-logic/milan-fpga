@@ -1,0 +1,17 @@
+Delta paths: docs/design/MARK_II_AREA_PLAN.md, hdl/common/csr/milan_csr.sv
+Exactly six deleted and six added banner-comment lines; comment-stripped bytes identical
+Line counts: 3225 3225
+old RTL sha256 5d6f56ef314605d4e7180612b3934a383c9a5fe8bc052a0461676273573e8dd7
+head RTL sha256 7ff7b78618eb7e623129fc6e7987ed153c402f19abd2d11f713169e2ff315c26
+tb/verilator/csr/lock_mutants.py: unchanged; all 10 RTL-matching strings of at least 12 characters preserve counts
+mutation anchor exact once: decode (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK
+mutation anchor exact once: snapshot-coherence (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word
+mutation anchor exact once: snapshot-freshness (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind
+mutation anchor exact once: snapshot-freshness (lock8): stale snapshot: an extra listener's burst word keeps its previous kind
+mutation anchor exact once: reset-values (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero
+mutation anchor exact once: decode (lock1): stage 1: the shadow word is not zeroed under a live or window claim
+mutation anchor exact once: decode (lock1): stage 1: the window's range leaf answers 0 instead of the window's word
+tb/verilator/csr/gen_lockstep.py: unchanged; all 5 RTL-matching strings of at least 12 characters preserve counts
+All 0 tracked tb/**/*.patch files unchanged; none contains a changed banner line
+Frozen reference matches e8454e27 byte for byte after module-name normalization
+PASS

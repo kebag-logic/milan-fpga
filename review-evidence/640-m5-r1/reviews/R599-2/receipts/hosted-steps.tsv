@@ -1,0 +1,306 @@
+Captured 2026-10-11T05:06:40.483725+00:00; read-only snapshot, not acceptance.
+job	step	name	status	conclusion
+wire-accountability	1	Set up job	completed	success
+wire-accountability	2	Run actions/checkout@v4	completed	success
+wire-accountability	3	Fetch the engine authority the builder derives from	completed	success
+wire-accountability	4	Advertised-vs-emitted gate (green since 2026-07-28, item 00)	completed	success
+wire-accountability	8	Post Run actions/checkout@v4	completed	success
+wire-accountability	9	Complete job	completed	success
+docs-check	1	Set up job	completed	success
+docs-check	2	Run actions/checkout@v4	completed	success
+docs-check	3	Build the validated HDL reference	completed	success
+docs-check	4	Upload the HDL reference HTML	completed	success
+docs-check	5	Install the python gate dependencies	completed	success
+docs-check	6	Cache the pinned Markdown renderer downloads	completed	success
+docs-check	7	Install the pinned Markdown renderer	completed	success
+docs-check	8	Install diagram gate dependencies	completed	success
+docs-check	9	Link health, wording, dead-reference and local-info gate	completed	success
+docs-check	10	Added-line em-dash gate	completed	success
+docs-check	11	Concise audience documentation gate	completed	success
+docs-check	12	Audience diagram no-drift gate	completed	success
+docs-check	13	Product solution source-fact gate	completed	success
+docs-check	14	Verified submodule documentation gate	completed	success
+docs-check	15	HDL timing diagram no-drift gate	completed	success
+docs-check	16	Published diagram PNG gate	completed	success
+docs-check	17	Milan feature-status consistency gate	completed	success
+docs-check	18	Traceability matrix no-drift gate	completed	success
+docs-check	19	Fetch the builder source dependencies	completed	success
+docs-check	20	Imported gPTP documentation gate	completed	success
+docs-check	21	Code-quality measurement self-tests	completed	success
+docs-check	22	Install the pinned sv2v release	completed	success
+docs-check	23	Bare-metal scope gate	completed	success
+docs-check	24	Cache the pinned RV32 SDK	completed	success
+docs-check	25	Install and verify the pinned RV32 SDK	completed	success
+docs-check	26	Compiler-absent firmware controls	completed	success
+docs-check	27	End-station builder gates	completed	success
+docs-check	28	NVM record-space gate	completed	success
+docs-check	29	Capture measurement census and clock gate	completed	success
+docs-check	30	Saved-state writer gate	completed	success
+docs-check	31	SoC source-list gate (Vivado would fail 40 min in without this)	completed	success
+docs-check	32	RTL source-list drift gate	completed	success
+docs-check	33	Boundary-unit naming ratchet	completed	success
+docs-check	34	Port contract gate	completed	success
+docs-check	35	Fail-fast ratchet	completed	success
+docs-check	36	TODO ownership gate	completed	success
+docs-check	37	Test-evidence ratchet	completed	success
+docs-check	38	Mechanical hygiene ratchet	completed	success
+docs-check	39	SystemVerilog idiom gate	completed	success
+docs-check	40	C and C++ idiom gate	completed	success
+docs-check	41	Python idiom gate	completed	success
+docs-check	42	Shell idiom gate	completed	success
+docs-check	43	CI event and SHA contract gate	completed	success
+docs-check	44	Local act runner contract gate	completed	success
+docs-check	45	Doc cited-path gate	completed	success
+docs-check	46	Archive integrity gate	completed	success
+docs-check	47	Per-page contents gate	completed	success
+docs-check	48	AEM store generator self-test	completed	success
+docs-check	49	Sweep/build shape gate	completed	success
+docs-check	50	Deploy shape gate	completed	success
+docs-check	51	Entity shape gate	completed	success
+docs-check	100	Post Cache the pinned RV32 SDK	completed	success
+docs-check	101	Post Cache the pinned Markdown renderer downloads	completed	success
+docs-check	102	Post Run actions/checkout@v4	completed	success
+docs-check	103	Complete job	completed	success
+docs-check-no-git	1	Set up job	completed	success
+docs-check-no-git	2	Run actions/checkout@v4	completed	success
+docs-check-no-git	3	Strip git metadata, then run the docs gate	completed	success
+docs-check-no-git	6	Post Run actions/checkout@v4	completed	success
+docs-check-no-git	7	Complete job	completed	success
+elaborate	1	Set up job	completed	success
+elaborate	2	Run actions/checkout@v4	completed	success
+elaborate	3	Decide whether this head needs an elaboration	completed	success
+elaborate	4	Fetch the source dependencies the elaboration reads	completed	success
+elaborate	5	Install the pinned sv2v release	completed	success
+elaborate	6	Run actions/setup-python@v5	completed	success
+elaborate	7	Cache the pinned pip downloads	completed	success
+elaborate	8	Install LiteX at the pinned revisions	completed	success
+elaborate	9	Cache the Scala toolchain	completed	success
+elaborate	10	Cache the generated CPU metadata	completed	success
+elaborate	11	Install sbt	completed	success
+elaborate	12	Place the VexiiRiscv source at the revision LiteX pins	completed	success
+elaborate	13	Apply the toolchain patch series	completed	success
+elaborate	14	Cache the pinned RV32 SDK	completed	success
+elaborate	15	Install and verify the pinned RV32 SDK	completed	success
+elaborate	16	Elaboration gates	completed	success
+elaborate	17	Cache the pinned Verilator build	completed	success
+elaborate	18	Build Verilator from source on cache miss	completed	skipped
+elaborate	19	Put Verilator on PATH and prove the version	completed	success
+elaborate	20	Standalone LiteX simulation aggregate	completed	success
+elaborate	21	Keep the generated CPU netlist arguments for the next run	completed	success
+elaborate	36	Post Cache the pinned Verilator build	completed	success
+elaborate	37	Post Cache the pinned RV32 SDK	completed	success
+elaborate	38	Post Cache the generated CPU metadata	completed	success
+elaborate	39	Post Cache the Scala toolchain	completed	success
+elaborate	40	Post Cache the pinned pip downloads	completed	success
+elaborate	41	Post Run actions/setup-python@v5	completed	success
+elaborate	42	Post Run actions/checkout@v4	completed	success
+elaborate	43	Complete job	completed	success
+bdd-conformance	1	Set up job	completed	success
+bdd-conformance	2	Run actions/checkout@v4	completed	success
+bdd-conformance	3	Fetch the processor model inputs	completed	success
+bdd-conformance	4	Install behave	completed	success
+bdd-conformance	5	Run the specification-facing suite	completed	success
+bdd-conformance	10	Post Run actions/checkout@v4	completed	success
+bdd-conformance	11	Complete job	completed	success
+changes	1	Set up job	completed	success
+changes	2	Run actions/checkout@v4	completed	success
+changes	3	Classify the change conservatively	completed	success
+changes	6	Post Run actions/checkout@v4	completed	success
+changes	7	Complete job	completed	success
+verilator-lint	1	Set up job	completed	success
+verilator-lint	2	Run actions/checkout@v4	completed	success
+verilator-lint	3	Fetch RTL dependencies	completed	success
+verilator-lint	4	Cache the pinned Verilator build	completed	success
+verilator-lint	5	Build Verilator from source on cache miss	completed	skipped
+verilator-lint	6	Run the ratcheted whole-tree lint gate	completed	success
+verilator-lint	7	Prove protocol-processor source lists are derived	completed	success
+verilator-lint	13	Post Cache the pinned Verilator build	completed	success
+verilator-lint	14	Post Run actions/checkout@v4	completed	success
+verilator-lint	15	Complete job	completed	success
+yosys-elaboration	1	Set up job	completed	success
+yosys-elaboration	2	Run actions/checkout@v4	completed	success
+yosys-elaboration	3	Fetch RTL dependencies	completed	success
+yosys-elaboration	4	Cache the pinned Yosys build	completed	success
+yosys-elaboration	5	Build Yosys from source on cache miss	completed	skipped
+yosys-elaboration	6	Install the pinned Yosys and prove the version	completed	success
+yosys-elaboration	7	Install the pinned sv2v release	completed	success
+yosys-elaboration	8	Elaborate the integration-heavy tops	completed	success
+yosys-elaboration	9	Prove the OOC read sets come from run.sh and refuse a bad one	completed	success
+yosys-elaboration	10	Prove ooc.sh generates the ROMs and fails on a failed top	completed	success
+yosys-elaboration	11	Prove both synthesis flows refuse active elaboration guards	completed	success
+yosys-elaboration	12	Prove the result cache refuses a planted entry	completed	success
+yosys-elaboration	23	Post Cache the pinned Yosys build	completed	success
+yosys-elaboration	24	Post Run actions/checkout@v4	completed	success
+yosys-elaboration	25	Complete job	completed	success
+firmware-unit	1	Set up job	completed	success
+firmware-unit	2	Run actions/checkout@v4	completed	success
+firmware-unit	3	Fetch RTL dependencies	completed	success
+firmware-unit	4	Install GoogleTest and GoogleMock and print the versions	completed	success
+firmware-unit	5	Prove the tally reads a failing and a crashing test as failures	completed	success
+firmware-unit	6	Cache the pinned RV32 SDK	completed	success
+firmware-unit	7	Install and verify the pinned RV32 SDK	completed	success
+firmware-unit	8	Run the control-plane firmware suites and RV32 builds	completed	success
+firmware-unit	9	Run the saved-state store suites and its RV32 build	completed	success
+firmware-unit	10	Hold the firmware coverage ratchet	completed	success
+firmware-unit	19	Post Cache the pinned RV32 SDK	completed	success
+firmware-unit	20	Post Run actions/checkout@v4	completed	success
+firmware-unit	21	Complete job	completed	success
+rtl-fast	1	Set up job	completed	success
+rtl-fast	2	Require every applicable fast gate to pass	completed	success
+rtl-fast	3	Complete job	completed	success
+full-ci-gate	1	Set up job	completed	success
+full-ci-gate	2	Run actions/checkout@v4	completed	success
+full-ci-gate	3	Print the event and pin the one SHA this run validates	completed	success
+full-ci-gate	4	Assert the repository default branch is dev	completed	success
+full-ci-gate	5	Hold every workflow file to its contract	completed	success
+full-ci-gate	6	Decide whether this exact head needs the exhaustive gates	completed	success
+full-ci-gate	12	Post Run actions/checkout@v4	completed	success
+full-ci-gate	13	Complete job	completed	success
+Yosys shard 3/4	1	Set up job	completed	success
+Yosys shard 3/4	2	Run actions/checkout@v4	completed	success
+Yosys shard 3/4	3	Fetch RTL dependencies	completed	success
+Yosys shard 3/4	4	Record the tree this worker validates	completed	success
+Yosys shard 3/4	5	Cache the pinned Yosys build	completed	success
+Yosys shard 3/4	6	Build Yosys from source on cache miss	completed	skipped
+Yosys shard 3/4	7	Install the pinned Yosys and prove the version	completed	success
+Yosys shard 3/4	8	Install the pinned sv2v release	completed	success
+Yosys shard 3/4	9	Restore the portability result cache seeded from dev	completed	success
+Yosys shard 3/4	10	Run this weighted portability shard	completed	success
+Yosys shard 3/4	11	Upload per-top and structural evidence	completed	success
+Yosys shard 3/4	20	Post Restore the portability result cache seeded from dev	completed	success
+Yosys shard 3/4	21	Post Cache the pinned Yosys build	completed	success
+Yosys shard 3/4	22	Post Run actions/checkout@v4	completed	success
+Yosys shard 3/4	23	Complete job	completed	success
+Yosys shard 2/4	1	Set up job	completed	success
+Yosys shard 2/4	2	Run actions/checkout@v4	completed	success
+Yosys shard 2/4	3	Fetch RTL dependencies	completed	success
+Yosys shard 2/4	4	Record the tree this worker validates	completed	success
+Yosys shard 2/4	5	Cache the pinned Yosys build	completed	success
+Yosys shard 2/4	6	Build Yosys from source on cache miss	completed	skipped
+Yosys shard 2/4	7	Install the pinned Yosys and prove the version	completed	success
+Yosys shard 2/4	8	Install the pinned sv2v release	completed	success
+Yosys shard 2/4	9	Restore the portability result cache seeded from dev	completed	success
+Yosys shard 2/4	10	Run this weighted portability shard	completed	success
+Yosys shard 2/4	11	Upload per-top and structural evidence	completed	success
+Yosys shard 2/4	20	Post Restore the portability result cache seeded from dev	completed	success
+Yosys shard 2/4	21	Post Cache the pinned Yosys build	completed	success
+Yosys shard 2/4	22	Post Run actions/checkout@v4	completed	success
+Yosys shard 2/4	23	Complete job	completed	success
+Verilator shard 0/5	1	Set up job	completed	success
+Verilator shard 0/5	2	Run actions/checkout@v4	completed	success
+Verilator shard 0/5	3	Fetch RTL dependencies	completed	success
+Verilator shard 0/5	4	Record the tree this worker validates	completed	success
+Verilator shard 0/5	5	Cache the pinned Verilator build	completed	success
+Verilator shard 0/5	6	Build Verilator from source on cache miss	completed	skipped
+Verilator shard 0/5	7	Put Verilator on PATH and prove the version	completed	success
+Verilator shard 0/5	8	Prove specialized suite ownership	completed	success
+Verilator shard 0/5	9	Cache the pinned Yosys build for the netlist-level suite owner	completed	skipped
+Verilator shard 0/5	10	Build Yosys from source on cache miss	completed	skipped
+Verilator shard 0/5	11	Install the pinned Yosys and prove the version	completed	skipped
+Verilator shard 0/5	12	Install sv2v for the netlist-level suite owner	completed	skipped
+Verilator shard 0/5	13	Build the pinned tsn-gen field oracle on its suite owner	completed	skipped
+Verilator shard 0/5	14	Run this exhaustive suite shard	completed	success
+Verilator shard 0/5	15	Upload this shard's suite logs	completed	success
+Verilator shard 0/5	29	Post Cache the pinned Verilator build	completed	success
+Verilator shard 0/5	30	Post Run actions/checkout@v4	completed	success
+Verilator shard 0/5	31	Complete job	completed	success
+Verilator shard 3/5	1	Set up job	completed	success
+Verilator shard 3/5	2	Run actions/checkout@v4	completed	success
+Verilator shard 3/5	3	Fetch RTL dependencies	completed	success
+Verilator shard 3/5	4	Record the tree this worker validates	completed	success
+Verilator shard 3/5	5	Cache the pinned Verilator build	completed	success
+Verilator shard 3/5	6	Build Verilator from source on cache miss	completed	skipped
+Verilator shard 3/5	7	Put Verilator on PATH and prove the version	completed	success
+Verilator shard 3/5	8	Prove specialized suite ownership	completed	success
+Verilator shard 3/5	9	Cache the pinned Yosys build for the netlist-level suite owner	completed	success
+Verilator shard 3/5	10	Build Yosys from source on cache miss	completed	skipped
+Verilator shard 3/5	11	Install the pinned Yosys and prove the version	completed	success
+Verilator shard 3/5	12	Install sv2v for the netlist-level suite owner	completed	success
+Verilator shard 3/5	13	Build the pinned tsn-gen field oracle on its suite owner	completed	skipped
+Verilator shard 3/5	14	Run this exhaustive suite shard	completed	success
+Verilator shard 3/5	15	Upload this shard's suite logs	completed	success
+Verilator shard 3/5	28	Post Cache the pinned Yosys build for the netlist-level suite owner	completed	success
+Verilator shard 3/5	29	Post Cache the pinned Verilator build	completed	success
+Verilator shard 3/5	30	Post Run actions/checkout@v4	completed	success
+Verilator shard 3/5	31	Complete job	completed	success
+Verilator shard 4/5	1	Set up job	completed	success
+Verilator shard 4/5	2	Run actions/checkout@v4	completed	success
+Verilator shard 4/5	3	Fetch RTL dependencies	completed	success
+Verilator shard 4/5	4	Record the tree this worker validates	completed	success
+Verilator shard 4/5	5	Cache the pinned Verilator build	completed	success
+Verilator shard 4/5	6	Build Verilator from source on cache miss	completed	skipped
+Verilator shard 4/5	7	Put Verilator on PATH and prove the version	completed	success
+Verilator shard 4/5	8	Prove specialized suite ownership	completed	success
+Verilator shard 4/5	9	Cache the pinned Yosys build for the netlist-level suite owner	completed	skipped
+Verilator shard 4/5	10	Build Yosys from source on cache miss	completed	skipped
+Verilator shard 4/5	11	Install the pinned Yosys and prove the version	completed	skipped
+Verilator shard 4/5	12	Install sv2v for the netlist-level suite owner	completed	skipped
+Verilator shard 4/5	13	Build the pinned tsn-gen field oracle on its suite owner	completed	skipped
+Verilator shard 4/5	14	Run this exhaustive suite shard	in_progress	None
+Verilator shard 4/5	15	Upload this shard's suite logs	pending	None
+Verilator shard 4/5	29	Post Cache the pinned Verilator build	pending	None
+Verilator shard 4/5	30	Post Run actions/checkout@v4	pending	None
+Yosys shard 1/4	1	Set up job	completed	success
+Yosys shard 1/4	2	Run actions/checkout@v4	completed	success
+Yosys shard 1/4	3	Fetch RTL dependencies	completed	success
+Yosys shard 1/4	4	Record the tree this worker validates	completed	success
+Yosys shard 1/4	5	Cache the pinned Yosys build	completed	success
+Yosys shard 1/4	6	Build Yosys from source on cache miss	completed	skipped
+Yosys shard 1/4	7	Install the pinned Yosys and prove the version	completed	success
+Yosys shard 1/4	8	Install the pinned sv2v release	completed	success
+Yosys shard 1/4	9	Restore the portability result cache seeded from dev	completed	success
+Yosys shard 1/4	10	Run this weighted portability shard	completed	success
+Yosys shard 1/4	11	Upload per-top and structural evidence	completed	success
+Yosys shard 1/4	20	Post Restore the portability result cache seeded from dev	completed	success
+Yosys shard 1/4	21	Post Cache the pinned Yosys build	completed	success
+Yosys shard 1/4	22	Post Run actions/checkout@v4	completed	success
+Yosys shard 1/4	23	Complete job	completed	success
+Yosys shard 0/4	1	Set up job	completed	success
+Yosys shard 0/4	2	Run actions/checkout@v4	completed	success
+Yosys shard 0/4	3	Fetch RTL dependencies	completed	success
+Yosys shard 0/4	4	Record the tree this worker validates	completed	success
+Yosys shard 0/4	5	Cache the pinned Yosys build	completed	success
+Yosys shard 0/4	6	Build Yosys from source on cache miss	completed	skipped
+Yosys shard 0/4	7	Install the pinned Yosys and prove the version	completed	success
+Yosys shard 0/4	8	Install the pinned sv2v release	completed	success
+Yosys shard 0/4	9	Restore the portability result cache seeded from dev	completed	success
+Yosys shard 0/4	10	Run this weighted portability shard	completed	success
+Yosys shard 0/4	11	Upload per-top and structural evidence	completed	success
+Yosys shard 0/4	20	Post Restore the portability result cache seeded from dev	completed	success
+Yosys shard 0/4	21	Post Cache the pinned Yosys build	completed	success
+Yosys shard 0/4	22	Post Run actions/checkout@v4	completed	success
+Yosys shard 0/4	23	Complete job	completed	success
+Verilator shard 2/5	1	Set up job	completed	success
+Verilator shard 2/5	2	Run actions/checkout@v4	completed	success
+Verilator shard 2/5	3	Fetch RTL dependencies	completed	success
+Verilator shard 2/5	4	Record the tree this worker validates	completed	success
+Verilator shard 2/5	5	Cache the pinned Verilator build	completed	success
+Verilator shard 2/5	6	Build Verilator from source on cache miss	completed	skipped
+Verilator shard 2/5	7	Put Verilator on PATH and prove the version	completed	success
+Verilator shard 2/5	8	Prove specialized suite ownership	completed	success
+Verilator shard 2/5	9	Cache the pinned Yosys build for the netlist-level suite owner	completed	skipped
+Verilator shard 2/5	10	Build Yosys from source on cache miss	completed	skipped
+Verilator shard 2/5	11	Install the pinned Yosys and prove the version	completed	skipped
+Verilator shard 2/5	12	Install sv2v for the netlist-level suite owner	completed	skipped
+Verilator shard 2/5	13	Build the pinned tsn-gen field oracle on its suite owner	completed	skipped
+Verilator shard 2/5	14	Run this exhaustive suite shard	in_progress	None
+Verilator shard 2/5	15	Upload this shard's suite logs	pending	None
+Verilator shard 2/5	29	Post Cache the pinned Verilator build	pending	None
+Verilator shard 2/5	30	Post Run actions/checkout@v4	pending	None
+Verilator shard 1/5	1	Set up job	completed	success
+Verilator shard 1/5	2	Run actions/checkout@v4	completed	success
+Verilator shard 1/5	3	Fetch RTL dependencies	completed	success
+Verilator shard 1/5	4	Record the tree this worker validates	completed	success
+Verilator shard 1/5	5	Cache the pinned Verilator build	completed	success
+Verilator shard 1/5	6	Build Verilator from source on cache miss	completed	skipped
+Verilator shard 1/5	7	Put Verilator on PATH and prove the version	completed	success
+Verilator shard 1/5	8	Prove specialized suite ownership	completed	success
+Verilator shard 1/5	9	Cache the pinned Yosys build for the netlist-level suite owner	completed	skipped
+Verilator shard 1/5	10	Build Yosys from source on cache miss	completed	skipped
+Verilator shard 1/5	11	Install the pinned Yosys and prove the version	completed	skipped
+Verilator shard 1/5	12	Install sv2v for the netlist-level suite owner	completed	skipped
+Verilator shard 1/5	13	Build the pinned tsn-gen field oracle on its suite owner	completed	success
+Verilator shard 1/5	14	Run this exhaustive suite shard	in_progress	None
+Verilator shard 1/5	15	Upload this shard's suite logs	pending	None
+Verilator shard 1/5	29	Post Cache the pinned Verilator build	pending	None
+Verilator shard 1/5	30	Post Run actions/checkout@v4	pending	None

@@ -1,0 +1,47 @@
+sv2v A rc=0
+yosys A rc=0
+sv2v B rc=0
+yosys B rc=0
+milan_csr.v: IDENTICAL
+netlist.v: IDENTICAL
+netlist.json: IDENTICAL
+stat.txt: IDENTICAL
+04285e8fe47d554b94183b99c0259113c0c90b9417ce28e3c64677e3e07c7f82  A/milan_csr.v
+04285e8fe47d554b94183b99c0259113c0c90b9417ce28e3c64677e3e07c7f82  B/milan_csr.v
+d989110f77bcecf4d0ff78f88fd467cfbe51599bb178594ccbf9352294348881  A/netlist.v
+d989110f77bcecf4d0ff78f88fd467cfbe51599bb178594ccbf9352294348881  B/netlist.v
+7059060d5c0c229b27a6d666e6b9cec92ce67bbf5fbdbb6f7d7ee73d3a795b4b  A/netlist.json
+7059060d5c0c229b27a6d666e6b9cec92ce67bbf5fbdbb6f7d7ee73d3a795b4b  B/netlist.json
+
+4. Printing statistics.
+
+=== milan_csr ===
+
+        +----------Local Count, excluding submodules.
+        | 
+    50452 wires
+    74712 wire bits
+      905 public wires
+    25022 public wire bits
+      302 ports
+     7041 port bits
+    69288 cells
+      199   $_ANDNOT_
+    16246   $_AND_
+    16392   $_DFFE_PP_
+       64   $_DFF_P_
+      296   $_MUX_
+    32277   $_NAND_
+      145   $_NOR_
+       22   $_NOT_
+       55   $_ORNOT_
+      411   $_OR_
+       10   $_SDFFCE_PN0P_
+     2704   $_SDFFE_PN0P_
+       56   $_SDFFE_PN1P_
+      326   $_SDFFE_PP0P_
+       25   $_SDFF_PN0_
+        1   $_SDFF_PN1_
+       17   $_XNOR_
+       42   $_XOR_
+

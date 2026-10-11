@@ -1,0 +1,19 @@
+Public round-one evidence: https://github.com/kebag-logic/milan-fpga/blob/648503cfeee36d03d7baf2a7b8608e1310caae49/review-evidence/640-m5-r1/author/HANDOFF.md
+Downloaded bytes match published MANIFEST.json: f45a1b972e7ec7bf37d75836af18937ff3ecbbb21025c6f27874b1711cfbd474
+This immutable round-one snapshot precedes the public round-two correction.
+Current correction: https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6105430562
+Current PR body captured in pr-body-at-review.md.
+Disjoint routed change: -121 + -342 + -227 = -690
+Outside CSR: -690 - (-121) = -569
+Nested u_pp -344 lies inside wrapper -342 and is not added.
+Partial central: 37957 + (600 - 121) = 38436
+Excess above target: 38436 - 38040 = 396
+base alone: (3038 - 2955) / (8 - 1) = 11.857143 LUT per stream
+base proxy: (2494 - 2058) / (8 - 1) = 62.285714 LUT per stream
+M5 alone: (2859 - 2515) / (8 - 1) = 49.142857 LUT per stream
+M5 proxy: (2295 - 1903) / (8 - 1) = 56.000000 LUT per stream
+#649 in-datapath fit: 210.6 LUT/stream, N=1,2,4; tracked 8x8 excluded as another shape.
+These slopes are not a like-for-like reproduction of that fit.
+Routed CSR saving 3037 - 2916 = 121; post-synthesis 3130 - 3003 = 127.
+Timing: +0.097 >= max(+0.030, +0.299 - 0.250) = +0.049 ns.
+No new route executed; figures above are checked arithmetic over published author receipts.

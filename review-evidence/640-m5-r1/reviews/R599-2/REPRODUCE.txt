@@ -1,0 +1,46 @@
+R599-2 focused reproduction
+
+Use a fresh packet directory containing the published scripts. Run from that
+directory. Set REVIEW_REPO to a clean detached clone at
+c0cba330fd485e52fcb90d5ccc69169edf9f0c2b, with history through e8454e27 and
+988ec7f6 and initialized protocol-processor, gptp-processor and verilog-axis
+submodules. Set PINNED_VERILATOR to the verified 5.050 executable. Keep all
+builds and local dependency environments under scratch/.
+
+python3 scripts/verify_tree.py "$REVIEW_REPO" c0cba330fd485e52fcb90d5ccc69169edf9f0c2b --submodules
+python3 scripts/check_delta.py "$REVIEW_REPO"
+bash scripts/run_verified_csr.sh "$REVIEW_REPO" "$PINNED_VERILATOR"
+
+The CSR runner creates scratch/verified-head. It invokes make -j16, caps each
+independent compilation at two compiler jobs, and runs the seven-mutation
+campaign with its own sequential driver. TMPDIR points into scratch/. Run in
+the foreground and retain the exit status and full output. No campaign --jobs
+option exists. Expected: total 1,815 checks, zero failures; lockstep 5/5 at
+each shape; mutation campaign 8/8 including control.
+
+For the focused before/after netlist comparison, prepare a fresh export:
+
+mkdir -p scratch/old
+git -C "$REVIEW_REPO" archive 988ec7f653d0a21e0f7b40b03b8c74155d8962cf | tar -x -C scratch/old
+bash scripts/netlist_compare.sh "$PWD/scratch/old" "$PWD/scratch/verified-head" "$PWD/scratch/netlist"
+
+This leaf synthesis consumes no submodule. It uses sv2v 0.0.13 and Yosys 0.66
+with 1x1 generated shape includes and default explicit module parameters.
+Expected: four successful commands and identical lowered source, netlist.v,
+netlist.json and stat.txt. It is not a route, vendor mapping or timing run.
+
+For the documentation and source-structure checks, use a local environment:
+
+python3 -m venv scratch/markdown
+scratch/markdown/bin/python -m pip install --require-hashes -r "$REVIEW_REPO/tools/markdown/requirements.txt"
+python3 scripts/run_docs.py "$REVIEW_REPO" scratch/markdown/bin/python
+
+Expected: 22 commands, zero failures. Re-run verify_tree.py after all checks.
+The report distinguishes these focused checks from author source receipts,
+hosted jobs, manager candidate banks and physical evidence.
+
+The original round was resumed after an external interruption. Earlier
+archive-based suite output and missing-renderer setup attempts were superseded
+by the listed fresh-clone CSR and local-environment docs receipts. Neither is
+used as passing evidence. Only the files in MANIFEST.sha256 and REPORT.md are
+publication inputs; scratch/ is disposable and never published.
