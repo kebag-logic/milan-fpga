@@ -1,0 +1,9 @@
+CAUGHT cumulative-row: rc=1; FAIL cumulative central row 4 M6: 35467-600=34867 vs 34868; FAIL cumulative central row 5 M7: 34868-500=34368 vs 34367
+CAUGHT m6-block-credit: rc=1; FAIL M6 credited routed saving = 468: 467
+CAUGHT m2-route-lut: rc=1; FAIL M2 routed delta LUT: 50,138 - 50,267 = -129, row says -128
+CAUGHT m6-section-claims-m2-array: rc=1; FAIL M6 section credits no M2 array
+CAUGHT bram-running-total: rc=1; FAIL budget BRAM running total M2 maximum additional allocati: 120.5 vs 121.5
+CAUGHT budget-lane-row: rc=1; FAIL AREA_BUDGET lane row M6 media contexts: 34867 vs 34,767
+CAUGHT m6-budget-note-lost: rc=1; FAIL AREA_BUDGET M6 note agrees
+CAUGHT m2-budget-note-lost: rc=1; FAIL AREA_BUDGET M2 note agrees
+8/8 plants caught

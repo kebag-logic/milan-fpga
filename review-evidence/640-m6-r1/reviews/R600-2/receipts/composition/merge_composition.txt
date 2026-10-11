@@ -1,0 +1,60 @@
+## parents of candidate: ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 ee0fc6fd9abd393ac48d5d5f4f9e2452dc5f6937
+## merge base of dev and PR: e8454e2751d05b02ee8e5a571857589ab358ab86
+## recomputed merge tree: 9ef4b6a221a43ec301f137501e948ba8ad2b9239
+## candidate tree:        9ef4b6a221a43ec301f137501e948ba8ad2b9239
+## files PR changed since base that dev also changed:
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/testing/TESTING.md
+## files candidate differs from PR head (expect dev's files only):
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+docs/findings/B14_BENCH_5603C353.md
+docs/findings/README.md
+docs/litex/CLOCK_DOMAINS.md
+docs/testing/TESTING.md
+scripts/run_litex_sims.sh
+sw/litex/gen_mac_tx_model.py
+sw/litex/milan_soc.py
+sw/litex/test_retained_cdc_storage.py
+tb/verilator/gptp_txts/generated/mac_tx_chain.v
+tb/verilator/gptp_txts/generated/manifest.json
+## files candidate differs from dev (expect PR's files only):
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/testing/TESTING.md
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+scripts/measure_test_evidence_readers.py
+tb/verilator/avtp_rxmon/Makefile
+tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv
+tb/verilator/avtp_rxmon/lockstep_mutants.py
+tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+tb/verilator/avtp_rxmon/sim_lockstep.cpp
+tb/verilator/capture_coherence/mutants.py
+tb/verilator/chmap_capture/Makefile
+tb/verilator/chmap_capture/chmap_lockstep_wrap.sv
+tb/verilator/chmap_capture/lockstep_mutants.py
+tb/verilator/chmap_capture/reference/KL_chan_map_capture_ref.sv
+tb/verilator/chmap_capture/sim_lockstep.cpp
+-- docs/design/AREA_BUDGET.md
+   merge-file conflicts=0 ; merged == candidate: yes
+   dev-added lines missing from candidate: 0 of 6
+   PR-added lines missing from candidate:  0 of 4
+   dev-removed lines still in candidate:   0 of 2
+   PR-removed lines still in candidate:    0 of 0
+-- docs/design/MARK_II_AREA_PLAN.md
+   merge-file conflicts=0 ; merged == candidate: yes
+   dev-added lines missing from candidate: 0 of 30
+   PR-added lines missing from candidate:  0 of 40
+   dev-removed lines still in candidate:   0 of 3
+   PR-removed lines still in candidate:    0 of 0
+-- docs/testing/TESTING.md
+   merge-file conflicts=0 ; merged == candidate: yes
+   dev-added lines missing from candidate: 0 of 16
+   PR-added lines missing from candidate:  0 of 2
+   dev-removed lines still in candidate:   0 of 0
+   PR-removed lines still in candidate:    0 of 2

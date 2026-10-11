@@ -1,0 +1,27 @@
+# Manager-owned candidate banks at $VALIDATION_STORAGE/640-m6-candidate-0923 (read only; cited, not re-run). Snapshot 2026-10-11T10:21:37Z
+8ec7fcfd3ef3e1349d382eff119c141020a843905be73c437d868403b5590ca3  full-native/complete.json
+ff7e12cbca97791e21d746f483ee045c47c61482f19c2284e7bbb66b89e20d98  full-native/results.json
+dd165a454817c9fedb2e456636988f9c0c1348b5d8dc7841bce3a1f61dca68f4  manager-builder/complete.json
+d35f9aa73fe49864856f121152f5cd0d8e640fdad9f700294254459b1a76007c  manager-builder/results.json
+5d9f68f415c6f8fb488ca5ab8f8723753bc7b476987352a9f177dea80c7d0df7  full-native-initial-integrity.json
+c8971b5009dffb95c9c9e274007b96ceeca75b4c05bfaa7c9ef2ef641f120398  manager-builder-initial-integrity.json
+7a1330f04feb085caaf61798b5f6bb8b683f99aafb841548987b545aac7da1ba  pinned-tool-identity.json
+manager-builder/results.json head 1a042affce2f252f10ed40b3ec25659611b3974b base ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 commands 48 rc0 48
+full-native/results.json head 1a042affce2f252f10ed40b3ec25659611b3974b base ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 commands 5 rc0 5
+full-native-initial-integrity.json 1a042affce2f252f10ed40b3ec25659611b3974b 9ef4b6a221a43ec301f137501e948ba8ad2b9239 PASS
+manager-builder-initial-integrity.json 1a042affce2f252f10ed40b3ec25659611b3974b 9ef4b6a221a43ec301f137501e948ba8ad2b9239 PASS
+## shard rc files
+full-suite-logs/shard-0.rc 0
+full-suite-logs/shard-1.rc 0
+full-suite-logs/shard-2.rc 0
+full-suite-logs/shard-3.rc 0
+full-suite-logs/shard-4.rc 0
+## suite tallies for the suites the lane names and the lockstep legs
+avtp_rxmon: RESULT: PASS == avtp_rxmon lockstep N=8: checks: 36   failures: 0 == RESULT: PASS 5 checks: 5 PASS, 0 FAIL 
+chmap_capture: RESULT: PASS == chmap_capture lockstep 32 slots: checks: 19   failures: 0 == RESULT: PASS 4 checks: 4 PASS, 0 FAIL 
+tkdiag: checks: 96   failures: 0 RESULT: PASS 5 checks: 5 PASS, 0 FAIL 
+render_setpoint: RESULT: PASS == render_setpoint: checks: 131   failures: 0 == RESULT: PASS 15 checks: 15 PASS, 0 FAIL 
+milan_dp: RESULT: PASS RESULT: PASS 6 checks: 6 PASS, 0 FAIL 6 checks: 6 PASS, 0 FAIL 
+capture_coherence: == capture_coherence_dp: checks: 332   failures: 0 == RESULT: PASS == capture_coherence: checks: 20832   failures: 0 == RESULT: PASS 
+gptp_txts: == gptp_txts: checks: 85   failures: 0 == RESULT: PASS controls: 6   failures: 0 RESULT: PASS 
+csr: checks: 408   failures: 0 RESULT: PASS checks: 408   failures: 0 RESULT: PASS 

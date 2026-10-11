@@ -1,0 +1,10 @@
+## probe P1 (M2 heading renamed, its two inbound links dangle): python3 scripts/gen_toc.py --verify-anchors
+  MISS docs/design/AREA_BUDGET.md -> MARK_II_AREA_PLAN.md#m2-intermediate-measurement
+anchor check: 469 existing cross-page fragment links reproduced, 1 NOT reproduced
+rc=1
+## probe P1 (M2 heading renamed, its two inbound links dangle): python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 203 md files + 1256 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## probe P1 (M2 heading renamed, its two inbound links dangle): python3 scripts/check_doc_paths.py
+doc path gate: OK (961 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0

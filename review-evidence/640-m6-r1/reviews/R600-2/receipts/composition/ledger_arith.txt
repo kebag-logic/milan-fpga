@@ -1,0 +1,81 @@
+route-1x1 record keys: ['ceiling', 'floor', 'measured', 'record', 'tolerance']
+PASS M2 routed delta LUT: 50,139 - 50,267 = -128, row says -128
+PASS M2 routed delta FF: 54,354 - 54,413 = -59, row says -59
+PASS M2 routed delta Slices: 15,771 - 15,779 = -8, row says -8
+PASS M2 RAMB delta: row says 0 / 0
+PASS M2 WNS/WHS delta: +0.007/-0.012 vs +0.007 / -0.012
+PASS M2 base row = plan's other lane base row
+PASS M2 base row LUT = route-1x1 headline 50,267 in AREA_BUDGET
+PASS M2 base row = gate record figures: record LUT 50267 FF 54413 SLICE 15779 tiles 87.5
+PASS M6 routed delta LUT: 49,561 - 50,267 = -706, row says -706
+PASS M6 routed delta FF: 53,455 - 54,413 = -958, row says -958
+PASS M6 routed delta Slices: 15,791 - 15,779 = +12, row says +12
+PASS M6 RAMB delta: row says 0 / 0
+PASS M6 WNS/WHS delta: -0.158/-0.013 vs -0.158 / -0.013
+PASS M6 base row = plan's other lane base row
+PASS M6 base row LUT = route-1x1 headline 50,267 in AREA_BUDGET
+PASS M6 base row = gate record figures: record LUT 50267 FF 54413 SLICE 15779 tiles 87.5
+PASS M6 credited routed saving = 468: 468
+PASS M6 credited post-synthesis saving = 418: 418
+PASS M6 credited FF saving = 839 (REVIEW READY): 839
+PASS M6 text states 418 post-synthesis, 468 routed
+PASS AREA_BUDGET M6 note agrees
+PASS M2 reproducible 34 = post-synthesis delta row
+PASS M2 routed 128 = routed delta row
+PASS AREA_BUDGET M2 note agrees
+PASS M2 section credits no M6 block
+PASS M6 section credits no M2 array
+PASS L9 states no M2 overlap
+PASS cumulative baseline = 50,267
+PASS cumulative central row 1 F0-F5, complete qualified flip / L2: 50267-14000=36267 vs 36267
+PASS cumulative central row 2 M2: 36267-200=36067 vs 36067
+PASS cumulative central row 3 M5: 36067-600=35467 vs 35467
+PASS cumulative central row 4 M6: 35467-600=34867 vs 34867
+PASS cumulative central row 5 M7: 34867-500=34367 vs 34367
+PASS cumulative central row 6 M8a: 34367-1000=33367 vs 33367
+PASS cumulative central row 7 M8b, conditional: 33367-1700=31667 vs 31667
+PASS cumulative central row 8 M3 and M10: 31667-0=31667 vs 31667
+PASS cumulative M2 row keeps planning 200
+PASS cumulative M6 row keeps planning 600
+PASS central headroom 38,040-31,667=6,373
+PASS conservative headroom 38,040-35,867=2,173
+PASS AREA_BUDGET lane row F0-F5 split: 36267 vs 36,267
+PASS AREA_BUDGET lane row M2 retained SoC tables: 36067 vs 36,067
+PASS AREA_BUDGET lane row M5 CSR read path: 35467 vs 35,467
+PASS AREA_BUDGET lane row M6 media contexts: 34867 vs 34,867
+PASS AREA_BUDGET lane row M7 gPTP tables: 34367 vs 34,367
+PASS AREA_BUDGET lane row M8a on-chip main memory: 33367 vs 33,367
+PASS AREA_BUDGET lane row M8b smaller cacheless RV32I: 31667 vs 31,667
+PASS AREA_BUDGET lane row M3 residual fabric AECP: 31667 vs 31,667
+PASS AREA_BUDGET lane row M10 shared gPTP/AECP engine: 31667 vs 31,667
+PASS plan BRAM row tile delta Recorded route at `a5ca6e51`: 87.5 vs 87.5
+PASS plan BRAM running total Recorded route at `a5ca6e51`: 87.5 vs 87.5
+PASS plan BRAM row tile delta L2 credited removals: AECP and: -6.5 vs -6.5
+PASS plan BRAM running total L2 credited removals: AECP and: 81.0 vs 81
+PASS plan BRAM row tile delta Measured mailbox replacement: 6.0 vs +6
+PASS plan BRAM running total Measured mailbox replacement: 87.0 vs 87
+PASS plan BRAM row tile delta M8a reuse of existing BIOS ROM: -18.5 vs -18.5
+PASS plan BRAM running total M8a reuse of existing BIOS ROM: 68.5 vs 68.5
+PASS plan BRAM row tile delta Total firmware allocation, inc: 50.0 vs +50
+PASS plan BRAM running total Total firmware allocation, inc: 118.5 vs 118.5
+PASS plan BRAM row tile delta M2 maximum additional allocati: 2.0 vs +2
+PASS plan BRAM running total M2 maximum additional allocati: 120.5 vs 120.5
+PASS plan BRAM row tile delta Conditional release of remaini: -11.0 vs -11
+PASS plan BRAM running total Conditional release of remaini: 109.5 vs 109.5
+PASS plan M2 +2 allowance row retained
+PASS budget BRAM row tile delta Recorded route at `a5ca6e51`: 87.5 vs 87.5
+PASS budget BRAM running total Recorded route at `a5ca6e51`: 87.5 vs 87.5
+PASS budget BRAM row tile delta L2 credited removals: AECP and: -6.5 vs -6.5
+PASS budget BRAM running total L2 credited removals: AECP and: 81.0 vs 81
+PASS budget BRAM row tile delta Measured mailbox replacement: 6.0 vs +6
+PASS budget BRAM running total Measured mailbox replacement: 87.0 vs 87
+PASS budget BRAM row tile delta M8a reuse of existing BIOS ROM: -18.5 vs -18.5
+PASS budget BRAM running total M8a reuse of existing BIOS ROM: 68.5 vs 68.5
+PASS budget BRAM row tile delta Total firmware allocation, inc: 50.0 vs +50
+PASS budget BRAM running total Total firmware allocation, inc: 118.5 vs 118.5
+PASS budget BRAM row tile delta M2 maximum additional allocati: 2.0 vs +2
+PASS budget BRAM running total M2 maximum additional allocati: 120.5 vs 120.5
+PASS budget BRAM row tile delta Conditional release of remaini: -11.0 vs -11
+PASS budget BRAM running total Conditional release of remaini: 109.5 vs 109.5
+PASS budget M2 +2 allowance row retained
+0 failure(s)
