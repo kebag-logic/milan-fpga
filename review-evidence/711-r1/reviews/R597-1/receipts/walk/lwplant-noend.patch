@@ -1,0 +1,15 @@
+ccae6f21d093c43c0631990c9990aa264e6db87d R597 probe: drop the MRPDU EndMark
+
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index b0d4156..93a0cf6 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -1402,7 +1402,7 @@ static int tx_assemble(const struct mrp_app_ops *ops, struct mrp_port_state *ps,
+         }
+         off = (size_t)(end - pdu);
+     }
+-    pdu[off++] = 0; pdu[off++] = 0; /* MRPDU EndMark */
++    /* R597 plant: MRPDU EndMark dropped */
+     *len = off;
+     return 0;
+ }

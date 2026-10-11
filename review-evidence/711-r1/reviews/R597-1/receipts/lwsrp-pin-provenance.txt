@@ -1,0 +1,28 @@
+# lwSRP pin provenance (reviewer R597)
+main tip at fetch: 97677fcb249bc69c7acec94690419480e839f5b4
+08ee86e8 parents: 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 9197193e47a6bb1c45a56d90a18c1784123aba44 a44eeedf9abb0549b473acfb46eb910e99f397e1
+first-parent of main includes 08ee86e8: 1
+9197193e ancestor of 08ee86e8: yes
+tree 08ee86e8 67b35af9c7a906ea044e04686362d58811f85051 / tree a44eeedf 67b35af9c7a906ea044e04686362d58811f85051
+src/ changes 9197193e..08ee86e8:
+ src/core/mrp_mad.c          | 183 +++++++++++++++++++++++++++++++++-----------
+ src/include/shish_lan/mrp.h |  10 ++-
+ 2 files changed, 146 insertions(+), 47 deletions(-)
+contract permalink text old L321-323 vs new L324-326 (integrator.md):
+identical
+filter contract old L288-290 vs new L292-294 (mrp.h):
+identical
+upstream PR #18: MERGED merge=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 head=a44eeedf9abb0549b473acfb46eb910e99f397e1
+milan-fpga gitlinks base e8454e27:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+head 49b437f4:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+.gitmodules changed: 0
