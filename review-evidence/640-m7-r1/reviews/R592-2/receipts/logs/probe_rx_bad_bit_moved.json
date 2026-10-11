@@ -1,0 +1,13 @@
+{
+ "name": "rx_bad_bit_moved",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+ "expect": "rx_fifo lockstep",
+ "make_rc": 2,
+ "checks": 24,
+ "failures": 2,
+ "failed_checks": [
+  "rx_fifo lockstep: mismatching cycles",
+  "timer coverage: slots 0 to 5"
+ ],
+ "verdict": "CAUGHT-BY-EXPECTED"
+}

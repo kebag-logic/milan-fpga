@@ -1,0 +1,17 @@
+{
+ "name": "ledger_tag_stuck0",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+ "expect": "ledger lockstep",
+ "make_rc": 2,
+ "checks": 24,
+ "failures": 6,
+ "failed_checks": [
+  "ledger coverage: three or more entries outstanding",
+  "ledger lockstep: mismatching cycles",
+  "results coverage: two or more results outstanding",
+  "timer coverage: slots 0 to 5",
+  "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276",
+  "tx_fifo coverage: over 16 beats queued behind a stall"
+ ],
+ "verdict": "CAUGHT-BY-EXPECTED"
+}

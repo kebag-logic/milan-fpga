@@ -1,0 +1,27 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.170 MB sources in 19 modules, into 0.901 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 12.123 s (elab=0.035, cvt=0.153, bld=11.856); cpu 0.275 s on 16 threads; allocated 640.016 MB
+stimulus: 32100038 cycles, 90122 mixed and 190 peer frames, 0 pdelay answers
+rx_fifo: 44128 good, 33423 overflow, 12760 bad, lanes 0xff, 256 beats deep
+tx_fifo: 4 frames, counts 0x110, 7121 stalled cycles, 9 beats deep
+tx_fifo decode: counts 0x1ff driven, 0 decoded wrong
+ledger: 29686059 compared, heads 0x01, tags 0x2, 2 deep
+results: 0 compared, heads 0x00, 0 deep, 0 written behind a waiting result
+timer: 14426 compared, slots 0x05
+plane: flags 0x0, 5 programs run, 123 tap drops, 946 parser drops, 2203 event drops, 0 lost results, 0 barriers
+  [FAIL] tx_fifo lockstep: mismatching cycles     got=11000144 exp=0
+  [FAIL] tx_fifo coverage: frames transmitted
+  [FAIL] tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276
+  [FAIL] tx_fifo coverage: stalled with a beat waiting
+  [FAIL] tx_fifo coverage: over 16 beats queued behind a stall
+  [FAIL] ledger coverage: every entry was the head got=1 exp=255
+  [FAIL] ledger coverage: three or more entries outstanding
+  [FAIL] results coverage: head compared
+  [FAIL] results coverage: every entry was the head got=0 exp=255
+  [FAIL] results coverage: two or more results outstanding
+  [FAIL] timer coverage: slots 0 to 5             got=5 exp=63
+== gptp_tables: checks: 24   failures: 11 ==
+RESULT: FAIL
+make: *** [Makefile:55: run] Error 1

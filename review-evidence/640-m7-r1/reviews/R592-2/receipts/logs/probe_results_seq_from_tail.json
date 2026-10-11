@@ -1,0 +1,22 @@
+{
+ "name": "results_seq_from_tail",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+ "expect": "results lockstep",
+ "make_rc": 2,
+ "checks": 24,
+ "failures": 11,
+ "failed_checks": [
+  "ledger coverage: every entry was the head got=3 exp=255",
+  "ledger coverage: three or more entries outstanding",
+  "results coverage: every entry was the head got=3 exp=255",
+  "results coverage: head compared",
+  "results coverage: two or more results outstanding",
+  "results lockstep: mismatching cycles",
+  "timer coverage: slots 0 to 5",
+  "tx_fifo coverage: frames transmitted",
+  "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276",
+  "tx_fifo coverage: over 16 beats queued behind a stall",
+  "tx_fifo coverage: stalled with a beat waiting"
+ ],
+ "verdict": "CAUGHT-BY-EXPECTED"
+}

@@ -1,0 +1,13 @@
+{
+ "name": "tx_decode_le",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+ "expect": "tx_fifo decode",
+ "make_rc": 2,
+ "checks": 24,
+ "failures": 2,
+ "failed_checks": [
+  "tx_fifo decode: counts that decode to other enables got=8 exp=0",
+  "tx_fifo lockstep: mismatching cycles"
+ ],
+ "verdict": "CAUGHT-BY-EXPECTED"
+}

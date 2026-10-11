@@ -1,0 +1,32 @@
+docs_check	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/docs_check.py
+docs_nogit	0	env GIT_DIR=/dev/null $VALIDATION_TOOLS/md-venv/bin/python scripts/docs_check.py
+em_dash	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_em_dash.py --base e8454e2751d05b02ee8e5a571857589ab358ab86
+doc_style	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_doc_style.py
+toc_check	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/gen_toc.py --check
+toc_anchors	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/gen_toc.py --verify-anchors
+doc_paths	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_doc_paths.py
+doc_map	0	$VALIDATION_TOOLS/md-venv/bin/python docs/DOC_MAP.gen.py --check
+module_matrix	0	$VALIDATION_TOOLS/md-venv/bin/python docs/traceability/gen_module_matrix.py --check
+gptp_docs	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_gptp_docs.py
+gptp_docs_sub	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_gptp_docs.py --with-submodule
+gptp_docs_self	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_gptp_docs.py --selftest
+submodule_docs	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_submodule_docs.py
+submodule_diagram	0	$VALIDATION_TOOLS/md-venv/bin/python docs/diagrams/submodule_boundaries.gen.py --check
+timesync	0	$VALIDATION_TOOLS/md-venv/bin/python docs/diagrams/timesync_chain.gen.py --check
+diagram_pngs	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_diagram_pngs.py
+feature_status	0	$VALIDATION_TOOLS/md-venv/bin/python scripts/check_feature_status.py
+sv_idiom	0	python3 scripts/check_sv_idiom.py
+cpp_idiom	0	python3 scripts/check_cpp_idiom.py
+py_idiom	0	python3 scripts/check_py_idiom.py
+hygiene	0	python3 scripts/check_hygiene.py --check
+test_evidence	0	python3 scripts/measure_test_evidence.py --check
+naming	0	python3 scripts/measure_naming.py --check
+fail_fast	0	python3 scripts/measure_fail_fast.py --check
+todo	0	python3 scripts/check_todo_ownership.py
+rtl_source_lists	0	python3 scripts/check_rtl_source_lists.py
+port_contracts	0	python3 scripts/check_port_contracts.py
+resource_baseline	0	python3 syn/ooc/pp_resource_gate.py check-baseline
+lint	0	env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin python3 scripts/lint_rtl.py --check
+gp_contract	0	env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin make -C gptp-processor contract
+gp_lint	0	env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin make -C gptp-processor lint
+diff_base	0	git diff --check e8454e2751d05b02ee8e5a571857589ab358ab86 HEAD

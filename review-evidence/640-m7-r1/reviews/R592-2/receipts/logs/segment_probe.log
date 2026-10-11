@@ -1,0 +1,21 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.170 MB sources in 19 modules, into 0.901 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 5.506 s (elab=0.036, cvt=0.106, bld=5.296); cpu 0.225 s on 16 threads; allocated 1536.027 MB
+SEG before-reset-1 cyc=21100016 prog=13488 res_cmp=5496 tmr_cmp=27725 led_cmp=10726304 tx_frames=4845 flags=0xd
+SEG after-reset-1 cyc=21100027 prog=0 res_cmp=5497 tmr_cmp=27727 led_cmp=10726304 tx_frames=4845 flags=0x0
+SEG before-reset-2 cyc=28600027 prog=10234 res_cmp=9690 tmr_cmp=41858 led_cmp=12673790 tx_frames=9039 flags=0xd
+SEG after-reset-2 cyc=28600038 prog=0 res_cmp=9690 tmr_cmp=41860 led_cmp=12673793 tx_frames=9039 flags=0x0
+SEG before-drain cyc=31600038 prog=3673 res_cmp=11369 tmr_cmp=47124 led_cmp=13272683 tx_frames=10522 flags=0xd
+SEG end cyc=32100038 prog=3686 res_cmp=11377 tmr_cmp=47997 led_cmp=13273273 tx_frames=10530 flags=0xd
+stimulus: 32100038 cycles, 90088 mixed and 217 peer frames, 14 pdelay answers
+rx_fifo: 44199 good, 33354 overflow, 12751 bad, lanes 0xff, 256 beats deep
+tx_fifo: 10530 frames, counts 0x114, 12092492 stalled cycles, 27 beats deep
+tx_fifo decode: counts 0x1ff driven, 0 decoded wrong
+ledger: 13273273 compared, heads 0xff, tags 0x2, 3 deep
+results: 11377 compared, heads 0xff, 3 deep, 110 written behind a waiting result
+timer: 47997 compared, slots 0x3f
+plane: flags 0xd, 3686 programs run, 118 tap drops, 890 parser drops, 23 event drops, 0 lost results, 0 barriers
+== gptp_tables: checks: 24   failures: 0 ==
+RESULT: PASS

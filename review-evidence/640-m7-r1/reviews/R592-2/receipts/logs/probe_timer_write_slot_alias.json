@@ -1,0 +1,14 @@
+{
+ "name": "timer_write_slot_alias",
+ "file": "gptp-processor/hdl/common/KL_gptp_timer.sv",
+ "expect": "timer lockstep",
+ "make_rc": 2,
+ "checks": 24,
+ "failures": 3,
+ "failed_checks": [
+  "timer coverage: slots 0 to 5",
+  "timer lockstep: mismatching cycles",
+  "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276"
+ ],
+ "verdict": "CAUGHT-BY-EXPECTED"
+}
