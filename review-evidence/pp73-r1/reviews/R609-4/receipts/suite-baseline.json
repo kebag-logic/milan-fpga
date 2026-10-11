@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "make",
+    "-j16",
+    "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "VFLAGS=--cc --exe --build -j 12 --top-module aecp_cmds_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS \"-std=c++17 -O2 -Wall -Wextra\""
+  ],
+  "cwd": "$REVIEWS/pp73-r609-4-packet/scratch/suite/tb/aecp_cmds",
+  "rc": 0,
+  "expected": 0,
+  "elapsed_seconds": 54.139
+}

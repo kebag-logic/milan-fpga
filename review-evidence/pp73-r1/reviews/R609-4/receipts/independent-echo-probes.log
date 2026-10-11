@@ -1,0 +1,15 @@
+{"case": "implicit shared secondary accepted", "pass_": true, "findings": []}
+{"case": "explicit shared first entry accepted", "pass_": true, "findings": []}
+{"case": "private first entry refused", "pass_": true, "findings": ["  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "private secondary refused", "pass_": true, "findings": ["  schema: echo_entries: RDESCENT is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "unknown refused", "pass_": true, "findings": ["  schema: echo_entries: UNKNOWN_R609 is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "shared with first owner refused without declaration", "pass_": true, "findings": ["  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "NSUPPE declaration required", "pass_": true, "findings": ["  schema: echo_entries: NSUPPE is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "BADARG declaration required", "pass_": true, "findings": ["  schema: echo_entries: BADARG is neither a shared program without a first-entry owner nor listed in shared_entries"]}
+{"case": "list shape refused", "pass_": true, "findings": ["  schema: echo_entries must be a list of program names"]}
+{"case": "member shape refused", "pass_": true, "findings": ["  schema: echo_entries must be a list of program names"]}
+{"case": "SUCCESS observation 12", "findings": ["  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12, the table's response is 32"]}
+{"case": "SUCCESS observation echo", "findings": ["  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at the command's own length, and the table's response is no echo"]}
+{"case": "SUCCESS ROM short fields", "addresses": [1016, 1017, 1018], "findings": ["  rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12, the table's response is 32"]}
+{"case": "non-SUCCESS echo boundary retained", "findings": ["  rom: LOCK_ENTITY: E_BADARG answers BAD_ARGUMENTS at cdl 12, the table's response is 28", "  rom: READ_DESCRIPTOR: E_BADARG answers BAD_ARGUMENTS at cdl 12, the table's response is 16 + descriptor", "  rom: GET_STREAM_FORMAT: E_BADARG answers BAD_ARGUMENTS at cdl 12, the table's response is 24"]}
+Independent echo boundary probes: 14 PASS, 0 FAIL

@@ -1,0 +1,16 @@
+check: base rc 0, head rc 0, raw byte-identical False
+  base: 410 bytes; sha256 d580ecc0930c25ee3e608ba459181cd869166ee1b62ef07ca14e831c9b8df3de
+  head: 2838 bytes; sha256 816780a10119bbe9a8e75bdedecddf2510e8d9b9e1b3988000f65c6f7c172eaf
+lint: base rc 0, head rc 0, raw byte-identical True
+  base: 1056 bytes; sha256 9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81
+  head: 1056 bytes; sha256 9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81
+matrix: base rc 0, head rc 0, raw byte-identical True
+  base: 33 bytes; sha256 7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097
+  head: 33 bytes; sha256 7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097
+yosys: base rc 0, head rc 0, raw byte-identical True
+  base: 3548 bytes; sha256 e68a361ae9adca7b1a0c4663fda6ab28a7f4a28ac5fa238b9a1db7bf57a4ca66
+  head: 3548 bytes; sha256 e68a361ae9adca7b1a0c4663fda6ab28a7f4a28ac5fa238b9a1db7bf57a4ca66
+suites: base rc 0, head rc 0, raw byte-identical False
+  base: 1799 bytes; sha256 b1205c5d8cfb979eb93a54b692587924790bdf4c4de46ddf82547223d37c36f5
+  head: 1845 bytes; sha256 38fa720383a8849953e1cf8082f0e53803388009d382ddf3cf146b6ce9b349b1
+Every original suite record is byte-identical; head suite records also equal round 2 byte for byte.

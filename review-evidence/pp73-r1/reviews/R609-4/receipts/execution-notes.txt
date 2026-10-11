@@ -1,0 +1,12 @@
+The initial foreground supervisor completed its suite and gate campaigns but
+reported two reviewer setup assertions. The membership-disable probe removed
+the type guard as well, so the malformed-list fixture stopped before the intended
+named test. The production identity query included the new testbench wrapper.
+The first was narrowed to disable only membership classification, retaining shape
+validation. The second was restricted to production hdl/. Both affected campaigns
+were rerun successfully; the corrected portable runner and their final raw
+receipts are included. No source defect was inferred from these setup errors.
+No shell job was detached. All concurrent children belonged to foreground
+supervisors, and every supervisor was waited for to completion. The one scoped
+build used make -j16 with compilation limited to 12 workers; lightweight independent
+checks ran alongside it. No full banks or hardware runs were performed.

@@ -1,0 +1,4 @@
+FAIL:  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12, the table's response is 32
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0002 EAVL: observed {"answers": {"0": "12"}, "cdls": "12-100", "floor": 12}, recorded {"answers": {"0": "32"}, "cdls": "12-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs ucode.hex (generated): observed "160017de1821a5035e9680106b9cb4013add2c7cdb3d32ffa6661a1ae194e3d9", recorded "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 176 checks: 174 PASS, 2 FAIL
