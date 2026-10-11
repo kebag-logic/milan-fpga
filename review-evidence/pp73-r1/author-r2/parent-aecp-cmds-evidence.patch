@@ -1,0 +1,15 @@
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -86,6 +86,12 @@
+     "protocol-processor/tb/pp_top/gsi_mutants.py":
+         "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+         "into an isolated copy and requires the named response check to fail",
++    "protocol-processor/tb/aecp_cmds/mutants.py":
++        "mutation campaign; it plants one decode, dispatch, length-floor, GET_DYNAMIC_INFO, "
++        "unsolicited-job or response-field defect from its own table into an isolated copy of "
++        "the engine or the generator, builds and sweeps it, and requires the named decode check "
++        "to fail in a completed run; the expected programs, floors and sizes are the AECP command "
++        "table's (hdl/aecp/ucode/aecp_commands.json), never read from RTL text",
+     "protocol-processor/tb/srp_admission/mutants.py":
+         "mutation campaign; it plants one admission defect into a temporary tree, "
+         "requires the named check to fail, and runs clean controls first",

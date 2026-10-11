@@ -1,0 +1,10 @@
+probe: p5b_message_type_write
+expect: --write refuses (rc 1, schema line), F06.14 untouched
+command: python3 -B scripts/check_aecp_commands.py --write
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+  schema: GET_MILAN_INFO: message 'AA' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AA' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+--- stderr

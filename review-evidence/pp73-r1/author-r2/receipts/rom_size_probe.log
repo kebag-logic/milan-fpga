@@ -1,0 +1,17 @@
+READ_DESCRIPTOR                      E_RDESC    BUILD_FLD word  648 NOPed: gate FAILS: rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 +
+READ_DESCRIPTOR                      E_RDESC    APPEND    none reachable
+GET_AVB_INFO                         E_GAVB     BUILD_FLD word  950 NOPed: gate FAILS: rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28 + 4·N, the table's response is 32 + 4·N
+GET_AVB_INFO                         E_GAVB     APPEND    word  956 NOPed: gate FAILS: rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32, never 32 + 4·N: no path builds the variable part
+GET_AS_PATH                          E_GASP     BUILD_FLD word  981 NOPed: gate FAILS: rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14 + 8·N, the table's response is 16 + 8·N
+GET_AS_PATH                          E_GASP     APPEND    word  986 NOPed: gate FAILS: rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16, never 16 + 8·N: no path builds the variable part
+GET_AUDIO_MAP                        E_GAMAP    BUILD_FLD word  816 NOPed: gate FAILS: rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22 + 8·N, the table's response is 24 + 8·N
+GET_AUDIO_MAP                        E_GAMAP    APPEND    word  823 NOPed: gate FAILS: rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24, never 24 + 8·N: no path builds the variable part
+ADD_AUDIO_MAPPINGS                   E_AMADD    BUILD_FLD none reachable
+ADD_AUDIO_MAPPINGS                   E_AMADD    APPEND    none reachable
+REGISTER_UNSOLICITED_NOTIFICATION    E_REGUN    BUILD_FLD none reachable
+REGISTER_UNSOLICITED_NOTIFICATION    E_REGUN    APPEND    none reachable
+GET_STREAM_INFO                      E_GSTRI    BUILD_FLD word  924 NOPed: gate FAILS: rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl 64, the table's response is 68
+GET_STREAM_INFO                      E_GSTRI    APPEND    none reachable
+GET_COUNTERS                         E_GCTRS    BUILD_FLD word  773 NOPed: gate FAILS: rom: GET_COUNTERS: E_GCTRS answers SUCCESS at cdl 144, the table's response is 148
+GET_COUNTERS                         E_GCTRS    APPEND    word  791 NOPed: gate FAILS: rom: GET_COUNTERS: E_GCTRS answers NO_SUCH_DESCRIPTOR at cdl 16, the table's response is 148
+rc=0
