@@ -1,0 +1,55 @@
+candidate eb86b843557c6d9300847e3b6e12851604580b69 tree 623d921bf8c84cd9f3717887ce2702cbaf1448f8
+parents   cfadd767a7ad47aaee68de655e1066cc000fb8a0 32582421bbf095a7b5a7d4b953c4d737b86fe54b
+lane base (merge-base dev, pr) e8454e2751d05b02ee8e5a571857589ab358ab86
+fresh merge-tree of dev and pr: 623d921bf8c84cd9f3717887ce2702cbaf1448f8
+
+== per-file patch identity, PR (base..head) against candidate (dev..candidate)
+same  docs/design/AREA_BUDGET.md
+same  docs/design/MAAP_FABRIC.md
+same  docs/design/MARK_II_AREA_PLAN.md
+same  docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+same  docs/findings/README.md
+same  hdl/ieee1722/maap/KL_maap.sv
+same  hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+same  hdl/milan/milan_datapath.sv
+same  sw/firmware/ctrl/maap/README.md
+same  sw/firmware/ctrl/test/maap_differential.py
+same  sw/firmware/ctrl/test/test_maap_differential.cpp
+same  syn/ooc/pp_resource_baseline.json
+same  tb/verilator/maap/Makefile
+same  tb/verilator/maap/integration.mk
+same  tb/verilator/maap/mutants.py
+same  tb/verilator/maap/sim_integration.cpp
+same  tb/verilator/maap/sim_main.cpp
+
+== files changed on both sides since the lane base
+-- docs/design/AREA_BUDGET.md
+   dev hunks: -196,0 +197,4 -203,0 +208,4 -269,2 +277,2 
+   pr  hunks: -13 +13 -107,2 +107,6 -120,3 +124,3 -125 +129 -128,4 +132,6 -140,2 +146,2 -145,2 +151,2 -365 +371 -404,2 +410,2 -456,0 +463,7 
+   dev commits: 6bfeeb132 ac2c5e77b 
+-- docs/design/MARK_II_AREA_PLAN.md
+   dev hunks: -453,0 +454 -554,0 +556 -670,0 +673,31 -827,3 +860,3 -886,0 +920,46 
+   pr  hunks: -56 +56 -110 +110,4 -118,11 +121,11 -130,4 +133,4 -136,3 +139,3 -143,0 +147 -649,2 +653,2 
+   dev commits: 6bfeeb132 ac2c5e77b 
+-- docs/findings/README.md
+   dev hunks: -15 +15 
+   pr  hunks: -25 +25 
+   dev commits: 1fb0ed9a2 
+-- hdl/milan/milan_datapath.sv
+   dev hunks: -3450 +3450,2 -3504 +3505,4 -3505,0 +3510 -3507,14 +3512,16 -3522,0 +3530,4 -6326,6 +6337,8 
+   pr  hunks: -267,2 +267,2 -7170,0 +7171,2 
+   dev commits: 6bfeeb132 
+
+== dev first-parent merges since the lane base
+cfadd767a Merge PR #718: Adopt lwSRP main 08ee86e8: grouped MRP Messages, decoded SRP behaviour unchanged (#711)
+6bfeeb132 Merge PR #719: Mark II M6: media context tables in LUT RAM, counters read one column at a time (#640)
+ac2c5e77b Merge PR #710: M2: store the retained MAC framing flags in LUTRAM and move CSR FIFOs into the freed block RAM (#640)
+1fb0ed9a2 Merge PR #712: Record bench lane B15: Direction B tone is absent from the reference peer's talker; the DUT renders its stream bit-exact (#629)
+f88df731c Merge PR #709: Record the B14 bench on dev 5603c353: source switches, withdrawals, talker starts, default map, soak, MAAP (#608)
+
+== gitlinks at the candidate
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 2ad2f845dd583f8310075fa2380cb60a04fd091a 0	protocol-processor
+160000 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0	third_party/lwSRP
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
