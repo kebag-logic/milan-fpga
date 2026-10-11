@@ -1,0 +1,8 @@
+probe: q3_write_idempotent
+expect: --write on the clean tree reports current, no byte change
+command: python3 -B scripts/check_aecp_commands.py --write
+rc: 0
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+aecp commands: F06.14 in docs/architecture/06_aecp_engine.md is current
+--- stderr
