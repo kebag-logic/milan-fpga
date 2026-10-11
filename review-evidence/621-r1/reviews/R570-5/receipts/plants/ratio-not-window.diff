@@ -1,0 +1,11 @@
+--- head/gen_gptp_ucode.py
++++ plant/ratio-not-window.py
+@@ -833,7 +833,7 @@
+     p.emit("WRST", ra=RB, imm=RG_PHC | 1, fmt=FMT_Q)         # adjtime
+     # A phase change is not oscillator drift (802.1AS-2020 11.2.19.3.3).
+     # Re-seed the next rate window, retaining the last measured ratio.
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)
++    p.emit("WRST", ra=0, imm=RG_SCR | S_NRR, fmt=FMT_Q)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
+     # the rate estimate survives the step AND becomes the whole addend:

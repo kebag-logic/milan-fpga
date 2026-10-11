@@ -1,0 +1,109 @@
+--- orig-5dce647a/gen_gptp_ucode.py
++++ head-7dda9c3b/gen_gptp_ucode.py
+@@ -267,6 +267,8 @@
+ S_MYPV = 10                              # our {p1, cq, p2, 16'0} vector
+ S_PDGOT = 11                             # exchange seen since last req
+ S_NR3, S_NR4, S_NRR = 12, 13, 14         # nrr window + Q2.30 ratio
++# S_NR4 is read only behind nonzero S_NR3. The rate-window save writes
++# both together, and a step clears S_NR3. No independent init is needed.
+ S_INTG = 15                              # servo integrator, addend units
+ S_T1, S_T4, S_TXQ_TMR = 16, 17, 18       # S_TXQ_TMR took the cell the one
+                                          # shared pending kind used before
+@@ -334,6 +336,10 @@
+ # ---- the servo's lock state (FPGA-gPTP #68) ---------------------------------
+ S_LOCK = 43      # 0 when the next pair is a link-up, else what a locked
+                  # servo adds to the link-up step threshold
++S_PDSTEP = 44    # current request overlaps our own PHC step
++# Every request clears this before any matching response can complete.
++# A step sets it without changing response-loss or multiple-peer accounting.
++# Warm reset invalidates pairing; its next request establishes a fresh flag.
+ # INVARIANT for S_LOCK: WRITTEN BEFORE IT IS READ after every reset, cold or
+ # warm, with no init write and no reset-backed validity. Its only reader is
+ # the SERVO leg, which runs only while asCapable stands. Reset clears the
+@@ -825,6 +831,11 @@
+     p.emit("BRS", cnd=BRS_Z, label="sv_slew")
+     p.emit("ALU", rd=RB, ra=R0, rb=RA, cnd=ALU_SUB)          # -offset
+     p.emit("WRST", ra=RB, imm=RG_PHC | 1, fmt=FMT_Q)         # adjtime
++    # A phase change is not oscillator drift (802.1AS-2020 11.2.19.3.3).
++    # Re-seed the next rate window, retaining the last measured ratio.
++    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)
++    p.emit("MOVE", rd=RT, ra=0, imm=1)
++    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
+     # the rate estimate survives the step AND becomes the whole addend:
+     # the re-base just made the stale proportional term moot
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+@@ -1269,7 +1280,7 @@
+     p.emit("BRS", cnd=BRS_Z, label="out")            # nothing deferred
+     p.emit("WRST", ra=0, imm=RG_SCR | S_PDWAIT, fmt=FMT_Q)
+     p.emit("RDST", rd=RC, imm=RG_SCR | S_T3, fmt=FMT_Q)
+-    p.emit("BR", label=LB["PDPAIR"])
++    p.emit("BR", label=LB["PDEPOCH"])
+     p.label("out")
+     p.emit("END")
+     return p
+@@ -1284,6 +1295,7 @@
+     _tmr_init_once(p, mac, seq_seed, sync_seq_seed)
+     _tmr_cadence_gate(p)
+     _tmr_cease_rule(p)
++    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
+     p.emit("BR", label=LB["PDREQ"])
+     return p
+ 
+@@ -1338,7 +1350,7 @@
+     for s in (((S_MYSEQ,) if not seq_seed else ()) +
+               ((S_SSEQ,) if not sync_seq_seed else ()) + (
+               S_SYNCTS, S_PDELAY, S_T2, S_SSEQFLY,
+-              S_PDOK, S_PDLOST, S_PDGOT, S_NR3, S_NR4, S_NRR, S_INTG,
++              S_PDOK, S_PDLOST, S_PDGOT, S_NR3, S_NRR, S_INTG,
+               S_T1, S_T4, S_TXQ_TMR, S_TXQ_RESP,
+               S_ASEQ,
+               S_RSP1, S_IVMULTI, S_CEASE,
+@@ -1682,7 +1694,7 @@
+     p = Prog(base)
+     _pdpost_pairing_gates(p)
+     _pdpost_defer_until_t1(p)
+-    p.emit("BR", label=LB["PDPAIR"])
++    p.emit("BR", label=LB["PDEPOCH"])
+     return p
+ 
+ 
+@@ -1712,14 +1724,26 @@
+     p.label("t1_here")
+ 
+ 
++def prog_leg_pdepoch(base: int) -> Prog:
++    """Retain a valid delay when a complete exchange spans a PHC step."""
++    p = Prog(base)
++    # A complete crossing exchange proves peer liveness, but its timestamps
++    # cannot measure delay (802.1AS-2020 11.2.19.3.4). Keep the last delay
++    # and capability ladder; an unanswered request still uses the loss path.
++    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
++    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)
++    p.emit("BRS", cnd=BRS_Z, label=LB["PDPAIR"])
++    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
++    p.emit("END")
++    return p
++
++
+ def prog_leg_pdpair(base: int) -> Prog:
+     """The bank-independent tail of a complete Pdelay exchange; RC = t3.
+ 
+-    Entered from the Follow_Up's own dispatch when t1 was already here, and
+-    from the TXT1OK arm when the t1 result arrives afterwards. It reads
+-    only scratch and the publish bank, never a message bank, which is what
+-    makes the deferred entry safe (verified by inspection: every read below
+-    is RG_SCR or RG_PUB)."""
++    Entered through PDEPOCH from the Follow_Up or a deferred t1 result.
++    Reads only scratch and publication, never a released message bank.
++    """
+     p = Prog(base)
+     _pdpost_neighbor_rate_ratio(p)
+     _pdpost_corrected_delay(p)
+@@ -2019,6 +2043,7 @@
+     ("RFU", prog_leg_rfu), ("SYNCFU", prog_leg_syncfu),
+     ("SYNCTX", prog_leg_synctx), ("ANNTX", prog_leg_anntx),
+     ("PDPOST", prog_leg_pdpost), ("PDPAIR", prog_leg_pdpair),
++    ("PDEPOCH", prog_leg_pdepoch),
+     ("SRTO", prog_leg_srto),
+     ("FUTO", prog_leg_futo), ("SERVO", prog_leg_servo),
+     ("SLEW", prog_leg_slew), ("SVRATE", prog_leg_svrate),
