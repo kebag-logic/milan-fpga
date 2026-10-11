@@ -1,0 +1,21 @@
+shard 0/4 rc=0 wall=309.4s
+     13     verdict: PASS (1 tests, 0 failures, exit 0)
+      7     verdict: PASS (3 tests, 0 failures, exit 0)
+      6     verdict: PASS (5 tests, 0 failures, exit 0)
+      5     verdict: PASS (9 tests, 0 failures, exit 0)
+      2     verdict: PASS (72 tests, 0 failures, exit 0)
+59
+shard 1/4 rc=0 wall=936.1s
+      1 test_ctrl_firmware: PASS
+      1 PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+      1 mutants: 471 of 471 caught
+      1     first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+471
+shard 2/4 rc=0 wall=219.3s
+      1 test_ctrl_firmware: PASS
+      1 PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+74
+shard 3/4 rc=0 wall=638.4s
+      1 test_ctrl_firmware: PASS
+      1 PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+239

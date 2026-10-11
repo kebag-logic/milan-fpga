@@ -1,0 +1,4212 @@
+[
+ {
+  "attempt": 1,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114539125290,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:16Z",
+    "completed_at": "2026-10-11T18:12:37Z",
+    "seconds": 21,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114539125458,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:16Z",
+    "completed_at": "2026-10-11T18:12:32Z",
+    "seconds": 16,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114539204815,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:39Z",
+    "completed_at": "2026-10-11T18:24:01Z",
+    "seconds": 682,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114539204828,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:39Z",
+    "completed_at": "2026-10-11T18:16:38Z",
+    "seconds": 239,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114539204841,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:40Z",
+    "completed_at": "2026-10-11T18:22:07Z",
+    "seconds": 567,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114539204867,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:39Z",
+    "completed_at": "2026-10-11T18:24:03Z",
+    "seconds": 684,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114539204869,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:40Z",
+    "completed_at": "2026-10-11T18:13:20Z",
+    "seconds": 40,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114539204872,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:12:40Z",
+    "completed_at": "2026-10-11T18:27:29Z",
+    "seconds": 889,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114542303850,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:27:32Z",
+    "completed_at": "2026-10-11T18:27:34Z",
+    "seconds": 2,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 2,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114542434749,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:11Z",
+    "completed_at": "2026-10-11T18:28:42Z",
+    "seconds": 31,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114542434987,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:10Z",
+    "completed_at": "2026-10-11T18:28:24Z",
+    "seconds": 14,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114542554288,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:44Z",
+    "completed_at": "2026-10-11T18:38:54Z",
+    "seconds": 610,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114542554327,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:45Z",
+    "completed_at": "2026-10-11T18:40:28Z",
+    "seconds": 703,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114542554335,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:44Z",
+    "completed_at": "2026-10-11T18:35:39Z",
+    "seconds": 415,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114542554341,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:44Z",
+    "completed_at": "2026-10-11T18:42:45Z",
+    "seconds": 841,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114542554349,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:44Z",
+    "completed_at": "2026-10-11T18:29:12Z",
+    "seconds": 28,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114542554360,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:28:45Z",
+    "completed_at": "2026-10-11T18:32:48Z",
+    "seconds": 243,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114545486835,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:42:48Z",
+    "completed_at": "2026-10-11T18:42:51Z",
+    "seconds": 3,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 3,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114545597631,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:20Z",
+    "completed_at": "2026-10-11T18:43:50Z",
+    "seconds": 30,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114545597785,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:21Z",
+    "completed_at": "2026-10-11T18:43:31Z",
+    "seconds": 10,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114545705044,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:52Z",
+    "completed_at": "2026-10-11T18:55:08Z",
+    "seconds": 676,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114545705053,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:52Z",
+    "completed_at": "2026-10-11T18:56:07Z",
+    "seconds": 735,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114545705054,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:53Z",
+    "completed_at": "2026-10-11T18:53:30Z",
+    "seconds": 577,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114545705090,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:53Z",
+    "completed_at": "2026-10-11T18:44:32Z",
+    "seconds": 39,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114545705105,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:52Z",
+    "completed_at": "2026-10-11T18:57:35Z",
+    "seconds": 823,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114545705106,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:43:52Z",
+    "completed_at": "2026-10-11T18:46:46Z",
+    "seconds": 174,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114548539719,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:57:37Z",
+    "completed_at": "2026-10-11T18:57:39Z",
+    "seconds": 2,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 4,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114548723720,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:31Z",
+    "completed_at": "2026-10-11T18:58:57Z",
+    "seconds": 26,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114548723849,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:31Z",
+    "completed_at": "2026-10-11T18:58:46Z",
+    "seconds": 15,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114548817903,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:59Z",
+    "completed_at": "2026-10-11T19:08:54Z",
+    "seconds": 595,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114548817921,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:59Z",
+    "completed_at": "2026-10-11T19:03:09Z",
+    "seconds": 250,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114548817923,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:59Z",
+    "completed_at": "2026-10-11T19:12:50Z",
+    "seconds": 831,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114548817927,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:59Z",
+    "completed_at": "2026-10-11T18:59:33Z",
+    "seconds": 34,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114548817939,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:58:59Z",
+    "completed_at": "2026-10-11T19:10:06Z",
+    "seconds": 667,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114548817940,
+    "conclusion": "success",
+    "started_at": "2026-10-11T18:59:00Z",
+    "completed_at": "2026-10-11T19:12:11Z",
+    "seconds": 791,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114551688004,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:12:53Z",
+    "completed_at": "2026-10-11T19:12:56Z",
+    "seconds": 3,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 5,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114551854241,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:13:41Z",
+    "completed_at": "2026-10-11T19:14:06Z",
+    "seconds": 25,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114551854419,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:13:41Z",
+    "completed_at": "2026-10-11T19:13:56Z",
+    "seconds": 15,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114551946176,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:28:08Z",
+    "seconds": 840,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114551946197,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:27:38Z",
+    "seconds": 810,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114551946205,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:25:08Z",
+    "seconds": 660,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114551946223,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:18:10Z",
+    "seconds": 242,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114551946231,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:14:48Z",
+    "seconds": 40,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114551946253,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:14:08Z",
+    "completed_at": "2026-10-11T19:22:10Z",
+    "seconds": 482,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114554900036,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:28:10Z",
+    "completed_at": "2026-10-11T19:28:14Z",
+    "seconds": 4,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 6,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114555044602,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:28:52Z",
+    "completed_at": "2026-10-11T19:29:17Z",
+    "seconds": 25,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114555044746,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:28:51Z",
+    "completed_at": "2026-10-11T19:29:02Z",
+    "seconds": 11,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114555142823,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:19Z",
+    "completed_at": "2026-10-11T19:42:59Z",
+    "seconds": 820,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114555142837,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:19Z",
+    "completed_at": "2026-10-11T19:38:17Z",
+    "seconds": 538,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114555142841,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:19Z",
+    "completed_at": "2026-10-11T19:32:46Z",
+    "seconds": 207,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114555142905,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:20Z",
+    "completed_at": "2026-10-11T19:39:30Z",
+    "seconds": 610,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114555142906,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:19Z",
+    "completed_at": "2026-10-11T19:42:54Z",
+    "seconds": 815,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114555142916,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:29:19Z",
+    "completed_at": "2026-10-11T19:29:52Z",
+    "seconds": 33,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114557999469,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:43:01Z",
+    "completed_at": "2026-10-11T19:43:05Z",
+    "seconds": 4,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 7,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "bdd-conformance": {
+    "id": 114558204259,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:02Z",
+    "completed_at": "2026-10-11T19:44:15Z",
+    "seconds": 13,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "changes": {
+    "id": 114558204386,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:02Z",
+    "completed_at": "2026-10-11T19:44:27Z",
+    "seconds": 25,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114558298505,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:29Z",
+    "completed_at": "2026-10-11T19:58:11Z",
+    "seconds": 822,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114558298520,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:29Z",
+    "completed_at": "2026-10-11T19:45:05Z",
+    "seconds": 36,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114558298527,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:29Z",
+    "completed_at": "2026-10-11T19:54:33Z",
+    "seconds": 604,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114558298542,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:29Z",
+    "completed_at": "2026-10-11T19:58:27Z",
+    "seconds": 838,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114558298548,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:29Z",
+    "completed_at": "2026-10-11T19:47:18Z",
+    "seconds": 169,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114558298594,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:44:30Z",
+    "completed_at": "2026-10-11T19:53:24Z",
+    "seconds": 534,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114561156634,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:58:30Z",
+    "completed_at": "2026-10-11T19:58:34Z",
+    "seconds": 4,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 8,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "bdd-conformance": {
+    "id": 114561304054,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:59:13Z",
+    "completed_at": "2026-10-11T19:59:23Z",
+    "seconds": 10,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "changes": {
+    "id": 114561304311,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:59:13Z",
+    "completed_at": "2026-10-11T19:59:42Z",
+    "seconds": 29,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114561405335,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:59:45Z",
+    "completed_at": "2026-10-11T20:14:21Z",
+    "seconds": 876,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114561405365,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:59:45Z",
+    "completed_at": "2026-10-11T20:10:10Z",
+    "seconds": 625,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114561405376,
+    "conclusion": "success",
+    "started_at": "2026-10-11T19:59:45Z",
+    "completed_at": "2026-10-11T20:00:20Z",
+    "seconds": 35,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114561405382,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:00:22Z",
+    "completed_at": "2026-10-11T20:11:29Z",
+    "seconds": 667,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114561405404,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:02:16Z",
+    "completed_at": "2026-10-11T20:06:36Z",
+    "seconds": 260,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114561405414,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:01:13Z",
+    "completed_at": "2026-10-11T20:14:59Z",
+    "seconds": 826,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114564587685,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:02Z",
+    "completed_at": "2026-10-11T20:15:05Z",
+    "seconds": 3,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 9,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "bdd-conformance": {
+    "id": 114564672556,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:25Z",
+    "completed_at": "2026-10-11T20:15:37Z",
+    "seconds": 12,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "changes": {
+    "id": 114564672732,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:24Z",
+    "completed_at": "2026-10-11T20:15:54Z",
+    "seconds": 30,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114564781192,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:29:39Z",
+    "seconds": 823,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114564781234,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:24:21Z",
+    "seconds": 505,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114564781263,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:26:44Z",
+    "seconds": 648,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114564781266,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:16:35Z",
+    "seconds": 39,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114564781271,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:23:25Z",
+    "seconds": 449,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114564781312,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:15:56Z",
+    "completed_at": "2026-10-11T20:19:19Z",
+    "seconds": 203,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114567672614,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:29:42Z",
+    "completed_at": "2026-10-11T20:29:46Z",
+    "seconds": 4,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "attempt": 10,
+  "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+  "event": "pull_request",
+  "run_conclusion": "success",
+  "jobs": {
+   "changes": {
+    "id": 114567865727,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:30:35Z",
+    "completed_at": "2026-10-11T20:31:04Z",
+    "seconds": 29,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Classify the change conservatively",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "bdd-conformance": {
+    "id": 114567865936,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:30:35Z",
+    "completed_at": "2026-10-11T20:30:46Z",
+    "seconds": 11,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch the processor model inputs",
+      "success"
+     ],
+     [
+      "Install behave",
+      "success"
+     ],
+     [
+      "Run the specification-facing suite",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-srp-mutants": {
+    "id": 114567976296,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:41:10Z",
+    "seconds": 604,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run both SRP mutation campaigns and pin controls",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-control-mutants": {
+    "id": 114567976319,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:44:56Z",
+    "seconds": 830,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-aecp-mutants": {
+    "id": 114567976339,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:35:10Z",
+    "seconds": 244,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the AECP mutation campaign",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "verilator-lint": {
+    "id": 114567976344,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:31:39Z",
+    "seconds": 33,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Build Verilator from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Run the ratcheted whole-tree lint gate",
+      "success"
+     ],
+     [
+      "Prove protocol-processor source lists are derived",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Verilator build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "firmware-unit": {
+    "id": 114567976364,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:42:39Z",
+    "seconds": 693,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Install GoogleTest and GoogleMock and print the versions",
+      "success"
+     ],
+     [
+      "Prove the tally reads a failing and a crashing test as failures",
+      "success"
+     ],
+     [
+      "Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Install and verify the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Run the control-plane firmware suites and RV32 builds",
+      "success"
+     ],
+     [
+      "Run the saved-state store suites and its RV32 build",
+      "success"
+     ],
+     [
+      "Hold the firmware coverage ratchet",
+      "success"
+     ],
+     [
+      "Post Cache the pinned RV32 SDK",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "yosys-elaboration": {
+    "id": 114567976408,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:31:06Z",
+    "completed_at": "2026-10-11T20:45:24Z",
+    "seconds": 858,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Fetch RTL dependencies",
+      "success"
+     ],
+     [
+      "Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Build Yosys from source on cache miss",
+      "skipped"
+     ],
+     [
+      "Install the pinned Yosys and prove the version",
+      "success"
+     ],
+     [
+      "Install the pinned sv2v release",
+      "success"
+     ],
+     [
+      "Elaborate the integration-heavy tops",
+      "success"
+     ],
+     [
+      "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "success"
+     ],
+     [
+      "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "success"
+     ],
+     [
+      "Prove both synthesis flows refuse active elaboration guards",
+      "success"
+     ],
+     [
+      "Prove the result cache refuses a planted entry",
+      "success"
+     ],
+     [
+      "Post Cache the pinned Yosys build",
+      "success"
+     ],
+     [
+      "Post Run actions/checkout@v4",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   },
+   "rtl-fast": {
+    "id": 114570992389,
+    "conclusion": "success",
+    "started_at": "2026-10-11T20:45:26Z",
+    "completed_at": "2026-10-11T20:45:29Z",
+    "seconds": 3,
+    "steps": [
+     [
+      "Set up job",
+      "success"
+     ],
+     [
+      "Require every applicable fast gate to pass",
+      "success"
+     ],
+     [
+      "Complete job",
+      "success"
+     ]
+    ]
+   }
+  }
+ }
+]

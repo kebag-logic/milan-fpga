@@ -1,0 +1,24 @@
+=== 6113578810 Mister-M-alt 2026-10-11T20:47:06Z
+[A10] **Acceptance item 2: 10 consecutive hosted runs at `f41e4f2d`.** All are attempts 1 to 10 of rtl-fast run 38162821680 (`pull_request`). Times are job wall-clock from the Actions API. Every job concluded success in every attempt.
+
+| Attempt | firmware-unit | firmware-control-mutants | firmware-srp-mutants | firmware-aecp-mutants |
+|---:|---:|---:|---:|---:|
+| 1 | 684 s | 682 s | 567 s | 239 s |
+| 2 | 703 s | 841 s | 415 s | 243 s |
+| 3 | 676 s | 823 s | 577 s | 174 s |
+| 4 | 667 s | 831 s | 595 s | 250 s |
+| 5 | 660 s | 840 s | 482 s | 242 s |
+| 6 | 538 s | 815 s | 610 s | 207 s |
+| 7 | 534 s | 838 s | 604 s | 169 s |
+| 8 | 667 s | 826 s | 625 s | 260 s |
+| 9 | 449 s | 648 s | 505 s | 203 s |
+| 10 | 693 s | 830 s | 604 s | 244 s |
+| **Slowest / 2700 s** | **703 s (26.0 %)** | **841 s (31.1 %)** | **625 s (23.1 %)** | **260 s (9.6 %)** |
+
+The slowest job over the 10 runs is `firmware-control-mutants` at 841 s, 31.1 % of its 45-minute timeout. The bound is 70 % (1,890 s), so item 2 is met. The author's conservative prediction for that job was 879 s.
+
+=== 6113597136 Mister-M-alt 2026-10-11T20:49:06Z
+[A10] INDEPENDENT REVIEW STARTED: R620-1
+
+R620 (internal reviewer) reconstructs issue #716 / PR #724 at exact head `f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48`, tree `6fab4d33da2dfeb5c349911088b17d40e23b81f3`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+

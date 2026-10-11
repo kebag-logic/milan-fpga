@@ -1,0 +1,136 @@
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] **Assignment.** Executor [A601], reviewers [R620] (internal) and [R621] (external). Branch `716-fw-unit-split` from dev `ac2c5e77`.
+
+Do the acceptance above exactly.
+- Item 1: take per-step times from at least 10 recent hosted `firmware-unit` jobs, and per-suite times inside the slow steps from the log timestamps. Name the steps and suites that cost the time.
+- Item 2: every job keeps `timeout-minutes` at 45 or less. The bound is 70 % of each job's own timeout; raising a timeout does not count toward it. A cache may hold pinned toolchains keyed by digest, as the RV32 SDK cache does today, but never build outputs that a check relies on.
+- No check is lost, by construction. A generated census lists every command the job runs today with its `if` gating. The head must run the same set; shard arguments may be added. If suites are split into shards, each discovered suite lands in exactly one shard, and a check fails when a suite is in none or in two, so suites that later PRs add (#705) are picked up without a hand list. Each such check gets a planted mutant that fails it.
+- The coverage ratchet keeps its thresholds and checks the same suites. If coverage is gathered per shard, show on one local run that the merged result equals the unsplit one, file by file.
+- Before REVIEW READY, predict each new job's hosted time from local runs pinned to 4 CPUs, scaled by the hosted-to-local ratio measured on today's job. The slowest prediction must be at most 60 % of its timeout.
+- The manager pushes the head, collects the 10 consecutive hosted runs on the PR and posts the table there. Reviewers judge item 2 from that table.
+- STOP if the bound needs a check, arm or ratchet removed or weakened; if one indivisible suite alone exceeds 1890 s on hosted; if the layout needs more than four new jobs; or if the change leaves `.github/workflows/rtl-fast.yml`, `scripts/ci_events.py` and its tests, the firmware suite drivers' shard options, `sw/firmware/gtest/fw_coverage.py`, `docs/testing/CI_WORKFLOWS.md` and their self-tests.
+
+Post TAKEN, then REVIEW READY (or STOP) with the head.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A601] TAKEN
+Branch: `716-fw-unit-split`, base `ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5`.
+Authoritative references: #716 and assignment comment 6107547907; REQ-VER-04; CONTRIBUTING.md; docs/testing/CI_WORKFLOWS.md.
+Interpreted scope: measure hosted firmware job steps and suites, then preserve every command, condition, suite and coverage threshold while restoring the assigned runtime margin within the listed files. Executor [A601]; reviewers [R620] and [R621].
+Validation plan: generated command census, exhaustive/disjoint shard checks with planted mutants where applicable, coverage equivalence where applicable, isolated four-CPU baseline/candidate timing, touched gates including documentation and CI event tests. The manager owns the ten consecutive hosted acceptance runs.
+Blockers: none identified yet. The project card still shows Backlog; proceeding under the explicit lane assignment. All assigned STOP conditions apply.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A601] REVIEW READY
+
+Commit: `f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48`
+Branch: `716-fw-unit-split`, from `ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5`.
+Local commits: `b27c5537b64925696bebe91fba49b65da685b609`, then the head above.
+The branch is committed and clean. Publication belongs to the manager.
+
+Changed: four required firmware jobs, each retaining a 45-minute timeout.
+`firmware-unit` owns normal suites, saved-state, RV32/tally controls, and unsplit coverage.
+Three new jobs own the complete control, AECP, and both SRP mutation campaigns with pin controls.
+The required aggregate checks every result. The driver, its shard self-test, CI contract,
+and CI policy preserve the original commands, guards, suites, ratchet, and SDK-only cache.
+All five changed files are within the assignment's permitted areas.
+
+Timing evidence: 17 recent hosted jobs were sampled through read-only APIs; totals range
+from 1662 to 2450 seconds. The assigned-base run is 38095263410, job 114339840343:
+2276 seconds total, with control 1882, saved-state 103, and coverage 255 seconds.
+Its log-derived control windows are normal reports 299.808, control mutants 803.633,
+AECP 203.424, SRP interface 2 384.677, and SRP interface 1 182.501 seconds.
+These are reporting windows: buffered logs do not expose precise individual binary times.
+The handoff includes all job IDs, every API step timestamp, and the reporting-window table.
+
+The unchanged workload and each candidate workload ran separately under CPython 3.12.3,
+with four-CPU affinity, four workers, fresh builds, and no concurrent test/build workload
+from this lane. Every timed command exited zero.
+
+The base hosted/local compute ratio is `2247 / 2606.655866 = 0.862024032`.
+The conservative ratio uses the largest sampled matching compute total, 2312 seconds
+at job 114282060753: `0.886960197`. Each prediction adds 60 seconds for setup/completion
+(observed maximum 37 seconds). Formula: `ceil(local seconds * ratio + 60)`.
+
+| Job | Local seconds | Base-ratio prediction | Conservative prediction | Timeout used |
+|---|---:|---:|---:|---:|
+| firmware-unit | 642.830 | 615 s | 631 s | 23.37% |
+| firmware-control-mutants | 922.927 | 856 s | 879 s | 32.56% |
+| firmware-aecp-mutants | 219.862 | 250 s | 256 s | 9.48% |
+| firmware-srp-mutants | 617.701 | 593 s | 608 s | 22.52% |
+
+The slowest prediction is 879 seconds, below the 1620-second / 60% pre-review bound.
+The estimates reflect the sampled compiler and SDK-cache conditions; hosted runs decide acceptance.
+
+Preservation evidence:
+
+- Generated command/condition census: 19 original script lines, 55 after repeated setup;
+  identical sets after removing only the new shard suffixes. The original inventory
+  also matches the workflow captured before edits.
+- 844 discovered invocations, with shard sizes 59/472/75/238. Their concatenation exactly
+  matches the independently captured original order. Missing and duplicate dispatch mutants
+  fail, a future suite is discovered automatically, and nine invalid/narrowing combinations refuse.
+- Coverage remains unsplit. Independent baseline and candidate measurements match across
+  all 30 files: raw and retained fractions plus covered line/branch locations. Both pass
+  the unchanged ratchet and exclusion checks.
+
+Validation, all exit 0:
+
+```sh
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/ci_events.py --firmware-census
+python3 scripts/ci_scope.py --selftest
+python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+python3 scripts/ci_rv32_sdk_selftest.py
+python3 sw/firmware/gtest/tally_selftest.py
+python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+python3 sw/firmware/gtest/fw_coverage.py --selftest
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+python3 scripts/docs_check.py
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/gen_toc.py --check
+python3 scripts/gen_toc.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_py_idiom.py --selftest
+python3 scripts/check_em_dash.py --selftest
+python3 scripts/check_em_dash.py --base ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5
+git diff --check ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 HEAD
+```
+
+Results: CI contract 1944 items and 2672 arms; all 471 control mutants caught;
+AECP/SRP and pin controls pass; saved-state five shapes and 435 tests; coverage 30 files
+and 28 planted self-test cases; documentation and Python checks pass without relaxed budgets.
+The original complete control invocation also passed before implementation.
+
+Acceptance: local scheduling, preservation, policy, and prediction evidence are complete.
+Item 2's ten consecutive hosted runs remain for the manager, as assigned. The prepared
+PR body therefore uses `Relates to #716`. Independent reviews and the remaining full PR
+verification/merge lifecycle are pending. No STOP condition was triggered.
+
+Handoff: `HANDOFF.md`, `PR-BODY.md`, generated inventories, timing/coverage tables, and
+log size/SHA-256 manifests are in the assigned output directory. No toolchain, environment,
+tree export, or file over 200 KB was placed there. No push, PR mutation, hosted execution,
+merge, or hardware action was performed. Reviewers remain [R620] and [R621].
+
+--

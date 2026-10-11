@@ -1,0 +1,32 @@
+# rtl-fast run 38162821680 attempt 10, head f41e4f2dd56e; job logs fetched read-only from the Actions API
+== job 114567976364 (firmware-unit) bytes=142621 sha256=622c1d5cf3c268836f995f48591e7e016387d95345dfee017f070bf77b9e5621
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+test_ctrl_firmware: PASS
+coverage self-test: 28 of 28 planted cases read as planted
+firmware coverage: PASS (30 files)
+== job 114567976319 (firmware-control-mutants) bytes=151438 sha256=17ed3e343e789a230a030e9a847481829af29a5171f8bf4844666a96d885a126
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+mutants: 471 of 471 caught
+test_ctrl_firmware: PASS
+== job 114567976339 (firmware-aecp-mutants) bytes=76786 sha256=6decb8cfb47a2d9e5097d0c416f5d02667c00e7f15b5a6417ca4fd2daf1c8d77
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+test_ctrl_firmware: PASS
+== job 114567976296 (firmware-srp-mutants) bytes=151062 sha256=1b1365fbb63f321b84f633f98cc9986d5df024b8d23d684dfad9c36db34ec063
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+test_ctrl_firmware: PASS

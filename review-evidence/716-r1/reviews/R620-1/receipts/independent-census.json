@@ -1,0 +1,56 @@
+{
+ "base_firmware_jobs": [
+  "firmware-unit"
+ ],
+ "head_firmware_jobs": [
+  "firmware-aecp-mutants",
+  "firmware-control-mutants",
+  "firmware-srp-mutants",
+  "firmware-unit"
+ ],
+ "base_rows": 21,
+ "head_rows": 63,
+ "missing_from_head": [],
+ "added_in_head": [],
+ "shard_arguments": [
+  "0/4",
+  "1/4",
+  "2/4",
+  "3/4"
+ ],
+ "head_command_lines_not_in_base": [
+  "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4",
+  "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4",
+  "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4",
+  "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4"
+ ],
+ "head_timeouts": {
+  "firmware-unit": 45,
+  "firmware-control-mutants": 45,
+  "firmware-aecp-mutants": 45,
+  "firmware-srp-mutants": 45
+ },
+ "head_needs": {
+  "firmware-unit": "changes",
+  "firmware-control-mutants": "changes",
+  "firmware-aecp-mutants": "changes",
+  "firmware-srp-mutants": "changes"
+ },
+ "aggregate_needs": [
+  "changes",
+  "verilator-lint",
+  "bdd-conformance",
+  "yosys-elaboration",
+  "firmware-unit",
+  "firmware-control-mutants",
+  "firmware-aecp-mutants",
+  "firmware-srp-mutants"
+ ],
+ "head_cache_paths": [
+  "{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+ ],
+ "base_cache_paths": [
+  "{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+ ],
+ "preserved": true
+}

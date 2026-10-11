@@ -1,0 +1,303 @@
+[
+ {
+  "probe": "control-unmodified-check",
+  "expect": "pass",
+  "rc": 0,
+  "ok": true,
+  "file": "README.md",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": []
+ },
+ {
+  "probe": "control-unmodified-shards",
+  "expect": "pass",
+  "rc": 0,
+  "ok": true,
+  "file": "README.md",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "PASS: shard inventory rejects planted duplicate suite",
+   "PASS: a newly discovered suite is assigned without an ownership list",
+   "PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]",
+   "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+  ]
+ },
+ {
+  "probe": "wf-control-job-runs-shard0",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 6 (`Run the control mutation campaign`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4'); 1 line(s) expected, 1 found"
+  ]
+ },
+ {
+  "probe": "wf-srp-job-runs-shard2-duplicate",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4'); 1 line(s) expected, 1 found"
+  ]
+ },
+ {
+  "probe": "wf-unit-job-drops-shard-arg",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 7 (`Run the control-plane firmware suites and RV32 builds`) script is not the canonical form: line 3 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4'); 3 line(s) expected, 3 found"
+  ]
+ },
+ {
+  "probe": "wf-aggregate-needs-drops-srp",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants; missing: firmware-srp-mutants: a fast job outside the aggregate's `needs` can fail with the required context still green, and a dropped entry silently removes that job's result from the verdict",
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step env must be exactly CHANGES_RESULT, VERILATOR_LINT_RESULT, BDD_CONFORMANCE_RESULT, YOSYS_ELABORATION_RESULT, FIRMWARE_UNIT_RESULT, FIRMWARE_CONTROL_MUTANTS_RESULT, FIRMWARE_AECP_MUTANTS_RESULT; surplus: FIRMWARE_SRP_MUTANTS_RESULT (a GH_HOST or GH_CONFIG_DIR redirects gh away from this repository)",
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\"; do' (found 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do'); 12 line(s) expected, 12 found; this script is the whole required fast verdict, so a widened `case` or a dropped pair turns a named failure into a pass",
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` reads the `needs.firmware-srp-mutants` context and must list `firmware-srp-mutants` in its `needs` (found ['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants']): outside `needs` the expression is the empty string, so a `.result` or `.outputs` guard built on it is quietly false and the step or job it guards skips"
+  ]
+ },
+ {
+  "probe": "wf-aggregate-loop-drops-control",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do' (found 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do'); 12 line(s) expected, 12 found; this script is the whole required fast verdict, so a widened `case` or a dropped pair turns a named failure into a pass"
+  ]
+ },
+ {
+  "probe": "wf-aggregate-env-wrong-job",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step env must bind `FIRMWARE_AECP_MUTANTS_RESULT` to `${{ needs.firmware-aecp-mutants.result }}` (found `${{ needs.firmware-unit.result }}`): the name is not the contract, the source expression behind it is, and a rebound value leaves every pinned name and key in place while changing what the script reads",
+   "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` step 1 (`Require every applicable fast gate to pass`) env must bind `FIRMWARE_AECP_MUTANTS_RESULT` to `${{ needs.firmware-aecp-mutants.result }}` (found `${{ needs.firmware-unit.result }}`): the name is not the contract, the source expression behind it is, and a rebound value leaves every pinned name and key in place while changing what the script reads"
+  ]
+ },
+ {
+  "probe": "wf-aecp-job-if-false",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-aecp-mutants` `if` must be exactly `${{ needs.changes.outputs.rtl == 'true' }}` (found `False`)",
+   "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('dpkg-query -W libgtest-dev libgmock-dev', 'False', 'success()'), ('g++ --version | head -n 1', 'False', 'success()'), ('gcov --version | head -n 1', 'False', 'success()'), ('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', 'False', 'success()'), ('python3 -m pip install --quiet pyyaml', 'False', 'success()'), ('python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"', 'False', 'success()'), ('python3 scripts/ci_rv32_sdk_selftest.py', 'False', 'success()'), ('python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4', 'False', 'success()'), ('set -euo pipefail', 'False', 'success()'), ('sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev', 'False', 'success()'), ('sudo apt-get update -qq', 'False', 'success()')]"
+  ]
+ },
+ {
+  "probe": "wf-srp-timeout-60",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: firmware job `firmware-srp-mutants` timeout must remain 45 minutes"
+  ]
+ },
+ {
+  "probe": "wf-control-adds-build-output-cache",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` must carry exactly 6 steps, in the recorded order (found 7): an inserted step of ANY content runs before every later step and can set their inherited environment at run time -- a `BASH_ENV` written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action -- which the declared allowlists cannot see, and a removed one takes its gate with it",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 7 must be no step (found `Run the control mutation campaign`): the recorded list ends at step 6, so this one runs after every gate the job owes and inside the same checkout ([R97] round 2 on PR #431)",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 6 must be the step named `Run the control mutation campaign` (found `Cache firmware builds` (`uses: actions/cache@v4`)): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+  ]
+ },
+ {
+  "probe": "wf-unit-drops-coverage-check",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[('python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\"', \"${{ needs.changes.outputs.rtl == 'true' }}\", 'success()')], added=[]",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 9 (`Hold the firmware coverage ratchet`) script is not the canonical form: line 3 must be 'python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\"' (found None); 3 line(s) expected, 2 found"
+  ]
+ },
+ {
+  "probe": "wf-unit-drops-coverage-check-census",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --firmware-census --root <probe-tree>",
+  "evidence": [
+   "  \"preserved\": false"
+  ]
+ },
+ {
+  "probe": "wf-control-step-gated-off",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4', \"${{ needs.changes.outputs.rtl == 'true' }}\", '${{ false }}')]",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 6 (`Run the control mutation campaign`) must carry no `if` (found '${{ false }}'): it decides whether or how the script runs",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 6 (`Run the control mutation campaign`) keys must be exactly name, run; surplus: if"
+  ]
+ },
+ {
+  "probe": "wf-control-step-gated-off-census",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --firmware-census --root <probe-tree>",
+  "evidence": [
+   "  \"preserved\": false"
+  ]
+ },
+ {
+  "probe": "wf-continue-on-error-srp",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": ".github/workflows/rtl-fast.yml",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) must carry no `continue-on-error` (found True): it decides whether or how the script runs",
+   "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) keys must be exactly name, run; surplus: continue-on-error"
+  ]
+ },
+ {
+  "probe": "doc-budget-row-raised",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "docs/testing/CI_WORKFLOWS.md",
+  "command": "python3 -I scripts/ci_events.py --check --root <probe-tree>",
+  "evidence": [
+   "  FAIL docs/testing/CI_WORKFLOWS.md: firmware budget row must state `| `firmware-srp-mutants` | 45 min | 1890 s | 1620 s |`"
+  ]
+ },
+ {
+  "probe": "limit-shard-mode-discards-one-suite-outcome",
+  "expect": "pass",
+  "rc": 0,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "PASS: shard inventory rejects planted duplicate suite",
+   "PASS: a newly discovered suite is assigned without an ownership list",
+   "PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]",
+   "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+  ]
+ },
+ {
+  "probe": "limit-shard-mode-ignores-aecp-verdict",
+  "expect": "pass",
+  "rc": 0,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "PASS: shard inventory rejects planted duplicate suite",
+   "PASS: a newly discovered suite is assigned without an ownership list",
+   "PASS: 844 live invocations in exactly one shard; shard sizes [59, 472, 75, 238]",
+   "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+  ]
+ },
+ {
+  "probe": "drv-shard-mode-skips-srp-if1",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "    assert expected and not any(differences(expected, shards).values())",
+   "AssertionError"
+  ]
+ },
+ {
+  "probe": "drv-shard-mode-skips-pin-controls",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "    assert expected and not any(differences(expected, shards).values())",
+   "AssertionError"
+  ]
+ },
+ {
+  "probe": "drv-shard-mode-halves-control-table",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "    assert expected and not any(differences(expected, shards).values())",
+   "AssertionError"
+  ]
+ },
+ {
+  "probe": "drv-shard-mode-aecp-in-two-shards",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "    assert expected and not any(differences(expected, shards).values())",
+   "AssertionError"
+  ]
+ },
+ {
+  "probe": "drv-shard-mode-loses-srp-phase",
+  "expect": "fail",
+  "rc": 1,
+  "ok": true,
+  "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "    assert expected and not any(differences(expected, shards).values())",
+   "AssertionError"
+  ]
+ },
+ {
+  "probe": "future-endstation-shape",
+  "expect": "pass",
+  "rc": 0,
+  "ok": true,
+  "file": "configs/endstation_r620_probe.yaml",
+  "command": "python3 -s -B sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+  "evidence": [
+   "PASS: shard inventory rejects planted duplicate suite",
+   "PASS: a newly discovered suite is assigned without an ownership list",
+   "PASS: 849 live invocations in exactly one shard; shard sizes [64, 472, 75, 238]",
+   "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+  ]
+ }
+]
