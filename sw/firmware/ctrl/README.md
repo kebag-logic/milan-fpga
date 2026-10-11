@@ -172,7 +172,7 @@ So a replacement object (`refs/replace`) or a graft cannot make another tree rea
 What decides the pin is `stack_gitlink`, `stack_pin` and the command line's `main`.
 Before the proof's first Git call, where `ctrl_build.py` defines the helper, the proof installs a PEP 578 audit hook, which stays for the life of the process.
 An audit hook cannot be removed, and this one binds all it judges by as it is installed: the helper's code, the module's namespace, the Git program, and every function, builtin and constant it uses.
-So no later rebinding of a name switches it off.
+So no later rebinding of a name changes how it judges an event; what it judges is the events the interpreter raises, as below.
 While the proof runs (a function that decides the pin, in any thread, or the top level of one of the two modules), the hook refuses every process start the interpreter audits but the helper's, and every thread start, since a thread could change a start's arguments after the hook has read them.
 The helper's is the `subprocess` module starting, for the helper's own code, the Git program that `PATH` named when the proof was loaded, with both settings.
 The hook refuses `exec`, `compile` and an import of `importlib` while a function that decides the pin runs, and wherever the proof's own code asks for them, the helper's included.
@@ -180,8 +180,11 @@ In the same places it refuses the reaches into its own state: the collector's li
 At any time it refuses a replacement of what a function of the proof runs, its code or its defaults.
 Each refusal names the line of the proof that asked, and is written to the standard error before it is raised, so a refusal that is caught is still read.
 The guarantee covers launches through the interpreter's audited interfaces.
-Native code is the remaining limit: `ctypes`, an extension module, and before CPython 3.14 `_posixsubprocess.fork_exec`, which `multiprocessing` calls to spawn, start a process no audit event names.
-So is what Git itself starts, and code that runs before the hook is installed, at the top of `ctrl_build.py`.
+Native code is the remaining limit: `ctypes` and an extension module start a process no audit event names.
+Before CPython 3.14 that includes `_posixsubprocess.fork_exec`, which `subprocess` and `multiprocessing` call.
+`subprocess` raises its own event from Python just before that call, so on the runner's CPython 3.12.3 code that skips the call starts a process the hook never sees: code that calls `fork_exec` itself, or that rebinds `sys.audit`.
+CPython 3.14 raises an event in `fork_exec` itself, which the hook judges as it judges `subprocess.Popen`.
+What Git itself starts is outside the hook too, and so is code that runs before the hook is installed, at the top of `ctrl_build.py`.
 An import of a module already loaded raises no audit event, so `import importlib`, `__import__` or `pkgutil.importlib` alone is refused by the census below, not at run time; nothing it reaches can start a process or run dynamic code in the proof without an event the hook refuses.
 A function of the two modules that starts a process while the proof is not running is not judged.
 `ctrl_build.py`'s build functions and `run`, and `ctrl_pin.py`'s runs of `make` and of the gates its controls run, start their processes that way, through `fw_gtest.run`.
@@ -199,18 +202,18 @@ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP di
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-52 pin controls follow the boundary controls.
+58 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
 So it is when a clean filter given through the clone's attributes turns it back into the pinned blob, as `git status` would read it.
 A graft changes only a commit's parents, which the check never reads; the hook holds the helper's graft setting.
 The proof as the checkout holds it runs to its verdict under the hook.
-Each of 24 bypasses planted in the proof, which is then run under the hook, ends in the hook's refusal before any build.
-Twenty are refused at the plant's line.
-They are a Git command run by the harness's runner, under a computed name (`git.__name__`) and as a dashed program (`git-ls-tree`); an aliased import (`from subprocess import run as r`); `os.system`; and `exec` of a string.
-They are also the helper's name rebound by attribute assignment, in either module; `os.walk` rebound to start Git; `inspect.builtins.exec`, `eval` and `compile`; `pkgutil.importlib.import_module`; and `exec`, `eval` and `compile` inside the helper.
-The rest are a thread started, the decision's code replaced (`stack_pin.__code__`), the collector's list of objects (`gc.get_objects`) and a trace function (`sys.settrace`).
+Each of 30 bypasses planted in the proof, which is then run under the hook, ends in the hook's refusal before any build.
+Twenty-five are refused at the plant's line, and code of `ctrl_pin.py` filed under another name at the line of that name.
+They are a Git command run by the harness's runner, under a computed name (`git.__name__`), as a dashed program (`git-ls-tree`) and by the Git program's path with the helper's environment; one whose refusal is caught and ignored; an aliased import (`from subprocess import run as r`); `os.system`; and `exec` of a string.
+They are also the helper's name rebound by attribute assignment, in either module; `os.walk` rebound to start Git; `inspect.builtins.exec`, `eval` and `compile`; dynamic code a library runs where the pin is decided (`collections.namedtuple`); code of `ctrl_pin.py` filed under another name (`code.replace`), then `exec`; an import of `importlib.metadata`; `pkgutil.importlib.import_module`; and `exec`, `eval` and `compile` inside the helper.
+The rest are `ctrl_pin.py`'s code kept from the hook by rebinding `sys.audit`, then `exec`; a thread started, the decision's code replaced (`stack_pin.__code__`), the collector's list of objects (`gc.get_objects`) and a trace function (`sys.settrace`).
 The Git program rebound is refused for the program the helper would start.
 The helper's environment without each of its two settings, and also with the builtins a hook could look up rebound, is refused by the setting's name.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.

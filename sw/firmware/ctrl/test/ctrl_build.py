@@ -226,18 +226,18 @@ class AuditRefusal(Refusal):
 
 
 def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
-    """The helper, after installing the pin proof's audit hook (PEP 578) beside it, before the proof's first Git
-    call (THE HOOK, ctrl_pin.py). An audit hook cannot be removed, and this one binds, as it is installed, all it
-    judges by: the helper's code, this module's namespace, GIT, and every function, builtin and constant it uses,
-    so no later binding of a name, here or anywhere, changes what it does. While the pin proof runs (a function of
-    DECISION, in any thread, or the top level of one of the proof's modules), it refuses every process or thread
-    start but the helper's: the subprocess module starting, for the helper's own code, GIT as a string, with a
-    plain environment that sets GIT_NO_REPLACE_OBJECTS=1 and gives GIT_GRAFT_FILE an absolute path under a file,
-    which cannot exist. It refuses DYNAMIC_EVENTS and an import of importlib while a function of DECISION runs, and
-    wherever the proof's own code asks for them, the helper's included. It refuses, at any time, a replacement of
-    what a function of the proof runs (RUNS). Each refusal is an AuditRefusal naming the proof's line that asked."""
+    """The helper, after installing beside it, before the pin proof's first Git call, the proof's audit hook (PEP
+    578), which binds as it is installed all it judges by (THE HOOK, ctrl_pin.py). While the proof runs (a function
+    of DECISION in any thread, or the top level of one of its modules), it refuses every process or thread start
+    but the helper's: the subprocess module starting GIT, as a string, for the helper's own code, with a plain
+    environment that sets GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE to an absolute path under a file. It refuses
+    DYNAMIC_EVENTS and an import of importlib while a function of DECISION runs, or where the proof's own code (from
+    its files, or in its namespaces) asks for them, the helper's included; and, at any time, a replacement of what
+    a function of the proof runs (RUNS). Each refusal is an AuditRefusal naming the proof's line that asked."""
     proof, code, program, decision, starts, dynamic = [helper.__globals__], helper.__code__, GIT, DECISION, \
         LAUNCH_EVENTS, DYNAMIC_EVENTS
+    files = frozenset({code.co_filename, f"{HERE}/ctrl_build.py", f"{HERE}/ctrl_pin.py",
+                       f"{code.co_filename.rpartition('/')[0]}/ctrl_pin.py"})
     runs, joined, said, refusal, root = RUNS, PROOF_EVENT, HOOK_REFUSED, AuditRefusal, f"{ROOT}/"
     frame_at, frames, write, stat_of, is_dir, decode = sys._getframe, sys._current_frames, os.write, os.stat, \
         stat.S_ISDIR, os.fsdecode
@@ -245,7 +245,9 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
     function, failed = type(helper), (OSError, ValueError)
 
     def ours(frame: FrameType) -> bool:
-        """Whether `frame` runs the code of a module of the pin proof."""
+        """Whether `frame` runs the code of a module of the pin proof: from its files, or in its namespaces."""
+        if frame.f_code.co_filename in files:
+            return True
         for namespace in proof:
             if frame.f_globals is namespace:
                 return True
@@ -280,8 +282,9 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
         if caller is None or caller.f_code is not code or event not in ("subprocess.Popen", "os.posix_spawn") and \
                 not forked:
             first = args[1] if event == "os.spawn" else args[0] if args else "a copy of this interpreter"
-            return f"starts {decode(first) if kind(first) in (text, raw) else first} ({event}) while the pin proof " \
-                   f"runs, not by the helper"
+            shown = " or ".join(decode(f) for f in first) if forked else decode(first) if kind(first) in (text, raw) \
+                else first
+            return f"starts {shown} ({event}) while the pin proof runs, not by the helper"
         given, env = args[0], args[2] if event != "subprocess.Popen" else args[3]
         if not (kind(given) is text and given == program) and not (forked and kind(given) is ordered and
                                                                       {decode(g) for g in given} == {program}):

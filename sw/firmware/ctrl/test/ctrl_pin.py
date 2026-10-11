@@ -16,7 +16,8 @@ PEP 578 audit hook, which stays for the life of the process. An audit hook
 cannot be removed, and this one binds, as it is installed, all it judges by
 (the helper's code, ctrl_build.py's namespace, the Git program, and every
 function, builtin and constant it uses), so no later rebinding of a name
-switches it off. While the proof runs (a function of DECISION, in any thread,
+changes how it judges an event; what it judges is the events the interpreter
+raises. While the proof runs (a function of DECISION, in any thread,
 or the top level of one of the proof's modules), the hook refuses every
 process start the interpreter audits but the helper's: the subprocess module
 starting, for the helper's own code, the Git program PATH named when the proof
@@ -33,11 +34,16 @@ function of the proof runs (its code or its defaults). Each refusal is a
 ctrl_build.AuditRefusal naming the line of the proof that asked, written first
 to the standard error, so a refusal that is caught and ignored is still read.
 What it covers is a launch through the interpreter's audited interfaces.
-Native code starts a process no audit event names (ctypes, an extension
-module, and before CPython 3.14 _posixsubprocess.fork_exec, which
-multiprocessing's spawn and forkserver call), and that is the remaining
-limit; so is what Git itself starts, and code that runs before the hook is
-installed (ctrl_build.py's top, above the helper). A function of the proof's
+Native code is the remaining limit: ctypes and an extension module start a
+process no audit event names. Before CPython 3.14 that includes
+_posixsubprocess.fork_exec, which subprocess and multiprocessing call;
+subprocess raises its own event from Python just before that call, so on the
+runner's CPython 3.12.3 code that skips the call (calling fork_exec itself,
+or rebinding sys.audit) starts a process the hook never sees. CPython 3.14
+raises an event in fork_exec itself, which the hook judges as it judges
+subprocess.Popen. What Git itself starts is outside the hook too, and so is
+code that runs before the hook is installed (ctrl_build.py's top, above the
+helper). A function of the proof's
 modules that starts a process while the proof is not running is not judged:
 ctrl_build.py's build functions and run, and this module's tool runs (make,
 and the gates the controls run), all through fw_gtest.run.
@@ -87,16 +93,21 @@ clone's attributes turns back into the pinned bytes. The pin proof as the
 checkout holds it runs to its verdict under the hook; and the proof run under
 the hook with one bypass planted (census_arms, HOOK_PLANTS) ends, before any
 build, in the hook's refusal at the plant's line: a git command run outside
-the helper (by the harness's runner, under a computed name and as a dashed
-program), an aliased import of subprocess, os.system and exec of a string;
-the helper's name rebound by attribute assignment in either module, and
-os.walk rebound to start Git; inspect.builtins.exec, eval and compile, and
+the helper (by the harness's runner, under a computed name, as a dashed
+program, and by the Git program's path with the helper's environment), one
+whose refusal is caught and ignored, an aliased import of subprocess,
+os.system and exec of a string; the helper's name rebound by attribute
+assignment in either module, and os.walk rebound to start Git;
+inspect.builtins.exec, eval and compile, dynamic code a library runs where
+the pin is decided, an import of importlib.metadata and
 pkgutil.importlib.import_module; exec, eval and compile inside the helper;
-a thread started, the decision's code replaced, the collector's list of
-objects and a trace function. The Git program rebound is refused for the
-program the helper would start, and the helper's environment without either of
-its two settings, and with the builtins a hook could look up rebound, by the
-setting's name. The MAAP differential (both its modes) and the AECP
+this module's code kept from the hook by rebinding sys.audit, then exec; a
+thread started, the decision's code replaced, the collector's list of objects
+and a trace function. Code of this module filed under another name, then
+exec, is refused at that name's line; the Git program rebound, for the
+program the helper would start; and the helper's environment without either
+of its two settings, and with the builtins a hook could look up rebound, by
+the setting's name. The MAAP differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
 every Makefile builder whose dry run reaches the stack is run for real, in a
@@ -214,6 +225,8 @@ TREE_READ = 'tree = git(stack, "ls-tree", "-r", "-t", "-z", "--full-tree", pin)'
 ENTRY_READ = 'entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()'
 GITLINK_DEF = "\n\ndef stack_gitlink("
 HELPER_IMPORT = "    import subprocess\n"
+#: Where ctrl_pin.py puts its code under the hook.
+REGISTERED = "sys.audit(PROOF_EVENT)\n"
 #: Git through the harness's runner, with the helper's environment, bound as the helper (R584-9's E2b and E6).
 PLAIN = '''def plain(directory: Path, *args: str, stdin: str | None = None) -> object:
     """git through the harness's runner."""
@@ -235,6 +248,13 @@ HOOK_PLANTS = (
      "(subprocess.Popen)", True),
     ("a dashed program (git-ls-tree)", "ctrl_build.py", TREE_READ,
      'tree = run(["git-ls-tree", "-r", "-t", "-z", "--full-tree", pin], cwd=stack)', "(subprocess.Popen)", True),
+    ("the Git program by its path, with the helper's environment, by the harness's runner", "ctrl_build.py",
+     TREE_READ, 'tree = run([GIT, "-C", str(stack), "ls-tree", "-r", "-t", "-z", "--full-tree", pin], env=git_env())',
+     "(subprocess.Popen)", True),
+    ("a refusal caught and ignored", "ctrl_build.py", TREE_READ,
+     'try:\n        run(["git", "-C", str(stack), "status"])\n    except BaseException:\n        pass\n    '
+     + TREE_READ,
+     "(subprocess.Popen)", True),
     ("an aliased import (from subprocess import run as r)", "ctrl_build.py", TREE_READ,
      'from subprocess import run as r\n    tree = r(["git", "-C", str(stack), "ls-tree", "-r", "-t", "-z", '
      '"--full-tree", pin])', "(subprocess.Popen)", True),
@@ -260,6 +280,15 @@ HOOK_PLANTS = (
     ("inspect.builtins.compile", "ctrl_build.py", TREE_READ,
      'import inspect\n    tree = eval(inspect.builtins.compile("run([\'git\', \'ls-tree\', \'-r\', \'-z\', pin], '
      'cwd=stack)", "<plant>", "eval"))', "asks for compile", True),
+    ("dynamic code a library runs where the pin is decided (collections.namedtuple)", "ctrl_build.py", ENTRY_READ,
+     'import collections\n    collections.namedtuple("Entry", "mode oid stage path")\n    ' + ENTRY_READ,
+     "asks for compile", True),
+    ("ctrl_pin.py's code filed under another name (code.replace), then exec of a string", "ctrl_pin.py", None,
+     'def plant() -> None:\n    """exec of a string."""\n    exec("import os")\n\n\n'
+     'PLANT = type(plant)(plant.__code__.replace(co_filename="<elsewhere>"), globals())\nPLANT()\n',
+     "<elsewhere>:", False),
+    ("an import of importlib.metadata, in a line added to ctrl_pin.py", "ctrl_pin.py", None,
+     "import importlib.metadata  # noqa: E402\n", "asks for an import of importlib.metadata", True),
     ("pkgutil.importlib.import_module", "ctrl_build.py", TREE_READ,
      'import pkgutil\n    tree = pkgutil.importlib.import_module("subprocess").run(["git", "-C", str(stack), '
      '"ls-tree", "-r", "-t", "-z", "--full-tree", pin], capture_output=True, encoding="utf-8")', "pin proof", True),
@@ -269,6 +298,9 @@ HOOK_PLANTS = (
      '    eval("__import__(\'os\').system(\'git ls-files\')")\n' + HELPER_IMPORT, "asks for compile", True),
     ("compile inside the helper", "ctrl_build.py", HELPER_IMPORT,
      '    compile("import os", "<plant>", "exec")\n' + HELPER_IMPORT, "asks for compile", True),
+    ("ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string", "ctrl_pin.py",
+     REGISTERED, "sys.audit = lambda *args: None\n" + REGISTERED + 'import inspect  # noqa: E402\n'
+     'inspect.builtins.exec("import os")\n', "asks for compile", True),
     ("a thread started, in lines added to ctrl_pin.py", "ctrl_pin.py", None,
      "import threading  # noqa: E402\nthreading.Thread(target=print).start()\n", "(_thread.start_", True),
     ("the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py", "ctrl_pin.py", None,
