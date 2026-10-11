@@ -1,0 +1,45 @@
+[ESCAPED] u1_own_count_unlatched (rc 0): own requested_count follows count_i during a frame (latching unchecked?)
+[CAUGHT] u2_done_at_beat4 (rc 1): a PDU ending at beat 4 (no conflict_count) is accepted
+    [FAIL] M8 B.2 truncated PROBE-state input has no effect got=0 exp=1
+    [FAIL] M8 B.2 truncated DEFEND-state input has no effect got=0 exp=1
+[CAUGHT] u3_beat5_one_byte (rc 1): conflict_count low byte not required
+    [FAIL] M8 B.2 truncated PROBE-state input has no effect got=0 exp=1
+    [FAIL] M8 B.2 truncated DEFEND-state input has no effect got=0 exp=1
+[CAUGHT] u4_port_edge_from_idle_only (rc 1): link return ignored while probing
+    [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+[CAUGHT] u5_echo_count_low_byte (rc 1): DEFEND count echo loses the high byte
+    [FAIL] M2 B.3.6.6 requested count echoes all 16 bits got=52 exp=4660
+    [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1
+    [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1
+    [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1
+    [FAIL] M6 occupied response buffer preserves active DEFEND got=0 exp=1
+    [FAIL] M6 pending response preserves prober and requested range got=0 exp=1
+    [FAIL] M6 pending response preserves prober and requested range got=0 exp=1
+    [FAIL] M6 pending response preserves prober and requested range got=0 exp=1
+[CAUGHT] u6_seed_on_every_idle_enable (rc 1): generator reseeded at every Begin!
+    [FAIL] probe draw reaches its low end               got=0 exp=1
+    [FAIL] probe draw reaches its high end              got=0 exp=1
+    [FAIL] M3 Release/Begin retains the generator sequence got=0 exp=1
+[CAUGHT] u7_pending_kept_on_link_return (rc 1): pending DEFEND survives link return
+    [FAIL] M6 pending response cancelled with allocation got=0 exp=1
+[CAUGHT] u8_conflict_counted_on_link (rc 1): link return counted as a conflict
+    [FAIL] M5 B.3.5.9 link return restarts PROBE        got=0 exp=1
+    [FAIL] M5 B.3.5.9 link return revokes and reprobes  got=0 exp=1
+    [FAIL] M5 B.3.5.9 link loss is no event; return reprobes got=0 exp=1
+[CAUGHT] u9_first_probe_from_running_generator (rc 1): generator not loaded with the seed (only first offset uses it)
+    [FAIL] M3 B.3.6.1 first enable seeds MAC plus clock got=0 exp=1
+    [FAIL] M4 B.3.4 MACs 2^i apart draw different first probe intervals got=0 exp=1
+    [FAIL] M4 B.3.4 R558-6's fixed MAC pairs draw different first probe intervals got=0 exp=1
+    [FAIL] M4 first-draw maps learned from the RTL are linear in the seed got=0 exp=1
+    [FAIL] M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8 got=0 exp=1
+    [FAIL] M4 B.3.4 every seed pair 2^i apart draws different first probe intervals got=0 exp=1
+    [FAIL] M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word got=0 exp=1
+    [FAIL] M4 B.3.6.1 first offset word and first probe draw are independent got=0 exp=1
+[CAUGHT] d1_port_tied_high (rc 1): datapath ties PortOperational! high
+    [FAIL] M5 datapath: link return starts four fresh PROBEs
+[CAUGHT] d2_clock_high_word (rc 1): datapath feeds the PHC high word
+    [FAIL] M3 datapath: real-time clock changes probe intervals
+    [FAIL] M3 datapath: fixed PHC time pair claims different first offsets
+[CAUGHT] d3_clock_zero (rc 1): datapath feeds no clock
+    [FAIL] M3 datapath: real-time clock changes probe intervals
+    [FAIL] M3 datapath: fixed PHC time pair claims different first offsets
