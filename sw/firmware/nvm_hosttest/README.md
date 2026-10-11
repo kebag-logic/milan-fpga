@@ -45,7 +45,8 @@ overlay.
   configurable erase time, and can be told to fail an erase, hang a program or
   flip a programmed bit. The mapping's base is a host call, so every read the
   firmware opens through it is counted, and a planted read fault answers a
-  window of those reads from a copy whose bytes of one slot are wrong: one byte XORed with a different value on every faulty read
+  window of those reads from a copy whose bytes of one slot are wrong: one
+  byte XORed with a different value on every faulty read
   (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
   as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
   slot's bytes (`--read-other SLOT:SKIP:COUNT`). Counted from the read the
@@ -119,10 +120,11 @@ the harness through boot, idle time and console commands, and compares bytes:
     and once a record-area byte) and by one faulty read at each of the
     restart's first four reads, and with both slots valid the newer is
     faulted for the whole restart or on its three re-stage reads. Each case
-    makes a real change, lets the debounce commit it and boots again clean. The faulty boot's line names each slot as its
-    bytes read, or UNREAD (`VD_LEN`, its bit in `unread=`), and offers the
-    newer slot it accepts, and its window holds that slot's container byte
-    for byte, or the blank image when none is offered; a restart leaves
+    makes a real change, lets the debounce commit it and boots again clean.
+    The faulty boot's line names each slot as its bytes read, or UNREAD
+    (`VD_LEN`, its bit in `unread=`), and offers the newer slot it accepts,
+    and its window holds that slot's container byte for byte, or the blank
+    image when none is offered; a restart leaves
     the window it re-attaches to as it was. Every saved record and the
     change survive the reboot, or the faulty boot HELD the writer. A held
     writer erased, programmed and acknowledged nothing, never heartbeated,
@@ -133,12 +135,13 @@ the harness through boot, idle time and console commands, and compares bytes:
     "re-attached and HELD". One faulty read never holds the writer, and a
     slot left unread, or faulted for the whole boot or restart, always
     does. No boot opens more than 13 reads (the AEM image and three
-    judgements and three re-stages per slot) and no restart more than 12. A
-    slot faulted for the whole boot opens exactly 6, and for the whole
-    restart exactly 5: three reads of that slot and two of the other (two
-    agreeing blank reads, or a judgement and a re-stage), so the bound of
-    three reads per judgement is pinned, not only the total. A held writer refuses `milan_nvm commit` and reports the hold on
-    `milan_nvm`; an explicit `milan_nvm wipe` still erases both slots, as
+    judgements and three re-stages per slot) and no restart more than 12.
+    With one slot faulted for all of it, a boot opens exactly 6 reads and a
+    restart exactly 5: the AEM image on a boot, three reads of that slot and
+    two of the other (two agreeing blank reads, or a judgement and a
+    re-stage), so the bound of three reads per judgement is pinned, not only
+    the total. A held writer refuses `milan_nvm commit` and reports the hold
+    on `milan_nvm`; an explicit `milan_nvm wipe` still erases both slots, as
     for a retired writer; and a writer that retires at boot with a slot
     unread names the retire, not the slot, for each cause: an older backend
     contract, a boot load ended with none accepted, a window gone live
