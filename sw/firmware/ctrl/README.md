@@ -166,7 +166,7 @@ Every gate that builds the stack first runs the same pin check (`ctrl_build.py -
 The submodule must be at its gitlink.
 Its checkout, all but its own `.git`, must be the gitlink's whole tree: the same paths, each of the same type and mode, every file and symbolic link hashing to the tree's blob.
 The hashes are taken from the files' own bytes, never from the index and through no Git attribute or filter, so an edit hidden from `git status` is refused too.
-The pin proof's modules are [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and in them only one helper starts a process: it runs Git.
+The pin proof's modules are [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and in them only one helper names a process-launch facility: it runs Git.
 The helper sets `GIT_NO_REPLACE_OBJECTS=1` and gives `GIT_GRAFT_FILE` a path that does not exist, so Git reads the real objects only.
 So a replacement object (`refs/replace`) or a graft cannot make another tree read as the pin's.
 `ctrl_boundary.py` holds a census of the proof on every run.

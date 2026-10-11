@@ -9,11 +9,11 @@ calls it first. This module holds the rest, for the boundary gate
 (ctrl_boundary.py).
 
 THE CENSUS (census). The pin proof's modules are ctrl_build.py and this one.
-In them only the helper, ctrl_build.git, starts a process: it runs git with
-ctrl_build.git_env, which ignores replacement objects and names a graft file
-that does not exist, so git reads the real objects only. The census reads the
-two modules' syntax trees, not their text, so the program a call would name
-does not matter. It refuses:
+In them only the helper, ctrl_build.git, names a facility that starts a
+process: it runs git with ctrl_build.git_env, which ignores replacement objects
+and names a graft file that does not exist, so git reads the real objects
+only. The census reads the two modules' syntax trees, not their text, so the
+program a call would name does not matter. It refuses:
 - outside the helper, any reference to a process-launch facility, by import,
   alias or attribute: the subprocess, pty and asyncio.subprocess modules and
   their members; os.system, os.popen, os.exec*, os.spawn*, os.posix_spawn*,
@@ -90,7 +90,7 @@ from ctrl_build import HERE, PP, ROOT, STACK, Refusal, git, git_env, stack_gitli
 from ctrl_capture import COMPILER
 import fw_gtest
 
-#: The pin proof's modules, in which only the helper (ctrl_build.git) starts a process.
+#: The pin proof's modules, in which only the helper (ctrl_build.git) names a process-launch facility.
 PROOF = (HERE / "ctrl_build.py", HERE / "ctrl_pin.py")
 #: The helper: the one function, of ctrl_build.py, that may name a process-launch facility.
 HELPER = git.__name__

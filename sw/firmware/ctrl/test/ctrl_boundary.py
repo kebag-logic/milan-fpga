@@ -79,8 +79,8 @@ pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
 its checkout the gitlink's whole tree (the same paths, types and modes, every
 file hashing to the tree's blob), git reading the real objects only. This gate
 does too, and holds the pin proof's census (ctrl_pin.census): in the proof's
-modules only its helper starts a process, and what decides the pin names
-nothing outside the proof's vocabulary. Every target of a Makefile builder
+modules only its helper names a process-launch facility, and what decides the
+pin names nothing outside the proof's vocabulary. Every target of a Makefile builder
 whose recipe builds against the stack must have the pin check as a
 prerequisite, read from make's own dry run.
 

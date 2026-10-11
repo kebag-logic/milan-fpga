@@ -100,8 +100,8 @@ class Outcome:
     log: str
 
 
-#: One subprocess, its output captured: the harness's runner, for the builders that import it from here. The pin
-#: proof may not reach it (ctrl_pin.census).
+#: One subprocess, its output captured: the harness's runner, for the builders that import it from here. What
+#: decides the pin may not reach it (ctrl_pin.census).
 run = fw_gtest.run
 
 
@@ -195,9 +195,9 @@ class GitRun:
 
 
 def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
-    """One git command in `directory`, its output captured: the only process the pin proof's modules (this one
-    and ctrl_pin.py) start themselves, and the only code in them that names a module able to start one, which
-    ctrl_pin.census holds."""
+    """One git command in `directory`, its output captured: the only code of the pin proof's modules (this one
+    and ctrl_pin.py) that names a process-launch facility, and the only process what decides the pin starts,
+    which ctrl_pin.census holds."""
     import subprocess
     res = subprocess.run(["git", "-C", str(directory), *args], input=stdin, capture_output=True, check=False,
                          env=git_env(), encoding="utf-8", errors="surrogateescape")
