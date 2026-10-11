@@ -818,7 +818,7 @@ The census's RAMB18 is the 49-byte identifier memory, which stays.
 The split builds neither BIOS memory, so no boot memory is retained outside the allocation.
 The allocation contains the stack, pools, shape-sized staging, descriptor image and alignment.
 Its 53 tiles are Vivado's mapping of the 8x8 two-interface image's banks.
-Vivado trims constant ROM bit columns and puts one sparse 1,024-word ROM bank in 231 LUTs.
+Vivado trims constant ROM bit columns and puts one sparse 1,024-word ROM bank, with the region's bank decode and read multiplexer, in 231 LUT cells.
 With every bank in block RAM, the same banks take 54.5 tiles.
 No separate smaller-core RAM saving is credited.
 
@@ -858,8 +858,8 @@ Debit every replacement event, queue or diagnostic store separately.
 Equivalent observability remains required by D2.
 The measured mailbox already supplies its own queues and timers.
 Do not credit its storage or these released stores twice.
-At 56 firmware tiles, the conditional total becomes 115.5 tiles.
-It leaves six below the ceiling, before other unpriced debits.
+At 56 firmware tiles, the conditional total becomes 116 tiles.
+It leaves 5.5 below the ceiling, before other unpriced debits.
 M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
 Beyond that allowance, defer new M6/M7 block-RAM conversions first.
 Keep their existing storage and reprice the associated LUT savings.
@@ -1043,7 +1043,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile 50-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile the ruled 56-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
 | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |

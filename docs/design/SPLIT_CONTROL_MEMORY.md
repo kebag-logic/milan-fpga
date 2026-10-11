@@ -136,7 +136,7 @@ The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
 
-| Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | As mapped RAMB36 / RAMB18 | As mapped tiles | LUT / FF | Byte floor |
+| Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | As mapped RAMB36 / RAMB18 | As mapped tiles | LUT cells / FF | Byte floor |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | 1x1, one interface (shipping) | 95,032 | 45,520 | 35.0 | 33 / 2 | 34.0 | 212 / 32 | 35 |
 | 1x1, two interfaces | 96,320 | 56,880 | 38.0 | 37 / 1 | 37.5 | 89 / 7 | 38 |
@@ -146,17 +146,21 @@ Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-
 "Planned" is `ctrl_memory.plan` with every bank in block RAM.
 The banks hold 96.6 to 99.6 percent of their bytes.
 The byte floor is the flat linked span at 4,096 B per RAMB36, rounded up.
-Every point is within the 56-RAMB36 budget, and the largest leaves 3 tiles.
+Every point is within the 56-RAMB36 budget.
+The largest leaves 3 tiles as mapped; the budget check reads the planned 54.5, so its image can grow 6 KiB (1.5 tiles) before it is refused.
 
 Two Vivado optimisations put the ROM below its plan:
 
 - it trims a ROM bit column that is constant across a bank, so `16384x31` takes 15 RAMB36 and one RAMB18;
 - it maps a small or sparse ROM bank into logic: the 512-word bank at 1x1 with one interface, and the 1,024-word bank at 8x8.
 
-That logic is most of each point's LUTs: 231 of the largest point's 328.
-The `sram` banks map exactly as planned, and their LUTs are the bank decode and read multiplexer.
+That logic, with the `rom` region's bank decode and read multiplexer, is most of each point's LUT cells: 231 of the largest point's 328.
+A LUT cell is one LUT primitive, as `ctrl_memory_ooc.py` counts them; `report_utilization` gives 220 Slice LUTs for that region.
+The decode and multiplexer are not free: two `rom` banks with none in logic take 36 LUT cells, and the largest point's five `sram` banks 97.
+The `sram` banks map exactly as planned, and their LUT cells are the bank decode and read multiplexer.
 LiteX's memory emitter carries no `ROM_STYLE`, so the build keeps Vivado's default.
-M8a-2's route weighs those LUTs against at most 1.5 tiles.
+Forcing the logic bank into block RAM would recover only that bank's share of the 231, which this mapping does not separate.
+M8a-2's route weighs that share against at most 1.5 tiles.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2.
 One LiteX SRAM of the largest image's whole need took 64 RAMB36.

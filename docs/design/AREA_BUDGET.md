@@ -262,7 +262,7 @@ They depend on fitting the credited RAM conversions within the ledger.
 
 Measured, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
 The split takes it: 113 tiles leaves 8.5 below 121.5, or seven with every bank in block RAM.
-At 56 firmware tiles, the conditional total is 115.5, leaving six.
+At 56 firmware tiles, the conditional total is 116, leaving 5.5.
 The separate 13.5-tile reserve remains untouched in these estimates.
 Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
 
@@ -379,7 +379,8 @@ Acceptance records, schema and policy are unchanged.
 Intermediate selected placements cannot re-record acceptance; M9 owns that step.
 
 The future route must reconcile actual firmware and retained storage.
-About 50 firmware tiles remains a budget, not measured consumption.
+The ruled firmware limit is up to 56 RAMB36 as mapped.
+M8a-1's 53 at the largest shape is an out-of-context mapping, not integrated consumption.
 Partial placement cannot borrow the full split's reclamation credits.
 The 121.5-tile ceiling preserves the separate 10 percent reserve.
 Missing measurements cannot qualify the default flip.
