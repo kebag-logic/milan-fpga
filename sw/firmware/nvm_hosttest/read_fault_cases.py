@@ -15,6 +15,30 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+#: the writer's comparison of two refused reads of one slot
+#: (`nvm_reads_agree`), listed once: each term's name, the firmware's
+#: spelling of it, and the manner of fault whose faulty reads differ from one
+#: another in that term alone (R602-5-F1, R603-5-F1). Check 13's term classes
+#: (`term_class`) and the `r_omit_` controls are generated from it, and
+#: `comparison_findings` fails a term with no class or no control
+COMPARISON = (("verdict", "a.vd == b.vd", "--read-verdict"),
+              ("byte count", "a.bytes == b.bytes", "--read-length"),
+              ("prefix CRC", "a.digest == b.digest", "prefix-end"),
+              ("trailer", "a.tail == b.tail", "trailer"))
+AGREE_RE = re.compile(r"static int nvm_reads_agree\(struct nvm_read a, struct nvm_read b\)\n"
+                      r"\{\n\treturn ([^;]*);\n\}")
+
+
+def control_of(term: str) -> str:
+    """The name of the control that removes `term` from the comparison."""
+    return "r_omit_" + term.lower().replace(" ", "_")
+
+
+def alone_in(term: str) -> str:
+    """The words a finding on reads that differ in `term` alone carries."""
+    return f"which differ only in their {term}"
+
+
 #: the #671 defects: label -> (every (text, replacement) pair the plant
 #: makes, each text occurring exactly once, and the words of the finding
 #: that must catch it)
@@ -116,6 +140,9 @@ READ_FAULT_MUTATIONS = {
           "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
           "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
         "want exactly"),
+    # R602-5-F1 and R603-5-F1: one term of the comparison removed, the rest
+    # kept, for each term in turn
+    **{control_of(term): (((spelling, "1"),), alone_in(term)) for term, spelling, _ in COMPARISON},
 }
 
 #: the product shapes, which the #671 controls are planted into besides the
@@ -162,8 +189,11 @@ GROUPS = ((False, "valid", ("magic", "seq", "body", "sealed-entity", "sealed-bod
            BOTH_VALID_SEQS),
           (True, "other", ("magic", "body", "sealed-entity", "sealed-body"), BOTH_VALID_SEQS))
 #: a flipped byte: its offset (None is the record area's middle byte, which
-#: depends on the shape) and the first faulty read's XOR
-FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8)}
+#: depends on the shape; below zero counts back from the end of the container
+#: the slot's length word names, so -1 is the trailer's last byte and -5 the
+#: last byte its CRC covers) and the first faulty read's XOR
+FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8),
+         "prefix-end": (-5, 8), "trailer": (-1, 8)}
 #: a flipped byte under a closing CRC (--read-sealed): VD_ENT, or VD_REC by
 #: the flipped record's CRC-16
 SEALED = {"sealed-entity": (20, 8), "sealed-body": (None, 8)}
@@ -225,9 +255,10 @@ def fault_cases(body: int) -> list[FaultCase]:
     two faulty reads of one judgement return the same bytes (all 0xFF
     twice), or a faulty read returns the other slot's valid container and it
     stands, and no rule over the bytes sees either (`expect`). R603-4-F1's
-    class meets every sequence of its group besides (`sealed_class`). The
-    groups' lists are interleaved, so a planted control meets every group
-    early. `body` is the shape's record-area byte."""
+    class meets every sequence of its group besides (`sealed_class`), and so
+    does each comparison term's class (`term_class`), in a list of its own.
+    The lists are interleaved, so a planted control meets every group and
+    every term early. `body` is the shape's record-area byte."""
     lists = []
     for restart in (True, False):
         for older, faulted, manners, seqs in GROUPS:
@@ -242,7 +273,7 @@ def fault_cases(body: int) -> list[FaultCase]:
                 have = set(group)
                 group += [case for case in sealed_class((older, faulted, manners, seqs), valid, restart, body)
                           if case not in have]
-                lists.append(group)
+                lists += [group, term_class((older, faulted, manners, seqs), valid, restart, body)]
     return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
 
 
@@ -263,6 +294,80 @@ def sealed_class(group: tuple, valid: str, restart: bool, body: int) -> list[Fau
     return [case for manner in manners if manner in SEALED for seq in seqs for skip in range(bound)
             for case in (FaultCase(valid, older, seq, fault(manner, slot, skip, 2, body), skip, 2, restart),)
             if expect(case).judgement["ab".index(slot)] == "ffc"]
+
+
+def term_class(group: tuple, valid: str, restart: bool, body: int) -> list[FaultCase]:
+    """Each comparison term's class at every sequence of a group whose
+    faulted slot holds a container (R602-5-F1, R603-5-F1): two faulty reads
+    that differ from one another in that term alone open the slot's
+    judgement, the window the reference model finds, and its third read is
+    clean, so only that term keeps the two from agreeing. The terms take
+    turns within each sequence, so a planted control meets its own early."""
+    older, faulted, _, seqs = group
+    slot = faulted_slot(faulted, valid)
+    bound = BOOT_READ_BOUND - int(restart)
+    return [case for seq in seqs for _, _, manner in COMPARISON for skip in range(bound)
+            for case in (FaultCase(valid, older, seq, fault(manner, slot, skip, 2, body), skip, 2, restart),)
+            if (older or faulted == "valid") and expect(case).judgement["ab".index(slot)] == "ffc"]
+
+
+def term_of(case: FaultCase) -> str:
+    """The comparison term a case's faulty reads alone differ in, or ''."""
+    option, arg = case.fault
+    where = arg.split(":")[1]
+    return next((term for term, _, manner in COMPARISON
+                 if manner == option or (option == "--read-fault" and manner in FLIPS
+                                         and str(FLIPS[manner][0]) == where)), "")
+
+
+def comparison_findings(firmware: str, cases: list[FaultCase], controls: dict | None = None) -> list[str]:
+    """Check 13's own reach over the comparison (#671 round 6): the firmware
+    compares two refused reads by exactly the terms COMPARISON lists, and
+    each term has its class among `cases` at every sequence, both ways round
+    and on both entry paths, of every group whose faulted slot holds a
+    container, and a control in `controls` (READ_FAULT_MUTATIONS by default)
+    that removes that term alone."""
+    controls = READ_FAULT_MUTATIONS if controls is None else controls
+    found = AGREE_RE.search(firmware)
+    spelled = tuple(" ".join(term.split()) for term in found.group(1).split("&&")) if found else ()
+    listed = tuple(spelling for _, spelling, _ in COMPARISON)
+    f = [] if spelled == listed else [
+        f"the firmware compares two refused reads by {' && '.join(spelled) or 'nothing found'}, "
+        f"but the terms listed are {' && '.join(listed)}"]
+    for term, spelling, _ in COMPARISON:
+        have = {(c.older, c.fault[1][0] == c.valid, c.valid, c.seq, c.restart) for c in cases
+                if term_of(c) == term and expect(c).judgement["ab".index(c.fault[1][0])] == "ffc"}
+        want = {(older, faulted == "valid", valid, seq, restart) for older, faulted, _, seqs in GROUPS
+                if older or faulted == "valid" for valid in "ab" for seq in seqs for restart in (True, False)}
+        if want - have:
+            f.append(f"the comparison's {term} has no fault class at {len(want - have)} place(s), "
+                     f"first {min(want - have)}")
+        if controls.get(control_of(term)) != (((spelling, "1"),), alone_in(term)):
+            f.append(f"the comparison's {term} has no control that removes it alone")
+    return f
+
+
+def comparison_self_test(firmware: str, cases: list[FaultCase]) -> list[str]:
+    """`comparison_findings` must fail, in its own words, for each term with
+    its class taken out of `cases`, for each term with its control taken
+    out, and for a firmware comparing by one term more than COMPARISON
+    lists. A plant it passes is a finding."""
+    last = COMPARISON[-1][1]
+    plants = [(f"the comparison's {term} has no fault class", firmware,
+               [c for c in cases if term_of(c) != term], None) for term, _, _ in COMPARISON]
+    plants += [(f"the comparison's {term} has no control", firmware, cases,
+                {k: v for k, v in READ_FAULT_MUTATIONS.items() if k != control_of(term)})
+               for term, _, _ in COMPARISON]
+    plants.append(("&& a.seq == b.seq, but the terms listed",
+                   firmware.replace(f"{last};", f"{last} && a.seq == b.seq;"), cases, None))
+    findings = []
+    for words, text, have, controls in plants:
+        got = [x for x in comparison_findings(text, have, controls) if words in x]
+        if got:
+            print(f"  self-test OK: the comparison check, by its own words: {got[0]}")
+        else:
+            findings.append(f"self-test: the comparison check did not say {words!r}")
+    return findings
 
 
 def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str, str]:
@@ -296,7 +401,8 @@ def expect(case: FaultCase) -> Expect:
     never so is UNREAD, and the other VD_OK slot is re-staged in turn. A
     clean read returns the slot's container or blank; a faulty one returns
     bytes no other read returns, a blank read, or the other slot's clean
-    read, as the case's option says."""
+    read, as the case's option says. A judgement's reads are consecutive, so
+    the verdict fault, three words in turn, keeps every two of them apart."""
     clean = {case.valid.upper(): ("OK", case.seq, "newer"),
              case.other.upper(): ("OK", (case.seq - 1) & SEQ_MASK, "older") if case.older else ("BLANK",)}
     option, arg = case.fault
@@ -309,6 +415,7 @@ def expect(case: FaultCase) -> Expect:
         if slot != arg[0].upper() or not case.skip <= reads - 1 < case.skip + case.count:
             return clean[slot]
         return {"--read-fault": ("REFUSED", reads), "--read-sealed": ("REFUSED", reads),
+                "--read-length": ("REFUSED", reads), "--read-verdict": ("REFUSED", reads),
                 "--read-ff": ("BLANK",)}.get(option, clean["BA"["AB".index(slot)]])
 
     judgement = {"A": "", "B": ""}
@@ -345,19 +452,21 @@ def judged(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
     """Each slot's boot verdict is what its bytes say when read cleanly, or
     the slot is UNREAD: VD_LEN, no sequence, its bit in `unread=`. Every
     case check 13 runs is inside the rule's detection limit (`fault_cases`),
-    so no other verdict may stand."""
+    so no other verdict may stand. On the faulted slot of a comparison
+    term's class, the finding names the term the reads alone differ in."""
     findings = []
     for n, letter in enumerate("AB"):
         vd, seq, bit = boot.group(1 + 2 * n), int(boot.group(2 + 2 * n)), (unread >> n) & 1
         want_vd, want_seq = case.truth()[letter]
         if (vd, bit) == ("VD_LEN", 1) or ((vd, seq, bit) == (want_vd, want_seq, 0)):
             continue
+        term = term_of(case) if case.fault[1][0] == letter.lower() else ""
         if vd == "VD_LEN" and want_vd != "VD_LEN":
             findings.append(f"{case.name}: slot {letter} did not read back as it was judged, "
                             f"yet the boot line does not name it unread: {boot.group(0)}")
         elif vd != want_vd:
-            findings.append(f"{case.name}: slot {letter} was taken as {vd} on reads that "
-                            f"returned different bytes: {boot.group(0)}")
+            findings.append(f"{case.name}: slot {letter} was taken as {vd} on reads that returned "
+                            f"different bytes{', ' + alone_in(term) if term else ''}: {boot.group(0)}")
         else:
             findings.append(f"{case.name}: slot {letter} reads {vd} seq {seq:#x} unread bit {bit}, "
                             f"but holds {want_vd} seq {want_seq:#x}: {boot.group(0)}")

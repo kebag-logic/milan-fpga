@@ -49,27 +49,27 @@ WHAT IT GRADES, per shipped shape, all on bytes:
      on the cold boot and on a writer restart without a fabric reset,
      `writer_restart.py`), over a header, sequence or record-area byte, the
      blank or older slot's, an entity or record-area byte under a CRC closed
-     over the faulty bytes, an all-0xFF read or the other slot's container,
+     over the faulty bytes, an all-0xFF read, the other slot's container, or
+     two reads differing in one term of the refused-read comparison alone,
      one slot valid and the other blank or both valid, both ways round, is
      followed by a change, its commit and a clean reboot. The boot line
      names each slot as its bytes read or UNREAD and offers the newer slot it
      accepts, the window is that slot's container byte for byte (a restart
      leaves it as it was), and every saved record and the change survive, or
      the writer was HELD, persisted nothing and named each unread slot and
-     why; the reads opened and the hold are the reference model's
-     (`read_fault_cases.expect`);
+     why; the reads and the hold are the model's (`read_fault_cases.expect`);
  14. a cleanly read but refused slot names no generation: with no slot
      accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants nineteen writer defects into a copy
-of the firmware, one at a time, and requires the suite to redden on each:
-the ascending-id check removed, the heartbeat dropped from the erase poll
-loop, the read-back verify skipped, the erased-record rule accepting a header
-alone, a word copy crossing into an open neighbour, and fourteen #671
+NEGATIVE CONTROLS. `--self-test` plants twenty-three writer defects into a
+copy of the firmware, one at a time, and requires the suite to redden on
+each: the ascending-id check removed, the heartbeat dropped from the erase
+poll loop, the read-back verify skipped, the erased-record rule accepting a
+header alone, a word copy crossing into an open neighbour, and eighteen #671
 defects, each planted into the first shape and both product shapes and
 caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
-says what each is). A control that stays green is reported as the finding
-it is.
+says what each is; four drop one term each of `read_fault_cases.COMPARISON`,
+which must be the firmware's, each term with a class and a control).
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -111,10 +111,10 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
 from check_nvm_record_space import expected_payloads          # noqa: E402
 from flash_map import literal                                  # noqa: E402
 from boot_policy import fabric_constants                       # noqa: E402
-from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE,  # noqa: E402
-                              PRODUCT_SHAPES, READ_FAULT_MUTATIONS, RETIRE_CAUSES,
-                              UNREAD_RE, FaultCase, expect, fault_cases, hold_findings,
-                              line_findings, read_findings, restart_findings)
+from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE, PRODUCT_SHAPES,  # noqa: E402
+                              READ_FAULT_MUTATIONS, RETIRE_CAUSES, UNREAD_RE, FaultCase, comparison_findings,
+                              comparison_self_test, expect, fault_cases, hold_findings, line_findings,
+                              read_findings, restart_findings)
 from writer_restart import host_restart                        # noqa: E402
 
 FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
@@ -781,10 +781,9 @@ def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
     real change and lets the debounce commit it, then boots again clean.
     The faulty boot's line, offer and window must be what its reads proved,
     and every saved record and the change survive the reboot, or the faulty
-    boot HELD the writer, persisted nothing, said so, and the reboot
-    restores every saved record. `bench.jobs` threads walk the cases, each in
-    a directory of its own; with `until`, the walk stops at the first
-    finding carrying those words, which is all a planted control needs.
+    boot HELD, persisted nothing, said so, and the reboot restores every
+    saved record. `bench.jobs` threads walk the cases, each in a directory
+    of its own; `until` stops the walk at the first finding with its words.
     """
     fr = fault_run(bench)
     cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
@@ -906,8 +905,7 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
         if not got:
             findings.append(f"self-test: the {label} defect was NOT caught")
         else:
-            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); "
-                  f"first: {got[0]}")
+            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); first: {got[0]}")
     return findings
 
 
@@ -971,7 +969,8 @@ def main() -> int:
             work.mkdir()
             bench = replace(make_bench(cfg, work, firmware_text), jobs=max(1, a.jobs))
             benches.append(bench)
-            got = grade(bench)
+            cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
+            got = grade(bench) + comparison_findings(firmware_text, cases)
             got += disabled.grade(cfg, work / "disabled", firmware_text)
             got += bootwalk.grade(cfg, work / "boot-walk", firmware_text, bench)
             disabled.check_link_guard(bench)
@@ -983,6 +982,7 @@ def main() -> int:
             findings += self_test_read_faults(
                 [b for b in benches if b is benches[0] or b.cfg.stem in PRODUCT_SHAPES],
                 Path(tmp) / "read-fault-mutant", firmware_text)
+            findings += comparison_self_test(firmware_text, cases)
             findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
             findings += bootwalk.self_test(cfgs[0], Path(tmp) / "boot-walk-mutant", firmware_text)
             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],

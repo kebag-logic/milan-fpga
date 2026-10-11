@@ -178,14 +178,26 @@ struct flash_model {
  * faulty read, or reads the slot as the other slot's bytes. That last one is
  * an address fault: a valid container does not name its slot, so no rule over
  * the bytes sees it on a judgement read, and the re-stage refuses it only by
- * the sequence it was picked by. */
-enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER };
+ * the sequence it was picked by. An XORed byte below zero counts back from
+ * the end of the container the slot's length word names: -1 is the trailer's
+ * last byte, -5 the last byte before it.
+ *
+ * Two more faults change one term of the writer's comparison of two refused
+ * reads and keep the others (#671 round 6), by forging the last four bytes
+ * before the trailer so the CRC-32 over every byte before it is a value the
+ * fault fixes. RF_LEN grows the length word by four on every faulty read,
+ * moves the slot's trailer value to the end that length names and forges the
+ * CRC to that value's complement, so each read has another byte count and is
+ * refused VD_CRC. RF_VERDICT XORs the entity, model or record layout word in
+ * turn and forges the CRC to the slot's own trailer value, which closes it, so
+ * any three faulty reads in a row are refused VD_ENT, VD_SHAPE and VD_REC. */
+enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER, RF_LEN, RF_VERDICT };
 
 struct read_fault {
 	int armed;
 	uint32_t slot;          /* the slot's flash offset */
 	uint32_t other;         /* the other slot's, in RF_OTHER mode */
-	uint32_t off;           /* the byte inside it, in RF_XOR and RF_SEAL modes */
+	long off;               /* the byte inside it, in RF_XOR and RF_SEAL modes */
 	enum read_fault_mode mode;
 	unsigned int skip;
 	unsigned int count;
@@ -540,20 +552,88 @@ void nvm_host_tick(int cycles)
 
 static void summary(void);
 
+static uint32_t get32(const uint8_t *p)
+{
+	return p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
+	       (uint32_t)p[3] << 24;
+}
+
+static void put32(uint8_t *p, uint32_t v)
+{
+	unsigned int i;
+
+	for (i = 0; i < 4u; ++i)
+		p[i] = (uint8_t)(v >> (8u * i));
+}
+
 /* RF_SEAL: the slot's trailer, where its length word places it, recomputed
  * over the bytes before it. A length no container can have is left alone. */
 static void seal_slot(uint8_t *s)
 {
-	uint32_t len = s[16] | (uint32_t)s[17] << 8 | (uint32_t)s[18] << 16 |
-		       (uint32_t)s[19] << 24;
-	unsigned int crc;
-	unsigned int i;
+	uint32_t len = get32(s + 16);
 
 	if (len < 44u || len > 0x10000u)
 		return;
-	crc = crc32(s, len - 4u);
-	for (i = 0; i < 4u; ++i)
-		s[len - 4u + i] = (uint8_t)(crc >> (8u * i));
+	put32(s + len - 4u, crc32(s, len - 4u));
+}
+
+/* The four bytes at `at` set so the CRC-32 over the slot's first at + 4
+ * bytes is `want`. Four message bytes are XORed into the register ahead of
+ * 32 shifts, and each shift can be undone, so the register `want` needs is
+ * run back 32 shifts and XORed with the register before the four bytes. */
+static void forge_crc(uint8_t *s, uint32_t at, uint32_t want)
+{
+	uint32_t r = ~want;
+	unsigned int bit;
+
+	for (bit = 0; bit < 32u; ++bit)
+		r = (r & 0x80000000u) ? ((r ^ 0xedb88320u) << 1) | 1u : r << 1;
+	put32(s + at, r ^ ~crc32(s, at));
+}
+
+/* The words RF_VERDICT XORs, in the order the rule tests them after the CRC:
+ * the entity (VD_ENT), the model (VD_SHAPE) and the record layout (VD_REC). */
+static const uint32_t verdict_words[3] = {
+	20u, 28u, 36u
+};
+
+/* The n-th faulty read's view of the slot at `s`, which holds its clean
+ * bytes. A fault placed by the container's end needs a slot that names a
+ * length; one that does not is a harness error, not a fault. */
+static void fault_slot(uint8_t *s, unsigned int n)
+{
+	uint8_t x = (uint8_t)((rf.base - 1u + n) % 255u + 1u);
+	uint32_t len = get32(s + 16);
+	uint32_t grown = len + 4u * (n + 1u);
+
+	if ((rf.mode == RF_LEN || rf.mode == RF_VERDICT || rf.off < 0) &&
+	    (len < 48u || len > 0x10000u || (uint32_t)-rf.off > len ||
+	     (rf.mode == RF_LEN && grown > 0x10000u))) {
+		fprintf(stderr, "HOST: read fault %d on a slot of length %#x\n",
+			(int)rf.mode, (unsigned int)len);
+		exit(2);
+	}
+	switch (rf.mode) {
+	case RF_FF:
+		memset(s, 0xff, 0x10000u);
+		break;
+	case RF_OTHER:
+		memcpy(s, nvm_host_flash + rf.other, 0x10000u);
+		break;
+	case RF_LEN:
+		put32(s + grown - 4u, get32(s + len - 4u));
+		put32(s + 16, grown);
+		forge_crc(s, grown - 8u, ~get32(s + grown - 4u));
+		break;
+	case RF_VERDICT:
+		s[verdict_words[n % 3u]] ^= x;
+		forge_crc(s, len - 8u, get32(s + len - 4u));
+		break;
+	default:
+		s[rf.off < 0 ? len - (uint32_t)-rf.off : (uint32_t)rf.off] ^= x;
+		if (rf.mode == RF_SEAL)
+			seal_slot(s);
+	}
 }
 
 uintptr_t nvm_host_flash_base(void)
@@ -577,28 +657,21 @@ uintptr_t nvm_host_flash_base(void)
 		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
 		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
 	view_loaded = 1;
-	if (rf.mode == RF_FF)
-		memset(flash_view + rf.slot, 0xff, 0x10000u);
-	else if (rf.mode == RF_OTHER)
-		memcpy(flash_view + rf.slot, nvm_host_flash + rf.other, 0x10000u);
-	else
-		flash_view[rf.slot + rf.off] ^=
-			(uint8_t)((rf.base - 1u + (k - rf.skip)) % 255u + 1u);
-	if (rf.mode == RF_SEAL)
-		seal_slot(flash_view + rf.slot);
+	fault_slot(flash_view + rf.slot, k - rf.skip);
 	rf.hits++;
 	return (uintptr_t)flash_view;
 }
 
-/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff
- * SLOT:SKIP:COUNT and --read-other SLOT:SKIP:COUNT */
+/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff,
+ * --read-other, --read-length and --read-verdict SLOT:SKIP:COUNT */
 static void arm_read_fault(const char *spec, enum read_fault_mode mode)
 {
-	unsigned long v[4] = {0};
+	long v[4] = {0};
 	unsigned int n = 0;
 	const char *p = spec + 1;
 	char *end = NULL;
 	int bytewise = mode == RF_XOR || mode == RF_SEAL;
+	unsigned int at = bytewise ? 1u : 0u;    /* where SKIP is */
 
 	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
 	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
@@ -606,11 +679,11 @@ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
 		exit(2);
 	}
 	while (*p == ':' && n < 4u) {
-		v[n++] = strtoul(p + 1, &end, 0);
+		v[n++] = strtol(p + 1, &end, 0);
 		p = end;
 	}
-	if (*p != '\0' || n < (bytewise ? 3u : 2u) ||
-	    (bytewise && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
+	if (*p != '\0' || n < at + 2u || v[at] < 0 || v[at + 1u] < 0 ||
+	    (bytewise && (v[0] <= -0x10000 || v[0] >= 0x10000 || v[3] < 1 || v[3] > 255))) {
 		fprintf(stderr, "HOST: bad read fault %s\n", spec);
 		exit(2);
 	}
@@ -618,9 +691,9 @@ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
 	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
 	rf.other = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0u : 0x10000u);
 	rf.mode = mode;
-	rf.off = bytewise ? (uint32_t)v[0] : 0u;
-	rf.skip = (unsigned int)(bytewise ? v[1] : v[0]);
-	rf.count = (unsigned int)(bytewise ? v[2] : v[1]);
+	rf.off = bytewise ? v[0] : 0;
+	rf.skip = (unsigned int)v[at];
+	rf.count = (unsigned int)v[at + 1u];
 	rf.base = bytewise ? (unsigned int)v[3] : 8u;
 }
 
@@ -889,6 +962,10 @@ int main(int argc, char **argv)
 			arm_from_here(v, RF_FF);
 		else if (strcmp(a, "--read-other") == 0 && v)
 			arm_from_here(v, RF_OTHER);
+		else if (strcmp(a, "--read-length") == 0 && v)
+			arm_from_here(v, RF_LEN);
+		else if (strcmp(a, "--read-verdict") == 0 && v)
+			arm_from_here(v, RF_VERDICT);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {
