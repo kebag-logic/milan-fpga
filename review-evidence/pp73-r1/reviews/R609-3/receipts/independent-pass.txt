@@ -1,0 +1,8 @@
+Independent pass completed before opening prior public review findings.
+Head 15981b511370a8cfb58ec023fae27f8a800c058c; base 2cbed0a987c1e68402658d69459ab7e5aa571adc.
+Conformance: reconstructed issue acceptance and public scope, REQ-VER-002, F06.14, interfaces and registry. No new behavior permitted.
+RTL: no synthesizable SystemVerilog differences; generator changes status/MVU source and validates entries. ROM comparison pending.
+Robustness: registry checks actual paths both ways, schema now refuses nonpositive/null per, gcd holds accepted mapping offsets; named generator checks added. Execution pending.
+Tests: observed engine dispatch is independent of table, sweep now includes count-one cdl 24 and 28; four- and sixteen-byte mutations present. Fresh sweep and mutation execution pending.
+Docs: 62 field paths, 29 held, explicit gaps include common_status, engine_status, oversize, ceilings, echo floor/cdl relation, unswept opcodes/outcomes. Semantic documented GDI fields distinguished. Generated PR reference pending comparison.
+No independent open finding at this checkpoint; verification remains pending.

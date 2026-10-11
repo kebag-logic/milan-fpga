@@ -1,0 +1,33 @@
+--- public/R608-2/table_probes.py
++++ scripts/prior_table_probes.py
+@@ -173,7 +173,7 @@
+     acts, regen = PROBES[name]
+     with tempfile.TemporaryDirectory(prefix="r608-2-probe-") as tmp:
+         root = Path(tmp)
+-        for d in ("hdl", "scripts", "tb/aecp_cmds", "docs"):
++        for d in ("hdl", "scripts", "tb/common", "tb/aecp_cmds", "docs"):
+             shutil.copytree(src / d, root / d, ignore=shutil.ignore_patterns(
+                 "obj_dir", "*.hex", "image.bin", "__pycache__"))
+         for a in acts:
+--- public/R608-2/size_sweep_r608.py
++++ scripts/prior_size_sweep_r608.py
+@@ -25,7 +25,7 @@
+     src, label, fn = args
+     with tempfile.TemporaryDirectory(prefix="r608-2-size-") as tmp:
+         root = Path(tmp)
+-        for d in ("hdl", "scripts", "tb/aecp_cmds", "docs"):
++        for d in ("hdl", "scripts", "tb/common", "tb/aecp_cmds", "docs"):
+             shutil.copytree(src / d, root / d, ignore=shutil.ignore_patterns(
+                 "obj_dir", "*.hex", "image.bin", "__pycache__"))
+         p = root / TABLE
+--- public/R608-2/gate_mutation.py
++++ scripts/prior_gate_mutation.py
+@@ -42,7 +42,7 @@
+     src, rel, i = args
+     with tempfile.TemporaryDirectory(prefix="r608-2-gmut-") as tmp:
+         root = Path(tmp)
+-        for d in ("hdl", "scripts", "tb/aecp_cmds", "docs"):
++        for d in ("hdl", "scripts", "tb/common", "tb/aecp_cmds", "docs"):
+             shutil.copytree(src / d, root / d, ignore=shutil.ignore_patterns(
+                 "obj_dir", "*.hex", "image.bin", "__pycache__"))
+         p = root / rel

@@ -1,0 +1,23 @@
+# probe accept-opcode-renumbered-table-only
+
+# gate rc 1
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: GET_COUNTERS: the table's entries name BADARG, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)
+  decode: GET_COUNTERS: the table's entries name GCTRS, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)
+  decode: GET_COUNTERS: the table's entries name GCTRSNS, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)
+  decode: GET_COUNTERS: the engine dispatches AEM 0x002A to NOTIMPL, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  decode: GET_COUNTERS: NOTIMPL answered NOT_IMPLEMENTED, which is not in the table's status set
+  decode: AEM 0x0029 is no table command and the engine dispatches it to BADARG, not only NOTIMPL
+  decode: AEM 0x0029 is no table command and the engine dispatches it to GCTRS, not only NOTIMPL
+  decode: AEM 0x0029 is no table command and the engine dispatches it to GCTRSNS, not only NOTIMPL
+  decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+  decode: 0x0029: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+  decode: GET_COUNTERS: the PP_UNS_CTRS_C job answers 0x0029 with GCTRS, the table says 0x002A with GCTRS
+  decode: the engine's PP_UNS_CTRS_C job answers 0x0029 with GCTRS, which is no table command's notification
+  engine: GET_COUNTERS: the table says opcode 0x002A, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x0029
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0029, which no table command carries
+  F06.14: row 0x002A GET_COUNTERS is missing (run --write)
+  F06.14: row 0x0029 GET_COUNTERS is not in the table
+  8.1: GET_COUNTERS (AEM 0x002A) is served and section 8.1 does not list it
+  8.1: section 8.1 lists AEM 0x0029 and the table serves no such command

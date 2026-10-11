@@ -1,0 +1,1192 @@
+[
+  {
+    "site": "scripts/aecp_gate/inputs.py:101",
+    "line": "raise GateError(f\"{UCODE} did not generate: {why}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                  ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:106",
+    "line": "raise GateError(f\"{UCODE} defines no {name}: the generator's shape has \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                    ^^^^^^^^^^^^",
+      "AttributeError: module 'gen_ucode_for_gate' has no attribute 'occupied'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:118",
+    "line": "raise GateError(f\"cannot read an input: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                              ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:122",
+    "line": "raise GateError(f\"{rel} is not JSON: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                           ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:134",
+    "line": "raise GateError(f\"cannot read an input: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                              ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:60",
+    "line": "p.append(f\"  schema: {who}: {k} per must be an integer with its unit and greater than zero\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                  ~^^^^^^^^",
+      "KeyError: 'unit'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:63",
+    "line": "p.append(f\"  schema: {who}: {k} floor must be a command's integer from {HDR} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:83",
+    "line": "p.append(f\"  schema: status {name}: code must be an integer\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:85",
+    "line": "p.append(f\"  schema: status {name} is {code} in the table, IEEE 1722.1-2021 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:90",
+    "line": "p.append(f\"  schema: common_status {msg}: status {s} is not in status_codes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:92",
+    "line": "p.append(f\"  schema: unserved {t.get('unserved')!r} is no shared entry\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:100",
+    "line": "p.append(f\"  schema: {who} is listed twice\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:103",
+    "line": "p.append(f\"  schema: {who}: message {c['message']!r} is neither AEM nor MVU\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:105",
+    "line": "p.append(f\"  schema: {who}: message {c['message']!r} has no common_status row\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:108",
+    "line": "p.append(f\"  schema: {who}: opcode {c['opcode']!r} is not 0xHHHH\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:110",
+    "line": "p.append(f\"  schema: {who}: opcode {c['opcode']} is also \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:127",
+    "line": "p.append(f\"  schema: {who}: an echo response is the command's own size: \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:139",
+    "line": "p.append(f\"  schema: {who}: status {s} is not in status_codes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:141",
+    "line": "p.append(f\"  schema: {who}: hazard {c['hazard']} is not in hazard_classes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:144",
+    "line": "p.append(f\"  schema: {who}: lock, gdi and oversize must be true or false\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:149",
+    "line": "p.append(f\"  schema: {who}: entries must be a non-empty list of names without repeats\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:152",
+    "line": "p.append(f\"  schema: {who}: notify must be null or carry class, kind and body\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                     ~~^^^^^^^^",
+      "KeyError: 'body'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:162",
+    "line": "p.append(f\"  schema: documented row {d.get('opcode') if isinstance(d, dict) else d!r}: \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                        ~^^^^^^^^",
+      "KeyError: 'name'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:174",
+    "line": "p.append(f\"  schema: {TABLE} declares {t.get('schema')!r}, this gate reads {SCHEMA!r}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:186",
+    "line": "p.append(f\"  schema: {who}: missing {', '.join(miss)}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "              ~^^^^^^^^^^",
+      "KeyError: 'hazard'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:190",
+    "line": "p.append(\"  schema: GET_MILAN_INFO: no command with message MVU, whose opcode \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:22",
+    "line": "raise GateError(f\"{what}: '{start}' not found - the pattern has gone stale\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                            ^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'end'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:25",
+    "line": "raise GateError(f\"{what}: no '{end}' after '{start}'\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                  ^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'start'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:49",
+    "line": "raise GateError(f\"{ENGINE}: a pattern parsed nothing\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:63",
+    "line": "raise GateError(f\"{TOP}: hz_classify's default or its opcode case is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                              ^^^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:71",
+    "line": "raise GateError(f\"{TOP}: hz_classify's opcode case parsed nothing\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:80",
+    "line": "raise GateError(f\"{PP_PKG}: no PP_HZ_* enum parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:89",
+    "line": "raise GateError(f\"{PP_PKG}: no PP_UNS_*_C kind parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:102",
+    "line": "raise GateError(f\"{SCOREBOARD}: hz_is_lockprot is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "            ~~~~~^^^",
+      "KeyError: 'HZ_NAME_WR_C'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:115",
+    "line": "raise GateError(f\"{NOTIFY}: the command-class map is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                         ^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:125",
+    "line": "raise GateError(f\"{UCPU_PKG}: no ST_*_C parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:141",
+    "line": "p.append(f\"  engine: {ENGINE} declares {name} = 0x{val:04X} and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:144",
+    "line": "p.append(f\"  engine: {d['name']}: the table says {d['opcode']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:147",
+    "line": "p.append(f\"  engine: {ENGINE} decodes {name} = 0x{val:04X} and the table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:150",
+    "line": "p.append(f\"  engine: {docs[name]['name']}: the table names {name} and {ENGINE} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:160",
+    "line": "p.append(f\"  engine: {name} is not written `localparam logic [15:0] {name} = \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:165",
+    "line": "p.append(f\"  engine: {c['name']}: the table names {c['rtl']} and \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:168",
+    "line": "p.append(f\"  engine: {c['name']}: the table says opcode {c['opcode']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:177",
+    "line": "p.append(f\"  engine: {c['name']}: entry {e} has no UPC_{e}_C, so the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:180",
+    "line": "p.append(f\"  engine: UPC_{e}_C is claimed by no command, notification body or \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:190",
+    "line": "p.append(f\"  classifier: hazard class {name} is {code} in the table and \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:193",
+    "line": "p.append(f\"  classifier: {PP_PKG} declares PP_HZ_{name} and the table does not\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:198",
+    "line": "p.append(f\"  classifier: {c['name']}: the table says {c['hazard']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:201",
+    "line": "p.append(f\"  classifier: {TOP} hz_classify names 0x{op:04X}, which no table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:205",
+    "line": "p.append(f\"  classifier: {c['name']}: a non-AEM command takes the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:228",
+    "line": "p.append(f\"  notify: {c['name']}: class {k} is {cmap[k]} in {NOTIFY}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:231",
+    "line": "p.append(f\"  notify: {NOTIFY} queues classes {sorted(queued)} and maps \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:234",
+    "line": "p.append(f\"  notify: {c['name']}: class {k} is not in {NOTIFY}'s map, yet \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:238",
+    "line": "p.append(f\"  notify: {NOTIFY} maps class {k} to {kind} and no table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:249",
+    "line": "p.append(f\"  status: {name} is {code} in the table and {rtl} = \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:252",
+    "line": "p.append(f\"  status: {UCPU_PKG} declares {rtl} and the table has no status for it\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:324",
+    "line": "p.append(f\"  rom: {name}: entry {e} is no placed program in {UCODE}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:328",
+    "line": "p.append(f\"  rom: {name}: a path from E_{e} runs into ROM word {pc}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:338",
+    "line": "p.append(f\"  rom: {name}: E_{e} answers {code_of.get(s, s)} at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 208 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:356",
+    "line": "p.append(f\"  rom: {name}: its programs answer SUCCESS only at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:361",
+    "line": "p.append(f\"  rom: {name}: a path sets status {s}, which the table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:367",
+    "line": "p.append(f\"  rom: {name}: status {s} is answered by a path of its programs \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:370",
+    "line": "p.append(f\"  rom: {name}: status {s} is in the table's status set and no \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:380",
+    "line": "p.append(f\"  rom: {name}: the table says lock {str(c['lock']).lower()}, its \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:384",
+    "line": "p.append(f\"  rom: {name}: its programs enqueue notification class \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 216 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:395",
+    "line": "p.append(f\"  rom: {name}: its unsolicited body E_{body} is cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:407",
+    "line": "p.append(f\"  rom: {c['name']}: engine_status is only for an engine-built response\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:49",
+    "line": "out.append(f\"{nums[i]}\" if i == j else f\"{nums[i]}-{nums[j]}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 216 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:188",
+    "line": "lines.append(f\"    {_one(b)}: [\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:190",
+    "line": "lines.append(f'      {{\"opcodes\": {_one(g[\"opcodes\"])}, \"programs\": {{')",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:193",
+    "line": "lines.append(f\"        {_one(pn)}: {_one(info)}{_comma(pi, len(progs))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:194",
+    "line": "lines.append(f\"      }}}}{_comma(gi, len(groups))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:195",
+    "line": "lines.append(f\"    ]{_comma(j, len(v))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:205",
+    "line": "lines.append(f\"    {_one(a)}: {{\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:208",
+    "line": "lines.append(f\"      {_one(c)}: {_one(d)}{_comma(si, len(sub))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:209",
+    "line": "lines.append(f\"    }}{_comma(j, len(items))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:211",
+    "line": "lines.append(f\"    {_one(a)}: {_one(b)}{_comma(j, len(items))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:227",
+    "line": "lines.append('  \"about\": [')",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:229",
+    "line": "lines.append(f\"  ]{tail}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:231",
+    "line": "lines.append(f\"  {_one(k)}: {_one(v)}{tail}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 220 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:263",
+    "line": "ck.p.append(f\"  decode: {name}: the table's entries name {e}, which the engine \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:266",
+    "line": "ck.p.append(f\"  decode: {name}: the engine dispatches {at} to {e}, which is not \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:270",
+    "line": "ck.p.append(f\"  decode: {name}: the engine \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:276",
+    "line": "ck.p.append(f\"  decode: {name}: the bench saw {at} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:293",
+    "line": "ck.p.append(f\"  decode: {name}: the shortest {at} the engine {how} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 215 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:299",
+    "line": "ck.p.append(f\"  decode: {name}: command per is {cmd_['per']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:305",
+    "line": "ck.p.append(f\"  decode: {name}: the engine {did} at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:324",
+    "line": "ck.p.append(f\"  decode: {name}: {at} dispatched to {pn} sent no frame\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:328",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st}, which is not in the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:333",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st} at the command's \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:336",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st} at cdl {ln}, the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:347",
+    "line": "ck.p.append(f\"  decode: {c['name']}: {where} has no {at}: the sweep never sent it\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:365",
+    "line": "ck.p.append(f\"  decode: {b} {hexranges(ops)} is no table command and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: MISSED: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 216 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:375",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO the engine never \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:378",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO the engine dispatches \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:384",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO its {e} record \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:388",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO its {e} record \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:404",
+    "line": "ck.p.append(f\"  decode: {who}: the table makes it a GET_DYNAMIC_INFO member and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:408",
+    "line": "ck.p.append(f\"  decode: {who}: the engine runs a record of it inside GET_DYNAMIC_INFO \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:418",
+    "line": "ck.p.append(f\"  decode: {c['name']}: with no record the engine answers {got}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:431",
+    "line": "ck.p.append(f\"  decode: {c['name']}: the engine runs no {nt['kind']} job\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:436",
+    "line": "ck.p.append(f\"  decode: {c['name']}: the {nt['kind']} job answers \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:445",
+    "line": "ck.p.append(f\"  decode: {c['name']}: its unsolicited {pn} is cdl {ln}, the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:455",
+    "line": "ck.p.append(f\"  decode: the engine's {k} job answers {ct} with {pn}, which \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 218 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:476",
+    "line": "ck.p.append(f\"  decode: {where}: {rec['sweep']['timeouts']} trials never ended\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:515",
+    "line": "p.append(f\"  decode: {RECORD} is not what the engine does: {k}: observed \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:531",
+    "line": "p.append(f\"  decode: {RECORD} was swept from another {path} (sha256 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 217 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:81",
+    "line": "raise GateError(f\"{DOC}: the F06.14 markers are missing; restore them, then \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                       ~~~^^^",
+      "IndexError: tuple index out of range"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:104",
+    "line": "p.append(f\"  F06.14: the header is not {want[0]}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:106",
+    "line": "p.append(f\"  F06.14: {len(have) - 2} rows where the table generates {len(want) - 2}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:110",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} is missing (run --write)\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:112",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} is not in the table\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:116",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]}, column {col}, reads \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:119",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} has {len(hrows[key])} cells, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:124",
+    "line": "p.append(\"  F06.14: the rows are out of the generated order (run --write)\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:132",
+    "line": "raise GateError(f\"{DOC}: section 8.1's table is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                ^^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:142",
+    "line": "p.append(f\"  8.1: {want[op]} ({msg} 0x{op:04X}) is served and section 8.1 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:145",
+    "line": "p.append(f\"  8.1: section 8.1 lists {msg} 0x{op:04X} and the table serves \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "field drift: unserved: caught: decode:; is no table command; not only DLKILL",
+      "aecp commands selftest: 220 planted defects, 219 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/gate.py:77",
+    "line": "raise GateError(f\"the sweep's output {path} cannot be read: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                                  ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  }
+]
