@@ -1,0 +1,16 @@
+ok   grouped == split (layout only)
+ok   grouped == +k packed (layout only)
+ok   grouped layout has no departures
+ok   split layout is reported as not grouped
+ok   +k packed is reported as not grouped
+ok   swapped events decode differently
+ok   dropped vector decodes differently
+ok   dropped LeaveAll decodes differently
+ok   changed FirstValue decodes differently
+ok   descending FirstValue is reported as not grouped
+ok   missing MRPDU EndMark is reported
+ok   truncated vector is refused
+ok   MSRP Listener decodes two values with FourPacked
+ok   changed FourPackedEvent decodes differently
+ok   wrong AttributeListLength is refused
+r597 decoder selftest: PASS (0 failures)
