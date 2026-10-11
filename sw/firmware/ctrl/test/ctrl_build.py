@@ -24,7 +24,6 @@ import hashlib
 import os
 import shutil
 import stat
-import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -101,9 +100,9 @@ class Outcome:
     log: str
 
 
-def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    """One subprocess, its output captured."""
-    return fw_gtest.run(argv, cwd=cwd)
+#: One subprocess, its output captured: the harness's runner, for the builders that import it from here. The pin
+#: proof may not reach it (ctrl_pin.census).
+run = fw_gtest.run
 
 
 def includes(tree: Tree) -> list[str]:
@@ -186,11 +185,23 @@ def git_env() -> dict[str, str]:
     return {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS}
 
 
-def git(directory: Path, *args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
-    """One git command in `directory`, its output captured: the only way the pin proof (this module and
-    ctrl_pin.py) starts git, which ctrl_pin.census holds."""
-    return subprocess.run(["git", "-C", str(directory), *args], input=stdin, capture_output=True, check=False,
-                          env=git_env(), encoding="utf-8", errors="surrogateescape")
+@dataclass(frozen=True)
+class GitRun:
+    """What one git command of the pin proof printed, and its exit status."""
+
+    returncode: int
+    stdout: str
+    stderr: str
+
+
+def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
+    """One git command in `directory`, its output captured: the only process the pin proof's modules (this one
+    and ctrl_pin.py) start themselves, and the only code in them that names a module able to start one, which
+    ctrl_pin.census holds."""
+    import subprocess
+    res = subprocess.run(["git", "-C", str(directory), *args], input=stdin, capture_output=True, check=False,
+                         env=git_env(), encoding="utf-8", errors="surrogateescape")
+    return GitRun(res.returncode, res.stdout, res.stderr)
 
 
 def stack_gitlink(root: Path = ROOT) -> str:

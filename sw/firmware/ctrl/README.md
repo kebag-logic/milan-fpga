@@ -166,23 +166,37 @@ Every gate that builds the stack first runs the same pin check (`ctrl_build.py -
 The submodule must be at its gitlink.
 Its checkout, all but its own `.git`, must be the gitlink's whole tree: the same paths, each of the same type and mode, every file and symbolic link hashing to the tree's blob.
 The hashes are taken from the files' own bytes, never from the index and through no Git attribute or filter, so an edit hidden from `git status` is refused too.
-The pin proof is [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and every Git command it runs goes through one helper.
+The pin proof's modules are [`ctrl_build.py`](test/ctrl_build.py) and [`ctrl_pin.py`](test/ctrl_pin.py), and in them only one helper starts a process: it runs Git.
 The helper sets `GIT_NO_REPLACE_OBJECTS=1` and gives `GIT_GRAFT_FILE` a path that does not exist, so Git reads the real objects only.
 So a replacement object (`refs/replace`) or a graft cannot make another tree read as the pin's.
 `ctrl_boundary.py` holds a census of the proof on every run.
-A string of either module, outside the helper and the docstrings, that names the Git program is refused, and so is a helper environment without either setting.
-A program name assembled at run time is not seen.
+It reads both modules' syntax trees, not their text, so the program a call would name does not matter.
+Outside the helper it refuses any reference to a process-launch facility, by import, alias or attribute: the `subprocess`, `pty` and `asyncio.subprocess` modules and their members, `os.system`, `os.popen`, `os.exec*`, `os.spawn*`, `os.posix_spawn*`, `os.fork`, `os.forkpty`, `os.startfile`, and asyncio's `create_subprocess_exec` and `create_subprocess_shell`.
+An attribute with one of those names is refused on any object, so `os` reached through another module is refused too.
+It refuses `eval`, `exec`, `compile`, `__import__`, `importlib`, `builtins` and a wildcard import.
+It refuses the reflection that reaches an object without naming it: `getattr`, `setattr`, `delattr`, `vars`, `globals`, `locals`, an attribute that begins with an underscore (but `__name__`), a frame's attributes and `sys.modules`.
+What decides the pin is `stack_gitlink`, `stack_pin` and the command line's `main`.
+They, and every function, class and constant of `ctrl_build.py` they name, may name only the proof's vocabulary.
+That is a few names of `os`, `hashlib`, `stat`, `pathlib` and `argparse`, and builtins and attributes of the proof's own values, none of which starts a process.
+So the decision reaches no process but through the helper, whatever the route or the name of the program: `ctrl_build.run`, the harness's runner, is refused there.
+The census also refuses a helper environment without either setting, and `ctrl_build.py` without the helper or with its name bound again.
+What it does not hold: a function of another module that starts a process is not a facility it knows.
+`ctrl_build.py`'s build functions and `run`, and `ctrl_pin.py`'s runs of `make` and of the gates its controls run, start their processes that way, through `fw_gtest.run`.
+The census refuses them only where the pin decision would reach them.
+It reads the modules as written, so code elsewhere that rebinds their names at run time is not seen, nor is a route of Python's own to an object that none of the refused names opens.
 The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-30 pin controls follow the boundary controls.
+35 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
 So it is when a clean filter given through the clone's attributes turns it back into the pinned blob, as `git status` would read it.
 A graft changes only a commit's parents, which the check never reads; the census holds the helper's graft setting.
-The census refuses a planted Git command outside the helper, and the helper's environment without each of its two settings.
+The census refuses six planted process starts, each at its line.
+They are a Git command run by the harness's runner, under a computed name (`git.__name__`) and as a dashed program (`git-ls-tree`); an aliased import (`from subprocess import run as r`); `os.system`; and `exec` of a string.
+It refuses the helper's environment without each of its two settings.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
 Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
 At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.

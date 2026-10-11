@@ -78,10 +78,11 @@ THE PIN (ctrl_pin.py). Every gate that builds the stack first runs the shared
 pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
 its checkout the gitlink's whole tree (the same paths, types and modes, every
 file hashing to the tree's blob), git reading the real objects only. This gate
-does too, and holds the pin proof's census (ctrl_pin.census): the proof starts
-git only through its helper. Every target of a Makefile builder whose recipe
-builds against the stack must have the pin check as a prerequisite, read from
-make's own dry run.
+does too, and holds the pin proof's census (ctrl_pin.census): in the proof's
+modules only its helper starts a process, and what decides the pin names
+nothing outside the proof's vocabulary. Every target of a Makefile builder
+whose recipe builds against the stack must have the pin check as a
+prerequisite, read from make's own dry run.
 
 --selftest first judges an unplanted copy of the firmware and the stack, the
 base every control shares, which must pass; then plants defects in copies,
