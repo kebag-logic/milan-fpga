@@ -1,0 +1,26 @@
+Run from the review packet directory. Set REVIEW_REPO to the detached source clone.
+The scripts perform local reads and GitHub GET requests only.
+
+rtk proxy python3 scripts/capture_public.py scratch/recheck-public
+rtk proxy python3 scripts/verify_delta.py "$REVIEW_REPO" scratch/recheck-public/pr-final.json
+rtk proxy sha256sum --check MANIFEST.sha256
+
+The captured source must be 2bef9e50489a60f216a8073a9f5ea0645752b33f,
+tree 9777e890c07850052a0d9134cdb22388a651c5f1. Required submodules must be
+initialized at the committed gitlinks. The public check refuses a moved PR
+head or recorded base. Live dev is separately captured for the merge manager.
+
+verify_delta.py checks raw tracked bytes, modes and index entries without
+trusting status flags. It verifies the three required submodule populations,
+the original frozen oracle, both parameterized port interfaces, a corrupt
+oracle rejection, the combined arithmetic, and the entire current PR body.
+An obsolete-figure negative control must be rejected. No source file changes.
+
+This round runs no simulation or synthesis bank. The unchanged-tree gate
+receipts are cited from R599-4, and broader source runs retain the revisions
+stated in the public author packet and issue comments. Hosted job metadata
+is evidence of reported job execution and status, not a hardware result or
+the manager's final current-dev candidate validation.
+
+REPORT.md and MANIFEST.sha256 define the publication boundary. Scratch input
+downloads and any later reproduction output under scratch/ are not published.

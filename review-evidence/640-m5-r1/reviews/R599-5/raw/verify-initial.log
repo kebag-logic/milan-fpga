@@ -1,0 +1,19 @@
+PASS source head 2bef9e50489a60f216a8073a9f5ea0645752b33f; tree 9777e890c07850052a0d9134cdb22388a651c5f1; published head and base match
+PASS tracked bytes, filesystem modes, index: 1284 blobs; 5 gitlinks
+PASS tracked bytes, filesystem modes, index: 562 blobs; 0 gitlinks
+PASS required submodule protocol-processor: 2ad2f845dd583f8310075fa2380cb60a04fd091a
+PASS tracked bytes, filesystem modes, index: 104 blobs; 0 gitlinks
+PASS required submodule gptp-processor: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+PASS tracked bytes, filesystem modes, index: 214 blobs; 0 gitlinks
+PASS required submodule third_party/verilog-axis: 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+PASS frozen oracle equals original blob after module-name normalization; sha256 c3106a1410035f33eef9e634750ffc534be4d04293263bdbfd4ea144dfd523d8
+PASS negative control: reference-byte drift rejected
+PASS interface identity at 1x1: 302 ports
+PASS interface identity at 8x8: 302 ports
+PLAN 699: The reproducible saving is 34 LUTs, below the 200 (100-400) estimate.
+PLAN 960: The reproducible saving is 418 LUTs post-synthesis, 468 routed.
+PLAN 1048: | Partial, F5 unqualified | Central | 37,957 | +83 | -298 |
+PLAN 1106: With the measured savings of M2 (34), M5 (121) and M6 (418) in place of their central figures, the partial-central scenario becomes about 38,784, 744 over 38,040, pending the week-4 re-measure (D8).
+PASS entire PR body: obsolete resource figures absent; all three current sections agree
+PASS negative control: obsolete PR figure rejected
+PASS diff whitespace and final tracked status
