@@ -1,0 +1,16 @@
+9975764846e7e63bccf0b68a5188d5cc7f23f890 Keep the AECP command gate's load, check, Inputs, rom_op and GateError importable from its entry point for the reviews' ROM size probe
+649d3537f405cad86bd64fc3530469504f89dd25 Plant the record drift, the unreadable sweep and the unparsed unsolicited kinds that only tb/aecp_cmds' verdict reports in the AECP command gate's self-test
+c06a2cc4b31e2b33805fedc3e1f1aff235c847f1 Record the AECP command gate's modules and its Python rule in 09 sections 7 and 8.10, and say exactly what a failure line names
+13b03dc4e90c7cb5ce2f2587713777c8afb3a03d Declare one name per declaration in tb/aecp_cmds/sim_main.cpp and record its new digest in decode.json
+238ebe1f86c686050970e4e2d79738df3cbe23f3 Split the AECP command gate into one module per consumer under scripts/aecp_gate, each function short, annotated and documented
+629aefb64406f449f8677de509d40ec642f19336 Record what the AECP command table generates, observes, gates and leaves held to nothing in REQ-VER-002, 06 section 8 and 09 sections 1, 7 and 8.10
+bca0251cdb5ab75ad247a4ae185672ce0bc9ef55 Run the AECP command decode standing controls in the CI suites job
+a21fe3ca54ab2105ae7139eb6641f5e08c65b192 List the AECP command table as a ucode.hex prerequisite in tb/pp_top and tb/ucpu
+c814a420482e8a04514c58a44db590f54a24c2e1 Hold the AECP command table to the engine's observed decode, dispatch and response sizes from a new tb/aecp_cmds sweep, and every size and generator-read field to it
+359e40d2e29b682ae1033d991c893893333839b3 Name the command and the field when gen_ucode.py cannot read the AECP command table, and raise instead of assert
+39cac060f6f3730cf8172adc6424c275cd268517 Plant a defect for every finding and refusal of the AECP command gate, and record the suites' ucode.hex prerequisite
+67bf163d056bfd6fe1fb883d2d16f82886bf0c56 Drop unused gate fields and refuse a message type the table cannot render
+7053ccd8a59a3047d06bd0ed8bf47558b3547961 Record what the AECP command table generates and gates in REQ-VER-002, 06 section 8 and 09 sections 7 and 8
+3b6b049ff2affdd053604d257cd5c484b6d6bc03 Run the AECP command gate in make check and so in the CI docs-gates job
+b96268ca5b86ee618a12404b9a2dfe34eab99d9a Generate F06.14 from the AECP command table and gate every engine, ROM and doc consumer against it
+6433bdcb583b8e293eeea3a74e2357018043cdb9 Take the µcode status codes, MVU command type and dispatch map from one AECP command table

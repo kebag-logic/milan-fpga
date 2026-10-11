@@ -1,0 +1,229 @@
+{
+  "retrieved_utc": "2026-10-11T08:44:06.447869+00:00",
+  "run": 38125233898,
+  "head": "9975764846e7e63bccf0b68a5188d5cc7f23f890",
+  "jobs": [
+    {
+      "id": 114428105143,
+      "name": "suites",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-10-11T08:33:44Z",
+      "completed_at": null,
+      "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/38125233898/job/114428105143",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:45Z",
+          "completed_at": "2026-10-11T08:33:46Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:46Z",
+          "completed_at": "2026-10-11T08:33:48Z"
+        },
+        {
+          "name": "Cache the pinned Verilator build",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:48Z",
+          "completed_at": "2026-10-11T08:33:50Z"
+        },
+        {
+          "name": "Build Verilator v5.050",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-11T08:33:50Z",
+          "completed_at": "2026-10-11T08:33:50Z"
+        },
+        {
+          "name": "Lint (zero tolerance) + every suite",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-11T08:33:50Z",
+          "completed_at": null
+        },
+        {
+          "name": "SRP LeaveAll mutation campaign",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "MAAP mutation campaign",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "ADP mutation campaign",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "AECP deadline and hazard-class mutation campaign",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "AECP dispatch mutation campaign",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "AECP command decode standing controls",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Traceability matrix no-drift + untested budget 0",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "nvm_port README figures agree with the tree",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the pinned Verilator build",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "id": 114428105263,
+      "name": "docs-gates",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-11T08:33:44Z",
+      "completed_at": "2026-10-11T08:34:42Z",
+      "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/38125233898/job/114428105263",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:45Z",
+          "completed_at": "2026-10-11T08:33:45Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:45Z",
+          "completed_at": "2026-10-11T08:33:48Z"
+        },
+        {
+          "name": "Install the WaveDrom renderer and the Mermaid CLI",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:48Z",
+          "completed_at": "2026-10-11T08:34:07Z"
+        },
+        {
+          "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, AECP command model, IDs, figures, staleness)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:34:07Z",
+          "completed_at": "2026-10-11T08:34:40Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:34:40Z",
+          "completed_at": "2026-10-11T08:34:40Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:34:40Z",
+          "completed_at": "2026-10-11T08:34:40Z"
+        }
+      ]
+    },
+    {
+      "id": 114428105312,
+      "name": "portability",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-11T08:33:44Z",
+      "completed_at": "2026-10-11T08:36:07Z",
+      "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/38125233898/job/114428105312",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:45Z",
+          "completed_at": "2026-10-11T08:33:45Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:45Z",
+          "completed_at": "2026-10-11T08:33:47Z"
+        },
+        {
+          "name": "Install yosys + sv2v",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:33:47Z",
+          "completed_at": "2026-10-11T08:34:02Z"
+        },
+        {
+          "name": "Elaborate every top off-vendor",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:34:02Z",
+          "completed_at": "2026-10-11T08:36:05Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:36:05Z",
+          "completed_at": "2026-10-11T08:36:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-11T08:36:05Z",
+          "completed_at": "2026-10-11T08:36:05Z"
+        }
+      ]
+    }
+  ]
+}
