@@ -1,0 +1,6 @@
+aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials
+FAIL:  decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4
+FAIL:  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24, which is no 20 + 8·N
+FAIL:  decode: REMOVE_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4
+FAIL:  decode: REMOVE_AUDIO_MAPPINGS: the engine dispatches AEM 0x002D to AMREMOVE at cdl 24, which is no 20 + 8·N
+aecp_cmds: 585760 trials swept; 176 checks: 174 PASS, 2 FAIL

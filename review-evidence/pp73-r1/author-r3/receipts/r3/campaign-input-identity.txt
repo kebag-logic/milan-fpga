@@ -1,0 +1,12 @@
+Final head: 15981b511370a8cfb58ec023fae27f8a800c058c
+Campaign export initially: 5500baaafb7fa3f5caa7d1018106e85aef0b2d5f
+No change between those commits in any HDL, pp_top, name_state or common bench source, nor in check_upc_map.py or check_m9_opcodes.py. The nine existing campaigns therefore build identical final-head inputs. Final gate, docs and aecp_cmds files were synchronized before the queued command campaign starts.
+Changed paths synchronized:
+docs/architecture/09_verification.md
+scripts/aecp_gate/inputs.py
+scripts/aecp_gate/plants.py
+scripts/aecp_gate/table.py
+tb/aecp_cmds/README.md
+tb/aecp_cmds/decode.json
+tb/aecp_cmds/mutants.py
+tb/aecp_cmds/sim_main.cpp

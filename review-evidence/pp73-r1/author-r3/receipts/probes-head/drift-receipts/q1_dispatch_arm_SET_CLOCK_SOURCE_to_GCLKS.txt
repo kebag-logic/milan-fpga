@@ -1,0 +1,10 @@
+probe: q1_dispatch_arm_SET_CLOCK_SOURCE_to_GCLKS
+expect: a lock-protected command dispatched to an unlocked program: does the gate see it?
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 13185a054f1c): sweep this engine with make -C tb/aecp_cmds record
+--- stderr

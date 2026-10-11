@@ -1,0 +1,13 @@
+base: 35/36 consumer commands rc 0; only submodule_docs rc 1
+head: 35/36 consumer commands rc 0; only submodule_docs rc 1
+pgates/bdd: byte-identical=False; identical without timing=True
+pgates/pp_srcs: byte-identical=True; identical without timing=True
+pgates/rom_verify_tcam: byte-identical=True; identical without timing=True
+pgates/ROM ledger rows: identical apart from commit key
+parent-e8454e27/bdd: byte-identical=False; identical without timing=True
+parent-e8454e27/pp_srcs: byte-identical=True; identical without timing=True
+parent-e8454e27/rom_verify_tcam: byte-identical=True; identical without timing=True
+parent-e8454e27/ROM ledger rows: identical apart from commit key
+submodule_docs: failure byte-identical
+Python gate and listing: rc 0 at both pins, unchanged ratchet budgets
+Base evidence gate/self-test corrected to use only the applicable baseline patch; earlier stale-disposition failures retained

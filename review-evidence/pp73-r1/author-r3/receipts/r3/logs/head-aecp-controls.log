@@ -1,0 +1,21 @@
+{"variant": "golden", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "q1-set-clock-source-to-gclks", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (the fresh sweep)"], "passed": true}
+{"variant": "q2-set-clock-source-decoded-on-get", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (the fresh sweep)"], "passed": true}
+{"variant": "floor-set-clock-source-16", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 16, the table's command cdl is 20"], "passed": true}
+{"variant": "mvu-sub-decode-other-command-type", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_MILAN_INFO: the table's entries name MVUINFO, which the engine never dispatches MVU 0x0000 to (the fresh sweep)"], "passed": true}
+{"variant": "mvu-protocol-id-tail-unchecked", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: MVU/wrong-protocol-id 0x0000 is no table command and the engine dispatches it to MVUINFO, not only NOTIMPL"], "passed": true}
+{"variant": "message-type-guard-dropped", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL"], "passed": true}
+{"variant": "unserved-opcode-decoded", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG, not only NOTIMPL"], "passed": true}
+{"variant": "mappings-accepted-between-records", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 21-27, 29-35, 37-43, 45-51, 53-59, 61-67, 69-75, 77-83, 85-91, 93-99, which is no 20 + 8\u00b7N"], "passed": true}
+{"variant": "mappings-four-byte-record", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4"], "passed": true}
+{"variant": "mappings-sixteen-byte-record", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": [], "passed": false}
+Traceback (most recent call last):
+  File "$LANES/pp73-command-model/tb/aecp_cmds/mutants.py", line 209, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$LANES/pp73-command-model/tb/aecp_cmds/mutants.py", line 201, in main
+    records += [report(result, output) for result in results]
+                ~~~~~~^^^^^^^^^^^^^^^^
+  File "$LANES/pp73-command-model/tb/aecp_cmds/mutants.py", line 173, in report
+    raise RuntimeError(f"{result['variant']}: missing expected verdict; see {log}")
+RuntimeError: mappings-sixteen-byte-record: missing expected verdict; see $VALIDATION_STORAGE/pp73-a595/r3/camp/final/aecp_cmds.out/mappings-sixteen-byte-record-run.log
