@@ -1,0 +1,49 @@
+# split export (head, 1x1 shipping argv + --ctrl-mailbox --ctrl-firmware s1i1)
+memory_region,plic,0xf0c00000,4194304,io+linker
+memory_region,clint,0xf0010000,65536,io+linker
+memory_region,rom,0x00000000,229376,cached
+memory_region,sram,0x10000000,229376,cached
+memory_region,main_ram,0x40000000,1073741824,cached
+memory_region,spiflash,0x01000000,16777216,cached
+memory_region,milan_csr,0x90000000,65536,io
+memory_region,ctrl_mbx,0x90100000,32768,io
+memory_region,csr,0xf0000000,65536,io
+# software tree
+bios
+include
+libbase
+libc
+libcompiler_rt
+libfatfs
+liblitedram
+libliteeth
+liblitesata
+liblitesdcard
+liblitespi
+picolibc_src
+# gateware init files
+147 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_mem.init
+147456 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_rom_bank0.init
+36864 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_rom_bank1.init
+18432 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_rom_bank2.init
+9216 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_rom_bank3.init
+1854 <SCRATCH>/exp/head-split/gateware/alinx_ax7101_rom_bank4.init
+# BIOS strings in any .init
+alinx_ax7101_mem.init lines=49
+alinx_ax7101_rom_bank0.init lines=16384
+alinx_ax7101_rom_bank1.init lines=4096
+alinx_ax7101_rom_bank2.init lines=2048
+alinx_ax7101_rom_bank3.init lines=1024
+alinx_ax7101_rom_bank4.init lines=206
+# CtrlMemory banks in .v
+rom_bank0 rom_bank1 rom_bank2 rom_bank3 rom_bank4 sram_bank0 sram_bank1 sram_bank2 sram_bank3 
+19
+25959:reg [31:0] rom_bank0[0:16383];
+25974:reg [31:0] rom_bank1[0:4095];
+25989:reg [31:0] rom_bank2[0:2047];
+26004:reg [31:0] rom_bank3[0:1023];
+26019:reg [31:0] rom_bank4[0:511];
+26034:reg [31:0] sram_bank0[0:8191];
+26050:reg [31:0] sram_bank1[0:2047];
+26066:reg [31:0] sram_bank2[0:1023];
+26082:reg [31:0] sram_bank3[0:511];

@@ -1,0 +1,7 @@
+1x1 split: VexiiRiscv netlist : VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 sbt_runs=1
+8x8 split: VexiiRiscv netlist : VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 sbt_runs=0 rc=0
+default head: VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+dev mailbox: VexiiRiscv netlist : VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae
+memory_region,rom,0x00000000,229376,cached
+memory_region,sram,0x10000000,229376,cached
+[milan] --ctrl-firmware <S>/img/s8i1/ctrl_app.elf: {"rom": {"bytes": 108680, "banks": [65536, 32768, 8192, 4096], "RAMB36": 27, "RAMB18": 0}, "sram": {"bytes": 86080, "banks": [65536, 16384, 4096, 2048], "RAMB36": 21, "RAMB18": 1}, "tiles": 48.5, "budget_tiles
