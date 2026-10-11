@@ -190,8 +190,12 @@ struct read_fault {
 	unsigned int base;
 	unsigned int hits;      /* reads answered from the faulty view */
 };
-/* A firmware that never stops reading is ended here, with its summary. */
+/* A firmware that never stops reading is ended here, with its summary: after
+ * READ_STORM reads, or after BOOT_READ_STORM in one boot or restart, far past
+ * any bound the writer states, so a planted unbounded loop costs no more than
+ * a bounded one (#671). */
 #define READ_STORM 1000000u
+#define BOOT_READ_STORM 1000u
 
 static uint64_t now_ns;
 /* PP_NVM_STAT[31:24], the backend's saved-state contract tag. --boot-backend
@@ -205,6 +209,9 @@ static int view_loaded;
 static unsigned int reads;
 static unsigned int boot_reads;
 static unsigned int restart_reads;
+/* while a boot or a restart runs: the read it began at, and its count */
+static unsigned int boot_from;
+static unsigned int *booting;
 static uint32_t csr[CSR_WORDS];
 static uint32_t shadow[CSR_WORDS];
 static uint32_t pp_ctrl;
@@ -531,8 +538,11 @@ static void summary(void);
 uintptr_t nvm_host_flash_base(void)
 {
 	unsigned int k = reads++;
+	int boot_storm = booting && reads - boot_from > BOOT_READ_STORM;
 
-	if (reads > READ_STORM) {
+	if (boot_storm)
+		*booting = reads - boot_from;
+	if (reads > READ_STORM || boot_storm) {
 		printf("HOST read storm: %u reads through the mapping\n", reads);
 		summary();
 		exit(0);
@@ -814,8 +824,11 @@ static void boot(void)
 	/* the AEM slot: the four magic bytes the firmware's verifier looks for */
 	memcpy(nvm_host_flash + NVM_HOST_AEM_OFFSET, "AEMI", 4);
 	recompose();
+	boot_from = reads;
+	booting = &boot_reads;
 	nvm_host_init_milan_init();
 	settle();
+	booting = NULL;
 	boot_reads = reads;
 	printf("HOST booted\n");
 }
@@ -904,7 +917,10 @@ int main(int argc, char **argv)
 
 			printf("HOST restarting\n");
 			summary();
+			boot_from = from;
+			booting = &restart_reads;
 			nvm_host_writer_restart();
+			booting = NULL;
 			settle();
 			restart_reads = reads - from;
 			printf("HOST restarted\n");
