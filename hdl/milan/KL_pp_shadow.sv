@@ -330,7 +330,7 @@ module KL_pp_shadow #(
     //! 32-quadlet block; THIS WRAPPER OWNS NOTHING about what the numbers
     //! mean, because the events Milan Table 5.6 counts happen in the
     //! integrator's stream datapath (milan_datapath drives it from
-    //! KL_avtp_rx_monitor_ctx's diag_cnt_o).
+    //! KL_avtp_rx_monitor_ctx's diag_q_o).
     //!
     //! `ctr_wait_i` is a HOLD, not a ready: 0 means "the answer is on
     //! ctr_data_i now". The submodule banner offers an unwired face as the
