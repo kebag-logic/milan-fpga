@@ -1,0 +1,26 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py
+index 1ca912e2b..c38d293a2 100644
+--- a/sw/firmware/ctrl/test/ctrl_build.py
++++ b/sw/firmware/ctrl/test/ctrl_build.py
+@@ -204,6 +204,21 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
+     return GitRun(res.returncode, res.stdout, res.stderr)
+ 
+ 
++def plain(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
++    """git through the harness's runner, with the helper's environment."""
++    res = run(["git", "-C", str(directory), *args], env=git_env())
++    return GitRun(res.returncode, res.stdout, res.stderr)
++
++
++def configure() -> None:
++    """Route the pin proof's git through the runner."""
++    global git
++    git = plain
++
++
++configure()
++
++
+ def stack_gitlink(root: Path = ROOT) -> str:
+     """The tsn-c-stack revision the repository at `root` records: one stage-0 gitlink, or a Refusal."""
+     rel = STACK.relative_to(ROOT).as_posix()

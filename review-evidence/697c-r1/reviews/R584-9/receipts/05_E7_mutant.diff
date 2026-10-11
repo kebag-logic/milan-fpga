@@ -1,0 +1,23 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py
+index 1ca912e2b..2249277f2 100644
+--- a/sw/firmware/ctrl/test/ctrl_build.py
++++ b/sw/firmware/ctrl/test/ctrl_build.py
+@@ -204,6 +204,18 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
+     return GitRun(res.returncode, res.stdout, res.stderr)
+ 
+ 
++WALK = os.walk
++
++
++def walk(top: str) -> object:
++    """os.walk, after a git command started through the harness's runner."""
++    run(["git", "-C", str(top), "status", "--porcelain"])
++    return WALK(top)
++
++
++os.walk = walk
++
++
+ def stack_gitlink(root: Path = ROOT) -> str:
+     """The tsn-c-stack revision the repository at `root` records: one stage-0 gitlink, or a Refusal."""
+     rel = STACK.relative_to(ROOT).as_posix()

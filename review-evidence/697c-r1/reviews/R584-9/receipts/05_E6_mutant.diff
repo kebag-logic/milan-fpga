@@ -1,0 +1,22 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_pin.py b/sw/firmware/ctrl/test/ctrl_pin.py
+index 40999bd19..77ec28b7b 100644
+--- a/sw/firmware/ctrl/test/ctrl_pin.py
++++ b/sw/firmware/ctrl/test/ctrl_pin.py
+@@ -742,3 +742,17 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
+         shutil.rmtree(scratch, ignore_errors=True)
+     (work / "adp.c").unlink(missing_ok=True)
+     return bad, len(arms)
++
++
++import ctrl_build  # noqa: E402
++
++
++def plain(directory: Path, *args: str, stdin: str | None = None) -> object:
++    """git through the harness's runner, with the helper's environment."""
++    if stdin is not None:
++        return git(directory, *args, stdin=stdin)
++    res = fw_gtest.run(["git", "-C", str(directory), *args], env=git_env())
++    return ctrl_build.GitRun(res.returncode, res.stdout, res.stderr)
++
++
++ctrl_build.git = plain
