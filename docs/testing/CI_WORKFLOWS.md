@@ -39,6 +39,8 @@ pull-request update and on every push to `dev`. It produces one stable
   layer were each accepted and then broken by a construct they did not model
   ([R0] on PR #240, rounds one to three), so a missing front end is a refusal
   with no flag to soften it;
+- the mailbox publication census, `publication-census` (#665), when RTL or
+  its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   (#665), when RTL or its tooling changes: the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
@@ -59,7 +61,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The job runs the tally listener's planted cases.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs, `publication-census` and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module
@@ -138,6 +140,21 @@ rejected.
 The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
+
+The mailbox publication census runs in a job of its own, `publication-census`
+(`sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"`,
+#665, comment 6100024293), which installs the pinned Yosys from the same
+cache key as `yosys-elaboration` and the same pinned sv2v release. It
+elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
+milan_datapath` prints, in every shape the builder builds (the recipe's, and
+each `configs/*.yaml` with its generated header and the parameters
+`endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
+other than the versions `rtl-fast.yml` pins, and follows every class-D value
+the datapath reads through each netlist. Its self-test elaborates one planted
+copy per defect, then removes each of the census's rules in turn, on every
+core of the runner. The aggregate `rtl-fast` requires the job. The mailbox suite's
+`make census` runs it locally; the suite's default `make` does not, because
+the Verilator worker that owns that suite has no Yosys.
 
 ## Exhaustive validation
 

@@ -427,6 +427,44 @@ TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
     EXPECT_TRUE(refused);
 }
 
+// #665 F-INT: the split datapath reads each sink's started level from the
+// mailbox's publication block (Milan v1.2 5.3.8.7). START/STOP moves it through
+// acmp_set_started, a loop pass before the response is committed, and the
+// composed path keeps F5's service budget with that write in it.
+TEST_F(App, StartAndStopPublishTheStartedLevelBeforeTheirResponse)
+{
+    struct Trace{uint64_t ns=0;std::vector<std::pair<uint32_t,uint64_t>> writes;} t;
+    struct Unhook{~Unhook(){mbx_host_trace(nullptr,nullptr);}} unhook;
+    const uint32_t entry=MBX_PUB_BASE+MBX_PUB_SINK_BASE;
+    const uint32_t binding=entry+MBX_PUB_SINK_REG_BINDING;
+    const uint32_t head=MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD;
+    acmp(6);mbx_model_pub v{};mbx_model_pub_view(&fabric,0,&v);ASSERT_TRUE(v.bound[0]&&!v.started[0]);
+    mbx_host_trace([](void*p,bool write,uint32_t offset,uint32_t){auto &s=*static_cast<Trace*>(p);
+        s.ns+=100;if(write)s.writes.emplace_back(offset,s.ns);},&t);
+    for(bool start:{true,false}){
+        t.writes.clear();
+        const uint64_t origin=t.ns;
+        uint64_t published=UINT64_MAX;
+        uint64_t committed=UINT64_MAX;
+        unsigned writes=0;
+        aem(start?34:35,target(5,0));
+        for(auto &[offset,at]:t.writes){
+            if(offset>=entry&&offset<entry+MBX_PUB_SINK_STRIDE)++writes;
+            if(offset==binding)published=std::min(published,at);
+            if(offset==head)committed=std::min(committed,at);
+        }
+        mbx_model_pub_view(&fabric,0,&v);
+        EXPECT_EQ(v.started[0],start)<<"the datapath's started level follows START/STOP";
+        EXPECT_EQ(writes,1u)<<"a START/STOP is one write of the sink's BINDING";
+        ASSERT_NE(committed,UINT64_MAX)<<"the START/STOP response is committed";
+        EXPECT_LT(published,committed)<<"BINDING.STARTED is published before the response is committed";
+        std::printf("H-AECP-APP if=%u path=%u elapsed_ns=%llu\n",MBX_N_IF,start?34u:35u,
+                    (unsigned long long)(committed-origin+1000100));
+        EXPECT_LE(committed-origin+1000100,aecp_service_limit_ns)
+            <<"the composed path, its publication included, keeps the original event service budget";
+    }
+}
+
 TEST_F(App, MediaUnlockedNoticeCannotPassAnOwedUnbindResponse)
 {
     aem(36);acmp(6);service();
