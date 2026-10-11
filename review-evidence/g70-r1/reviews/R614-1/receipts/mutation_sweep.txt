@@ -1,0 +1,17 @@
+control: rc=0 ooc clock order selftest: PASS (17 arms)
+R1 read_xdc-before-synth disabled: rc=1 ooc clock order selftest: no read_xdc escaped
+R1b any read_xdc basename accepted: rc=1 ooc clock order selftest: read_xdc of another file escaped
+R2 constraint-after-synth disabled: rc=1 ooc clock order selftest: create_clock added after synth_design escaped
+R2b only read_xdc forbidden after synth: rc=1 ooc clock order selftest: create_clock added after synth_design escaped
+R3 synth count rule disabled: rc=1 ooc clock order selftest: second synth_design escaped
+R4 xdc clock count disabled: rc=0 SURVIVED: ooc clock order selftest: PASS (17 arms)
+R5 period/port rule disabled: rc=1 ooc clock order selftest: 8 ns period escaped
+R5b port not compared: rc=1 ooc clock order selftest: clock on another port escaped
+L1 never-started rule disabled: rc=1 ooc clock order selftest: synth_design that never started escaped
+L2 did-not-complete rule disabled: rc=1 ooc clock order selftest: synth_design that never completed escaped
+L3 read echo rule disabled: rc=1 ooc clock order selftest: no read_xdc echo escaped
+L3b read echo searched whole log: rc=0 SURVIVED: ooc clock order selftest: PASS (17 arms)
+L4 parse rule disabled: rc=1 ooc clock order selftest: synthesis without the parsed XDC escaped
+L4b parse searched whole log: rc=1 ooc clock order selftest: synthesis without the parsed XDC escaped
+L5 echo-after-done rule disabled: rc=1 ooc clock order selftest: create_clock echoed after a constrained synthesis escaped
+killed 13/15

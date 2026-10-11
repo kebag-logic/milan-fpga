@@ -1,0 +1,8 @@
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (17 arms)
+syn/ooc/run.sh
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+STUB VIVADO REACHED: -mode batch -source <host-path> -nojournal -log ucpu_ooc.log
+make: *** [Makefile:40: ooc] Error 3

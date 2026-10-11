@@ -1,0 +1,57 @@
+### run: main   rc=0
+### gate lines from the run output
+### ucpu: tool identity
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+### ucpu: order lines (log line numbers)
+31:Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+32:Starting synth_design
+338:Start Technology Mapping
+440:Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+457:36 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
+458:synth_design completed successfully
+462:# create_clock -period 10.000 -name clk [get_ports clk_i]
+### ucpu: utilization (| Device : xc7a100tfgg484-2)
+| Slice LUTs* | 1643 | 0 | 0 | 63400 | 2.59 |
+| LUT as Logic | 1511 | 0 | 0 | 63400 | 2.38 |
+| LUT as Memory | 132 | 0 | 0 | 19000 | 0.69 |
+| Slice Registers | 733 | 0 | 0 | 126800 | 0.58 |
+| Block RAM Tile | 1.5 | 0 | 0 | 135 | 1.11 |
+| DSPs | 4 | 0 | 0 | 240 | 1.67 |
+### ucpu: timing
+ WNS(ns) TNS(ns) TNS Failing Endpoints TNS Total Endpoints WPWS(ns) TPWS(ns) TPWS Failing Endpoints TPWS Total Endpoints 
+ ------- ------- --------------------- ------------------- -------- -------- ---------------------- -------------------- 
+ 1.941 0.000 0 3165 3.870 0.000 0 1001 
+1. checking no_clock (0)
+clk {0.000 5.000} 10.000 100.000 
+Slack (MET) :             1.941ns  (required time - arrival time)
+### ucpu: report sha256 (body from 'Design Timing Summary' on, paths stripped)
+195b76f3a3ad4229932a080db5b496d1c49e92f68e199bce0685414e676eee9e  ucpu_timing body
+### engine: tool identity
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+### engine: order lines (log line numbers)
+37:Command: synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+38:Starting synth_design
+409:Start Technology Mapping
+520:Synthesis finished with 0 errors, 0 critical warnings and 65 warnings.
+540:56 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
+541:synth_design completed successfully
+545:# create_clock -period 10.000 -name clk [get_ports clk_i]
+### engine: utilization (| Device : xc7a100tfgg484-2)
+| Slice LUTs* | 4853 | 0 | 0 | 63400 | 7.65 |
+| LUT as Logic | 4387 | 0 | 0 | 63400 | 6.92 |
+| LUT as Memory | 466 | 0 | 0 | 19000 | 2.45 |
+| Slice Registers | 3652 | 0 | 0 | 126800 | 2.88 |
+| Block RAM Tile | 1.5 | 0 | 0 | 135 | 1.11 |
+| DSPs | 4 | 0 | 0 | 240 | 1.67 |
+| u_ucpu | KL_gptp_ucpu | 2601 | 2469 | 132 | 0 | 733 | 1 | 1 | 4 |
+### engine: timing
+ WNS(ns) TNS(ns) TNS Failing Endpoints TNS Total Endpoints WPWS(ns) TPWS(ns) TPWS Failing Endpoints TPWS Total Endpoints 
+ ------- ------- --------------------- ------------------- -------- -------- ---------------------- -------------------- 
+ 1.773 0.000 0 12254 3.870 0.000 0 4410 
+1. checking no_clock (0)
+clk {0.000 5.000} 10.000 100.000 
+Slack (MET) :             1.773ns  (required time - arrival time)
+### engine: report sha256 (body from 'Design Timing Summary' on, paths stripped)
+247d9975d09f9ab5687d5beadc0ce670390bc0748a3126e5fce12fc42c18c840  engine_timing body

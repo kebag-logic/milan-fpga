@@ -1,0 +1,33 @@
+### run: port   rc=0
+### gate lines from the run output
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+ooc clock order: PASS (ucpu_ooc.log)
+### ucpu: tool identity
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+### ucpu: order lines (log line numbers)
+28:# read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+32:Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+33:Starting synth_design
+84:Parsing XDC File [<tree>/syn/ooc/ooc_clock.xdc]
+86:CRITICAL WARNING: [Vivado 12-4739] create_clock:No valid object(s) found for '-objects [get_ports clk_i]'. [<tree>/syn/ooc/ooc_clock.xdc:9]
+372:Start Technology Mapping
+467:Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+476:Parsing XDC File [<tree>/syn/ooc/ooc_clock.xdc]
+478:CRITICAL WARNING: [Vivado 12-4739] create_clock:No valid object(s) found for '-objects [get_ports clk_i]'. [<tree>/syn/ooc/ooc_clock.xdc:9]
+489:39 Infos, 67 Warnings, 2 Critical Warnings and 0 Errors encountered.
+490:synth_design completed successfully
+### ucpu: utilization (| Device : xc7a100tfgg484-2)
+| Slice LUTs* | 1643 | 0 | 0 | 63400 | 2.59 |
+| LUT as Logic | 1511 | 0 | 0 | 63400 | 2.38 |
+| LUT as Memory | 132 | 0 | 0 | 19000 | 0.69 |
+| Slice Registers | 733 | 0 | 0 | 126800 | 0.58 |
+| Block RAM Tile | 1.5 | 0 | 0 | 135 | 1.11 |
+| DSPs | 4 | 0 | 0 | 240 | 1.67 |
+### ucpu: timing
+ WNS(ns) TNS(ns) TNS Failing Endpoints TNS Total Endpoints WPWS(ns) TPWS(ns) TPWS Failing Endpoints TPWS Total Endpoints 
+ ------- ------- --------------------- ------------------- -------- -------- ---------------------- -------------------- 
+ NA NA NA NA NA NA NA NA 
+1. checking no_clock (1003)
+### ucpu: report sha256 (body from 'Design Timing Summary' on, paths stripped)
+6c99465af7c32989c79c93610fd9fefc599201ade51a78b087b7ffbfcdaaff39  ucpu_timing body

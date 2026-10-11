@@ -1,0 +1,8 @@
+### head log check applied to main's (unconstrained) logs: rc=1
+ooc clock order: FAIL (6 findings)
+  ucpu_ooc.log: ooc_clock.xdc is not read before synth_design
+  ucpu_ooc.log: synth_design did not parse ooc_clock.xdc before mapping
+  ucpu_ooc.log:462: create_clock after synth_design
+  engine_ooc.log: ooc_clock.xdc is not read before synth_design
+  engine_ooc.log: synth_design did not parse ooc_clock.xdc before mapping
+  engine_ooc.log:545: create_clock after synth_design

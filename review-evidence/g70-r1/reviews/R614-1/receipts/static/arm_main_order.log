@@ -1,0 +1,9 @@
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (17 arms)
+syn/ooc/run.sh
+ooc clock order: FAIL (4 findings)
+  ucpu_ooc.tcl: ooc_clock.xdc is not read before synth_design
+  ucpu_ooc.tcl:13: create_clock after synth_design
+  engine_ooc.tcl: ooc_clock.xdc is not read before synth_design
+  engine_ooc.tcl:20: create_clock after synth_design
+make: *** [Makefile:40: ooc] Error 1
