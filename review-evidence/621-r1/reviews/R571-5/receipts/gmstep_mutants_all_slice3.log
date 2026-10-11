@@ -1,0 +1,20 @@
+start 2026-10-11T01:42:54Z
+slice 3/5: 4 of 20 controls:
+  - the PHC re-base restart term is restored
+  - the render re-base is keyed to the identity, not the step
+  - the step's re-centre snaps one event off the setpoint
+  - PHC adjtime becomes an mr cause 256 cycles later
+[PASS] the unmutated gateware still passes the gmstep leg
+[INFO] obj_dir/Vmilan_dp_sim is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the option-off leg
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 10 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET; 621: no outgoing mr change; 621: no MEDIA_RESET; 621: no outgoing mr change; 621: no MEDIA_RESET; 621: no outgoing mr change; 621: no MEDIA_RESET; 621: no outgoing mr change; 621: no MEDIA_RESET
+[PASS] control caught: the render re-base is keyed to the identity, not the step - breaks "render: every counted re-base lands at a PDU end right after the step"
+    it broke 1 check(s): render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step's re-centre snaps one event off the setpoint - breaks "render: every PDU push leaves the target fill across the event"
+    it broke 1 check(s): render: every PDU push leaves the target fill across the event
+[PASS] control caught: PHC adjtime becomes an mr cause 256 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+
+6 checks: 6 PASS, 0 FAIL
+end 2026-10-11T02:01:04Z

@@ -1,0 +1,20 @@
+start 2026-10-11T01:42:54Z
+slice 4/5: 4 of 20 controls:
+  - the source-change term is removed
+  - tu reaches the talkers four cycles late
+  - software settime is restored as an mr cause
+  - a PHC step suppresses a coincident CRF restart
+[PASS] the unmutated gateware still passes the gmstep leg
+[INFO] obj_dir/Vmilan_dp_sim is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the option-off leg
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[PASS] control caught: tu reaches the talkers four cycles late - breaks "tu: set in the first cycle the bank names GM B"
+    it broke 1 check(s): tu: set in the first cycle the bank names GM B
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[PASS] control caught: a PHC step suppresses a coincident CRF restart - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+
+6 checks: 6 PASS, 0 FAIL
+end 2026-10-11T02:00:49Z

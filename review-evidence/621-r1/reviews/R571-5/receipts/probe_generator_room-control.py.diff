@@ -1,0 +1,28 @@
+--- $REVIEWS/621-r571-5-packet/scratch/head/gptp-processor/hdl/ucode/gen_gptp_ucode.py	2026-10-11 03:22:26.534315370 +0200
++++ room-control.py	2026-10-11 03:37:16.695977231 +0200
+@@ -1774,11 +1774,6 @@
+     # spent there cost the packer the whole leg. This leg is the
+     # Follow_Up handler's only continuation and nothing is written
+     # before it, so the frame is refused in the same place either way
+-    p.emit("RDST", rd=RT, imm=RG_BANK | 7, fmt=FMT_Q)
+-    p.emit("CMP", ra=RT, rb=0, fmt=FMT_W, imm=OUR_PORTNUM_C)
+-    p.emit("BRS", cnd=BRS_Z, label="fu_pn")
+-    p.emit("END")
+-    p.label("fu_pn")
+     p.emit("RDST", rd=RT, imm=RG_BANK | 0, fmt=FMT_Q)
+     p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SHR, imm=32)
+     p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_AND, imm=0xFFFF)
+@@ -1890,13 +1885,6 @@
+     """The cease countdown reached zero: requests resume; asCapable
+     re-earns through the ladder as ever (PDGOT set: no phantom lost)."""
+     p = Prog(base)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_CEASE, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_MULTI, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_PDLOST, fmt=FMT_Q)
+-    p.emit("MOVE", rd=RT, ra=0, imm=1)
+-    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
+     p.emit("END")
+     return p
+ 

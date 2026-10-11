@@ -1,0 +1,20 @@
+start 2026-10-11T01:42:54Z
+slice 0/5: 4 of 20 controls:
+  - the policy level is tied low at the servo
+  - selected CRF mr propagation is removed
+  - the plane's step does not re-arm the holdover
+  - PHC adjtime is restored as an mr cause
+[PASS] the unmutated gateware still passes the gmstep leg
+[INFO] obj_dir/Vmilan_dp_sim is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the option-off leg
+[PASS] control caught: the policy level is tied low at the servo - breaks "slew path: the actual servo receives the level"
+    it broke 2 check(s): slew path: the actual servo receives the level; slew path: every staged sample covers the PHC tail
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 2 check(s): CRF control: selected CRF mr propagates exactly once; coincident: a PHC step does not suppress the CRF restart
+[PASS] control caught: the plane's step does not re-arm the holdover - breaks "tu: held at least the 0.25 s holdover after the step"
+    it broke 1 check(s): tu: held at least the 0.25 s holdover after the step
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+
+6 checks: 6 PASS, 0 FAIL
+end 2026-10-11T02:00:47Z

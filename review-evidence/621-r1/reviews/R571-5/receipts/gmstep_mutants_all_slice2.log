@@ -1,0 +1,20 @@
+start 2026-10-11T01:42:54Z
+slice 2/5: 4 of 20 controls:
+  - the policy level misses an extra addend stage
+  - the step does not re-centre the render stage
+  - the grandmaster change stops the talker for good
+  - PHC adjtime becomes an mr cause 16 cycles later
+[PASS] the unmutated gateware still passes the gmstep leg
+[INFO] obj_dir/Vmilan_dp_sim is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the option-off leg
+[PASS] control caught: the policy level misses an extra addend stage - breaks "slew path: every staged sample covers the PHC tail"
+    it broke 1 check(s): slew path: every staged sample covers the PHC tail
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+[PASS] control caught: the grandmaster change stops the talker for good - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 12 check(s): tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; licence: the talker sent PDUs across the event; licence: the talker sent PDUs across the event; licence: the talker sent PDUs across the event; licence: the talker sent PDUs across the event; CRF control: outgoing PDUs bracket the received toggle; CRF control: selected CRF mr propagates exactly once; coincident: PDUs bracket every trial and complete the hold; coincident: a PHC step does not suppress the CRF restart
+[PASS] control caught: PHC adjtime becomes an mr cause 16 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+
+6 checks: 6 PASS, 0 FAIL
+end 2026-10-11T02:00:44Z

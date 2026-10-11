@@ -1,0 +1,13 @@
+docs_check.py rc=0 :: docs_check: 0 finding(s) across 201 md files + 1212 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_gptp_docs.py rc=0 :: gPTP documentation: OK (8 current pages)
+check_submodule_docs.py rc=0 :: submodule documentation: OK (5 exact gitlinks)
+check_diagram_pngs.py rc=0 :: diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+check_doc_paths.py rc=0 :: doc path gate: OK (951 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+check_py_idiom.py rc=0 ::   over-long line: 0 <= 0
+check_cpp_idiom.py rc=0 ::   build without warnings: 0 <= 0
+measure_test_evidence.py --check rc=0 ::   the mutation ratchet can be lowered to 69
+check_hygiene.py --check rc=0 :: HYGIENE RATCHET: PASS (3 population(s), 1083 file(s))
+check_sweep_shape.py rc=0 :: sweep shape gate: OK
+check_doc_style.py rc=0 :: documentation style: OK (22 current documents)
+check_todo_ownership.py rc=0 :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 40 near-miss occurrence(s) on 33 line(s) correctly not treated as markers; 1143 first-party fil
+check_baremetal_only.py --check rc=0 :: baremetal-only: OK (0 findings across 1210 tracked first-party file(s))

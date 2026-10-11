@@ -1,0 +1,30 @@
+diff --git a/tb/verilator/gptp_plane/sim_phc_step.cpp b/tb/verilator/gptp_plane/sim_phc_step.cpp
+index 6238ab284..98df77114 100644
+--- a/tb/verilator/gptp_plane/sim_phc_step.cpp
++++ b/tb/verilator/gptp_plane/sim_phc_step.cpp
+@@ -9,6 +9,7 @@
+ #include <verilated.h>
+ #include <cstdint>
+ #include <cstdio>
++#include <cstdlib>
+ #include <deque>
+ #include <vector>
+ #include <utility>
+@@ -184,8 +185,15 @@ class Harness {
+     }
+     if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
+     if (!answer_ || !answer_probe_) return;
+-    const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
+-    const uint64_t t3 = t2 + kTurnNs;
++    // Review probe: the peer LocalClock runs at R571_PEER_PPM parts per
++    // million against true time (default 0, the shipped harness).
++    const char* ppm_env = std::getenv("R571_PEER_PPM");
++    const int64_t ppm = ppm_env ? std::atoll(ppm_env) : 0;
++    const int64_t arrive = static_cast<int64_t>(tx_cycle_ * kTickNs + link_ns_);
++    const uint64_t t2 = kPeerEpochNs + static_cast<uint64_t>(arrive + arrive / 1000000 * ppm
++                        + (arrive % 1000000) * ppm / 1000000);
++    const uint64_t t3 = t2 + static_cast<uint64_t>(static_cast<int64_t>(kTurnNs)
++                        + static_cast<int64_t>(kTurnNs) * ppm / 1000000);
+     const uint64_t response_cycle = tx_cycle_ + (2 * link_ns_ + kTurnNs) / kTickNs;
+     auto response = header(3, seq, 20, 0x0200);
+     response.timestamp(t2); response.put(kOurId, 8); response.put(1, 2);

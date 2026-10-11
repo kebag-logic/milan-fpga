@@ -1,0 +1,10 @@
+--- $REVIEWS/621-r571-5-packet/scratch/head/gptp-processor/hdl/ucode/gen_gptp_ucode.py	2026-10-11 03:22:26.534315370 +0200
++++ no-pdstep-set.py	2026-10-11 03:37:16.696973326 +0200
+@@ -835,7 +835,6 @@
+     # Re-seed the next rate window, retaining the last measured ratio.
+     p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+-    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)
+     # the rate estimate survives the step AND becomes the whole addend:
+     # the re-base just made the stale proportional term moot
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
