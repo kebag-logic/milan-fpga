@@ -705,13 +705,15 @@ whole decoded window, and a probe linked by
 Vivado: the three planted controls (an allocation over budget, a memory-map
 overlap, a staging buffer of another shape) and the two lone flags are
 refused, and the split export holds the image's banks and no BIOS memory.
+That arm refuses LiteX's firmware data packages, which the `elaborate` job does
+not install, so it grades the same in any interpreter.
 It requires the
 [split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
 rule table to equal `ctrl_memory.RULES`. Its forty mutants each rebuild one
 function or class with a rule or property removed or weakened, and each must
-turn its arm red by name. The link arm needs an RV32 compiler
-(`sw/firmware/gtest/fw_rv32.py` finds the pinned SDK); without one the member
-declares a skip.
+turn its arm red by name; an arm that fails unmutated grades no mutant. The
+link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
+pinned SDK); without one the member declares a skip.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.

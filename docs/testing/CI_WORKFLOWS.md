@@ -1190,8 +1190,13 @@ The RV32 SDK this job installs serves one member the same way.
 link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
 SDK step installs; without a compiler that member declares a skip too.
 Its SoC arm runs the end-station builder, so it needs the PyYAML this job
-installs, and exports the split 1x1 SoC. The split CPU is its own VexiiRiscv
-argument set, so a cold metadata cache pays one more Scala run for it.
+installs, and exports the split 1x1 SoC through the LiteX the pins install and
+the patch series patches. It needs no firmware data package: as
+`sw/builder/test_shipping_clock_constraints.py` does, its child refuses every
+`pythondata_software_*` import and writes LiteX's headers without the firmware
+make inputs, which name picolibc and compiler-rt. So the arm grades the same in
+this job and on a host that has those packages. The split CPU is its own
+VexiiRiscv argument set, so a cold metadata cache pays one more Scala run for it.
 
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume

@@ -36,18 +36,23 @@ block RAM the SoC builds from them. This file grades seven things:
      --ctrl-mailbox alone and --ctrl-firmware alone are each refused; and the
      split export holds the image's banks and no BIOS ROM or SRAM, its rom
      banks hold the image, and the Builder is told to build no BIOS and no
-     shipping firmware.
+     shipping firmware. LiteX's firmware data packages are refused in every
+     interpreter, as the elaborate job installs none, so the arm grades the
+     same in either.
   6. THE REGISTER. docs/design/SPLIT_CONTROL_MEMORY.md section 3 lists exactly
      `ctrl_memory.RULES`, and every rule has a refusal arm and a mutant.
   7. MUTANTS. Each mutant rebuilds one function or class of ctrl_memory.py or
      milan_soc.py from its own source with one edit that removes or weakens a
-     rule or a property, and must turn its arm red with a named failure.
+     rule or a property, and must turn its arm red with a named failure. A
+     mutant is graded only against an arm that passed unmutated in the same
+     run, so a failure of the environment is never counted as a kill.
 """
 from __future__ import annotations
 
 import __future__
 import ast
 import contextlib
+import importlib.abc
 import inspect
 import json
 import os
@@ -579,14 +584,35 @@ def soc_argv() -> list[str]:
     return SOC_ARGV
 
 
+class FirmwareDataRefused(importlib.abc.MetaPathFinder):
+    """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
+
+    def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
+        """Fail any pythondata_software_* import and defer every other module."""
+        if name.startswith("pythondata_software_"):
+            raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
+        return None
+
+
 def soc_child(spec_path: Path) -> int:
     """In a child process: milan_soc.main() on the spec's argv, its mutation applied; write what it decided."""
     spec = json.loads(spec_path.read_text())
     if spec["mutation"]:
         owner, name, old, new = spec["mutation"]
         setattr(MODULES[owner], name, mutated(MODULES[owner], name, old, new))
-    result: dict[str, Any] = {"rc": 0}
-    original = Builder.build
+    # As sw/builder/test_shipping_clock_constraints.py does: the elaborate job
+    # installs sw/litex/litex_pins.txt alone, so no interpreter may reach a
+    # firmware data package here (#640, R606-2-F2).
+    sys.meta_path.insert(0, FirmwareDataRefused())
+    result: dict[str, Any] = {"rc": 0, "includes": []}
+    original, original_includes = Builder.build, Builder._generate_includes
+
+    def generate_includes(self: Builder, with_bios: bool = True) -> None:
+        """Write the SoC headers, omitting only the firmware make inputs."""
+        # Those inputs name the picolibc and compiler-rt data packages. Nothing
+        # is compiled here, and the gateware and its init files read neither.
+        result["includes"].append(with_bios)
+        original_includes(self, with_bios=False)
 
     def build(self: Builder, **kwargs: Any) -> object:
         """Record what the Builder is handed, then build as asked."""
@@ -596,7 +622,7 @@ def soc_child(spec_path: Path) -> int:
                              "packages": [name for name, _ in self.software_packages]}
         return original(self, **kwargs)
 
-    Builder.build = build
+    Builder.build, Builder._generate_includes = build, generate_includes
     sys.argv = ["milan_soc.py", *spec["argv"]]
     try:
         milan_soc.main()
@@ -651,6 +677,8 @@ def split_export(problems: list[str], result: dict[str, Any], firmware: Path) ->
     told = result.get("builder", {})
     check(problems, (told.get("rom"), told.get("sram"), told.get("initialized")) == (0, 0, True),
           f"the Builder is handed no BIOS ROM or SRAM and a rom that holds its contents, so builds no BIOS ({told})")
+    check(problems, result.get("includes") == [True],
+          f"the Builder writes the SoC headers once, without the firmware make inputs ({result.get('includes')})")
     check(problems, "libmilan_baremetal" not in told.get("packages", ["?"])
           and not (out / "software/libmilan_baremetal").exists(), "the split build adds no shipping firmware")
 
@@ -844,10 +872,17 @@ def registry_arms(problems: list[str], tmp: Path) -> None:
           f"every mutant targets a rule or a named property (stray: {sorted(mutants - rules - set(PROPERTIES))})")
 
 
-def mutant_arms(problems: list[str], tmp: Path) -> None:
-    """Each mutant must turn its arm red, named by the first failure it causes."""
+def mutant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
+    """Each mutant must turn its arm red, named by the first failure it causes.
+
+    Only an arm in `green`, one that passed unmutated in this run, grades a
+    mutant: a failure the arm shows anyway is no evidence that the mutant is caught.
+    """
     arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms}
     for n, m in enumerate(MUTANTS):
+        if m.arm not in green:
+            check(problems, False, f"MUTANT '{m.name}' ({m.target}) is not graded: the {m.arm} arm fails unmutated")
+            continue
         caught: list[str] = []
         owner = MODULES[m.owner]
         try:
@@ -886,17 +921,21 @@ def main() -> int:
     print("test_ctrl_memory: the split placement's firmware memory (#640 M8a)")
     with tempfile.TemporaryDirectory(prefix="ctrl-memory-") as name:
         tmp = Path(name)
-        run_arm(problems, "banks", bank_arms)
-        run_arm(problems, "rules", partial(check_arms, tmp=tmp))
-        run_arm(problems, "simulation", sim_arms)
-        linked = run_arm(problems, "link", partial(link_arms, tmp=tmp))
-        run_arm(problems, "SoC build", partial(soc_arms, tmp=tmp / "soc"))
+        outcomes: dict[str, object] = {}
+        green: set[str] = set()
+        for key, label, arm in (("banks", "banks", bank_arms), ("checks", "rules", partial(check_arms, tmp=tmp)),
+                                ("sim", "simulation", sim_arms), ("link", "link", partial(link_arms, tmp=tmp)),
+                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc"))):
+            before = len(problems)
+            outcomes[key] = run_arm(problems, label, arm)
+            if len(problems) == before:
+                green.add(key)
         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
-        run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp))
+        run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
     for problem in problems:
         print(f"FAIL: {problem}", file=sys.stderr)
     print(f"test_ctrl_memory: {len(problems)} failure(s)")
-    if not problems and not linked:
+    if not problems and not outcomes["link"]:
         print("RESULT: SKIP (no RV32 compiler; the link arm needs one, see sw/firmware/gtest/fw_rv32.py)")
         return 0
     print(f"RESULT: {'PASS' if not problems else 'FAIL'}")
