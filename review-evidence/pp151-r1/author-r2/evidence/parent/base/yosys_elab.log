@@ -1,0 +1,107 @@
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] tcam                   cells=248
+  [PASS] cdc_pulse              cells=7
+  [PASS] cdc_handshake          cells=26
+  [PASS] adp_tx_arbiter         cells=80
+  [PASS] rx_mac_filter          cells=292
+  [PASS] milan_csr              cells=5296
+  [PASS] KL_gptp_txticket       cells=77
+  [PASS] KL_gptp_txret          cells=604
+  [PASS] KL_gptp_gmii_launch    cells=285
+  [PASS] KL_gptp_shadow         cells=3567
+  [PASS] KL_avtp_rx_monitor     cells=171
+  [PASS] KL_stream_table        cells=57
+  [PASS] avtp_stream_parser     cells=351
+  [PASS] KL_avtp_rx_monitor_ctx cells=1603
+  [PASS] KL_pcm_route           cells=19
+  [PASS] KL_aaf_capture_i2s     cells=99
+  [PASS] KL_tdm_capture         cells=122
+  [PASS] KL_aes3_rx             cells=518
+  [PASS] KL_aes3_tx             cells=196
+  [PASS] KL_aaf_packetizer      cells=2953
+  [PASS] KL_crf_rx              cells=345
+  [PASS] KL_aaf_clock_meter     cells=411
+  [PASS] KL_crf_tx              cells=709
+  [PASS] KL_mmcm_drp_servo      cells=705
+  [PASS] KL_media_nco           cells=32
+  [PASS] KL_media_grid_align    cells=109
+  [PASS] KL_link_guard          cells=141
+  [PASS] KL_maap                cells=379
+  [PASS] KL_i2s_playback        cells=331
+  [PASS] KL_i2s_feed_mux        cells=21
+  [PASS] KL_render_setpoint     cells=1164
+  [PASS] KL_tdm_render_master   cells=316
+  [PASS] KL_tdm_capture_master  cells=139
+  [PASS] KL_chan_map_render     cells=578
+  [PASS] KL_chan_map_capture    cells=3169
+  [PASS] KL_tone_gen            cells=20
+  [PASS] KL_aaf_rx_depacketizer cells=327
+  [PASS] credit_based_shaper    cells=136
+  [PASS] timestamp_counter      cells=17
+  [PASS] KL_ptp_clock_validity  cells=23
+  [PASS] ptp_csr_sync           cells=59
+  [PASS] event_counter          cells=5
+  [PASS] ethernet_events        cells=92
+  [PASS] KL_mac_rmon_events     cells=58
+  [PASS] classifier_wrap        cells=256
+  [PASS] queues_wrap            cells=908
+  [PASS] datapath_wrap          cells=2021
+  [PASS] ptp_ts_top             cells=958
+  [PASS] KL_pp_shadow           cells=61944
+  [PASS] KL_pp_maap_shim        cells=44
+  [PASS] KL_nvm_backend         cells=2662
+  [PASS] KL_mbx                 cells=3797
+  [PASS] KL_mbx_wb              cells=8
+  [PASS] KL_mbx_axil            cells=69
+  [PASS] axis_fifo              cells=157
+  [PASS] axis_demux             cells=93
+  [PASS] axis_arb_mux           cells=136
+  [PASS] milan_datapath         cells=75965
+--------------------------------------------------------------
+tops: 58   pass: 58   fail: 0
+RESULT: PASS
+== milan_datapath tied-off input inventory (gate) ==
+  [tied]    i_m_axis_mac_tx_tready=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tdata=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tkeep=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tvalid=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tlast=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_speed=0b10  (stub default; a real attach site drives it)
+  [tied]    i_i_link_up=1  (stub default; a real attach site drives it)
+  [tied]    i_i_full_duplex=1  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_events=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_events_cap=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethrx_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethtx_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethact_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_valid=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_kind=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_oidx=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_gen=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_type=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_seq=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_delta=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_abort=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txseal_ack=0  (stub default; a real attach site drives it)
+  [expected] i_tdm_bclk_i=0
+            why:       no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands
+            recorded:  sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+  [expected] i_tdm_fsync_i=0
+            why:       no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands
+            recorded:  sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+  [tied]    i_tdm_data_i=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_drp_do=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_drp_rdy=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_locked=1  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_ps_done=0  (stub default; a real attach site drives it)
+--------------------------------------------------------------
+tied inputs: 29   justified: 2   UNJUSTIFIED: 0   stale: 0
+TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones)
+== observer-purity structural check (taps/telemetry never drive streams) ==
+  negative self-test: checker flags the broken fixture (2 violations) - OK
+  negative self-test: checker flags the broken MAC-site fixture (3 violations) - OK
+--------------------------------------------------------------
+pure observers: 4 file(s)   tap readers: 4 file(s)   MAC-site observers: 1 file(s)
+stream-net bindings checked: 28 (rx_axis_fabric: 15, MAC transmit stream: 2)   violations: 0
+TAP-PURITY RESULT: PASS

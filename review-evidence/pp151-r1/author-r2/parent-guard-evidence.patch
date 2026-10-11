@@ -1,0 +1,19 @@
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -36,6 +36,16 @@
+     "protocol-processor/tb/acmp_talker/retry_mutants.py":
+         "mutation campaign; plants named defects in a scratch copy and requires named assertion "
+         "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
++    "protocol-processor/tb/elab_guards/guards.py":
++        "elaboration-guard bench; inventories severity-task locations and compiles complete HDL trees "
++        "at independently fixed violating and passing boundary values; fixed scratch contexts expose "
++        "otherwise masked derived limits without changing guard conditions; verdicts use front-end "
++        "exit status, severity and the named guard location, never expected values read from RTL",
++    "protocol-processor/tb/elab_guards/mutants.py":
++        "mutation campaign; locates named guards and plants fixed severity, placement and one-unit "
++        "boundary defects in isolated HDL copies; requires the corresponding named refusal or "
++        "passing-side check to fail, with each boundary arm failed by every selected front end; "
++        "no expected boundary value is derived from source text",
+     "protocol-processor/tb/desc_store/test_gen_desc_image.py":
+         "unit test of the descriptor packer and its model lint; it imports the generator by path "
+         "to call build() and its CLI on synthetic models and on the two models packaged beside it, "
