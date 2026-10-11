@@ -1,0 +1,42 @@
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 8c6c526c5..66e3726b8 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -692,8 +692,8 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
+ | Routed delta | -128 | -59 | -8 | 0 / 0 | +0.007 / -0.012 |
+ | Post-synthesis delta, same runs | -34 | -61 | - | 0 / 0 | - |
+ 
+-The base route equals the `route-1x1` record in every gated figure.
+-Against that record, the M2 route passes with no failing endpoint.
++The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
++Against that record, the M2 route passes with no failing endpoint; it also passes against #696's record.
+ The changed arrays account for 44 LUTRAM sites: eleven RAM32M fewer.
+ Post-synthesis, the netlist also gains 10 logic LUTs in the CPU's AXI-Lite bridge.
+ The other routed logic movement lies in untouched blocks, mostly the wrapper.
+@@ -703,7 +703,7 @@ The reproducible saving is 34 LUTs, below the 200 (100-400) estimate.
+ The changed arrays' whole LUTRAM footprint was 72 sites.
+ M2 adds no block-RAM tile; its +2 ledger allowance is unused.
+ The cumulative tables keep the planning figure until the week-4 re-measure.
+-The gate record stays unchanged under D7.
++M2 does not re-record the gate under D7.
+ 
+ ### Default split saving basis
+ 
+@@ -944,7 +944,7 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
+ | Routed delta | -706 | -958 | +12 | 0 / 0 | -0.158 / -0.013 |
+ | Post-synthesis delta, same runs | -524 | -957 | - | 0 / 0 | - |
+ 
+-Against the record, the M6 route passes with no failing endpoint.
++Against #645/#647's record, the M6 route passes with no failing endpoint; it also passes against #696's record.
+ Its worst setup path lies in the unchanged protocol processor.
+ Only the changed blocks are credited:
+ 
+@@ -965,7 +965,7 @@ Out of context, the changed modules save 552 LUTs at 1x1.
+ All three lie low in the 600 (400-900) estimate.
+ M6 adds no block-RAM tile; both blocks keep theirs.
+ The cumulative tables keep the planning figure until the week-4 re-measure.
+-The gate record stays unchanged under D7.
++M6 does not re-record the gate under D7.
+ 
+ ### Cumulative default-image estimates
+ 

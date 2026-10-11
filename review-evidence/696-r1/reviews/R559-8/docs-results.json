@@ -1,0 +1,62 @@
+[
+  {
+    "gate": "docs",
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 09c7231eca343607c97c0d66abebb2553688712c",
+    "rc": 0
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0
+  },
+  {
+    "gate": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0
+  },
+  {
+    "gate": "feature-status",
+    "command": "python3 scripts/check_feature_status.py",
+    "rc": 0
+  },
+  {
+    "gate": "solution-docs",
+    "command": "python3 scripts/check_solution_docs.py",
+    "rc": 0
+  },
+  {
+    "gate": "submodule-docs",
+    "command": "python3 scripts/check_submodule_docs.py",
+    "rc": 0
+  },
+  {
+    "gate": "gptp-docs",
+    "command": "python3 scripts/check_gptp_docs.py --with-submodule",
+    "rc": 0
+  },
+  {
+    "gate": "archive",
+    "command": "python3 scripts/check_archive.py",
+    "rc": 0
+  },
+  {
+    "gate": "resource-baseline",
+    "command": "python3 syn/ooc/pp_resource_gate.py check-baseline",
+    "rc": 0
+  }
+]
