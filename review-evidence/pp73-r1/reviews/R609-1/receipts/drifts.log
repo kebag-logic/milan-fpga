@@ -1,0 +1,100 @@
+=== D1: opcode renumbered in the table only: GET_COUNTERS 0x0029 -> 0x002A
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('engine: GET_COUNTERS: the table says opcode 0x002A', 'OP_GET_COUNTERS_C = 0x0029'); AS EXPECTED
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   engine: GET_COUNTERS: the table says opcode 0x002A, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x0029
+  |   classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0029, which no table command carries
+  |   F06.14: row 0x002A GET_COUNTERS is missing (run --write)
+  |   F06.14: row 0x0029 GET_COUNTERS is not in the table
+  |   8.1: GET_COUNTERS (AEM 0x002A) is served and section 8.1 does not list it
+  |   8.1: section 8.1 lists AEM 0x0029 and the table serves no such command
+  make aecpcmd rc 2
+  make|   F06.14: row 0x0029 GET_COUNTERS is not in the table
+  make|   8.1: GET_COUNTERS (AEM 0x002A) is served and section 8.1 does not list it
+  make|   8.1: section 8.1 lists AEM 0x0029 and the table serves no such command
+  make| make: *** [Makefile:49: aecpcmd] Error 1
+=== D2: size changed in the doc only: F06.14 row 0x0009 Resp. size 36 B (cdl 24) -> 40 B (cdl 28)
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('F06.14: row 0x0009 GET_STREAM_FORMAT, column Resp. size', '40 B (cdl 28)'); AS EXPECTED
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   F06.14: row 0x0009 GET_STREAM_FORMAT, column Resp. size, reads '40 B (cdl 28)' where the table gives '36 B (cdl 24)'
+=== D3: OP_*_C changed in the RTL only: OP_SET_NAME_C 16'h0010 -> 16'h0012
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('engine: SET_NAME: the table says opcode 0x0010', 'OP_SET_NAME_C = 0x0012'); AS EXPECTED
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   engine: SET_NAME: the table says opcode 0x0010, hdl/aecp/KL_aecp_engine.sv OP_SET_NAME_C = 0x0012
+  make aecpcmd rc 2
+  make| AECP COMMAND GATE SELFTEST: FAIL - the unmutated tree does not pass:
+  make|   engine: SET_NAME: the table says opcode 0x0010, hdl/aecp/KL_aecp_engine.sv OP_SET_NAME_C = 0x0012
+  make| make: *** [Makefile:49: aecpcmd] Error 1
+=== D4: command missing from the table: IDENTIFY_NOTIFICATION row deleted, F06.14 regenerated
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('OP_IDENTIFY_NOTIF_C = 0x0026 and the table has no command',); AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   engine: hdl/aecp/KL_aecp_engine.sv decodes OP_IDENTIFY_NOTIF_C = 0x0026 and the table has no command for it
+  |   engine: UPC_IDNOTIF_C is claimed by no command, notification body or shared entry of the table
+  |   engine: uns_kind_map's PP_UNS_IDENT_C arm is no command's notification
+  |   8.1: section 8.1 lists AEM 0x0026 and the table serves no such command
+=== D5: unrepresentable message type: SET_CONTROL message AEM -> AA
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ("schema: SET_CONTROL: message 'AA' is neither AEM nor MVU",); AS EXPECTED
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   schema: SET_CONTROL: message 'AA' is neither AEM nor MVU
+  |   schema: SET_CONTROL: message 'AA' has no common_status row
+=== D5w: unrepresentable message type refused by --write too (rc 1, no traceback)
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ("schema: SET_CONTROL: message 'AA' is neither AEM nor MVU",); AS EXPECTED
+  |   schema: SET_CONTROL: message 'AA' is neither AEM nor MVU
+  |   schema: SET_CONTROL: message 'AA' has no common_status row
+=== D6: ROM-only drift: GET_SAMPLING_RATE status set loses NOT_SUPPORTED in the table
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('rom: GET_SAMPLING_RATE: status NOT_SUPPORTED is answered',); AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   rom: GET_SAMPLING_RATE: status NOT_SUPPORTED is answered by a path of its programs and missing from the table's status set
+=== D7: lock flag set on a read: GET_NAME lock false -> true, F06.14 regenerated
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('GET_NAME', 'lock true'); AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   scoreboard: hdl/packet_engine/KL_pp_scoreboard.sv hz_is_lockprot is ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG'], the table's lock-protected commands are ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'RO_SNAPSHOT', 'STREAM_CFG']
+  |   rom: GET_NAME: the table says lock true, its programs never reach CHECK_LOCK
+=== P1: PROBE echo response size changed in the table, F06.14 regenerated: SET_STREAM_INFO response cdl 96 -> 60
+unplanted copy gate rc 0; planted gate rc 1; expected rc 1; words ('rom: SET_STREAM_INFO: E_SIBAD answers BAD_ARGUMENTS at cdl 96',); AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+  | 
+  |   rom: SET_STREAM_INFO: E_SIBAD answers BAD_ARGUMENTS at cdl 96, the table's response is 60 (echo)
+  |   rom: SET_STREAM_INFO: its unsolicited body E_SINFOUNS is cdl 96, the table's response is 60
+=== P2: PROBE echo response size changed in the table, F06.14 regenerated: ACQUIRE_ENTITY response cdl 28 -> 40
+unplanted copy gate rc 0; planted gate rc 0; expected rc 0; words None; AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK
+=== P3: PROBE command size changed in the table, F06.14 regenerated: SET_SAMPLING_RATE command cdl 20 -> 24
+unplanted copy gate rc 0; planted gate rc 0; expected rc 0; words None; AS EXPECTED
+  --write rc 0: aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+  | aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK
+=== P4: PROBE status code with no RTL constant changed in the table: STREAM_IS_RUNNING 12 -> 13
+unplanted copy gate rc 0; planted gate rc 0; expected rc 0; words None; AS EXPECTED
+  | aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK
+=== P5: PROBE documented row without its name field: refusal or traceback?
+unplanted copy gate rc 0; planted gate rc 1; expected rc nonzero; words None; AS EXPECTED
+  | Traceback (most recent call last):
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 1426, in <module>
+  |     sys.exit(main())
+  |              ~~~~^^
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 1409, in main
+  |     problems = check(inp)
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 911, in check
+  |     p += check_doc(t, inp.texts[DOC])
+  |          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 849, in check_doc
+  |     want = render(t)
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 827, in render
+  |     return lines + ["| " + " | ".join(r) + " |" for r in rows(t)]
+  |                                                          ~~~~^^^
+  |   File "<packet>/scratch/drifts/P5/scripts/check_aecp_commands.py", line 819, in rows
+  |     group.append((key, 1, [d["opcode"], d["name"]] + list(d["cells"])))
+  |                                         ~^^^^^^^^
+  | KeyError: 'name'
+drifts: 13 run, 13 as expected

@@ -1,0 +1,16 @@
+READ_DESCRIPTOR                      E_RDESC    BUILD_FLD word  648 NOPed: gate PASSES
+READ_DESCRIPTOR                      E_RDESC    APPEND    none reachable
+GET_AVB_INFO                         E_GAVB     BUILD_FLD word  950 NOPed: gate PASSES
+GET_AVB_INFO                         E_GAVB     APPEND    word  956 NOPed: gate PASSES
+GET_AS_PATH                          E_GASP     BUILD_FLD word  981 NOPed: gate PASSES
+GET_AS_PATH                          E_GASP     APPEND    word  986 NOPed: gate PASSES
+GET_AUDIO_MAP                        E_GAMAP    BUILD_FLD word  816 NOPed: gate PASSES
+GET_AUDIO_MAP                        E_GAMAP    APPEND    word  823 NOPed: gate PASSES
+ADD_AUDIO_MAPPINGS                   E_AMADD    BUILD_FLD none reachable
+ADD_AUDIO_MAPPINGS                   E_AMADD    APPEND    none reachable
+REGISTER_UNSOLICITED_NOTIFICATION    E_REGUN    BUILD_FLD none reachable
+REGISTER_UNSOLICITED_NOTIFICATION    E_REGUN    APPEND    none reachable
+GET_STREAM_INFO                      E_GSTRI    BUILD_FLD word  924 NOPed: gate FAILS: rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl 64, the table's response is 68
+GET_STREAM_INFO                      E_GSTRI    APPEND    none reachable
+GET_COUNTERS                         E_GCTRS    BUILD_FLD word  773 NOPed: gate FAILS: rom: GET_COUNTERS: E_GCTRS answers SUCCESS at cdl 144, the table's response is 148
+GET_COUNTERS                         E_GCTRS    APPEND    word  791 NOPed: gate FAILS: rom: GET_COUNTERS: E_GCTRS answers NO_SUCH_DESCRIPTOR at cdl 16, the table's response is 148

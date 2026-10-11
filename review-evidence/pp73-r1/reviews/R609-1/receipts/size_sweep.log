@@ -1,0 +1,64 @@
+response ACQUIRE_ENTITY                         write rc 0 gate rc 0 echo 
+response LOCK_ENTITY                            write rc 0 gate rc 1      rom: LOCK_ENTITY: E_LOCKEN answers SUCCESS at cdl 28, the table's response is 32
+response ENTITY_AVAILABLE                       write rc 0 gate rc 1      rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 32, the table's response is 36
+response READ_DESCRIPTOR                        write rc 0 gate rc 0      
+response SET_CONFIGURATION                      write rc 0 gate rc 1      rom: SET_CONFIGURATION: E_SCFG answers SUCCESS at cdl 16, the table's response is 20
+response GET_CONFIGURATION                      write rc 0 gate rc 1      engine: GET_CONFIGURATION: its GET_DYNAMIC_INFO record is 4 bytes, the table's response is cdl 20 (8 bytes)
+response SET_STREAM_FORMAT                      write rc 0 gate rc 1      rom: SET_STREAM_FORMAT: E_SFMTI answers SUCCESS at cdl 24, the table's response is 28
+response GET_STREAM_FORMAT                      write rc 0 gate rc 1      engine: GET_STREAM_FORMAT: its GET_DYNAMIC_INFO record is 12 bytes, the table's response is cdl 28 (16 bytes)
+response SET_STREAM_INFO                        write rc 0 gate rc 1 echo rom: SET_STREAM_INFO: E_SIBAD answers BAD_ARGUMENTS at cdl 96, the table's response is 100 (echo)
+response GET_STREAM_INFO                        write rc 0 gate rc 1      engine: GET_STREAM_INFO: its GET_DYNAMIC_INFO record is 56 bytes, the table's response is cdl 72 (60 bytes)
+response SET_NAME                               write rc 0 gate rc 1      rom: SET_NAME: E_SNAME answers SUCCESS at cdl 84, the table's response is 88
+response GET_NAME                               write rc 0 gate rc 1      engine: GET_NAME: its GET_DYNAMIC_INFO record is 72 bytes, the table's response is cdl 88 (76 bytes)
+response SET_SAMPLING_RATE                      write rc 0 gate rc 1      rom: SET_SAMPLING_RATE: E_SSRATE answers SUCCESS at cdl 20, the table's response is 24
+response GET_SAMPLING_RATE                      write rc 0 gate rc 1      engine: GET_SAMPLING_RATE: its GET_DYNAMIC_INFO record is 8 bytes, the table's response is cdl 24 (12 bytes)
+response SET_CLOCK_SOURCE                       write rc 0 gate rc 1      rom: SET_CLOCK_SOURCE: E_SCLKS answers SUCCESS at cdl 20, the table's response is 24
+response GET_CLOCK_SOURCE                       write rc 0 gate rc 1      engine: GET_CLOCK_SOURCE: its GET_DYNAMIC_INFO record is 8 bytes, the table's response is cdl 24 (12 bytes)
+response SET_CONTROL                            write rc 0 gate rc 1      rom: SET_CONTROL: E_SCTRL answers SUCCESS at cdl 17, the table's response is 21
+response GET_CONTROL                            write rc 0 gate rc 1      rom: GET_CONTROL: E_GCTRL answers SUCCESS at cdl 17, the table's response is 21
+response START_STREAMING                        write rc 0 gate rc 1      rom: START_STREAMING: E_STRT answers SUCCESS at cdl 16, the table's response is 20
+response STOP_STREAMING                         write rc 0 gate rc 1      rom: STOP_STREAMING: E_STOP answers SUCCESS at cdl 16, the table's response is 20
+response REGISTER_UNSOLICITED_NOTIFICATION      write rc 0 gate rc 0 echo 
+response DEREGISTER_UNSOLICITED_NOTIFICATION    write rc 0 gate rc 0 echo 
+response IDENTIFY_NOTIFICATION                  write rc 0 gate rc 1      rom: IDENTIFY_NOTIFICATION: its unsolicited body E_IDNOTIF is cdl 16, the table's response is 20
+response GET_AVB_INFO                           write rc 0 gate rc 0      
+response GET_AS_PATH                            write rc 0 gate rc 0      
+response GET_COUNTERS                           write rc 0 gate rc 1      engine: GET_COUNTERS: its GET_DYNAMIC_INFO record is 136 bytes, the table's response is cdl 152 (140 bytes)
+response GET_AUDIO_MAP                          write rc 0 gate rc 0      
+response ADD_AUDIO_MAPPINGS                     write rc 0 gate rc 0 echo 
+response REMOVE_AUDIO_MAPPINGS                  write rc 0 gate rc 0 echo 
+response GET_DYNAMIC_INFO                       write rc 0 gate rc 0      
+response GET_MILAN_INFO                         write rc 0 gate rc 1      rom: GET_MILAN_INFO: E_MVUINFO answers SUCCESS at cdl 32, the table's response is 36
+command  ACQUIRE_ENTITY                         write rc 0 gate rc 0 echo 
+command  LOCK_ENTITY                            write rc 0 gate rc 0      
+command  ENTITY_AVAILABLE                       write rc 0 gate rc 0      
+command  READ_DESCRIPTOR                        write rc 0 gate rc 0      
+command  SET_CONFIGURATION                      write rc 0 gate rc 0      
+command  GET_CONFIGURATION                      write rc 0 gate rc 0      
+command  SET_STREAM_FORMAT                      write rc 0 gate rc 0      
+command  GET_STREAM_FORMAT                      write rc 0 gate rc 0      
+command  SET_STREAM_INFO                        write rc 0 gate rc 0 echo 
+command  GET_STREAM_INFO                        write rc 0 gate rc 0      
+command  SET_NAME                               write rc 0 gate rc 0      
+command  GET_NAME                               write rc 0 gate rc 0      
+command  SET_SAMPLING_RATE                      write rc 0 gate rc 0      
+command  GET_SAMPLING_RATE                      write rc 0 gate rc 0      
+command  SET_CLOCK_SOURCE                       write rc 0 gate rc 0      
+command  GET_CLOCK_SOURCE                       write rc 0 gate rc 0      
+command  SET_CONTROL                            write rc 0 gate rc 0      
+command  GET_CONTROL                            write rc 0 gate rc 0      
+command  START_STREAMING                        write rc 0 gate rc 0      
+command  STOP_STREAMING                         write rc 0 gate rc 0      
+command  REGISTER_UNSOLICITED_NOTIFICATION      write rc 0 gate rc 0 echo 
+command  DEREGISTER_UNSOLICITED_NOTIFICATION    write rc 0 gate rc 0 echo 
+command  IDENTIFY_NOTIFICATION                  write rc 0 gate rc 0      
+command  GET_AVB_INFO                           write rc 0 gate rc 0      
+command  GET_AS_PATH                            write rc 0 gate rc 0      
+command  GET_COUNTERS                           write rc 0 gate rc 0      
+command  GET_AUDIO_MAP                          write rc 0 gate rc 0      
+command  ADD_AUDIO_MAPPINGS                     write rc 0 gate rc 0 echo 
+command  REMOVE_AUDIO_MAPPINGS                  write rc 0 gate rc 0 echo 
+command  GET_DYNAMIC_INFO                       write rc 0 gate rc 0      
+command  GET_MILAN_INFO                         write rc 0 gate rc 0      
+response: 21 held by a consumer, 10 held to the table alone: ['ACQUIRE_ENTITY', 'READ_DESCRIPTOR', 'REGISTER_UNSOLICITED_NOTIFICATION', 'DEREGISTER_UNSOLICITED_NOTIFICATION', 'GET_AVB_INFO', 'GET_AS_PATH', 'GET_AUDIO_MAP', 'ADD_AUDIO_MAPPINGS', 'REMOVE_AUDIO_MAPPINGS', 'GET_DYNAMIC_INFO']
+command: 0 held by a consumer, 31 held to the table alone: ['ACQUIRE_ENTITY', 'LOCK_ENTITY', 'ENTITY_AVAILABLE', 'READ_DESCRIPTOR', 'SET_CONFIGURATION', 'GET_CONFIGURATION', 'SET_STREAM_FORMAT', 'GET_STREAM_FORMAT', 'SET_STREAM_INFO', 'GET_STREAM_INFO', 'SET_NAME', 'GET_NAME', 'SET_SAMPLING_RATE', 'GET_SAMPLING_RATE', 'SET_CLOCK_SOURCE', 'GET_CLOCK_SOURCE', 'SET_CONTROL', 'GET_CONTROL', 'START_STREAMING', 'STOP_STREAMING', 'REGISTER_UNSOLICITED_NOTIFICATION', 'DEREGISTER_UNSOLICITED_NOTIFICATION', 'IDENTIFY_NOTIFICATION', 'GET_AVB_INFO', 'GET_AS_PATH', 'GET_COUNTERS', 'GET_AUDIO_MAP', 'ADD_AUDIO_MAPPINGS', 'REMOVE_AUDIO_MAPPINGS', 'GET_DYNAMIC_INFO', 'GET_MILAN_INFO']

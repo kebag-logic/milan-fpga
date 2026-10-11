@@ -1,0 +1,14 @@
+<packet>/scratch/romid/base.ucode.hex: 2048 words, 89 programs
+wrote <packet>/scratch/romid/base.ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<packet>/scratch/romid/head.ucode.hex: 2048 words, 89 programs
+wrote <packet>/scratch/romid/head.ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  base.ucode.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  head.ucode.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  base.ltn_rom.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  head.ltn_rom.hex
+ucode.hex: base == head
+ltn_rom.hex: base == head
+hdl .sv/.svh: 46 files identical
+7ebbeda1420ffd265838a81d6ebc9791095da14f089ecbbcbf84af475e8c6cd4  base.engine.E.sv
+7ebbeda1420ffd265838a81d6ebc9791095da14f089ecbbcbf84af475e8c6cd4  head.engine.E.sv
+preprocessed engine: base == head
