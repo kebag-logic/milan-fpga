@@ -1,0 +1,12 @@
+[ok] clean: rc=0 ['MAAP integration: 5 checks, 0 failures']
+[CAUGHT] w1_link_tied_high: rc=1 ['MAAP integration: 5 checks, 1 failures']
+    [FAIL] M5 datapath: link return starts four fresh PROBEs
+[CAUGHT] w2_clock_tied_zero: rc=1 ['MAAP integration: 5 checks, 2 failures']
+    [FAIL] M3 datapath: real-time clock changes probe intervals
+    [FAIL] M3 datapath: fixed PHC time pair claims different first offsets
+[CAUGHT] w3_mac_low_word_constant: rc=1 ['MAAP integration: 5 checks, 2 failures']
+    [FAIL] M4 datapath: programmed MAC changes probe intervals
+    [FAIL] M4 datapath: fixed adjacent MAC pair claims disjoint first blocks
+datapath wiring probes: 4/4 as expected
+datapath file restored: True
+rc=0
