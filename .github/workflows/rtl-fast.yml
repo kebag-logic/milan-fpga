@@ -242,6 +242,7 @@ jobs:
   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
   # build after SDK installation, plus the control mutation campaign. The
   # public dependency is fetched at the reviewed gitlink.
+  # Four complete phases run independently (#716); coverage stays unsplit.
   # The saved-state and tally mutation campaigns remain additional local gates.
   firmware-unit:
     needs: changes
@@ -281,7 +282,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
 
       - name: Run the saved-state store suites and its RV32 build
         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
@@ -292,12 +293,114 @@ jobs:
           python3 sw/firmware/gtest/fw_coverage.py --selftest
           python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
 
+  firmware-control-mutants:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+          gcov --version | head -n 1
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run the control mutation campaign
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+
+  firmware-aecp-mutants:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+          gcov --version | head -n 1
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run the AECP mutation campaign
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+
+  firmware-srp-mutants:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+          gcov --version | head -n 1
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run both SRP mutation campaigns and pin controls
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -308,6 +411,9 @@ jobs:
           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
+          FIRMWARE_CONTROL_MUTANTS_RESULT: ${{ needs.firmware-control-mutants.result }}
+          FIRMWARE_AECP_MUTANTS_RESULT: ${{ needs.firmware-aecp-mutants.result }}
+          FIRMWARE_SRP_MUTANTS_RESULT: ${{ needs.firmware-srp-mutants.result }}
         run: |
           set -euo pipefail
           bad=0
@@ -316,7 +422,10 @@ jobs:
             "verilator-lint:$VERILATOR_LINT_RESULT" \
             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
-            "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
+            "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+            "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
+            "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
+            "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"
             printf '%-24s %s\n' "$name" "$result"
