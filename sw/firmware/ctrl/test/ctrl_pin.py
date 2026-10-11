@@ -36,20 +36,29 @@ ctrl_build.PROOF_EVENT. It refuses at any time a replacement of what a
 function of the proof runs (its code or its defaults). Each refusal is a
 ctrl_build.AuditRefusal naming the line of the proof that asked, written first
 to the standard error, so a refusal that is caught and ignored is still read.
-What it covers is a launch through the interpreter's audited interfaces.
-Native code is the remaining limit: ctypes and an extension module start a
-process no audit event names. Before CPython 3.14 that includes
-_posixsubprocess.fork_exec, which subprocess and multiprocessing call;
-subprocess raises its own event from Python just before that call, so on the
-runner's CPython 3.12.3 code that skips the call (calling fork_exec itself,
-or rebinding sys.audit) starts a process the hook never sees. CPython 3.14
-raises an event in fork_exec itself, which the hook judges as it judges
-subprocess.Popen. What Git itself starts is outside the hook too, and so is
-code that runs before the hook is installed (ctrl_build.py's top, above the
-helper). A function of the proof's
+A function of the proof's
 modules that starts a process while the proof is not running is not judged:
 ctrl_build.py's build functions and run, and this module's tool runs (make,
 and the gates the controls run), all through fw_gtest.run.
+
+THE THREAT MODEL (#697, the round-12 ruling). What the pin proof defends
+against is the state it reads: the checkout's files and modes, Git's object
+store, refs, configuration and attributes, and the environment the proof
+inherits. Git is given none of that environment, so no variable of it can
+redirect Git's repository, index, object store, configuration, attributes or
+replacement refs; ctrl_pin_env.py sets each such variable in a control. The
+proof's own modules are reviewed source, outside the model: a rebinding of
+sys.audit, or an object crafted inside them, is a change review sees. The
+hook is defence in depth against such code. It sees a launch through the
+interpreter's audited interfaces only: not ctypes or an extension module, and
+on the runner's CPython 3.12.3 not _posixsubprocess.fork_exec, which
+subprocess calls just after raising its own event from Python (CPython 3.14
+audits fork_exec itself). What Git itself starts is outside the hook, and so
+is code that runs before the hook is installed (ctrl_build.py's top, above
+the helper). Two routes within the model are open, for a decision: a forged
+tree object in the stack's object store, which Git reads for ls-tree -r
+without checking its hash; and a program the repository's own configuration
+names (core.fsmonitor), which Git starts when it reads the index.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
 text, beside the hook's own check of them (exercised: the pin proof run from

@@ -180,12 +180,12 @@ The hook refuses `exec`, `compile` and an import of `importlib` while a function
 In the same places it refuses the reaches into its own state: the collector's lists of objects, and a trace or profile function.
 At any time it refuses a replacement of what a function of the proof runs, its code or its defaults.
 Each refusal names the line of the proof that asked, and is written to the standard error before it is raised, so a refusal that is caught is still read.
-The guarantee covers launches through the interpreter's audited interfaces.
-Native code is the remaining limit: `ctypes` and an extension module start a process no audit event names.
-Before CPython 3.14 that includes `_posixsubprocess.fork_exec`, which `subprocess` and `multiprocessing` call.
-`subprocess` raises its own event from Python just before that call, so on the runner's CPython 3.12.3 code that skips the call starts a process the hook never sees: code that calls `fork_exec` itself, or that rebinds `sys.audit`.
-CPython 3.14 raises an event in `fork_exec` itself, which the hook judges as it judges `subprocess.Popen`.
+The proof's threat model ([#697](https://github.com/kebag-logic/milan-fpga/issues/697), the round-12 ruling) is the state it reads: the checkout's files and modes, Git's object store, refs, configuration and attributes, and the environment the proof inherits.
+The proof's own modules are reviewed source, outside that model: a rebinding of `sys.audit`, or an object crafted inside them, is a change review sees.
+The hook is defence in depth against such code.
+It sees a launch through the interpreter's audited interfaces only: not `ctypes` or an extension module, and on the runner's CPython 3.12.3 not `_posixsubprocess.fork_exec`, which `subprocess` calls just after raising its own event from Python (CPython 3.14 audits `fork_exec` itself).
 What Git itself starts is outside the hook too, and so is code that runs before the hook is installed, at the top of `ctrl_build.py`.
+Two routes within the model are open, for a decision: a forged tree object in the stack's object store, which Git reads for `ls-tree -r` without checking its hash, and a program the repository's own configuration names (`core.fsmonitor`), which Git starts when it reads the index.
 An import of a module already loaded raises no audit event, so `import importlib`, `__import__` or `pkgutil.importlib` alone is refused by the census below, not at run time; nothing it reaches can start a process or run dynamic code in the proof without an event the hook refuses.
 A function of the two modules that starts a process while the proof is not running is not judged.
 `ctrl_build.py`'s build functions and `run`, and `ctrl_pin.py`'s runs of `make` and of the gates its controls run, start their processes that way, through `fw_gtest.run`.
