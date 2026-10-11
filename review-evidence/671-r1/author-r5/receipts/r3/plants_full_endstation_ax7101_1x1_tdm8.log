@@ -1,0 +1,101 @@
+PLANT endstation_ax7101_1x1_tdm8 restart_at_zero: CAUGHT named=28 (restart 8, cold 20) total=210 words='was lost on the clean reboot' 23.3s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT     80 x cold a slot no read returned twice did not hold the writer
+PLANT     36 x cold 53 other saved record(s) did not survive the faulty boot's c
+PLANT     20 x cold the change committed after the faulty boot was lost on the c
+PLANT     18 x restart the restart left a slot unread, yet the writer re-attached l
+PLANT     16 x cold 1 other saved record(s) did not survive the faulty boot's co
+PLANT      8 x restart the change committed after the faulty boot was lost on the c
+PLANT      8 x cold the change was neither committed nor refused: {'hb': 7, 'ack
+PLANT      8 x cold the clean reboot did not offer a slot: Milan NVM: slot A VD_
+PLANT endstation_ax7101_1x1_tdm8 unbounded_retry: CAUGHT named=40 (restart 14, cold 26) total=85 words='over the bound' 16.3s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: the writer restart read the flash 68 times, over the bound of 12
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the boot read the flash 68 times, over the bound of 13
+PLANT     26 x cold a slot no read returned twice did not hold the writer
+PLANT     14 x restart the restart left a slot unread, yet the writer re-attached l
+PLANT     12 x cold the boot read the flash 66 times, over the bound of 13
+PLANT      9 x cold the boot read the flash 68 times, over the bound of 13
+PLANT      7 x restart the writer restart read the flash 66 times, over the bound o
+PLANT      5 x restart the writer restart read the flash 68 times, over the bound o
+PLANT      5 x cold the boot read the flash 67 times, over the bound of 13
+PLANT      3 x cold {'hb': 0, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0
+PLANT endstation_ax7101_1x1_tdm8 generation_from_refused_slot: CAUGHT named=8 (restart 0, cold 8) total=426 words='generation was taken from a refused slot' 16.6s
+PLANT   first named: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+PLANT   first cold named: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+PLANT    171 x cold slot B reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT    171 x cold slot A reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT     48 x cold by the slots its boot line accepts the offer is - seq 0x0, y
+PLANT     10 x restart by the slots its boot line accepts the offer is - seq 0x0, y
+PLANT      9 x restart slot B reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT      9 x restart slot A reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT      4 x cold a generation was taken from a refused slot: the boot line re
+PLANT      4 x cold a generation was taken from a refused slot: the first commit
+PLANT endstation_ax7101_1x1_tdm8 verdict_only_agreement: CAUGHT named=32 (restart 8, cold 24) total=322 words='was lost on the clean reboot' 16.1s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT     48 x cold 53 other saved record(s) did not survive the faulty boot's c
+PLANT     32 x cold slot B was taken as VD_CRC on reads that returned different 
+PLANT     30 x cold slot A was taken as VD_CRC on reads that returned different 
+PLANT     26 x cold with one slot faulted on every read the boot read the flash 
+PLANT     26 x cold a slot no read returned twice did not hold the writer
+PLANT     24 x cold the change committed after the faulty boot was lost on the c
+PLANT     18 x cold slot A was taken as VD_MAGIC on reads that returned differen
+PLANT     16 x cold slot B was taken as VD_MAGIC on reads that returned differen
+PLANT endstation_ax7101_1x1_tdm8 r_digest_header_only: CAUGHT named=48 (restart 2, cold 46) total=143 words='on reads that returned different bytes' 17.4s
+PLANT   first named: slot A valid at seq 0x5a5a5, --read-fault a:1686:0:64 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:1686:0:3:128: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+PLANT     24 x cold 53 other saved record(s) did not survive the faulty boot's c
+PLANT     24 x cold slot B was taken as VD_CRC on reads that returned different 
+PLANT     22 x cold slot A was taken as VD_CRC on reads that returned different 
+PLANT     16 x cold with one slot faulted on every read the boot read the flash 
+PLANT     16 x cold a slot no read returned twice did not hold the writer
+PLANT     12 x cold the change committed after the faulty boot was lost on the c
+PLANT     10 x cold 1 other saved record(s) did not survive the faulty boot's co
+PLANT      4 x cold the change was neither committed nor refused: {'hb': 7, 'ack
+PLANT endstation_ax7101_1x1_tdm8 r_fill_from_flash: CAUGHT named=62 (restart 0, cold 62) total=130 words='is not the container it judged' 16.8s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+PLANT     62 x cold the window the boot loaded is not the container it judged: i
+PLANT     28 x cold the change was neither committed nor refused: {'hb': 7, 'ack
+PLANT     28 x cold the change committed after the faulty boot was lost on the c
+PLANT     10 x cold with one slot faulted on every read the boot read the flash 
+PLANT      2 x cold 53 other saved record(s) did not survive the faulty boot's c
+PLANT endstation_ax7101_1x1_tdm8 r_restage_fail_offers_none: CAUGHT named=12 (restart 4, cold 8) total=12 words='yet the boot offered' 17.5s
+PLANT   first named: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:3 on a writer restart: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+PLANT   first cold named: slot A newer at seq 0x5a5a5, the other older, --read-fault a:1686:3:3: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+PLANT      2 x cold by the slots its boot line accepts the offer is B seq 0x5a5a
+PLANT      2 x cold by the slots its boot line accepts the offer is B seq 0xffff
+PLANT      2 x cold by the slots its boot line accepts the offer is A seq 0x5a5a
+PLANT      2 x cold by the slots its boot line accepts the offer is A seq 0xffff
+PLANT      1 x restart by the slots its boot line accepts the offer is B seq 0x5a5a
+PLANT      1 x restart by the slots its boot line accepts the offer is B seq 0xffff
+PLANT      1 x restart by the slots its boot line accepts the offer is A seq 0x5a5a
+PLANT      1 x restart by the slots its boot line accepts the offer is A seq 0xffff
+PLANT endstation_ax7101_1x1_tdm8 restage_fail_not_unread: CAUGHT named=28 (restart 4, cold 24) total=52 words='yet the boot line does not name it unread' 23.3s
+PLANT   first named: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:2:3 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:11:4:3:128: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_LEN)
+PLANT     12 x cold slot A did not read back as it was judged, yet the boot line
+PLANT     12 x cold 53 other saved record(s) did not survive the faulty boot's c
+PLANT     12 x cold slot B did not read back as it was judged, yet the boot line
+PLANT      8 x cold 1 other saved record(s) did not survive the faulty boot's co
+PLANT      4 x cold the change committed after the faulty boot was lost on the c
+PLANT      2 x restart slot A did not read back as it was judged, yet the boot line
+PLANT      2 x restart slot B did not read back as it was judged, yet the boot line
+PLANT endstation_ax7101_1x1_tdm8 r_restage_any_seq: CAUGHT named=12 (restart 0, cold 12) total=24 words='another valid container than the one the boot offered' 24.2s
+PLANT   first named: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+PLANT   first cold named: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+PLANT     12 x cold the window holds another valid container than the one the bo
+PLANT     12 x cold 1 other saved record(s) did not survive the faulty boot's co
+PLANT endstation_ax7101_1x1_tdm8 r_reattach_goes_live: CAUGHT named=18 (restart 18, cold 0) total=41 words='yet the writer re-attached live' 20.4s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+PLANT     18 x restart the restart left a slot unread, yet the writer re-attached l
+PLANT      8 x restart the change committed after the faulty boot was lost on the c
+PLANT      5 x restart the change was neither committed nor refused: {'hb': 13, 'ac
+PLANT      5 x restart the clean reboot did not offer a slot: Milan NVM: slot A VD_
+PLANT      5 x restart 53 other saved record(s) did not survive the faulty boot's c
+PLANT endstation_ax7101_1x1_tdm8 r_judge_four_tries: CAUGHT named=40 (restart 14, cold 26) total=40 words='want exactly' 19.8s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 6 times, want exactly 5
+PLANT   first cold named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: with one slot faulted on every read the boot read the flash 7 times, want exactly 6
+PLANT     26 x cold with one slot faulted on every read the boot read the flash 
+PLANT     14 x restart with one slot faulted on every read the writer restart read 
