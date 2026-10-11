@@ -1,0 +1,9 @@
+rc=0 docs/diagrams/submodule_boundaries.gen.py --check
+rc=0 docs/diagrams/submodule_boundaries.gen.py --selftest
+rc=0 scripts/check_submodule_docs.py
+rc=0 scripts/check_submodule_docs.py --selftest
+rc=1 scripts/check_diagram_pngs.py
+rc=2 scripts/check_em_dash.py --base e8454e2751d05b02ee8e5a571857589ab358ab86
+rc=0 scripts/check_diagram_pngs.py (no -I)
+rc=0 scripts/check_em_dash.py --base e8454e27 (md-venv)
+rc=0 scripts/docs_check.py (md-venv)

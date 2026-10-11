@@ -1,0 +1,22 @@
+diff --git a/sw/firmware/ctrl/test/srp_latency.cpp b/sw/firmware/ctrl/test/srp_latency.cpp
+index 469a3ba0f..d193855a3 100644
+--- a/sw/firmware/ctrl/test/srp_latency.cpp
++++ b/sw/firmware/ctrl/test/srp_latency.cpp
+@@ -73,9 +73,15 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
+                 // LA appears on the first vector of each message.
+                 la=la || (f->bytes[off]&0x20u);
+                 if(!mvrp) off=end;
+-                else { const unsigned n=wire_be16(f->bytes+off)&8191u;
+-                       off+=2+width+(n+2)/3+2; }
++                else { // 802.1Q-2018 10.8.1.2: a Message holds vectors up to its EndMark.
++                       while(off+2<=f->len && (f->bytes[off] || f->bytes[off+1])) {
++                           const unsigned n=wire_be16(f->bytes+off)&8191u;
++                           off+=2+width+(n+2)/3;
++                       }
++                       off+=2; }
+             }
++            ASSERT_TRUE(off+2<=f->len && !f->bytes[off] && !f->bytes[off+1])
++                <<"walk must end on the MRPDU EndMark";
+             if(la && !seen[i][p]) {
+                 seen[i][p]=true; EXPECT_GE(ms,due[i][p]);
+                 const unsigned last=last_ms[i][p];

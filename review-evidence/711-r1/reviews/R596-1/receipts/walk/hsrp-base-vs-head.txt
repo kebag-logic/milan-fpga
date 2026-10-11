@@ -1,0 +1,28 @@
+H-SRP rows: base 26, head 26
+if=1 startup                      service_ns  1005300 ->  1005300 (+0)  accesses +0
+if=1 JoinTime                     service_ns  1015300 ->  1015300 (+0)  accesses +0
+if=1 periodic                     service_ns  1015700 ->  1015700 (+0)  accesses +0
+if=1 MVRP LeaveAll                service_ns  1002400 ->  1002300 (-100)  accesses -1
+if=1 MSRP LeaveAll                service_ns  1006800 ->  1006300 (-500)  accesses -6
+if=1 RX to licence                service_ns  1001900 ->  1001900 (+0)  accesses +0
+if=1 malformed discard            service_ns  1002300 ->  1002300 (+0)  accesses +0
+if=1 Domain to declarations       service_ns   995000 ->   994800 (-200)  accesses -2
+if=1 Talker RX to Listener        service_ns   998700 ->   998900 (+200)  accesses -2
+if=1 unbind to withdrawal         service_ns   999300 ->   999300 (+0)  accesses -2
+if=1 LeaveTime to stop            service_ns  1001100 ->  1001100 (+0)  accesses +0
+if=1 RX storage recovery          service_ns  1983200 ->  1983200 (+0)  accesses +0
+if=2 startup                      service_ns  1010200 ->  1010200 (+0)  accesses +0
+if=2 JoinTime                     service_ns  1019800 ->  1019800 (+0)  accesses +0
+if=2 periodic                     service_ns  1020400 ->  1020400 (+0)  accesses +0
+if=2 MVRP LeaveAll                service_ns  1002500 ->  1002400 (-100)  accesses -1
+if=2 MSRP LeaveAll                service_ns  1006900 ->  1006400 (-500)  accesses -6
+if=2 MVRP LeaveAll                service_ns  1002500 ->  1002400 (-100)  accesses -7
+if=2 MSRP LeaveAll                service_ns  1006900 ->  1006400 (-500)  accesses -12
+if=2 RX to licence                service_ns  1001900 ->  1001900 (+0)  accesses +0
+if=2 malformed discard            service_ns  1002500 ->  1002500 (+0)  accesses +0
+if=2 Domain to declarations       service_ns   993300 ->   993100 (-200)  accesses -2
+if=2 Talker RX to Listener        service_ns   995400 ->   995600 (+200)  accesses -2
+if=2 unbind to withdrawal         service_ns  1003400 ->  1003400 (+0)  accesses -2
+if=2 LeaveTime to stop            service_ns  1001100 ->  1001100 (+0)  accesses +0
+if=2 RX storage recovery          service_ns  1978500 ->  1978500 (+0)  accesses +0
+largest service_ns increase head over base: 200

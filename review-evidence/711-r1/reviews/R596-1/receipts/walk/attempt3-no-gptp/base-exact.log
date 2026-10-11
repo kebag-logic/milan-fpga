@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "$REVIEWS/711-r596-1-packet/scripts/latency_arm.py", line 35, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/711-r596-1-packet/scripts/latency_arm.py", line 26, in main
+    o = srp_arms.arm_srp(tree, lwsrp, interfaces, test=suite)
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/test/srp_arms.py", line 49, in arm_srp
+    variant, inc = prepared(tree,interfaces,out,config)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/test/srp_arms.py", line 25, in prepared
+    raise Refusal(f"SRP entity generation failed: {result.stderr}")
+ctrl_build.Refusal: SRP entity generation failed: Traceback (most recent call last):
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/srp/srp_entity.py", line 40, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/srp/srp_entity.py", line 33, in main
+    args.output.write_text(emit(args.config),encoding="utf-8")
+                           ~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/srp/srp_entity.py", line 14, in emit
+    fields=adp_entity.entity_fields(config)
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/firmware/ctrl/adp/adp_entity.py", line 55, in entity_fields
+    cfg = eb.load_config(str(config))
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/builder/endstation_builder.py", line 4425, in load_config
+    gptp = _load_gptp(cfg)
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/builder/endstation_builder.py", line 4158, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/builder/endstation_builder.py", line 3653, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/base-exact/sw/builder/endstation_builder.py", line 3593, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
+

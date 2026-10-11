@@ -1,0 +1,23 @@
+# git ls-tree at head 49b437f4 (submodule gitlinks)
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# base e8454e27 lwSRP gitlink
+160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+# git diff --raw base..head
+:100644 100644 85af8a8a2 0442f8e17 M	docs/design/MAILBOX_SPLIT.md
+:100644 100644 dc22294b4 ce6f8fabd M	docs/diagrams/PNG_MANIFEST.json
+:100644 100644 85f3807a0 e1aba6dde M	docs/diagrams/submodule_boundaries.drawio
+:100644 100644 8ab6f16a6 ef2f837f8 M	docs/diagrams/submodule_boundaries.png
+:100644 100644 6fc7248b0 42c25f2a2 M	docs/diagrams/submodule_boundaries.svg
+:100644 100644 c14b8636b 3f2f8bc62 M	docs/reference/SUBMODULES.md
+:100644 100644 8ed82556b 5fa56a037 M	sw/firmware/ctrl/README.md
+:100644 100644 47ebac895 f86e28b6e M	sw/firmware/ctrl/srp/README.md
+:100644 100644 808693af8 f28ef0625 M	sw/firmware/ctrl/test/ctrl_arms.py
+:100644 100644 469a3ba0f d193855a3 M	sw/firmware/ctrl/test/srp_latency.cpp
+:160000 160000 9197193e4 08ee86e81 M	third_party/lwSRP
+# vendored lwSRP sources in tree (expect none):
+0
+# .gitmodules unchanged

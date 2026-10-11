@@ -1,0 +1,16 @@
+== old integrator.md L321-323 @9197193e
+Transport callbacks, indications, observers, and filters must never synchronously reenter the owning application.
+Queue future work instead.
+The firmware adapter owns debug and release enforcement of this contract.
+== new integrator.md L324-326 @08ee86e8
+Transport callbacks, indications, observers, and filters must never synchronously reenter the owning application.
+Queue future work instead.
+The firmware adapter owns debug and release enforcement of this contract.
+== old mrp.h L288-290 @9197193e
+/* 10.7 permits limiting state to attributes of immediate interest. A filter
+ * runs after complete wire validation, before any allocation. LeaveAll remains
+ * applicable to retained attributes. It must not re-enter MRP.
+== new mrp.h L292-294 @08ee86e8
+/* 10.7 permits limiting state to attributes of immediate interest. A filter
+ * runs after complete wire validation, before any allocation. LeaveAll remains
+ * applicable to retained attributes. It must not re-enter MRP.

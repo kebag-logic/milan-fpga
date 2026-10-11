@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/test/srp_latency.cpp b/sw/firmware/ctrl/test/srp_latency.cpp
+index d193855a3..1b3fb3350 100644
+--- a/sw/firmware/ctrl/test/srp_latency.cpp
++++ b/sw/firmware/ctrl/test/srp_latency.cpp
+@@ -76,7 +76,7 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
+                 else { // 802.1Q-2018 10.8.1.2: a Message holds vectors up to its EndMark.
+                        while(off+2<=f->len && (f->bytes[off] || f->bytes[off+1])) {
+                            const unsigned n=wire_be16(f->bytes+off)&8191u;
+-                           off+=2+width+(n+2)/3;
++                           off+=2+width+(n+2)/3; break;
+                        }
+                        off+=2; }
+             }
