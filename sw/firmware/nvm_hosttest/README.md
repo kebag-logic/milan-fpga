@@ -9,7 +9,7 @@ every shipped shape passed and every planted defect reddened.
 - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
 - **[What is graded](#what-is-graded)** -- fourteen checks per shape, all on bytes
-- **[The negative controls](#the-negative-controls)** -- eighteen writer defects planted into a copy, each of which must be caught
+- **[The negative controls](#the-negative-controls)** -- nineteen writer defects planted into a copy, each of which must be caught
 - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
@@ -47,7 +47,10 @@ overlay.
   firmware opens through it is counted, and a planted read fault answers a
   window of those reads from a copy whose bytes of one slot are wrong: one
   byte XORed with a different value on every faulty read
-  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
+  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), the same with the CRC-32
+  trailer the slot's length word places rewritten over the faulty bytes, so
+  every faulty read is a different container whose CRC closes
+  (`--read-sealed SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
   as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
   slot's bytes (`--read-other SLOT:SKIP:COUNT`). Counted from the read the
   fault is armed at (power-on for one given before `--boot`), the first SKIP
@@ -106,15 +109,23 @@ the harness through boot, idle time and console commands, and compares bytes:
 13. a boot read fault leaves the authority unknown
     ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). The
     cases are generated, never picked (`read_fault_cases.fault_cases`). Four
-    groups place the slots and the fault. With one slot valid and the other
+    groups place the slots and the fault. A sealed fault (`--read-sealed`)
+    flips the entity ID's low byte or a record-area byte and closes the CRC
+    over the faulty bytes, so each faulty read is a different container
+    whose CRC passes and that is refused after it, `VD_ENT` or `VD_REC`; a
+    CRC-32 over every byte of such a container is one constant, so these
+    are the reads a comparison by that CRC alone calls the same
+    (R603-4-F1). With one slot valid and the other
     blank, the fault is on the valid slot (its magic byte, the top byte of
     its sequence word, a record-area byte, which only the CRC over every
-    byte read refuses, or every byte read as `0xFF`) or on the blank slot
+    byte read refuses, a sealed entity or record-area byte, or every byte
+    read as `0xFF`) or on the blank slot
     (its magic byte, or its reads answered with the valid slot's container,
     `--read-other`). With both slots valid, the newer at 0x5A5A5 or at 0
     (the wrap, the older at 0xFFFFFFFF) and differing in two names, the
-    fault is on the newer slot (its magic byte, a record-area byte, or the
-    older's container) or on the older (its magic byte or a record-area
+    fault is on the newer slot (its magic byte, a record-area byte, a sealed
+    entity or record-area byte, or the older's container) or on the older
+    (its magic byte, a record-area byte or a sealed entity or record-area
     byte). Each group's every manner of fault meets every window, both ways
     round, on a cold boot and on a writer restart without a fabric reset
     (the re-attach path) after a clean cold boot. A window starts at any
@@ -130,9 +141,9 @@ the harness through boot, idle time and console commands, and compares bytes:
     slots it leaves unread and why. A case it finds outside the rule's
     stated detection limit is not run: two faulty reads of one judgement
     return the same bytes (all `0xFF` twice), or a faulty read returns the
-    other slot's valid container and it stands. That leaves 2,158 of 2,244
-    cases per shape, 1,039 restarts and 1,119 cold boots; every window keeps its
-    byte faults, which are always inside the limit. Each case makes a real
+    other slot's valid container and it stands. That leaves 3,382 of 3,468
+    cases per shape, 1,627 restarts and 1,755 cold boots; every window keeps its
+    byte faults, sealed or not, which are always inside the limit. Each case makes a real
     change, lets the debounce commit it and boots again clean. The faulty
     boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its
     bit in `unread=`), and offers the newer slot it accepts, and its window
@@ -179,7 +190,7 @@ harness and requires the suite to redden:
 | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
 | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
 
-Those five are graded by checks 1 to 12. Thirteen #671 defects are graded
+Those five are graded by checks 1 to 12. Fourteen #671 defects are graded
 by checks 13 and 14. Each is planted into the first shape and into both
 product shapes (`endstation_ax7101_1x1_tdm8`, `endstation_ax7101_8x8`), and
 must be caught on every one by a finding carrying its own words. Check 14
@@ -197,6 +208,7 @@ names:
 | `generation_from_refused_slot` | a refused slot's header sequence continues the generation | "generation was taken from a refused slot" |
 | `verdict_only_agreement` | two refused reads agree by verdict, not by bytes (R501-3's probe on #665) | "was lost on the clean reboot" |
 | `r_digest_header_only` | a refusal's digest covers the 40 header bytes, so two reads whose record areas differ agree | "on reads that returned different bytes" |
+| `r_digest_with_trailer` | the round-4 comparison: one CRC-32 over every byte read, the trailer included, which is one constant over every container whose CRC closes, so two sealed refusals agree (R603-4-F1) | "on reads that returned different bytes" |
 | `r_fill_from_flash` | the window is filled by a fresh read of the slot, as before #671, not from the judged stage: a read the rule does not make | "want exactly" |
 | `r_restage_fail_offers_none` | a pick that never reads back offers nothing, not the other slot | "yet the boot offered" |
 | `restage_fail_not_unread` | a pick that never reads back is not marked UNREAD, so the writer goes live | "yet the boot line does not name it unread" |
@@ -245,7 +257,11 @@ states it; the backend itself is graded by
 [`tb/verilator/nvm_backend`](../../../tb/verilator/nvm_backend/README.md).
 
 Nor does it prove that every read fault is seen. The writer sees a fault
-only when two reads of a slot return different bytes. A fault that returns
+only when two reads of a slot return different bytes. It compares two
+refused reads by their byte count, a CRC-32 over all of their bytes but the
+last four, and those four whole, so it always tells apart two reads that
+differ in one or two bits or only within 32 consecutive bits, and any other
+two except with a probability of about 2^-32. A fault that returns
 the same wrong bytes on two reads is a refusal of those bytes by the rule,
 and a slot read as all `0xFF` twice is blank. Either can still let the next
 commit restart the sequence below a container a later clean boot prefers.
