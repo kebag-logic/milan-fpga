@@ -1,0 +1,3638 @@
+diff --git a/docs/design/SAVED_STATE_FASTCONNECT.md b/docs/design/SAVED_STATE_FASTCONNECT.md
+index 43e941e89..78ddd2580 100644
+--- a/docs/design/SAVED_STATE_FASTCONNECT.md
++++ b/docs/design/SAVED_STATE_FASTCONNECT.md
+@@ -125,7 +125,7 @@ Implementation and historical evidence remain explicitly distinguished below.
+ | The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
+ | The backend's area | **MEASURED**, on the shipping module | section 8.3: 993 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
+ | The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 417 checks at 8x8 and 146 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
+-| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
++| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; nineteen planted writer defects must each redden |
+ | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
+ 
+ **Reconciliation pin.** Parent `c0723222` pins processor
+@@ -778,6 +778,31 @@ The [#665 tie decision](https://github.com/kebag-logic/milan-fpga/issues/665#iss
+ The shipping writer, and every saved state already on a device, use A.
+ The writers never write equal sequences, so a tie arises only after a fault.
+ 
++**A slot that could not be read is not a slot that failed section 6.2.**
++That is the [#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
++which [#671](https://github.com/kebag-logic/milan-fpga/issues/671) applies to the shipping writer.
++Take A valid at sequence s > 1, B blank, and a transient fault on the boot read of A.
++If A is then taken as refused, the next commit restarts at sequence 1.
++The bare-metal store writes it to B, and the next clean boot prefers A at s, so that commit is lost.
++The shipping writer writes it over A, so the saved state is lost.
++So a slot refused by a media read fault leaves the authority unknown.
++The read is retried within a bound.
++Until every slot has been read without a media fault, nothing is persisted, and the status says so.
++A slot whose bytes read cleanly but fail section 6.2 is not authoritative.
++No sequence is ever taken from bytes that were not validated.
++Both writers read a slot through the memory-mapped QSPI window, which always returns bytes.
++So a media fault shows only as two reads of one slot that return different bytes.
++A refusal or a blank verdict stands only when two of at most three reads return the same bytes.
++The shipping writer calls two refused reads the same when their verdicts, their byte counts,
++a CRC-32 over all of their bytes but the last four, and those last four bytes are all equal.
++A CRC-32 over a whole container and the trailer that closes it is one constant.
++So a digest over every byte would call any two such containers the same, however they differ.
++The picked slot is read again and must pass under the sequence it was picked by.
++The bare-metal store's [Boot section](../../sw/firmware/ctrl_nvm/README.md#boot) states the rule.
++The shipping writer's is in the [firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
++A fault that returns the same wrong bytes twice cannot be told from a refusal of those bytes.
++That limit is stated in both suites.
++
+ At every instant of the write sequence at least one slot holds a complete image
+ whose CRC closes. Power can be removed at any point. This is the guarantee the
+ port alone cannot give, and it is why the promotion lives above the port rather
+diff --git a/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md b/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+index 2c5cd6623..24d1d6640 100644
+--- a/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
++++ b/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+@@ -722,8 +722,15 @@ the backend publishes, never on an assumption about the previous boot.
+   refuse a RELOAD anyway. It strobes RELEASE, which ends any capture the
+   previous run left open and hands that capture's work back to dirty_live; it
+   re-derives the authoritative slot and the sequence from the media,
+-  publishes them and resumes service. It does not re-run a restore walk the
+-  fabric has already sequenced.
++  publishes them and resumes service, unless a slot is left unread in that
++  re-derivation, with no standing verdict or picked and not read back as
++  judged: the writer then publishes and HOLDS until reset, as on a cold boot
++  ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). What it
++  publishes is that re-derivation's verdict and sequence, which with the
++  newer slot unread are the older slot's, over a window it does not reload;
++  the backend holds both as evidence only, and `nvm_backed` falls once the
++  held writer stops answering the liveness deadline. It does not re-run a
++  restore walk the fabric has already sequenced.
+ - **Load pending 0 with load accepted 0** (revision d; the terminal state
+   above): the writer does NOT re-attach. No window load was accepted in this
+   boot, so nothing in it may be captured or committed, and a re-attach could
+@@ -1616,16 +1623,24 @@ Memory shape: the stage holds one container.
+ [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
+ derives 3336 bytes at 1x1 and 13256 at 8x8.
+ 
+-Timing. MEASURED on 2026-10-02 in the
++Timing. MEASURED on 2026-10-11 in the
+ [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
+ The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
+-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) requires this remeasurement.
+-The CLOCK_SOURCE NAME records #629 adds grow the census.
+-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the previous one.
+-Measured commit: `a2f1734283f367d0d522c8c7cda09b79aff60d06`.
+-Measured tree: `c28595df81fb96ae7cb554216c76a23917105169`.
+-Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+-Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
++The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) requires this remeasurement.
++Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
++The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) required the previous one.
++That change distinguished failed judgements from failed re-stages on the console.
++The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) required the one before.
++That change named a held writer restart on the console.
++The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
++The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
++The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
++The CLOCK_SOURCE NAME records #629 adds grew the census.
++The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
++Measured commit: `bd42818d3a73b5c112905e72282d5db6df0ae25c`.
++Measured tree: `39e2b51cb67bc69bc7914116006d8d4076bf7792`.
++Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
++Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+ The receipt's BIOS patch digest is informational provenance.
+ Native service receipts also bind the installed build inputs.
+ **Hold sizing uses the writer's actual clock.**
+@@ -1638,29 +1653,29 @@ The backend retains its nominal 50 ms hold.
+ Its free-running millisecond tick gives a 49 ms guaranteed floor.
+ The first tick can arrive immediately after ARM.
+ The acceptance limit is therefore 24.5 ms, half that floor.
+-**The worst 8x8 measurement is 13.86484 ms.**
+-Its floor ratio is 3.5341x.
+-The margin to 24.5 ms is 10.63516 ms.
+-The previous census measured 13.23352 ms.
++**The worst 8x8 measurement is 13.86328 ms.**
++Its floor ratio is 3.5345x.
++The margin to 24.5 ms is 10.63672 ms.
++The previous receipt measured 13.86328 ms, at the same census.
++The census before #629 measured 13.23352 ms.
+ The historical pre-word-copy maximum was 24.30246 ms, at that census.
+ The word-copy remedy gained 11.06894 ms of margin there.
+-Firmware, hold behavior and the measured paths are unchanged.
+-The record census grows: 8x8 from 156 to 164 records, 12,634 to 13,210 bytes.
+-At 1x1 it grows from 53 to 54 records, 3,218 to 3,290 bytes.
+-The receipt binds the same firmware and the new census.
++The firmware changed in its boot path and its console report of the writer's hold only; `nvm_capture()`, the backend's capture hold and the census are unchanged.
++The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
++The receipt binds the new firmware and the unchanged census.
+ 
+ Each point contains 16 captures per traffic arm.
+ The published maximum includes every capture in both arms.
+-The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
++The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
+ 
+ | Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+ |---|---|---|---|---|
+-| 1x1 | 50 / 100, contract | ON | 3.96022 to 3.96728 | 12.3510x |
+-| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91182 | 12.5261x |
+-| 8x8 | 50 / 100, contract | ON | 13.84836 to 13.86484 | 3.5341x |
+-| 8x8 | 50 / 100, contract | OFF | 13.67682 to 13.69390 | 3.5782x |
+-| 8x8 | 100 / 100, non-contract | ON | 10.41821 to 10.42973 | 4.6981x |
+-| 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
++| 1x1 | 50 / 100, contract | ON | 3.96020 to 3.96548 | 12.3566x |
++| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.92034 | 12.4989x |
++| 8x8 | 50 / 100, contract | ON | 13.84828 to 13.86328 | 3.5345x |
++| 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
++| 8x8 | 100 / 100, non-contract | ON | 10.41235 to 10.42973 | 4.6981x |
++| 8x8 | 100 / 100, non-contract | OFF | 10.41246 to 10.41566 | 4.7045x |
+ 
+ The full closed-record census is 3,290 bytes / 54 records at 1x1.
+ At 8x8 it is 13,210 bytes / 164 records.
+@@ -1805,13 +1820,13 @@ Physical timing and memory ordering remain UNRESOLVED 6.
+    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
+    Both shapes use the contract's 50 MHz CPU and aligned edges.
+    Each has 16 captures per traffic arm, ON and OFF.
+-   The worst 8x8 copy is 13.86484 ms across both arms.
++   The worst 8x8 copy is 13.86328 ms across both arms.
+    It covers 13,210 bytes and 164 records, including output maps.
+-   Its ratio to the guaranteed 49 ms floor is 3.5341x.
+-   The 24.5 ms margin is 10.63516 ms.
++   Its ratio to the guaranteed 49 ms floor is 3.5345x.
++   The 24.5 ms margin is 10.63672 ms.
+    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
+    The unchanged nominal 50 ms hold is retained conditionally.
+-   The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
++   The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
+    Both intervals include the complete record walk and attestation.
+    The 100 MHz 8x8 comparison is non-contract: 10.42973 ms maximum.
+    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index 083ef0dda..60f9a512a 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -2012,12 +2012,66 @@ had no bound at all and has one now: it must outlast a heartbeat period, or
+ the firmware's claim that it heartbeats while it waits says nothing.
+ 
+ **Boot.** `nvm_boot()` runs after the fabric is configured and before the
+-entity model is loaded. It reads both slots through the QSPI mapping and applies
+-the section 6.2 acceptance order to each, rule for rule as
+-`scripts/nvm_klj2.py` does, including the erased-record rule of section 6.1.
+-The newer accepted slot (a wrap-safe signed compare of `SEQ`) is copied into
+-the window byte for byte; when neither is accepted the firmware stages an
+-all-erased container at sequence 0 and reports the failing slot's verdict.
++entity model is loaded. It reads each slot through the QSPI mapping into the
++private stage in one read and applies the section 6.2 acceptance order there,
++rule for rule as `scripts/nvm_klj2.py` does, including the erased-record rule
++of section 6.1, so the CRC, the records and the sequence come from the same
++bytes. The memory-mapped read always returns bytes, so a media fault shows
++only as two reads of one slot that return different bytes
++([#671](https://github.com/kebag-logic/milan-fpga/issues/671), the rule of
++[`ctrl_nvm`](../../sw/firmware/ctrl_nvm/README.md#boot), Boot items 3 and
++9). An OK verdict stands on one read; any other, blank included, stands only
++when two of at most three reads (`NVM_READ_TRIES`) return the same bytes.
++Two refused reads are the same when their verdicts and byte counts are
++equal, a CRC-32 over all of their bytes but the last four is equal, and
++those four bytes are equal. The last four are kept out of the CRC because
++over a container and the trailer that closes it a CRC-32 is one constant,
++so two different containers whose CRCs both close would compare the same
++([R603-4-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6107062972)).
++The comparison always tells apart two reads that differ in one or two
++bits or only within 32 consecutive bits, and any other two except with a
++probability of about 2^-32. A slot with no standing verdict is
++UNREAD: `VD_LEN` (rule 4), no sequence taken from it, and its bit in the boot
++line's `unread=` field. The newer accepted slot (a wrap-safe signed compare
++of `SEQ`, A on a tie) is read into the stage again, at most three times,
++judged again and accepted only under the sequence it was picked by; one that
++never reads back so is UNREAD and the other is offered. The window is filled
++from the stage, never from a fresh read. When neither is accepted the
++firmware stages an all-erased container at sequence 0 and reports the
++failing slot's verdict: no generation is taken from a refused slot. **An
++UNREAD slot holds the writer until reset.** Its authority is unknown: it may
++hold a newer container than any slot that was read, and a commit could
++restart the sequence below one a later clean boot prefers. The window is
++still loaded with what was accepted and the walk still runs, but the held
++writer captures, erases and writes nothing of its own, refuses
++`milan_nvm commit`, and answers no liveness deadline, so `nvm_backed` reads
++0, as for a retired writer. An operator's explicit `milan_nvm wipe` still
++erases both slots while the writer is held, as it does for a retired writer.
++The boot line and `milan_nvm` name the hold and each unread slot's cause:
++no standing verdict in its judgement's reads, or a pick that did not read
++back as judged in its re-stage's. A boot that retires the writer
++for another cause (the backend's contract, no accepted load, a window gone
++live or refused loads) names that cause, even with a slot unread. A writer
++restart without a fabric reset re-attaches under the same rule: a slot left
++unread in its re-derivation holds it, and it prints "re-attached and HELD".
++It still publishes that re-derivation's verdict and sequence, which with the
++newer slot unread are the older slot's, over the window it does not reload;
++the backend holds them as evidence only, and `nvm_backed` falls with the held
++writer's silence.
++The next reset reads every slot again, and a clean read ends the hold. A
++slot that never reads cleanly, because of a permanent read fault or because
++its reads differ on every boot, therefore holds the writer on every boot,
++as in the [`ctrl_nvm`](../../sw/firmware/ctrl_nvm/README.md#boot) store
++(Boot item 9): the device serves and reports the hold, but nothing
++persists. The writer never erases that slot itself, so the operator's
++`milan_nvm wipe`, which erases both slots and with them the saved state, is
++the only recovery. A boot opens at most twelve slot reads, three
++judgements and three re-stages per slot. A read whose header is refused
++stops at its 40 bytes, and one whose header passes copies as many bytes as
++its length word names, up to the 64 KiB slot. A clean boot with both slots
++valid opens three, each one container long. Before this rule it walked each
++valid slot twice through the mapping, once for the CRC and once for the
++records, and copied the chosen one a third time into the window.
+ It then programs the backing store through `PP_NVM_SEL`/`PP_NVM_DATA`: the
+ record area's base and length, the per-port channel-map tables (framed length
+ and running prefix, direction distinct), the sequence, and the verdict with
+@@ -2123,8 +2177,18 @@ model of the CSR face, the flash and the clock, and grades it per shipped
+ shape: the staged and committed containers equal the Python encoder's byte for
+ byte, the verdict the firmware prints for every section 6.2 refusal equals
+ `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
+-transaction failures and the heartbeat through a 3 s erase; `--self-test`
+-plants five writer defects and requires each to be caught. A partial ownership fixture protects an open record beside an unaligned edge.
++transaction failures and the heartbeat through a 3 s erase, and the read
++faults of #671 (a header, sequence or record-area byte, the blank or older
++slot's, an entity or record-area byte under a CRC closed over the faulty
++bytes, an all-`0xFF` read, and the other slot's container) over every
++window starting at a read the boot opens, one to four reads long or the
++whole boot, with the other slot blank or both valid across the wrap, at the
++sequence boundaries, on the cold boot and on a writer restart without a
++fabric reset (the re-attach path), each followed by a change, its commit
++and a clean reboot, with every case's reads and hold pinned to a reference
++model of the writer's reads; `--self-test` plants nineteen writer defects
++and requires each to be caught, the fourteen #671 ones on the first shape
++and both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
+ The edge-crossing word-copy control must fail that fixture.
+ What it cannot
+ prove is the board: the real LiteSPI master, the real DRAM window and the
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 2914f3671..3bee4be08 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -28746,9 +28746,11 @@ def test_boot_policy_follows_the_declaration() -> None:
+ 
+ def test_nvm_firmware_shapes() -> None:
+     """Compile and grade the saved-state writer for every generated shape."""
++    # A hosted runner took 594 s before #671's generated read-fault windows;
++    # the larger campaign needs room beyond the former 600 s limit.
+     subprocess.run(
+         [sys.executable, str(ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py"),
+-         "--self-test"], check=True, cwd=ROOT, timeout=600)
++         "--self-test"], check=True, cwd=ROOT, timeout=1200)
+ 
+ 
+ def test_soc_option_refusals() -> None:
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index 1cebba0b3..4783d2035 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -358,6 +358,12 @@ typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
+  * is accepted; a refusal means something outside that sequence wrote the
+  * window, and each repeat re-bases and reloads from the start (section 5.3). */
+ #define NVM_LOAD_TRIES         4u
++/* How many times the boot reads one slot before its verdict stands, and how
++ * many times it re-stages the slot it picked (#671). The memory-mapped read
++ * always returns bytes, so a media fault shows only as two reads of one slot
++ * that return different bytes: the rule and the bound of
++ * sw/firmware/ctrl_nvm/README.md, Boot items 3 and 9. */
++#define NVM_READ_TRIES         3u
+ 
+ void set_idle_hook(void (*fptr)(void));
+ void bios_dispatch_hook_required(void);
+@@ -390,6 +396,26 @@ struct nvm_cap {
+ 	int ok;
+ };
+ 
++/*
++ * One read of a journal slot into the private stage (#671): its section 6.2
++ * verdict, the sequence it names when that verdict is VD_OK and 0 otherwise
++ * (no generation is ever taken from bytes that failed validation), and for a
++ * refusal the count of bytes the read delivered, a CRC-32 over all of them but
++ * the last four, and those four whole. The verdict is judged on exactly those
++ * bytes, so two reads that return the same bytes are judged alike, and two
++ * that do not were not both read cleanly.
++ */
++struct nvm_read {
++	unsigned int vd;
++	uint32_t seq;
++	uint32_t digest;
++	uint32_t tail;
++	uint32_t bytes;
++};
++/* A slot is read whole into the stage, so the stage must hold the longest
++ * container rule 3 admits. */
++typedef char nvm_slot_fits_stage[(NVM_SLOT_BYTES <= MILAN_NVM_IMAGE_MAX) ? 1 : -1];
++
+ static const uint8_t nvm_mapin_entries[16] = {
+ 	MILAN_NVM_MAPIN_ENTRIES_0, MILAN_NVM_MAPIN_ENTRIES_1, MILAN_NVM_MAPIN_ENTRIES_2, MILAN_NVM_MAPIN_ENTRIES_3,
+ 	MILAN_NVM_MAPIN_ENTRIES_4, MILAN_NVM_MAPIN_ENTRIES_5, MILAN_NVM_MAPIN_ENTRIES_6, MILAN_NVM_MAPIN_ENTRIES_7,
+@@ -443,6 +469,22 @@ static unsigned int nvm_captures_refused;
+ static unsigned int nvm_acks_refused;
+ static uint64_t nvm_hb_last;
+ static uint64_t nvm_dirty_since;
++/* Slots that gave no standing verdict this boot, or that were picked and
++ * never read back as they were judged (bit 0 A, bit 1 B). Their authority is
++ * unknown, so a writer that would go live is HELD until reset instead (#671). */
++static unsigned int nvm_unread;
++/* Of those, the slots that were judged and picked and then did not read back
++ * as judged, so the console names that cause and not a missing verdict. */
++static unsigned int nvm_unstaged;
++/* The writer is HELD (nvm_go_live()): it would have gone live with a slot
++ * UNREAD. A boot that retires the writer for another cause may leave a slot
++ * unread too, and the console then names that cause, not the slot. */
++static int nvm_held;
++/* Boot reads whose bytes differed from every earlier read of the slot, and
++ * re-stages that did not read back as judged. A floor: a refused read that a
++ * later read of the slot outvotes with VD_OK is not counted, as in
++ * sw/firmware/ctrl_nvm. */
++static unsigned int nvm_read_faults;
+ 
+ /*
+  * The live window and the private stage. Macros rather than helpers on
+@@ -599,6 +641,23 @@ static struct nvm_rec nvm_frame(const volatile uint8_t *p, uint32_t room)
+ 	return rec;
+ }
+ 
++/* Section 6.2 tests 1 to 3, which the 40 header bytes decide alone: VD_OK
++ * when the container must be read on to be judged. */
++static unsigned int nvm_validate_head(const volatile uint8_t *img)
++{
++	uint32_t img_len = nvm_rd32(img + 16);
++
++	if (nvm_all_erased(img, KLJ2_HDR))
++		return VD_BLANK;
++	if (nvm_rd32(img) != KLJ2_MAGIC)
++		return VD_MAGIC;
++	if ((nvm_rd32(img + 4) >> 16) != (KLJ2_FMT_VER >> 16))
++		return VD_VER;
++	if (img_len < KLJ2_HDR + KLJ2_TRAILER || img_len > NVM_SLOT_BYTES)
++		return VD_LEN;
++	return VD_OK;
++}
++
+ /*
+  * The section 6.2 acceptance order over a container at `img`, read through
+  * whatever face holds it (the flash mapping or the staged window). Zero
+@@ -608,23 +667,17 @@ static struct nvm_rec nvm_frame(const volatile uint8_t *p, uint32_t room)
+  */
+ static unsigned int nvm_validate(const volatile uint8_t *img)
+ {
+-	uint32_t img_len;
++	uint32_t img_len = nvm_rd32(img + 16);
+ 	uint32_t nrec;
+ 	uint32_t pos;
+ 	uint32_t end;
+ 	uint32_t i;
+ 	unsigned int seen = 0;
++	unsigned int vd = nvm_validate_head(img);
+ 	int last = -1;
+ 
+-	if (nvm_all_erased(img, KLJ2_HDR))
+-		return VD_BLANK;
+-	if (nvm_rd32(img) != KLJ2_MAGIC)
+-		return VD_MAGIC;
+-	if ((nvm_rd32(img + 4) >> 16) != (KLJ2_FMT_VER >> 16))
+-		return VD_VER;
+-	img_len = nvm_rd32(img + 16);
+-	if (img_len < KLJ2_HDR + KLJ2_TRAILER || img_len > NVM_SLOT_BYTES)
+-		return VD_LEN;
++	if (vd != VD_OK)
++		return vd;
+ 	if (nvm_crc32(img, img_len - KLJ2_TRAILER) !=
+ 	    nvm_rd32(img + img_len - KLJ2_TRAILER))
+ 		return VD_CRC;
+@@ -679,6 +732,110 @@ static uint32_t nvm_seq_of(const volatile uint8_t *img)
+ 	return nvm_rd32(img + 8);
+ }
+ 
++/*
++ * One read of the slot at `slot` into the private stage, judged there (#671).
++ * The slot is read once, the header first and then, when the header does not
++ * decide the verdict, the rest of the container, so the CRC, the records and
++ * the sequence all come from the same bytes. The stage is free at boot, and
++ * a capture refills it from the start (nvm_prefill_stage()).
++ */
++static struct nvm_read nvm_read_slot(uint32_t slot)
++{
++	struct nvm_read rd = {VD_LEN, 0u, 0u, 0u, KLJ2_HDR};
++	const volatile uint8_t *src = nvm_slot(slot);
++	uint32_t i;
++
++	for (i = 0; i < KLJ2_HDR; ++i)
++		NVM_STG[i] = src[i];
++	rd.vd = nvm_validate_head(NVM_STG);
++	if (rd.vd == VD_OK) {
++		/* rule 3 bounds the length, and the stage holds a slot */
++		rd.bytes = nvm_rd32(NVM_STG + 16);
++		for (i = KLJ2_HDR; i < NVM_SLOT_BYTES; ++i) {
++			if (i >= rd.bytes) {
++				break;
++			}
++			NVM_STG[i] = src[i];
++		}
++		rd.vd = nvm_validate(NVM_STG);
++	}
++	if (rd.vd == VD_OK) {
++		rd.seq = nvm_seq_of(NVM_STG);
++	} else {
++		/* Not one CRC-32 over every byte: over a container and the
++		 * trailer that closes it, that is the same constant for every
++		 * such container, however its bytes differ (R603-4-F1). */
++		rd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);
++		rd.tail = nvm_rd32(NVM_STG + rd.bytes - KLJ2_TRAILER);
++	}
++	return rd;
++}
++
++/* Whether two refused reads of one slot returned the same bytes: as many,
++ * the same CRC-32 over all but the last four, and the same last four. */
++static int nvm_reads_agree(struct nvm_read a, struct nvm_read b)
++{
++	return a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&
++	       a.tail == b.tail;
++}
++
++/*
++ * The slot's verdict, from at most NVM_READ_TRIES reads of it (#671; #665
++ * decision 2 and round 4). OK stands on one read: its CRC-32 covers every
++ * byte, the sequence included. Any other verdict, BLANK included, stands
++ * only when two reads return the same bytes. A read that went wrong looks
++ * like a refusal or a blank slot, and taking it for one would let the next
++ * commit restart the sequence below a container a later clean boot prefers.
++ * Two reads whose bytes differ are a media fault, and the slot is read
++ * again. A slot with no standing verdict is UNREAD: VD_LEN (rule 4, it did
++ * not deliver its bytes), no sequence, and the writer is held.
++ */
++static struct nvm_read nvm_judge_slot(uint32_t slot)
++{
++	struct nvm_read first = {VD_LEN, 0u, 0u, 0u, 0u};
++	struct nvm_read second = first;
++	struct nvm_read rd;
++	unsigned int n;
++
++	for (n = 0; n < NVM_READ_TRIES; ++n) {
++		rd = nvm_read_slot(slot);
++		if (rd.vd == VD_OK || (n >= 1u && nvm_reads_agree(first, rd)) ||
++		    (n >= 2u && nvm_reads_agree(second, rd)))
++			return rd;
++		if (n == 0u) {
++			first = rd;
++		} else {
++			/* other bytes than every earlier read */
++			nvm_read_faults++;
++			second = rd;
++		}
++	}
++	nvm_unread |= (slot == NVM_SLOT_A) ? 1u : 2u;
++	rd.vd = VD_LEN;
++	rd.seq = 0u;
++	return rd;
++}
++
++/*
++ * The picked slot into the stage again, judged again with its CRC, under the
++ * sequence it was picked by (#671): what is loaded and published is what was
++ * proven. A re-stage that is refused or names another sequence is a media
++ * fault and is tried again, NVM_READ_TRIES in all. 1 when one passes.
++ */
++static int nvm_restage(uint32_t slot, uint32_t seq)
++{
++	struct nvm_read rd;
++	unsigned int n;
++
++	for (n = 0; n < NVM_READ_TRIES; ++n) {
++		rd = nvm_read_slot(slot);
++		if (rd.vd == VD_OK && rd.seq == seq)
++			return 1;
++		nvm_read_faults++;
++	}
++	return 0;
++}
++
+ /* The ten little-endian header words of section 6.1, word 2 (the sequence)
+  * excepted: a table rather than a switch, so no jump table is emitted and
+  * the firmware transfers control through no register. */
+@@ -1384,22 +1541,18 @@ static void nvm_restore_walk(void)
+ 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~0x2u);
+ }
+ 
+-/* The live window becomes the chosen verified slot, or the blank image when
+- * no slot was ever accepted. */
++/* The live window becomes the chosen slot as it was proven, the bytes
++ * nvm_restage() left in the stage, or the blank image when no slot was
++ * accepted. Never a fresh read of the slot: what is loaded is what was
++ * judged (#671). */
+ static void nvm_fill_window(uint32_t chosen)
+ {
+ 	unsigned int i;
+ 
+-	if (chosen != NVM_SLOT_NONE) {
+-		const volatile uint8_t *src = nvm_slot(chosen);
+-
+-		for (i = 0; i < NVM_IMG_LEN; ++i)
+-			NVM_IMG[i] = src[i];
+-	} else {
++	if (chosen == NVM_SLOT_NONE)
+ 		nvm_stage_blank_image();
+-		for (i = 0; i < NVM_IMG_LEN; ++i)
+-			NVM_IMG[i] = NVM_STG[i];
+-	}
++	for (i = 0; i < NVM_IMG_LEN; ++i)
++		NVM_IMG[i] = NVM_STG[i];
+ }
+ 
+ /*
+@@ -1419,6 +1572,45 @@ static int nvm_load_window(uint32_t chosen)
+ 	return !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_RELOAD_REF);
+ }
+ 
++/* Each UNREAD slot and why, for the console: no standing verdict in its
++ * judgement's reads, or judged and then not read back as judged in its
++ * re-stage's. */
++static void nvm_print_unread(void)
++{
++	unsigned int bit;
++
++	for (bit = 1u; bit <= 2u; bit <<= 1) {
++		if (nvm_unread & bit)
++			printf("%sslot %c %s in %u reads", (bit == 2u && (nvm_unread & 1u)) ? " and " : "",
++			       (bit == 1u) ? 'A' : 'B', (nvm_unstaged & bit) ?
++			       "did not read back as it was judged" : "gave no standing verdict",
++			       NVM_READ_TRIES);
++	}
++}
++
++/*
++ * The writer goes live, unless a slot is UNREAD (#671, #665 decision 2): its
++ * authority is unknown, it may hold a newer container than any slot that was
++ * read, and a commit could restart the sequence below one a later clean boot
++ * prefers. Then the writer is HELD until reset, as a retired writer is: it
++ * captures, erases and writes nothing of its own (the operator's explicit
++ * `milan_nvm wipe` still erases both slots), the console's commit is
++ * refused, and it stops answering the liveness deadline, so nvm_backed never
++ * claims the changes it will not keep. The next reset reads every slot again.
++ */
++static void nvm_go_live(void)
++{
++	if (!nvm_unread) {
++		nvm_ready = 1;
++		return;
++	}
++	nvm_retired = 1;
++	nvm_held = 1;
++	printf("Milan NVM: ");
++	nvm_print_unread();
++	printf("; its authority is unknown, so the writer is HELD until reset and nothing is persisted.\n");
++}
++
+ /*
+  * Boot: read both slots, offer the newer accepted one, or blank media
+  * behind a validated all-erased image when neither is accepted; then the
+@@ -1437,7 +1629,8 @@ static int nvm_load_window(uint32_t chosen)
+  *   window load it accepted, so the writer RE-ATTACHES: it never re-bases,
+  *   loads or RELOADs (the backend would refuse the RELOAD anyway), releases
+  *   whatever capture the previous run left open, which hands the captured
+- *   work back, and publishes the sequence the media holds.
++ *   work back, and publishes the sequence the media holds. A slot UNREAD in
++ *   that re-derivation HOLDS it, as on a cold boot (#671).
+  *
+  *   [3] 0 with [2] 0: no window load was ever accepted in this boot, so
+  *   nothing in it may be captured or committed (the backend arms no capture
+@@ -1447,6 +1640,8 @@ static int nvm_load_window(uint32_t chosen)
+  */
+ static void nvm_boot(void)
+ {
++	struct nvm_read rd_a;
++	struct nvm_read rd_b;
+ 	uint32_t seq_a;
+ 	uint32_t seq_b;
+ 	uint32_t chosen;
+@@ -1471,11 +1666,28 @@ static void nvm_boot(void)
+ 		return;
+ 	}
+ 	nvm_started = 1;
+-	nvm_verdict_a = nvm_validate(nvm_slot(NVM_SLOT_A));
+-	nvm_verdict_b = nvm_validate(nvm_slot(NVM_SLOT_B));
+-	seq_a = (nvm_verdict_a == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_A)) : 0;
+-	seq_b = (nvm_verdict_b == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_B)) : 0;
++	rd_a = nvm_judge_slot(NVM_SLOT_A);
++	rd_b = nvm_judge_slot(NVM_SLOT_B);
++	nvm_verdict_a = rd_a.vd;
++	nvm_verdict_b = rd_b.vd;
++	seq_a = rd_a.seq;
++	seq_b = rd_b.seq;
+ 	chosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);
++	/* section 7: offer the newer; a slot that does not read back as it was
++	 * judged is UNREAD, and the other is offered */
++	while (chosen != NVM_SLOT_NONE &&
++	       !nvm_restage(chosen, (chosen == NVM_SLOT_A) ? seq_a : seq_b)) {
++		nvm_unstaged |= (chosen == NVM_SLOT_A) ? 1u : 2u;
++		nvm_unread |= (chosen == NVM_SLOT_A) ? 1u : 2u;
++		if (chosen == NVM_SLOT_A) {
++			nvm_verdict_a = VD_LEN;
++			seq_a = 0;
++		} else {
++			nvm_verdict_b = VD_LEN;
++			seq_b = 0;
++		}
++		chosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);
++	}
+ 	if (chosen != NVM_SLOT_NONE) {
+ 		nvm_seq = (chosen == NVM_SLOT_A) ? seq_a : seq_b;
+ 		verdict = VD_OK;
+@@ -1506,8 +1718,9 @@ static void nvm_boot(void)
+ 	} else if (!(stat & NVM_RD_LOAD_PEND)) {
+ 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+ 		nvm_publish(verdict);
+-		nvm_ready = 1;
+-		printf("Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.\n");
++		nvm_go_live();
++		printf("Milan NVM: writer restarted on a live backend; %s, the window is not reloaded.\n",
++		       nvm_held ? "re-attached and HELD" : "re-attached");
+ 	} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {
+ 		/* the writer rule that goes with the backend's window-live term:
+ 		 * load pending 1 with the restore walk ALREADY SEQUENCED is not a
+@@ -1542,7 +1755,7 @@ static void nvm_boot(void)
+ 			 * record in it is a completed record, owned by the last
+ 			 * verified state */
+ 			nvm_publish(verdict);
+-			nvm_ready = 1;
++			nvm_go_live();
+ 			if (tries > 1)
+ 				printf("Milan NVM: the backend refused %u window load(s); accepted at attempt %u.\n",
+ 				       tries - 1u, tries);
+@@ -1566,7 +1779,7 @@ static void nvm_boot(void)
+ 	if (!nvm_restore_ended())
+ 		nvm_restore_walk();
+ 	stat = milan_read(MILAN_PP_STAT);
+-	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu closed=%lu rolled_back=%lu cause=%lu/%lu.\n",
++	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu closed=%lu rolled_back=%lu cause=%lu/%lu; read faults=%u unread=%u.\n",
+ 	       nvm_verdict_name[nvm_verdict_a], (unsigned long)seq_a,
+ 	       nvm_verdict_name[nvm_verdict_b], (unsigned long)seq_b,
+ 	       nvm_slot_letter(chosen), (unsigned long)nvm_seq,
+@@ -1575,7 +1788,8 @@ static void nvm_boot(void)
+ 	       (unsigned long)((stat >> 2) & 1u), (unsigned long)((stat >> 3) & 1u),
+ 	       (unsigned long)((stat >> 7) & 1u), (unsigned long)((stat >> 6) & 1u),
+ 	       (unsigned long)((stat >> 16) & 1u), (unsigned long)((stat >> 17) & 1u),
+-	       (unsigned long)((stat >> 18) & 7u), (unsigned long)((stat >> 21) & 3u));
++	       (unsigned long)((stat >> 18) & 7u), (unsigned long)((stat >> 21) & 3u),
++	       nvm_read_faults, nvm_unread);
+ 	set_idle_hook(nvm_service);
+ }
+ 
+@@ -1749,8 +1963,8 @@ static void nvm_print_status(void)
+ 	       nvm_slot_letter(nvm_auth_slot), (unsigned long)nvm_seq,
+ 	       (unsigned int)NVM_N_REC, (unsigned int)NVM_IMG_LEN,
+ 	       (unsigned int)MILAN_NVM_LIVE_BASE,
+-	       nvm_ready ? "writer live" : (nvm_retired ? "writer retired"
+-						       : "writer disabled"));
++	       nvm_ready ? "writer live" : (nvm_held ? "writer HELD, a slot unread at boot" :
++				    (nvm_retired ? "writer retired" : "writer disabled")));
+ 	printf("NVM: PP_NVM_STAT=%08lx backed=%lu dirty=%lu stale=%lu valid=%lu commit_busy=%lu dev_busy=%lu pend=%lu unres=%lu load_pend=%lu load_acc=%lu reload_ref=%lu verdict=%s; commits ok=%u failed=%u captures refused=%u acks refused=%u last=%s\n",
+ 	       (unsigned long)stat,
+ 	       (unsigned long)((stat >> 6) & 1u), (unsigned long)((stat >> 8) & 1u),
+@@ -1787,10 +2001,15 @@ static void milan_nvm_handler(int nb_params, char **params)
+ 		return;
+ 	}
+ 	if (nb_params == 1 && nvm_arg_is(params[0], "commit")) {
+-		if (!nvm_ready)
++		if (nvm_held) {
++			printf("NVM: refused; ");
++			nvm_print_unread();
++			printf(" at boot, the writer is HELD until reset.\n");
++		} else if (!nvm_ready) {
+ 			printf("NVM: the writer is disabled on this build.\n");
+-		else
++		} else {
+ 			nvm_commit("console");
++		}
+ 		return;
+ 	}
+ 	if (nb_params == 1 && nvm_arg_is(params[0], "wipe")) {
+diff --git a/sw/firmware/nvm_hosttest/README.md b/sw/firmware/nvm_hosttest/README.md
+index 983439898..066db0158 100644
+--- a/sw/firmware/nvm_hosttest/README.md
++++ b/sw/firmware/nvm_hosttest/README.md
+@@ -8,8 +8,8 @@ every shipped shape passed and every planted defect reddened.
+ 
+ - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
+ - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
+-- **[What is graded](#what-is-graded)** -- eleven checks per shape, all on bytes
+-- **[The five negative controls](#the-five-negative-controls)** -- writer defects planted into a copy, each of which must be caught
++- **[What is graded](#what-is-graded)** -- fourteen checks per shape, all on bytes
++- **[The negative controls](#the-negative-controls)** -- nineteen writer defects planted into a copy, each of which must be caught
+ - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
+ - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
+ 
+@@ -43,13 +43,39 @@ overlay.
+   erased and programmed through the LiteSPI command-master stubs, which decode
+   `WREN`, `RDSR`, sector erase and page program, hold write-in-progress for a
+   configurable erase time, and can be told to fail an erase, hang a program or
+-  flip a programmed bit;
++  flip a programmed bit. The mapping's base is a host call, so every read the
++  firmware opens through it is counted, and a planted read fault answers a
++  window of those reads from a copy whose bytes of one slot are wrong: one
++  byte XORed with a different value on every faulty read
++  (`--read-fault SLOT:OFF:SKIP:COUNT[:BASE]`), the same with the CRC-32
++  trailer the slot's length word places rewritten over the faulty bytes, so
++  every faulty read is a different container whose CRC closes
++  (`--read-sealed SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
++  as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
++  slot's bytes (`--read-other SLOT:SKIP:COUNT`). Counted from the read the
++  fault is armed at (power-on for one given before `--boot`), the first SKIP
++  reads are clean and the next COUNT are faulty. The memory-mapped read
++  always returns bytes, so wrong bytes are the only media fault the shipping
++  read path can meet ([#671](https://github.com/kebag-logic/milan-fpga/issues/671));
+ - **the reserved processor window**, a byte array the firmware stages the
+   KLJ2 container in and the driver writes a changed record into, as the
+   processor's WRITE through the backend would;
+ - **time**, advanced by the firmware's own `cdelay()` and by every SPI byte,
+   so the heartbeat cadence and every timeout are measured in model time.
+ 
++`--restart` is a CPU-only reset of the writer, a restart without a fabric
++reset: every file-scope variable of the writer returns to its initial value
++and `nvm_boot()` runs again, while the backend model, the window and the
++flash keep their state. [`writer_restart.py`](writer_restart.py) appends it
++to every host build and refuses unless it names every such variable; the
++co-simulation's W1 to W4 use the same model
++([`tb/verilator/nvm_cosim`](../../../tb/verilator/nvm_cosim/README.md)).
++The harness prints its state when the restart begins and counts the reads
++the restart opens (`restart_reads=`). A boot or a restart that opens more
++than 1,000 reads, far past any bound the writer states, is ended as a read
++storm with its summary and its reads counted, as a run that opens 1,000,000
++is, so a planted unbounded read loop costs no more than a bounded one.
++
+ An explicit stimulus can reopen one ownership-vector bit after reload.
+ This leaves closed neighbours beside an open record without modeling a producer.
+ Concurrent device-side changes remain the real-backend cosimulation's scope.
+@@ -77,9 +103,85 @@ the harness through boot, idle time and console commands, and compares bytes:
+ 9. an idle board stays backed and never stale;
+ 10. `milan_nvm wipe` erases both slots;
+ 11. an open record beside an unaligned closed predecessor retains its golden
+-    staged bytes while the predecessor's change commits byte-identically.
++    staged bytes while the predecessor's change commits byte-identically;
++12. a rejected shape or identity at startup never heartbeats under
++    console input;
++13. a boot read fault leaves the authority unknown
++    ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). The
++    cases are generated, never picked (`read_fault_cases.fault_cases`). Four
++    groups place the slots and the fault. A sealed fault (`--read-sealed`)
++    flips the entity ID's low byte or a record-area byte and closes the CRC
++    over the faulty bytes, so each faulty read is a different container
++    whose CRC passes and that is refused after it, `VD_ENT` or `VD_REC`; a
++    CRC-32 over every byte of such a container is one constant, so these
++    are the reads a comparison by that CRC alone calls the same
++    (R603-4-F1). With one slot valid and the other
++    blank, the fault is on the valid slot (its magic byte, the top byte of
++    its sequence word, a record-area byte, which only the CRC over every
++    byte read refuses, a sealed entity or record-area byte, or every byte
++    read as `0xFF`) or on the blank slot
++    (its magic byte, or its reads answered with the valid slot's container,
++    `--read-other`). With both slots valid, the newer at 0x5A5A5 or at 0
++    (the wrap, the older at 0xFFFFFFFF) and differing in two names, the
++    fault is on the newer slot (its magic byte, a record-area byte, a sealed
++    entity or record-area byte, or the older's container) or on the older
++    (its magic byte, a record-area byte or a sealed entity or record-area
++    byte). Each group's every manner of fault meets every window, both ways
++    round, on a cold boot and on a writer restart without a fabric reset
++    (the re-attach path) after a clean cold boot. A window starts at any
++    read within the complete bound (13 on a cold boot, 12 on a restart)
++    and lasts one to four reads, one past the three a judgement or a
++    re-stage gives a slot, or it lasts the whole boot. Starts after the
++    clean boot would end are included too; they must leave its schedule
++    unchanged. The sequence takes 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF
++    in turn with one slot blank, and 0x5A5A5 and 0 with both valid, one per
++    case: crossed with every window it would not fit the suite's time.
++    R603-4-F1's class, two sealed faulty reads that open one slot's
++    judgement and then a clean read, meets every sequence of its group
++    besides, both ways round and on both entry paths, for each sealed
++    manner (`read_fault_cases.sealed_class`).
++    A reference model of the writer's reads (`read_fault_cases.expect`),
++    written once from the rule, gives each case the reads it opens, the
++    slots it leaves unread and why. A case it finds outside the rule's
++    stated detection limit is not run: two faulty reads of one judgement
++    return the same bytes (all `0xFF` twice), or a faulty read returns the
++    other slot's valid container and it stands. That leaves 3,422 of 3,508
++    cases per shape, 1,647 restarts and 1,775 cold boots; every window keeps its
++    byte faults, sealed or not, which are always inside the limit. Each case makes a real
++    change, lets the debounce commit it and boots again clean. The faulty
++    boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its
++    bit in `unread=`), and offers the newer slot it accepts, and its window
++    holds that slot's container byte for byte, or the blank image when none
++    is offered; a restart leaves the window it re-attaches to as it was.
++    Every saved record and the change survive the reboot, or the faulty
++    boot HELD the writer. The boot opens exactly the reads the model opens
++    and never more than 13 (the AEM image and three judgements and three
++    re-stages per slot), a restart never more than 12, so each judgement's
++    and each re-stage's bound is pinned from both sides. The writer holds
++    exactly when a slot is left unread, by its own line or by the model,
++    and the hold names each unread slot and why: "gave no standing verdict
++    in 3 reads", or "did not read back as it was judged in 3 reads" for a
++    re-stage that never read back. A held writer erased, programmed and
++    acknowledged nothing, never heartbeated, and the clean reboot restores
++    every saved record; that case then runs on through a change, its commit
++    and another clean reboot. A held restart did none of those after the
++    restart either, let the fabric revoke `nvm_backed` (`backed=0 stale=1`,
++    after a 3 s idle) and printed "re-attached and HELD". A held writer
++    refuses `milan_nvm commit` and reports the hold on `milan_nvm`; an
++    explicit `milan_nvm wipe` still erases both slots, as for a retired
++    writer; and a writer that retires at boot with a slot unread names the
++    retire, not the slot, for each cause: an older backend contract, a boot
++    load ended with none accepted, a window gone live
++    (`--boot-backend contract|over|live`) and four refused window loads. The
++    cases run on `--jobs` threads, every CPU by default, the groups
++    interleaved; the harness is deterministic, so a clean reboot of slots an
++    earlier case already booted is not run again;
++14. a slot whose bytes read cleanly but fail validation (a foreign entity,
++    a bad CRC) names no generation: with the other slot blank, no slot is
++    offered, the boot line reports sequence 0, and the first commit is at
++    sequence 1.
+ 
+-## The five negative controls
++## The negative controls
+ 
+ `--self-test` plants each defect into a copy of the firmware, rebuilds the
+ harness and requires the suite to redden:
+@@ -92,6 +194,34 @@ harness and requires the suite to redden:
+ | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
+ | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
+ 
++Those five are graded by checks 1 to 12. Fourteen #671 defects are graded
++by checks 13 and 14. Each is planted into the first shape and into both
++product shapes (`endstation_ax7101_1x1_tdm8`, `endstation_ax7101_8x8`), and
++must be caught on every one by a finding carrying its own words. Check 14
++runs first, and check 13 stops at the first such finding, so a control's
++other findings are not counted; that keeps `--self-test` inside the twenty
++minutes the builder gate gives it. Each group's windows run the whole boot
++first, then the longest. The `r_` and `p_` controls and
++`restage_fail_not_unread` are the plants of PR #715's reviews, under their
++names:
++
++| control | the defect | the finding that must catch it |
++|---|---|---|
++| `restart_at_zero` | an unread slot no longer holds the writer, so the sequence restarts at 0 | "was lost on the clean reboot" |
++| `unbounded_retry` | the read of a slot has no bound | "over the bound" |
++| `generation_from_refused_slot` | a refused slot's header sequence continues the generation | "generation was taken from a refused slot" |
++| `verdict_only_agreement` | two refused reads agree by verdict, not by bytes (R501-3's probe on #665) | "was lost on the clean reboot" |
++| `r_digest_header_only` | a refusal's digest covers the 40 header bytes, so two reads whose record areas differ agree | "on reads that returned different bytes" |
++| `r_digest_with_trailer` | the round-4 comparison: one CRC-32 over every byte read, the trailer included, which is one constant over every container whose CRC closes, so two sealed refusals agree (R603-4-F1) | "on reads that returned different bytes" |
++| `r_fill_from_flash` | the window is filled by a fresh read of the slot, as before #671, not from the judged stage: a read the rule does not make | "want exactly" |
++| `r_restage_fail_offers_none` | a pick that never reads back offers nothing, not the other slot | "yet the boot offered" |
++| `restage_fail_not_unread` | a pick that never reads back is not marked UNREAD, so the writer goes live | "yet the boot line does not name it unread" |
++| `r_restage_any_seq` | the re-stage takes any VD_OK read, whatever sequence it names | "another valid container than the one the boot offered" |
++| `r_reattach_goes_live` | a writer restart without a fabric reset (the re-attach path) goes live with a slot unread, while the cold boot still holds | "yet the writer re-attached live" |
++| `r_judge_four_tries` | a judgement takes four reads, over the stated three, inside the total bound | "want exactly" |
++| `p_restage_unbounded` | the picked slot's re-stage has no bound, so a fault after its judgement read is read until it ends | "want exactly" |
++| `r_restage_four_tries` | a re-stage takes four reads, over the stated three | "want exactly" |
++
+ The self-test also invokes the PHY host checks.
+ Their IEEE-timed peer catches missing publication, deferred recovery and
+ sampling after the rising edge instead of before it.
+@@ -130,6 +260,23 @@ The model follows the backend's contract as `hdl/milan/KL_nvm_backend.sv`
+ states it; the backend itself is graded by
+ [`tb/verilator/nvm_backend`](../../../tb/verilator/nvm_backend/README.md).
+ 
++Nor does it prove that every read fault is seen. The writer sees a fault
++only when two reads of a slot return different bytes. It compares two
++refused reads by their byte count, a CRC-32 over all of their bytes but the
++last four, and those four whole, so it always tells apart two reads that
++differ in one or two bits or only within 32 consecutive bits, and any other
++two except with a probability of about 2^-32. A fault that returns
++the same wrong bytes on two reads is a refusal of those bytes by the rule,
++and a slot read as all `0xFF` twice is blank. Either can still let the next
++commit restart the sequence below a container a later clean boot prefers.
++A judgement read answered with the other slot's valid container is an
++address fault no rule over the bytes can see, because a container does not
++name its slot: with both slots valid, the boot can then offer the older one
++and live, and the next commit overwrites the newer container with the older
++one's records. The re-stage's sequence check refuses that fault on the
++picked slot only. Check 13 runs every all-`0xFF` and address fault its
++reference model finds the rule can see, and none it cannot.
++
+ Console tests reject shape and identity mismatches on every shape.
+ Every Milan command and empty input keep `hb=0 backed=0 stale=0`.
+ Removing startup admission must fail both cases.
+diff --git a/sw/firmware/nvm_hosttest/nvm_host.c b/sw/firmware/nvm_hosttest/nvm_host.c
+index 39c0b6daa..978c254df 100644
+--- a/sw/firmware/nvm_hosttest/nvm_host.c
++++ b/sw/firmware/nvm_hosttest/nvm_host.c
+@@ -65,6 +65,10 @@ extern cmd_handler const nvm_host_cmd_milan_utc;
+ void set_idle_hook(void (*fptr)(void));
+ void command_dispatch_hook(void);
+ void bios_dispatch_hook_required(void);
++/* The writer's CPU-only reset, which writer_restart.py appends to the host
++ * build: every writer static back to its initial value, then nvm_boot()
++ * again, with the fabric, the backend and the media kept. */
++void nvm_host_writer_restart(void);
+ 
+ /* The host replaces the BIOS, including its patch-0006 link marker. */
+ void bios_dispatch_hook_required(void)
+@@ -158,7 +162,58 @@ struct flash_model {
+ 	uint64_t erase_ns;
+ };
+ 
++/* A planted read fault (#671). The firmware reads a slot through the
++ * memory-mapped window, a pointer load that always returns bytes, so a media
++ * fault can only return wrong bytes. Every read the firmware opens through
++ * the mapping (one evaluation of SPIFLASH_BASE) is counted from the read the
++ * fault is armed at, power-on for a fault given before --boot, so one given
++ * after it can aim at a writer restart's reads: the first SKIP are clean,
++ * the next COUNT are answered from a view whose bytes of one slot are wrong,
++ * and the rest are clean again. A fault either
++ * XORs one byte of the slot with a different value on every faulty read
++ * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), does so
++ * and then rewrites the CRC-32 trailer the slot's length word places over the
++ * faulty bytes, so every faulty read is a different container whose CRC
++ * closes (R603-4-F1), reads every byte of the slot as 0xFF, the same on every
++ * faulty read, or reads the slot as the other slot's bytes. That last one is
++ * an address fault: a valid container does not name its slot, so no rule over
++ * the bytes sees it on a judgement read, and the re-stage refuses it only by
++ * the sequence it was picked by. */
++enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER };
++
++struct read_fault {
++	int armed;
++	uint32_t slot;          /* the slot's flash offset */
++	uint32_t other;         /* the other slot's, in RF_OTHER mode */
++	uint32_t off;           /* the byte inside it, in RF_XOR and RF_SEAL modes */
++	enum read_fault_mode mode;
++	unsigned int skip;
++	unsigned int count;
++	unsigned int base;
++	unsigned int hits;      /* reads answered from the faulty view */
++};
++/* A firmware that never stops reading is ended here, with its summary: after
++ * READ_STORM reads, or after BOOT_READ_STORM in one boot or restart, far past
++ * any bound the writer states, so a planted unbounded loop costs no more than
++ * a bounded one (#671). */
++#define READ_STORM 1000000u
++#define BOOT_READ_STORM 1000u
++
+ static uint64_t now_ns;
++/* PP_NVM_STAT[31:24], the backend's saved-state contract tag. --boot-backend
++ * contract reads an older one; with over (the boot load ended and none was
++ * accepted) and live (the restore walk already sequenced) it selects the
++ * retire paths a cold boot of this model never takes. */
++static uint32_t stat_tag = 0xc3u;
++static struct read_fault rf;
++static uint8_t flash_view[NVM_HOST_FLASH_BYTES];
++static int view_loaded;
++static unsigned int reads;
++static unsigned int boot_reads;
++static unsigned int restart_reads;
++/* while a boot or a restart runs: the read it began at, and its count */
++static unsigned int boot_from;
++static unsigned int *booting;
+ static uint32_t csr[CSR_WORDS];
+ static uint32_t shadow[CSR_WORDS];
+ static uint32_t pp_ctrl;
+@@ -439,7 +494,7 @@ static void recompose(void)
+ 			     ((uint32_t)walk.closed << 16);
+ 	csr[A_PP_NVM_SEL / 4] = be.sel;
+ 	csr[A_PP_NVM_DATA / 4] = data_readback();
+-	csr[A_PP_NVM_STAT / 4] = 0xc3000000u |
++	csr[A_PP_NVM_STAT / 4] = (stat_tag << 24) |
+ 				 ((uint32_t)be.unres << 23) |
+ 				 ((uint32_t)be.unres << 22) |
+ 				 ((uint32_t)be.arm_ref << 21) |
+@@ -457,13 +512,16 @@ static void recompose(void)
+ 	memcpy(shadow, csr, sizeof(csr));
+ }
+ 
++/* Every CSR access and tick settles, so the common case, no store since the
++ * last, is one memcmp and not a word-by-word walk; the walk is unchanged. */
+ static void settle(void)
+ {
+ 	unsigned int i;
+ 
+-	for (i = 0; i < CSR_WORDS; ++i)
+-		if (csr[i] != shadow[i])
+-			on_store(i * 4u, csr[i]);
++	if (memcmp(csr, shadow, sizeof(csr)) != 0)
++		for (i = 0; i < CSR_WORDS; ++i)
++			if (csr[i] != shadow[i])
++				on_store(i * 4u, csr[i]);
+ 	advance();
+ 	recompose();
+ }
+@@ -480,6 +538,99 @@ void nvm_host_tick(int cycles)
+ 	settle();
+ }
+ 
++static void summary(void);
++
++/* RF_SEAL: the slot's trailer, where its length word places it, recomputed
++ * over the bytes before it. A length no container can have is left alone. */
++static void seal_slot(uint8_t *s)
++{
++	uint32_t len = s[16] | (uint32_t)s[17] << 8 | (uint32_t)s[18] << 16 |
++		       (uint32_t)s[19] << 24;
++	unsigned int crc;
++	unsigned int i;
++
++	if (len < 44u || len > 0x10000u)
++		return;
++	crc = crc32(s, len - 4u);
++	for (i = 0; i < 4u; ++i)
++		s[len - 4u + i] = (uint8_t)(crc >> (8u * i));
++}
++
++uintptr_t nvm_host_flash_base(void)
++{
++	unsigned int k = reads++;
++	int boot_storm = booting && reads - boot_from > BOOT_READ_STORM;
++
++	if (boot_storm)
++		*booting = reads - boot_from;
++	if (reads > READ_STORM || boot_storm) {
++		printf("HOST read storm: %u reads through the mapping\n", reads);
++		summary();
++		exit(0);
++	}
++	if (!rf.armed || k < rf.skip || k - rf.skip >= rf.count)
++		return (uintptr_t)nvm_host_flash;
++	/* only the journal is ever programmed or erased */
++	if (!view_loaded)
++		memcpy(flash_view, nvm_host_flash, sizeof(flash_view));
++	else
++		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
++		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
++	view_loaded = 1;
++	if (rf.mode == RF_FF)
++		memset(flash_view + rf.slot, 0xff, 0x10000u);
++	else if (rf.mode == RF_OTHER)
++		memcpy(flash_view + rf.slot, nvm_host_flash + rf.other, 0x10000u);
++	else
++		flash_view[rf.slot + rf.off] ^=
++			(uint8_t)((rf.base - 1u + (k - rf.skip)) % 255u + 1u);
++	if (rf.mode == RF_SEAL)
++		seal_slot(flash_view + rf.slot);
++	rf.hits++;
++	return (uintptr_t)flash_view;
++}
++
++/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff
++ * SLOT:SKIP:COUNT and --read-other SLOT:SKIP:COUNT */
++static void arm_read_fault(const char *spec, enum read_fault_mode mode)
++{
++	unsigned long v[4] = {0};
++	unsigned int n = 0;
++	const char *p = spec + 1;
++	char *end = NULL;
++	int bytewise = mode == RF_XOR || mode == RF_SEAL;
++
++	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
++	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
++		fprintf(stderr, "HOST: a read fault names slot a or b\n");
++		exit(2);
++	}
++	while (*p == ':' && n < 4u) {
++		v[n++] = strtoul(p + 1, &end, 0);
++		p = end;
++	}
++	if (*p != '\0' || n < (bytewise ? 3u : 2u) ||
++	    (bytewise && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
++		fprintf(stderr, "HOST: bad read fault %s\n", spec);
++		exit(2);
++	}
++	rf.armed = 1;
++	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
++	rf.other = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0u : 0x10000u);
++	rf.mode = mode;
++	rf.off = bytewise ? (uint32_t)v[0] : 0u;
++	rf.skip = (unsigned int)(bytewise ? v[1] : v[0]);
++	rf.count = (unsigned int)(bytewise ? v[2] : v[1]);
++	rf.base = bytewise ? (unsigned int)v[3] : 8u;
++}
++
++/* A fault counts its SKIP from the read it is armed at. */
++static void arm_from_here(const char *spec, enum read_fault_mode mode)
++{
++	arm_read_fault(spec, mode);
++	rf.skip += reads;
++}
++
+ /* ---- the LiteSPI command master and the N25Q behind it ----------------- */
+ /* TX always ready; RX ready exactly while an unread response byte waits,
+  * which is what lets the firmware's FIFO drain loop terminate. */
+@@ -679,15 +830,16 @@ static void summary(void)
+ 	       "backed=%d dirty=%d stale=%d valid=%d verdict=%u blank=%d fail=%d done=%d "
+ 	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
+ 	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
+-	       "cap_id=%u walks=%u enable_first=%d closed=%d now_ms=%llu\n",
++	       "cap_id=%u walks=%u enable_first=%d closed=%d reads=%u boot_reads=%u "
++	       "restart_reads=%u faulty_reads=%u now_ms=%llu\n",
+ 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
+ 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
+ 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
+ 	       walk.fail, walk.done, be.words[2], be.base_ok, be.words[1], be.losses,
+ 	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
+ 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
+-	       walk.starts, walk.enable_first, walk.closed,
+-	       (unsigned long long)(now_ns / 1000000ull));
++	       walk.starts, walk.enable_first, walk.closed, reads, boot_reads,
++	       restart_reads, rf.hits, (unsigned long long)(now_ns / 1000000ull));
+ }
+ 
+ static void boot(void)
+@@ -695,8 +847,12 @@ static void boot(void)
+ 	/* the AEM slot: the four magic bytes the firmware's verifier looks for */
+ 	memcpy(nvm_host_flash + NVM_HOST_AEM_OFFSET, "AEMI", 4);
+ 	recompose();
++	boot_from = reads;
++	booting = &boot_reads;
+ 	nvm_host_init_milan_init();
+ 	settle();
++	booting = NULL;
++	boot_reads = reads;
+ 	printf("HOST booted\n");
+ }
+ 
+@@ -725,6 +881,14 @@ int main(int argc, char **argv)
+ 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x10000u);
+ 		else if (strcmp(a, "--slot-b") == 0 && v)
+ 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
++		else if (strcmp(a, "--read-fault") == 0 && v)
++			arm_from_here(v, RF_XOR);
++		else if (strcmp(a, "--read-sealed") == 0 && v)
++			arm_from_here(v, RF_SEAL);
++		else if (strcmp(a, "--read-ff") == 0 && v)
++			arm_from_here(v, RF_FF);
++		else if (strcmp(a, "--read-other") == 0 && v)
++			arm_from_here(v, RF_OTHER);
+ 		else if (strcmp(a, "--erase-ms") == 0 && v)
+ 			fl.erase_ns = MS(strtoul(v, NULL, 0));
+ 		else if (strcmp(a, "--walk-closed") == 0) {
+@@ -732,7 +896,18 @@ int main(int argc, char **argv)
+ 			takes = 0;
+ 		} else if (strcmp(a, "--refuse-loads") == 0 && v)
+ 			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);
+-		else if (strcmp(a, "--stray-ack") == 0 && v)
++		else if (strcmp(a, "--boot-backend") == 0 && v && !booted) {
++			if (strcmp(v, "contract") == 0)
++				stat_tag = 0xc2u;
++			else if (strcmp(v, "over") == 0)
++				be.ld_pend = 0;
++			else if (strcmp(v, "live") == 0)
++				walk.done = 1;
++			else {
++				fprintf(stderr, "HOST: bad boot backend %s\n", v);
++				return 2;
++			}
++		} else if (strcmp(a, "--stray-ack") == 0 && v)
+ 			/* an acknowledgement quoting ANOTHER capture: it names
+ 			 * nothing the backend holds and must be refused */
+ 			strobes(2u | ((uint32_t)strtoul(v, NULL, 0) << 16));
+@@ -760,6 +935,21 @@ int main(int argc, char **argv)
+ 				return 2;
+ 			be.ownership[rid / 32u] |= 1u << (rid % 32u);
+ 			be.unres = 1;
++		} else if (strcmp(a, "--restart") == 0) {
++			/* a CPU-only reset: the state the restart meets, then
++			 * the writer's boot again on the fabric it left */
++			unsigned int from = reads;
++
++			printf("HOST restarting\n");
++			summary();
++			boot_from = from;
++			booting = &restart_reads;
++			nvm_host_writer_restart();
++			booting = NULL;
++			settle();
++			restart_reads = reads - from;
++			printf("HOST restarted\n");
++			takes = 0;
+ 		} else if (strcmp(a, "--change") == 0 && v)
+ 			apply_change(v);
+ 		else if (strcmp(a, "--dirty") == 0) {
+diff --git a/sw/firmware/nvm_hosttest/read_fault_cases.py b/sw/firmware/nvm_hosttest/read_fault_cases.py
+new file mode 100644
+index 000000000..bd0a29e93
+--- /dev/null
++++ b/sw/firmware/nvm_hosttest/read_fault_cases.py
+@@ -0,0 +1,451 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Check 13's cases, the boot-line rule they are graded by, and the #671 plants.
++
++A library of `test_nvm_firmware.py`, which grades the shipping writer with
++them, kept apart so neither file outgrows a reader: what each slot holds,
++which boot reads a planted read fault answers wrongly, on a cold boot or on
++a writer restart without a fabric reset, what the boot line and the reads it
++opened must then say, and the writer defects `--self-test` plants into a
++copy of the firmware, each with the words of the finding that must catch it
++(#671).
++"""
++from __future__ import annotations
++
++import re
++from dataclasses import dataclass
++
++#: the #671 defects: label -> (every (text, replacement) pair the plant
++#: makes, each text occurring exactly once, and the words of the finding
++#: that must catch it)
++READ_FAULT_MUTATIONS = {
++    # an unread slot no longer holds the writer: the restart at sequence 0
++    "restart_at_zero": (
++        (("\tif (!nvm_unread) {\n\t\tnvm_ready = 1;",
++          "\tif (1) {\n\t\tnvm_ready = 1;"),),
++        "was lost on the clean reboot"),
++    "unbounded_retry": (
++        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK ||",
++          "\tfor (n = 0; ; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK ||"),),
++        "over the bound"),
++    "generation_from_refused_slot": (
++        (("\tif (rd.vd == VD_OK) {\n\t\trd.seq = nvm_seq_of(NVM_STG);\n\t} else {\n",
++          "\trd.seq = nvm_seq_of(NVM_STG);\n\tif (rd.vd != VD_OK) {\n"),
++         ("\t\tnvm_seq = 0;\n", "\t\tnvm_seq = (seq_a > seq_b) ? seq_a : seq_b;\n")),
++        "generation was taken from a refused slot"),
++    # R501-3's probe on #665: two refusals alike by verdict, not by bytes
++    "verdict_only_agreement": (
++        (("\treturn a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&\n"
++          "\t       a.tail == b.tail;",
++          "\treturn a.vd == b.vd;"),),
++        "was lost on the clean reboot"),
++    # R603-1's: a refusal's digest spans the header alone, so two reads whose
++    # record areas differ agree, and a refusal decided after the header stands
++    "r_digest_header_only": (
++        (("\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);",
++          "\t\trd.digest = nvm_crc32(NVM_STG, KLJ2_HDR);"),),
++        "on reads that returned different bytes"),
++    # R603-4-F1: the round-4 digest, one CRC-32 over every byte read, the
++    # trailer included, and nothing else compared; over any container whose
++    # CRC closes that is one constant, so two such refusals agree
++    "r_digest_with_trailer": (
++        (("\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);",
++          "\t\trd.digest = nvm_crc32(NVM_STG, rd.bytes);"),
++         ("\treturn a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&\n"
++          "\t       a.tail == b.tail;",
++          "\treturn a.vd == b.vd && a.digest == b.digest && a.bytes == b.bytes;")),
++        "on reads that returned different bytes"),
++    # R603-1's: the window filled by a fresh read of the slot, as before #671,
++    # not from the stage that was judged. The read is one the rule does not
++    # make, after the boot's last; the generated windows reach it, and the
++    # exact read count sees it on every boot that fills the window
++    "r_fill_from_flash": (
++        (("\tif (chosen == NVM_SLOT_NONE)\n\t\tnvm_stage_blank_image();\n"
++          "\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\tNVM_IMG[i] = NVM_STG[i];\n",
++          "\tif (chosen != NVM_SLOT_NONE) {\n"
++          "\t\tconst volatile uint8_t *src = nvm_slot(chosen);\n\n"
++          "\t\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\t\tNVM_IMG[i] = src[i];\n"
++          "\t} else {\n\t\tnvm_stage_blank_image();\n"
++          "\t\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\t\tNVM_IMG[i] = NVM_STG[i];\n\t}\n"),),
++        "want exactly"),
++    # R603-1's: a pick that never reads back offers nothing, not the other slot
++    "r_restage_fail_offers_none": (
++        (("\t\tchosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);\n\t}\n",
++          "\t\tchosen = NVM_SLOT_NONE;\n\t}\n"),),
++        "yet the boot offered"),
++    # R602-1's: a pick that never reads back is not marked UNREAD, so the
++    # writer goes live behind it
++    "restage_fail_not_unread": (
++        (("\t\tnvm_unread |= (chosen == NVM_SLOT_A) ? 1u : 2u;\n\t\tif (chosen == NVM_SLOT_A) {\n",
++          "\t\tif (chosen == NVM_SLOT_A) {\n"),),
++        "yet the boot line does not name it unread"),
++    # R603-1's S3: the re-stage takes any OK read, whatever sequence it names,
++    # so a read answered with the other slot's container is loaded
++    "r_restage_any_seq": (
++        (("\t\tif (rd.vd == VD_OK && rd.seq == seq)\n\t\t\treturn 1;",
++          "\t\tif (rd.vd == VD_OK && (rd.seq == seq || 1))\n\t\t\treturn 1;"),),
++        "another valid container than the one the boot offered"),
++    # R603-2's F1: a writer restart without a fabric reset (the re-attach
++    # path) goes live with a slot unread, while the cold boot still holds
++    "r_reattach_goes_live": (
++        (("\t\tnvm_publish(verdict);\n\t\tnvm_go_live();\n\t\tprintf(\"Milan NVM: writer restarted",
++          "\t\tnvm_publish(verdict);\n\t\tnvm_ready = 1;\n\t\tprintf(\"Milan NVM: writer restarted"),),
++        "yet the writer re-attached live"),
++    # R603-2's S1: a judgement takes four reads, over the stated three, which
++    # the total bound alone does not see
++    "r_judge_four_tries": (
++        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK ||",
++          "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK ||"),),
++        "want exactly"),
++    # R602-3's F1 probe: the re-stage loses its bound, so a fault that starts
++    # after the judgement reads the slot until it ends
++    "p_restage_unbounded": (
++        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK && rd.seq == seq)",
++          "\tfor (n = 0; n != 0xffffffffu; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
++        "want exactly"),
++    # R603-3's F1 probe: a re-stage takes four reads, over the stated three
++    "r_restage_four_tries": (
++        (("\tfor (n = 0; n < NVM_READ_TRIES; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK && rd.seq == seq)",
++          "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
++          "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
++        "want exactly"),
++}
++
++#: the product shapes, which the #671 controls are planted into besides the
++#: first shape
++PRODUCT_SHAPES = ("endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8")
++#: check 13's boots that retire the writer for a cause of their own: the cause,
++#: the harness options, the boot's line for it, and what `milan_nvm` reports
++RETIRE_CAUSES = (
++    ("the backend's contract", ("--boot-backend", "contract"),
++     "does not carry saved-state contract 3", "writer disabled"),
++    ("no accepted load", ("--boot-backend", "over"),
++     "no window load was accepted in this boot", "writer retired"),
++    ("a window gone live", ("--boot-backend", "live"),
++     "the window went live without a validated load", "writer retired"),
++    ("refused loads", ("--refuse-loads", "4"),
++     "refused 4 window loads; the window is not validated", "writer retired"))
++
++#: the sequences the ticket names (1, far above 1, the int32 half-range and
++#: the wrap value); with both slots valid, the newer container's sequence, the
++#: older one below it, so 0 is the wrap (the newer at 0, the older at 0xFFFFFFFF)
++FAULT_SEQS = (1, 0x5A5A5, 0x8000_0000, 0xFFFF_FFFF)
++BOTH_VALID_SEQS = (0x5A5A5, 0)
++#: the firmware's NVM_READ_TRIES, and the most reads a boot may open: the AEM
++#: image, then NVM_READ_TRIES judgements and as many re-stages of each slot
++READ_TRIES = 3
++BOOT_READ_BOUND = 1 + 4 * READ_TRIES
++#: the fault window that lasts the whole boot (the first SKIP reads clean, the
++#: next COUNT faulty)
++WHOLE = (0, 64)
++#: check 13's fault groups (#671): whether the other slot holds an older
++#: container (else it is blank), the slot the fault answers wrongly (the valid
++#: or newer one, or the other), its manners of fault, and the sequences the
++#: newer container takes in turn. A byte fault flips the magic
++#: byte, the top byte of the sequence word or a record-area byte, by another
++#: value on each faulty read; a sealed one flips the entity ID's low byte or a
++#: record-area byte so and closes the CRC over the faulty bytes, so no two
++#: faulty reads agree and each is refused after its CRC passes (R603-4-F1);
++#: --read-ff reads the slot all 0xFF; --read-other answers with the other
++#: slot's bytes, an address fault (R603-3). A blank slot has no CRC to close.
++GROUPS = ((False, "valid", ("magic", "seq", "body", "sealed-entity", "sealed-body", "--read-ff"),
++           FAULT_SEQS),
++          (False, "other", ("magic", "--read-other"), FAULT_SEQS),
++          (True, "valid", ("magic", "body", "sealed-entity", "sealed-body", "--read-other"),
++           BOTH_VALID_SEQS),
++          (True, "other", ("magic", "body", "sealed-entity", "sealed-body"), BOTH_VALID_SEQS))
++#: a flipped byte: its offset (None is the record area's middle byte, which
++#: depends on the shape) and the first faulty read's XOR
++FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8)}
++#: a flipped byte under a closing CRC (--read-sealed): VD_ENT, or VD_REC by
++#: the flipped record's CRC-16
++SEALED = {"sealed-entity": (20, 8), "sealed-body": (None, 8)}
++HELD_LINE = "the writer is HELD until reset"
++#: what a held writer restart prints on re-attaching (R603-2-S2)
++REATTACH_HELD = "re-attached and HELD"
++UNREAD_RE = re.compile(r"; read faults=(\d+) unread=(\d+)\.")
++SEQ_MASK = 0xFFFF_FFFF
++
++
++@dataclass(frozen=True)
++class FaultCase:
++    """One check-13 case: what each slot holds, the fault, and its window."""
++
++    valid: str                  # the slot holding the (newer) valid container
++    older: bool                 # the other slot holds an older one, else it is blank
++    seq: int                    # the (newer) container's sequence
++    fault: tuple[str, str]      # the harness option and its argument
++    skip: int
++    count: int
++    restart: bool = False       # the fault meets a writer restart, not the cold boot
++
++    @property
++    def other(self) -> str:
++        """The slot that does not hold the (newer) valid container."""
++        return "b" if self.valid == "a" else "a"
++
++    @property
++    def name(self) -> str:
++        """How a finding names the case."""
++        held = (f"slot {self.valid.upper()} newer at seq {self.seq:#x}, the other older"
++                if self.older else f"slot {self.valid.upper()} valid at seq {self.seq:#x}")
++        return f"{held}, {self.fault[0]} {self.fault[1]}" + (" on a writer restart" if self.restart else "")
++
++    def truth(self) -> dict[str, tuple[str, int]]:
++        """Each slot's verdict and sequence, as its bytes read cleanly."""
++        other = ("VD_OK", (self.seq - 1) & SEQ_MASK) if self.older else ("VD_BLANK", 0)
++        return {self.valid.upper(): ("VD_OK", self.seq), self.other.upper(): other}
++
++
++def windows(bound: int) -> tuple[tuple[int, int], ...]:
++    """Check 13's fault windows, generated, never picked (R602-3-F1,
++    R603-3-F1): the window that lasts the whole boot, and every read a boot
++    may open as the first faulty one, times every length from one read to one
++    past NVM_READ_TRIES, the most reads one judgement or one re-stage gives a
++    slot, the longest first. Enumerate the whole boot or restart bound,
++    including starts a clean boot never reaches; runtime never removes a
++    window from the campaign."""
++    return (WHOLE,) + tuple((skip, count) for count in range(READ_TRIES + 1, 0, -1) for skip in range(bound))
++
++
++def fault_cases(body: int) -> list[FaultCase]:
++    """Check 13's cases: each group's every manner of fault over every
++    window, both ways round, on a writer restart and on a cold boot. A
++    group's sequences are taken in turn, so the sequence set is spread over
++    the windows, not crossed with them (the full cross exceeds the suite's
++    time). A case outside the rule's stated detection limit is not run, and
++    every window keeps its byte faults, which are always inside it: there
++    two faulty reads of one judgement return the same bytes (all 0xFF
++    twice), or a faulty read returns the other slot's valid container and it
++    stands, and no rule over the bytes sees either (`expect`). R603-4-F1's
++    class meets every sequence of its group besides (`sealed_class`). The
++    groups' lists are interleaved, so a planted control meets every group
++    early. `body` is the shape's record-area byte."""
++    lists = []
++    for restart in (True, False):
++        for older, faulted, manners, seqs in GROUPS:
++            for turn, valid in enumerate("ab"):
++                slot = faulted_slot(faulted, valid)
++                bound = BOOT_READ_BOUND - int(restart)
++                cases = (FaultCase(valid, older, seqs[(w + m + turn) % len(seqs)],
++                                   fault(manner, slot, skip, count, body), skip, count, restart)
++                         for w, (skip, count) in enumerate(windows(bound))
++                         for m, manner in enumerate(manners))
++                group = [case for case in cases if expect(case).within]
++                have = set(group)
++                group += [case for case in sealed_class((older, faulted, manners, seqs), valid, restart, body)
++                          if case not in have]
++                lists.append(group)
++    return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
++
++
++def faulted_slot(faulted: str, valid: str) -> str:
++    """The slot a group's fault answers wrongly: the valid one, or the other."""
++    return valid if faulted == "valid" else ("b" if valid == "a" else "a")
++
++
++def sealed_class(group: tuple, valid: str, restart: bool, body: int) -> list[FaultCase]:
++    """R603-4-F1's class at every sequence of its group, not in turn: for
++    each sealed manner, the two-read window the reference model finds to be
++    the first two reads of the faulted slot's judgement, two different
++    refused containers whose CRCs close, so that its clean third read
++    stands."""
++    older, faulted, manners, seqs = group
++    slot = faulted_slot(faulted, valid)
++    bound = BOOT_READ_BOUND - int(restart)
++    return [case for manner in manners if manner in SEALED for seq in seqs for skip in range(bound)
++            for case in (FaultCase(valid, older, seq, fault(manner, slot, skip, 2, body), skip, 2, restart),)
++            if expect(case).judgement["ab".index(slot)] == "ffc"]
++
++
++def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str, str]:
++    """The harness option and argument for one manner of fault."""
++    if manner.startswith("--"):
++        return manner, f"{slot}:{skip}:{count}"
++    option, (off, base) = ("--read-sealed", SEALED[manner]) if manner in SEALED else \
++        ("--read-fault", FLIPS[manner])
++    return option, f"{slot}:{body if off is None else off}:{skip}:{count}:{base}"
++
++
++@dataclass(frozen=True)
++class Expect:
++    """What the reference model says a case's boot (or restart) does."""
++
++    reads: int                  # the flash reads it opens
++    unread: str                 # the slots it leaves UNREAD: "", "A", "B" or "AB"
++    unstaged: str               # of those, the ones judged that did not read back as judged
++    within: bool                # every slot ends as its bytes say, or UNREAD
++    judgement: tuple[str, str]  # A's and B's judgement reads: "c" returned the slot, "f" did not
++
++
++def expect(case: FaultCase) -> Expect:
++    """The reference model of the writer's reads (#671), written once from
++    the rule and not from the firmware. A cold boot reads the AEM image
++    first. Each slot, A then B, is judged by at most READ_TRIES reads: a
++    VD_OK read stands alone, any other verdict on a read that returned the
++    same bytes as an earlier one; a slot with no standing verdict is UNREAD.
++    The newer VD_OK slot (A on a tie) is re-staged by at most READ_TRIES
++    reads until one is VD_OK at the sequence it was judged at; one that is
++    never so is UNREAD, and the other VD_OK slot is re-staged in turn. A
++    clean read returns the slot's container or blank; a faulty one returns
++    bytes no other read returns, a blank read, or the other slot's clean
++    read, as the case's option says."""
++    clean = {case.valid.upper(): ("OK", case.seq, "newer"),
++             case.other.upper(): ("OK", (case.seq - 1) & SEQ_MASK, "older") if case.older else ("BLANK",)}
++    option, arg = case.fault
++    reads = 0 if case.restart else 1
++
++    def read(slot: str) -> tuple:
++        """The next read of `slot`, as the case's fault answers it."""
++        nonlocal reads
++        reads += 1
++        if slot != arg[0].upper() or not case.skip <= reads - 1 < case.skip + case.count:
++            return clean[slot]
++        return {"--read-fault": ("REFUSED", reads), "--read-sealed": ("REFUSED", reads),
++                "--read-ff": ("BLANK",)}.get(option, clean["BA"["AB".index(slot)]])
++
++    judgement = {"A": "", "B": ""}
++
++    def judge(slot: str) -> tuple:
++        """The slot's standing verdict, or UNREAD."""
++        seen = []
++        for _ in range(READ_TRIES):
++            got = read(slot)
++            judgement[slot] += "c" if got == clean[slot] else "f"
++            if got[0] == "OK" or got in seen:
++                return got
++            seen.append(got)
++        return ("UNREAD",)
++
++    verdict = {slot: judge(slot) for slot in "AB"}
++    unstaged, staged = "", None
++    while staged is None and any(v[0] == "OK" for v in verdict.values()):
++        ok = [slot for slot in "AB" if verdict[slot][0] == "OK"]
++        pick = ok[0] if len(ok) == 1 or (verdict["A"][1] - verdict["B"][1]) & SEQ_MASK < 0x8000_0000 else "B"
++        staged = next((got for got in (read(pick) for _ in range(READ_TRIES))
++                       if got[0] == "OK" and got[1] == verdict[pick][1]), None)
++        if staged is None:
++            verdict[pick], unstaged = ("UNREAD",), unstaged + pick
++        elif staged != clean[pick]:
++            verdict[pick] = staged
++    unread = "".join(slot for slot in "AB" if verdict[slot] == ("UNREAD",))
++    return Expect(reads, unread, "".join(sorted(unstaged)),
++                  all(verdict[slot] in (clean[slot], ("UNREAD",)) for slot in "AB"),
++                  (judgement["A"], judgement["B"]))
++
++
++def judged(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
++    """Each slot's boot verdict is what its bytes say when read cleanly, or
++    the slot is UNREAD: VD_LEN, no sequence, its bit in `unread=`. Every
++    case check 13 runs is inside the rule's detection limit (`fault_cases`),
++    so no other verdict may stand."""
++    findings = []
++    for n, letter in enumerate("AB"):
++        vd, seq, bit = boot.group(1 + 2 * n), int(boot.group(2 + 2 * n)), (unread >> n) & 1
++        want_vd, want_seq = case.truth()[letter]
++        if (vd, bit) == ("VD_LEN", 1) or ((vd, seq, bit) == (want_vd, want_seq, 0)):
++            continue
++        if vd == "VD_LEN" and want_vd != "VD_LEN":
++            findings.append(f"{case.name}: slot {letter} did not read back as it was judged, "
++                            f"yet the boot line does not name it unread: {boot.group(0)}")
++        elif vd != want_vd:
++            findings.append(f"{case.name}: slot {letter} was taken as {vd} on reads that "
++                            f"returned different bytes: {boot.group(0)}")
++        else:
++            findings.append(f"{case.name}: slot {letter} reads {vd} seq {seq:#x} unread bit {bit}, "
++                            f"but holds {want_vd} seq {want_seq:#x}: {boot.group(0)}")
++    return findings
++
++
++def line_findings(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
++    """What a boot line must say: each slot as `judged`, and the offer the
++    slots it accepts make."""
++    f = judged(case, boot, unread)
++    want, got = offer(boot), (boot.group(5), int(boot.group(6)))
++    if got != want:
++        f.append(f"{case.name}: by the slots its boot line accepts the offer is {want[0]} seq "
++                 f"{want[1]:#x}, yet the boot offered {got[0]} seq {got[1]:#x}: {boot.group(0)}")
++    return f
++
++
++def read_findings(case: FaultCase, reads: int) -> list[str]:
++    """The reads a boot opened: never over the bound, and exactly the reads
++    the reference model opens for the case (R602-3-F1, R603-3-F1), so each
++    judgement's and each re-stage's bound is pinned from both sides."""
++    first = 0 if case.restart else 1
++    what = "writer restart" if case.restart else "boot"
++    if reads > BOOT_READ_BOUND - 1 + first:
++        return [f"{case.name}: the {what} read the flash {reads} times, "
++                f"over the bound of {BOOT_READ_BOUND - 1 + first}"]
++    want = expect(case).reads
++    if reads != want:
++        return [f"{case.name}: the {what} read the flash {reads} times, want exactly {want}"]
++    return []
++
++
++def hold_findings(case: FaultCase, held: bool, unread: int, out: str) -> list[str]:
++    """Whether a boot (or restart) held, by its own line's tally and by the
++    reference model: a slot left unread holds the writer, a fault the bound
++    resolves never does, and a held boot's console names each slot it left
++    unread and why, a missing verdict or a re-stage that did not read back
++    as judged (R603-3-S1)."""
++    e = expect(case)
++    if held and not e.unread:
++        what = "one faulty read" if case.count == 1 else "a fault the bound resolves"
++        return [f"{case.name}: {what} held the writer; the bound must resolve it"]
++    if not held:
++        if not (unread or e.unread or (case.skip, case.count) == WHOLE):
++            return []
++        return [f"{case.name}: " + ("the restart left a slot unread, yet the writer re-attached live"
++                                    if case.restart else "a slot no read returned twice did not hold the writer")]
++    want = "Milan NVM: " + " and ".join(
++        f"slot {s} {'did not read back as it was judged' if s in e.unstaged else 'gave no standing verdict'} "
++        f"in {READ_TRIES} reads" for s in e.unread) + "; its authority is unknown"
++    return [] if want in out else [f"{case.name}: the hold names another cause than its reads gave: want {want!r}"]
++
++
++def restart_findings(case: FaultCase, restart: str, boot: re.Match | None,
++                     before: dict[str, int], after: dict[str, int]) -> tuple[list[str], bool]:
++    """A writer restart's transcript, and the harness state when it began
++    and after its change and debounce (#671 on the re-attach path). The
++    line and the hold are graded as a cold boot's. A held restart says so,
++    erases, programs, starts, acknowledges and heartbeats nothing more, and
++    the fabric revokes nvm_backed. Otherwise the change commits. Returns the
++    findings and whether the restart held."""
++    f = read_findings(case, after.get("restart_reads", 0))
++    if boot is None:
++        return f + [f"{case.name}: the writer restart printed no boot line"], False
++    tally = UNREAD_RE.search(restart)
++    unread = int(tally.group(2)) if tally else 0
++    held = HELD_LINE in restart
++    f += line_findings(case, boot, unread) + hold_findings(case, held, unread, restart)
++    if not held:
++        if after.get("acks") != before.get("acks", 0) + 1 or after.get("dirty") != 0:
++            f.append(f"{case.name}: the change was neither committed nor refused: {after}")
++        return f, held
++    moved = [k for k in ("hb", "erases", "programs", "starts", "acks") if after.get(k) != before.get(k)]
++    if moved or (after.get("backed"), after.get("stale"), after.get("dirty")) != (0, 1, 1):
++        f.append(f"{case.name}: the held writer persisted something or kept its claim after the "
++                 f"restart ({', '.join(moved) or 'no count'} moved): {after}")
++    if REATTACH_HELD not in restart:
++        f.append(f"{case.name}: the held restart printed that it re-attached, not that it is held")
++    return f, held
++
++
++def offer(boot: re.Match) -> tuple[str, int]:
++    """The slot a boot must offer by what its own line accepts, and the
++    sequence: the newer VD_OK slot by the wrap-safe compare (A on a tie), or
++    none at sequence 0."""
++    accepted = [(letter, int(boot.group(2 + 2 * n))) for n, letter in enumerate("AB")
++                if boot.group(1 + 2 * n) == "VD_OK"]
++    if len(accepted) == 2:
++        (_, seq_a), (_, seq_b) = accepted
++        return accepted[0] if (seq_a - seq_b) & SEQ_MASK < 0x8000_0000 else accepted[1]
++    return accepted[0] if accepted else ("-", 0)
+diff --git a/sw/firmware/nvm_hosttest/stubs/generated/mem.h b/sw/firmware/nvm_hosttest/stubs/generated/mem.h
+index 3f96629eb..97c794d1a 100644
+--- a/sw/firmware/nvm_hosttest/stubs/generated/mem.h
++++ b/sw/firmware/nvm_hosttest/stubs/generated/mem.h
+@@ -4,6 +4,8 @@
+ #define GENERATED_MEM_H
+ #include "../nvm_host.h"
+ #define MILAN_CSR_BASE (nvm_host_csr_base())
+-#define SPIFLASH_BASE  ((uintptr_t)nvm_host_flash)
++/* every read the firmware opens through the mapping is counted, and the
++ * host may answer it from a view whose slot bytes are wrong (#671) */
++#define SPIFLASH_BASE  (nvm_host_flash_base())
+ #define SPIFLASH_SIZE  NVM_HOST_FLASH_BYTES
+ #endif
+diff --git a/sw/firmware/nvm_hosttest/stubs/nvm_host.h b/sw/firmware/nvm_hosttest/stubs/nvm_host.h
+index a61a999fd..db4fb2816 100644
+--- a/sw/firmware/nvm_hosttest/stubs/nvm_host.h
++++ b/sw/firmware/nvm_hosttest/stubs/nvm_host.h
+@@ -18,6 +18,9 @@ extern uint8_t nvm_host_ddr[NVM_HOST_DDR_BYTES];
+ /* Called on every Milan CSR access the firmware forms; settles the stores
+  * made since the previous access and recomposes the read-only words. */
+ uintptr_t nvm_host_csr_base(void);
++/* The QSPI mapping's base, evaluated once per read the firmware opens: the
++ * real flash, or a view holding a planted read fault (#671). */
++uintptr_t nvm_host_flash_base(void);
+ /* The firmware's cdelay(): advances model time by `cycles` at 100 MHz. */
+ void nvm_host_tick(int cycles);
+ 
+diff --git a/sw/firmware/nvm_hosttest/test_nvm_firmware.py b/sw/firmware/nvm_hosttest/test_nvm_firmware.py
+index 0423a232a..614475448 100755
+--- a/sw/firmware/nvm_hosttest/test_nvm_firmware.py
++++ b/sw/firmware/nvm_hosttest/test_nvm_firmware.py
+@@ -42,19 +42,40 @@ WHAT IT GRADES, per shipped shape, all on bytes:
+  10. `milan_nvm wipe` erases both slots;
+  11. an open record beside an unaligned closed predecessor keeps its staged
+      bytes while the predecessor's change commits byte-identically;
+- 12. rejected shape/identity startup never heartbeats under console input.
+-
+-NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
+-the firmware, one at a time, and requires the suite to redden on each: the
+-ascending-id check removed, the heartbeat dropped from the erase poll loop,
+-the read-back verify skipped, the erased-record rule accepting a header
+-alone, and a word copy crossing into an open neighbour. A control that stays
+-green is reported as the finding it is.
++ 12. rejected shape/identity startup never heartbeats under console input;
++ 13. a boot read fault leaves the authority unknown (#671): every fault
++     window starting within the boot's read bound, one read long to one past
++     the per-loop bound, and the whole boot (`read_fault_cases.fault_cases`,
++     on the cold boot and on a writer restart without a fabric reset,
++     `writer_restart.py`), over a header, sequence or record-area byte, the
++     blank or older slot's, an entity or record-area byte under a CRC closed
++     over the faulty bytes, an all-0xFF read or the other slot's container,
++     one slot valid and the other blank or both valid, both ways round, is
++     followed by a change, its commit and a clean reboot. The boot line
++     names each slot as its bytes read or UNREAD and offers the newer slot it
++     accepts, the window is that slot's container byte for byte (a restart
++     leaves it as it was), and every saved record and the change survive, or
++     the writer was HELD, persisted nothing and named each unread slot and
++     why; the reads opened and the hold are the reference model's
++     (`read_fault_cases.expect`);
++ 14. a cleanly read but refused slot names no generation: with no slot
++     accepted, the first commit is at sequence 1.
++
++NEGATIVE CONTROLS. `--self-test` plants nineteen writer defects into a copy
++of the firmware, one at a time, and requires the suite to redden on each:
++the ascending-id check removed, the heartbeat dropped from the erase poll
++loop, the read-back verify skipped, the erased-record rule accepting a header
++alone, a word copy crossing into an open neighbour, and fourteen #671
++defects, each planted into the first shape and both product shapes and
++caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
++says what each is). A control that stays green is reported as the finding
++it is.
+ 
+ Usage:
+     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
+     sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+     sw/firmware/nvm_hosttest/test_nvm_firmware.py --config configs/endstation_ax7101_8x8.yaml
++    sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test --jobs 4
+ 
+ Exit 0 = every check passed (and every control reddened), 1 = a finding,
+ 2 = the harness could not be built or run.
+@@ -63,13 +84,16 @@ from __future__ import annotations
+ 
+ import argparse
+ import json
++import os
+ import re
+ import struct
+ import subprocess
+ import sys
+ import tempfile
++import threading
+ import zlib
+-from dataclasses import dataclass
++from concurrent.futures import ThreadPoolExecutor
++from dataclasses import dataclass, replace
+ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parents[3]
+@@ -87,6 +111,11 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
+ from check_nvm_record_space import expected_payloads          # noqa: E402
+ from flash_map import literal                                  # noqa: E402
+ from boot_policy import fabric_constants                       # noqa: E402
++from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE,  # noqa: E402
++                              PRODUCT_SHAPES, READ_FAULT_MUTATIONS, RETIRE_CAUSES,
++                              UNREAD_RE, FaultCase, expect, fault_cases, hold_findings,
++                              line_findings, read_findings, restart_findings)
++from writer_restart import host_restart                        # noqa: E402
+ 
+ FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
+ HARNESS = HERE / "nvm_host.c"
+@@ -144,6 +173,8 @@ class Bench:
+     work: Path
+     frames: dict[int, bytes]
+     expect: dict
++    #: the threads check 13 walks its cases on
++    jobs: int = 1
+ 
+     @property
+     def img_len(self) -> int:
+@@ -198,11 +229,12 @@ def constants_header(shape: Shape, donor: Donor,
+ 
+ 
+ def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
+-    """Build the harness and the (fence-blanked) firmware into `work`."""
++    """Build the harness and the (fence-blanked) firmware, with the writer's
++    CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
+     (work / "generated").mkdir(parents=True, exist_ok=True)
+     (work / "generated/soc.h").write_text(header)
+     fw = work / "milan_baremetal.c"
+-    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text))
++    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text) + host_restart(firmware_text))
+     common = ["gcc", "-std=gnu11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
+               f"-I{work}", f"-I{STUBS}"]
+     host_defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{JOURNAL:x}u",
+@@ -245,11 +277,13 @@ def run(bench: Bench, *args: str) -> tuple[str, dict[str, int], re.Match | None]
+     if r.returncode:
+         raise SystemExit(f"harness failed ({r.returncode}): {' '.join(args)}\n"
+                          f"{r.stdout}\n{r.stderr}")
+-    summary = {}
+-    for line in SUMMARY_RE.findall(r.stdout):
+-        if line.startswith("hb="):
+-            summary = {k: int(v) for k, v in (kv.split("=") for kv in line.split())}
+-    return r.stdout, summary, BOOT_RE.search(r.stdout)
++    return r.stdout, host_state(r.stdout), BOOT_RE.search(r.stdout)
++
++
++def host_state(text: str) -> dict[str, int]:
++    """The last HOST summary in a transcript, field by field."""
++    lines = [x for x in SUMMARY_RE.findall(text) if x.startswith("hb=")]
++    return {k: int(v) for k, v in (kv.split("=") for kv in lines[-1].split())} if lines else {}
+ 
+ 
+ def slot_file(bench: Bench, name: str, blob: bytes) -> str:
+@@ -573,21 +607,291 @@ def grade_partial_ownership(bench: Bench) -> list[str]:
+     return findings
+ 
+ 
+-GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
+-          grade_parity, grade_failures, grade_liveness,
+-          grade_snapshot_contract, grade_partial_ownership)
++@dataclass
++class FaultRun:
++    """Check 13's fixtures on one shape: the containers its slots hold, the
++    change made after the faulty boot and after the recovery, and every
++    record each clean reboot must restore."""
++
++    containers: dict[tuple[int, bool], bytes]   # (seq, the older one) -> container
++    off: int                                    # the changed record in the container
++    key: tuple                                  # the changed record, as klj2_decode names it
++    changes: tuple[bytes, bytes]
++    want: tuple[dict, dict, dict]               # the saved records, then with each change
++
++
++def fault_run(bench: Bench) -> FaultRun:
++    """The newer container is the shape's records; the older one, a sequence
++    below it, differs in the last two names, so a boot that falls back to it
++    is told apart by more than the record a change rewrites."""
++    rid = max(bench.frames)                          # the last name record
++    older = dict(bench.frames)
++    for r, base in ((rid, 0x11), (rid - 1, 0x67)):
++        older[r] = frame_record(r, bytes((base + j) & 0xFF for j in range(len(bench.frames[r]) - REC_HDR)),
++                                bench.donor.layout)
++    plen = len(bench.frames[rid]) - REC_HDR
++    changes = tuple(frame_record(rid, bytes((b + j) & 0xFF for j in range(plen)), bench.donor.layout)
++                    for b in (0x40, 0x21))
++    saved = klj2_decode(bench.assemble(bench.frames, 1), bench.donor, bench.ident, bench.expect)[1]
++    key = ("NAME", rid - 0x80)
++    containers = {}
++    for seq in FAULT_SEQS + BOTH_VALID_SEQS:
++        containers[(seq, False)] = bench.assemble(bench.frames, seq)
++        containers[(seq, True)] = bench.assemble(older, (seq - 1) & 0xFFFF_FFFF)
++    return FaultRun(containers, KLJ2_HDR + bench.offsets()[rid], key, changes,
++                    (saved, {**saved, key: changes[0][REC_HDR:]}, {**saved, key: changes[1][REC_HDR:]}))
++
++
++def restored(bench: Bench, path: Path, want: dict, key: tuple) -> tuple[bytes | None, int]:
++    """The record `key` in the window a boot loaded, and how many of the
++    other records in `want` that window does not hold as `want` says."""
++    vd, applied = klj2_decode(path.read_bytes()[:bench.img_len], bench.donor,
++                              bench.ident, bench.expect)
++    if vd != VD_OK:
++        return None, len(want) - 1
++    return applied.get(key), sum(1 for k, v in want.items() if k != key and applied.get(k) != v)
++
++
++def boot_findings(bench: Bench, case: FaultCase, boot: re.Match, unread: int,
++                  slots: dict[str, bytes], ddr: Path) -> list[str]:
++    """What the faulty boot's own line and window must show: each slot as
++    its bytes read, or UNREAD; the offer the slots its line accepts make; and
++    a window holding that offer's container byte for byte, or the blank
++    image when there is none."""
++    f = line_findings(case, boot, unread)
++    got = boot.group(5)
++    image = slots[got][:bench.img_len] if got in slots else \
++        bench.assemble(bench.erased_frames(), 0)
++    window = ddr.read_bytes()[:bench.img_len]
++    if window != image:
++        vd = bench.verdict(window)
++        f.append(f"{case.name}: the window holds another valid container than the one the boot "
++                 f"offered ({got}), at seq {struct.unpack_from('<I', window, 8)[0]:#x}"
++                 if vd == VD_OK else
++                 f"{case.name}: the window the boot loaded is not the container it judged: it "
++                 f"reads {VERDICT_NAME[vd]}")
++    return f
++
++
++def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path,
++                    seen: dict | None = None) -> list[str]:
++    """The clean reboot after a faulty boot. Every saved record and the
++    change survive it, or the faulty boot held and it restores every saved
++    record; a held case then runs on through a change, its commit and
++    another clean reboot, which must restore that change and the rest. The
++    harness is deterministic, so `seen` keeps each reboot's findings by the
++    slots it boots, and a case leaving the same slots is not booted again."""
++    key = (held, (w / "rf_a1.bin").read_bytes(), (w / "rf_b1.bin").read_bytes())
++    if seen is not None and key in seen:
++        return [f"{name}: {x}" for x in seen[key]]
++    tail = ("--change", f"{fr.off}:{fr.changes[1].hex()}", "--idle-ms", "1500",
++            "--dump-slot-a", str(w / "rf_a2.bin"), "--dump-slot-b", str(w / "rf_b2.bin")) \
++        if held else ()
++    out, s, boot = run(bench, "--slot-a", str(w / "rf_a1.bin"), "--slot-b", str(w / "rf_b1.bin"),
++                       "--boot", "--dump-ddr", str(w / "rf_ddr1.bin"), *tail)
++    f = []
++    _check(f, boot is not None and HELD_LINE not in out and boot.group(5) != "-",
++           f"the clean reboot did not offer a slot: {boot and boot.group(0)}")
++    if not held:
++        got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[1], fr.key)
++        _check(f, got == fr.want[1][fr.key],
++               f"the change committed after the faulty boot was lost on the clean reboot: "
++               f"it restored {got and got[:4].hex()}, want {fr.want[1][fr.key][:4].hex()}")
++        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the faulty "
++                             "boot's commit and the clean reboot")
++    else:
++        got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[0], fr.key)
++        _check(f, got == fr.want[0][fr.key] and lost == 0,
++               f"the held boot changed the saved state: the clean reboot restored "
++               f"{got and got[:4].hex()}, want the saved {fr.want[0][fr.key][:4].hex()}, and "
++               f"{lost} other saved record(s) differ")
++        _check(f, s.get("acks") == 1, f"the writer did not recover on the clean reboot: {s}")
++        run(bench, "--slot-a", str(w / "rf_a2.bin"), "--slot-b", str(w / "rf_b2.bin"),
++            "--boot", "--dump-ddr", str(w / "rf_ddr2.bin"))
++        got, lost = restored(bench, w / "rf_ddr2.bin", fr.want[2], fr.key)
++        _check(f, got == fr.want[2][fr.key],
++               "the change committed after the recovery was lost on the clean reboot")
++        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the recovery")
++    if seen is not None:
++        seen[key] = f
++    return [f"{name}: {x}" for x in f]
++
++
++def grade_restart_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
++                       tail: tuple[str, ...], seen: dict | None = None) -> list[str]:
++    """One check-13 case on a writer restart: a clean cold boot, the fault
++    armed for the restart's own reads, the restart with the fabric kept,
++    then `tail` (a change, the debounce, the slots dumped) and the clean
++    reboot. A re-attach never reloads the window."""
++    out, s, _ = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"), "--boot",
++                    "--idle-ms", "100", "--dump-ddr", str(w / "rf_ddr0.bin"), *case.fault, "--restart",
++                    "--dump-ddr", str(w / "rf_ddr_r.bin"), *tail)
++    restart = out.split("HOST restarting\n", 1)[1].split("HOST restarted\n", 1)[0]
++    f, held = restart_findings(case, restart, BOOT_RE.search(restart), host_state(restart), s)
++    if (w / "rf_ddr_r.bin").read_bytes() != (w / "rf_ddr0.bin").read_bytes():
++        f.append(f"{case.name}: the writer restart reloaded the window it re-attached to")
++    return f + reboot_findings(bench, fr, case.name, held, w, seen)
++
++
++def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
++                     seen: dict | None = None) -> list[str]:
++    """One check-13 case, its files in `w`: the faulty boot (or restart), a
++    real change, the debounce commit, then the clean reboot (`seen`, as
++    `reboot_findings` keeps it)."""
++    newer = fr.containers[(case.seq, False)]
++    other = fr.containers[(case.seq, True)] if case.older else b"\xff" * SLOT
++    slots = {case.valid.upper(): newer, case.other.upper(): other}
++    (w / "rf_a.bin").write_bytes(slots["A"])
++    (w / "rf_b.bin").write_bytes(slots["B"])
++    # a restart the model holds idles past T-NVM-WRITER-ALIVE, so its claim lapses
++    tail = ("--change", f"{fr.off}:{fr.changes[0].hex()}",
++            "--idle-ms", "3000" if case.restart and expect(case).unread else "1500",
++            "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
++    if case.restart:
++        return grade_restart_case(bench, fr, case, w, tail, seen)
++    out, s, boot = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"),
++                       *case.fault, "--boot", "--dump-ddr", str(w / "rf_ddr0.bin"), *tail)
++    name = case.name
++    f = read_findings(case, s.get("boot_reads", 0))
++    if boot is None:
++        return f + [f"{name}: the faulty boot printed no boot line"]
++    tally = UNREAD_RE.search(out)
++    unread = int(tally.group(2)) if tally else 0
++    held = HELD_LINE in out
++    f += boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin") + hold_findings(case, held, unread, out)
++    if held:
++        _check(f, s.get("erases") == 0 and s.get("programs") == 0 and
++               s.get("starts") == 0 and s.get("acks") == 0 and s.get("backed") == 0
++               and s.get("dirty") == 1 and s.get("hb") == 0,
++               f"{name}: the held writer persisted something or claimed backing: {s}")
++        _check(f, unread != 0, f"{name}: the boot line did not name the unread slot")
++    else:
++        _check(f, s.get("acks") == 1 and s.get("dirty") == 0,
++               f"{name}: the change was neither committed nor refused: {s}")
++    return f + reboot_findings(bench, fr, name, held, w, seen)
++
++
++def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
++    """Check 13 (#671): a boot read fault leaves the authority unknown.
++
++    The shipping writer reads a slot through the memory-mapped window, which
++    always returns bytes, so a media fault can only return wrong ones. Each
++    case (read_fault_cases.fault_cases) boots with a valid container in one
++    slot and a blank or older one in the other, plants a read fault, makes a
++    real change and lets the debounce commit it, then boots again clean.
++    The faulty boot's line, offer and window must be what its reads proved,
++    and every saved record and the change survive the reboot, or the faulty
++    boot HELD the writer, persisted nothing, said so, and the reboot
++    restores every saved record. `bench.jobs` threads walk the cases, each in
++    a directory of its own; with `until`, the walk stops at the first
++    finding carrying those words, which is all a planted control needs.
++    """
++    fr = fault_run(bench)
++    cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
++    found, seen = threading.Event(), {}
++
++    def walk(k: int) -> list[tuple[int, list[str]]]:
++        """Every bench.jobs-th case from the k-th, until a named finding."""
++        w = bench.work / f"rf{k}"
++        w.mkdir(exist_ok=True)
++        done = []
++        for i in range(k, len(cases), bench.jobs):
++            if found.is_set():
++                break
++            got = grade_fault_case(bench, fr, cases[i], w, seen)
++            if until and any(until in item for item in got):
++                found.set()
++            done.append((i, got))
++        return done
++
++    with ThreadPoolExecutor(max_workers=bench.jobs) as pool:
++        walked = sorted(x for part in pool.map(walk, range(bench.jobs)) for x in part)
++    f = [item for _, got in walked for item in got]
++    return f if found.is_set() else f + grade_hold_console(bench)
++
++
++def grade_hold_console(bench: Bench) -> list[str]:
++    """Check 13's console. A held writer refuses the console's commit and
++    reports the hold; the operator's explicit wipe still erases both slots,
++    as for a retired writer; and a writer that retires with a slot unread,
++    for any cause RETIRE_CAUSES names, names the retire, not the slot."""
++    f = []
++    w = bench.work
++    held = ("--slot-a", slot_file(bench, "rf_a.bin", bench.assemble(bench.frames, 0x5A5A5)),
++            "--slot-b", slot_file(bench, "rf_b.bin", b"\xff" * SLOT),
++            "--read-fault", "a:0:0:64", "--boot")
++    out, s, _ = run(bench, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm",
++                    "--idle-ms", "3000")
++    _check(f, "refused; slot A gave no standing verdict in 3 reads at boot" in out and
++           "writer HELD" in out and "unread=1." in out and s.get("erases") == 0 and
++           s.get("acks") == 0 and s.get("backed") == 0,
++           f"the held writer did not refuse the console's commit and report the hold: {s}")
++    _, s, _ = run(bench, *held, "--uart", "milan_nvm wipe",
++                  "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
++    _check(f, s.get("erases") == 2 and (w / "rf_a1.bin").read_bytes() == b"\xff" * SLOT
++           and (w / "rf_b1.bin").read_bytes() == b"\xff" * SLOT,
++           f"the operator's wipe did not erase both slots while the writer was held: {s}")
++    for cause, opts, line, state in RETIRE_CAUSES:
++        out, s, _ = run(bench, *opts, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm")
++        _check(f, "unread=1." in out and line in out and state in out and "writer HELD" not in out
++               and "gave no standing verdict" not in out and HELD_LINE not in out,
++               f"a writer retired by {cause} with a slot unread named the slot on the console, "
++               f"not the retire: {s}")
++    return f
++
++
++def grade_refused_generation(bench: Bench) -> list[str]:
++    """Check 14 (#671): a slot whose bytes read cleanly but fail validation is
++    not authoritative and names no generation. With the other slot blank, no
++    slot is accepted, and the first commit after a change is at sequence 1,
++    whatever the refused slot's header says."""
++    f = []
++    golden = bench.assemble(bench.frames, 0x5A5A5)
++    foreign = reseal(golden[:20] + struct.pack("<I", 0xDEAD_0001) + golden[24:])
++    torn = golden[:KLJ2_HDR + 1] + bytes([golden[KLJ2_HDR + 1] ^ 1]) + golden[KLJ2_HDR + 2:]
++    rid = max(bench.frames)
++    new = frame_record(rid, bytes((0x40 + j) & 0xFF for j in range(len(bench.frames[rid]) - REC_HDR)),
++                       bench.donor.layout)
++    blank = b"\xff" * SLOT
++    for label, refused in (("foreign entity", foreign), ("bad CRC", torn)):
++        for where in "ab":
++            a, b = (refused, blank) if where == "a" else (blank, refused)
++            name = f"slot {where.upper()} refused ({label})"
++            out, s, boot = run(bench, "--slot-a", slot_file(bench, "rg_a.bin", a),
++                               "--slot-b", slot_file(bench, "rg_b.bin", b), "--boot",
++                               "--change", f"{KLJ2_HDR + bench.offsets()[rid]}:{new.hex()}",
++                               "--idle-ms", "1500", "--dump-slot-a", str(bench.work / "rg_a1.bin"))
++            seq_seen = boot and boot.group(2 if where == "a" else 4)
++            _check(f, boot is not None and boot.group(5) == "-" and seq_seen == "0",
++                   f"{name}: a generation was taken from a refused slot: the boot line "
++                   f"reports {boot and boot.group(0)}")
++            got = (bench.work / "rg_a1.bin").read_bytes()[:bench.img_len]
++            committed = struct.unpack_from("<I", got, 8)[0]
++            _check(f, s.get("acks") == 1 and bench.verdict(got) == VD_OK and committed == 1,
++                   f"{name}: a generation was taken from a refused slot: the first commit "
++                   f"is at seq {committed:#x}, want 1: {s}")
++    return f
+ 
+ 
+-def grade(bench: Bench) -> list[str]:
+-    """Every check for one shape."""
++#: checks 1 to 12, which the first five planted defects are graded by
++WRITER_GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
++                 grade_parity, grade_failures, grade_liveness,
++                 grade_snapshot_contract, grade_partial_ownership)
++#: checks 13 and 14 (#671), which the read-fault defects are graded by
++READ_FAULT_GRADES = (grade_read_faults, grade_refused_generation)
++GRADES = WRITER_GRADES + READ_FAULT_GRADES
++
++
++def grade(bench: Bench, grades: tuple = GRADES) -> list[str]:
++    """Every check in `grades` for one shape."""
+     findings = []
+-    for g in GRADES:
++    for g in grades:
+         findings += [f"{bench.cfg.stem}: {x}" for x in g(bench)]
+     return findings
+ 
+ 
+ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
+-    """Each planted defect must redden the suite; a green control is a finding."""
++    """Each planted writer defect must redden checks 1 to 12; a green control is a finding."""
+     findings = []
+     for label, (old, new) in MUTATIONS.items():
+         if firmware_text.count(old) != 1:
+@@ -596,7 +900,7 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
+         sub = work / label
+         sub.mkdir(parents=True)
+         bench = make_bench(cfg, sub, firmware_text.replace(old, new))
+-        got = grade(bench)
++        got = grade(bench, WRITER_GRADES)
+         if label == "edge_cross" and not any("open record changed across unaligned" in item for item in got):
+             findings.append("self-test: edge_cross missed its named partial ownership assertion")
+         if not got:
+@@ -607,6 +911,43 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
+     return findings
+ 
+ 
++def replant(bench: Bench, work: Path, firmware_text: str) -> Bench:
++    """`bench` with another firmware text compiled into `work`; the shape
++    and its generated constants are reused, not rebuilt."""
++    work.mkdir(parents=True)
++    header = (bench.work / "generated/soc.h").read_text()
++    return replace(bench, binary=compile_bench(work, firmware_text, header), work=work)
++
++
++def self_test_read_faults(benches: list[Bench], work: Path, firmware_text: str) -> list[str]:
++    """Each #671 defect, planted into a copy of the firmware on every bench,
++    must be caught by a finding carrying its own words. Check 14 runs first,
++    and check 13 stops at the first named finding."""
++    findings = []
++    for label, (pairs, words) in READ_FAULT_MUTATIONS.items():
++        planted = firmware_text
++        for old, new in pairs:
++            if planted.count(old) != 1:
++                findings.append(f"self-test: the {label} plant no longer matches the firmware")
++                break
++            planted = planted.replace(old, new)
++        else:
++            for bench in benches:
++                pb = replant(bench, work / label / bench.cfg.stem, planted)
++                got = grade_refused_generation(pb)
++                if not any(words in item for item in got):
++                    got += grade_read_faults(pb, until=words)
++                named = [item for item in got if words in item]
++                if not named:
++                    findings.append(f"self-test: the {label} defect was NOT caught on "
++                                    f"{bench.cfg.stem} by a finding naming {words!r} "
++                                    f"({len(got)} other finding(s))")
++                else:
++                    print(f"  self-test OK: {label:<28} {bench.cfg.stem:<27} caught by "
++                          f"{len(named)} named finding(s); first: {named[0]}")
++    return findings
++
++
+ def main() -> int:
+     """Grade every shipped shape; with --self-test, the controls too."""
+     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+@@ -614,6 +955,8 @@ def main() -> int:
+                     help="configs to grade (default: every configs/endstation_*.yaml)")
+     ap.add_argument("--self-test", action="store_true",
+                     help="also plant each writer defect and require a finding")
++    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4,
++                    help="threads check 13 walks its cases on")
+     a = ap.parse_args()
+     cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+     firmware_text = FIRMWARE.read_text()
+@@ -621,11 +964,13 @@ def main() -> int:
+     import test_disabled_writer as disabled
+ 
+     findings = []
++    benches = []
+     with tempfile.TemporaryDirectory(prefix="nvmfw.") as tmp:
+         for cfg in cfgs:
+             work = Path(tmp) / cfg.stem
+             work.mkdir()
+-            bench = make_bench(cfg, work, firmware_text)
++            bench = replace(make_bench(cfg, work, firmware_text), jobs=max(1, a.jobs))
++            benches.append(bench)
+             got = grade(bench)
+             got += disabled.grade(cfg, work / "disabled", firmware_text)
+             got += bootwalk.grade(cfg, work / "boot-walk", firmware_text, bench)
+@@ -635,6 +980,9 @@ def main() -> int:
+                   f"{'OK' if not got else f'{len(got)} finding(s)'}")
+         if a.self_test and not findings:
+             findings += self_test(cfgs[0], Path(tmp) / "selftest", firmware_text)
++            findings += self_test_read_faults(
++                [b for b in benches if b is benches[0] or b.cfg.stem in PRODUCT_SHAPES],
++                Path(tmp) / "read-fault-mutant", firmware_text)
+             findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
+             findings += bootwalk.self_test(cfgs[0], Path(tmp) / "boot-walk-mutant", firmware_text)
+             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],
+diff --git a/sw/firmware/nvm_hosttest/writer_restart.py b/sw/firmware/nvm_hosttest/writer_restart.py
+new file mode 100644
+index 000000000..670820e09
+--- /dev/null
++++ b/sw/firmware/nvm_hosttest/writer_restart.py
+@@ -0,0 +1,45 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The writer's CPU-only reset, for the host builds of the shipping writer.
++
++A writer restart without a fabric reset: every file-scope variable of the
++writer returns to its initial value and `nvm_boot()` runs again, while the
++fabric, the backend and the media keep their state. `test_nvm_firmware.py`
++appends it to every host build, so check 13 can boot the re-attach path under
++a read fault (#671), and `tb/verilator/nvm_cosim/run_cases.py` appends it to
++the contract writer for W1 to W4. One list of the writer's statics serves both.
++"""
++from __future__ import annotations
++
++import re
++
++#: the writer's file-scope state and its initial value: what a CPU-only reset
++#: gives back (the C start-up zeroes .bss and reloads .data)
++WRITER_STATICS = {"nvm_started": "0", "nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
++                  "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
++                  "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
++                  "nvm_commits_failed": "0", "nvm_captures_refused": "0",
++                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0",
++                  "nvm_unread": "0", "nvm_unstaged": "0", "nvm_held": "0", "nvm_read_faults": "0"}
++
++
++def host_restart(text: str) -> str:
++    """HOST MODEL ONLY, appended to the host build of the writer: a CPU-only
++    reset, the writer's restart without a fabric reset. Refuses unless it
++    names every file-scope variable of the writer, so a new one cannot
++    survive the modelled reset unnoticed. NOTHING ELSE of a CPU reset is
++    modelled -- not the boot code's memory initialisation, not the memory
++    holding the live window, not the bus fabric -- so W1 to W4 ASSUME
++    obligation O4 of the contract page and cannot test it."""
++    found = set(re.findall(r"^static (?:int|uint32_t|uint64_t|unsigned int) (nvm_\w+)(?: = [^;(]+)?;$",
++                           text, re.M))
++    if found != set(WRITER_STATICS):
++        raise SystemExit(f"writer statics {sorted(found)} != restart model {sorted(WRITER_STATICS)}")
++    body = "".join(f"\t{k} = {v};\n" for k, v in WRITER_STATICS.items())
++    return ("\n/* HOST MODEL ONLY, appended by writer_restart.py: a CPU-only reset of\n"
++            " * the writer. The fabric, the backend and the media keep their state;\n"
++            " * every static of the writer returns to its initial value and the\n"
++            " * writer boots again. */\n"
++            "void nvm_host_writer_restart(void);\n"
++            "void nvm_host_writer_restart(void)\n{\n" + body +
++            "\tset_idle_hook(0);\n\tnvm_boot();\n}\n")
+diff --git a/tb/verilator/nvm_capture_cpu/measurements.json b/tb/verilator/nvm_capture_cpu/measurements.json
+index a6b27c8b6..51a82abbf 100644
+--- a/tb/verilator/nvm_capture_cpu/measurements.json
++++ b/tb/verilator/nvm_capture_cpu/measurements.json
+@@ -1,6 +1,6 @@
+ {
+-  "date": "2026-10-02",
+-  "base": "a2f1734283f367d0d522c8c7cda09b79aff60d06",
++  "date": "2026-10-11",
++  "base": "bd42818d3a73b5c112905e72282d5db6df0ae25c",
+   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
+   "soc_component_revisions": {
+     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+@@ -16,7 +16,7 @@
+   "simulator": "Verilator 5.052",
+   "network": "disabled; offline dependency resolution",
+   "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
+-  "product_firmware_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
++  "product_firmware_sha256": "497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed",
+   "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
+   "python_hash_seed": "0",
+   "phase": "CPU rising edges aligned with sys; audio starts at half-period",
+@@ -54,210 +54,210 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 3.9602200000000005,
+-      "maximum_ms": 3.96728,
++      "minimum_ms": 3.9601999999999995,
++      "maximum_ms": 3.9654800000000003,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 12.351031437155935,
++      "margin": 12.35663778407658,
+       "rows": [
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 396728,
++          "sys_cycles": 396476,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24709,
++          "requests": 24693,
+           "responses": 26,
+           "reads": 1014
+         },
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 396234,
++          "sys_cycles": 396186,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24678,
++          "requests": 24675,
+           "responses": 26,
+           "reads": 1014
+         },
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 396442,
++          "sys_cycles": 396136,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24691,
++          "requests": 24672,
+           "responses": 26,
+-          "reads": 1006
++          "reads": 1014
+         },
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396020,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24664,
+-          "responses": 25,
+-          "reads": 1006
++          "requests": 24665,
++          "responses": 26,
++          "reads": 1014
+         },
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 396476,
++          "sys_cycles": 396258,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24694,
++          "requests": 24680,
+           "responses": 26,
+           "reads": 1014
+         },
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 396728,
++          "sys_cycles": 396286,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24709,
++          "requests": 24682,
+           "responses": 26,
+           "reads": 1014
+         },
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 396324,
++          "sys_cycles": 396020,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24684,
++          "requests": 24665,
+           "responses": 26,
+           "reads": 1014
+         },
+         {
+           "index": 7,
+           "ok": 1,
+-          "sys_cycles": 396542,
++          "sys_cycles": 396286,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24697,
++          "requests": 24681,
+           "responses": 26,
+-          "reads": 1010
++          "reads": 1014
+         },
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396020,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+           "requests": 24665,
+-          "responses": 25,
+-          "reads": 1006
++          "responses": 26,
++          "reads": 1014
+         },
+         {
+           "index": 9,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396286,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24665,
+-          "responses": 25,
+-          "reads": 1006
++          "requests": 24681,
++          "responses": 26,
++          "reads": 1014
+         },
+         {
+           "index": 10,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396258,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24665,
+-          "responses": 25,
+-          "reads": 1006
++          "requests": 24679,
++          "responses": 26,
++          "reads": 1014
+         },
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 396442,
++          "sys_cycles": 396136,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24690,
++          "requests": 24672,
+           "responses": 26,
+-          "reads": 1006
++          "reads": 1014
+         },
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 396126,
++          "sys_cycles": 396020,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24671,
++          "requests": 24665,
+           "responses": 26,
+-          "reads": 998
++          "reads": 1014
+         },
+         {
+           "index": 13,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396232,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24664,
+-          "responses": 25,
+-          "reads": 1006
++          "requests": 24678,
++          "responses": 26,
++          "reads": 1011
+         },
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 396442,
++          "sys_cycles": 396548,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24690,
++          "requests": 24698,
+           "responses": 26,
+-          "reads": 1006
++          "reads": 1014
+         },
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 396022,
++          "sys_cycles": 396020,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24664,
+-          "responses": 25,
+-          "reads": 1006
++          "requests": 24665,
++          "responses": 26,
++          "reads": 1014
+         }
+       ],
+       "clock_role": "contract",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-1x1-50-on\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+-      "bios_sha256": "afb2f54f1a80549c12ed853a6ce9789da822da1408e15f6be0a8c4e859eaed57",
++      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
++      "bios_sha256": "24622e415c6c8c3dd38d387ca520464fc200770e343628ebcbb0a6c5d806c54e",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
+     },
+@@ -270,15 +270,15 @@
+       "phase": "aligned rising edges",
+       "traffic": "off",
+       "minimum_ms": 3.90676,
+-      "maximum_ms": 3.91182,
++      "maximum_ms": 3.9203399999999995,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 12.526138728264593,
++      "margin": 12.498915910354716,
+       "rows": [
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 390676,
++          "sys_cycles": 392034,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -290,7 +290,7 @@
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 391182,
++          "sys_cycles": 392034,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -302,7 +302,7 @@
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -314,7 +314,7 @@
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -326,7 +326,7 @@
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -338,7 +338,7 @@
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390820,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -350,7 +350,7 @@
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -362,7 +362,7 @@
+         {
+           "index": 7,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -374,7 +374,7 @@
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -386,7 +386,7 @@
+         {
+           "index": 9,
+           "ok": 1,
+-          "sys_cycles": 391137,
++          "sys_cycles": 390676,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -398,7 +398,7 @@
+         {
+           "index": 10,
+           "ok": 1,
+-          "sys_cycles": 391137,
++          "sys_cycles": 392034,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -410,7 +410,7 @@
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 391180,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -422,7 +422,7 @@
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 391180,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -434,7 +434,7 @@
+         {
+           "index": 13,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 391180,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -446,7 +446,7 @@
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 391180,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -458,7 +458,7 @@
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 390748,
++          "sys_cycles": 390964,
+           "raw": 3290,
+           "records": 54,
+           "mismatches": 0,
+@@ -471,8 +471,8 @@
+       "clock_role": "contract",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-1x1-50-off\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+-      "bios_sha256": "d001869a7db6bfe9b633903a47d4a18c02809375b3ff74d9fa8558378facd27e",
++      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
++      "bios_sha256": "5495f32e7e5deaaf44ee7eca4531016ead64407f9e4652ebeaf389e53038ce03",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
+     },
+@@ -484,212 +484,212 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 13.848360000000001,
+-      "maximum_ms": 13.86484,
++      "minimum_ms": 13.848279999999999,
++      "maximum_ms": 13.86328,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 3.5341193984207537,
++      "margin": 3.534517083980126,
+       "rows": [
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1385074,
++          "sys_cycles": 1385010,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86480,
++          "requests": 86476,
+           "responses": 91,
+           "reads": 3549
+         },
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 1386484,
++          "sys_cycles": 1384828,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86569,
++          "requests": 86466,
+           "responses": 92,
+-          "reads": 3587
++          "reads": 3588
+         },
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 1386318,
++          "sys_cycles": 1384932,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86559,
++          "requests": 86472,
+           "responses": 91,
+           "reads": 3549
+         },
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 1384836,
++          "sys_cycles": 1386328,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86466,
+-          "responses": 91,
+-          "reads": 3559
++          "requests": 86559,
++          "responses": 92,
++          "reads": 3588
+         },
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 1385052,
++          "sys_cycles": 1385502,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86479,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86507,
++          "responses": 92,
++          "reads": 3574
+         },
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 1385722,
++          "sys_cycles": 1385280,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86521,
+-          "responses": 91,
+-          "reads": 3569
++          "requests": 86493,
++          "responses": 92,
++          "reads": 3560
+         },
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 1385678,
++          "sys_cycles": 1385282,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86518,
+-          "responses": 92,
+-          "reads": 3558
++          "requests": 86494,
++          "responses": 91,
++          "reads": 3577
+         },
+         {
+           "index": 7,
+           "ok": 1,
+-          "sys_cycles": 1384836,
++          "sys_cycles": 1385442,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86466,
++          "requests": 86504,
+           "responses": 91,
+-          "reads": 3559
++          "reads": 3549
+         },
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 1385110,
++          "sys_cycles": 1386328,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86483,
++          "requests": 86560,
+           "responses": 92,
+-          "reads": 3558
++          "reads": 3587
+         },
+         {
+           "index": 9,
+           "ok": 1,
+-          "sys_cycles": 1384836,
++          "sys_cycles": 1385814,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86466,
+-          "responses": 91,
+-          "reads": 3559
++          "requests": 86527,
++          "responses": 92,
++          "reads": 3581
+         },
+         {
+           "index": 10,
+           "ok": 1,
+-          "sys_cycles": 1385074,
++          "sys_cycles": 1385616,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86481,
++          "requests": 86514,
+           "responses": 91,
+           "reads": 3549
+         },
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 1386318,
++          "sys_cycles": 1384986,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86558,
++          "requests": 86476,
+           "responses": 91,
+           "reads": 3549
+         },
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 1384932,
++          "sys_cycles": 1386182,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86472,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86550,
++          "responses": 92,
++          "reads": 3586
+         },
+         {
+           "index": 13,
+           "ok": 1,
+-          "sys_cycles": 1386318,
++          "sys_cycles": 1386182,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86558,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86550,
++          "responses": 92,
++          "reads": 3586
+         },
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 1384932,
++          "sys_cycles": 1386328,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86472,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86560,
++          "responses": 92,
++          "reads": 3588
+         },
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 1386318,
++          "sys_cycles": 1386328,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86558,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86559,
++          "responses": 92,
++          "reads": 3588
+         }
+       ],
+       "clock_role": "contract",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-50-on\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+-      "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
++      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
++      "bios_sha256": "3ad88d91393896de9e8e958b6bbf4966f8180410ebddba4250d0be115950a44d",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -699,16 +699,16 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "off",
+-      "minimum_ms": 13.67682,
+-      "maximum_ms": 13.6939,
++      "minimum_ms": 13.675379999999999,
++      "maximum_ms": 13.68956,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 3.578235564740505,
++      "margin": 3.579369972446156,
+       "rows": [
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1367682,
++          "sys_cycles": 1368956,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -720,7 +720,7 @@
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 1368947,
++          "sys_cycles": 1367682,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -732,7 +732,7 @@
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -744,7 +744,7 @@
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -756,7 +756,7 @@
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1368956,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -768,7 +768,7 @@
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -780,7 +780,7 @@
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -792,7 +792,7 @@
+         {
+           "index": 7,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -804,7 +804,7 @@
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1368956,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -816,7 +816,7 @@
+         {
+           "index": 9,
+           "ok": 1,
+-          "sys_cycles": 1369030,
++          "sys_cycles": 1368752,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -828,7 +828,7 @@
+         {
+           "index": 10,
+           "ok": 1,
+-          "sys_cycles": 1369030,
++          "sys_cycles": 1368752,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -840,7 +840,7 @@
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -852,7 +852,7 @@
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1368956,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -864,7 +864,7 @@
+         {
+           "index": 13,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -876,7 +876,7 @@
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -888,7 +888,7 @@
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 1369390,
++          "sys_cycles": 1367538,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -901,10 +901,10 @@
+       "clock_role": "contract",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-50-off\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+-      "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
++      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
++      "bios_sha256": "ca76aae4822a0b8d9f651cbc0a04b0ce52303c9dc7430dd96612dd7b039addbb",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -914,7 +914,7 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 10.41821,
++      "minimum_ms": 10.41235,
+       "maximum_ms": 10.42973,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+@@ -923,192 +923,192 @@
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1041937,
++          "sys_cycles": 1041235,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130120,
++          "requests": 130031,
+           "responses": 90,
+           "reads": 3510
+         },
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 1041887,
++          "sys_cycles": 1042260,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130113,
+-          "responses": 90,
+-          "reads": 3510
++          "requests": 130159,
++          "responses": 91,
++          "reads": 3535
+         },
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 1041821,
++          "sys_cycles": 1042203,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130105,
+-          "responses": 91,
+-          "reads": 3535
++          "requests": 130152,
++          "responses": 90,
++          "reads": 3523
+         },
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 1041933,
++          "sys_cycles": 1042637,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130119,
+-          "responses": 91,
++          "requests": 130206,
++          "responses": 90,
+           "reads": 3534
+         },
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 1042637,
++          "sys_cycles": 1042784,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130206,
++          "requests": 130226,
+           "responses": 90,
+-          "reads": 3534
++          "reads": 3533
+         },
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 1041933,
++          "sys_cycles": 1042138,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130119,
+-          "responses": 91,
+-          "reads": 3534
++          "requests": 130144,
++          "responses": 90,
++          "reads": 3543
+         },
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 1042637,
++          "sys_cycles": 1042203,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130206,
++          "requests": 130152,
+           "responses": 90,
+-          "reads": 3534
++          "reads": 3523
+         },
+         {
+           "index": 7,
+           "ok": 1,
+-          "sys_cycles": 1041933,
++          "sys_cycles": 1042637,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130119,
+-          "responses": 91,
++          "requests": 130206,
++          "responses": 90,
+           "reads": 3534
+         },
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 1042637,
++          "sys_cycles": 1042203,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130206,
++          "requests": 130153,
+           "responses": 90,
+-          "reads": 3534
++          "reads": 3523
+         },
+         {
+           "index": 9,
+           "ok": 1,
+-          "sys_cycles": 1041933,
++          "sys_cycles": 1042203,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130118,
+-          "responses": 91,
+-          "reads": 3534
++          "requests": 130152,
++          "responses": 90,
++          "reads": 3523
+         },
+         {
+           "index": 10,
+           "ok": 1,
+-          "sys_cycles": 1042637,
++          "sys_cycles": 1042203,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130207,
++          "requests": 130152,
+           "responses": 90,
+-          "reads": 3534
++          "reads": 3523
+         },
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 1042973,
++          "sys_cycles": 1041950,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130249,
++          "requests": 130121,
+           "responses": 90,
+           "reads": 3510
+         },
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 1042712,
++          "sys_cycles": 1042138,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130216,
+-          "responses": 91,
+-          "reads": 3535
++          "requests": 130144,
++          "responses": 90,
++          "reads": 3543
+         },
+         {
+           "index": 13,
+           "ok": 1,
+-          "sys_cycles": 1042480,
++          "sys_cycles": 1042973,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130187,
++          "requests": 130249,
+           "responses": 90,
+           "reads": 3510
+         },
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 1042712,
++          "sys_cycles": 1042260,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130217,
++          "requests": 130159,
+           "responses": 91,
+           "reads": 3535
+         },
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 1042480,
++          "sys_cycles": 1041950,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130187,
++          "requests": 130121,
+           "responses": 90,
+           "reads": 3510
+         }
+@@ -1116,10 +1116,10 @@
+       "clock_role": "non-contract comparison",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-100-on\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+-      "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
++      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
++      "bios_sha256": "3ad88d91393896de9e8e958b6bbf4966f8180410ebddba4250d0be115950a44d",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -1129,7 +1129,7 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "off",
+-      "minimum_ms": 10.41356,
++      "minimum_ms": 10.41246,
+       "maximum_ms": 10.41566,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+@@ -1138,7 +1138,7 @@
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1041356,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1150,7 +1150,7 @@
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 1041356,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1174,7 +1174,7 @@
+         {
+           "index": 3,
+           "ok": 1,
+-          "sys_cycles": 1041516,
++          "sys_cycles": 1041566,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1186,7 +1186,7 @@
+         {
+           "index": 4,
+           "ok": 1,
+-          "sys_cycles": 1041516,
++          "sys_cycles": 1041566,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1198,7 +1198,7 @@
+         {
+           "index": 5,
+           "ok": 1,
+-          "sys_cycles": 1041516,
++          "sys_cycles": 1041246,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1210,7 +1210,7 @@
+         {
+           "index": 6,
+           "ok": 1,
+-          "sys_cycles": 1041516,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1234,7 +1234,7 @@
+         {
+           "index": 8,
+           "ok": 1,
+-          "sys_cycles": 1041516,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1270,7 +1270,7 @@
+         {
+           "index": 11,
+           "ok": 1,
+-          "sys_cycles": 1041356,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1282,7 +1282,7 @@
+         {
+           "index": 12,
+           "ok": 1,
+-          "sys_cycles": 1041566,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1306,7 +1306,7 @@
+         {
+           "index": 14,
+           "ok": 1,
+-          "sys_cycles": 1041356,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1318,7 +1318,7 @@
+         {
+           "index": 15,
+           "ok": 1,
+-          "sys_cycles": 1041566,
++          "sys_cycles": 1041406,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -1331,24 +1331,24 @@
+       "clock_role": "non-contract comparison",
+       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-100-off\"",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+-      "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
++      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
++      "bios_sha256": "ca76aae4822a0b8d9f651cbc0a04b0ce52303c9dc7430dd96612dd7b039addbb",
+       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     }
+   ],
+   "maxima": [
+     {
+       "shape": "endstation_ax7101_1x1_tdm8",
+       "cpu_hz": 50000000,
+-      "maximum_ms": 3.96728,
+-      "margin": 12.351031437155935
++      "maximum_ms": 3.9654800000000003,
++      "margin": 12.35663778407658
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+       "cpu_hz": 50000000,
+-      "maximum_ms": 13.86484,
+-      "margin": 3.5341193984207537
++      "maximum_ms": 13.86328,
++      "margin": 3.534517083980126
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -1357,13 +1357,13 @@
+       "margin": 4.698108196472967
+     }
+   ],
+-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634",
++  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416",
+   "processor_pins": {
+-    "protocol-processor": "b2db3a970cedbbff2f8ba813acb96122c442bc58",
++    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+     "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   },
+-  "tree": "c28595df81fb96ae7cb554216c76a23917105169",
++  "tree": "39e2b51cb67bc69bc7914116006d8d4076bf7792",
+   "reproduction_environment": {
+     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
+     "PYTHONHASHSEED": "0",
+@@ -1374,6 +1374,6 @@
+     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
+     "SCRATCH": "external build directory, outside the repository; one per arm"
+   },
+-  "provenance": "All six arms measure the unchanged #70 lane 2 firmware for the census #629 grows (the CLOCK_SOURCE NAME records of the AAF listeners), at processor pin b2db3a97. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The six arms ran in parallel from the tree of a2f17342. A first run at 62822ca6, before the meter's port split and the TX-trace fix, reproduced every capture's cycle count in the five arms it graded; its 8x8 OFF arm could not be graded, a TX trace having split a CAPTURE row, which a2f17342 fixes. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
++  "provenance": "All six arms measure the #671 round-5 firmware: the shipping writer's boot judges each slot on one staged read under a three-read bound, compares two refused reads by their byte count, a CRC-32 over all but their last four bytes and those four bytes, and holds the writer when a slot's authority is unknown; the console names the hold and each unread slot's cause; nvm_capture() and the census of #629 are unchanged. Processor pin 2ad2f845. The measured firmware and capture inputs are those of bd42818d; later test-only commits leave those inputs unchanged. The six arms ran with at most two concurrent builds; independent simulations overlapped. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
+ }
+diff --git a/tb/verilator/nvm_cosim/README.md b/tb/verilator/nvm_cosim/README.md
+index 9f063a0dd..59a06056a 100644
+--- a/tb/verilator/nvm_cosim/README.md
++++ b/tb/verilator/nvm_cosim/README.md
+@@ -69,8 +69,10 @@ time, and the page's section 18 derives the real copy time separately.
+ 
+ The writer restart of W1 to W4 is modelled by returning every file-scope
+ variable of the writer to its initial value and running its boot again.
+-`run_cases.py` refuses to build it unless it names every such variable, so a
+-new static cannot survive the modelled reset unnoticed. NOTHING ELSE of a CPU
++`run_cases.py` builds it with the restart model the host gate's check 13 also
++boots ([`writer_restart.py`](../../../sw/firmware/nvm_hosttest/writer_restart.py)),
++which refuses unless it names every such variable, so a new static cannot
++survive the modelled reset unnoticed. NOTHING ELSE of a CPU
+ reset is modelled -- not the boot code's memory initialisation, not the memory
+ holding the live window, not the bus fabric -- so those four cases ASSUME
+ obligation O4 of the page and cannot test it.
+diff --git a/tb/verilator/nvm_cosim/run_cases.py b/tb/verilator/nvm_cosim/run_cases.py
+index f818a663d..c16fe864a 100644
+--- a/tb/verilator/nvm_cosim/run_cases.py
++++ b/tb/verilator/nvm_cosim/run_cases.py
+@@ -69,6 +69,7 @@ sys.path.insert(0, str(HERE))
+ sys.path.insert(0, str(ROOT / "scripts"))
+ sys.path.insert(0, str(ROOT / "sw" / "firmware" / "nvm_hosttest"))
+ import test_nvm_firmware as ref   # noqa: E402  (the repository's own host gate)
++from writer_restart import host_restart   # noqa: E402  (the writer's CPU-only reset, shared with it)
+ from cosim_oracle import CLK_HZ, Run, ShapeInfo, T_HOLD_MS   # noqa: E402
+ from cosim_case_map import (     # noqa: E402
+     CHECKS, CONTRACT_ONLY, CORE_8X8, DEPENDENT, POWER_CYCLE, PROD_MUST_FAIL,
+@@ -176,37 +177,6 @@ def host_firmware(text: str, fences: int) -> str:
+     return text.replace(FENCE_RW, "(void)0;")
+ 
+ 
+-#: the writer's file-scope state and its initial value: what a CPU-only reset
+-#: gives back (the C start-up zeroes .bss and reloads .data)
+-WRITER_STATICS = {"nvm_started": "0", "nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
+-                  "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
+-                  "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
+-                  "nvm_commits_failed": "0", "nvm_captures_refused": "0",
+-                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0"}
+-
+-
+-def host_restart(text: str) -> str:
+-    """HOST MODEL ONLY, appended to the host build of the writer: a CPU-only
+-    reset, the writer's restart without a fabric reset. Refuses unless it
+-    names every file-scope variable of the writer, so a new one cannot
+-    survive the modelled reset unnoticed. NOTHING ELSE of a CPU reset is
+-    modelled -- not the boot code's memory initialisation, not the memory
+-    holding the live window, not the bus fabric -- so W1 to W4 ASSUME
+-    obligation O4 of the contract page and cannot test it."""
+-    found = set(re.findall(r"^static (?:int|uint32_t|uint64_t|unsigned int) (nvm_\w+)(?: = [^;(]+)?;$",
+-                           text, re.M))
+-    if found != set(WRITER_STATICS):
+-        raise SystemExit(f"writer statics {sorted(found)} != restart model {sorted(WRITER_STATICS)}")
+-    body = "".join(f"\t{k} = {v};\n" for k, v in WRITER_STATICS.items())
+-    return ("\n/* HOST MODEL ONLY, appended by run_cases.py: a CPU-only reset of the\n"
+-            " * writer. The fabric, the backend and the media keep their state; every\n"
+-            " * static of the writer returns to its initial value and the writer boots\n"
+-            " * again. */\n"
+-            "void nvm_host_writer_restart(void);\n"
+-            "void nvm_host_writer_restart(void)\n{\n" + body +
+-            "\tset_idle_hook(0);\n\tnvm_boot();\n}\n")
+-
+-
+ # -------------------------------------------------------------------- builds
+ @dataclasses.dataclass
+ class Build:
