@@ -1,0 +1,346 @@
+[
+  {
+    "probe": "unmodified",
+    "rc": 0,
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n"
+  },
+  {
+    "probe": "published-pr-body-reference",
+    "rc": 0,
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n"
+  },
+  {
+    "probe": "per-echo-8-to-4-add",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  decode: ADD_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "per-echo-8-to-4-remove",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  decode: REMOVE_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  decode: REMOVE_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "per-echo-8-to-16-remove",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  decode: REMOVE_AUDIO_MAPPINGS: command per is 16, the gcd of accepted offsets from floor 20 is 8"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  decode: REMOVE_AUDIO_MAPPINGS: command per is 16, the gcd of accepted offsets from floor 20 is 8\n  decode: REMOVE_AUDIO_MAPPINGS: the engine dispatches AEM 0x002D to AMREMOVE at cdl 28, which is no 20 + 16\u00b7N\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "per-echo-8-to-2-add",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 2, the gcd of accepted offsets from floor 20 is 8"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  decode: ADD_AUDIO_MAPPINGS: command per is 2, the gcd of accepted offsets from floor 20 is 8\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "per-zero-command",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-null-command",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: REMOVE_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: REMOVE_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-negative-command",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-bool-command",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-float-command",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-zero-response",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: GET_AS_PATH: response per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: GET_AS_PATH: response per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-null-response",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: GET_AUDIO_MAP: response per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: GET_AUDIO_MAP: response per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "per-negative-response",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  schema: GET_AVB_INFO: response per must be an integer with its unit and greater than zero"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  schema: GET_AVB_INFO: response per must be an integer with its unit and greater than zero\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "documented-gdi-opcode",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  decode: GET_VIDEO_FORMAT: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it",
+      "  engine: GET_VIDEO_FORMAT: the table says 0x0070, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  decode: GET_VIDEO_FORMAT: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it\n  decode: 0x000B: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member\n  engine: GET_VIDEO_FORMAT: the table says 0x0070, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "declared-oversize-flip",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "pass",
+    "rc": 0,
+    "named": [],
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "declared-common-status-hides-own",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "pass",
+    "rc": 0,
+    "named": [],
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n",
+    "regen_output": "aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md\n"
+  },
+  {
+    "probe": "declared-engine-status-extra",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "pass",
+    "rc": 0,
+    "named": [],
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n",
+    "regen_output": "aecp commands: F06.14 in docs/architecture/06_aecp_engine.md is current\n"
+  },
+  {
+    "probe": "declared-echo-entries-extra",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": true,
+    "regen_rc": 0,
+    "expect": "pass",
+    "rc": 0,
+    "named": [],
+    "as_expected": true,
+    "output": "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK\n",
+    "regen_output": "aecp commands: F06.14 in docs/architecture/06_aecp_engine.md is current\n"
+  },
+  {
+    "probe": "registry-table-field-unregistered",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: commands[].note: table field missing from registry"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: commands[].note: table field missing from registry\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-common-status-new-message",
+    "target": "hdl/aecp/ucode/aecp_commands.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: common_status.AVC: table field missing from registry"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: common_status.AVC: table field missing from registry\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-entry-removed",
+    "target": "hdl/aecp/ucode/aecp_fields.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: commands[].command.per: table field missing from registry"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: commands[].command.per: table field missing from registry\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-entry-stale",
+    "target": "hdl/aecp/ucode/aecp_fields.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: commands[].nothing: registry entry has no such table field"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: commands[].nothing: registry entry has no such table field\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-held-without-probe",
+    "target": "hdl/aecp/ucode/aecp_fields.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: commands[].hazard: held needs consumer, check and a named drift probe"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: commands[].hazard: held needs consumer, check and a named drift probe\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-status-changed-no-write",
+    "target": "hdl/aecp/ucode/aecp_fields.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: scripts/check_aecp_commands.py: registry reference differs (run --write)",
+      "  fields: docs/architecture/09_verification.md: registry reference differs (run --write)",
+      "  fields: docs/00_MILAN_COMPLIANCE_REVIEW.md: registry reference differs (run --write)"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: scripts/check_aecp_commands.py: registry reference differs (run --write)\n  fields: docs/architecture/09_verification.md: registry reference differs (run --write)\n  fields: docs/00_MILAN_COMPLIANCE_REVIEW.md: registry reference differs (run --write)\n",
+    "regen_output": ""
+  },
+  {
+    "probe": "registry-reason-edited-no-write",
+    "target": "hdl/aecp/ucode/aecp_fields.json",
+    "regenerated": false,
+    "regen_rc": null,
+    "expect": "fail",
+    "rc": 1,
+    "named": [
+      "  fields: scripts/check_aecp_commands.py: registry reference differs (run --write)",
+      "  fields: docs/architecture/09_verification.md: registry reference differs (run --write)"
+    ],
+    "as_expected": true,
+    "output": "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json\n\n  fields: scripts/check_aecp_commands.py: registry reference differs (run --write)\n  fields: docs/architecture/09_verification.md: registry reference differs (run --write)\n",
+    "regen_output": ""
+  }
+]
