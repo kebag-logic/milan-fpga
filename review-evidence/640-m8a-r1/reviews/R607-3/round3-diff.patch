@@ -1,0 +1,537 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 2e277e77b..ba0be74ae 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -260,13 +260,13 @@ These memory entries grant no additional LUT saving.
+ The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+ They depend on fitting the credited RAM conversions within the ledger.
+ 
+-Measured, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
++With M2's unused +2 allowance, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
+ The split takes it: 113 tiles leaves 8.5 below 121.5, or seven with every bank in block RAM.
+ At 56 firmware tiles, the conditional total is 116, leaving 5.5.
+ The separate 13.5-tile reserve remains untouched in these estimates.
+ Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+ 
+-Above 50 firmware tiles, the remaining wrapper stores give way first.
++For the ruled 56-tile firmware allocation, the remaining wrapper stores give way first.
+ They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
+ The plan names their exact [scopes and counts](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): eleven tiles altogether.
+ These credits require full removal and debiting every replacement store.
+@@ -276,7 +276,8 @@ If more capacity is needed, defer new M6/M7 RAM conversions; reprice every lost
+ Keep existing functionality, capacities and the 10 percent reserve.
+ Further unmet demand needs a manager ruling commissioning redesign.
+ Partial placement cannot claim retained AECP or wrapper storage as released.
+-Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
++With its six retained AECP tiles, the measured 53 gives `124 + 6 = 130`, 8.5 over 121.5.
++That is before additional fabric-AECP staging.
+ M0s must replace that over-ceiling estimate with the actual allocation.
+ 
+ Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 7fb183e23..39830932a 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -829,7 +829,7 @@ These memory entries grant no additional LUT saving.
+ The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+ They depend on fitting the credited RAM conversions within the ledger.
+ 
+-Before the conditional release, the measured total is 2.5 tiles over 121.5.
++Before the conditional release, with M2's unused +2 allowance, the total is 2.5 tiles over 121.5.
+ The split takes the release: 113 tiles leaves 8.5 below that ceiling.
+ With every bank in block RAM, 114.5 leaves seven.
+ Both leave the separate 13.5-tile reserve untouched.
+@@ -839,7 +839,7 @@ Each lane must debit them before accepting its LUT saving.
+ Keeping the BIOS ROM and SRAM would add 18: 142 and 131.
+ Both exceed the ceiling, which is why the split builds neither.
+ 
+-**What gives way above 50 firmware tiles:** the remaining wrapper storage.
++**What gives way for the ruled 56-tile firmware allocation:** the remaining wrapper storage.
+ These disjoint scopes are outside the six AECP tiles and SRP half-tile:
+ 
+ | Released fabric scope, relative to wrapper | RAMB36 | RAMB18 | Tiles |
+@@ -867,8 +867,8 @@ No media buffer, diagnostic function or protocol capacity is pruned.
+ If these trades still exceed 121.5, the manager must commission further redesign.
+ 
+ Partial placement retains AECP's six tiles and any still-used wrapper stores.
+-With the same 50-tile hold, the pre-release estimate becomes 126.5.
+-That is five tiles over the ceiling, before extra fabric-AECP staging.
++At the measured 53 firmware tiles, its pre-release total is `124 + 6 = 130`.
++That is 8.5 tiles over the ceiling, before extra fabric-AECP staging.
+ M0s must substitute measured firmware use and actual retained storage.
+ A partial route cannot borrow the full split's reclamation credits.
+ The all-fabric option needs its own complete memory reconciliation.
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 060271acb..9b39623a1 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -74,6 +74,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
+ | `memory map` | `elf truncated` | A header, table, name or load segment running past the end of the file |
+ | `memory map` | `outside regions` | A section outside both regions |
+ | `memory map` | `loads outside rom` | Initial bytes loading outside `rom`, the only region the bitstream initialises |
++| `memory map` | `load coverage` | A section with initial bytes that the load segments' file bytes, which program `rom`, do not all carry |
+ | `memory map` | `nobits in rom` | A NOBITS section in `rom`, which the firmware cannot write |
+ | `memory map` | `writable in rom` | A writable section with initial bytes running in `rom`, which drops its writes |
+ | `memory-map overlap` | `regions` | The two regions sharing an address |
+@@ -85,6 +86,9 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
+ 
+ The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
+ An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
++`rom`'s contents are the load segments' file bytes and nothing else.
++So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
++`load coverage` requires them to carry every byte of every section with initial bytes.
+ `add_ctrl_memory` checks the CPU's origins, then reads and plans the image, which runs every other rule but the two staging rules.
+ `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
+ 
+@@ -99,7 +103,8 @@ The test drives `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv,
+ - a memory-map overlap, `.bss` at `.data`'s address, refused by `addresses`;
+ - a staging buffer of another shape, the 8x8 stage in the 1x1 build, refused by `stage size`.
+ 
+-Each is refused before any Verilog is written.
++A fourth case empties the reset segment's file bytes and keeps its section, refused by `entry bytes`.
++Each is refused before any Verilog or init file is written.
+ `--ctrl-mailbox` alone and `--ctrl-firmware` alone are each refused.
+ The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 28a70415d..76a51639d 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -73,7 +73,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
+ [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
+ the campaign it runs, so those two records are relevant by directory.
+ 
+-Six pages under `docs/` are relevant because Python in a classifier-gated
++Seven pages under `docs/` are relevant because Python in a classifier-gated
+ job names them. The behave suite of `bdd-conformance`, which no docs job runs,
+ asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
+ [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
+@@ -91,6 +91,10 @@ Its reader is absent from `DOCS_JOB_PY`.
+ [MAILBOX_CONTRACT.md](../reference/MAILBOX_CONTRACT.md) with the page it
+ generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
+ (#665). No `docs-check` step runs it.
++`sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
++requires the rule table in section 3 of
++[SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
++`ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
+ The classifier's
+ self-test, `scripts/ci_scope.py --selftest`, derives that list from the
+ Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
+@@ -1186,8 +1190,13 @@ The RV32 SDK this job installs serves one member the same way.
+ link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
+ SDK step installs; without a compiler that member declares a skip too.
+ Its SoC arm runs the end-station builder, so it needs the PyYAML this job
+-installs, and exports the split 1x1 SoC. The split CPU is its own VexiiRiscv
+-argument set, so a cold metadata cache pays one more Scala run for it.
++installs, and exports the split 1x1 SoC through the LiteX the pins install and
++the patch series patches. It needs no firmware data package: as
++`sw/builder/test_shipping_clock_constraints.py` does, its child refuses every
++`pythondata_software_*` import and writes LiteX's headers without the firmware
++make inputs, which name picolibc and compiler-rt. So the arm grades the same in
++this job and on a host that has those packages. The split CPU is its own
++VexiiRiscv argument set, so a cold metadata cache pays one more Scala run for it.
+ 
+ `actions/checkout` does not populate submodules. Both this job and the hosted
+ `docs-check` job run the full builder, whose source gates consume
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 9329c1989..eda63a742 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -700,18 +700,23 @@ planted defect for every rule in `ctrl_memory.RULES` refused by that rule
+ (the 56.0 RAMB36 budget accepted and 56.5 refused), the real
+ `milan_soc.CtrlMemory` in simulation at the largest image's banks across the
+ whole decoded window, and a probe linked by
+-[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld). Its SoC arm runs
++[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), whose rom words
++must equal its `objcopy -O binary` image and whose load segments, emptied or cut
++short, are refused by rule. Its SoC arm runs
+ `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
+ Vivado: the three planted controls (an allocation over budget, a memory-map
+-overlap, a staging buffer of another shape) and the two lone flags are
+-refused, and the split export holds the image's banks and no BIOS memory.
++overlap, a staging buffer of another shape), an emptied reset segment and the
++two lone flags are refused, and the split export holds the image's banks and no
++BIOS memory.
++That arm refuses LiteX's firmware data packages, which the `elaborate` job does
++not install, so it grades the same in any interpreter.
+ It requires the
+ [split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
+-rule table to equal `ctrl_memory.RULES`. Its forty mutants each rebuild one
++rule table to equal `ctrl_memory.RULES`. Its forty-four mutants each rebuild one
+ function or class with a rule or property removed or weakened, and each must
+-turn its arm red by name. The link arm needs an RV32 compiler
+-(`sw/firmware/gtest/fw_rv32.py` finds the pinned SDK); without one the member
+-declares a skip.
++turn its arm red by name; an arm that fails unmutated grades no mutant. The
++link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
++pinned SDK); without one the member declares a skip.
+ 
+ An access that is never acknowledged must not wedge either bridge or the shared
+ bus.
+diff --git a/scripts/ci_scope.py b/scripts/ci_scope.py
+index 45bbee64e..812dcfaf5 100644
+--- a/scripts/ci_scope.py
++++ b/scripts/ci_scope.py
+@@ -60,10 +60,13 @@ TOP_LEVEL_SUFFIXES = [".md"]
+ #: event page, and the clock-contract test checks the latency-tap table. The
+ #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
+ #: policy to the area budget's table. The mailbox contract generator's
+-#: --check compares its reference page with what it emits (#665 F0).
++#: --check compares its reference page with what it emits (#665 F0). The
++#: split control memory test (elaborate's LiteX aggregate) holds its rule
++#: table to ctrl_memory.RULES (#640).
+ GATE_READ_DOCS = [
+     "docs/AAF_LATENCY_TAPS.md",
+     "docs/design/AREA_BUDGET.md",
++    "docs/design/SPLIT_CONTROL_MEMORY.md",
+     "docs/reference/MAILBOX_CONTRACT.md",
+     "docs/reference/REGISTER_MAP.md",
+     "docs/reference/TRACE_EVENTS.md",
+@@ -282,6 +285,8 @@ def _cases() -> list[Case]:
+         (["docs/design/AREA_BUDGET.md"], True),
+         # The page the mailbox contract generator's --check compares (#665).
+         (["docs/reference/MAILBOX_CONTRACT.md"], True),
++        # The page whose rule table the split control memory test reads (#640).
++        (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
+         # Under docs/, a generator, a manifest, a budget or other non-prose.
+         (["docs/traceability/gen_module_matrix.py"], True),
+         (["docs/diagrams/PNG_MANIFEST.json"], True),
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index f0131b301..5cce82f5a 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -81,6 +81,8 @@ RULES: dict[str, Rule] = {
+     "outside regions": Rule("memory map", "A section outside both regions"),
+     "loads outside rom": Rule("memory map", "Initial bytes loading outside `rom`, the only region the bitstream "
+                                             "initialises"),
++    "load coverage": Rule("memory map", "A section with initial bytes that the load segments' file bytes, which "
++                                        "program `rom`, do not all carry"),
+     "nobits in rom": Rule("memory map", "A NOBITS section in `rom`, which the firmware cannot write"),
+     "writable in rom": Rule("memory map", "A writable section with initial bytes running in `rom`, which drops "
+                                           "its writes"),
+@@ -241,6 +243,15 @@ def read_elf(path: Path) -> Image:
+     return Image(entry, tuple(sections), symbols, segments)
+ 
+ 
++def _carried(segments: tuple[tuple[int, bytes], ...], start: int, end: int) -> bool:
++    """Whether the load segments' file bytes, which `rom_words` programs, cover [start, end)."""
++    at = start
++    for addr, data in sorted(segments, key=lambda segment: segment[0]):
++        if addr <= at < addr + len(data):
++            at = addr + len(data)
++    return at >= end
++
++
+ def _overlap(rule: str, spans: list[tuple[int, int, str]]) -> None:
+     """Refuse the first two of `spans` ([start, end) and name) that share an address."""
+     spans = sorted(spans)
+@@ -258,6 +269,9 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
+                       f"CPU's reset address 0x{rom.origin:08x}, the start of {rom.name}")
+     if not any(s.loaded and s.vma <= image.entry < s.vma + s.size for s in image.sections):
+         raise Refusal("entry bytes", f"no initial bytes at the reset address 0x{image.entry:08x}")
++    if not _carried(image.segments, image.entry, image.entry + 4):
++        raise Refusal("entry bytes", f"no load segment carries the first word at the reset address "
++                      f"0x{image.entry:08x}, so {rom.name} would hold none there")
+     for s in image.sections:
+         home = next((r for r in (rom, ram) if r.holds(s.vma, s.vma + s.size)), None)
+         if home is None:
+@@ -266,6 +280,9 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
+         if s.loaded and not rom.holds(s.lma, s.lma + s.size):
+             raise Refusal("loads outside rom", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
+                           f"outside {rom.name}, the only region the bitstream initialises")
++        if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):
++            raise Refusal("load coverage", f"{s.name}'s {s.size} initial bytes at 0x{s.lma:08x} are not all "
++                          f"in the load segments' file bytes, the only bytes that program {rom.name}")
+         if not s.loaded and home is rom:
+             raise Refusal("nobits in rom", f"{s.name} reserves {rom.name}, which the firmware cannot write")
+         if s.writable and home is rom:
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index f023dcc5d..a8cca2a37 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -13,7 +13,8 @@ block RAM the SoC builds from them. This file grades seven things:
+      planned or refused. A good image is accepted and its rom contents are the
+      bytes placed at their load addresses. Every rule in `ctrl_memory.RULES`
+      has a planted defect that must be refused by that rule, among them a
+-     truncated ELF, writable data running in rom and a CPU with other origins.
++     truncated ELF, writable data running in rom, a CPU with other origins and
++     a load segment carrying fewer bytes than its sections claim.
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
+      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
+@@ -25,29 +26,37 @@ block RAM the SoC builds from them. This file grades seven things:
+   4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe
+      linked by `sw/firmware/ctrl/plat/ctrl_split.ld` behind
+      `ctrl_split_start.S` enters at the reset address with the reset entry
+-     first, loads .data's initial value from rom and is planned. The same
+-     script with `.data`'s `AT > rom` removed, with `.data` linked in rom, or
+-     entering at `main` is refused by its rule. Without a compiler this arm is
+-     a declared skip.
++     first, loads .data's initial value from rom and is planned, and its rom
++     words are the toolchain's own `objcopy -O binary` of it. The same script
++     with `.data`'s `AT > rom` removed, with `.data` linked in rom, or entering
++     at `main` is refused by its rule, and so is the linked image with its
++     reset segment's file bytes emptied or cut to one word, or .data's emptied.
++     Without a compiler this arm is a declared skip.
+   5. THE SOC BUILD. milan_soc.py's own main(), on the shipping 1x1 config's
+      argv (sw/builder/endstation_builder.py), exporting without Vivado or
+-     software: an allocation over budget, a memory-map overlap and the 8x8
+-     stage are each refused by its rule before any Verilog is written;
++     software: an allocation over budget, a memory-map overlap, the 8x8 stage
++     and an emptied reset segment are each refused by its rule before any
++     Verilog or init file is written;
+      --ctrl-mailbox alone and --ctrl-firmware alone are each refused; and the
+      split export holds the image's banks and no BIOS ROM or SRAM, its rom
+      banks hold the image, and the Builder is told to build no BIOS and no
+-     shipping firmware.
++     shipping firmware. LiteX's firmware data packages are refused in every
++     interpreter, as the elaborate job installs none, so the arm grades the
++     same in either.
+   6. THE REGISTER. docs/design/SPLIT_CONTROL_MEMORY.md section 3 lists exactly
+      `ctrl_memory.RULES`, and every rule has a refusal arm and a mutant.
+   7. MUTANTS. Each mutant rebuilds one function or class of ctrl_memory.py or
+      milan_soc.py from its own source with one edit that removes or weakens a
+-     rule or a property, and must turn its arm red with a named failure.
++     rule or a property, and must turn its arm red with a named failure. A
++     mutant is graded only against an arm that passed unmutated in the same
++     run, so a failure of the environment is never counted as a kill.
+ """
+ from __future__ import annotations
+ 
+ import __future__
+ import ast
+ import contextlib
++import importlib.abc
+ import inspect
+ import json
+ import os
+@@ -303,6 +312,10 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
+     return [
+         ("entry address", "an image entering away from the reset address", plan(GOOD._replace(entry=0x100))),
+         ("entry bytes", "an image with no initial bytes at the reset address", plan(GOOD._replace(text_at=0x100))),
++        ("entry bytes", "the reset segment's file bytes emptied, its section kept",
++         read(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))),
++        ("entry bytes", "the reset section moved to 0x100 in the section table, its segment kept",
++         read(edited(tmp, "reset-moved", poke(lambda data: shoff(data) + 40 + 12, 0x100)))),
+         ("cpu origins", "a CPU resetting away from rom's origin", cpu(0x100, RAM)),
+         ("cpu origins", "a CPU whose sram is not at sram's origin", cpu(0, 0x2000_0000)),
+         ("elf class", "a file that is not an ELF", read(edited(tmp, "not-elf", splice(0, b"#!sh")))),
+@@ -319,6 +332,10 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
+         ("outside regions", "a section outside rom and sram", plan(GOOD._replace(bss_at=0x4000_0000))),
+         ("loads outside rom", "initial bytes of .data left in sram, which nothing initialises",
+          plan(GOOD._replace(data_lma=RAM))),
++        ("load coverage", "the reset segment's file bytes cut to its first word, its section kept",
++         read(edited(tmp, "reset-short", poke(lambda data: 52 + 16, 4)))),
++        ("load coverage", ".data's load segment emptied, its section kept",
++         read(edited(tmp, "data-unloaded", poke(lambda data: 52 + 2 * 32 + 16, 0)))),
+         ("nobits in rom", ".bss reserved in rom", plan(GOOD._replace(bss_at=12_100, bss=1_000))),
+         ("writable in rom", ".data linked to run in rom", plan(GOOD._replace(data_at=12_100, data_lma=12_100))),
+         ("regions", "PLANTED: a memory-map overlap (sram moved into rom)",
+@@ -528,6 +545,17 @@ def link(cc: str, tmp: Path, script: str) -> Path:
+     return elf_path
+ 
+ 
++def filesz_at(data: bytes, address: int) -> int:
++    """Where the file size of the load segment carrying `address` is, read without `read_elf`."""
++    phoff, = struct.unpack_from("<I", data, 28)
++    phentsize, phnum = struct.unpack_from("<HH", data, 42)
++    for at in range(phoff, phoff + phnum * phentsize, phentsize):
++        kind, _, _, paddr, filesz = struct.unpack_from("<5I", data, at)
++        if kind == 1 and paddr <= address < paddr + filesz:
++            return at + 16
++    raise LookupError(f"no load segment carries 0x{address:08x}")
++
++
+ def link_arms(problems: list[str], tmp: Path) -> bool:
+     """The real link script and reset entry; False when no RV32 compiler is found."""
+     cc = fw_rv32.compiler()
+@@ -535,7 +563,8 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
+         print("  [skip] no RV32 compiler: the link arm did not run")
+         return False
+     script = (PLAT / "ctrl_split.ld").read_text()
+-    probe = ctrl_memory.read_elf(link(cc, tmp, script))
++    linked = link(cc, tmp, script)
++    probe = ctrl_memory.read_elf(linked)
+     plan = ctrl_memory.plan(probe)
+     sections = {s.name: s for s in probe.sections}
+     words = ctrl_memory.rom_words(probe)
+@@ -546,6 +575,13 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
+           and words[data.lma // 4] == 7, ".data runs in sram and its initial value 7 loads from rom")
+     check(problems, sections[".stack"].vma + sections[".stack"].size == RAM + plan.ram_bytes,
+           "the stack tops the sram need")
++    binary = tmp / "probe.bin"
++    subprocess.run([str(Path(cc).with_name(Path(cc).name.replace("gcc", "objcopy"))), "-O", "binary",
++                    str(linked), str(binary)], check=True)
++    loaded = binary.read_bytes()
++    check(problems, struct.pack(f"<{len(words)}I", *words) == loaded + bytes(-len(loaded) % 4),
++          f"the probe's rom words are its load image as the toolchain's objcopy -O binary writes it "
++          f"({len(words)} words, {len(loaded)} bytes)")
+     ctrl_memory.check_stage(probe, STAGE_1X1, "1x1")
+     check(problems, True, "the probe's nvm_stage passes as the shape's stage")
+     for plant, edit, rule in (("no AT > rom on .data", ("} > sram AT > rom", "} > sram"), "loads outside rom"),
+@@ -555,6 +591,17 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
+         broken.mkdir()
+         refused(problems, rule, lambda b=broken, e=edit: ctrl_memory.plan(
+             ctrl_memory.read_elf(link(cc, b, script.replace(*e)))), f"PLANTED link script: {plant}")
++    raw = linked.read_bytes()
++    for plant, address, size, rule in (("the reset segment's file bytes emptied", probe.entry, 0, "entry bytes"),
++                                       ("the reset segment's file bytes cut to its first word", probe.entry, 4,
++                                        "load coverage"),
++                                       (".data's load segment emptied", data.lma, 0, "load coverage")):
++        broken = bytearray(raw)
++        struct.pack_into("<I", broken, filesz_at(raw, address), size)
++        path = tmp / (re.sub(r"\W+", "-", plant).strip("-") + ".elf")
++        path.write_bytes(bytes(broken))
++        refused(problems, rule, lambda p=path: ctrl_memory.plan(ctrl_memory.read_elf(p)),
++                f"PLANTED linked image: {plant}")
+     return True
+ 
+ 
+@@ -579,14 +626,35 @@ def soc_argv() -> list[str]:
+     return SOC_ARGV
+ 
+ 
++class FirmwareDataRefused(importlib.abc.MetaPathFinder):
++    """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
++
++    def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
++        """Fail any pythondata_software_* import and defer every other module."""
++        if name.startswith("pythondata_software_"):
++            raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
++        return None
++
++
+ def soc_child(spec_path: Path) -> int:
+     """In a child process: milan_soc.main() on the spec's argv, its mutation applied; write what it decided."""
+     spec = json.loads(spec_path.read_text())
+     if spec["mutation"]:
+         owner, name, old, new = spec["mutation"]
+         setattr(MODULES[owner], name, mutated(MODULES[owner], name, old, new))
+-    result: dict[str, Any] = {"rc": 0}
+-    original = Builder.build
++    # As sw/builder/test_shipping_clock_constraints.py does: the elaborate job
++    # installs sw/litex/litex_pins.txt alone, so no interpreter may reach a
++    # firmware data package here (#640, R606-2-F2).
++    sys.meta_path.insert(0, FirmwareDataRefused())
++    result: dict[str, Any] = {"rc": 0, "includes": []}
++    original, original_includes = Builder.build, Builder._generate_includes
++
++    def generate_includes(self: Builder, with_bios: bool = True) -> None:
++        """Write the SoC headers, omitting only the firmware make inputs."""
++        # Those inputs name the picolibc and compiler-rt data packages. Nothing
++        # is compiled here, and the gateware and its init files read neither.
++        result["includes"].append(with_bios)
++        original_includes(self, with_bios=False)
+ 
+     def build(self: Builder, **kwargs: Any) -> object:
+         """Record what the Builder is handed, then build as asked."""
+@@ -596,7 +664,7 @@ def soc_child(spec_path: Path) -> int:
+                              "packages": [name for name, _ in self.software_packages]}
+         return original(self, **kwargs)
+ 
+-    Builder.build = build
++    Builder.build, Builder._generate_includes = build, generate_includes
+     sys.argv = ["milan_soc.py", *spec["argv"]]
+     try:
+         milan_soc.main()
+@@ -622,7 +690,8 @@ def soc_case(tmp: Path, label: str, extra: list[str], mutation: list[str] | None
+                        env=dict(os.environ, PYTHONHASHSEED="0"), stdout=fh, stderr=subprocess.STDOUT, check=False)
+     result_path = stem.with_suffix(".result.json")
+     result = json.loads(result_path.read_text()) if result_path.exists() else {"rc": None, "error": "no result"}
+-    result.update(log=log.read_text(), out=out, verilog=sorted(out.glob("gateware/*.v")))
++    result.update(log=log.read_text(), out=out, verilog=sorted(out.glob("gateware/*.v")),
++                  inits=sorted(out.glob("gateware/*.init")))
+     return result
+ 
+ 
+@@ -651,6 +720,8 @@ def split_export(problems: list[str], result: dict[str, Any], firmware: Path) ->
+     told = result.get("builder", {})
+     check(problems, (told.get("rom"), told.get("sram"), told.get("initialized")) == (0, 0, True),
+           f"the Builder is handed no BIOS ROM or SRAM and a rom that holds its contents, so builds no BIOS ({told})")
++    check(problems, result.get("includes") == [True],
++          f"the Builder writes the SoC headers once, without the firmware make inputs ({result.get('includes')})")
+     check(problems, "libmilan_baremetal" not in told.get("packages", ["?"])
+           and not (out / "software/libmilan_baremetal").exists(), "the split build adds no shipping firmware")
+ 
+@@ -663,10 +734,12 @@ def soc_arms(problems: list[str], tmp: Path, mutation: list[str] | None = None)
+     for label, extra, rule in (
+             ("an allocation over budget", [*mbx, str(elf(tmp, GOOD._replace(bss=215_000)))], "budget"),
+             ("a memory-map overlap", [*mbx, str(elf(tmp, GOOD._replace(bss_at=RAM + 32)))], "addresses"),
+-            ("the 8x8 stage in the 1x1 build", [*mbx, str(elf(tmp, GOOD._replace(stage=STAGE_8X8)))], "stage size")):
++            ("the 8x8 stage in the 1x1 build", [*mbx, str(elf(tmp, GOOD._replace(stage=STAGE_8X8)))], "stage size"),
++            ("the reset segment's file bytes emptied",
++             [*mbx, str(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))], "entry bytes")):
+         result = soc_case(tmp, label, extra, mutation)
+-        check(problems, (result["rc"], result.get("rule"), result["verilog"]) == (1, rule, []),
+-              f"SoC build: {label} is refused by rule '{rule}' before any Verilog is written "
++        check(problems, (result["rc"], result.get("rule"), result["verilog"], result["inits"]) == (1, rule, [], []),
++              f"SoC build: {label} is refused by rule '{rule}' before any Verilog or init file is written "
+               f"(rc {result['rc']}: {result.get('refusal') or result.get('error')})")
+     for label, extra in (("--ctrl-mailbox alone", ["--ctrl-mailbox"]),
+                          ("--ctrl-firmware alone", ["--ctrl-firmware", str(good)])):
+@@ -731,8 +804,16 @@ MUTANTS = tuple(Mutant(*row) for row in (
+     ("entry bytes off", "entry bytes", *_CHECKS, "if not any(s.loaded and s.vma <= image.entry",
+      "if False and not any(s.loaded and s.vma <= image.entry", "checks"),
+     ("outside regions off", "outside regions", *_CHECKS, "if home is None:", "if False:", "checks"),
++    ("entry bytes read the sections only", "entry bytes", *_CHECKS,
++     "if not _carried(image.segments, image.entry, image.entry + 4):", "if False:", "checks"),
+     ("loads outside rom off", "loads outside rom", *_CHECKS,
+      "if s.loaded and not rom.holds(s.lma, s.lma + s.size):", "if False:", "checks"),
++    ("load coverage off", "load coverage", *_CHECKS,
++     "if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):", "if False:", "checks"),
++    ("load coverage reads the first byte only", "load coverage", *_CHECKS,
++     "_carried(image.segments, s.lma, s.lma + s.size)", "_carried(image.segments, s.lma, s.lma + 1)", "checks"),
++    ("a segment carries bytes below its start", "load coverage", "ctrl_memory", "_carried",
++     "if addr <= at < addr + len(data):", "if at < addr + len(data):", "checks"),
+     ("nobits in rom off", "nobits in rom", *_CHECKS, "if not s.loaded and home is rom:", "if False:", "checks"),
+     ("writable in rom off", "writable in rom", *_CHECKS, "if s.writable and home is rom:", "if False:", "checks"),
+     ("region overlap off", "regions", *_CHECKS, '_overlap("regions", ', '0 and _overlap("regions", ', "checks"),
+@@ -844,10 +925,17 @@ def registry_arms(problems: list[str], tmp: Path) -> None:
+           f"every mutant targets a rule or a named property (stray: {sorted(mutants - rules - set(PROPERTIES))})")
+ 
+ 
+-def mutant_arms(problems: list[str], tmp: Path) -> None:
+-    """Each mutant must turn its arm red, named by the first failure it causes."""
++def mutant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
++    """Each mutant must turn its arm red, named by the first failure it causes.
++
++    Only an arm in `green`, one that passed unmutated in this run, grades a
++    mutant: a failure the arm shows anyway is no evidence that the mutant is caught.
++    """
+     arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms}
+     for n, m in enumerate(MUTANTS):
++        if m.arm not in green:
++            check(problems, False, f"MUTANT '{m.name}' ({m.target}) is not graded: the {m.arm} arm fails unmutated")
++            continue
+         caught: list[str] = []
+         owner = MODULES[m.owner]
+         try:
+@@ -886,17 +974,21 @@ def main() -> int:
+     print("test_ctrl_memory: the split placement's firmware memory (#640 M8a)")
+     with tempfile.TemporaryDirectory(prefix="ctrl-memory-") as name:
+         tmp = Path(name)
+-        run_arm(problems, "banks", bank_arms)
+-        run_arm(problems, "rules", partial(check_arms, tmp=tmp))
+-        run_arm(problems, "simulation", sim_arms)
+-        linked = run_arm(problems, "link", partial(link_arms, tmp=tmp))
+-        run_arm(problems, "SoC build", partial(soc_arms, tmp=tmp / "soc"))
++        outcomes: dict[str, object] = {}
++        green: set[str] = set()
++        for key, label, arm in (("banks", "banks", bank_arms), ("checks", "rules", partial(check_arms, tmp=tmp)),
++                                ("sim", "simulation", sim_arms), ("link", "link", partial(link_arms, tmp=tmp)),
++                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc"))):
++            before = len(problems)
++            outcomes[key] = run_arm(problems, label, arm)
++            if len(problems) == before:
++                green.add(key)
+         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
+-        run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp))
++        run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
+     for problem in problems:
+         print(f"FAIL: {problem}", file=sys.stderr)
+     print(f"test_ctrl_memory: {len(problems)} failure(s)")
+-    if not problems and not linked:
++    if not problems and not outcomes["link"]:
+         print("RESULT: SKIP (no RV32 compiler; the link arm needs one, see sw/firmware/gtest/fw_rv32.py)")
+         return 0
+     print(f"RESULT: {'PASS' if not problems else 'FAIL'}")

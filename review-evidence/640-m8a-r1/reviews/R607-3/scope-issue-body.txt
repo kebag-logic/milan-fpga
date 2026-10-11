@@ -1,0 +1,16 @@
+https://github.com/kebag-logic/milan-fpga/issues/640
+**Owner decision (2026-10-03):** NFR-RES-01 stays at 60 %. It will be met by a redesign once every other milestone is reached, under this milestone.
+
+**Starting point** (issue #234 baseline, PR #638, `docs/findings/234_PP_SHADOW_AREA_BASELINE.md`):
+- The routed shipping image uses 50,128 LUTs, 79.07 % of `xc7a100t`. That is 12,088 LUTs over the 38,040-LUT target (NFR-RES-01 in `docs/reference/FR_NFR.md`).
+- `KL_pp_shadow` alone uses 24,343 LUTs in its 1x1 standalone synthesis.
+- The ranked levers (#232, #230, #639) recover about 3,600 LUTs. #233 alone cannot close the gap.
+
+**Until then:** the resource gate (PR #638) holds every resource at its recorded value, so the image cannot grow unreviewed.
+
+**Acceptance:**
+- The routed shipping image uses at most 38,040 LUTs and meets the build's timing gate at the shipping clock.
+- Function is unchanged: every suite, campaign and compliance check passes at the same counts.
+- The resource gate's baseline is re-recorded in the reviewed change that reaches the target.
+
+Relates to #229.

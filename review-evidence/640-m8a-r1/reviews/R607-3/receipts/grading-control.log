@@ -1,0 +1,8 @@
+PASS: missing include hook causes baseline SoC ImportError, exit 1; all six SoC mutants NOT GRADED; no environmental failure credited as kill
+  [FAIL] MUTANT 'BIOS ROM built' (no BIOS memory) is not graded: the soc arm fails unmutated
+  [FAIL] MUTANT 'BIOS SRAM built' (no BIOS memory) is not graded: the soc arm fails unmutated
+  [FAIL] MUTANT 'control memory not added' (memory hookup) is not graded: the soc arm fails unmutated
+  [FAIL] MUTANT 'main() staging check removed' (stage in main) is not graded: the soc arm fails unmutated
+  [FAIL] MUTANT 'flag pairing off' (pairing) is not graded: the soc arm fails unmutated
+  [FAIL] MUTANT 'shipping firmware linked' (no shipping firmware) is not graded: the soc arm fails unmutated
+PASS: disposable fault copy removed; tracked source bytes unchanged

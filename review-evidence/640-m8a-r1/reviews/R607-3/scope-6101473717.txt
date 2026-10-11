@@ -1,0 +1,39 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101473717
+[A594] STOP
+Head: `e8454e2751d05b02ee8e5a571857589ab358ab86` (the assigned base; no commit, worktree clean)
+
+The memory-fit proof fails at the largest supported shape. This is the assignment's own condition: "A shape that does not fit is a STOP with the table."
+
+The firmware was linked with `sw/firmware/ctrl/test/ctrl_srp_image.py --with-aecp`: full F0-F5/F1, 8 KiB stack, pinned RV32 SDK. The spans equal F5's published spans. Each span already holds the descriptor image (7,512 / 19,520 B), the shape-sized stage (3,344 / 13,264 B) and the lwSRP pool.
+
+| Point | Linked span, B | Floor RAMB36 at 4,096 B | As mapped, ROM + RAM | As mapped, unified | Against 50 RAMB36 |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 140,400 | 35 | 48 | 64 | fits as ROM + RAM |
+| 1x1, two interfaces | 153,056 | 38 | 48 | 64 | fits as ROM + RAM |
+| 8x8, one interface | 194,224 | 48 | 64 | 64 | over as mapped |
+| **8x8, two interfaces** | **221,728** | **55** | **64** | **64** | **over: 16,928 B past the ceiling** |
+
+**Usable bytes.** A RAMB36 gives 4,096 byte-addressable bytes, so 50 tiles hold 204,800 B and 224,000 B needs 55. The ledger's 4.5 KB per tile counts parity bits.
+
+**As mapped.** Each memory is LiteX's `wishbone.SRAM` alone, synthesised out of context on `xc7a100t-fgg484-2` with `AreaOptimized_high`, ROMs initialised from the image. Default inference rounds each memory to a power-of-two depth: a 204,800 B memory maps to 64 RAMB36. Every case used 0 RAMB18. A `ram_decomp` variant was not run.
+
+**BIOS ROM and SRAM reuse at `e8454e27`.** 16 + 2 = **18 RAMB36, 0 RAMB18**. The ledger's extra RAMB18 is the 49-byte SoC identifier memory, which stays in either placement.
+
+**Ledger.** `87.5 - 6.5 + 6 - 18 + 55 + 2 = 126` tiles at the floor, and 135 as mapped, against the 121.5 ceiling before the conditional release.
+
+**Also absent at this base.** The service, boot and route proofs need F-INT PR 2:
+- the split build: `hdl/milan/milan_datapath.sv:8003` keeps the wrapper, and `sw/litex/milan_soc.py:2548-2553` holds the mailbox idle;
+- an image that boots the control application (`milan_soc.py:3990-3993` links only the shipping firmware);
+- M0s's split figure.
+
+**All-fabric without DDR3 (measurement only).** Compacted, the processor window is 14,792 B (4 RAMB36) at 1x1 and 46,640 B (12 RAMB36) at 8x8.
+
+**Decisions needed:**
+1. Raise the allocation, reduce the firmware, or bound the largest shape's interface count. The largest consumers at 8x8 with two interfaces are the lwSRP pool 48,064 B, the descriptor image 19,520 B, the saved-state stage 13,264 B, the AECP value store 11,753 B and the application state 9,640 B.
+2. Keep the BIOS (about +10 tiles) or give the firmware its own reset entry.
+3. Sequence M8a's proofs after F-INT PR 2.
+
+**Validation.** Ten evidence commands, all rc 0: SDK verify, the runtime, the four links, `ctrl_image_selftest.py --require-rv32` (33 checks PASS), `syn/ooc/pp_baseline.py --selftest`, the descriptor sizes and the Vivado mapping of 13 memories. No tree change, push, PR or route. HANDOFF.md and PR-BODY.md are prepared.
+
+**Observation for a separate Issue.** `sw/litex/milan_soc.py:3005-3006` gives the 8x8 descriptor image as 23,216 bytes. It is 19,520 B at this base, CRC-identical to the firmware's copy.
+

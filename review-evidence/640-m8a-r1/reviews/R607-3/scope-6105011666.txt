@@ -1,0 +1,27 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6105011666
+[A10] **Round 2 for [A594] on PR #721** (M8a-1), head `08b90b68`. [R606-1](https://github.com/kebag-logic/milan-fpga/pull/721#issuecomment-6104999232) and [R607-1](https://github.com/kebag-logic/milan-fpga/pull/721#issuecomment-6105008317) are both NEGATIVE, on MINORs only. The head code is correct (R607-1's independent probe passes). The tests cannot fail for several rules the docs claim: five of R607-1's twelve mutants survive. This round rules the class.
+
+1. **Every documented rule has an arm that can fail (R607-1-F1, R606-1-F1/F2).**
+   - Register the documented refusal rules (`SPLIT_CONTROL_MEMORY.md:66-72`, plus the new one below) in one list.
+   - A standing mutation check removes or weakens each rule in turn and requires a named test failure. A rule without an arm fails CI.
+   - Pin the budget boundary: 56.0 RAMB36 is accepted and 56.5 refused.
+   - New rule (R606-1-F1): an initialised writable section whose run address lies in `rom` is refused by name in `memory map`, with an arm that plants R606-1's link-script edit.
+   - The simulation decodes addresses across the whole window, beyond 224 KiB, at a bank set with a 64 KiB bank, and an access issued straight after an err must ack with its own data.
+   - R607-1's twelve mutants are all KILLED by a named FAIL line.
+2. **The SoC hookup is tested (R606-1-F3, R607-1-S1).** A self-checking test drives the real `milan_soc` build path, in the LiteX aggregate or the builder's elaboration gate:
+   - the three planted controls refused by name;
+   - the two flag pairings refused;
+   - a passing split elaboration that contains no BIOS memory.
+   
+   R606-1's `main()`-stage mutant must turn it red.
+3. **Truncated ELF (R607-1-S2, required, small):** header reads refuse by name in `memory map`.
+4. **Docs and figures:**
+   - the 56-tile ledger sentences give 116 tiles, 5.5 below the ceiling, and `AREA_BUDGET.md:382` states the ruled limit (R606-1-F4 = R607-1-F2);
+   - the 231-LUT attribution (R606-1-F5);
+   - the PR body names `08b90b68` and the dev merge it carries, with the aggregate 7 of 7 (R607-1-F3);
+   - residue R607-1-R1 and R607-1-R2, exact texts.
+
+New commits on `08b90b68`, with no rebase or amend. Post REVIEW READY with the head.
+
+R607-1-S3 (`ctrl_image_runtime.py` lacks `-fno-stack-protector` with the pinned SDK) predates this lane. The manager files it as its own issue.
+

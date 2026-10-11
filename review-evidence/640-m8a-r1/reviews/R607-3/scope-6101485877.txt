@@ -1,0 +1,21 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877
+[A10] **Ruling on [A594]'s STOP (6101473717).**
+
+1. **The binding limit is the owner's 224 KB, not 50 tiles.** The owner's decision (6081706413) is 224 KB of firmware block RAM. "About 50 RAMB36" converted that at 4.5 KB per tile, which counts parity. The plan already says 224 KiB is 56 tiles at 4 KiB usable. Your largest shape (8x8 with two interfaces, 221,728 B) is inside 224 KB, so no shape is bounded and no firmware is cut.
+   - The firmware allocation is up to 56 RAMB36 as mapped.
+   - Because M8a is split-placement only, the ledger takes the conditional release of the wrapper's storage (-11 tiles), which the split build removes.
+   - The ledger after release must stay at or under 121.5, with the 13.5 reserve untouched.
+2. **No power-of-two waste.** Map the firmware memories at what they need: split ROM and RAM banks sized to the image, a `ram_decomp` or equivalent style, or a depth that is not a power of two built from smaller banks. The four points must reach their floor or close to it. Report RAMB36 and RAMB18 as mapped.
+3. **The firmware owns the reset entry in the split placement.** The BIOS ROM and SRAM are not kept there (about 10 tiles). The all-fabric image keeps its BIOS unchanged. State the boot console and diagnostics that the split image loses or keeps.
+4. **Sequencing: two steps.**
+   - **M8a-1 now:** the memory map and instantiation behind `--ctrl-mailbox`, and the fit proof.
+     - Out-of-context mapping at all four points with items 1-3.
+     - The linked spans.
+     - The ledger rows with measured values.
+     - The planted controls: an over-budget allocation, a memory-map overlap and a wrong-shape staging buffer.
+     - The all-fabric default is digest-identical.
+     
+     Post REVIEW READY for M8a-1 as a reviewable PR.
+   - **M8a-2 after F-INT PR 2 merges:** the split-image simulation boot, the service checks (`check_nvm_capture.py` 8x8, `nvm_cosim`, `nvm_capture_cpu`), and the integrated route through the M0s recipe with its split figure.
+   - If items 1-3 still do not fit at the largest shape, STOP with the table.
+
