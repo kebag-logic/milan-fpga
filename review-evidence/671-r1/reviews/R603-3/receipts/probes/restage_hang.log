@@ -1,0 +1,9 @@
+== head: rc=0 boot_line=yes read_storm=no reads=7 boot_reads=7 walks=1
+    Milan NVM: slot A gave no standing verdict in 3 reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.
+    Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 4808 B at 0xe22fc0e0; walk done=1 fail=0 blank=0 backed=0 closed=0 rolled_back=0 cause=0/0; read faults=3 unread=1.
+== restage_unbounded: rc=0 boot_line=NO read_storm=YES reads=1000001 boot_reads=0 walks=0
+    HOST read storm: 1000001 reads through the mapping
+== restage_four_tries: rc=0 boot_line=yes read_storm=no reads=8 boot_reads=8 walks=1
+    Milan NVM: slot A gave no standing verdict in 3 reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.
+    Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 4808 B at 0x184f60e0; walk done=1 fail=0 blank=0 backed=0 closed=0 rolled_back=0 cause=0/0; read faults=4 unread=1.
+rc=0

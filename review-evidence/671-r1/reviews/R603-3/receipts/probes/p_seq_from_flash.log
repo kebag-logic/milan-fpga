@@ -1,0 +1,14 @@
+PROBE p_seq_from_flash (sequence from a fresh flash read) on endstation_arty_4x4: 38 finding(s)
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:1:1:128 on a writer restart: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 7 times, want exactly 5
+  FINDING: endstation_arty_4x4: slot A newer at seq 0x0, the other older, --read-fault a:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 7 times, want exactly 5
+  FINDING: endstation_arty_4x4: slot B valid at seq 0x5a5a5, --read-fault b:11:3:1:128 on a writer restart: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 7 times, want exactly 5
+  FINDING: endstation_arty_4x4: slot B newer at seq 0x0, the other older, --read-fault b:0:0:64 on a writer restart: with one slot faulted on every read the writer restart read the flash 7 times, want exactly 5
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x1, --read-fault a:11:2:1:128: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault a:11:2:1:128: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x80000000, --read-fault a:11:2:1:128: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot A valid at seq 0xffffffff, --read-fault a:11:2:1:128: one faulty read held the writer; the bound must resolve it
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-fault b:0:0:64: with one slot faulted on every read the boot read the flash 8 times, want exactly 6
+  FINDING: endstation_arty_4x4: slot A valid at seq 0x5a5a5, --read-ff a:2:1: one faulty read held the writer; the bound must resolve it
+VERDICT CAUGHT
