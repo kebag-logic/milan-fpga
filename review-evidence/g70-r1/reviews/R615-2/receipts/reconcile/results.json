@@ -1,0 +1,58 @@
+[
+  {
+    "name": "integration_clean",
+    "rc": 0,
+    "reports": [
+      "engine_timing.rpt",
+      "engine_util.rpt",
+      "engine_util_hier.rpt",
+      "ucpu_timing.rpt",
+      "ucpu_util.rpt",
+      "ucpu_util_hier.rpt"
+    ],
+    "pass_expected": true
+  },
+  {
+    "name": "integration_ucpu",
+    "rc": 2,
+    "reports": [
+      "engine_timing.rpt",
+      "engine_util.rpt",
+      "engine_util_hier.rpt",
+      "ucpu_timing.rpt",
+      "ucpu_util.rpt",
+      "ucpu_util_hier.rpt"
+    ],
+    "pass_expected": true
+  },
+  {
+    "name": "integration_engine",
+    "rc": 2,
+    "reports": [
+      "engine_timing.rpt",
+      "engine_util.rpt",
+      "engine_util_hier.rpt",
+      "ucpu_timing.rpt",
+      "ucpu_util.rpt",
+      "ucpu_util_hier.rpt"
+    ],
+    "pass_expected": true
+  },
+  {
+    "name": "echo_anywhere",
+    "rc": 1,
+    "pass_expected": true
+  },
+  {
+    "name": "generated_clock",
+    "pass_expected": true
+  },
+  {
+    "name": "timing_exception",
+    "pass_expected": true
+  },
+  {
+    "name": "bad_period",
+    "pass_expected": true
+  }
+]

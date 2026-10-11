@@ -1,0 +1,352 @@
+[
+  {
+    "name": "trace_ucpu",
+    "rc": 0,
+    "pass_expected": true,
+    "required": [
+      "CLOCK -period 10.000 -name clk clk_i",
+      "SYNTH -mode out_of_context",
+      "REPORT utilization -hierarchical -file ucpu_util_hier.rpt",
+      "REPORT utilization -file ucpu_util.rpt",
+      "REPORT timing -delay_type max -max_paths 3 -file ucpu_timing.rpt",
+      "REPORT clocks -append -file ucpu_timing.rpt"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "trace_engine",
+    "rc": 0,
+    "pass_expected": true,
+    "required": [
+      "CLOCK -period 10.000 -name clk clk_i",
+      "SYNTH -mode out_of_context",
+      "REPORT utilization -hierarchical -file engine_util_hier.rpt",
+      "REPORT utilization -file engine_util.rpt",
+      "REPORT timing -delay_type max -max_paths 3 -file engine_timing.rpt",
+      "REPORT clocks -append -file engine_timing.rpt"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "make_clean",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "make_late_ucpu",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "ucpu_ooc.tcl",
+      "read_xdc after synth_design"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "make_foreign_ucpu",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "ucpu_ooc.tcl",
+      "is not read before"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "make_late_engine",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "engine_ooc.tcl",
+      "read_xdc after synth_design"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "make_foreign_engine",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "engine_ooc.tcl",
+      "is not read before"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "make_8ns",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "clock is 8.000 ns"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "make_two_clocks",
+    "rc": 2,
+    "pass_expected": true,
+    "required": [
+      "expected one create_clock"
+    ],
+    "forbidden": [
+      "REVIEW_SYNTHESIS_SENTINEL"
+    ]
+  },
+  {
+    "name": "post_clean",
+    "rc": 0,
+    "pass_expected": true,
+    "required": [],
+    "forbidden": []
+  },
+  {
+    "name": "post_critical_line",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "CRITICAL WARNING:"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_critical_count",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "session ends with 2 critical warnings"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_missing_count",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "no session message count"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_foreign_path",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "did not parse"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_late_parse",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "did not parse"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_late_clock",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "create_clock after synth_design"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_8ns",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "Clock Summary is"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_wrong_port",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "not bound to clk_i"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_second_clock",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "Clock Summary is"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_unclocked",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "checking no_clock reports"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_missing_report",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "ucpu_timing.rpt: missing"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_unfinished",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "did not complete"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "post_missing_log",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "ucpu_ooc.log: missing"
+    ],
+    "forbidden": []
+  },
+  {
+    "name": "mutant_duplicate_xdc",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "XDC with two create_clock lines escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_script_foreign",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "foreign ooc_clock.xdc of the same basename escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_log_foreign",
+    "rc": 1,
+    "pass_expected": false,
+    "required": [
+      "ooc_clock.xdc parsed from another checkout escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_critical_line",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "critical warning after the session count escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_critical_count",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "critical-warning count above zero escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_summary_period",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "wrong period escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_summary_duplicate",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "second clock escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_clock_source",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "clock bound to another port escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_no_clock",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "unclocked registers escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "mutant_read_before",
+    "rc": 1,
+    "pass_expected": true,
+    "required": [
+      "no read_xdc escaped"
+    ],
+    "forbidden": [
+      "Traceback"
+    ]
+  },
+  {
+    "name": "selftest_clean",
+    "rc": 0,
+    "pass_expected": true,
+    "required": [
+      "PASS (30 arms)"
+    ],
+    "forbidden": []
+  }
+]

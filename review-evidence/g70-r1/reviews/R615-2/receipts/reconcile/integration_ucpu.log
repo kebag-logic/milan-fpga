@@ -1,0 +1,16 @@
+python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+syn/ooc/run.sh
+ooc clock order: PASS (ooc_clock.xdc, ucpu_ooc.tcl, engine_ooc.tcl)
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+SYNTHETIC_OUTPUT ucpu
+SYNTHETIC_OUTPUT engine
+ooc clock order: FAIL (6 findings)
+  ucpu_ooc.log:11: CRITICAL WARNING: [Vivado 12-4739] synthetic missing clock-port result
+  ucpu_ooc.log:7: session ends with 2 critical warnings
+  ucpu_timing.rpt: Clock Summary is [], expected ['clk {0.000 5.000} 10.000 100.000']
+  ucpu_timing.rpt: clock clk is not bound to clk_i (sources [])
+  ucpu_timing.rpt: checking no_clock reports ['1003'], expected ['0']
+  engine_ooc.log: synth_design did not parse $REVIEWS/g70-r615-2-packet/scratch/reconcile/integration_ucpu/syn/ooc/ooc_clock.xdc before mapping
+make: *** [Makefile:40: ooc] Error 1

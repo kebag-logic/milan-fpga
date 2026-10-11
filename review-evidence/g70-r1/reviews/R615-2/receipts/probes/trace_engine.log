@@ -1,0 +1,7 @@
+READ $REVIEWS/r615-2-g70/syn/ooc/ooc_clock.xdc
+CLOCK -period 10.000 -name clk clk_i
+SYNTH -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+REPORT utilization -hierarchical -file engine_util_hier.rpt
+REPORT utilization -file engine_util.rpt
+REPORT timing -delay_type max -max_paths 3 -file engine_timing.rpt
+REPORT clocks -append -file engine_timing.rpt

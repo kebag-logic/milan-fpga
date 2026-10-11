@@ -1,0 +1,25 @@
+169073fe9751b873d140b46d4363e02ad4f56b88 Describe the post-synthesis OOC clock checks in the HDL guide
+74bfbf86a55a4e9e0499af70d533351404c240a6 Fail the OOC run unless each synthesis shows clk at 10 ns bound to clk_i with no critical warning
+f51aa684070795c7487094d4b66ee949e895ef57 Scope the pre-#70 unconstrained note to this repository's syn/ooc figures
+26622e27dfb629a6c59d22b77021012127e0c344 Record constrained and unconstrained OOC figures side by side with their flow
+acb23f0fe99d88ac2b6a3c5125d209ef5b935309 State the unconstrained OOC flow on each archived page that quotes OOC figures
+adc344c158b5dc3826052f2f68482e552f020918 Give each OOC clock rule a selftest arm that only it catches
+48051c5bb32b3d29758c32db8e509b206195db65 Read the OOC clock from an XDC before synth_design and gate that order
+
+ Makefile                                         |   1 +
+ docs/HDL_DEVELOPER.md                            |  50 +++
+ docs/MANAGER.md                                  |  28 +-
+ docs/history/v1/PROJECT_STATUS.md                |   9 +
+ docs/history/v1/RESOURCE_VALIDATION.md           |   9 +
+ docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md |   9 +
+ docs/history/v1/prototype/INTEGRATION_GUIDE.md   |   9 +
+ docs/history/v1/prototype/IP_BLOCKS.md           |   9 +
+ docs/history/v1/prototype/RESOURCE_VALIDATION.md |   9 +
+ syn/ooc/check_ooc_clock.py                       | 417 +++++++++++++++++++++++
+ syn/ooc/engine_ooc.tcl                           |  18 +-
+ syn/ooc/ooc_clock.xdc                            |   9 +
+ syn/ooc/run.sh                                   |   7 +
+ syn/ooc/ucpu_ooc.tcl                             |  19 +-
+ 14 files changed, 584 insertions(+), 19 deletions(-)
+
+Historical recipe delta founding commit to base:
