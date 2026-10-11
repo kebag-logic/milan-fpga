@@ -1,0 +1,23 @@
+[
+  {
+    "probe": "drop-link",
+    "build_rc": 0,
+    "run_rc": 1,
+    "required_check": "M5 datapath: link return starts four fresh PROBEs",
+    "killed": true
+  },
+  {
+    "probe": "tie-link-high",
+    "build_rc": 0,
+    "run_rc": 1,
+    "required_check": "M5 datapath: link return starts four fresh PROBEs",
+    "killed": true
+  },
+  {
+    "probe": "drop-clock",
+    "build_rc": 0,
+    "run_rc": 1,
+    "required_check": "M3 datapath: real-time clock changes probe intervals",
+    "killed": true
+  }
+]
