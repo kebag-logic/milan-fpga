@@ -1,0 +1,19 @@
+head endstation_ax7101_1x1_tdm8 cold: slot A valid at seq 0x5a5a5, --read-fault a:3332:1:2:8; model reads=7 judgement=('ffc', 'cc') unread=''; findings=0
+head endstation_ax7101_1x1_tdm8 restart: slot A valid at seq 0x5a5a5, --read-fault a:3332:0:2:8 on a writer restart; model reads=6 judgement=('ffc', 'cc') unread=''; findings=0
+no_tail endstation_ax7101_1x1_tdm8 cold: slot A valid at seq 0x5a5a5, --read-fault a:3332:1:2:8; model reads=7 judgement=('ffc', 'cc') unread=''; findings=3
+    slot A valid at seq 0x5a5a5, --read-fault a:3332:1:2:8: the boot read the flash 5 times, want exactly 7
+    slot A valid at seq 0x5a5a5, --read-fault a:3332:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+    slot A valid at seq 0x5a5a5, --read-fault a:3332:1:2:8: 53 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+no_tail endstation_ax7101_1x1_tdm8 restart: slot A valid at seq 0x5a5a5, --read-fault a:3332:0:2:8 on a writer restart; model reads=6 judgement=('ffc', 'cc') unread=''; findings=2
+    slot A valid at seq 0x5a5a5, --read-fault a:3332:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+    slot A valid at seq 0x5a5a5, --read-fault a:3332:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+head endstation_ax7101_8x8 cold: slot A valid at seq 0x5a5a5, --read-fault a:13252:1:2:8; model reads=7 judgement=('ffc', 'cc') unread=''; findings=0
+head endstation_ax7101_8x8 restart: slot A valid at seq 0x5a5a5, --read-fault a:13252:0:2:8 on a writer restart; model reads=6 judgement=('ffc', 'cc') unread=''; findings=0
+no_tail endstation_ax7101_8x8 cold: slot A valid at seq 0x5a5a5, --read-fault a:13252:1:2:8; model reads=7 judgement=('ffc', 'cc') unread=''; findings=3
+    slot A valid at seq 0x5a5a5, --read-fault a:13252:1:2:8: the boot read the flash 5 times, want exactly 7
+    slot A valid at seq 0x5a5a5, --read-fault a:13252:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+    slot A valid at seq 0x5a5a5, --read-fault a:13252:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+no_tail endstation_ax7101_8x8 restart: slot A valid at seq 0x5a5a5, --read-fault a:13252:0:2:8 on a writer restart; model reads=6 judgement=('ffc', 'cc') unread=''; findings=2
+    slot A valid at seq 0x5a5a5, --read-fault a:13252:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+    slot A valid at seq 0x5a5a5, --read-fault a:13252:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+rc=0
