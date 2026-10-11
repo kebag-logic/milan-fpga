@@ -1,0 +1,19 @@
+# scripts/ci_scope.py classification at exact head
+docs/design/SPLIT_CONTROL_MEMORY.md -> rtl-relevant: false
+docs/design/AREA_BUDGET.md -> rtl-relevant: true
+# GATE_READ_DOCS at head:
+GATE_READ_DOCS = [
+    "docs/AAF_LATENCY_TAPS.md",
+    "docs/design/AREA_BUDGET.md",
+    "docs/reference/MAILBOX_CONTRACT.md",
+    "docs/reference/REGISTER_MAP.md",
+    "docs/reference/TRACE_EVENTS.md",
+    "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+]
+# readers of SPLIT_CONTROL_MEMORY.md under gated roots:
+sw/litex/ctrl_memory.py:26:rule a check enforces, as docs/design/SPLIT_CONTROL_MEMORY.md section 3 does,
+sw/litex/ctrl_memory.py:72:#: Every refusal rule, keyed by rule, in the order of SPLIT_CONTROL_MEMORY.md
+sw/litex/test_ctrl_memory.py:40:  6. THE REGISTER. docs/design/SPLIT_CONTROL_MEMORY.md section 3 lists exactly
+sw/litex/test_ctrl_memory.py:81:DOC = ROOT / "docs/design/SPLIT_CONTROL_MEMORY.md"
+sw/litex/test_ctrl_memory.py:825:    """(check, rule, refuses) for each row of SPLIT_CONTROL_MEMORY.md section 3's rule table."""
+sw/litex/test_ctrl_memory.py:835:    check(problems, got == want, f"SPLIT_CONTROL_MEMORY.md section 3 lists the {len(want)} rules of "

@@ -1,0 +1,38 @@
+# exact head 76605880a20005cbc2acad1b23ba2ccebde64ca8 - hosted job excerpts (escape codes stripped)
+## job 114413985967
+634:2026-10-11T07:11:01.9993941Z   FAIL gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:81) is relevant
+684:2026-10-11T07:11:02.0028819Z selftest: 1 FAILURE(S)
+685:2026-10-11T07:11:02.0048808Z ##[error]Process completed with exit code 1.
+## job 114413985937
+687:2026-10-11T07:10:53.1726264Z   FAIL gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:81) is relevant
+737:2026-10-11T07:10:53.1749111Z selftest: 1 FAILURE(S)
+738:2026-10-11T07:10:53.1787817Z ##[error]Process completed with exit code 1.
+## job 114414069491
+65:2026-10-11T07:11:04.0320522Z ##[error]Process completed with exit code 1.
+## job 114414051914
+160:2026-10-11T07:11:02.0033402Z   FAIL expected 5 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+161:2026-10-11T07:11:02.0033994Z   FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+162:2026-10-11T07:11:02.0093426Z ##[error]Process completed with exit code 1.
+179:2026-10-11T07:11:02.0562790Z ##[error]Process completed with exit code 2.
+194:2026-10-11T07:11:02.0932922Z ##[error]Process completed with exit code 1.
+## job 114414078687
+160:2026-10-11T07:11:10.2370023Z   FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+161:2026-10-11T07:11:10.2371828Z   FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+162:2026-10-11T07:11:10.2455365Z ##[error]Process completed with exit code 1.
+183:2026-10-11T07:11:10.3885431Z ##[error]Process completed with exit code 1.
+198:2026-10-11T07:11:10.4079715Z ##[error]Process completed with exit code 1.
+shell: /usr/bin/bash -e {0}
+env:
+  VERILATOR_VERSION: v5.050
+  YOSYS_VERSION: v0.66
+  CHANGES_RESULT: failure
+  VERILATOR_LINT_RESULT: skipped
+  BDD_CONFORMANCE_RESULT: success
+  YOSYS_ELABORATION_RESULT: skipped
+  FIRMWARE_UNIT_RESULT: skipped
+##[endgroup]
+changes                  failure
+verilator-lint           skipped
+bdd-conformance          success
+yosys-elaboration        skipped
+firmware-unit            skipped

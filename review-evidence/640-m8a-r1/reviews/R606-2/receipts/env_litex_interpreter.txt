@@ -1,0 +1,47 @@
+# reviewer LiteX interpreter (copy of a litex_pins.txt install; patches re-applied by sw/litex/patches/apply.sh)
+certifi==2026.7.22
+charset-normalizer==3.5.1
+colorama==0.4.6
+idna==3.20
+litedram==2026.4
+liteeth==2026.4
+liteiclink==2025.4
+litespi==2026.4
+litex==2026.4
+litex-boards==2026.4
+migen==0.9.2
+packaging==26.3
+pip==25.0.1
+pyserial==3.5
+pythondata-cpu-vexiiriscv==1.0.1.post325
+PyYAML==6.0.3
+requests==2.34.2
+urllib3==2.8.0
+# import probe without PYTHONPATH:
+pythondata_software_picolibc None
+pythondata_software_compiler_rt None
+# litex Requires-Dist:
+Requires-Dist: migen
+Requires-Dist: packaging
+Requires-Dist: pyserial
+Requires-Dist: requests
+Requires-Dist: mesonpexpectsetuptoolsrequests; extra == "develop"
+# workflow install step (.github/workflows/elaborate.yml:160-164):
+      - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+# repository statement (sw/builder/test_shipping_clock_constraints.py:20-27):
+class FirmwareDataRefused(importlib.abc.MetaPathFinder):
+    """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
+
+    def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
+        """Fail any pythondata_software_* import and defer every other module."""
+        if name.startswith("pythondata_software_"):
+            raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
+        return None
+# verilator
+Verilator 5.050 2026-07-01 rev v5.050
+# rv32 sdk
+riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
