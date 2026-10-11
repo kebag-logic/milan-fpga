@@ -121,12 +121,14 @@ Its output and dependency options are dropped as the expansion drops them, its o
 The recorder resolves every file the pass names while it is there, and keeps the list and the tree in the capture.
 It then runs the compile itself, waits for it, and records its exit status with the invocation.
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
-The hosted `firmware-unit` job runs its firmware steps under one capture, and the boundary step judges it (`--capture`).
-A capture given must have been made in this checkout, its builders run here: one run in another checkout refuses the gate, since that checkout's files are none of this one's.
-Run without one, the gate first runs every known builder it judges under a capture of its own, by that builder's own commands.
+Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
+The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
+`firmware-unit` runs the suites, the store suites and the coverage ratchet with no capture.
+A capture given (`--capture`) is judged instead, and must have been made in this checkout, its builders run here: one run in another checkout refuses the gate, since that checkout's files are none of this one's.
 Either way it runs the stack's own gate and the image builders under the capture itself ([`ctrl_runs.py`](test/ctrl_runs.py)).
 `ctrl_srp_image.py` compiles every object there and stops at its link, which needs runtime archives built from sources outside the checkout.
-The image builders take each shape through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
+The image builders take each shape through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-boundary` has it, and refuses without it.
 [`ctrl_configs.py`](test/ctrl_configs.py) lists the known builders that compile (`BUILDERS`).
 A missing or empty capture refuses the gate by name.
 So does a known builder the capture holds no invocation of.
@@ -134,17 +136,17 @@ So does an invocation the compiler could not expand: the expansion failed, print
 So does a precompiled header read first that no compile in the capture made.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
-`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-unit` has no Verilator.
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-boundary` has no Verilator.
 `--only verilator` judges those three alone, under the gate's own capture, and names the others.
 Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
 The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
-Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's; the run that holds the firmware steps checks this.
+Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's; the run that holds the firmware builders checks this.
 It also runs the stack's own boundary gate, beside the rest.
 `--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
 Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
-It then plants 93 defects, each refused by name, and eight passing controls, where the firmware steps' capture is.
+It then plants 93 defects, each refused by name, and eight passing controls, where the firmware builders' capture is.
 A control's planted builder compiles the planted copy through a capture of its own, and what it compiled is judged.
 It compiles the copy as the builders do (the image builder's and the arms' own compile functions), in a spelling of its own, or as a replay: a compile of the run's capture run again with the copy's trees in its arguments (the SRP image builder's).
 Among them are R584-6's N1 (a store source reaching the stack's `examples/`, as the image builder compiles it) and R585-6's Q7 (a store platform header that shadows `stdbool.h` for the stack in the image build).
@@ -468,17 +470,21 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 1/6
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture <capture> --without verilator
 ```
 
-The first runs every known builder under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
-The second judges a capture made as the `firmware-unit` job makes it: each of its firmware commands run as `ctrl_capture.py --out <capture> -- <command>` (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
+`--build-only` builds and links every arm's binaries and runs none; it plants nothing and ends `BUILT`, never `PASS`.
+The first boundary command runs every known builder by its builds under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
+The second is the `firmware-boundary` job's: every known builder but those that need Verilator (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
+The third judges a capture made of any builder's commands, each run as `ctrl_capture.py --out <capture> -- <command>`.
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
 `acmpnvm` arm also runs the builder for its shape, as lane F1's gate does).
 RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
-Both firmware gates require RV32 in `firmware-unit`.
+Both firmware gates require RV32 in `firmware-unit`, and the boundary gate in `firmware-boundary`.
 The boundary gate also needs GoogleTest's headers for the stack's tests, and CMake and Clang for the stack's own gate.
 Freestanding declarations avoid the SDK's hosted C headers.
 GCC supplies its own freestanding integer and varargs headers.

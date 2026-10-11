@@ -364,6 +364,14 @@ line first: the C and C++ compilers, gcov and GoogleTest and GoogleMock
 they ran with. A gate's coverage mode does not; the coverage gate that
 drives it prints the line for the run.
 
+The ctrl gate, the store's gate and the coverage gate also take
+`--build-only` (`fw_gtest.Execution`): every binary their suites build is
+built and linked, with the coverage builds in the coverage gate's, and none
+is run. No defect is planted and nothing is measured, and each ends `BUILT`,
+never `PASS` or `OK`. The TSN stack boundary gate's builds are such runs
+(`sw/firmware/ctrl/test/ctrl_configs.py`, `BUILDERS`), since the boundary
+needs the compiles and not the tests.
+
 ## RV32 object builds
 
 Both arms compile RV32I objects using ILP32.
@@ -419,6 +427,8 @@ The SDK installation precedes both, followed by the RV32 self-test,
 and this coverage gate with its planted cases. `scripts/ci_events.py` pins
 the job's steps and the `rtl-fast` aggregate's verdict on it, and
 `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
+The `firmware-boundary` job runs the same gates by their `--build-only`
+under the TSN stack boundary gate's capture (#697).
 
 F4 initializes the public lwSRP submodule at its exact pin.
 The control gate includes lwSRP, SRP and its mutation campaign.
