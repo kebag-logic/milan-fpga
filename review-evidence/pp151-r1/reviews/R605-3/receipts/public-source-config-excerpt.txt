@@ -1,0 +1,71 @@
+Source: https://github.com/kebag-logic/milan-fpga/blob/14f8fe421ca8699bcba10968c8e6a8abd09b343b/review-evidence/pp151-r1/author-r2/HANDOFF.md
+
+### Round 2 suite and record identity
+
+The base is `ef86ea84`, the head is `02063dc1`. All five required processor gates were
+run at both. Builds of the head used the same source bytes subsequently committed. The final
+warning-control correction names its planted generate block, removing an incidental
+GENUNNAMED warning so its ELAB failure specifically reports USERWARN. The complete
+processor gates and both software campaigns were rerun after that correction. The
+vendor campaign used only the unchanged boundary arms and unchanged guard
+bench/HDL; its input bytes are identical across the two Round 2 commits.
+No command was piped. The suite records are identical, not merely equal totals.
+
+| Command | Base | Head | Record comparison |
+|---|---|---|---|
+| `scripts/run_suites.sh` | rc 0, 1693.7 s | rc 0, 1749.4 s | byte-identical: 3 gates, 35 suites, 1,029,775 checks, 0 failures |
+| `scripts/lint_hdl.sh` | rc 0, 15.7 s | rc 0, 17.5 s | byte-identical |
+| `make -j16 check` | rc 0, 32.8 s | rc 0, 35.7 s | identical lines; parallel print order differs |
+| `scripts/gen_matrix.py --check` | rc 0, 0.1 s | rc 0, 0.1 s | byte-identical |
+| `syn/yosys/run.sh` | rc 0, 84.3 s | rc 0, 87.2 s | byte-identical |
+
+| Campaign / boundary sweep | Base / control | Round 2 head |
+|---|---|---|
+| guard campaign, V+Y12 | rc 0, 1064.6 s, 98/98 killed | rc 0, 1216.4 s, 160/160 killed; control 155/155 |
+| guard campaign, V+Y13 | retained Round 1 98/98 record | rc 0, 1115.6 s, 160/160 killed; control 155/155 |
+| all nearest-boundary pairs, V+Y12 | inventory 31 | rc 0, 179.3 s, 155/155 |
+| all nearest-boundary pairs, X+S | inventory 31 | rc 0, 827.1 s, 155/155 |
+| all tightened/loosened arms, X+S | control 155/155 | rc 0, 3478.5 s, 62/62 killed |
+| exact hosted portability command, Y13 | same bench/oracle | rc 0, 135.7 s, 93/93 |
+
+The changed campaign intentionally adds boundary sensitivity, so its arm count and
+case records differ from the base's 98-arm campaign. Existing processor suite records
+remain identical. The 15 existing RTL-building campaigns in Round 1 section 8 already
+have rc 0 and identical base/head records; their complete HDL inputs and drivers are
+unchanged in Round 2. Those are retained records, not claimed as new runs. The same
+applies to Round 1's 55-top netlist/ROM comparisons and the two vendor OOC comparisons.
+The Round 2 HDL tree identity above is the link to that evidence.
+
+### Scratch parent and consumer checks
+
+The existing scratch clone was originally resolved at dev
+`e8454e2751d05b02ee8e5a571857589ab358ab86`; Round 2 uses the assignment's parent
+`ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5`. The processor submodule root was verified before its git operations.
+Its checkout and staged parent gitlink both name `02063dc1b593d422406991bf0bc60e5cc47828ff`. The existing
+`parent-name-evidence.patch` and the new `parent-guard-evidence.patch` are applied
+together. The parent has only the gitlink and the two reader-disposition additions;
+it was neither committed nor pushed. No Python or evidence ratchet changed.
+
+| Parent command / check | Result at new gitlink with both patches |
+|---|---|
+| `python3 -B scripts/check_py_idiom.py` | rc 0, 5.1 s; missing public signatures 0 <= 0, missing public docstrings 0 <= 0 |
+| `python3 -B scripts/measure_test_evidence.py --check` | rc 0, 7.8 s; unexplained DUT-source readers 0 <= 0; all other ratchets pass |
+| `scripts/lint_rtl.py --check --self-test --jobs 4` | rc 0, 21.2 s; 90 findings <= ratchet 90, 18 waived, 0 justified lint_off |
+| `syn/yosys/run.sh --mode elaborate` | rc 0, 140.6 s; 58/58 tops, tied-input and tap-purity gates PASS |
+| five shipping shapes, raw lint diagnostics plus parent grading | rc 0, 29.6 s; table below |
+
+| Shipping shape | N_STREAMS | Guard USER diagnostics (all paths / processor paths) | Parent lint count / hard errors |
+|---|---|---|---|
+| endstation_arty_current | 1 | 0 / 0 | 101 / 0 |
+| endstation_arty_4x4 | 4 | 0 / 0 | 106 / 0 |
+| endstation_arty_8ch | 4 | 0 / 0 | 106 / 0 |
+| endstation_ax7101_1x1_tdm8 | 1 | 0 / 0 | 101 / 0 |
+| endstation_ax7101_8x8 | 8 | 0 / 0 | 103 / 0 |
+
+Each raw shape lint exits 1 for existing warnings; the shape-check driver exits 0 only
+after confirming zero guard diagnostics and zero hard errors. The parent's generic
+lint wrapper still filters processor diagnostics, as documented in Round 1; the raw
+shape check therefore inspects all paths. That separate parent finding is unchanged.
+Only the two requested consumer-bank checks were rerun here, plus the integration
+gates above; this is not a claim that all 17 bank commands were rerun.
+

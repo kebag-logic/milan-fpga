@@ -1,0 +1,86 @@
+14d13
+< {"mutant": "ident_rearm_from_third_frame", "verdict": "KILLED", "missing": []}
+16d14
+< {"mutant": "ident_two_frames", "verdict": "KILLED", "missing": []}
+17a16,17
+> {"mutant": "ident_two_frames", "verdict": "KILLED", "missing": []}
+> {"mutant": "ident_rearm_from_third_frame", "verdict": "KILLED", "missing": []}
+21d20
+< {"mutant": "ident_departure_is_retirement", "verdict": "KILLED", "missing": []}
+22a22
+> {"mutant": "ident_departure_is_retirement", "verdict": "KILLED", "missing": []}
+26,27d25
+< {"mutant": "ident_burst_press_not_latched", "verdict": "KILLED", "missing": []}
+< {"mutant": "ident_burst_deadline_one_tick_short", "verdict": "KILLED", "missing": []}
+28a27,28
+> {"mutant": "ident_burst_deadline_one_tick_short", "verdict": "KILLED", "missing": []}
+> {"mutant": "ident_burst_press_not_latched", "verdict": "KILLED", "missing": []}
+30d29
+< {"mutant": "ident_cut_on_release", "verdict": "KILLED", "missing": []}
+31a31,32
+> {"mutant": "ident_cut_on_release", "verdict": "KILLED", "missing": []}
+> {"mutant": "ident_built_at_default", "verdict": "KILLED", "missing": []}
+34d34
+< {"mutant": "ident_built_at_default", "verdict": "KILLED", "missing": []}
+38d37
+< {"mutant": "class_9_mapped_to_control", "verdict": "KILLED", "missing": []}
+40a40
+> {"mutant": "class_9_mapped_to_control", "verdict": "KILLED", "missing": []}
+45d44
+< {"mutant": "foreign_unlock_allowed", "verdict": "KILLED", "missing": []}
+47c46
+< {"mutant": "inflight_highest_free_id", "verdict": "KILLED", "missing": []}
+---
+> {"mutant": "foreign_unlock_allowed", "verdict": "KILLED", "missing": []}
+48a48,50
+> {"mutant": "registry_holds_15", "verdict": "KILLED", "missing": []}
+> {"mutant": "set_control_ignores_lock", "verdict": "KILLED", "missing": []}
+> {"mutant": "inflight_highest_free_id", "verdict": "KILLED", "missing": []}
+52,54d53
+< {"mutant": "registry_holds_15", "verdict": "KILLED", "missing": []}
+< {"mutant": "ix_new_identity_unset", "verdict": "KILLED", "missing": []}
+< {"mutant": "set_control_ignores_lock", "verdict": "KILLED", "missing": []}
+55a55
+> {"mutant": "ix_new_identity_unset", "verdict": "KILLED", "missing": []}
+62d61
+< {"mutant": "counter_stamp_first_job_only", "verdict": "KILLED", "missing": []}
+63a63,64
+> {"mutant": "counter_stamp_first_job_only", "verdict": "KILLED", "missing": []}
+> {"mutant": "counter_spacing_from_selection", "verdict": "KILLED", "missing": []}
+66,67d66
+< {"mutant": "counter_spacing_from_selection", "verdict": "KILLED", "missing": []}
+< {"mutant": "dereg_lost_at_round_end", "verdict": "KILLED", "missing": []}
+69a69,70
+> {"mutant": "dereg_lost_at_round_end", "verdict": "KILLED", "missing": []}
+> {"mutant": "asp_takes_domain", "verdict": "KILLED", "missing": []}
+72,74d72
+< {"mutant": "asp_takes_domain", "verdict": "KILLED", "missing": []}
+< {"mutant": "avb_notify_not_interface", "verdict": "KILLED", "missing": []}
+< {"mutant": "adoption_no_strobe", "verdict": "KILLED", "missing": []}
+76c74,75
+< {"mutant": "registry_never_claims", "verdict": "KILLED", "missing": []}
+---
+> {"mutant": "adoption_no_strobe", "verdict": "KILLED", "missing": []}
+> {"mutant": "avb_notify_not_interface", "verdict": "KILLED", "missing": []}
+77a77
+> {"mutant": "registry_never_claims", "verdict": "KILLED", "missing": []}
+79d78
+< {"mutant": "withdraw_mask_dropped", "verdict": "KILLED", "missing": []}
+82a82
+> {"mutant": "withdraw_mask_dropped", "verdict": "KILLED", "missing": []}
+91d90
+< {"mutant": "withdraw_two_clocks", "verdict": "KILLED", "missing": []}
+93a93
+> {"mutant": "rgy_port_tied_zero", "verdict": "KILLED", "missing": []}
+97,98d96
+< {"mutant": "rgy_port_tied_zero", "verdict": "KILLED", "missing": []}
+< {"mutant": "depth_not_keyed", "verdict": "KILLED", "missing": []}
+99a98
+> {"mutant": "depth_not_keyed", "verdict": "KILLED", "missing": []}
+103,104d101
+< {"mutant": "cancel_collision_drops_command", "verdict": "KILLED", "missing": []}
+< {"mutant": "cancel_pending_accepts_failure", "verdict": "KILLED", "missing": []}
+106a104,106
+> {"mutant": "cancel_collision_drops_command", "verdict": "KILLED", "missing": []}
+> {"mutant": "withdraw_two_clocks", "verdict": "KILLED", "missing": []}
+> {"mutant": "cancel_pending_accepts_failure", "verdict": "KILLED", "missing": []}

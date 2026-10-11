@@ -1,0 +1,57 @@
+{
+  "publication_commit": "14f8fe421ca8699bcba10968c8e6a8abd09b343b",
+  "public_author_files_hash_verified": 248,
+  "inner_manifest_redaction_mapping": [
+    {
+      "path": "head/vivado-mutants.log",
+      "explanation": "outer publication records path redaction",
+      "original": "12c3a82843d42c9210208992a0b5a3b54845545761f330e79e7d3516d7676046",
+      "published": "61241527c99dd41c69093cc9a362fe0134079219d9ae9c6c7a17fde0b73c76be"
+    }
+  ],
+  "round2_base": "ef86ea848dbfb0d869108a1987accb203a17474d",
+  "round2_head": "02063dc1b593d422406991bf0bc60e5cc47828ff",
+  "identical_gate_records_sha256": {
+    "suites": "e19e98b96ac35a7c9dfea878e81ae11ac57bfee1184c4bc4eedd7111cbecc19a",
+    "lint": "9a3703ba1ec6767b277e9d5102c94a93fe107454da19d13cab518ba312cd1e81",
+    "matrix": "7a2c98136a0892f195fa6a08ad82dfe7e36e8a81d0732cb304584f31e966e097",
+    "yosys": "4c909cb195175090a156b4bf045551dcadbbc69c6d0be46615c5325815565b1a"
+  },
+  "documentation_records": "same sorted lines",
+  "retained_canonical_netlist_rom_records": 57,
+  "retained_canonical_netlist_rom_sha256": "bf9b77f3f37a158c61113930a6fb55ac8ad6b96baa0fbf44d598ed5b01b9a88d",
+  "all_31_public_boundary_pairs": {
+    "probes/boundaries.log": "elab guards: 155 checks: 155 PASS, 0 FAIL",
+    "probes/vivado.log": "elab guards: 155 checks: 155 PASS, 0 FAIL",
+    "head/portability-step.log": "elab guards: 93 checks: 93 PASS, 0 FAIL"
+  },
+  "mutation_coverage": {
+    "mutants.log": {
+      "named_arms": 160,
+      "boundary_frontends": [
+        "verilator",
+        "yosys"
+      ],
+      "all_31_guards_covered": true,
+      "tally": "elab guard mutants: 160 of 160 killed"
+    },
+    "mutants013.log": {
+      "named_arms": 160,
+      "boundary_frontends": [
+        "verilator",
+        "yosys"
+      ],
+      "all_31_guards_covered": true,
+      "tally": "elab guard mutants: 160 of 160 killed"
+    },
+    "vivado-mutants.log": {
+      "named_arms": 62,
+      "boundary_frontends": [
+        "xsim",
+        "synth"
+      ],
+      "all_31_guards_covered": true,
+      "tally": "elab guard mutants: 62 of 62 killed"
+    }
+  }
+}
