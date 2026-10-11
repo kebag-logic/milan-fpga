@@ -1,0 +1,312 @@
+[
+ {
+  "probe": "ledger_tag_stuck_1",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      led_tag_r [led_tail_w] <= alloc_tagged_i;",
+  "new": "      led_tag_r [led_tail_w] <= 1'b1;",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "ledger_type_written_at_head",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      led_type_r[led_tail_w] <= alloc_type_i;",
+  "new": "      led_type_r[led_head_r] <= alloc_type_i;",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 5 ==",
+    "failed_checks": [
+     "ledger lockstep: mismatching cycles",
+     "results lockstep: mismatching cycles",
+     "results values: gen",
+     "results values: ok",
+     "timer coverage: slots 0 to 5"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "ledger_write_ungated_when_full",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "  assign led_we_w = alloc_i && (n_led_r != OCC_W_C'(TXTS_CAP_N_P));",
+  "new": "  assign led_we_w = alloc_i;",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "result_gen_stuck_1",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      res_gen_r [res_tail_w] <= gen_r;",
+  "new": "      res_gen_r [res_tail_w] <= TXTS_GEN_W_P'(1);",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "result_ns_low_bit_stuck",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      res_ns_r  [res_tail_w] <= res_ns_w;",
+  "new": "      res_ns_r  [res_tail_w] <= {res_ns_w[63:1], 1'b0};",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 1 ==",
+    "failed_checks": [
+     "results lockstep: mismatching cycles"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "result_ok_stuck_1",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      res_ok_r  [res_tail_w] <= res_ok_w;",
+  "new": "      res_ok_r  [res_tail_w] <= 1'b1;",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "result_seq_from_ledger_tail",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "old": "      res_seq_r [res_tail_w] <= led_head_seq_w;",
+  "new": "      res_seq_r [res_tail_w] <= led_seq_r[led_tail_w];",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 11 ==",
+    "failed_checks": [
+     "ledger coverage: every entry was the head got=3 exp=255",
+     "ledger coverage: three or more entries outstanding",
+     "results coverage: every entry was the head got=3 exp=255",
+     "results coverage: head compared",
+     "results coverage: two or more results outstanding",
+     "results lockstep: mismatching cycles",
+     "timer coverage: slots 0 to 5",
+     "tx_fifo coverage: frames transmitted",
+     "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276",
+     "tx_fifo coverage: over 16 beats queued behind a stall",
+     "tx_fifo coverage: stalled with a beat waiting"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "rx_bad_mask_all_bits",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "old": "    .USER_BAD_FRAME_MASK ((LANE_W_C + 1)'(1)),",
+  "new": "    .USER_BAD_FRAME_MASK ('1),",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "rx_lowest_lane",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "old": "      if (rx_tkeep_i[i]) fw_top_w = LANE_W_C'(i);",
+  "new": "      if (rx_tkeep_i[KEEP_W_C-1-i]) fw_top_w = LANE_W_C'(KEEP_W_C-1-i);",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 10 ==",
+    "failed_checks": [
+     "ledger coverage: three or more entries outstanding",
+     "ledger values: type",
+     "results coverage: head compared",
+     "results coverage: two or more results outstanding",
+     "results values: type",
+     "rx_fifo lockstep: mismatching cycles",
+     "timer coverage: slots 0 to 5",
+     "tx_fifo coverage: frames transmitted",
+     "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276",
+     "tx_fifo coverage: over 16 beats queued behind a stall"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "timer_deadline_drops_delta_msb",
+  "file": "gptp-processor/hdl/common/KL_gptp_timer.sv",
+  "old": "      deadline_r[arm_slot_i] <= ms_now_r + arm_delta_ms_i;",
+  "new": "      deadline_r[arm_slot_i] <= ms_now_r + {1'b0, arm_delta_ms_i[30:0]};",
+  "suites": {
+   "gptp_tables": {
+    "rc": 0,
+    "tally": "== gptp_tables: checks: 36   failures: 0 ==",
+    "failed_checks": []
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "timer_written_at_sweep_slot",
+  "file": "gptp-processor/hdl/common/KL_gptp_timer.sv",
+  "old": "      deadline_r[arm_slot_i] <= ms_now_r + arm_delta_ms_i;",
+  "new": "      deadline_r[sweep_r] <= ms_now_r + arm_delta_ms_i;",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 3 ==",
+    "failed_checks": [
+     "timer coverage: slots 0 to 5",
+     "timer lockstep: mismatching cycles",
+     "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "tx_count_no_plus1",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "old": "          st_cnt_r   <= CNT_W_C'(gb_idx_r) + CNT_W_C'(1);",
+  "new": "          st_cnt_r   <= CNT_W_C'(gb_idx_r);",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 16 ==",
+    "failed_checks": [
+     "ledger coverage: every entry was the head got=1 exp=255",
+     "ledger coverage: three or more entries outstanding",
+     "results coverage: every entry was the head got=0 exp=255",
+     "results coverage: head compared",
+     "results coverage: two or more results outstanding",
+     "results values: gen",
+     "results values: ns",
+     "results values: ok",
+     "results values: seq",
+     "results values: type",
+     "timer coverage: slots 0 to 5",
+     "tx_fifo coverage: frames transmitted",
+     "tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276",
+     "tx_fifo coverage: over 16 beats queued behind a stall",
+     "tx_fifo coverage: stalled with a beat waiting",
+     "tx_fifo lockstep: mismatching cycles"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "tx_decode_count0_allones",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "old": "      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w);",
+  "new": "      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w) || (txf_cnt_w == '0);",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 2 ==",
+    "failed_checks": [
+     "tx_fifo decode: counts that decode to other enables got=1 exp=0",
+     "tx_fifo lockstep: mismatching cycles"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 0,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ },
+ {
+  "probe": "tx_decode_le",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "old": "      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w);",
+  "new": "      txf_keep_w[i] = (CNT_W_C'(i) <= txf_cnt_w);",
+  "suites": {
+   "gptp_tables": {
+    "rc": 2,
+    "tally": "== gptp_tables: checks: 36   failures: 2 ==",
+    "failed_checks": [
+     "tx_fifo decode: counts that decode to other enables got=8 exp=0",
+     "tx_fifo lockstep: mismatching cycles"
+    ]
+   },
+   "gptp_shadow": {
+    "rc": 2,
+    "tally": null,
+    "failed_checks": []
+   }
+  }
+ }
+]

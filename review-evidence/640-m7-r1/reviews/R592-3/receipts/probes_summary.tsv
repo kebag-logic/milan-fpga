@@ -1,0 +1,33 @@
+probe	suite	tally	lockstep_or_named_checks_failed
+ledger_tag_stuck_1	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+ledger_tag_stuck_1	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+ledger_type_written_at_head	gptp_shadow	292 checks: 228 PASS, 64 FAIL	
+ledger_type_written_at_head	gptp_tables	== gptp_tables: checks: 36   failures: 5 ==	ledger lockstep: mismatching cycles;results lockstep: mismatching cycles;results values: ok;results values: gen;
+ledger_write_ungated_when_full	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+ledger_write_ungated_when_full	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+result_gen_stuck_1	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+result_gen_stuck_1	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+result_ns_low_bit_stuck	gptp_shadow	309 checks: 308 PASS, 1 FAIL	
+result_ns_low_bit_stuck	gptp_tables	== gptp_tables: checks: 36   failures: 1 ==	results lockstep: mismatching cycles;
+result_ok_stuck_1	gptp_shadow	309 checks: 305 PASS, 4 FAIL	
+result_ok_stuck_1	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+result_seq_from_ledger_tail	gptp_shadow	280 checks: 186 PASS, 94 FAIL	
+result_seq_from_ledger_tail	gptp_tables	== gptp_tables: checks: 36   failures: 11 ==	results lockstep: mismatching cycles;
+rx_bad_mask_all_bits	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+rx_bad_mask_all_bits	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+rx_bad_mask_all_bits_sized	gptp_shadow	263 checks: 175 PASS, 88 FAIL	
+rx_bad_mask_all_bits_sized	gptp_tables	== gptp_tables: checks: 36   failures: 3 ==	rx_fifo lockstep: mismatching cycles;
+rx_lowest_lane	gptp_shadow	263 checks: 174 PASS, 89 FAIL	
+rx_lowest_lane	gptp_tables	== gptp_tables: checks: 36   failures: 10 ==	rx_fifo lockstep: mismatching cycles;ledger values: type;results values: type;
+timer_deadline_drops_delta_msb	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+timer_deadline_drops_delta_msb	gptp_tables	== gptp_tables: checks: 36   failures: 0 ==	
+timer_written_at_sweep_slot	gptp_shadow	289 checks: 237 PASS, 52 FAIL	
+timer_written_at_sweep_slot	gptp_tables	== gptp_tables: checks: 36   failures: 3 ==	timer lockstep: mismatching cycles;
+tx_count_no_plus1	gptp_shadow	250 checks: 140 PASS, 110 FAIL	
+tx_count_no_plus1	gptp_tables	== gptp_tables: checks: 36   failures: 16 ==	tx_fifo lockstep: mismatching cycles;results values: ns;results values: seq;results values: type;results values: ok;results values: gen;
+tx_decode_count0_allones	gptp_shadow	309 checks: 309 PASS, 0 FAIL	
+tx_decode_count0_allones	gptp_tables	== gptp_tables: checks: 36   failures: 2 ==	tx_fifo lockstep: mismatching cycles;tx_fifo decode: counts that decode to other enables;
+tx_decode_le	gptp_shadow	309 checks: 308 PASS, 1 FAIL	
+tx_decode_le	gptp_tables	== gptp_tables: checks: 36   failures: 2 ==	tx_fifo lockstep: mismatching cycles;tx_fifo decode: counts that decode to other enables;
+tx_fifo_user_disabled	gptp_shadow	250 checks: 134 PASS, 116 FAIL	
+tx_fifo_user_disabled	gptp_tables	== gptp_tables: checks: 36   failures: 17 ==	tx_fifo lockstep: mismatching cycles;tx_fifo values: count;results values: ns;results values: seq;results values: type;results values: ok;results values: gen;

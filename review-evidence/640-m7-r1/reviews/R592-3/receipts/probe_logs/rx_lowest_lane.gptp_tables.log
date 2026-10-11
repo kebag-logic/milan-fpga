@@ -1,0 +1,37 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.199 MB sources in 19 modules, into 0.912 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.606 s (elab=0.027, cvt=0.110, bld=6.416); cpu 0.201 s on 2 threads; allocated 227.965 MB
+stimulus: 32100038 cycles, 89667 mixed and 218 peer frames, 14 pdelay answers
+rx_fifo: 71699 good, 4673 overflow, 13512 bad, lanes 0xff, 256 beats deep
+tx_fifo: 14 frames, counts 0x110, 418117 stalled cycles, 9 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 419153 compared, heads 0xff, 1 deep
+results: 14 compared, heads 0xff, 1 deep, 0 written behind a waiting result
+timer: 37327 compared, slots 0x05
+plane: flags 0x0, 2 programs run, 132 tap drops, 3194 parser drops, 0 event drops, 0 lost results, 0 barriers
+  [FAIL] rx_fifo lockstep: mismatching cycles     got=1475198 exp=0
+  [FAIL] tx_fifo coverage: frames transmitted
+  [FAIL] tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276
+  [FAIL] tx_fifo coverage: over 16 beats queued behind a stall
+  [FAIL] ledger coverage: three or more entries outstanding
+  [FAIL] results coverage: head compared
+  [FAIL] results coverage: two or more results outstanding
+  [FAIL] timer coverage: slots 0 to 5             got=5 exp=63
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 2 distinct: 0x4 0x8
+ledger values: type: 1 distinct: 0x2
+  [FAIL] ledger values: type
+ledger values: seq: 14 distinct, 0x0 to 0xd
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 14 distinct, 0x125018c to 0x9ba458c
+results values: seq: 14 distinct, 0x0 to 0xd
+results values: type: 1 distinct: 0x2
+  [FAIL] results values: type
+results values: ok: 1 distinct: 0x1, declared 0x1
+results values: gen: 1 distinct: 0x1, declared 0x1
+timer values: deadline: 14 distinct, 0x4b0 to 0x3390
+== gptp_tables: checks: 36   failures: 10 ==
+RESULT: FAIL
+make: *** [Makefile:57: run] Error 1

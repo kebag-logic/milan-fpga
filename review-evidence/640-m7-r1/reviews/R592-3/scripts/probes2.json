@@ -1,0 +1,10 @@
+[
+ ["rx_bad_mask_all_bits_sized", "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "    .USER_BAD_FRAME_MASK ((LANE_W_C + 1)'(1)),",
+  "    .USER_BAD_FRAME_MASK ((LANE_W_C + 1)'(4'hF)),",
+  ["gptp_tables", "gptp_shadow"]],
+ ["tx_fifo_user_disabled", "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "    .USER_ENABLE         (1),\n    .USER_WIDTH          (CNT_W_C),",
+  "    .USER_ENABLE         (0),\n    .USER_WIDTH          (CNT_W_C),",
+  ["gptp_tables", "gptp_shadow"]]
+]

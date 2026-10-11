@@ -1,0 +1,32 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.198 MB sources in 19 modules, into 0.911 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.589 s (elab=0.027, cvt=0.105, bld=6.408); cpu 0.192 s on 2 threads; allocated 228.035 MB
+stimulus: 32100038 cycles, 90314 mixed and 197 peer frames, 4 pdelay answers
+rx_fifo: 44181 good, 33485 overflow, 12843 bad, lanes 0xff, 256 beats deep
+tx_fifo: 4498 frames, counts 0x114, 1450124 stalled cycles, 27 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 1833581 compared, heads 0xff, 3 deep
+results: 4591 compared, heads 0xff, 2 deep, 54 written behind a waiting result
+timer: 20446 compared, slots 0x0f
+plane: flags 0x7, 3525 programs run, 120 tap drops, 957 parser drops, 34 event drops, 38 lost results, 19 barriers
+  [FAIL] ledger lockstep: mismatching cycles      got=236272 exp=0
+  [FAIL] results lockstep: mismatching cycles     got=100 exp=0
+  [FAIL] timer coverage: slots 0 to 5             got=15 exp=63
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 3 distinct: 0x2 0x4 0x8
+ledger values: type: 5 distinct: 0x0 0x2 0x3 0xa 0xb
+ledger values: seq: 2233 distinct, 0x0 to 0xfdd6
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 4392 distinct, 0x0 to 0x30d494c
+results values: seq: 2233 distinct, 0x0 to 0xfdd6
+results values: type: 5 distinct: 0x0 0x2 0x3 0xa 0xb
+results values: ok: 2 distinct: 0x0 0x1, declared 0x1
+  [FAIL] results values: ok
+results values: gen: 15 distinct, 0x1 to 0xf, declared 0x1
+  [FAIL] results values: gen
+timer values: deadline: 17 distinct, 0x4b0 to 0x106c
+== gptp_tables: checks: 36   failures: 5 ==
+RESULT: FAIL
+make: *** [Makefile:57: run] Error 1

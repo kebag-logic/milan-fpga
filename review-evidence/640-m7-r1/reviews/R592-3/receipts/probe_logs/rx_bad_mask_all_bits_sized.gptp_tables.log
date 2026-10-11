@@ -1,0 +1,30 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.198 MB sources in 19 modules, into 0.911 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.149 s (elab=0.036, cvt=0.147, bld=5.907); cpu 0.257 s on 3 threads; allocated 358.031 MB
+stimulus: 32100038 cycles, 89712 mixed and 216 peer frames, 13 pdelay answers
+rx_fifo: 64558 good, 11985 overflow, 13383 bad, lanes 0xff, 256 beats deep
+tx_fifo: 3198 frames, counts 0x110, 9665846 stalled cycles, 25 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 10001377 compared, heads 0xff, 3 deep
+results: 3214 compared, heads 0xff, 2 deep, 17 written behind a waiting result
+timer: 36741 compared, slots 0x05
+plane: flags 0x0, 519 programs run, 128 tap drops, 126 parser drops, 0 event drops, 0 lost results, 0 barriers
+  [FAIL] rx_fifo lockstep: mismatching cycles     got=1050202 exp=0
+  [FAIL] tx_fifo coverage: lane counts 2, 4 and 8 got=272 exp=276
+  [FAIL] timer coverage: slots 0 to 5             got=5 exp=63
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 2 distinct: 0x4 0x8
+ledger values: type: 3 distinct: 0x2 0x3 0xa
+ledger values: seq: 1570 distinct, 0x0 to 0xfbbb
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 3197 distinct, 0xbdac to 0xa0f50c4
+results values: seq: 1569 distinct, 0x0 to 0xfbbb
+results values: type: 3 distinct: 0x2 0x3 0xa
+results values: ok: 1 distinct: 0x1, declared 0x1
+results values: gen: 1 distinct: 0x1, declared 0x1
+timer values: deadline: 15 distinct, 0x4b0 to 0x3390
+== gptp_tables: checks: 36   failures: 3 ==
+RESULT: FAIL
+make: *** [Makefile:57: run] Error 1

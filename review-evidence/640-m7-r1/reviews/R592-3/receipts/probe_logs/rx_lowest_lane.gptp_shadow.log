@@ -1,0 +1,129 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.834 MB sources in 18 modules, into 0.816 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.833 s (elab=0.027, cvt=0.095, bld=6.665); cpu 0.179 s on 2 threads; allocated 226.359 MB
+FAIL wait_tx type 3: timeout
+FAIL equal request sequences: the peer request is answered got 0000000000000000 exp 0000000000000001
+FAIL the released record delivers the request and then the response got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 10: timeout
+FAIL the response's own result builds its Resp_Follow_Up got 0000000000000000 exp 0000000000000001
+FAIL pdelay matches the records       got 0000000000000000 exp 0000000000000001
+FAIL capable at the second exchange   got 0000000000000000 exp 0000000000000001
+FAIL negative pdelay noise preserves asCapable got 0000000000000000 exp 0000000000000004
+FAIL positive pdelay resumes after the clamp probe got 0000000000000000 exp 0000000000000001
+FAIL adopted                          got 0000000000000000 exp 0000000000000001
+FAIL pub gm id                        got 0000000000000000 exp 00aaccfffe010203
+FAIL pub parent id                    got 0000000000000000 exp 0080e1fffe112233
+FAIL published full path count        got 0000000000000000 exp 0000000000000003
+FAIL published path middle hop        got 0000000000000000 exp 00ddbbfffe000001
+FAIL published path source tail       got 0000000000000000 exp 0080e1fffe112233
+FAIL TLV-less selected GM remains published got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less selected parent remains published got 0000000000000000 exp 0080e1fffe112233
+FAIL present to absent spends exactly one path generation got 0000000000000000 exp 0000000000000001
+FAIL identical absent refresh spends no path generation got 0000000000000000 exp 0000000000000001
+FAIL better TLV-less Announce changes scalar GM got 0000000000000000 exp 00aaccfffe010205
+FAIL absent GM A-to-B is path-generation silent got 0000000000000000 exp 0000000000000001
+FAIL explicit one-entry PathTrace publishes count one got 0000000000000000 exp 0000000000000001
+FAIL absent to explicit GM spends one path generation got 0000000000000000 exp 0000000000000002
+FAIL explicit GM to absent spends one path generation got 0000000000000000 exp 0000000000000003
+FAIL present path restored for servo controls got 0000000000000000 exp 0000000000000003
+FAIL restored path returns original scalar GM got 0000000000000000 exp 00aaccfffe010203
+FAIL absent to restored path spends one generation got 0000000000000000 exp 0000000000000004
+FAIL maximum bounded PathTrace publishes count eight got 0000000000000000 exp 0000000000000008
+FAIL maximum bounded PathTrace reaches final tail slot got 0000000000000000 exp 0080e1fffe112233
+FAIL three to eight entries spends one generation got 0000000000000000 exp 0000000000000001
+FAIL offset near +1000                got 0000000000000000 exp 0000000000000001
+FAIL sync-ok rose                     got 0000000000000000 exp 0000000000000008
+FAIL healthy bank clears tu before GM switch got 0000000000000001 exp 0000000000000000
+FAIL better Announce selects the new GM got 0000000000000000 exp 00aaccfffe010204
+FAIL better Announce preserves full path count got 0000000000000000 exp 0000000000000003
+FAIL better Announce preserves middle hop got 0000000000000000 exp 00ddbbfffe000001
+FAIL better Announce publishes new source tail got 0000000000000000 exp 0080e1fffe112244
+FAIL registered bank emitted a pre-commit discontinuity got 0000000000000000 exp 0000000000000001
+FAIL AAF same-edge launch samples tu=1 got 0000000000000000 exp 0000000000000001
+FAIL CRF same-edge launch samples tu=1 got 0000000000000000 exp 0000000000000001
+FAIL oversize cannot skew the stamp   got 0000000000000000 exp 0000000000000001
+FAIL the plane survives the burst     got 0000000000000000 exp 0000000000000001
+FAIL ts-ring burst: the guard shed at least one frame got 0000000000000000 exp 0000000000000001
+FAIL quiet ride to grandmaster        got 0000000000000000 exp 0000000000000001
+FAIL master Announce stamp precedes the Sync collision got 0000000000000000 exp 0000000000000001
+FAIL the selected master Sync record is held got 0000000000000000 exp 0000000000000001
+FAIL held Sync record keeps messageType got 0000000000000002 exp 0000000000000000
+FAIL held Sync has a real launch record got 0000000000000000 exp 0000000000000001
+FAIL as master: an Announce reached the lane got 0000000000000000 exp 0000000000000001
+FAIL as master: a Sync reached the lane got 0000000000000000 exp 0000000000000001
+FAIL as master: its Follow_Up reached the lane got 0000000000000000 exp 0000000000000001
+FAIL backpressure: a production frame is presented got 0000000000000000 exp 0000000000000001
+FAIL backpressure: start valid holds  got 0000000000000000 exp 0000000000000001
+FAIL backpressure: a production body advances got 0000000000000000 exp 0000000000000001
+FAIL backpressure: mid valid holds    got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: response 1 sent got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: response 1 record is held got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: response 1's result is delivered first got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: Follow_Up 1 sent got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: response 2 sent got 0000000000000000 exp 0000000000000001
+FAIL same-type owner: Follow_Up 2 sent got 0000000000000000 exp 0000000000000001
+FAIL warm reset request: asCapable re-earned got 0000000000000000 exp 0000000000000001
+FAIL warm reset request: mastership recovers got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL warm reset Sync: Sync sent       got 0000000000000000 exp 0000000000000001
+FAIL warm reset Sync: its record is held got 0000000000000000 exp 0000000000000001
+FAIL warm reset Sync: asCapable re-earned got 0000000000000000 exp 0000000000000001
+FAIL warm reset Sync: mastership recovers got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL wait_tx type 8: timeout
+FAIL warm reset Sync: cadence restarts got 0000000000000000 exp 0000000000000001
+FAIL warm reset Sync: Follow_Up restarts got 0000000000000000 exp 0000000000000001
+FAIL the tag is proved for all six transmitted types got 0000000000000001 exp 0000000000000006
+FAIL publication bank changed under stimulus got 0000000000000000 exp 0000000000000001
+FAIL lost record: the ledger refused it and raised a barrier got 0000000000000000 exp 0000000000000001
+FAIL lost record: the barrier sealed the plane got 0000000000000000 exp 0000000000000001
+FAIL lost record: a completed episode follows got 0000000000000000 exp 0000000000000001
+FAIL lost record: every cancelled entry closed as a counted loss got 0000000000000000 exp 0000000000000001
+FAIL lost record: and none is left owed got 0000000000000001 exp 0000000000000000
+FAIL echo: a barrier was raised       got 0000000000000000 exp 0000000000000001
+FAIL echo: the plane is sealed        got 0000000000000000 exp 0000000000000001
+FAIL echo: an episode completes while the observer is held got 0000000000000000 exp 0000000000000001
+FAIL echo: the seal outlasts it       got 0000000000000000 exp 0000000000000001
+FAIL phc: every capture inside the hold is an explicit loss got 0000000000000000 exp 0000000000000001
+FAIL phc: every capture at a non-nominal step is an explicit loss got 0000000000000000 exp 0000000000000001
+FAIL Sync TX flags: frames observed   got 0000000000000000 exp 0000000000000001
+FAIL Follow_Up TX flags: frames observed got 0000000000000000 exp 0000000000000001
+TX flags Pdelay_Req: 53 frames, 0 wrong, expected 0x0000
+FAIL Pdelay_Resp TX flags: frames observed got 0000000000000000 exp 0000000000000001
+FAIL Pdelay_Resp_Follow_Up TX flags: frames observed got 0000000000000000 exp 0000000000000001
+263 checks: 174 PASS, 89 FAIL
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_enable_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_arm_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+make: *** [Makefile:43: run] Error 1
