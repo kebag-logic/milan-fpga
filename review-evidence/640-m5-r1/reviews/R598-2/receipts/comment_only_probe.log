@@ -1,0 +1,22 @@
+includes: unchanged between 988ec7f653d0a21e0f7b40b03b8c74155d8962cf and c0cba330fd485e52fcb90d5ccc69169edf9f0c2b
+lines: base 3225 head 3225
+differing lines: [1066, 1067, 1068, 1069, 1070, 1071]
+differing lines whose code part differs: []
+preprocessed endstation_ax7101_1x1_tdm8 mode P: IDENTICAL (2000 lines, sha256 461e5016da7ffcf8)
+preprocessed endstation_ax7101_1x1_tdm8 mode L: IDENTICAL (3598 lines, sha256 69f5aacaccf93ce6)
+preprocessed endstation_ax7101_8x8 mode P: IDENTICAL (2000 lines, sha256 008838abdd3dee9f)
+preprocessed endstation_ax7101_8x8 mode L: IDENTICAL (3598 lines, sha256 17f7a2c414f8df8c)
+preprocessed endstation_arty_current mode P: IDENTICAL (2000 lines, sha256 a78fbdaf8876bc49)
+preprocessed endstation_arty_current mode L: IDENTICAL (3598 lines, sha256 dabd21a153e95c92)
+preprocessed endstation_arty_4x4 mode P: IDENTICAL (2000 lines, sha256 dea5065a4b3ae327)
+preprocessed endstation_arty_4x4 mode L: IDENTICAL (3598 lines, sha256 c2a1866d1949f065)
+anchor [1, 1] (lock1, decode): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK
+anchor [1, 1] (lock1, snapshot-coherence): torn snapshot: window CNT3 reads its live counter, not the SNAP word
+anchor [1, 1] (lock1, snapshot-freshness): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind
+anchor [1, 1] (lock8, snapshot-freshness): stale snapshot: an extra listener's burst word keeps its previous kind
+anchor [1, 1] (lock1, reset-values): reset-value drift: the CNT kinds reset to POISON instead of zero
+anchor [1, 1] (lock1, decode): stage 1: the shadow word is not zeroed under a live or window claim
+anchor [1, 1] (lock1, decode): stage 1: the window's range leaf answers 0 instead of the window's word
+7 anchors, 0 not exactly once at both revisions
+tb/: unchanged between 988ec7f653d0a21e0f7b40b03b8c74155d8962cf and c0cba330fd485e52fcb90d5ccc69169edf9f0c2b
+ALL COMMENT-ONLY CHECKS PASSED
