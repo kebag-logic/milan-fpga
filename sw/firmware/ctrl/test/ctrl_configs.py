@@ -10,7 +10,9 @@ THE BUILDERS. BUILDERS is the known set: every builder of the firmware that
 compiles, each with the commands that run it when the gate makes the capture
 itself: its builds, not its suites (a suite builder's --build-only builds
 every binary and image its suites build, and runs and plants nothing). A
-capture judged must hold an invocation of each, unless the run
+capture judged must hold an invocation of each from a run of its own (a
+compile one builder makes under another's run, as the coverage gate runs the
+control and store gates, holds only the one whose run it is), unless the run
 leaves it out (Scope): it has none of what that builder needs (--without
 verilator), or it judges only the builders that need it (--only verilator,
 which leaves out the firmware builders, judged by the run that holds
@@ -18,15 +20,18 @@ them); each one left out is named on every run. The builders are found by
 text as well, as a cross-check that cannot pass on its own: every Python
 module and Makefile of the checkout, tracked or new and not ignored, that
 names the firmware's tree (sw/firmware/ctrl, or its shared builder
-ctrl_build), the gate's own modules excepted, must have compiled in the
-capture, be one of BUILDERS (or run only under one the run leaves out,
-PART_OF), be listed in OUTSIDE with the reason its compiles, if any, are
+ctrl_build), the gate's own modules excepted, must be one of BUILDERS, be
+listed in PART_OF with the builder it runs under (and have compiled in the
+capture, unless the run leaves that one out), or, when it is no program (a
+Makefile, or a Python module with a __main__ block, is one), have compiled
+in the capture; or it must be listed in OUTSIDE with the reason its compiles, if any, are
 none of the firmware's, or be listed in SUITES with what it compiles only in
 a suite, which a build-only run does not run (a planted-defect campaign
 compiles planted copies, and the checkout's tests against them, and the
 builds compile every source of the checkout it does). Any other refuses the
 gate by name, and so does a compiler a builder runs by a path that is no
-wrapper.
+wrapper. So a builder dropped from BUILDERS refuses by name even where
+another builder still runs it.
 A run that judges only the builders that need Verilator leaves that
 cross-check to the run that holds the firmware builders, whose capture holds
 the builders found by text.
@@ -55,6 +60,7 @@ by what it reads, as every file a compile reads is (ctrl_boundary).
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -126,8 +132,16 @@ BUILDERS = (
 )
 #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
 NEEDS = {"verilator": "Verilator"}
-#: The builders found by text that run only under another builder: left out where that one is.
-PART_OF = {"tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile"}
+#: The programs found by text that run, in the builds, only under another builder (as its module, or a program
+#: it runs): left out where that one is, and otherwise held as any builder found by text is.
+PART_OF = {
+    "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
+    # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
+    "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    # the shared builder: its program is the stack's pin check (--stack-pin), which the bench's Makefile runs and
+    # which compiles nothing; it compiles as the module of every builder of the firmware
+    "sw/firmware/ctrl/test/ctrl_build.py": "tb/verilator/mbx/Makefile",
+}
 #: The builders found by text whose compiles, if any, are none of the firmware's, each with the reason.
 OUTSIDE = {
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
@@ -213,6 +227,11 @@ def builder_texts(planted: dict[Path, str] | None = None) -> dict[Path, str]:
     return dict(sorted(texts.items()))
 
 
+def program(path: Path, text: str) -> bool:
+    """Whether a builder found by text is a program: a Makefile, or a Python module with a __main__ block."""
+    return path.suffix != ".py" or re.search(r"^if __name__ == ['\"]__main__['\"]:", text, re.M) is not None
+
+
 def makefiles() -> list[Path]:
     """The Makefiles among the builders."""
     return [path for path in builder_texts() if path.suffix != ".py"]
@@ -238,23 +257,31 @@ class Scope:
 
 
 def held(capture: Capture, scope: Scope, planted: dict[Path, str] | None = None,
-         trees: tuple[Path, ...] = (ROOT,), own: Capture | None = None) -> None:
-    """Refuse, by name, a known builder the capture holds no invocation of, a builder found by text that compiled
-    nothing in it and is none of BUILDERS, PART_OF, OUTSIDE or SUITES, a compiler a builder ran by a path that is no
-    wrapper, a compiled source the recorder holds no dependency list of, and an invocation whose expansion is none
-    or reads a file first that the stack's side does not admit (expanded; `trees` are the checkout roots judged,
-    the checkout's and a control's copy of it, which only the control's `own` capture compiles)."""
+         trees: tuple[Path, ...] = (ROOT,), own: Capture | None = None, known: tuple[Builder, ...] = BUILDERS) -> None:
+    """Refuse, by name, a known builder (`known`: BUILDERS, but for a control) the capture holds no invocation of
+    from a run of its own, a builder found by text that is a program and none of `known`, PART_OF, OUTSIDE or
+    SUITES, one that is no program and compiled nothing in it and is none of those, a compiler a builder ran by a
+    path that is no wrapper, a compiled source the recorder holds no dependency list of, and an invocation whose
+    expansion is none or reads a file first that the stack's side does not admit (expanded; `trees` are the
+    checkout roots judged, the checkout's and a control's copy of it, which only the control's `own` capture
+    compiles)."""
     out = {b.path for b in scope.left_out()}
-    known = {b.path for b in BUILDERS}
-    reasons = [f"the capture holds no invocation of {b.path}, a builder of the firmware that compiles"
-               for b in BUILDERS if b.path not in out and b.path not in capture.builders]
-    for path in builder_texts(planted) if not scope.only else ():
+    names = {b.path for b in known}
+    reasons = [f"the capture holds no invocation of {b.path} from a run of its own, a builder of the firmware that "
+               "compiles (its compiles under another builder's run are that one's)"
+               for b in known if b.path not in out and b.path not in capture.ran]
+    for path, text in builder_texts(planted).items() if not scope.only else ():
         name = rel(path)
-        if name in capture.builders or name in known or name in OUTSIDE or name in SUITES or PART_OF.get(name) in out:
+        if name in names or name in OUTSIDE or name in SUITES or PART_OF.get(name) in out:
             continue
-        reasons.append(f"{name} names the firmware's tree, compiled nothing in the capture, and is neither a known "
-                       "builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor "
-                       "one that compiles only in a suite (SUITES)")
+        if program(path, text) and name not in PART_OF:
+            reasons.append(f"{name} names the firmware's tree and is a program, and is neither a known builder "
+                           "(ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles "
+                           "none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)")
+        elif name not in capture.builders:
+            reasons.append(f"{name} names the firmware's tree, compiled nothing in the capture, and is neither a known "
+                           "builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), "
+                           "nor one that compiles only in a suite (SUITES)")
     for bypass in capture.bypassed:
         reasons.append(f"{', '.join(bypass['from']) or 'a builder'} ran {bypass['bypass']}, a compiler the capture "
                        "does not wrap, so it records none of that compiler's invocations")

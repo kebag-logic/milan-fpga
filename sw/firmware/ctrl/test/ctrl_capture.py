@@ -28,7 +28,8 @@ source's dependency list (Deps, read from the kept list, or why the recorder
 has none) and the builders it came from: the checkout's files on the Python
 stack of the process that ran the compiler, and the script or Makefile of the
 command the capture ran (CTRL_CAPTURE_RUN, which run() sets and every process
-below inherits).
+below inherits), which is also kept apart as the run it came from: a builder
+another builder runs is among the builders of its compiles, never their run.
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_capture.py --out DIR -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
@@ -343,7 +344,8 @@ class Invocation:
     """One recorded compile: the name it was called by, its arguments and directory, each input (Source), the
     compiler's expansion of it (None when it names no input, which compiles nothing, or, with `failed` saying why,
     when the capture could not have it made), the expansions of the compiles that made each precompiled header it
-    read first, the checkout's builder files it came from, and the compile's exit status."""
+    read first, the checkout's builder files it came from, the compile's exit status, and the builder file of the
+    command the capture ran that it came from (its run)."""
 
     tool: str
     args: tuple[str, ...]
@@ -354,6 +356,7 @@ class Invocation:
     first: tuple[Expansion, ...]
     builders: frozenset[str]
     rc: int = 0
+    run: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -380,6 +383,13 @@ class Capture:
         if self.parts:
             return frozenset().union(*(part.builders for part in self.parts))
         return frozenset().union(*(inv.builders for inv in self.invocations))
+
+    @cached_property
+    def ran(self) -> frozenset[str]:
+        """Every builder file whose own command, run by the capture, made some invocation."""
+        if self.parts:
+            return frozenset().union(*(part.ran for part in self.parts))
+        return frozenset().union(*(inv.run for inv in self.invocations))
 
     @property
     def leaves(self) -> tuple[Capture, ...]:
@@ -474,7 +484,8 @@ def invocation(raw: dict, listed: Callable[[str], Deps], expanded: Callable[[str
     the expansion of the compile the capture holds that made it (`made_by`, by output, the records before it), and
     what that compile read (its header and the files its list holds) is read by this one too: a dependency pass
     that reads the precompiled header, as the compile does, lists none of it (ctrl_shim, THE DEPENDENCY PASS)."""
-    builders = set(json.loads(raw.get("from") or "[]")) | set(json.loads(raw.get("run") or "[]"))
+    run = frozenset(json.loads(raw.get("run") or "[]"))
+    builders = set(json.loads(raw.get("from") or "[]")) | run
     made = expanded(raw["expansion"]) if raw["expansion"] else None
     # an invocation naming no input compiles nothing, and the recorder expands nothing of it
     failed = raw["expand_error"] or ("" if made is not None or not raw["expanded"] else
@@ -498,7 +509,7 @@ def invocation(raw: dict, listed: Callable[[str], Deps], expanded: Callable[[str
         read = tuple(f for s in sources if s.deps is not None for f in (s.path, *s.deps.files))
         made_by[raw["output"]] = (made, read)
     return Invocation(raw["tool"], tuple(raw["args"]), raw["cwd"], tuple(sources), made, failed, tuple(first),
-                      frozenset(builders), int(raw["rc"]))
+                      frozenset(builders), int(raw["rc"]), run)
 
 
 def load(where: Path, required: bool = True) -> Capture:

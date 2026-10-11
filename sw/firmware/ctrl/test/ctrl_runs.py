@@ -254,6 +254,10 @@ def control_capture(plant: Plant, root: Path, base: Capture, work: Path) -> tupl
         for name in ("records.jsonl", "manifest.jsonl"):
             (work / "empty" / name).write_text("", encoding="utf-8")
         return ctrl_capture.load(work / "empty"), nothing
+    if plant.alter.startswith("drop run "):
+        lost = plant.alter.removeprefix("drop run ")
+        return replace(base, invocations=tuple(inv for inv in base.invocations if lost not in inv.run),
+                       parts=()), nothing
     if plant.alter.startswith("drop "):
         lost = plant.alter.removeprefix("drop ")
         return replace(base, invocations=tuple(inv for inv in base.invocations if lost not in inv.builders),

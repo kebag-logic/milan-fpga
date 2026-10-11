@@ -313,7 +313,8 @@ def judge(capture: Capture, roots: tuple[Path, ...], scope: Scope, target: froze
     the run's capture beside it for what a capture must hold), named with the builders of a compile that shows
     it; `target` adds files the run's RV32 compiles read."""
     texts = {HERE / name: text for name, text in control.texts} if control else None
-    held(capture, scope, texts, roots, own)
+    forgot = control.alter.removeprefix("forget ") if control and control.alter.startswith("forget ") else ""
+    held(capture, scope, texts, roots, own, tuple(b for b in BUILDERS if b.path != forgot))
     judging = own if own is not None else capture
     places = Places(tuple(r.resolve() for r in roots), targets(judging, roots) | target)
     found = judged(judging, places)

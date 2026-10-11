@@ -37,8 +37,10 @@ class Plant:
     `make -f`) and Python otherwise, run through a capture of its own with `beside` written under its directory
     before the capture began; `replay` names the source whose compiles in the run's capture are run again on the
     copy. `texts` are builder texts the checkout is read as holding (a path from the gate's directory, and its
-    text), never run; `alter` changes the run's capture the control is judged against: "missing", "empty", or
-    "drop " and a builder whose invocations it loses. `needs` names the builders whose capture the control
+    text), never run; `alter` changes the run's capture the control is judged against: "missing", "empty",
+    "drop " and a builder whose invocations it loses, or "drop run " and one whose own run's invocations it loses
+    (its compiles under another builder's run stay); or, "forget " and a known builder, the known set it is held
+    against loses that builder. `needs` names the builders whose capture the control
     needs ("verilator": the run that judges the builders that need Verilator; "" the firmware builders' run): a run
     judges the controls of its scope and names every other one."""
 
@@ -483,6 +485,14 @@ PLANTS = (
     Plant("the capture holds nothing of a known builder", "ctrl", "", "", "",
           "the capture holds no invocation of sw/firmware/ctrl/test/test_ctrl_firmware.py",
           alter="drop sw/firmware/ctrl/test/test_ctrl_firmware.py"),
+    # A known builder held only through another's run, and a builder dropped from the known set that another
+    # still runs (the coverage gate runs the control and store gates), each refused by name.
+    Plant("a known builder whose own run compiles nothing, which another builder still runs", "ctrl", "", "", "",
+          "the capture holds no invocation of sw/firmware/ctrl/test/test_ctrl_firmware.py from a run of its own",
+          alter="drop run sw/firmware/ctrl/test/test_ctrl_firmware.py"),
+    Plant("a builder dropped from the known set, which another builder still runs", "ctrl", "", "", "",
+          "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py names the firmware's tree and is a program",
+          alter="forget sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py"),
     Plant("a builder runs a compiler by its own path", "ctrl", "", "", "",
           "a compiler the capture does not wrap",
           run=PY + 'import shutil\nREAL = shutil.which("gcc", path=os.pathsep.join(os.environ["PATH"].split('
