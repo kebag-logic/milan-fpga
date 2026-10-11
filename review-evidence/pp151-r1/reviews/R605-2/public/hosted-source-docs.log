@@ -1,0 +1,265 @@
+﻿2026-10-11T07:10:14.6810465Z Current runner version: '2.337.0'
+2026-10-11T07:10:14.6835733Z ##[group]Runner Image Provisioner
+2026-10-11T07:10:14.6836783Z Hosted Compute Agent
+2026-10-11T07:10:14.6837384Z Version: 20261002.596
+2026-10-11T07:10:14.6838061Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-11T07:10:14.6838809Z Build Date: 2026-10-02T22:28:27Z
+2026-10-11T07:10:14.6839504Z Worker ID: {e40855e0-14cc-4a93-b30c-c33183e23ff9}
+2026-10-11T07:10:14.6840292Z Region: westus2
+2026-10-11T07:10:14.6840875Z Cloud: Azure
+2026-10-11T07:10:14.6841443Z ##[endgroup]
+2026-10-11T07:10:14.6843291Z ##[group]Operating System
+2026-10-11T07:10:14.6843992Z Ubuntu
+2026-10-11T07:10:14.6844601Z 24.04.5
+2026-10-11T07:10:14.6845115Z LTS
+2026-10-11T07:10:14.6845609Z ##[endgroup]
+2026-10-11T07:10:14.6846225Z ##[group]Runner Image
+2026-10-11T07:10:14.6846847Z Image: ubuntu-24.04
+2026-10-11T07:10:14.6847457Z Version: 20261004.327.1
+2026-10-11T07:10:14.6848746Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-11T07:10:14.6850330Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-11T07:10:14.6851400Z ##[endgroup]
+2026-10-11T07:10:14.6853505Z ##[group]GITHUB_TOKEN Permissions
+2026-10-11T07:10:14.6855488Z Contents: read
+2026-10-11T07:10:14.6856200Z Metadata: read
+2026-10-11T07:10:14.6856900Z Packages: read
+2026-10-11T07:10:14.6857498Z ##[endgroup]
+2026-10-11T07:10:14.6859666Z Secret source: Actions
+2026-10-11T07:10:14.6860680Z Cache mode: write
+2026-10-11T07:10:14.6861503Z Prepare workflow directory
+2026-10-11T07:10:14.7359171Z Prepare all required actions
+2026-10-11T07:10:14.7432602Z Getting action download info
+2026-10-11T07:10:15.0557436Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-11T07:10:15.2435795Z Complete job name: docs-gates
+2026-10-11T07:10:15.3285100Z ##[group]Run actions/checkout@v4
+2026-10-11T07:10:15.3285992Z with:
+2026-10-11T07:10:15.3286426Z   fetch-depth: 0
+2026-10-11T07:10:15.3287131Z   repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:15.3291427Z   token: ***
+2026-10-11T07:10:15.3291873Z   ssh-strict: true
+2026-10-11T07:10:15.3292316Z   ssh-user: git
+2026-10-11T07:10:15.3292993Z   persist-credentials: true
+2026-10-11T07:10:15.3293494Z   clean: true
+2026-10-11T07:10:15.3293954Z   sparse-checkout-cone-mode: true
+2026-10-11T07:10:15.3294497Z   fetch-tags: false
+2026-10-11T07:10:15.3294956Z   show-progress: true
+2026-10-11T07:10:15.3295404Z   lfs: false
+2026-10-11T07:10:15.3295832Z   submodules: false
+2026-10-11T07:10:15.3296294Z   set-safe-directory: true
+2026-10-11T07:10:15.3296811Z   allow-unsafe-pr-checkout: false
+2026-10-11T07:10:15.3297595Z env:
+2026-10-11T07:10:15.3298028Z   VERILATOR_VERSION: v5.050
+2026-10-11T07:10:15.3298526Z ##[endgroup]
+2026-10-11T07:10:15.4374232Z Syncing repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:15.4377199Z ##[group]Getting Git version info
+2026-10-11T07:10:15.4379131Z Working directory is '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-11T07:10:15.4381558Z [command]/usr/bin/git version
+2026-10-11T07:10:15.4434773Z git version 2.55.0
+2026-10-11T07:10:15.4456542Z ##[endgroup]
+2026-10-11T07:10:15.4471803Z Temporarily overriding HOME='<home-path>/work/_temp/2c2574ef-c7ad-4610-ab3e-516e68d98f71' before making global git config changes
+2026-10-11T07:10:15.4474433Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T07:10:15.4478178Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:15.4537429Z Deleting the contents of '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-11T07:10:15.4552922Z ##[group]Initializing the repository
+2026-10-11T07:10:15.4554988Z [command]/usr/bin/git init <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:15.4648063Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-11T07:10:15.4650171Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-11T07:10:15.4652012Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-11T07:10:15.4653696Z hint: call:
+2026-10-11T07:10:15.4654959Z hint:
+2026-10-11T07:10:15.4656323Z hint: 	git config --global init.defaultBranch <name>
+2026-10-11T07:10:15.4657532Z hint:
+2026-10-11T07:10:15.4658624Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-11T07:10:15.4660285Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-11T07:10:15.4661581Z hint:
+2026-10-11T07:10:15.4662334Z hint: 	git branch -m <name>
+2026-10-11T07:10:15.4663500Z hint:
+2026-10-11T07:10:15.4664690Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-11T07:10:15.4667361Z Initialized empty Git repository in <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/.git/
+2026-10-11T07:10:15.4671422Z [command]/usr/bin/git remote add origin https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:15.4719865Z ##[endgroup]
+2026-10-11T07:10:15.4721216Z ##[group]Disabling automatic garbage collection
+2026-10-11T07:10:15.4725027Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-11T07:10:15.4760024Z ##[endgroup]
+2026-10-11T07:10:15.4761363Z ##[group]Setting up auth
+2026-10-11T07:10:15.4767973Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T07:10:15.4803797Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T07:10:15.5199326Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T07:10:15.5239925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T07:10:15.5471513Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T07:10:15.5511701Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T07:10:15.5742103Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-11T07:10:15.5785190Z ##[endgroup]
+2026-10-11T07:10:15.5786681Z ##[group]Fetching the repository
+2026-10-11T07:10:15.5797083Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-10-11T07:10:16.6447526Z From https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-11T07:10:16.6455915Z  * [new branch]        102-pp-fixture-warning-flags -> origin/102-pp-fixture-warning-flags
+2026-10-11T07:10:16.6457135Z  * [new branch]        104-fixture-guard-idiom -> origin/104-fixture-guard-idiom
+2026-10-11T07:10:16.6458128Z  * [new branch]        106-leaveall-scope      -> origin/106-leaveall-scope
+2026-10-11T07:10:16.6458993Z  * [new branch]        112-stale-grant         -> origin/112-stale-grant
+2026-10-11T07:10:16.6460004Z  * [new branch]        113-latency-notify      -> origin/113-latency-notify
+2026-10-11T07:10:16.6460962Z  * [new branch]        116-parent-gates        -> origin/116-parent-gates
+2026-10-11T07:10:16.6461907Z  * [new branch]        120-name-wr-export      -> origin/120-name-wr-export
+2026-10-11T07:10:16.6463188Z  * [new branch]        121-notification-review-fixes -> origin/121-notification-review-fixes
+2026-10-11T07:10:16.6464731Z  * [new branch]        123-body-key-check      -> origin/123-body-key-check
+2026-10-11T07:10:16.6466258Z  * [new branch]        125-ownership-contract  -> origin/125-ownership-contract
+2026-10-11T07:10:16.6467707Z  * [new branch]        127-srp-leaveall-at-transmit -> origin/127-srp-leaveall-at-transmit
+2026-10-11T07:10:16.6469155Z  * [new branch]        128-acmp-da-retry       -> origin/128-acmp-da-retry
+2026-10-11T07:10:16.6470338Z  * [new branch]        131-d3-core-scalars     -> origin/131-d3-core-scalars
+2026-10-11T07:10:16.6471571Z  * [new branch]        14-asp-gm-identity      -> origin/14-asp-gm-identity
+2026-10-11T07:10:16.6474716Z  * [new branch]        14-done_seen_r-latches-dev_done_i-in-states-with-no-outstanding-command -> origin/14-done_seen_r-latches-dev_done_i-in-states-with-no-outstanding-command
+2026-10-11T07:10:16.6477725Z  * [new branch]        25-cover-every-module-and-stop-reparsing -> origin/25-cover-every-module-and-stop-reparsing
+2026-10-11T07:10:16.6480498Z  * [new branch]        389-refusal-arms        -> origin/389-refusal-arms
+2026-10-11T07:10:16.6481859Z  * [new branch]        389-set-clock-source-range-check -> origin/389-set-clock-source-range-check
+2026-10-11T07:10:16.6483925Z  * [new branch]        43-49-gsi-internal      -> origin/43-49-gsi-internal
+2026-10-11T07:10:16.6485797Z  * [new branch]        46-lstn-reg-state-encoding -> origin/46-lstn-reg-state-encoding
+2026-10-11T07:10:16.6487845Z  * [new branch]        51-sampling-rate-list-check -> origin/51-sampling-rate-list-check
+2026-10-11T07:10:16.6489709Z  * [new branch]        510-mvu-waiver          -> origin/510-mvu-waiver
+2026-10-11T07:10:16.6491435Z  * [new branch]        66-aecp-get-set-name    -> origin/66-aecp-get-set-name
+2026-10-11T07:10:16.6494051Z  * [new branch]        67-aecp-streaming-state-commands -> origin/67-aecp-streaming-state-commands
+2026-10-11T07:10:16.6496962Z  * [new branch]        67-stream-format-and-info-setters -> origin/67-stream-format-and-info-setters
+2026-10-11T07:10:16.6499244Z  * [new branch]        68-aecp-audio-mappings  -> origin/68-aecp-audio-mappings
+2026-10-11T07:10:16.6502058Z  * [new branch]        69-aecp-unsolicited-notification-triggers -> origin/69-aecp-unsolicited-notification-triggers
+2026-10-11T07:10:16.6504827Z  * [new branch]        71-get-dynamic-info     -> origin/71-get-dynamic-info
+2026-10-11T07:10:16.6506785Z  * [new branch]        72-dyn-state-ab-getters -> origin/72-dyn-state-ab-getters
+2026-10-11T07:10:16.6508768Z  * [new branch]        75-leaveall-cadence     -> origin/75-leaveall-cadence
+2026-10-11T07:10:16.6510587Z  * [new branch]        78-start-stop-streaming -> origin/78-start-stop-streaming
+2026-10-11T07:10:16.6512937Z  * [new branch]        78-started-state-in-acmp-record -> origin/78-started-state-in-acmp-record
+2026-10-11T07:10:16.6515342Z  * [new branch]        78-started-state-single-source -> origin/78-started-state-single-source
+2026-10-11T07:10:16.6517781Z  * [new branch]        83-vendor-unique-opcode-collision -> origin/83-vendor-unique-opcode-collision
+2026-10-11T07:10:16.6519986Z  * [new branch]        90-nvm-exports          -> origin/90-nvm-exports
+2026-10-11T07:10:16.6521513Z  * [new branch]        92-93-boot-restore      -> origin/92-93-boot-restore
+2026-10-11T07:10:16.6522606Z  * [new branch]        94-desc-mem-guard       -> origin/94-desc-mem-guard
+2026-10-11T07:10:16.6524510Z  * [new branch]        95-expose-default-sr-vid -> origin/95-expose-default-sr-vid
+2026-10-11T07:10:16.6525874Z  * [new branch]        96-review-evidence      -> origin/96-review-evidence
+2026-10-11T07:10:16.6527212Z  * [new branch]        97-assert-distinct-sr-vid-fixture -> origin/97-assert-distinct-sr-vid-fixture
+2026-10-11T07:10:16.6528583Z  * [new branch]        97-review-evidence      -> origin/97-review-evidence
+2026-10-11T07:10:16.6529880Z  * [new branch]        97-start-stop-commit-handshake -> origin/97-start-stop-commit-handshake
+2026-10-11T07:10:16.6531384Z  * [new branch]        98-clarify-srp-domain-events -> origin/98-clarify-srp-domain-events
+2026-10-11T07:10:16.6533697Z  * [new branch]        98-review-evidence      -> origin/98-review-evidence
+2026-10-11T07:10:16.6535582Z  * [new branch]        99-integrator-params    -> origin/99-integrator-params
+2026-10-11T07:10:16.6536857Z  * [new branch]        aecp-dyn-state-store    -> origin/aecp-dyn-state-store
+2026-10-11T07:10:16.6538035Z  * [new branch]        aecp-identify-control   -> origin/aecp-identify-control
+2026-10-11T07:10:16.6539305Z  * [new branch]        aecp-set-rate-and-clock-source -> origin/aecp-set-rate-and-clock-source
+2026-10-11T07:10:16.6540519Z  * [new branch]        c1-srp-mrp-timers       -> origin/c1-srp-mrp-timers
+2026-10-11T07:10:16.6541521Z  * [new branch]        c10-tooling             -> origin/c10-tooling
+2026-10-11T07:10:16.6542471Z  * [new branch]        c11-docs-gates          -> origin/c11-docs-gates
+2026-10-11T07:10:16.6543911Z  * [new branch]        c2-maap-coverage        -> origin/c2-maap-coverage
+2026-10-11T07:10:16.6545203Z  * [new branch]        c3-adp-coverage         -> origin/c3-adp-coverage
+2026-10-11T07:10:16.6547517Z  * [new branch]        c4-acmp-coverage        -> origin/c4-acmp-coverage
+2026-10-11T07:10:16.6549358Z  * [new branch]        c5a-aecp-deadlines      -> origin/c5a-aecp-deadlines
+2026-10-11T07:10:16.6551031Z  * [new branch]        c5b-aecp-dispatch       -> origin/c5b-aecp-dispatch
+2026-10-11T07:10:16.6552927Z  * [new branch]        c6-notifications        -> origin/c6-notifications
+2026-10-11T07:10:16.6554501Z  * [new branch]        c7-counters             -> origin/c7-counters
+2026-10-11T07:10:16.6556085Z  * [new branch]        c8-descriptor-lint      -> origin/c8-descriptor-lint
+2026-10-11T07:10:16.6558269Z  * [new branch]        chore/cpp-core-guidelines-idiom -> origin/chore/cpp-core-guidelines-idiom
+2026-10-11T07:10:16.6560545Z  * [new branch]        clksrc-store-tb-tap     -> origin/clksrc-store-tb-tap
+2026-10-11T07:10:16.6562975Z  * [new branch]        issue-73-aecp-doc-authority -> origin/issue-73-aecp-doc-authority
+2026-10-11T07:10:16.6565283Z  * [new branch]        issue-73-stream-output-counters -> origin/issue-73-stream-output-counters
+2026-10-11T07:10:16.6567269Z  * [new branch]        main                    -> origin/main
+2026-10-11T07:10:16.6568854Z  * [new branch]        p1-persistence          -> origin/p1-persistence
+2026-10-11T07:10:16.6570729Z  * [new branch]        p2-nvm-port-robustness  -> origin/p2-nvm-port-robustness
+2026-10-11T07:10:16.6572877Z  * [new branch]        pp134-lv-leave          -> origin/pp134-lv-leave
+2026-10-11T07:10:16.6574384Z  * [new branch]        pp141-clock-sources     -> origin/pp141-clock-sources
+2026-10-11T07:10:16.6575557Z  * [new branch]        pp143-campaign-jobs     -> origin/pp143-campaign-jobs
+2026-10-11T07:10:16.6576926Z  * [new branch]        pp148-notify-spacing    -> origin/pp148-notify-spacing
+2026-10-11T07:10:16.6578159Z  * [new branch]        pp151-guards            -> origin/pp151-guards
+2026-10-11T07:10:16.6579182Z  * [new branch]        pp158-dereg-round       -> origin/pp158-dereg-round
+2026-10-11T07:10:16.6580416Z  * [new branch]        pp163-txarb-cone        -> origin/pp163-txarb-cone
+2026-10-11T07:10:16.6581484Z  * [new branch]        pp167-notify-cancel     -> origin/pp167-notify-cancel
+2026-10-11T07:10:16.6582581Z  * [new branch]        pp168-acmp-fields       -> origin/pp168-acmp-fields
+2026-10-11T07:10:16.6584611Z  * [new branch]        pp170-names             -> origin/pp170-names
+2026-10-11T07:10:16.6586335Z  * [new branch]        pp22-decl-order         -> origin/pp22-decl-order
+2026-10-11T07:10:16.6587977Z  * [new branch]        pp230-srp-area          -> origin/pp230-srp-area
+2026-10-11T07:10:16.6589705Z  * [new branch]        pp232-notify-ram        -> origin/pp232-notify-ram
+2026-10-11T07:10:16.6591477Z  * [new branch]        pp42-domain-notify      -> origin/pp42-domain-notify
+2026-10-11T07:10:16.6593558Z  * [new branch]        pp639-armq-lsnrec       -> origin/pp639-armq-lsnrec
+2026-10-11T07:10:16.6594700Z  * [new branch]        pp69-if-seam            -> origin/pp69-if-seam
+2026-10-11T07:10:16.6595993Z  * [new branch]        pp72-traceability       -> origin/pp72-traceability
+2026-10-11T07:10:16.6597096Z  * [new branch]        pp73-command-model      -> origin/pp73-command-model
+2026-10-11T07:10:16.6598263Z  * [new branch]        pp81-scoreboard-faces   -> origin/pp81-scoreboard-faces
+2026-10-11T07:10:16.6599432Z  * [new branch]        pp85-adp-mtxw           -> origin/pp85-adp-mtxw
+2026-10-11T07:10:16.6600364Z  * [new tag]           v2.0                    -> v2.0
+2026-10-11T07:10:16.6602236Z [command]/usr/bin/git branch --list --remote origin/pp151-guards
+2026-10-11T07:10:16.6603630Z   origin/pp151-guards
+2026-10-11T07:10:16.6605233Z [command]/usr/bin/git rev-parse refs/remotes/origin/pp151-guards
+2026-10-11T07:10:16.6606130Z 02063dc1b593d422406991bf0bc60e5cc47828ff
+2026-10-11T07:10:16.6607670Z ##[endgroup]
+2026-10-11T07:10:16.6608579Z ##[group]Determining the checkout info
+2026-10-11T07:10:16.6610052Z ##[endgroup]
+2026-10-11T07:10:16.6610583Z [command]/usr/bin/git sparse-checkout disable
+2026-10-11T07:10:16.6666676Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-11T07:10:16.6704813Z ##[group]Checking out the ref
+2026-10-11T07:10:16.6709789Z [command]/usr/bin/git checkout --progress --force -B pp151-guards refs/remotes/origin/pp151-guards
+2026-10-11T07:10:16.7418672Z Switched to a new branch 'pp151-guards'
+2026-10-11T07:10:16.7424670Z branch 'pp151-guards' set up to track 'origin/pp151-guards'.
+2026-10-11T07:10:16.7438616Z ##[endgroup]
+2026-10-11T07:10:16.7487954Z [command]/usr/bin/git log -1 --format=%H
+2026-10-11T07:10:16.7517615Z 02063dc1b593d422406991bf0bc60e5cc47828ff
+2026-10-11T07:10:16.7767830Z ##[group]Run python3 -m pip install wavedrom==2.0.3.post3
+2026-10-11T07:10:16.7769351Z [36;1mpython3 -m pip install wavedrom==2.0.3.post3[0m
+2026-10-11T07:10:16.7771538Z [36;1mnpm install --prefix "$HOME/mermaid-cli" @mermaid-js/mermaid-cli@11.16.0 mermaid@11.17.2 puppeteer@25.12.0[0m
+2026-10-11T07:10:16.7774254Z [36;1mecho "$HOME/mermaid-cli/node_modules/.bin" >> "$GITHUB_PATH"[0m
+2026-10-11T07:10:16.8031162Z shell: /usr/bin/bash -e {0}
+2026-10-11T07:10:16.8032196Z env:
+2026-10-11T07:10:16.8033131Z   VERILATOR_VERSION: v5.050
+2026-10-11T07:10:16.8034076Z ##[endgroup]
+2026-10-11T07:10:17.2513975Z Defaulting to user installation because normal site-packages is not writeable
+2026-10-11T07:10:17.5954214Z Collecting wavedrom==2.0.3.post3
+2026-10-11T07:10:17.6414374Z   Downloading wavedrom-2.0.3.post3.tar.gz (137 kB)
+2026-10-11T07:10:17.6600104Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.7/137.7 kB 8.1 MB/s eta 0:00:00
+2026-10-11T07:10:17.6801471Z   Preparing metadata (setup.py): started
+2026-10-11T07:10:21.2400743Z   Preparing metadata (setup.py): finished with status 'done'
+2026-10-11T07:10:21.2595813Z Requirement already satisfied: pyyaml in /usr/lib/python3/dist-packages (from wavedrom==2.0.3.post3) (6.0.1)
+2026-10-11T07:10:21.2602955Z Requirement already satisfied: six in /usr/lib/python3/dist-packages (from wavedrom==2.0.3.post3) (1.16.0)
+2026-10-11T07:10:21.2856592Z Collecting svgwrite (from wavedrom==2.0.3.post3)
+2026-10-11T07:10:21.2943740Z   Downloading svgwrite-1.4.3-py3-none-any.whl.metadata (8.8 kB)
+2026-10-11T07:10:21.3075139Z Downloading svgwrite-1.4.3-py3-none-any.whl (67 kB)
+2026-10-11T07:10:21.3124953Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.1/67.1 kB 18.6 MB/s eta 0:00:00
+2026-10-11T07:10:21.3162981Z Building wheels for collected packages: wavedrom
+2026-10-11T07:10:21.3173693Z   Building wheel for wavedrom (setup.py): started
+2026-10-11T07:10:21.9281722Z   Building wheel for wavedrom (setup.py): finished with status 'done'
+2026-10-11T07:10:21.9287654Z   Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=763335719047a32c59c8e44ce87caeba4fc9ddc5c3885dfa4e622fe394dfb3c2
+2026-10-11T07:10:21.9290965Z   Stored in directory: <home-path>/.cache/pip/wheels/dd/97/87/67fda20d5b17da917e87e94dcdc39acd2195796f42511e42fe
+2026-10-11T07:10:21.9309068Z Successfully built wavedrom
+2026-10-11T07:10:22.1725844Z Installing collected packages: svgwrite, wavedrom
+2026-10-11T07:10:22.2744034Z Successfully installed svgwrite-1.4.3 wavedrom-2.0.3.post3
+2026-10-11T07:10:44.3297907Z 
+2026-10-11T07:10:44.3298810Z added 190 packages in 22s
+2026-10-11T07:10:44.3299289Z 
+2026-10-11T07:10:44.3303845Z 22 packages are looking for funding
+2026-10-11T07:10:44.3304653Z   run `npm fund` for details
+2026-10-11T07:10:44.3963175Z ##[group]Run mmdc --version
+2026-10-11T07:10:44.3963688Z [36;1mmmdc --version[0m
+2026-10-11T07:10:44.3963940Z [36;1mmake check[0m
+2026-10-11T07:10:44.4036166Z shell: /usr/bin/bash -e {0}
+2026-10-11T07:10:44.4036481Z env:
+2026-10-11T07:10:44.4036711Z   VERILATOR_VERSION: v5.050
+2026-10-11T07:10:44.4036979Z ##[endgroup]
+2026-10-11T07:10:44.6117472Z 11.16.0
+2026-10-11T07:11:20.6478041Z lint: 41 mermaid + 18 wavedrom blocks checked, OK
+2026-10-11T07:11:21.1846233Z wavedrom: 18 blocks checked, OK
+2026-10-11T07:11:21.3575405Z links: 1191 checked, OK
+2026-10-11T07:11:21.3870128Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-10-11T07:11:21.4431077Z matrix: OK (94 rows, 0 untested)
+2026-10-11T07:11:21.4845396Z parameters: top 29, guide 29, diagram 29, OK
+2026-10-11T07:11:22.9581361Z ids selftest: 30 cases, OK
+2026-10-11T07:11:23.2546967Z ids: 567 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+2026-10-11T07:11:24.1587029Z figures selftest: 17 cases, OK
+2026-10-11T07:11:24.3713807Z figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+2026-10-11T07:11:24.4113884Z Post job cleanup.
+2026-10-11T07:11:24.5001551Z [command]/usr/bin/git version
+2026-10-11T07:11:24.5053348Z git version 2.55.0
+2026-10-11T07:11:24.5099688Z Temporarily overriding HOME='<home-path>/work/_temp/83a62686-eb12-4d97-8e75-80c78f6ffa02' before making global git config changes
+2026-10-11T07:11:24.5100807Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T07:11:24.5107181Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-11T07:11:24.5151578Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T07:11:24.5191077Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T07:11:24.5456383Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T07:11:24.5487676Z http.https://github.com/.extraheader
+2026-10-11T07:11:24.5502559Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-11T07:11:24.5539357Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T07:11:24.5817849Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T07:11:24.5868284Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T07:11:24.6355774Z Cleaning up orphan processes
+2026-10-11T07:11:24.6755327Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

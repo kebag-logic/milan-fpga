@@ -1,0 +1,39 @@
+[A593]
+
+Every elaboration guard now uses a module-scope `$fatal(1, ...)`, with its condition
+and message preserved. The guard bench checks refusal severity and location, and
+the nearest passing boundary in each supported front end.
+
+Closes #151
+
+## Round 2
+
+Commit `02063dc1b593d422406991bf0bc60e5cc47828ff` addresses both reviews on #175:
+
+- All 31 guards have tightened and loosened boundary mutants. The response-buffer
+  size pair is 16/17 bytes; the three deadline pairs are 0/1 cycles.
+- Fixed scratch contexts expose masked derived limits without changing production
+  HDL. The deadline allowance accepts only the measured constant comparisons and
+  their exact warning exit; planted user-severity and other-warning defects fail.
+- The integrator guide and figure 21 say `$fatal`. The figure was rendered and
+  inspected. The coding rule describes `$info` as a note with exit status 0.
+- Both Python modules have complete public signatures and docstrings. Parent
+  ratchets remain unchanged at zero missing signatures and docstrings.
+- The hosted portability job explicitly runs the guard bench's synthesis leg.
+
+Validation: both full processor sweeps pass 1,029,775 checks with byte-identical
+records. Lint, matrix, documentation and synthesis gates pass at both ends.
+The expanded campaign kills 160/160 mutants under each tested converter version.
+All 31 boundary pairs pass all five toolchain combinations. All 62 tightened and loosened arms fail by name in both vendor front ends.
+The added hosted-job command passes 93 checks locally.
+
+The scratch parent at `ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5`, with the processor gitlink at this
+head and both disposition patches applied, passes its Python, evidence, lint and
+synthesis gates. All five shipping shapes have zero guard diagnostics and zero
+hard errors. The parent disposition patch is supplied as `parent-guard-evidence.patch`
+for the next batched adoption; no parent commit or ratchet change is included.
+
+Production HDL is unchanged in Round 2. The prior 15 RTL-building campaign
+comparisons and netlist/ROM identity records remain applicable; these are retained
+records, not fresh Round 2 runs. Detailed receipts are in the accompanying handoff.
+

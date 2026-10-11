@@ -1,0 +1,16 @@
+[R605] NEGATIVE - exact head 02063dc1b593d422406991bf0bc60e5cc47828ff
+
+Independent verdict recorded before opening any prior reviewer report or findings comment.
+All five lenses have been applied independently to the frozen acceptance, public scope decisions, authorities, full diff, history, current tests, and public executable evidence.
+
+Open independent finding R605-2-F1 (MINOR; Conformance, Tests, Docs): the immutable public evidence archive is the 03:31:05Z Round 1 archive at bda25e67cb4df99a837ccb21383917c90b81a1ad, whose head receipts identify ef86ea848dbfb0d869108a1987accb203a17474d. It carries the old boundary pairs, 98-arm portable campaigns and a 14-arm vendor campaign, not the Round 2 fixtures/160-arm campaigns/62 vendor boundary arms asserted in the PR body. The required Round 2 parent disposition patch and scratch-parent evidence at ac2c5e77 are likewise not in that archive; the issue names a private location only. The source implementation has no independently identified RTL defect, but the public proof obligation is not yet closed. This is distinct from future manager merge-candidate banks and hosted/act acceptance.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN | Frozen issue acceptance and manager scope; 31-site production inventory; retained archive versus current boundary proof | R605-2 | 02063dc1b593d422406991bf0bc60e5cc47828ff |
+| RTL | CLEAN | All 46 production SV files after normalization; 31 guards; full base-to-head diff; unchanged predicates and messages | R605-2 | 02063dc1b593d422406991bf0bc60e5cc47828ff |
+| Robustness | CLEAN | Severity/location/exit checks; narrowed deadline diagnostic exception; context fixtures; 160 named lint mutants | R605-2 | 02063dc1b593d422406991bf0bc60e5cc47828ff |
+| Tests | UNCLEAN | 93/93 current lint, 160/160 current lint mutants, 93/93 current native conversion/elaboration checks; incomplete public vendor and parent receipts | R605-2 | 02063dc1b593d422406991bf0bc60e5cc47828ff |
+| Docs | UNCLEAN | Coding rules, bench docs, rendered figure 21, integrator prose, focused gates; unsupported current public proof links in PR body | R605-2 | 02063dc1b593d422406991bf0bc60e5cc47828ff |
+
+Limits: no full banks, vendor run, hardware, or private evidence examined. No manager source bank exists or is inferred. Prior public findings disposition and final integrity/manifest remain to be added to the final report.
