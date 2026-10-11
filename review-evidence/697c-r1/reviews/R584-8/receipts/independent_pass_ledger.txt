@@ -1,0 +1,13 @@
+Independent pass, written 2026-10-11T18:21:40Z, before reading any prior review finding or probe of this PR.
+Head feed95bbb6429e5af0ee3f0a24c531777279e9de, tree 434e9291e6ceb5bd32bcd63fd13f257ed6d82bed.
+Draft verdict: NEGATIVE (one open MINOR).
+F1 MINOR [Conformance, Robustness, Tests, Docs] ctrl_pin.py:72 GIT_WORD lookahead (?![\w-]) lets a dashed Git program
+   (git-ls-files, /usr/lib/git-core/git-ls-tree) escape the census; receipts/mutants-m11 (census silent, 30/30 controls ok, rc 0),
+   receipts/mutants M8/M9. README.md:178-179 states only run-time assembly as unseen.
+S1 SUGGESTION [Robustness] forged loose object in the stack's store is read as the pin (fsck reports hash mismatch): receipts/probes/forged_object_probe.log.
+S2 SUGGESTION [Robustness] ctrl_image.base_tree / aecp_wire read trees by git archive with replacement honoured (outside the pin proof).
+S3 SUGGESTION [Tests] ctrl_boundary.population counts every needs=verilator plant as a defect regardless of needle.
+RES-1 RESIDUE [Docs] README.md:200-202 <build directory> not said to be outside the submodule; whole-tree check refuses an ignored build/ (receipts/probes/ignored_build_dir.log).
+Draft ledger: Conformance UNCLEAN (F1); RTL CLEAN (no RTL/HDL in delta; images byte-identical); Robustness UNCLEAN (F1);
+Tests UNCLEAN (F1); Docs UNCLEAN (F1).
+Note added after the pass: the M11 receipt first written under receipts/mutants-m11 was folded into receipts/mutants when the whole mutant set was rerun with the final script; the results are unchanged.

@@ -1,0 +1,70 @@
+== d_replace_tree
+  git status --short in the submodule:  M include/adp.h 
+  [refused] ctrl_build.py --stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make obj_fw/libctrlfw.a: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] test_ctrl_firmware.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] fw_coverage.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] maap_differential.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] aecp_arms.py --app: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_image.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_boundary.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  undone: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+== d_replace_commit
+  git status --short in the submodule: MM include/adp.h 
+  [refused] ctrl_build.py --stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make obj_fw/libctrlfw.a: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] test_ctrl_firmware.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] fw_coverage.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] maap_differential.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] aecp_arms.py --app: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_image.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_boundary.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  undone: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+== d_graft
+hint: Support for <GIT_DIR>/info/grafts is deprecated
+hint: and will be removed in a future Git version.
+hint:
+hint: Please use "git replace --convert-graft-file"
+hint: to convert the grafts into replace refs.
+hint:
+hint: Turn this message off by running
+hint: "git config set advice.graftFileDeprecated false"
+  git status --short in the submodule:  M include/adp.h 
+  [refused] ctrl_build.py --stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make obj_fw/libctrlfw.a: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] test_ctrl_firmware.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] fw_coverage.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] maap_differential.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] aecp_arms.py --app: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_image.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_boundary.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  undone: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+== d_filter
+  (filter turns the edit back into the pinned blob: yes)
+  git status --short in the submodule: 
+  [refused] ctrl_build.py --stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] make obj_fw/libctrlfw.a: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] test_ctrl_firmware.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] fw_coverage.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] maap_differential.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] aecp_arms.py --app: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_image.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [refused] ctrl_boundary.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  undone: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+== d_mode
+  git status --short in the submodule:  M scripts/check_boundary.py 
+  [refused] ctrl_build.py --stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] make stack-pin: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] make obj_fw/libctrlfw.a: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] test_ctrl_firmware.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] fw_coverage.py --build-only: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] maap_differential.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] aecp_arms.py --app: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] ctrl_image.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [refused] ctrl_boundary.py: rc=2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  undone: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+rc=0

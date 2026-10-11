@@ -1,0 +1,16 @@
+git diff --stat 4cab445aa2475903b6cf8b87566d2c8a1e15e391..feed95bbb6429e5af0ee3f0a24c531777279e9de
+ sw/firmware/ctrl/README.md             |  24 ++-
+ sw/firmware/ctrl/test/ctrl_boundary.py |  83 +++++++--
+ sw/firmware/ctrl/test/ctrl_build.py    |  87 +++++----
+ sw/firmware/ctrl/test/ctrl_pin.py      | 315 ++++++++++++++++++++++++++-------
+ 4 files changed, 397 insertions(+), 112 deletions(-)
+
+git log --format='%H %s' 4cab445a..feed95bb
+feed95bbb6429e5af0ee3f0a24c531777279e9de Edit the stack's LICENSE in the pin control for a file no gate builds, so no literal there names a documentation page ci_scope reads
+107aab303b8af1c7d15c4f8fd27617f30d9a4ccb Give the firmware README the boundary self-test's own figures, 96 defects among them, and refuse a figure there that is not the self-test's count of its controls
+2d24214d0d25a3b73a7de26a7b512d4ecc3d4fc9 Prove the stack pin from the real objects alone through one Git helper, over the whole tree with its types and modes, and hold the proof's Git commands to that helper by a census
+
+paths under hdl/ syn/ tb/ protocol-processor gptp-processor third_party/ .github/ in the delta:
+0
+C/H/Makefile files in the delta:
+0

@@ -1,0 +1,5 @@
+== scripts/check_em_dash.py --base 4cab445aa2475903b6cf8b87566d2c8a1e15e391: rc=2 (1 s): check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt 
+== scripts/ci_scope.py --selftest: rc=0 (7 s):   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it selftest: PASS 
+== scripts/check_py_idiom.py: rc=0 (6 s):   global statement: 0 <= 0   over-long line: 0 <= 0 
+== scripts/docs_check.py: rc=0 (6 s): docs_check: 0 finding(s) across 202 md files + 1242 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files] 
+== md-venv check_em_dash.py --base 4cab445a: rc=0 (4 s): check_em_dash: 0 finding(s) over 18 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [4cab445a..HEAD] 

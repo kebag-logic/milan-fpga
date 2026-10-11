@@ -1,0 +1,27 @@
+pin: 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+census findings: []
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+[ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 1a9f651c: LICENSE
+[ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+Traceback (most recent call last):
+  File "$PACKET/scripts/pin_suite.py", line 20, in <module>
+    bad, n = ctrl_pin.pin_controls(work, makefiles())
+             ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "$CLONE/sw/firmware/ctrl/test/ctrl_pin.py", line 517, in pin_controls
+    accepted, detail = check()
+                       ~~~~~^^
+  File "$CLONE/sw/firmware/ctrl/test/ctrl_pin.py", line 432, in outside
+    raise Refusal(f"the census control's anchor occurs {text.count(old)} times in ctrl_build.py")
+ctrl_build.Refusal: the census control's anchor occurs 0 times in ctrl_build.py
