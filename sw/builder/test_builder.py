@@ -28746,9 +28746,11 @@ def test_boot_policy_follows_the_declaration() -> None:
 
 def test_nvm_firmware_shapes() -> None:
     """Compile and grade the saved-state writer for every generated shape."""
+    # A hosted runner took 594 s for this before #671's generated read-fault
+    # windows, which add about a twentieth; 600 s left no room for either.
     subprocess.run(
         [sys.executable, str(ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py"),
-         "--self-test"], check=True, cwd=ROOT, timeout=600)
+         "--self-test"], check=True, cwd=ROOT, timeout=1200)
 
 
 def test_soc_option_refusals() -> None:
