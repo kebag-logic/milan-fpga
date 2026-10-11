@@ -1,0 +1,10 @@
+# job fw_coverage_check
+# cwd $CLONE
+# head e52d7525ae0c5c9ac669843432187ddcd9071686
+# start 2026-10-11T19:51:09Z
+# argv: python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[FAIL] ctrl coverage run
+REFUSED: $CLONE/third_party/lwSRP is not a lwSRP checkout: no src/core/mrp_mad.c, src/core/mrp_pdu.c, src/ports/timer.c, src/modules/mvrp.c
+UNMEASURED: the ctrl gate failed in coverage mode (exit 2)
+# end 2026-10-11T19:52:25Z elapsed 76s rc 2

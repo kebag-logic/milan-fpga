@@ -1,0 +1,72 @@
+# job size_cand_8x8_if2_aecp
+# cwd $PACKET/scratch/candcopy
+# head e52d7525ae0c5c9ac669843432187ddcd9071686
+# start 2026-10-11T20:01:03Z
+# argv: python3 sw/firmware/ctrl/test/ctrl_srp_image.py --with-aecp --config configs/endstation_ax7101_8x8.yaml --interfaces 2 --output $PACKET/scratch/size/cand-8x8-if2 --libc $PACKET/scratch/runtime_nossp/libc.a --compiler-runtime $PACKET/scratch/runtime_nossp/libcompiler_rt.a
+wrote $PACKET/scratch/size/cand-8x8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/size/cand-8x8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/size/cand-8x8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 86148,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 103820,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 16,
+    "image_app": 9904,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 576,
+    "image_srp": 5864,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "87825b154df98e4b2328d0d3aa9a951ada667d0944dbdae3256a337e3e6a40d2"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "d0c5a82f4b3e520c61ce5229ef02dff04fcd184d581dc783ad003cd50cd3777d"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 138836,
+      "sha256": "fbcf4230d2a5087f28659de75907f60a1f92304e747d3587eb1d40546c6e5e81"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 138913,
+      "sha256": "86fe684335528388f238a47a55c2d0144fcfea2e3d8b7896373b6ae545b2affd"
+    }
+  ],
+  "ram_sections": 223766,
+  "ram_span": 223776
+}
+# end 2026-10-11T20:01:08Z elapsed 5s rc 0

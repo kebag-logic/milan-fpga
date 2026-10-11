@@ -1,0 +1,17 @@
+# job fw_coverage_check
+# cwd $CLONE
+# head e52d7525ae0c5c9ac669843432187ddcd9071686
+# start 2026-10-11T19:58:29Z
+# argv: python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp $PACKET/scratch/lwSRP --jobs 4
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[FAIL] ctrl coverage run
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/tmp/fw-coverage.hx7kzpd8/ctrl/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+REFUSED: lwSRP is not its own checkout
+UNMEASURED: the ctrl gate failed in coverage mode (exit 2)
+# end 2026-10-11T20:00:44Z elapsed 135s rc 2

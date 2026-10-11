@@ -1,0 +1,18 @@
+# job yosys_elab_mbx_tops
+# cwd $PACKET/scratch/candcopy
+# head e52d7525ae0c5c9ac669843432187ddcd9071686
+# start 2026-10-11T20:14:09Z
+# argv: syn/yosys/run.sh --mode elaborate --no-structural --top KL_mbx --top KL_mbx_wb --top KL_mbx_axil --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] KL_mbx                 cells=4252
+  [PASS] KL_mbx_wb              cells=8
+  [PASS] KL_mbx_axil            cells=69
+  [PASS] milan_datapath         cells=75829
+  [PASS] KL_pp_shadow           cells=61758
+  [PASS] KL_gptp_shadow         cells=3567
+--------------------------------------------------------------
+tops: 6   pass: 6   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+# end 2026-10-11T20:16:06Z elapsed 117s rc 0

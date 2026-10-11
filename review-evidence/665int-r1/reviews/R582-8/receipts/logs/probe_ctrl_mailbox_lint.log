@@ -1,0 +1,58 @@
+%Warning-WIDTHEXPAND: probe_ctrl_mailbox.v:82:22: Operator ASSIGNDLY expects 17 bits on the Assign RHS, but Assign RHS's CONST '1'h0' generates 1 bits.
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+   82 |   ctrlmailbox_ms_cnt <= 1'd0;
+      |                      ^~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: probe_ctrl_mailbox.v:118:3: Input port connection 'gm_id_i' expects 64 bits on the pin connection, but pin connection's CONST '1'h0' generates 1 bits.
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+  118 |  .gm_id_i(1'd0),
+      |   ^~~~~~~
+%Warning-WIDTHEXPAND: probe_ctrl_mailbox.v:119:3: Input port connection 'gptp_domain_i' expects 8 bits on the pin connection, but pin connection's CONST '1'h0' generates 1 bits.
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+  119 |  .gptp_domain_i(1'd0),
+      |   ^~~~~~~~~~~~~
+%Warning-WIDTHEXPAND: probe_ctrl_mailbox.v:128:3: Input port connection 'rx_data_i' expects 8 bits on the pin connection, but pin connection's CONST '1'h0' generates 1 bits.
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+  128 |  .rx_data_i(1'd0),
+      |   ^~~~~~~~~
+%Warning-PROCASSINIT: probe_ctrl_mailbox.v:27:33: Procedural assignment to declaration with initial value: 'ctrlmailbox_ms_cnt'
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+                                                : ... Location of variable initialization
+   27 | reg [16:0] ctrlmailbox_ms_cnt = 17'd0;
+      |                                 ^~~~~
+                      probe_ctrl_mailbox.v:82:3: ... Location of variable process write
+                                               : ... Perhaps should initialize instead using a reset in this process
+   82 |   ctrlmailbox_ms_cnt <= 1'd0;
+      |   ^~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: probe_ctrl_mailbox.v:28:27: Procedural assignment to declaration with initial value: 'ctrlmailbox_ms_tick'
+                                                : ... note: In instance 'probe_ctrl_mailbox'
+                                                : ... Location of variable initialization
+   28 | reg ctrlmailbox_ms_tick = 1'd0;
+      |                           ^~~~
+                      probe_ctrl_mailbox.v:83:3: ... Location of variable process write
+                                               : ... Perhaps should initialize instead using a reset in this process
+   83 |   ctrlmailbox_ms_tick <= 1'd1;
+      |   ^~~~~~~~~~~~~~~~~~~
+%Warning-COMBDLY: probe_ctrl_mailbox.v:68:24: Non-blocking assignment '<=' in combinational logic process
+                                            : ... This will be executed as a blocking assignment '='!
+   68 |  ctrlmailbox_mbx_clear <= 1'd0;
+      |                        ^~
+                  ... For warning description see https://verilator.org/warn/COMBDLY?v=5.050
+                  ... Use "/* verilator lint_off COMBDLY */" and lint_on around source to disable this message.
+                  *** See https://verilator.org/warn/COMBDLY?v=5.050 before disabling this,
+                  else you may end up with different sim results.
+%Warning-COMBDLY: probe_ctrl_mailbox.v:70:25: Non-blocking assignment '<=' in combinational logic process
+                                            : ... This will be executed as a blocking assignment '='!
+   70 |   ctrlmailbox_mbx_clear <= 1'd1;
+      |                         ^~
+%Warning-COMBDLY: probe_ctrl_mailbox.v:73:10: Non-blocking assignment '<=' in combinational logic process
+                                            : ... This will be executed as a blocking assignment '='!
+   73 |  dummy_d <= dummy_s;
+      |          ^~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.815 MB sources in 9 modules, into 0.651 MB in 4 C++ files needing 0.000 MB
+- Verilator: Walltime 0.099 s (elab=0.015, cvt=0.059, bld=0.000); cpu 0.098 s on 1 threads; allocated 27.715 MB
+verilator rc=0

@@ -1,0 +1,24 @@
+candidate e52d7525ae0c5c9ac669843432187ddcd9071686 tree 0705eb4a691dcfb8211de9c7da79883cc357b249
+parents   eb86b843557c6d9300847e3b6e12851604580b69 (pred) 67c1285b3b28b12a3af4f3f3aae6e92befd5febb (source); merge base 554e61d299ef7ddb5aca6fb9ce0e6a6cd076d8cb
+automatic merge tree 0705eb4a691dcfb8211de9c7da79883cc357b249 (EQUAL to the candidate's)
+PR change lines:   source 9157c58e63625dbb  candidate 9157c58e63625dbb
+pred change lines: pred   dd16f923cae7262d  candidate dd16f923cae7262d
+files: PR 63, predecessors 61, both:
+  docs/design/MAILBOX_SPLIT.md  PR a77de05066f1c8a5=a77de05066f1c8a5  pred 216e492a9bf7c127=216e492a9bf7c127
+  sw/firmware/ctrl/maap/README.md  PR 425794767132be4e=425794767132be4e  pred 09a59c6e66862872=09a59c6e66862872
+  sw/firmware/ctrl/README.md  PR cc3bc4b720444037=cc3bc4b720444037  pred 047f0b694d8d8c95=047f0b694d8d8c95
+  sw/firmware/ctrl/srp/README.md  PR fd58d12d1eb55aa8=fd58d12d1eb55aa8  pred f9882283bd8660fb=f9882283bd8660fb
+  sw/firmware/ctrl/test/ctrl_arms.py  PR 315f9eba978717bf=315f9eba978717bf  pred cb82eaa7283b0b37=cb82eaa7283b0b37
+  sw/litex/milan_soc.py  PR ad47899ef7608b27=ad47899ef7608b27  pred 6e06973000fd8ce9=6e06973000fd8ce9
+first-parent history:
+  e52d7525a Validate issue 665int merge-train candidate
+  eb86b8435 Validate issue 696 merge-train candidate
+  cfadd767a Merge PR #718: Adopt lwSRP main 08ee86e8: grouped MRP Messages, decoded SRP behaviour unchanged (#711)
+  6bfeeb132 Merge PR #719: Mark II M6: media context tables in LUT RAM, counters read one column at a time (#640)
+  ac2c5e77b Merge PR #710: M2: store the retained MAC framing flags in LUTRAM and move CSR FIFOs into the freed block RA
+gitlinks:
+  160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+  160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+  160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+  160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+  160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
