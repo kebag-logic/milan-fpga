@@ -1,0 +1,10 @@
+probe: p3_rtl_OP_GET_COUNTERS
+expect: rc 1, names GET_COUNTERS and OP_GET_COUNTERS_C = 0x002A
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  engine: GET_COUNTERS: the table says opcode 0x0029, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x002A
+--- stderr

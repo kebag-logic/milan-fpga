@@ -1,0 +1,8 @@
+probe: q1_dispatch_arm_SET_CLOCK_SOURCE_to_GCLKS
+expect: a lock-protected command dispatched to an unlocked program: does the gate see it?
+command: python3 -B scripts/check_aecp_commands.py
+rc: 0
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK
+--- stderr

@@ -1,0 +1,6 @@
+probe: p8_entry_unplaced_file
+command: python3 -B scripts/check_aecp_commands.py
+rc: 2
+--- stdout
+--- stderr
+AECP COMMAND GATE: REFUSED - hdl/aecp/ucode/gen_ucode.py did not generate: AssertionError('GET_CLOCK_SOURCE: E_SCFGRUN2 is no placed program')

@@ -1,0 +1,40 @@
+# RTL/ROM-input identity, base 2cbed0a9 vs head 39cac060
+git diff --stat base head -- '*.sv' '*.svh' '*.v' '*.vh' '*.hex' '*.mem' '*.tcl' '*.xdc' (empty = identical):
+<end>
+files changed:
+M	.github/workflows/hdl.yml
+M	Makefile
+M	docs/00_MILAN_COMPLIANCE_REVIEW.md
+M	docs/architecture/06_aecp_engine.md
+M	docs/architecture/09_verification.md
+A	hdl/aecp/ucode/aecp_commands.json
+M	hdl/aecp/ucode/gen_ucode.py
+A	scripts/check_aecp_commands.py
+tb/ mutation patches naming gen_ucode.py, git apply --check at head:
+OK tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch
+OK tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch
+OK tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch
+OK tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch
+OK tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch
+OK tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+OK tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+OK tb/pp_top/aecp_dispatch_mutations/sclks-miss-branch-dropped.patch
+OK tb/pp_top/aecp_dispatch_mutations/sclks-miss-preload-dropped.patch
+OK tb/pp_top/aecp_dispatch_mutations/sclks-miss-target-next-word.patch
+OK tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch
+OK tb/pp_top/ctr_mutations/ctr-block-beats-swapped.patch
+OK tb/pp_top/ctr_mutations/ctr-locate-ignored.patch
+OK tb/pp_top/mutations/dlkill-always-misbehaving.patch
+OK tb/pp_top/mutations/mvu-silent.patch

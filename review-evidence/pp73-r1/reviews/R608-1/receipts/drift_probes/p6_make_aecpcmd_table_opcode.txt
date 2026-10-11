@@ -1,0 +1,16 @@
+probe: p6_make_aecpcmd_table_opcode
+expect: make aecpcmd rc 2 (selftest passes, gate rc 1)
+command: make aecpcmd
+rc: 2
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE SELFTEST: FAIL - the unmutated tree does not pass:
+  engine: SET_NAME: the table says opcode 0x0012, hdl/aecp/KL_aecp_engine.sv OP_SET_NAME_C = 0x0010
+  classifier: SET_NAME: the table says NAME_WR, hdl/top/protocol_processor_top.sv hz_classify gives 0x0012 RO_SNAPSHOT
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0010, which no table command carries
+  F06.14: row 0x0012 SET_NAME is missing (run --write)
+  F06.14: row 0x0010 SET_NAME is not in the table
+  8.1: SET_NAME (AEM 0x0012) is served and section 8.1 does not list it
+  8.1: section 8.1 lists AEM 0x0010 and the table serves no such command
+--- stderr
+make: *** [Makefile:49: aecpcmd] Error 1

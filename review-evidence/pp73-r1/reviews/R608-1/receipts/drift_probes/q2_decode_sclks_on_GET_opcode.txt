@@ -1,0 +1,8 @@
+probe: q2_decode_sclks_on_GET_opcode
+expect: SET_CLOCK_SOURCE's decode keyed on another OP_*_C: does the gate see it?
+command: python3 -B scripts/check_aecp_commands.py
+rc: 0
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK
+--- stderr

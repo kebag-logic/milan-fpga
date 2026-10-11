@@ -1,0 +1,8 @@
+probe: p5_message_type_ADDRESS_ACCESS
+expect: rc 1, schema finding names GET_MILAN_INFO message
+command: python3 -B scripts/check_aecp_commands.py
+rc: 2
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+--- stderr
+AECP COMMAND GATE: REFUSED - hdl/aecp/ucode/gen_ucode.py did not generate: StopIteration()

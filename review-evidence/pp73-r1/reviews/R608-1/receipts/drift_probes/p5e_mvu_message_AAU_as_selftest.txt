@@ -1,0 +1,6 @@
+probe: p5e_mvu_message_AAU_as_selftest
+command: python3 -B scripts/check_aecp_commands.py
+rc: 2
+--- stdout
+--- stderr
+AECP COMMAND GATE: REFUSED - hdl/aecp/ucode/gen_ucode.py did not generate: StopIteration()
