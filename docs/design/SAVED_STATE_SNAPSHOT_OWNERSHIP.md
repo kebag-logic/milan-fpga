@@ -1619,18 +1619,19 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-10 in the
+Timing. MEASURED on 2026-10-11 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) requires this remeasurement.
-Its console report of the writer's hold changes the product firmware again.
-The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the previous one, for the boot read-fault rule.
-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the one before.
+The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) requires this remeasurement.
+Its console line for a held writer restart changes the product firmware again.
+The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
+The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
+The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required an earlier one.
-Measured commit: `49d28e5a53ea0b666608ce796fdc8cb812ff9406`.
-Measured tree: `891f5d324fbc6379d07725eb346c7792e571baa9`.
-Firmware SHA-256: `33eaa0c332f04587c9fddc7129895e3a9edf7a3e76dbf75f9cd43bd1b31955b2`.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
+Measured commit: `4886f23100ec585a44371f26a8f5c49b9002f4c4`.
+Measured tree: `4f92a4db68bcdc84f9a49bfe75f21cb4fec58133`.
+Firmware SHA-256: `5f1748598a46400ae9dfa2e55b9e6b913010d14ffcc6792ec99b67fcf46b1687`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
