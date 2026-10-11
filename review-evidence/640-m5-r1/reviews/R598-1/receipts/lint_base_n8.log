@@ -1,0 +1,359 @@
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:478:34: Bits of signal are not used: 'i_crft_stat'[1:0]
+                                                   : ... note: In instance 'milan_csr'
+  478 |   input  wire [31:0]             i_crft_stat,          
+      |                                  ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:558:34: Bits of signal are not used: 'i_acmp_tbl_ctx'[313:312,304:284,251:240,127:64]
+                                                   : ... note: In instance 'milan_csr'
+  558 |   input  wire [316:0]            i_acmp_tbl_ctx,
+      |                                  ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:695:34: Bits of signal are not used: 'i_pp_rx_frames'[15:8]
+                                                   : ... note: In instance 'milan_csr'
+  695 |   input  wire [15:0]             i_pp_rx_frames,     
+      |                                  ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1165:16: Signal is not used: 'scratch'
+                                                    : ... note: In instance 'milan_csr'
+ 1165 |   logic [31:0] scratch;                   
+      |                ^~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1168:16: Bits of signal are not used: 'mac_ctrl'[31:6]
+                                                    : ... note: In instance 'milan_csr'
+ 1168 |   logic [31:0] mac_ctrl;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1192:43: Bits of signal are not used: 'mac_ifg'[31:8]
+                                                    : ... note: In instance 'milan_csr'
+ 1192 |   (* quasi_static = "yes" *) logic [31:0] mac_ifg;    
+      |                                           ^~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1194:43: Bits of signal are not used: 'mac_ahi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1194 |   (* quasi_static = "yes" *) logic [31:0] mac_ahi;    
+      |                                           ^~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1202:16: Bits of signal are not used: 'ptp_ctrl'[31:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1202 |   logic [31:0] ptp_ctrl;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1214:16: Bits of signal are not used: 'pps_ctrl'[31:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1214 |   logic [31:0] pps_ctrl;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1229:16: Bits of signal are not used: 'adp_ctrl'[31:13,7:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1229 |   logic [31:0] adp_ctrl;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1231:36: Bits of signal are not used: 'aaf_dmhi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1231 |   logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi;  
+      |                                    ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1232:16: Bits of signal are not used: 'acmp_lobs'[31:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1232 |   logic [31:0] acmp_lobs;                     
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1233:16: Bits of signal are not used: 'lwsrp_ctrl'[31:6,4:2]
+                                                    : ... note: In instance 'milan_csr'
+ 1233 |   logic [31:0] lwsrp_ctrl;                
+      |                ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1234:16: Bits of signal are not used: 'maap_ctrl'[7:2]
+                                                    : ... note: In instance 'milan_csr'
+ 1234 |   logic [31:0] maap_ctrl;
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1240:16: Bits of signal are not used: 'lpf_ctrl'[31:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1240 |   logic [31:0] lpf_ctrl;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1241:16: Bits of signal are not used: 'crf_ctrl'[31:1]
+                                                    : ... note: In instance 'milan_csr'
+ 1241 |   logic [31:0] crf_ctrl, crf_sidlo, crf_sidhi;    
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1242:16: Bits of signal are not used: 'crft_ctrl'[31:2]
+                                                    : ... note: In instance 'milan_csr'
+ 1242 |   logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;   
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1242:62: Bits of signal are not used: 'crft_dmhi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1242 |   logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;   
+      |                                                              ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1246:16: Bits of signal are not used: 'tone_ctrl'[31:4]
+                                                    : ... note: In instance 'milan_csr'
+ 1246 |   logic [31:0] tone_ctrl;
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1252:16: Bits of signal are not used: 'chmap_word'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1252 |   logic [31:0] chmap_word;                
+      |                ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1320:16: Bits of signal are not used: 'lwsrp_vid'[31:12]
+                                                    : ... note: In instance 'milan_csr'
+ 1320 |   logic [31:0] lwsrp_vid;                 
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1321:28: Bits of signal are not used: 'lwsrp_dmhi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1321 |   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;    
+      |                            ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1333:16: Bits of signal are not used: 'adp_idx1'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1333 |   logic [31:0] adp_idx1;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1339:16: Bits of signal are not used: 'tcam_ctrl'[31:2]
+                                                    : ... note: In instance 'milan_csr'
+ 1339 |   logic [31:0] tcam_ctrl;                 
+      |                ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1340:26: Bits of signal are not used: 'tcam_khi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1340 |   logic [31:0] tcam_klo, tcam_khi;        
+      |                          ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1341:26: Bits of signal are not used: 'tcam_mhi'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1341 |   logic [31:0] tcam_mlo, tcam_mhi;        
+      |                          ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1342:16: Bits of signal are not used: 'tcam_act'[31:8]
+                                                    : ... note: In instance 'milan_csr'
+ 1342 |   logic [31:0] tcam_act;                  
+      |                ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:31:18: Parameter is not used: 'AEM_NAME_ENTRIES_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   31 |   localparam int AEM_NAME_ENTRIES_C = 107;
+      |                  ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.050
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:36:18: Parameter is not used: 'AEM_N_AUDIO_UNIT_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   36 |   localparam int AEM_N_AUDIO_UNIT_C = 1;
+      |                  ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:37:18: Parameter is not used: 'AEM_N_CLKDOM_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   37 |   localparam int AEM_N_CLKDOM_C     = 1;
+      |                  ^~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:38:18: Parameter is not used: 'AEM_N_CONTROL_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   38 |   localparam int AEM_N_CONTROL_C    = 1;
+      |                  ^~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:54:27: Parameter is not used: 'AEM_N_CLKSRC_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   54 |   localparam int unsigned AEM_N_CLKSRC_C = 10;
+      |                           ^~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:55:27: Parameter is not used: 'AEM_CRF_CLKSRC_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   55 |   localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;
+      |                           ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:58:26: Parameter is not used: 'AEM_CLKSRC_INTERNAL_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   58 |   localparam logic [1:0] AEM_CLKSRC_INTERNAL_C = 2'd0;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:59:26: Parameter is not used: 'AEM_CLKSRC_CRF_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   59 |   localparam logic [1:0] AEM_CLKSRC_CRF_C = 2'd1;
+      |                          ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:60:26: Parameter is not used: 'AEM_CLKSRC_AAF_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   60 |   localparam logic [1:0] AEM_CLKSRC_AAF_C = 2'd2;
+      |                          ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:65:26: Parameter is not used: 'AEM_CLKSRC_KIND_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   65 |   localparam logic [1:0] AEM_CLKSRC_KIND_C [0:9] = '{2'd0, 2'd1, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2};
+      |                          ^~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:66:27: Parameter is not used: 'AEM_CLKSRC_SI_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   66 |   localparam logic [15:0] AEM_CLKSRC_SI_C [0:9] = '{16'hFFFF, 16'd8, 16'd0, 16'd1, 16'd2, 16'd3, 16'd4, 16'd5, 16'd6, 16'd7};
+      |                           ^~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:69:27: Parameter is not used: 'AEM_N_AAF_CLKSRC_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   69 |   localparam int unsigned AEM_N_AAF_CLKSRC_C = 8;
+      |                           ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:73:27: Parameter is not used: 'ADP_DMAP_IN_MASK_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   73 |   localparam logic [63:0] ADP_DMAP_IN_MASK_C  = 64'h00000000000000FF;
+      |                           ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:74:27: Parameter is not used: 'ADP_DMAP_OUT_MASK_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   74 |   localparam logic [63:0] ADP_DMAP_OUT_MASK_C = 64'h00000000000000FF;
+      |                           ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:79:18: Parameter is not used: 'ADP_DMAP_IN_KEYS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   79 |   localparam int ADP_DMAP_IN_KEYS_C    = 1;
+      |                  ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:80:18: Parameter is not used: 'ADP_DMAP_IN_PAGE_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   80 |   localparam int ADP_DMAP_IN_PAGE_C    = 1;
+      |                  ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:81:18: Parameter is not used: 'ADP_DMAP_IN_NPORTS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   81 |   localparam int ADP_DMAP_IN_NPORTS_C  = 8;
+      |                  ^~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:82:18: Parameter is not used: 'ADP_DMAP_IN_NSTRIN_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   82 |   localparam int ADP_DMAP_IN_NSTRIN_C  = 9;
+      |                  ^~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:83:26: Parameter is not used: 'ADP_DMAP_IN_PBASE_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   83 |   localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+      |                          ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:84:26: Parameter is not used: 'ADP_DMAP_IN_PCLS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   84 |   localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+      |                          ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:85:26: Parameter is not used: 'ADP_DMAP_IN_PNMAPS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   85 |   localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+      |                          ^~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:86:26: Parameter is not used: 'ADP_DMAP_IN_RPHYS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   86 |   localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:0] = '{7'h00};
+      |                          ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:87:21: Parameter is not used: 'ADP_DMAP_IN_SAAF_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   87 |   localparam logic  ADP_DMAP_IN_SAAF_C [0:8] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b0};
+      |                     ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:88:26: Parameter is not used: 'ADP_DMAP_IN_SCH_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   88 |   localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:8] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd0};
+      |                          ^~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:92:18: Parameter is not used: 'ADP_DMAP_OUT_NPORTS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   92 |   localparam int ADP_DMAP_OUT_NPORTS_C = 8;
+      |                  ^~~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:93:18: Parameter is not used: 'ADP_DMAP_OUT_NSRC_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   93 |   localparam int ADP_DMAP_OUT_NSRC_C    = 72;
+      |                  ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:94:26: Parameter is not used: 'ADP_DMAP_OUT_PCLS_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   94 |   localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:7] = '{7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9, 7'd9};
+      |                          ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:95:26: Parameter is not used: 'ADP_DMAP_OUT_PCBASE_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   95 |   localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:7] = '{8'd0, 8'd9, 8'd18, 8'd27, 8'd36, 8'd45, 8'd54, 8'd63};
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:96:26: Parameter is not used: 'ADP_DMAP_OUT_SCH_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   96 |   localparam logic [9:0] ADP_DMAP_OUT_SCH_C [0:7] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8};
+      |                          ^~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:97:27: Parameter is not used: 'ADP_DMAP_OUT_CSRC_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:99:27: Parameter is not used: 'ADP_SRP_DOM_DEF_VID_C'
+                                                                                                                                                    : ... note: In instance 'milan_csr'
+   99 |   localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:102:27: Parameter is not used: 'ADP_STROUT_PRES_NS_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  102 |   localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:8] = '{32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000, 32'd2000000};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:110:18: Parameter is not used: 'TALKER_WIRE_CHANS_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  110 |   localparam int TALKER_WIRE_CHANS_C = 8;
+      |                  ^~~~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:116:27: Parameter is not used: 'ADP_STRIN0_FMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  116 |   localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h0205022002006000;
+      |                           ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:121:18: Parameter is not used: 'ADP_STRIN_NFMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  121 |   localparam int ADP_STRIN_NFMT_C  = 8;
+      |                  ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:122:18: Parameter is not used: 'ADP_STROUT_NFMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  122 |   localparam int ADP_STROUT_NFMT_C = 8;
+      |                  ^~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:123:27: Parameter is not used: 'ADP_STRIN_FMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  123 |   localparam logic [63:0] ADP_STRIN_FMT_C [0:7] = '{64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000};
+      |                           ^~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:124:27: Parameter is not used: 'ADP_STROUT_FMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  124 |   localparam logic [63:0] ADP_STROUT_FMT_C [0:7] = '{64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000};
+      |                           ^~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:129:27: Parameter is not used: 'ADP_CRF_FMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  129 |   localparam logic [63:0] ADP_CRF_FMT_C     = 64'h041060010000BB80;
+      |                           ^~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDPARAM: $REVIEWS/640-m5-r598-1-packet/scratch/head/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh:130:27: Parameter is not used: 'ADP_CRF_OUT_FMT_C'
+                                                                                                                                                     : ... note: In instance 'milan_csr'
+  130 |   localparam logic [63:0] ADP_CRF_OUT_FMT_C = 64'h041060010000BB80;
+      |                           ^~~~~~~~~~~~~~~~~
+                      /tmp/r598_base_csr.sv:1380:1: ... note: In file included from 'r598_base_csr.sv'
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1399:31: Bits of signal are not used: 'stg_dmac_hi_r'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1399 |   logic [31:0] stg_dmac_lo_r, stg_dmac_hi_r;  
+      |                               ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1445:38: Bits of signal are not used: 'rest_meta'[31:16]
+                                                    : ... note: In instance 'milan_csr'
+ 1445 |   logic [31:0] rest_tklo, rest_tkhi, rest_meta, rest_ctlo, rest_cthi;
+      |                                      ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:1462:16: Bits of signal are not used: 'snap_m8_r'[31:22,13,11:0]
+                                                    : ... note: In instance 'milan_csr'
+ 1462 |   logic [31:0] snap_m8_r;                 
+      |                ^~~~~~~~~
+%Warning-PROCASSINIT: /tmp/r598_base_csr.sv:2276:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                   : ... note: In instance 'milan_csr'
+                                                   : ... Location of variable initialization
+ 2276 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      /tmp/r598_base_csr.sv:2780:34: ... Location of variable process write
+                                                   : ... Perhaps should initialize instead using a reset in this process
+ 2780 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:2280:28: Bits of signal are not used: 'soff'[15:6,1:0]
+                                                    : ... note: In instance 'milan_csr'
+ 2280 |     logic [ADDR_WIDTH-1:0] soff;          
+      |                            ^~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:2281:28: Bits of signal are not used: 'loff'[15:6,1:0]
+                                                    : ... note: In instance 'milan_csr'
+ 2281 |     logic [ADDR_WIDTH-1:0] loff;          
+      |                            ^~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:2282:28: Bits of signal are not used: 'aoff'[15:5,1:0]
+                                                    : ... note: In instance 'milan_csr'
+ 2282 |     logic [ADDR_WIDTH-1:0] aoff;          
+      |                            ^~~~
+%Warning-UNUSEDSIGNAL: /tmp/r598_base_csr.sv:2502:28: Bits of signal are not used: 'coff'[15:6,1:0]
+                                                    : ... note: In instance 'milan_csr'
+ 2502 |     logic [ADDR_WIDTH-1:0] coff;          
+      |                            ^~~~
+%Warning-PROCASSINIT: /tmp/r598_base_csr.sv:2777:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                   : ... note: In instance 'milan_csr'
+                                                   : ... Location of variable initialization
+ 2777 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      /tmp/r598_base_csr.sv:2779:5: ... Location of variable process write
+                                                  : ... Perhaps should initialize instead using a reset in this process
+ 2779 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Error: Exiting due to 76 warning(s)

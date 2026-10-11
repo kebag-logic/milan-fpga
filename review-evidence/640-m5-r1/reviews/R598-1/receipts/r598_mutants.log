@@ -1,0 +1,13 @@
+R-decode-ptp-hi [lock1]: KILLED by decode; failed=['reset-values', 'decode', 'snapshot-coherence', 'lockstep']
+R-torn-pdus [lock1]: KILLED by snapshot-coherence; failed=['reset-values', 'decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-shadow-or-live [lock1]: KILLED by decode; failed=['reset-values', 'decode', 'lockstep']
+N-talker-idx0-raw [lock1]: KILLED by snapshot-coherence; failed=['decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-oor-kind-kept [lock1]: KILLED by snapshot-freshness; failed=['snapshot-freshness', 'lockstep']
+N-kind-index-off-by-one [lock1]: KILLED by decode; failed=['decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-burst-gate-wrong [lock8]: KILLED by snapshot-coherence; failed=['decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-poison-word [lock1]: KILLED by snapshot-coherence; failed=['decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-stage1-gate-window-only [lock1]: KILLED by decode; failed=['reset-values', 'decode', 'snapshot-coherence', 'snapshot-freshness', 'lockstep']
+N-extra-talker-kind-raw [lock8]: KILLED by snapshot-coherence; failed=['decode', 'snapshot-coherence', 'lockstep']
+E-stage1-gate-dropped [lock1]: SURVIVED (equivalence probe); failed=[]
+11 mutants, 11 as expected, 0 not
+wall 35.43 s maxrss 359748 KB
