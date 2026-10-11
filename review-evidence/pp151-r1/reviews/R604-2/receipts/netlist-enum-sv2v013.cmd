@@ -1,0 +1,1 @@
+bash scripts/netlist_enum.sh <packet>/scratch/net013 <packet>/scratch/bin013 4 KL_acmp_nvm_shadow KL_pp_acmp_listener KL_aecp_desc_store KL_aecp_engine KL_aecp_notify KL_aecp_nvm_writer KL_aecp_resp_buf KL_aecp_ucpu KL_pp_nvm_port KL_pp_originator KL_pp_release_merge KL_srp_encoder protocol_processor_top 

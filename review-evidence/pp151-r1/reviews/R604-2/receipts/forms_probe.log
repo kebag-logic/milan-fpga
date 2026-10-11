@@ -1,0 +1,30 @@
+verilator m_fatal_mod P=2 rc=1 :: %Warning-USERFATAL: m_fatal_mod.sv:3:28: probe guard P=2
+sv2v0.012+yosys m_fatal_mod P=2 rc=1 :: m_fatal_mod.012.v:11: ERROR: FATAL: .
+sv2v0.013+yosys m_fatal_mod P=2 rc=1 :: m_fatal_mod.013.v:13: ERROR: System task `$finish' executed.
+verilator m_fatal_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_fatal_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_fatal_mod P=1 rc=0 :: (no diagnostic)
+verilator m_error_mod P=2 rc=1 :: %Warning-USERERROR: m_error_mod.sv:3:28: probe guard P=2
+sv2v0.012+yosys m_error_mod P=2 rc=1 :: m_error_mod.012.v:11: ERROR: probe guard P=%0d.
+sv2v0.013+yosys m_error_mod P=2 rc=0 :: (no diagnostic)
+verilator m_error_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_error_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_error_mod P=1 rc=0 :: (no diagnostic)
+verilator m_warning_mod P=2 rc=1 :: %Warning-USERWARN: m_warning_mod.sv:3:28: probe guard P=2
+sv2v0.012+yosys m_warning_mod P=2 rc=0 :: m_warning_mod.012.v:11: Warning: probe guard P=%0d.
+sv2v0.013+yosys m_warning_mod P=2 rc=0 :: (no diagnostic)
+verilator m_warning_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_warning_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_warning_mod P=1 rc=0 :: (no diagnostic)
+verilator m_info_mod P=2 rc=0 :: -Info: m_info_mod.sv:3:28: probe guard P=2
+sv2v0.012+yosys m_info_mod P=2 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_info_mod P=2 rc=0 :: (no diagnostic)
+verilator m_info_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_info_mod P=1 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_info_mod P=1 rc=0 :: (no diagnostic)
+verilator m_fatal_init P=2 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_fatal_init P=2 rc=1 :: m_fatal_init.012.v:11: ERROR: Can't resolve task name `$fatal'.
+sv2v0.013+yosys m_fatal_init P=2 rc=1 :: m_fatal_init.013.v:12: ERROR: System task `$finish' executed.
+verilator m_fatal_init P=1 rc=0 :: (no diagnostic)
+sv2v0.012+yosys m_fatal_init P=1 rc=0 :: (no diagnostic)
+sv2v0.013+yosys m_fatal_init P=1 rc=0 :: (no diagnostic)
