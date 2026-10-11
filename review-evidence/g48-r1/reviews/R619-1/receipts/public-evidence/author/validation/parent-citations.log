@@ -1,0 +1,38 @@
+Head: 7cc9c492145dd9e7c5c0e1d4695a261ea8025850
+Parent: ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5
+README.md:21 -> hdl/milan/milan_datapath.sv:73-73 rc=0; parameter bit GPTP_PLANE_EN_P = 1'b1,
+README.md:22 -> docs/design/GPTP_PLANE.md:6-6 rc=0; Fabric gPTP owns product time synchronization.
+README.md:23 -> docs/design/GPTP_PLANE.md:49-49 rc=0; Option-off elaboration exists only for verification.
+docs/MANAGER.md:18 -> hdl/milan/milan_datapath.sv:73-73 rc=0; parameter bit GPTP_PLANE_EN_P = 1'b1,
+docs/MANAGER.md:19 -> docs/design/GPTP_PLANE.md:6-6 rc=0; Fabric gPTP owns product time synchronization.
+docs/MANAGER.md:20 -> docs/ARCHITECTURE_HW_SW_SPLIT.md:165-175 rc=0; In the ownerless test form:
+docs/MANAGER.md:109 -> docs/guides/gptp/MANAGER.md:33-35 rc=0; Physical acceptance against the reference peer | Incomplete | Issue #117
+docs/MANAGER.md:111 -> docs/design/GPTP_PLANE.md:350-366 rc=0; excludes delayAsymmetry for v1.2.
+docs/MANAGER.md:113 -> docs/design/GPTP_PLANE.md:363-366 rc=0; The two per-board elaboration constants, applied once
+docs/MANAGER.md:121 -> docs/design/GPTP_PLANE.md:43-44 rc=0; The builder rejects product configurations without it.
+docs/MANAGER.md:122 -> docs/design/GPTP_PLANE.md:49-49 rc=0; Option-off elaboration exists only for verification.
+docs/SOURCE_EVIDENCE.md:36 -> hdl/milan/milan_datapath.sv:73-73 rc=0; parameter bit GPTP_PLANE_EN_P = 1'b1,
+docs/SOURCE_EVIDENCE.md:37 -> docs/design/GPTP_PLANE.md:6-6 rc=0; Fabric gPTP owns product time synchronization.
+docs/SOURCE_EVIDENCE.md:38 -> docs/ARCHITECTURE_HW_SW_SPLIT.md:165-175 rc=0; In the ownerless test form:
+docs/INTEGRATION.md:10 -> hdl/milan/milan_datapath.sv:73-73 rc=0; parameter bit GPTP_PLANE_EN_P = 1'b1,
+docs/INTEGRATION.md:12 -> docs/design/GPTP_PLANE.md:6-6 rc=0; Fabric gPTP owns product time synchronization.
+docs/INTEGRATION.md:14 -> docs/design/GPTP_PLANE.md:48-48 rc=0; One atomic bank supplies every public consumer.
+docs/INTEGRATION.md:16 -> docs/design/GPTP_PLANE.md:49-49 rc=0; Option-off elaboration exists only for verification.
+docs/INTEGRATION.md:18 -> docs/design/GPTP_PLANE.md:43-44 rc=0; The builder rejects product configurations without it.
+docs/INTEGRATION.md:35 -> docs/ARCHITECTURE_HW_SW_SPLIT.md:165-165 rc=0; remains verification-only, with no product image
+docs/INTEGRATION.md:37 -> README.md:167-170 rc=0; option-OFF elaboration is deliberately ownerless
+docs/INTEGRATION.md:41 -> hdl/milan/milan_datapath.sv:7614-7624 rc=0; assign ctlg3_tdata  = ctlg2_tdata;
+docs/INTEGRATION.md:42 -> hdl/milan/milan_datapath.sv:2850-2858 rc=0; ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
+docs/INTEGRATION.md:43 -> hdl/milan/milan_datapath.sv:2850-2852 rc=0; (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
+docs/INTEGRATION.md:44 -> README.md:167-170 rc=0; option-OFF elaboration is deliberately ownerless
+docs/INTEGRATION.md:45 -> README.md:167-170 rc=0; option-OFF elaboration is deliberately ownerless
+docs/INTEGRATION.md:46 -> README.md:167-170 rc=0; option-OFF elaboration is deliberately ownerless
+docs/INTEGRATION.md:47 -> README.md:167-170 rc=0; option-OFF elaboration is deliberately ownerless
+docs/history/v1/PROJECT_STATUS.md:22 -> hdl/milan/milan_datapath.sv:73-73 rc=0; parameter bit GPTP_PLANE_EN_P = 1'b1,
+docs/history/v1/PROJECT_STATUS.md:23 -> docs/design/GPTP_PLANE.md:6-6 rc=0; Fabric gPTP owns product time synchronization.
+docs/history/v1/PROJECT_STATUS.md:24 -> docs/ARCHITECTURE_HW_SW_SPLIT.md:165-175 rc=0; In the ownerless test form:
+Planted stale revision: citation check rc=1 (expected failure); wrong revision.
+Planted stale line 89: citation check rc=1 (expected failure); unbound file or line anchor.
+Planted missing parent file: citation check rc=1 (expected failure); unbound file or line anchor.
+Planted wrong source construct: citation check rc=1 (expected failure); wrong source construct.
+PASS: 31 citation occurrences, 14 distinct targets; rc 0.

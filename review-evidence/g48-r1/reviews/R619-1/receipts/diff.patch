@@ -1,0 +1,187 @@
+diff --git a/README.md b/README.md
+index a99ba9a..7651e3c 100644
+--- a/README.md
++++ b/README.md
+@@ -18,8 +18,9 @@ The engine keeps protocol work inside programmable logic.
+ 
+ ## Current shape
+ 
+-- Parent integration enables this plane by default.
+-- The disabled mode supports comparison builds only.
++- Parent `GPTP_PLANE_EN_P` [defaults on](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
++- [Fabric gPTP](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) owns product time synchronization.
++- The disabled mode supports [verification-only comparison builds only](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
+ - One synchronous clock domain carries all processing.
+ - RX consumes validated, preclassified gPTP frames.
+ - TX honors downstream byte-level backpressure.
+@@ -29,6 +30,10 @@ The engine keeps protocol work inside programmable logic.
+ - Admission credit postpones only initiating transmissions.
+ - Publication outputs expose committed protocol state.
+ 
++Parent evidence is pinned at `ac2c5e77`.
++
++The [integration guide](docs/INTEGRATION.md#option-off-behavior) details option-off behavior.
++
+ ## Verify quickly
+ 
+ ```sh
+@@ -43,7 +48,12 @@ Detailed commands appear in the [test guide](docs/TEST_DEVELOPER.md).
+ 
+ ## Known risks
+ 
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) tracks mid-frame error handling.
++- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) remains in [review](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80): mid-frame receive errors.
++- [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) remains open: asymmetry, calibration, and live tuning.
++- [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) still owes physical acceptance against the reference peer.
++- [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64) and [#488](https://github.com/kebag-logic/milan-fpga/issues/488) still owe physical timestamp calibration.
++
++The [manager guide](docs/MANAGER.md#open-risks) separates donor and product gaps.
+ 
+ No certification claim is made.
+ 
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index b18a95e..8f0a0d9 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -7,13 +7,19 @@ This guide defines the external engine contract.
+ 
+ ## Parent ownership
+ 
+-Parent integration enables `GPTP_PLANE_EN_P` by default.
++Parent integration enables [`GPTP_PLANE_EN_P` by default](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
+ 
+-The disabled mode supports comparison builds only.
++[Fabric gPTP](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) owns product time synchronization.
+ 
+-This repository contains no nested submodules.
++[One atomic bank](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L48) supplies every public consumer.
++
++The disabled mode supports [verification-only comparison builds only](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
++
++Product configurations [cannot disable the plane](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L43-L44).
+ 
+-[Pinned parent source](https://github.com/kebag-logic/milan-fpga/blob/3178b13638d11d67376a24ca52ee1332cbe23ad3/hdl/milan/milan_datapath.sv#L89) records that default.
++These references pin parent `dev` at `ac2c5e77`.
++
++This repository contains no nested submodules.
+ 
+ Parent integration owns these surrounding services:
+ 
+@@ -24,6 +30,24 @@ Parent integration owns these surrounding services:
+ - Publication capture after commit.
+ - Per-configuration microcode generation.
+ 
++### Option-off behavior
++
++`GPTP_PLANE_EN_P=0` has [no supported product image](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165).
++
++This verification path has [zero runtime gPTP owners](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170).
++
++| Surface | Option-off behavior | Parent evidence |
++|---|---|---|
++| Control TX | Passes straight through | [Datapath bypass](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L7614-L7624) |
++| PHC rate and phase controls | Select the CSR face | [PHC selection](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L2850-L2858) |
++| PHC settime | Remains on the CSR face | [Epoch control](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L2850-L2852) |
++| GM, parent, PathTrace, peer delay | Zero | [Safe publications](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| Sync and asCapable | Zero | [Safe health](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| AVTP `tu` | One | [Uncertain time](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++| Publication writes | Inert; cannot manufacture live state | [Write behavior](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/README.md#L167-L170) |
++
++Review the [remaining acceptance gaps](MANAGER.md#open-risks) before product adoption.
++
+ ## Clock and reset
+ 
+ - `clk_i` clocks every functional engine block.
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index e0bcd27..201b603 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -15,13 +15,17 @@ This page summarizes value, readiness, evidence, and risk.
+ 
+ | Area | Current state | Evidence |
+ |---|---|---|
+-| Parent ownership | Enabled by default | [Integration evidence](INTEGRATION.md#parent-ownership) |
++| Parent default | `GPTP_PLANE_EN_P` enabled | [Parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) |
++| Product time owner | Fabric gPTP | [Parent ownership](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) |
++| Option-off | Verification-only comparison; no product image | [Parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) |
+ | Receive path | Implemented and regression-tested | [HDL guide](HDL_DEVELOPER.md#receive-path) |
+ | Transmit path | Backpressure-tested | [TX timing](HDL_DEVELOPER.md#transmit-timing) |
+ | PHC control | Addend, step, and slew-level outputs implemented | [Integration guide](INTEGRATION.md#phc-control) |
+ | Publication | Atomic commit pulse implemented | [Integration guide](INTEGRATION.md#publication) |
+ | Bench evidence | Historical silicon campaigns available | [History](history/v1/README.md) |
+ 
++Parent ownership references pin `dev` at `ac2c5e77`.
++
+ Current RTL remains reviewable and regression-tested.
+ 
+ No certification claim is made.
+@@ -95,14 +99,27 @@ The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping
+ 
+ ## Open risks
+ 
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) covers mid-frame receive errors.
+-- Parent gitlink updates require separate review.
+-- Physical acceptance remains product-specific.
++| Gap | Status | Tracking |
++|---|---|---|
++| Mid-frame receive errors | Fix in review; not merged here | [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35), [PR #80](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80) |
++| Donor asymmetry input, calibration triple, live tuner | Open | [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) |
++| Physical synchronization, GM recovery, conformance, and fabric publication | Acceptance still owed against the reference peer | [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) |
++| Physical timestamp calibration and ingress/egress split | Incomplete | [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64), [parent #488](https://github.com/kebag-logic/milan-fpga/issues/488) |
++
++The [parent status](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/guides/gptp/MANAGER.md#L33-L35) keeps calibration and physical acceptance incomplete.
++
++Parent v1.2 [excludes propagation asymmetry](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L350-L366).
++
++Its [timestamp corrections](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L363-L366) remain parent-owned constants, applied once.
++
++Donor #58's live tuner remains outside that product contract.
++
++Parent gitlink updates require separate review.
+ 
+ ## Management decisions
+ 
+-- Keep product integration enabled.
+-- Retain disabled builds for comparisons only.
++- Keep [product integration enabled](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L43-L44).
++- Retain disabled builds for [verification-only comparisons](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L49).
+ - Track every open correctness issue explicitly.
+ - Require exact-head verification before parent updates.
+ - Preserve dated campaigns within versioned history.
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index f2b3418..9318b8e 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -33,7 +33,11 @@ Line numbers describe the current branch layout.
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+ | PHC and result face contract | [`check_phc_contract.py`](../tb/check_phc_contract.py) | `make contract` |
+ | Load-bearing engine checks | [`mutants.py`](../tb/verilator/engine/mutants.py) | Engine suite |
+-| Parent default enabled | [Pinned parent source](https://github.com/kebag-logic/milan-fpga/blob/3178b13638d11d67376a24ca52ee1332cbe23ad3/hdl/milan/milan_datapath.sv#L89) | Parent integration gates |
++| Parent default enabled | [Pinned parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) | Parent integration gates |
++| Fabric owns product time | [Pinned parent contract](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) | Parent integration gates |
++| Option-off verifies comparisons only | [Pinned parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) | Parent integration gates |
++
++These parent ownership citations resolve at `ac2c5e77`.
+ 
+ Open issues qualify unresolved claims.
+ 
+diff --git a/docs/history/v1/PROJECT_STATUS.md b/docs/history/v1/PROJECT_STATUS.md
+index 0032aad..5cf0872 100644
+--- a/docs/history/v1/PROJECT_STATUS.md
++++ b/docs/history/v1/PROJECT_STATUS.md
+@@ -17,6 +17,15 @@
+ > Constrained figures sit beside unconstrained ones in the
+ > [manager guide](../../MANAGER.md#latest-measured-snapshot).
+ 
++> Integration note (2026-10-11, issue #48): the default-off account below
++> preserves the earlier state, also recorded in closed [issue #13](https://github.com/Mister-M-alt/FPGA-gPTP/issues/13).
++> Parent `dev` at `ac2c5e77` now [defaults `GPTP_PLANE_EN_P` on](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73).
++> [Fabric gPTP owns product time](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6).
++> [Option-off remains verification-only and ownerless](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175), with safe failure publications.
++> See the [current integration contract](../../INTEGRATION.md#parent-ownership)
++> and [remaining issue-linked gaps](../../MANAGER.md#open-risks).
++> Parent [#117](https://github.com/kebag-logic/milan-fpga/issues/117) still owns physical acceptance against the reference peer.
++
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # gptp-processor — the 802.1AS time-sync plane
+ 
