@@ -258,8 +258,11 @@ def baseline(capture: Path, real: str, language: str) -> str:
         return marker.read_text(encoding="utf-8").strip()
     stand_in = capture / "expand" / "in"
     empty = stand_in / f"base{BASE_SUFFIX.get(language, '.c')}"
-    if not empty.is_file():
-        empty.touch(mode=0o444)
+    # made once, read-only, by whichever helper of the capture comes first: another may be making it at once
+    try:
+        empty.touch(mode=0o444, exist_ok=False)
+    except FileExistsError:
+        pass
     env = {"PATH": os.environ.get("PATH", ""), "TMPDIR": os.environ.get("TMPDIR", "/tmp")}
     report = preprocess([real, "-E", "-dD", "-v", str(empty)], capture, env, stand_in, {})
     digest = keep(capture, json.dumps({**report, "stdin": -1, "baseline": {}}, sort_keys=True))
