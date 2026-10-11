@@ -260,7 +260,7 @@ These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
 
-Measured, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
+With M2's unused +2 allowance, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
 The split takes it: 113 tiles leaves 8.5 below 121.5, or seven with every bank in block RAM.
 At 56 firmware tiles, the conditional total is 116, leaving 5.5.
 The separate 13.5-tile reserve remains untouched in these estimates.

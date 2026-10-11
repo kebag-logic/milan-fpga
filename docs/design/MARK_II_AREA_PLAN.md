@@ -829,7 +829,7 @@ These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
 
-Before the conditional release, the measured total is 2.5 tiles over 121.5.
+Before the conditional release, with M2's unused +2 allowance, the total is 2.5 tiles over 121.5.
 The split takes the release: 113 tiles leaves 8.5 below that ceiling.
 With every bank in block RAM, 114.5 leaves seven.
 Both leave the separate 13.5-tile reserve untouched.
