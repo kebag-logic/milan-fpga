@@ -1,0 +1,791 @@
+{
+  "endpoint": "repos/kebag-logic/milan-fpga/actions/runs/38162821680/attempts/5",
+  "run": {
+    "id": 38162821680,
+    "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+    "run_attempt": 5,
+    "event": "pull_request",
+    "conclusion": "success",
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680"
+  },
+  "jobs": [
+    {
+      "id": 114551854241,
+      "name": "changes",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:13:41Z",
+      "completed_at": "2026-10-11T19:14:06Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551854241",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:13:42Z",
+          "completed_at": "2026-10-11T19:13:42Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:13:42Z",
+          "completed_at": "2026-10-11T19:13:56Z"
+        },
+        {
+          "name": "Classify the change conservatively",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:13:56Z",
+          "completed_at": "2026-10-11T19:14:04Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:04Z",
+          "completed_at": "2026-10-11T19:14:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:05Z",
+          "completed_at": "2026-10-11T19:14:05Z"
+        }
+      ]
+    },
+    {
+      "id": 114551854419,
+      "name": "bdd-conformance",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:13:41Z",
+      "completed_at": "2026-10-11T19:13:56Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551854419",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:13:42Z",
+          "completed_at": "2026-10-11T19:13:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:13:43Z",
+          "completed_at": "2026-10-11T19:13:45Z"
+        },
+        {
+          "name": "Fetch the processor model inputs",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:13:45Z",
+          "completed_at": "2026-10-11T19:13:48Z"
+        },
+        {
+          "name": "Install behave",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:13:48Z",
+          "completed_at": "2026-10-11T19:13:51Z"
+        },
+        {
+          "name": "Run the specification-facing suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-11T19:13:51Z",
+          "completed_at": "2026-10-11T19:13:53Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-11T19:13:53Z",
+          "completed_at": "2026-10-11T19:13:53Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-11T19:13:53Z",
+          "completed_at": "2026-10-11T19:13:53Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946176,
+      "name": "firmware-control-mutants",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:28:08Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946176",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:09Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:12Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:12Z",
+          "completed_at": "2026-10-11T19:14:15Z"
+        },
+        {
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:15Z",
+          "completed_at": "2026-10-11T19:14:26Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:26Z",
+          "completed_at": "2026-10-11T19:14:28Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:28Z",
+          "completed_at": "2026-10-11T19:14:30Z"
+        },
+        {
+          "name": "Run the control mutation campaign",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:30Z",
+          "completed_at": "2026-10-11T19:28:05Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-11T19:28:05Z",
+          "completed_at": "2026-10-11T19:28:05Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-11T19:28:05Z",
+          "completed_at": "2026-10-11T19:28:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-11T19:28:05Z",
+          "completed_at": "2026-10-11T19:28:05Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946197,
+      "name": "yosys-elaboration",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:27:38Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946197",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:10Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:10Z",
+          "completed_at": "2026-10-11T19:14:12Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:12Z",
+          "completed_at": "2026-10-11T19:14:15Z"
+        },
+        {
+          "name": "Cache the pinned Yosys build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:15Z",
+          "completed_at": "2026-10-11T19:14:16Z"
+        },
+        {
+          "name": "Build Yosys from source on cache miss",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:16Z",
+          "completed_at": "2026-10-11T19:14:16Z"
+        },
+        {
+          "name": "Install the pinned Yosys and prove the version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:16Z",
+          "completed_at": "2026-10-11T19:14:16Z"
+        },
+        {
+          "name": "Install the pinned sv2v release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:16Z",
+          "completed_at": "2026-10-11T19:14:17Z"
+        },
+        {
+          "name": "Elaborate the integration-heavy tops",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-11T19:14:17Z",
+          "completed_at": "2026-10-11T19:16:41Z"
+        },
+        {
+          "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-11T19:16:41Z",
+          "completed_at": "2026-10-11T19:25:47Z"
+        },
+        {
+          "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-11T19:25:47Z",
+          "completed_at": "2026-10-11T19:26:14Z"
+        },
+        {
+          "name": "Prove both synthesis flows refuse active elaboration guards",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-11T19:26:14Z",
+          "completed_at": "2026-10-11T19:26:44Z"
+        },
+        {
+          "name": "Prove the result cache refuses a planted entry",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-11T19:26:44Z",
+          "completed_at": "2026-10-11T19:27:36Z"
+        },
+        {
+          "name": "Post Cache the pinned Yosys build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-11T19:27:36Z",
+          "completed_at": "2026-10-11T19:27:36Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-11T19:27:36Z",
+          "completed_at": "2026-10-11T19:27:37Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-11T19:27:37Z",
+          "completed_at": "2026-10-11T19:27:37Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946205,
+      "name": "firmware-unit",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:25:08Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946205",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:09Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:11Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:11Z",
+          "completed_at": "2026-10-11T19:14:13Z"
+        },
+        {
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:13Z",
+          "completed_at": "2026-10-11T19:14:25Z"
+        },
+        {
+          "name": "Prove the tally reads a failing and a crashing test as failures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:25Z",
+          "completed_at": "2026-10-11T19:14:30Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:30Z",
+          "completed_at": "2026-10-11T19:14:32Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:32Z",
+          "completed_at": "2026-10-11T19:14:34Z"
+        },
+        {
+          "name": "Run the control-plane firmware suites and RV32 builds",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-11T19:14:34Z",
+          "completed_at": "2026-10-11T19:19:14Z"
+        },
+        {
+          "name": "Run the saved-state store suites and its RV32 build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-11T19:19:14Z",
+          "completed_at": "2026-10-11T19:20:56Z"
+        },
+        {
+          "name": "Hold the firmware coverage ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-11T19:20:56Z",
+          "completed_at": "2026-10-11T19:25:06Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-11T19:25:06Z",
+          "completed_at": "2026-10-11T19:25:06Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-11T19:25:06Z",
+          "completed_at": "2026-10-11T19:25:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-11T19:25:07Z",
+          "completed_at": "2026-10-11T19:25:07Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946223,
+      "name": "firmware-aecp-mutants",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:18:10Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946223",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:09Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:11Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:11Z",
+          "completed_at": "2026-10-11T19:14:14Z"
+        },
+        {
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:14Z",
+          "completed_at": "2026-10-11T19:14:24Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:24Z",
+          "completed_at": "2026-10-11T19:14:27Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:27Z",
+          "completed_at": "2026-10-11T19:14:29Z"
+        },
+        {
+          "name": "Run the AECP mutation campaign",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:29Z",
+          "completed_at": "2026-10-11T19:18:08Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-11T19:18:08Z",
+          "completed_at": "2026-10-11T19:18:08Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-11T19:18:08Z",
+          "completed_at": "2026-10-11T19:18:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-11T19:18:08Z",
+          "completed_at": "2026-10-11T19:18:08Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946231,
+      "name": "verilator-lint",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:14:48Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946231",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:10Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:10Z",
+          "completed_at": "2026-10-11T19:14:12Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:12Z",
+          "completed_at": "2026-10-11T19:14:15Z"
+        },
+        {
+          "name": "Cache the pinned Verilator build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:15Z",
+          "completed_at": "2026-10-11T19:14:18Z"
+        },
+        {
+          "name": "Build Verilator from source on cache miss",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:18Z",
+          "completed_at": "2026-10-11T19:14:18Z"
+        },
+        {
+          "name": "Run the ratcheted whole-tree lint gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:18Z",
+          "completed_at": "2026-10-11T19:14:45Z"
+        },
+        {
+          "name": "Prove protocol-processor source lists are derived",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:45Z",
+          "completed_at": "2026-10-11T19:14:45Z"
+        },
+        {
+          "name": "Post Cache the pinned Verilator build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-11T19:14:45Z",
+          "completed_at": "2026-10-11T19:14:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-11T19:14:45Z",
+          "completed_at": "2026-10-11T19:14:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-11T19:14:46Z",
+          "completed_at": "2026-10-11T19:14:46Z"
+        }
+      ]
+    },
+    {
+      "id": 114551946253,
+      "name": "firmware-srp-mutants",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:14:08Z",
+      "completed_at": "2026-10-11T19:22:10Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114551946253",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:14:09Z",
+          "completed_at": "2026-10-11T19:14:10Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:14:10Z",
+          "completed_at": "2026-10-11T19:14:12Z"
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:14:12Z",
+          "completed_at": "2026-10-11T19:14:16Z"
+        },
+        {
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-11T19:14:16Z",
+          "completed_at": "2026-10-11T19:14:28Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-11T19:14:28Z",
+          "completed_at": "2026-10-11T19:14:31Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-11T19:14:31Z",
+          "completed_at": "2026-10-11T19:14:33Z"
+        },
+        {
+          "name": "Run both SRP mutation campaigns and pin controls",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-11T19:14:33Z",
+          "completed_at": "2026-10-11T19:22:07Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-11T19:22:07Z",
+          "completed_at": "2026-10-11T19:22:07Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-11T19:22:07Z",
+          "completed_at": "2026-10-11T19:22:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-11T19:22:07Z",
+          "completed_at": "2026-10-11T19:22:07Z"
+        }
+      ]
+    },
+    {
+      "id": 114554900036,
+      "name": "rtl-fast",
+      "head_sha": "f41e4f2dd56eaccebb30d6c1ec255624b0ae7a48",
+      "run_attempt": 5,
+      "conclusion": "success",
+      "started_at": "2026-10-11T19:28:10Z",
+      "completed_at": "2026-10-11T19:28:14Z",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38162821680/job/114554900036",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-11T19:28:11Z",
+          "completed_at": "2026-10-11T19:28:11Z"
+        },
+        {
+          "name": "Require every applicable fast gate to pass",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-11T19:28:11Z",
+          "completed_at": "2026-10-11T19:28:11Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-11T19:28:11Z",
+          "completed_at": "2026-10-11T19:28:11Z"
+        }
+      ]
+    }
+  ],
+  "firmware_seconds": {
+    "firmware-unit": 660,
+    "firmware-control-mutants": 840,
+    "firmware-aecp-mutants": 242,
+    "firmware-srp-mutants": 482
+  }
+}
