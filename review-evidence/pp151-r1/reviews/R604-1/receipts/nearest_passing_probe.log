@@ -1,0 +1,9 @@
+KL_aecp_resp_buf RESP_BYTES_P=17 rc=0 :: 
+KL_aecp_resp_buf RESP_BYTES_P=20 rc=0 :: 
+KL_aecp_resp_buf RESP_BYTES_P=23 rc=0 :: 
+KL_aecp_resp_buf RESP_BYTES_P=24 rc=0 :: 
+KL_aecp_nvm_writer RS_TMO_CYC_P=1 rc=1 :: %Warning-UNSIGNED: hdl/aecp/KL_aecp_nvm_writer.sv:610:43: Comparison is constant due to unsigned arithmetic
+KL_aecp_nvm_writer RS_AGG_CYC_P=1 rc=1 :: %Warning-UNSIGNED: hdl/aecp/KL_aecp_nvm_writer.sv:630:46: Comparison is constant due to unsigned arithmetic
+KL_acmp_nvm_shadow RS_TMO_CYC_P=1 rc=1 :: %Warning-UNSIGNED: hdl/acmp/KL_acmp_nvm_shadow.sv:566:48: Comparison is constant due to unsigned arithmetic
+KL_aecp_desc_store NAME_ENTRIES_P=0 rc=1 :: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:270:5: NAME_ENTRIES_P=0 must be in 1..1024
+protocol_processor_top N_AVB_IF_P=0 rc=1 :: %Warning-ASCRANGE: hdl/aecp/KL_aecp_notify.sv:376:9: Ascending bit range vector: left < right of bit range: [-1:0]

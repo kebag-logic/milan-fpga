@@ -1,0 +1,1 @@
+cd $REVIEWS/pp151-r604-1-packet/scratch/headgit/tb/elab_guards && PATH=$REVIEWS/pp151-r604-1-packet/scratch/bin12:$PATH python3 -B mutants.py --verilator verilator --output $REVIEWS/pp151-r604-1-packet/scratch/mut12 --jobs 5

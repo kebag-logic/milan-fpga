@@ -1,0 +1,1 @@
+cd $REVIEWS/pp151-r604-1-packet/scratch/headgit/tb/elab_guards && PATH=$REVIEWS/pp151-r604-1-packet/scratch/bin13:$PATH python3 -B guards.py --root $REVIEWS/pp151-r604-1-packet/scratch/basegit --verilator verilator --jobs 2

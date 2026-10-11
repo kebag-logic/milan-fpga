@@ -1,0 +1,1 @@
+cd $REVIEWS/pp151-r604-1-packet/scratch && PATH=$REVIEWS/pp151-r604-1-packet/scratch/bin12:$PATH python3 -I $REVIEWS/pp151-r604-1-packet/scripts/my_mutants.py $REVIEWS/pp151-r604-1-packet/scratch/head $REVIEWS/pp151-r604-1-packet/scratch/mymut $REVIEWS/pp151-r604-1-packet/scratch/bin12 $REVIEWS/pp151-r604-1-packet/scratch/bin13

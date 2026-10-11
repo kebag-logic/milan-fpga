@@ -1,0 +1,1 @@
+cd $REVIEWS/pp151-r604-1-packet/scratch/basegit && PATH=$REVIEWS/pp151-r604-1-packet/scratch/bin12:$PATH $REVIEWS/pp151-r604-1-packet/scripts/netlists.sh $REVIEWS/pp151-r604-1-packet/scratch/basegit $REVIEWS/pp151-r604-1-packet/scratch/nl_base 3
