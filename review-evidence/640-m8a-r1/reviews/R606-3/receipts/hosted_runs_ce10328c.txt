@@ -1,0 +1,39 @@
+RUN rtl-fast head=ce10328c3d89d81509e47836fa4a48b22ecdbc20 status=completed conclusion=success event=pull_request
+  bdd-conformance	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:15:52Z
+  changes	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:16:09Z
+  firmware-unit	completed	success	2026-10-11T10:16:11Z	2026-10-11T10:53:41Z
+  verilator-lint	completed	success	2026-10-11T10:16:10Z	2026-10-11T10:16:46Z
+  yosys-elaboration	completed	success	2026-10-11T10:16:11Z	2026-10-11T10:31:13Z
+  rtl-fast	completed	success	2026-10-11T10:55:00Z	2026-10-11T10:55:03Z
+RUN elaborate head=ce10328c3d89d81509e47836fa4a48b22ecdbc20 status=completed conclusion=success event=pull_request
+  elaborate	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:50:31Z
+RUN docs head=ce10328c3d89d81509e47836fa4a48b22ecdbc20 status=completed conclusion=success event=pull_request
+  docs-check	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:47:36Z
+  wire-accountability	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:15:47Z
+  docs-check-no-git	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:15:50Z
+RUN rtl-full head=ce10328c3d89d81509e47836fa4a48b22ecdbc20 status=in_progress conclusion= event=pull_request
+  full-ci-gate	completed	success	2026-10-11T10:15:37Z	2026-10-11T10:16:10Z
+  Yosys shard 2/4	completed	success	2026-10-11T10:16:12Z	2026-10-11T10:16:38Z
+  Verilator shard 1/5	in_progress		2026-10-11T10:16:12Z	0001-01-01T00:00:00Z
+  Yosys shard 1/4	completed	success	2026-10-11T10:16:12Z	2026-10-11T10:16:36Z
+  Verilator shard 4/5	in_progress		2026-10-11T10:16:12Z	0001-01-01T00:00:00Z
+  Yosys shard 3/4	completed	success	2026-10-11T10:16:12Z	2026-10-11T10:16:36Z
+  Verilator shard 0/5	completed	success	2026-10-11T10:16:13Z	2026-10-11T10:59:46Z
+  Verilator shard 2/5	in_progress		2026-10-11T10:16:12Z	0001-01-01T00:00:00Z
+  Verilator shard 3/5	completed	success	2026-10-11T10:16:12Z	2026-10-11T10:27:18Z
+  Yosys shard 0/4	completed	success	2026-10-11T10:16:12Z	2026-10-11T10:16:42Z
+  Physical gPTP (nightly and manual)	completed	skipped	2026-10-11T10:16:11Z	2026-10-11T10:16:10Z
+observed 2026-10-11T11:00:05Z
+rtl-full status=in_progress conclusion=
+  full-ci-gate	completed	success
+  Yosys shard 2/4	completed	success
+  Verilator shard 1/5	in_progress	
+  Yosys shard 1/4	completed	success
+  Verilator shard 4/5	in_progress	
+  Yosys shard 3/4	completed	success
+  Verilator shard 0/5	completed	success
+  Verilator shard 2/5	in_progress	
+  Verilator shard 3/5	completed	success
+  Yosys shard 0/4	completed	success
+  Physical gPTP (nightly and manual)	completed	skipped
+observed 2026-10-11T11:03:40Z

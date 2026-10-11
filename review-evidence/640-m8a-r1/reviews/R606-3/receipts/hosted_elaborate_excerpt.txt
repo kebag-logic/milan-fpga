@@ -1,0 +1,18 @@
+2026-10-11T10:16:07.7162038Z   ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-10-11T10:16:07.7164329Z   ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+2026-10-11T10:16:07.7170998Z   ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-10-11T10:16:07.7186567Z   ok   gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:90) is relevant
+2026-10-11T10:16:07.7223083Z selftest: PASS
+2026-10-11T10:17:22.6611273Z RESULT: PASS
+2026-10-11T10:40:36.5997816Z ALL GATES PASS EXCEPT 4 NOT RUN
+2026-10-11T10:40:41.7581487Z run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+2026-10-11T10:40:41.7582093Z RESULT: PASS
+2026-10-11T10:43:15.4698059Z PASS     test_ctrl_memory
+2026-10-11T10:50:26.0283731Z simulations: 7   passed: 7   failed: 0   skipped: 0   timed out: 0
+2026-10-11T10:40:36.5986139Z 4 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+2026-10-11T10:40:36.5988331Z   - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this r
+2026-10-11T10:40:36.5991467Z   - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 54 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not 
+2026-10-11T10:40:36.5994372Z   - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+2026-10-11T10:40:36.5996557Z   - [gate 38] no Verilator on this runner, so KL_nvm_backend was not elaborated at 128 and 129 names: the builder's boundary was not compared with the RTL guard's
+2026-10-11T10:40:36.5997816Z ALL GATES PASS EXCEPT 4 NOT RUN
+2026-10-11T10:40:36.5999762Z --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
