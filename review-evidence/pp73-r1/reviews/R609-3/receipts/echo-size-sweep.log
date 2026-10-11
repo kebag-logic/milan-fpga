@@ -1,0 +1,8 @@
+response+4 GET_MILAN_INFO: --write rc 0, gate rc 1: decode: GET_MILAN_INFO: MVUINFO answered SUCCESS at cdl 32, the table's response is 36
+command+4 GET_MILAN_INFO: --write rc 0, gate rc 1: decode: GET_MILAN_INFO: the shortest MVU 0x0000 the engine dispatches to MVUINFO is cdl 20, the table's command cdl is 24
+GET_AUDIO_MAP response cdl 20: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+GET_AUDIO_MAP response cdl 24: --write rc 0, gate rc 0: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+GET_AUDIO_MAP response cdl 28: --write rc 0, gate rc 1: decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+STREAM_IS_RUNNING 12->13: --write rc 1, gate rc 1: schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12
+documented row without name: --write rc 1, gate rc 1: schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells
+response+4: 29 of 31 fail the gate; command+4: 29 of 31 fail the gate

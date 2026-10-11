@@ -1,0 +1,16 @@
+Reproduce from a detached checkout containing the exact assigned commit and base. Python 3.10+ (3.12+ for the archive extraction filter), make, a C++ compiler and the prescribed compiler release are required. Public evidence fetching uses read-only GitHub API access.
+
+All paths below are packet-relative. Set `REVIEW_VERILATOR` if the prescribed compiler is at another path. `scripts/bounded-verilator` limits compilation to two workers. Keep all temporary material under `scratch/` by exporting `TMPDIR` to that absolute directory. Do not run a synthesis or broad bank as part of this packet.
+
+1. In a fresh packet copy, use `python3 scripts/prepare.py --source SOURCE_CLONE --packet PACKET` to archive base/head under scratch. It refuses to overwrite existing trees.
+2. Use `python3 scripts/run_focused.py --source SOURCE_CLONE --packet PACKET` for the scoped compiled campaign, micro-CPU suite, focused document gates and PR-field-reference check. `receipts/pr-body.md` is the reviewed published body. The actual initial run used the source archive for documentation gates, which failed Git enumeration; its receipt is retained. The corrected runner uses SOURCE_CLONE for those gates.
+3. Run `python3 scripts/run_probes.py` for the prior table/generator/export/size/ROM probes. The packet locates itself; optional `REVIEW_SOURCE` changes the default scratch/head input. The copied public probes and the sole input-inventory adaptation are retained separately.
+4. Run `python3 scripts/prior_engine_probes.py --src scratch/head --out receipts/engine-probes --verilator scripts/bounded-verilator --jobs 3`, using absolute paths for these arguments. This preserves pre-record, re-record and post-record verdicts.
+5. Run `python3 scripts/prior_gate_mutation.py --src scratch/head --out receipts/gate-mutation --jobs 4` for the prior site-mutation selection. The 12 record-renderer survivors are not diagnostic sites.
+6. Run `python3 scripts/probe_registry.py --root SOURCE_CLONE` and `python3 scripts/probe_prerequisites.py --root SOURCE_CLONE --scratch scratch`.
+7. Run `make -j16 check` in SOURCE_CLONE with documentation dependencies available. For this review WaveDrom 2.0.3.post3 was installed in scratch/docs-venv, whose bin directory was placed first in PATH; the existing Mermaid command was used. Set PYTHONDONTWRITEBYTECODE=1 and TMPDIR to packet/scratch. The check is read-only for tracked source files.
+8. Run `python3 scripts/verify_identity.py --root SOURCE_CLONE --packet PACKET` last. It verifies every tracked byte/mode/index entry, inventories gitlinks, compares production blobs and regenerates both base/head ROMs into scratch.
+
+`public/` contains selected immutable evidence and public prior scripts. `scripts/fetch_public.py` re-fetches that selection at the pinned evidence commit and checks each Git blob identity. None of its requests write to GitHub. The recorded outer-manifest check also distinguishes published bytes from declared path-redacted originals.
+
+Every campaign waits for all its children. Use at most 16 parallel jobs in total, with campaign --jobs and per-build workers chosen to fit the available memory. Do not launch another heavy build alongside a vendor build. This packet contains no vendor build.

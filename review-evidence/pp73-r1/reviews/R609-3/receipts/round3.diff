@@ -1,0 +1,2134 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 018a1ed..8590fd5 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -532,7 +532,7 @@ verification).
+ | REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A | [GAP-10](#gap-10) | F01.5 + single-source rules; `make check` `ids` fails any P-/T- ID without its F01.5/F08.1 row | 01 §7, docs/README §2, 09 §7 | lint |
+ | REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A | [GAP-11](#gap-11) | verification plan | 09 §3, 09 §7 | — |
+-| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A (the tree: P, per Arch) | [GAP-11](#gap-11) | F09.1. **Generated** from the AECP command table `hdl/aecp/ucode/aecp_commands.json` (issue #73): F06.14, and the µcode generator's status codes and MVU command_type. **Hand-written, observed**: the engine's decode and dispatch. `tb/aecp_cmds` sweeps the engine. The suite and `make check` `aecpcmd` hold it, the latter through the recorded `tb/aecp_cmds/decode.json`, which is pinned by digest to the engine's sources and ROM. Per served command they hold: the programs each opcode is dispatched to on every outcome, the MVU sub-decode included (the table's `entries`); the shortest command accepted (its command cdl or declared floor); the per-record lengths; the observed responses. Also held: the unserved opcodes, the GET_DYNAMIC_INFO members and record lengths, and the unsolicited jobs. **Hand-written, gated** by `aecpcmd`: the engine's opcode and µPC entry constants, the top's hazard classifier, the scoreboard's lock-protected classes, the notify class map, `ucpu_pkg`'s status codes and the table's against IEEE Table 7-141, the µprograms (lock, notification, status set and response size on every path of the generated ROM: fixed, per-record fixed part and step, descriptor copy start) and 06 §8.1. Echo rows' response size is their command size. **Still hand-written, held to no table**: the µprograms' field values; the ROM layout (held to the engine by `check_upc_map.py`); ACQUIRE_ENTITY's and REGISTER_UNSOLICITED_NOTIFICATION's command cdl (the engine accepts both from 12; only the echo rule ties them); GET_DYNAMIC_INFO's 524 ceilings; opcodes above 0x007F; the ACMP transition ROM (`gen_ltn_rom.py`, F05.3), the descriptor image, F05.3 and F08.1, every `tb/` reference model; no golden model and no stimulus generator | 09 §1, 09 §8.10 | lint |
++| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A (the tree: P, per Arch) | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 29 held within their declared scope; 33 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.10 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.10 | lint |
+ | REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
+ | REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+ 
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 1ec2dac..73c60fa 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -242,7 +242,9 @@ The class is the one the top's F03.7 classifier presents. Notif names the notifi
+ class a command's µprogram enqueues (`NOTIFY_ENQ`), or the engine event that pushes it.
+ The status set is the command's own: every AEM command can also answer
+ `ENTITY_MISBEHAVING` (the deadline kill of 03 §6 rule (e), and a failed response
+-memory), and every MVU command `NOT_IMPLEMENTED` for the same two.
++memory), and every MVU command `NOT_IMPLEMENTED` for the same two. This common-status sentence is hand-written.
++The registry declares `common_status`, `engine_status` and `oversize` held to nothing: the
++status checks trust those exemptions, and the Oversize cells are rendering inputs (09 §8.10).
+ 
+ <!-- BEGIN F06.14: generated from hdl/aecp/ucode/aecp_commands.json by scripts/check_aecp_commands.py --write; edit the table, not these rows -->
+ | Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 7f70ba6..6c54540 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -477,15 +477,15 @@ F06.14 rows of the commands the engine does not serve, and a `fields` reference.
+ | Consumer | Form | Held to the table by |
+ |---|---|---|
+ | F06.14 (06 §6) | **generated** | `python3 scripts/check_aecp_commands.py --write` rewrites the rows between its markers; `aecpcmd` fails on any cell that differs, naming the row and the column |
+-| `gen_ucode.py`'s status codes and MVU command_type | **generated**, read at ROM generation | a status code or MVU row it cannot read stops the generator with a line naming the command and the field; `aecpcmd`'s schema check refuses the same defects by name before it runs the generator. Its `DISPATCH` map selects no ROM word: it refuses an entry that names no placed program, and nothing else |
+-| what `KL_aecp_engine` decodes and dispatches | hand-written, **observed** | `tb/aecp_cmds` drives the engine alone with one sweep for every opcode 0x0000–0x007F: every length 12–100, every descriptor type, running and idle, and the other message types, MVU protocol ids, GET_DYNAMIC_INFO records and unsolicited kinds. It records the µPC the engine hands its µCPU and the response it sends. Per served command: the programs its opcode is dispatched to on every outcome, the MVU sub-decode included, are exactly its `entries`; the shortest command dispatched to its first entry is its command cdl, or its `floor`; a per-record command is accepted only at cdl + k·per; every response the bench saw fits the response rule and carries a status of the set. Every opcode the table does not serve reaches only `unserved`, on every message type swept. The GET_DYNAMIC_INFO members, the program each record runs, its record length and the empty aggregate are the table's, and so are every unsolicited job's command_type, body and size. The suite holds a fresh sweep to the table and to its recorded copy `tb/aecp_cmds/decode.json`, and `aecpcmd` holds the table to that file. The standing controls (`make -C tb/aecp_cmds mutants`, CI's suites job) plant R608-1's q1 (a redirected success arm) and q2 (a decode keyed on another opcode) and twelve more edits, and each must fail by name |
++| `gen_ucode.py`'s status codes and MVU command_type | **generated**, read at ROM generation | a status code or MVU row it cannot read stops the generator with a line naming the command and the field; `aecpcmd`'s schema check refuses the same defects by name before it runs the generator. Its `DISPATCH` map selects no ROM word: it refuses missing names/entries, unreadable entry lists and entries that name no placed program |
++| what `KL_aecp_engine` decodes and dispatches | hand-written, **observed** | `tb/aecp_cmds` drives the engine alone with one sweep for every opcode 0x0000–0x007F: every length 12–100, every descriptor type, running and idle, and the other message types, MVU protocol ids, GET_DYNAMIC_INFO records and unsolicited kinds. It records the µPC the engine hands its µCPU and the response it sends. Per served command: the programs its opcode is dispatched to on every outcome, the MVU sub-decode included, are exactly its `entries`; the shortest command dispatched to its first entry is its command cdl, or its `floor`; a mapping echo command has accepted-offset gcd exactly equal to per; every response the bench saw fits the response rule and carries a status allowed by the command set plus the trusted exemptions. Every opcode the table does not serve reaches only `unserved`, on every message type swept. The GET_DYNAMIC_INFO members, the program each record runs, its record length and the empty aggregate are the table's, and so are every unsolicited job's command_type, body and size. The suite holds a fresh sweep to the table and to its recorded copy `tb/aecp_cmds/decode.json`, and `aecpcmd` holds the table to that file. The standing controls (`make -C tb/aecp_cmds mutants`, CI's suites job) plant R608-1's q1 (a redirected success arm) and q2 (a decode keyed on another opcode) and fourteen more edits, including four-byte and sixteen-byte mapping records, and each must fail by name |
+ | `KL_aecp_engine.sv` `OP_*_C`, `MVU_GET_MILAN_INFO_C`, `GDI_*_C` | hand-written, gated | each declared value against its command's opcode, in both directions: these are the lines `check_m9_opcodes.py` and the reference platform's inventory read |
+ | the engine's `UPC_*_C` names | hand-written, gated | every entry the table names is declared, and every declaration is claimed by a command, a notification body or the table's shared list; their addresses stay `check_upc_map.py`'s (the `run_suites.sh` preamble) |
+ | `protocol_processor_top.sv` `hz_classify` and `pp_pkg`'s hazard codes | hand-written, gated | each opcode's class against the table's, in both directions |
+ | `KL_pp_scoreboard.sv` `hz_is_lockprot` | hand-written, gated | equals the classes of the lock-protected commands |
+ | `KL_aecp_notify.sv`'s command-class map | hand-written, gated | each class a command enqueues maps to the table's unsolicited kind |
+ | `ucpu_pkg.sv` `ST_*_C` | hand-written, gated | each code against the table's, and the table's codes against IEEE 1722.1-2021 Table 7-141 (STREAM_IS_RUNNING has no RTL constant) |
+-| the generated µcode | hand-written µprograms, gated | every path from every entry, walked with the µCPU's own semantics: exactly the lock-protected commands reach `CHECK_LOCK`; each program enqueues the table's notification class; every status a path sets is in the command's set, and every status in the set is one a path can set; no path runs into the fill. Every response and unsolicited body has the table's size. A fixed rule must match exactly, and so must a failure stub. A per-record rule must be its fixed part plus whole records of its record size: the walk keeps the fixed part where a loop widens it, and some SUCCESS path must build the per-record part. A descriptor rule must be a copy that starts at its fixed part |
++| the generated µcode | hand-written µprograms, gated | every path from every entry, walked with the µCPU's own semantics: exactly the lock-protected commands reach `CHECK_LOCK`; each program enqueues the table's notification class; path statuses agree with the command set subject to the trusted common_status and engine_status exemptions; no path runs into the fill. Every response and unsolicited body has the table's size. A fixed rule must match exactly, and so must a failure stub. A per-record rule must be its fixed part plus whole records of its record size: the walk keeps the fixed part where a loop widens it, and some SUCCESS path must build the per-record part. A descriptor rule must be a copy that starts at its fixed part |
+ | the table's echo rows | — | an echo row's response size is its command size |
+ | 06 §8.1 | hand-written, gated | lists exactly the served commands |
+ 
+@@ -503,6 +503,11 @@ therefore fails `aecpcmd` with the file's name, and the suite fails it with the
+ 
+ Still hand-written and held to no table:
+ 
++- `common_status`, `commands[].engine_status` and `commands[].oversize`: their values
++  are unvalidated semantic inputs, as the registry declares. The status checks trust
++  the first two as exemptions; the oversize flag is rendered without deriving it from
++  the response rule. The common-status sentence above F06.14 is also hand-written;
++
+ - the µprograms' field values and field order (the walk holds sizes, statuses, lock and
+   notification, not what a field carries);
+ - the ROM layout (the `E_*` addresses, held to the engine's `UPC_*_C` by
+@@ -524,8 +529,8 @@ generator alone on the defects it refuses itself. It requires each one caught by
+ 
+ The gate's entry point is `scripts/check_aecp_commands.py`. Its checks live in
+ `scripts/aecp_gate/`, one module per consumer: `inputs`, `table`, `rtl`, `rom`,
+-`record`, `doc`, and `gate`, which runs them in order. The self-test's plants are in
+-`plants` and `selftest`. The package follows the reference platform's Python rule
++`record`, `doc`, `fields`, `field_docs` and `gate`, which runs them in order. The self-test's plants are in
++`plants`, `field_plants` and `selftest`. The package follows the reference platform's Python rule
+ (Rule 12, held there by `check_py_idiom.py` over this repository too): no function over
+ 100 lines, no module over 1000, at most six parameters, and every public function
+ annotated and documented.
+@@ -536,7 +541,134 @@ an edit to the table alone regenerates the ROM.
+ 
+ The reference platform's firmware tables are to consume the table itself: in the superproject it
+ is `protocol-processor/hdl/aecp/ucode/aecp_commands.json`, JSON with the schema tag
+-above and one `commands` row per served command. The table's `fields` object describes
+-every field. It separates the machine semantics from the F06.14 prose (`clause`, `doc`,
+-`notify.doc`, `documented`), which no consumer reads as semantics. Its gate there is a
+-follow-up lane.
++above and one `commands` row per served command. The table's `fields` names the sibling `aecp_fields.json` registry. Six `documented`
++rows supply semantic opcode, optional rtl and optional gdi inputs for unimplemented GDI
++members; name is identity/diagnostic, section and cells are rendering data. The parent
++gate is a follow-up lane. The complete field reference below is generated and checked
++against the registry, including every explicit limit. A missing or stale registry field
++fails by name; a standing sweep mutates every held field after regenerating F06.14.
++
++<!-- BEGIN AECP FIELD REGISTRY -->
++Generated from hdl/aecp/ucode/aecp_fields.json; edit the registry.
++[] means table rows; * means named map members. Held means only the stated scope.
++Rendering inputs generate F06.14; rendering equality is not behavioral proof.
++
++- about: held to nothing. Explanatory prose; no consumer validates its assertions.
++- commands: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- commands[].clause: held to nothing. Specification citation prose; no semantic citation check.
++- commands[].command: held to nothing. Command-size container; each leaf is classified below.
++- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and
++  REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an
++  unsolicited body. Consumer: record._floor; table._sizes. Check: command floor or echo equality.
++- commands[].command.floor: held. Explicit shorter accepted floor for echo commands. Consumer:
++  record._floor. Check: declared floor.
++- commands[].command.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100
++  and does not hold this ceiling.
++- commands[].command.per: held. Exact gcd of accepted offsets for both mapping echo commands. Consumer:
++  record._floor. Check: accepted-offset gcd.
++- commands[].command.plus: held to nothing. Variable-part label used in rendering; presence selects a
++  variable size rule, but its wording is not validated.
++- commands[].command.unit: held to nothing. Rendering label for N records; existence is schema-checked,
++  wording is not behavior.
++- commands[].doc: held to nothing. F06.14 rendering data; no semantic validation of the prose.
++- commands[].doc.class: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].doc.mandate: held to nothing. F06.14 rendering prose; changes regenerate text without
++  validating the assertion.
++- commands[].doc.scope: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].doc.size: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].engine_status: held to nothing. Held to nothing: engine-built status exemptions are trusted;
++  their exact set and reachability are not independently held.
++- commands[].entries: held. Every dispatched program and first-entry decode floor in the observed
++  population. Consumer: record._dispatch; record._floor. Check: dispatch entries.
++- commands[].gdi: held. Observed GET_DYNAMIC_INFO membership. Consumer: record._gdi_members. Check: GDI
++  membership.
++- commands[].hazard: held. Top-level classifier hazard name. Consumer: rtl.check_classifier. Check: command
++  hazard.
++- commands[].lock: held. ROM CHECK_LOCK reachability and scoreboard class membership. Consumer:
++  rom._lock_and_notify; rtl.check_scoreboard. Check: lock protection.
++- commands[].message: held. AEM/MVU dispatch identity, within the observed sweep. Consumer: record._served;
++  table._identity. Check: message dispatch.
++- commands[].name: held to nothing. Identity and diagnostic label; uniqueness is checked, but spelling is
++  not an engine invariant (except the required MVU identity).
++- commands[].notify: held. Presence of the notification contract. Consumer: rom._lock_and_notify;
++  record._unsolicited. Check: notification presence.
++- commands[].notify.body: held. Observed unsolicited dispatch and ROM body length. Consumer:
++  record._unsolicited; rom._lock_and_notify. Check: unsolicited body.
++- commands[].notify.class: held. Enqueued notification class; null means an engine event. Consumer:
++  rom._lock_and_notify; rtl.check_notify. Check: notification class.
++- commands[].notify.doc: held to nothing. F06.14 notification prose; no semantic validation.
++- commands[].notify.kind: held. Notification kind mapping and observed unsolicited job. Consumer:
++  rtl.check_notify; record._unsolicited. Check: notification kind.
++- commands[].opcode: held. Engine constant and observed command_type, within the sweep. Consumer:
++  rtl.check_engine; record._served. Check: opcode.
++- commands[].oversize: held to nothing. Held to nothing: F06.14 rendering input; no gate derives the
++  oversize flag from response size or the Milan list.
++- commands[].response: held to nothing. Response-size container; each leaf is classified below.
++- commands[].response.cdl: held. ROM fixed part, failure/unsolicited bodies and observed answers; echo
++  responses equal command cdl (see command.cdl limits). Consumer: rom._entries; record._answers;
++  table._sizes. Check: response size.
++- commands[].response.echo: held. Observed command-length responses and ROM echo rule. Consumer:
++  record._answers; rom._entries. Check: echo response.
++- commands[].response.engine: held. Engine-built aggregate versus dispatched program. Consumer:
++  record._dispatch. Check: engine-built answer.
++- commands[].response.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl
++  100 and does not hold this ceiling.
++- commands[].response.per: held. ROM variable step; echo step equals the command step, whose accepted-offset
++  gcd is exact. Consumer: rom._entries; table._sizes; record._floor. Check: response record step.
++- commands[].response.plus: held to nothing. Variable-part label used in rendering; presence selects a
++  variable size rule, but its wording is not validated.
++- commands[].response.stub: held. Fixed failure response length. Consumer: rom._entries; record._answers.
++  Check: failure stub.
++- commands[].response.unit: held to nothing. Rendering label for N records; existence is schema-checked,
++  wording is not behavior.
++- commands[].rtl: held. Declared engine constant identity. Consumer: rtl.check_engine. Check: opcode
++  constant.
++- commands[].status: held. ROM path statuses and observed answers, conditional on the trusted common_status
++  and engine_status exemptions. Consumer: rom._statuses; record._answers. Check: command status set.
++- common_status: held to nothing. Status exemptions trusted by the ROM and decode checks; reachability from
++  a shared path only is not checked.
++- common_status.AEM: held to nothing. Held to nothing: these shared-status exemptions are trusted, not
++  proven reachable for every command; they can hide command-owned statuses.
++- common_status.MVU: held to nothing. Held to nothing: these shared-status exemptions are trusted, not
++  proven reachable for every command; they can hide command-owned statuses.
++- documented: held to nothing. Includes six semantic unimplemented GDI members; individual fields below
++  distinguish semantics from identity and rendering.
++- documented[].cells: held to nothing. F06.14 rendering cells; cell count is checked, their prose is not
++  machine semantics.
++- documented[].gdi: held. Optional semantic membership flag for the six unimplemented GDI members. Consumer:
++  record._gdi_members. Check: unimplemented GDI membership.
++- documented[].name: held to nothing. Identity and diagnostic label, also rendered; required by schema,
++  spelling has no behavioral consumer.
++- documented[].opcode: held. Semantic input for the six unimplemented GDI members; other documented rows use
++  opcode as rendering text only. Consumer: rtl._gdi_consts; record._gdi_members. Check: unimplemented GDI
++  opcode.
++- documented[].rtl: held. Optional semantic constant name for the six unimplemented GDI members. Consumer:
++  rtl._gdi_consts. Check: unimplemented GDI constant.
++- documented[].section: held to nothing. F06.14 rendering group and sort order; schema checks the allowed
++  groups, not semantic placement.
++- echo_entries: held to nothing. Trusted shared echo exceptions in size checks; membership is not
++  independently held.
++- fields: held. Sibling registry filename. Consumer: fields.check_fields. Check: export registry.
++- hazard_classes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- hazard_classes.*: held. Hazard code by name. Consumer: rtl.check_classifier. Check: hazard class code.
++- schema: held. Export schema tag. Consumer: table.check_schema. Check: schema tag.
++- shared_entries: held to nothing. Shared-entry inventory keys are checked for missing claims only; added
++  claims are not independently held.
++- shared_entries.*: held to nothing. Diagnostic explanations of shared program names; wording is not checked
++  and adding a key only widens the inventory.
++- status_codes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- status_codes.*: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- status_codes.*.code: held. IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.
++  Consumer: table._status_rows; rtl.check_status_codes. Check: IEEE status code.
++- status_codes.*.rtl: held. Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL
++  constant. Consumer: rtl.check_status_codes. Check: status constant.
++- unserved: held. Default program for every unserved opcode in the observed population. Consumer:
++  record._unserved. Check: unserved program.
++<!-- END AECP FIELD REGISTRY -->
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index f193aae..5c1fd21 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -11,22 +11,7 @@
+     "entries are every uPC program the engine dispatches the command to, on any outcome (E_<entry> in gen_ucode.py, UPC_<entry>_C in the engine), the success program first; tb/aecp_cmds observes them.",
+     "status is the command's own status set; common_status lists what every command of a message type can also answer."
+   ],
+-  "fields": {
+-    "status_codes": "name -> {code: IEEE 1722.1-2021 Table 7-141 value, rtl: the ucpu_pkg constant or null}",
+-    "common_status": "message type -> statuses every command of it can answer besides its own set",
+-    "hazard_classes": "name -> pp_pkg PP_HZ_* code",
+-    "unserved": "the program every command the engine does not serve is dispatched to",
+-    "echo_entries": "shared programs that answer with the command echoed (its own length)",
+-    "shared_entries": "engine entries no single command owns, with why",
+-    "commands[].name / message / opcode / rtl": "the command, AEM or MVU, its command_type as 0xHHHH, and the engine constant that decodes it",
+-    "commands[].command": "the command's size: cdl (octets after target_entity_id), per (bytes per record, N records) with unit, plus (a variable part named), max; floor = the shortest cdl the engine dispatches to the first entry when that is below cdl",
+-    "commands[].response": "the response's size, read as command, plus: echo (the command's bytes come back, so cdl equals the command's), stub (a failure's fixed cdl), engine (built by the engine, not a program)",
+-    "commands[].status / engine_status": "the statuses its programs can answer; engine_status, those only an engine-built response carries",
+-    "commands[].hazard / lock / gdi / oversize": "hazard class name, lock-protected, a GET_DYNAMIC_INFO member, needs the oversize TX slot",
+-    "commands[].notify": "null, or the notification: class (the NOTIFY_ENQ class a program enqueues; null for an engine event), kind (pp_pkg PP_UNS_*), body (the unsolicited program), doc",
+-    "commands[].entries": "see about",
+-    "commands[].clause / doc / notify.doc / documented": "F06.14 prose only: no consumer reads them as machine semantics"
+-  },
++  "fields": "aecp_fields.json",
+   "status_codes": {
+     "SUCCESS": {"code": 0, "rtl": "ST_SUCCESS_C"},
+     "NOT_IMPLEMENTED": {"code": 1, "rtl": "ST_NOT_IMPLEMENTED_C"},
+diff --git a/hdl/aecp/ucode/aecp_fields.json b/hdl/aecp/ucode/aecp_fields.json
+new file mode 100644
+index 0000000..1dc75d3
+--- /dev/null
++++ b/hdl/aecp/ucode/aecp_fields.json
+@@ -0,0 +1,853 @@
++[
++  {
++    "path": "about",
++    "status": "held to nothing",
++    "reason": "Explanatory prose; no consumer validates its assertions."
++  },
++  {
++    "path": "commands",
++    "status": "held to nothing",
++    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
++  },
++  {
++    "path": "commands[].clause",
++    "status": "held to nothing",
++    "reason": "Specification citation prose; no semantic citation check."
++  },
++  {
++    "path": "commands[].command",
++    "status": "held to nothing",
++    "reason": "Command-size container; each leaf is classified below."
++  },
++  {
++    "path": "commands[].command.cdl",
++    "status": "held",
++    "reason": "Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.",
++    "consumer": "record._floor; table._sizes",
++    "check": "command floor or echo equality",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "command",
++            "cdl"
++          ],
++          "value": 20
++        }
++      ],
++      "words": [
++        "decode: GET_COUNTERS:",
++        "command cdl"
++      ]
++    }
++  },
++  {
++    "path": "commands[].command.floor",
++    "status": "held",
++    "reason": "Explicit shorter accepted floor for echo commands.",
++    "consumer": "record._floor",
++    "check": "declared floor",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            0,
++            "command",
++            "floor"
++          ],
++          "value": 16
++        }
++      ],
++      "words": [
++        "decode: ACQUIRE_ENTITY:",
++        "floor is 16"
++      ]
++    }
++  },
++  {
++    "path": "commands[].command.max",
++    "status": "held to nothing",
++    "reason": "GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling."
++  },
++  {
++    "path": "commands[].command.per",
++    "status": "held",
++    "reason": "Exact gcd of accepted offsets for both mapping echo commands.",
++    "consumer": "record._floor",
++    "check": "accepted-offset gcd",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            27,
++            "command",
++            "per"
++          ],
++          "value": 4
++        },
++        {
++          "path": [
++            "commands",
++            27,
++            "response",
++            "per"
++          ],
++          "value": 4
++        }
++      ],
++      "words": [
++        "decode: ADD_AUDIO_MAPPINGS: command per is 4",
++        "gcd",
++        "is 8"
++      ]
++    }
++  },
++  {
++    "path": "commands[].command.plus",
++    "status": "held to nothing",
++    "reason": "Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated."
++  },
++  {
++    "path": "commands[].command.unit",
++    "status": "held to nothing",
++    "reason": "Rendering label for N records; existence is schema-checked, wording is not behavior."
++  },
++  {
++    "path": "commands[].doc",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering data; no semantic validation of the prose."
++  },
++  {
++    "path": "commands[].doc.class",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
++  },
++  {
++    "path": "commands[].doc.mandate",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
++  },
++  {
++    "path": "commands[].doc.scope",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
++  },
++  {
++    "path": "commands[].doc.size",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
++  },
++  {
++    "path": "commands[].engine_status",
++    "status": "held to nothing",
++    "reason": "Held to nothing: engine-built status exemptions are trusted; their exact set and reachability are not independently held."
++  },
++  {
++    "path": "commands[].entries",
++    "status": "held",
++    "reason": "Every dispatched program and first-entry decode floor in the observed population.",
++    "consumer": "record._dispatch; record._floor",
++    "check": "dispatch entries",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "entries"
++          ],
++          "value": [
++            "GCLKS",
++            "BADARG"
++          ]
++        }
++      ],
++      "words": [
++        "decode: GET_COUNTERS:",
++        "entries"
++      ]
++    }
++  },
++  {
++    "path": "commands[].gdi",
++    "status": "held",
++    "reason": "Observed GET_DYNAMIC_INFO membership.",
++    "consumer": "record._gdi_members",
++    "check": "GDI membership",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            17,
++            "gdi"
++          ],
++          "value": true
++        }
++      ],
++      "words": [
++        "decode:",
++        "GET_CONTROL"
++      ]
++    }
++  },
++  {
++    "path": "commands[].hazard",
++    "status": "held",
++    "reason": "Top-level classifier hazard name.",
++    "consumer": "rtl.check_classifier",
++    "check": "command hazard",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "hazard"
++          ],
++          "value": "MAP_CFG"
++        }
++      ],
++      "words": [
++        "classifier: GET_COUNTERS:"
++      ]
++    }
++  },
++  {
++    "path": "commands[].lock",
++    "status": "held",
++    "reason": "ROM CHECK_LOCK reachability and scoreboard class membership.",
++    "consumer": "rom._lock_and_notify; rtl.check_scoreboard",
++    "check": "lock protection",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            10,
++            "lock"
++          ],
++          "value": false
++        }
++      ],
++      "words": [
++        "rom: SET_NAME:",
++        "lock false"
++      ]
++    }
++  },
++  {
++    "path": "commands[].message",
++    "status": "held",
++    "reason": "AEM/MVU dispatch identity, within the observed sweep.",
++    "consumer": "record._served; table._identity",
++    "check": "message dispatch",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "message"
++          ],
++          "value": "MVU"
++        }
++      ],
++      "words": [
++        "decode: GET_COUNTERS:"
++      ]
++    }
++  },
++  {
++    "path": "commands[].name",
++    "status": "held to nothing",
++    "reason": "Identity and diagnostic label; uniqueness is checked, but spelling is not an engine invariant (except the required MVU identity)."
++  },
++  {
++    "path": "commands[].notify",
++    "status": "held",
++    "reason": "Presence of the notification contract.",
++    "consumer": "rom._lock_and_notify; record._unsolicited",
++    "check": "notification presence",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            4,
++            "notify"
++          ],
++          "value": null
++        }
++      ],
++      "words": [
++        "rom: SET_CONFIGURATION:",
++        "notification class"
++      ]
++    }
++  },
++  {
++    "path": "commands[].notify.body",
++    "status": "held",
++    "reason": "Observed unsolicited dispatch and ROM body length.",
++    "consumer": "record._unsolicited; rom._lock_and_notify",
++    "check": "unsolicited body",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            4,
++            "notify",
++            "body"
++          ],
++          "value": "GCLKS"
++        }
++      ],
++      "words": [
++        "decode:",
++        "SET_CONFIGURATION"
++      ]
++    }
++  },
++  {
++    "path": "commands[].notify.class",
++    "status": "held",
++    "reason": "Enqueued notification class; null means an engine event.",
++    "consumer": "rom._lock_and_notify; rtl.check_notify",
++    "check": "notification class",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            4,
++            "notify",
++            "class"
++          ],
++          "value": 2
++        }
++      ],
++      "words": [
++        "rom: SET_CONFIGURATION:",
++        "notification class"
++      ]
++    }
++  },
++  {
++    "path": "commands[].notify.doc",
++    "status": "held to nothing",
++    "reason": "F06.14 notification prose; no semantic validation."
++  },
++  {
++    "path": "commands[].notify.kind",
++    "status": "held",
++    "reason": "Notification kind mapping and observed unsolicited job.",
++    "consumer": "rtl.check_notify; record._unsolicited",
++    "check": "notification kind",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            4,
++            "notify",
++            "kind"
++          ],
++          "value": "PP_UNS_NAME_C"
++        }
++      ],
++      "words": [
++        "notify: SET_CONFIGURATION:",
++        "PP_UNS_NAME_C"
++      ]
++    }
++  },
++  {
++    "path": "commands[].opcode",
++    "status": "held",
++    "reason": "Engine constant and observed command_type, within the sweep.",
++    "consumer": "rtl.check_engine; record._served",
++    "check": "opcode",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "opcode"
++          ],
++          "value": "0x007E"
++        }
++      ],
++      "words": [
++        "engine: GET_COUNTERS:",
++        "opcode"
++      ]
++    }
++  },
++  {
++    "path": "commands[].oversize",
++    "status": "held to nothing",
++    "reason": "Held to nothing: F06.14 rendering input; no gate derives the oversize flag from response size or the Milan list."
++  },
++  {
++    "path": "commands[].response",
++    "status": "held to nothing",
++    "reason": "Response-size container; each leaf is classified below."
++  },
++  {
++    "path": "commands[].response.cdl",
++    "status": "held",
++    "reason": "ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).",
++    "consumer": "rom._entries; record._answers; table._sizes",
++    "check": "response size",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            26,
++            "response",
++            "cdl"
++          ],
++          "value": 20
++        }
++      ],
++      "words": [
++        "rom: GET_AUDIO_MAP:",
++        "response"
++      ]
++    }
++  },
++  {
++    "path": "commands[].response.echo",
++    "status": "held",
++    "reason": "Observed command-length responses and ROM echo rule.",
++    "consumer": "record._answers; rom._entries",
++    "check": "echo response",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            8,
++            "response",
++            "echo"
++          ],
++          "value": false
++        }
++      ],
++      "words": [
++        "rom: SET_STREAM_INFO:",
++        "E_SINFO answers",
++        "table's response"
++      ]
++    }
++  },
++  {
++    "path": "commands[].response.engine",
++    "status": "held",
++    "reason": "Engine-built aggregate versus dispatched program.",
++    "consumer": "record._dispatch",
++    "check": "engine-built answer",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            29,
++            "response",
++            "engine"
++          ],
++          "value": false
++        }
++      ],
++      "words": [
++        "decode: GET_DYNAMIC_INFO:",
++        "without a program"
++      ]
++    }
++  },
++  {
++    "path": "commands[].response.max",
++    "status": "held to nothing",
++    "reason": "GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling."
++  },
++  {
++    "path": "commands[].response.per",
++    "status": "held",
++    "reason": "ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.",
++    "consumer": "rom._entries; table._sizes; record._floor",
++    "check": "response record step",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            23,
++            "response",
++            "per"
++          ],
++          "value": 2
++        }
++      ],
++      "words": [
++        "rom: GET_AVB_INFO:",
++        "response"
++      ]
++    }
++  },
++  {
++    "path": "commands[].response.plus",
++    "status": "held to nothing",
++    "reason": "Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated."
++  },
++  {
++    "path": "commands[].response.stub",
++    "status": "held",
++    "reason": "Fixed failure response length.",
++    "consumer": "rom._entries; record._answers",
++    "check": "failure stub",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            3,
++            "response",
++            "stub"
++          ],
++          "value": 24
++        }
++      ],
++      "words": [
++        "rom: READ_DESCRIPTOR:",
++        "response"
++      ]
++    }
++  },
++  {
++    "path": "commands[].response.unit",
++    "status": "held to nothing",
++    "reason": "Rendering label for N records; existence is schema-checked, wording is not behavior."
++  },
++  {
++    "path": "commands[].rtl",
++    "status": "held",
++    "reason": "Declared engine constant identity.",
++    "consumer": "rtl.check_engine",
++    "check": "opcode constant",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            25,
++            "rtl"
++          ],
++          "value": "OP_MISSING_C"
++        }
++      ],
++      "words": [
++        "engine: GET_COUNTERS:",
++        "OP_MISSING_C"
++      ]
++    }
++  },
++  {
++    "path": "commands[].status",
++    "status": "held",
++    "reason": "ROM path statuses and observed answers, conditional on the trusted common_status and engine_status exemptions.",
++    "consumer": "rom._statuses; record._answers",
++    "check": "command status set",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "commands",
++            4,
++            "status"
++          ],
++          "value": [
++            "SUCCESS",
++            "ENTITY_LOCKED",
++            "BAD_ARGUMENTS"
++          ]
++        }
++      ],
++      "words": [
++        "rom: SET_CONFIGURATION:",
++        "STREAM_IS_RUNNING"
++      ]
++    }
++  },
++  {
++    "path": "common_status",
++    "status": "held to nothing",
++    "reason": "Status exemptions trusted by the ROM and decode checks; reachability from a shared path only is not checked."
++  },
++  {
++    "path": "common_status.AEM",
++    "status": "held to nothing",
++    "reason": "Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses."
++  },
++  {
++    "path": "common_status.MVU",
++    "status": "held to nothing",
++    "reason": "Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses."
++  },
++  {
++    "path": "documented",
++    "status": "held to nothing",
++    "reason": "Includes six semantic unimplemented GDI members; individual fields below distinguish semantics from identity and rendering."
++  },
++  {
++    "path": "documented[].cells",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering cells; cell count is checked, their prose is not machine semantics."
++  },
++  {
++    "path": "documented[].gdi",
++    "status": "held",
++    "reason": "Optional semantic membership flag for the six unimplemented GDI members.",
++    "consumer": "record._gdi_members",
++    "check": "unimplemented GDI membership",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "documented",
++            3,
++            "gdi"
++          ],
++          "value": false
++        }
++      ],
++      "words": [
++        "decode:",
++        "GET_DYNAMIC_INFO",
++        "0x000B"
++      ]
++    }
++  },
++  {
++    "path": "documented[].name",
++    "status": "held to nothing",
++    "reason": "Identity and diagnostic label, also rendered; required by schema, spelling has no behavioral consumer."
++  },
++  {
++    "path": "documented[].opcode",
++    "status": "held",
++    "reason": "Semantic input for the six unimplemented GDI members; other documented rows use opcode as rendering text only.",
++    "consumer": "rtl._gdi_consts; record._gdi_members",
++    "check": "unimplemented GDI opcode",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "documented",
++            3,
++            "opcode"
++          ],
++          "value": "0x007E"
++        }
++      ],
++      "words": [
++        "engine: GET_VIDEO_FORMAT:"
++      ]
++    }
++  },
++  {
++    "path": "documented[].rtl",
++    "status": "held",
++    "reason": "Optional semantic constant name for the six unimplemented GDI members.",
++    "consumer": "rtl._gdi_consts",
++    "check": "unimplemented GDI constant",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "documented",
++            3,
++            "rtl"
++          ],
++          "value": "GDI_MISSING_C"
++        }
++      ],
++      "words": [
++        "engine: GET_VIDEO_FORMAT:",
++        "GDI_MISSING_C"
++      ]
++    }
++  },
++  {
++    "path": "documented[].section",
++    "status": "held to nothing",
++    "reason": "F06.14 rendering group and sort order; schema checks the allowed groups, not semantic placement."
++  },
++  {
++    "path": "echo_entries",
++    "status": "held to nothing",
++    "reason": "Trusted shared echo exceptions in size checks; membership is not independently held."
++  },
++  {
++    "path": "fields",
++    "status": "held",
++    "reason": "Sibling registry filename.",
++    "consumer": "fields.check_fields",
++    "check": "export registry",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "fields"
++          ],
++          "value": "other.json"
++        }
++      ],
++      "words": [
++        "fields: fields: export"
++      ]
++    }
++  },
++  {
++    "path": "hazard_classes",
++    "status": "held to nothing",
++    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
++  },
++  {
++    "path": "hazard_classes.*",
++    "status": "held",
++    "reason": "Hazard code by name.",
++    "consumer": "rtl.check_classifier",
++    "check": "hazard class code",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "hazard_classes",
++            "RO_SNAPSHOT"
++          ],
++          "value": 15
++        }
++      ],
++      "words": [
++        "classifier: hazard class RO_SNAPSHOT"
++      ]
++    }
++  },
++  {
++    "path": "schema",
++    "status": "held",
++    "reason": "Export schema tag.",
++    "consumer": "table.check_schema",
++    "check": "schema tag",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "schema"
++          ],
++          "value": "other"
++        }
++      ],
++      "words": [
++        "schema:",
++        "declares"
++      ]
++    }
++  },
++  {
++    "path": "shared_entries",
++    "status": "held to nothing",
++    "reason": "Shared-entry inventory keys are checked for missing claims only; added claims are not independently held."
++  },
++  {
++    "path": "shared_entries.*",
++    "status": "held to nothing",
++    "reason": "Diagnostic explanations of shared program names; wording is not checked and adding a key only widens the inventory."
++  },
++  {
++    "path": "status_codes",
++    "status": "held to nothing",
++    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
++  },
++  {
++    "path": "status_codes.*",
++    "status": "held to nothing",
++    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
++  },
++  {
++    "path": "status_codes.*.code",
++    "status": "held",
++    "reason": "IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.",
++    "consumer": "table._status_rows; rtl.check_status_codes",
++    "check": "IEEE status code",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "status_codes",
++            "SUCCESS",
++            "code"
++          ],
++          "value": 13
++        }
++      ],
++      "words": [
++        "schema: status SUCCESS",
++        "13"
++      ]
++    }
++  },
++  {
++    "path": "status_codes.*.rtl",
++    "status": "held",
++    "reason": "Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL constant.",
++    "consumer": "rtl.check_status_codes",
++    "check": "status constant",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "status_codes",
++            "SUCCESS",
++            "rtl"
++          ],
++          "value": "ST_MISSING_C"
++        }
++      ],
++      "words": [
++        "status: SUCCESS",
++        "ST_MISSING_C"
++      ]
++    }
++  },
++  {
++    "path": "unserved",
++    "status": "held",
++    "reason": "Default program for every unserved opcode in the observed population.",
++    "consumer": "record._unserved",
++    "check": "unserved program",
++    "probe": {
++      "edits": [
++        {
++          "path": [
++            "unserved"
++          ],
++          "value": "DLKILL"
++        }
++      ],
++      "words": [
++        "decode:",
++        "is no table command",
++        "not only DLKILL"
++      ]
++    }
++  }
++]
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index fe95158..12fbab6 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -16,6 +16,7 @@ irrelevant to LUT once the ROM is BRAM.
+ """
+ import argparse
+ import json
++import re
+ from pathlib import Path
+ from typing import NamedTuple
+ 
+@@ -45,6 +46,28 @@ COMMANDS = json.loads(Path(__file__).with_name('aecp_commands.json')
+                       .read_text(encoding='utf-8'))
+ 
+ 
++def _command_rows(table: dict) -> list:
++    """Refuse unreadable dispatch identities and entries before assembling."""
++    rows = table.get('commands')
++    if not isinstance(rows, list) or not rows:
++        raise SystemExit("aecp_commands.json: commands: needs a non-empty list "
++                         "including GET_MILAN_INFO")
++    for index, row in enumerate(rows):
++        if not isinstance(row, dict):
++            raise SystemExit(f"aecp_commands.json: commands[{index}]: needs a command object")
++        who = row.get('name') or f"{row.get('message', '?')} {row.get('opcode', '?')} ({row.get('rtl', '?')})"
++        if not isinstance(row.get('name'), str) or not row['name']:
++            raise SystemExit(f"aecp_commands.json: {who}: name needs a non-empty string")
++        entries = row.get('entries')
++        if not isinstance(entries, list) or not entries or not all(
++                isinstance(entry, str) and entry for entry in entries):
++            raise SystemExit(f"aecp_commands.json: {who}: entries needs a non-empty list of names")
++    return rows
++
++
++_COMMAND_ROWS = _command_rows(COMMANDS)
++
++
+ class _Status(dict):
+     """status_codes by name -> code; a name the programs need and the table
+     does not give with an integer code stops the generation."""
+@@ -152,9 +175,9 @@ MILAN_FEATURES_FLAGS = 0x00000000
+ MILAN_CERT_VERSION = 0x00000000
+ # Table 5.18 command_type, in the @28..@29 word whose top bit is the r field
+ # that §5.4.3.2.2 requires to be zero: the command model's MVU opcode.
+-_MVU_ROW = next((c for c in COMMANDS.get('commands', [])
++_MVU_ROW = next((c for c in _COMMAND_ROWS
+                  if (c.get('message'), c.get('name')) == ('MVU', 'GET_MILAN_INFO')), None)
+-if _MVU_ROW is None or not str(_MVU_ROW.get('opcode', '')).startswith('0x'):
++if _MVU_ROW is None or not re.fullmatch(r'0x[0-9A-Fa-f]{4}', str(_MVU_ROW.get('opcode', ''))):
+     raise SystemExit("aecp_commands.json: GET_MILAN_INFO: no command with message MVU "
+                      "and an 0xHHHH opcode, which gen_ucode.py reads as its command_type")
+ MVU_GET_MILAN_INFO = int(_MVU_ROW['opcode'], 16)
+@@ -2456,7 +2479,7 @@ place(E_NAMEBAD, [
+ # map selects no ROM word; what the engine really dispatches each command to is
+ # observed by tb/aecp_cmds and held to the table by the gate.
+ DISPATCH = {}
+-for _cmd in COMMANDS['commands']:
++for _cmd in _COMMAND_ROWS:
+     DISPATCH[_cmd['name']] = {}
+     for _entry in _cmd['entries']:
+         _at = globals().get('E_' + _entry)
+diff --git a/scripts/aecp_gate/field_docs.py b/scripts/aecp_gate/field_docs.py
+new file mode 100644
+index 0000000..287aca0
+--- /dev/null
++++ b/scripts/aecp_gate/field_docs.py
+@@ -0,0 +1,95 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Generate and check the four field-contract references from one registry."""
++import textwrap
++from pathlib import Path
++
++from .fields import registry
++from .inputs import REFERENCES, GateError, Inputs
++
++BEGIN = "BEGIN AECP FIELD REGISTRY"
++END = "END AECP FIELD REGISTRY"
++
++
++def reference(entries: list) -> str:
++    """A complete reference, with explicit limits beside each held claim."""
++    lines = ["Generated from hdl/aecp/ucode/aecp_fields.json; edit the registry.",
++             "[] means table rows; * means named map members. Held means only the stated scope.",
++             "Rendering inputs generate F06.14; rendering equality is not behavioral proof.", ""]
++    for entry in entries:
++        line = f"- {entry['path']}: {entry['status']}. {entry['reason']}"
++        if entry["status"] == "held":
++            line += f" Consumer: {entry['consumer']}. Check: {entry['check']}."
++        lines.append(textwrap.fill(line, width=108, subsequent_indent="  ",
++                                   break_long_words=False, break_on_hyphens=False))
++    return "\n".join(lines)
++
++
++def arch(entries: list) -> str:
++    """REQ-VER-002's compact Arch contract, including the trusted exemptions."""
++    held = sum(e["status"] == "held" for e in entries)
++    free = [e["path"] for e in entries if e["status"] == "held to nothing"
++            and e["path"] in ("common_status", "commands[].engine_status", "commands[].oversize")]
++    return (f"Registry: {len(entries)} fields, {held} held within their declared scope; "
++            f"{len(entries) - held} held to nothing (containers, rendering and explicit limits). "
++            "Generated references: gate docstring, 09 §8.10 and PR field reference. "
++            f"Explicitly held to nothing: {', '.join(free)}. Status-path claims trust these "
++            "status exemptions. Every held field has a standing named mutation. "
++            "F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are "
++            "observed or gated. Echo command cdl with a declared floor is held only by echo "
++            "equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is "
++            "held exactly by accepted-offset gcd. Six documented GDI rows have semantic "
++            "opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still "
++            "hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor "
++            "image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F "
++            "and unswept outcomes are unproven; no golden model or stimulus generator.")
++
++
++def replace_block(text: str, body: str, where: str) -> str:
++    """Replace only the marked body, refusing missing or duplicate markers."""
++    if text.count(BEGIN) != 1 or text.count(END) != 1:
++        raise GateError(f"fields: {where}: needs exactly one pair of registry markers")
++    start = text.index("\n", text.index(BEGIN)) + 1
++    stop = text.rfind("\n", 0, text.index(END)) + 1
++    if stop < start:
++        raise GateError(f"fields: {where}: registry markers are reversed")
++    return text[:start] + body + "\n" + text[stop:]
++
++
++def reference_text(entries: list, path: str, text: str) -> str:
++    """The reference appropriate to a source docstring, document or PR draft."""
++    if path == REFERENCES[2]:
++        # The Arch cell is delimited within its single Markdown row.
++        begin, end = "<!-- AECP ARCH -->", "<!-- /AECP ARCH -->"
++        if text.count(begin) != 1 or text.count(end) != 1 or text.index(end) < text.index(begin):
++            raise GateError(f"fields: {path}: needs the AECP Arch markers")
++        a, b = text.index(begin) + len(begin), text.index(end)
++        return text[:a] + arch(entries) + text[b:]
++    return replace_block(text, reference(entries), path)
++
++
++def check_references(inp: Inputs) -> list:
++    """The tracked references are exactly the registry's rendered contract."""
++    return [f"  fields: {path}: registry reference differs (run --write)"
++            for path in REFERENCES
++            if reference_text(registry(inp), path, inp.texts[path]) != inp.texts[path]]
++
++
++def write_references(inp: Inputs) -> None:
++    """Regenerate the docstring, section 09 and REQ-VER-002 Arch references."""
++    for path in REFERENCES:
++        new = reference_text(registry(inp), path, inp.texts[path])
++        if new != inp.texts[path]:
++            (inp.root / path).write_text(new, encoding="utf-8")
++
++
++def pr_reference(inp: Inputs, path: Path, write: bool) -> list:
++    """Generate or check a review draft outside the repository by explicit path."""
++    try:
++        text = path.read_text(encoding="utf-8")
++    except OSError as exc:
++        raise GateError(f"fields: PR body: cannot read draft: {exc}") from exc
++    new = reference_text(registry(inp), "PR body", text)
++    if write:
++        path.write_text(new, encoding="utf-8")
++        return []
++    return [] if new == text else ["  fields: PR body: registry reference differs (run --write --pr-body)"]
+diff --git a/scripts/aecp_gate/field_plants.py b/scripts/aecp_gate/field_plants.py
+new file mode 100644
+index 0000000..db65ec9
+--- /dev/null
++++ b/scripts/aecp_gate/field_plants.py
+@@ -0,0 +1,82 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Standing defects of the field registry and its generated references."""
++from .inputs import REFERENCES, Inputs
++from .field_docs import pr_reference
++from pathlib import Path
++import tempfile
++
++
++def draft_probe(inp: Inputs, absent: bool) -> list:
++    """A stale or unreadable external PR reference must fail by name."""
++    with tempfile.TemporaryDirectory(prefix="aecp-draft-selftest-") as tmp:
++        path = Path(tmp) / "PR-BODY.md"
++        if not absent:
++            path.write_text("<!-- BEGIN AECP FIELD REGISTRY -->\nstale\n"
++                            "<!-- END AECP FIELD REGISTRY -->\n", encoding="utf-8")
++        return pr_reference(inp, path, False)
++
++
++def entry(inp: Inputs, path: str = "commands[].opcode") -> dict:
++    """One registry entry in the already copied inputs."""
++    return next(e for e in inp.registry if e["path"] == path)
++
++
++def text_edit(inp: Inputs, path: str, old: str, new: str) -> None:
++    """An exact edit to a copied reference text."""
++    inp.texts[path] = inp.texts[path].replace(old, new)
++
++
++MUTANTS = (
++    ("an unregistered table field", lambda i: i.table.update(unknown=1),
++     ("fields: unknown: table field missing from registry",)),
++    ("an unregistered nested field", lambda i: i.table["commands"][0]["command"].update(extra=1),
++     ("fields: commands[].command.extra: table field missing from registry",)),
++    ("a registry entry for no field", lambda i: i.registry.append(
++        dict(path="absent", status="held to nothing", reason="planted")),
++     ("fields: absent: registry entry has no such table field",)),
++    ("a duplicate registry entry", lambda i: i.registry.append(dict(entry(i))),
++     ("fields: commands[].opcode: duplicate registry entry",)),
++    ("a registry which is no list", lambda i: setattr(i, "registry", {}),
++     ("fields: registry must be a list of field objects",)),
++    ("a registry row which is no object", lambda i: i.registry.append("bad"),
++     ("fields: registry must be a list of field objects",)),
++    ("a registry entry without a path", lambda i: entry(i).pop("path"),
++     ("fields: registry entry needs a path",)),
++    ("an unknown registry status", lambda i: entry(i).update(status="maybe"),
++     ("fields: commands[].opcode: status must be held or held to nothing",)),
++    ("a registry entry without a reason", lambda i: entry(i).pop("reason"),
++     ("fields: commands[].opcode: needs a reason",)),
++    ("a held field without a consumer", lambda i: entry(i).pop("consumer"),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field without a check", lambda i: entry(i).pop("check"),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field without a probe", lambda i: entry(i).pop("probe"),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field without named words", lambda i: entry(i)["probe"].update(words=[]),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field probe without edits", lambda i: entry(i)["probe"].update(edits=[]),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field probe without a value", lambda i: entry(i)["probe"]["edits"][0].pop("value"),
++     ("fields: commands[].opcode: held needs consumer, check and a named drift probe",)),
++    ("a held field probe of another field", lambda i: entry(i)["probe"].update(
++        edits=[dict(path=["schema"], value="other")]),
++     ("fields: commands[].opcode: probe must change this table field",)),
++    ("a held field probe of an absent field", lambda i: entry(i)["probe"].update(
++        edits=[dict(path=["absent"], value="other")]),
++     ("fields: commands[].opcode: probe must change this table field",)),
++    ("a missing docstring registry marker", lambda i: text_edit(
++        i, REFERENCES[0], "BEGIN AECP FIELD REGISTRY", "BEGIN REMOVED"),
++     ("fields:", REFERENCES[0], "needs exactly one pair of registry markers")),
++    ("reversed registry markers", lambda i: text_edit(
++        i, REFERENCES[0], "BEGIN AECP FIELD REGISTRY", "TEMP") or text_edit(
++        i, REFERENCES[0], "END AECP FIELD REGISTRY", "BEGIN AECP FIELD REGISTRY") or text_edit(
++        i, REFERENCES[0], "TEMP", "END AECP FIELD REGISTRY"),
++     ("fields:", REFERENCES[0], "registry markers are reversed")),
++    ("missing Arch markers", lambda i: text_edit(i, REFERENCES[2], "<!-- AECP ARCH -->", ""),
++     ("fields:", REFERENCES[2], "needs the AECP Arch markers")),
++) + tuple(
++    (f"a stale registry reference in {path}",
++     lambda i, path=path: text_edit(i, path, "held to nothing", "not classified"),
++     ("fields:", path, "registry reference differs"))
++    for path in REFERENCES
++)
+diff --git a/scripts/aecp_gate/fields.py b/scripts/aecp_gate/fields.py
+new file mode 100644
+index 0000000..8a4a5e2
+--- /dev/null
++++ b/scripts/aecp_gate/fields.py
+@@ -0,0 +1,107 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The command table's field registry: exhaustive paths and executable claims.
++
++[] identifies command/documented rows; * identifies named map members. Container
++entries describe shape only; their children each have their own classification.
++The registry is data beside the exported table, never inferred from this code.
++"""
++from .inputs import FIELDS, Inputs, read_json
++
++MAPS = {"status_codes", "hazard_classes", "shared_entries"}
++
++
++def field_paths(value: object, path: str = "") -> set:
++    """Every field present, folding row indices and named maps into patterns."""
++    found = set()
++    if isinstance(value, dict):
++        for key, child in value.items():
++            part = "*" if path in MAPS else key
++            nested = f"{path}.{part}" if path else part
++            found.add(nested)
++            found.update(field_paths(child, nested))
++    elif isinstance(value, list):
++        for child in value:
++            if isinstance(child, dict):
++                found.update(field_paths(child, path + "[]"))
++    return found
++
++
++def registry(inp: Inputs) -> list:
++    """Read the registry once, allowing the self-test to plant a registry copy."""
++    if inp.registry is None:
++        inp.registry = read_json(inp.root, FIELDS)
++    return inp.registry
++
++
++def check_fields(inp: Inputs) -> list:
++    """Every table field is registered exactly once, with an actionable status."""
++    entries = registry(inp)
++    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
++        return ["  fields: registry must be a list of field objects"]
++    p, seen = [], set()
++    for entry in entries:
++        path = entry.get("path")
++        if not isinstance(path, str) or not path:
++            p.append("  fields: registry entry needs a path")
++            continue
++        if path in seen:
++            p.append(f"  fields: {path}: duplicate registry entry")
++        seen.add(path)
++        status = entry.get("status")
++        if status not in ("held", "held to nothing"):
++            p.append(f"  fields: {path}: status must be held or held to nothing")
++        if not isinstance(entry.get("reason"), str) or not entry["reason"]:
++            p.append(f"  fields: {path}: needs a reason describing its scope")
++        if status == "held" and not _claim(entry):
++            p.append(f"  fields: {path}: held needs consumer, check and a named drift probe")
++        elif status == "held" and not _targets_field(inp.table, entry):
++            p.append(f"  fields: {path}: probe must change this table field")
++    actual = field_paths(inp.table)
++    for path in sorted(actual - seen):
++        p.append(f"  fields: {path}: table field missing from registry")
++    for path in sorted(seen - actual):
++        p.append(f"  fields: {path}: registry entry has no such table field")
++    if inp.table.get("fields") != "aecp_fields.json":
++        p.append("  fields: fields: export must name aecp_fields.json")
++    return p
++
++
++def _claim(entry: dict) -> bool:
++    """A held field names its reader, finding words and concrete table edits."""
++    probe = entry.get("probe")
++    return (isinstance(entry.get("consumer"), str) and bool(entry["consumer"])
++            and isinstance(entry.get("check"), str) and bool(entry["check"])
++            and isinstance(probe, dict) and bool(probe.get("edits"))
++            and isinstance(probe.get("words"), list) and bool(probe["words"])
++            and all(isinstance(w, str) and w for w in probe["words"])
++            and isinstance(probe["edits"], list)
++            and all(isinstance(e, dict) and isinstance(e.get("path"), list)
++                    and e["path"] and "value" in e for e in probe["edits"]))
++
++
++def plant_field(inp: Inputs, probe: dict) -> None:
++    """Apply a registry probe to the copy's table; no executable data is read."""
++    for edit in probe["edits"]:
++        owner = inp.table
++        for key in edit["path"][:-1]:
++            owner = owner[key]
++        owner[edit["path"][-1]] = edit["value"]
++
++
++def _targets_field(table: dict, entry: dict) -> bool:
++    """A held claim must target its own existing field; the sweep rejects no-ops."""
++    targeted = False
++    for edit in entry["probe"]["edits"]:
++        value, path = table, ""
++        try:
++            for key in edit["path"]:
++                value = value[key]
++                if isinstance(key, int):
++                    path += "[]"
++                else:
++                    part = "*" if path in MAPS else key
++                    path = f"{path}.{part}" if path else part
++        except (KeyError, IndexError, TypeError):
++            return False
++        targeted |= path == entry["path"]
++    return targeted
+diff --git a/scripts/aecp_gate/gate.py b/scripts/aecp_gate/gate.py
+index 2f485ee..22f820d 100644
+--- a/scripts/aecp_gate/gate.py
++++ b/scripts/aecp_gate/gate.py
+@@ -7,6 +7,8 @@ import json
+ from pathlib import Path
+ 
+ from .doc import check_doc, check_inventory, regenerated
++from .fields import check_fields
++from .field_docs import check_references, write_references
+ from .inputs import (DOC, ENGINE, NOTIFY, PP_PKG, RECORD, ROM_KEY, SCOREBOARD, TOP,
+                      UCPU_PKG, GateError, Inputs, digests, load, read_json, ucode_of)
+ from .record import canonical, check_record, check_swept, dump_record, record_diff
+@@ -25,6 +27,7 @@ def check(inp: Inputs) -> list:
+     p = check_schema(t)
+     if p:
+         return p
++    p += check_fields(inp)
+     if inp.record is None:
+         inp.record = read_json(inp.root, RECORD)
+     found, _, _, entries_ok = check_record(t, inp.record)
+@@ -38,6 +41,8 @@ def check(inp: Inputs) -> list:
+     p += check_status_codes(t, status_codes(inp.texts[UCPU_PKG]))
+     p += check_doc(t, inp.texts[DOC])
+     p += check_inventory(t, inp.texts[DOC])
++    if not check_fields(inp):
++        p += check_references(inp)
+     if entries_ok:
+         p += check_rom(t, ucode_of(inp))
+         p += [x for x in check_swept(inp, rom=True) if ROM_KEY in x]
+@@ -47,7 +52,7 @@ def check(inp: Inputs) -> list:
+ def write(root: Path) -> int:
+     """Regenerate F06.14 from the table."""
+     inp = load(root)
+-    p = check_schema(inp.table)
++    p = check_schema(inp.table) + check_fields(inp)
+     if p:
+         print("\n".join(p))
+         return 1
+@@ -58,6 +63,7 @@ def write(root: Path) -> int:
+         print(f"aecp commands: rewrote F06.14 in {DOC}")
+     else:
+         print(f"aecp commands: F06.14 in {DOC} is current")
++    write_references(inp)
+     return 0
+ 
+ 
+diff --git a/scripts/aecp_gate/inputs.py b/scripts/aecp_gate/inputs.py
+index 2c1b156..87c9102 100644
+--- a/scripts/aecp_gate/inputs.py
++++ b/scripts/aecp_gate/inputs.py
+@@ -16,6 +16,7 @@ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parents[2]
+ TABLE = "hdl/aecp/ucode/aecp_commands.json"
++FIELDS = "hdl/aecp/ucode/aecp_fields.json"
+ UCODE = "hdl/aecp/ucode/gen_ucode.py"
+ RECORD = "tb/aecp_cmds/decode.json"
+ ENGINE = "hdl/aecp/KL_aecp_engine.sv"
+@@ -26,6 +27,9 @@ SCOREBOARD = "hdl/packet_engine/KL_pp_scoreboard.sv"
+ TOP = "hdl/top/protocol_processor_top.sv"
+ DOC = "docs/architecture/06_aecp_engine.md"
+ TEXTS = (ENGINE, NOTIFY, UCPU_PKG, PP_PKG, SCOREBOARD, TOP, DOC)
++REFERENCES = ("scripts/check_aecp_commands.py", "docs/architecture/09_verification.md",
++              "docs/00_MILAN_COMPLIANCE_REVIEW.md")
++TEXTS += REFERENCES
+ #! what tb/aecp_cmds' sweep is made of: the SystemVerilog it elaborates (held
+ #! by its code, comments and spacing ignored), the bench and the descriptor
+ #! image's inputs (by their bytes), and the generated ROM. decode.json records
+@@ -34,7 +38,8 @@ SWEPT_SV = (PP_PKG, UCPU_PKG, "hdl/aecp/KL_aecp_ucpu.sv", "hdl/aecp/KL_aecp_desc
+             "hdl/aecp/KL_aecp_dyn_state.sv", "hdl/aecp/KL_aecp_nvm_writer.sv",
+             "hdl/aecp/KL_aecp_resp_buf.sv", ENGINE, "tb/aecp_cmds/aecp_cmds_wrap.sv")
+ SWEPT_RAW = ("tb/aecp_cmds/sim_main.cpp", "hdl/aecp/desc/milan_min.json",
+-             "hdl/aecp/desc/gen_desc_image.py")
++             "hdl/aecp/desc/gen_desc_image.py", "hdl/aecp/desc/model_lint.py",
++             "hdl/aecp/desc/model_rules.py", "tb/common/verilator_harness.hpp")
+ ROM_KEY = "ucode.hex (generated)"
+ 
+ SCHEMA = "aecp-command-table/1"
+@@ -79,6 +84,7 @@ class Inputs:
+     record: dict | None = None
+     root: Path = ROOT
+     swept: dict | None = None
++    registry: list | None = None
+ 
+ 
+ def load_ucode(path: Path) -> Ucode:
+diff --git a/scripts/aecp_gate/plants.py b/scripts/aecp_gate/plants.py
+index fc2e0d6..589b40d 100644
+--- a/scripts/aecp_gate/plants.py
++++ b/scripts/aecp_gate/plants.py
+@@ -190,6 +190,13 @@ MUTANTS = (
+     ("a per-record command accepted between records (as recorded)",
+      lambda i: aem(i, 0x002C)["AMADD"].update(cdls="20, 24, 28, 36"),
+      ("decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24",)),
++    ("an echo command per reduced to a divisor, with its response",
++     lambda i: (cmd(i, "ADD_AUDIO_MAPPINGS")["command"].update(per=4),
++                cmd(i, "ADD_AUDIO_MAPPINGS")["response"].update(per=4)),
++     ("decode: ADD_AUDIO_MAPPINGS: command per is 4", "gcd", "is 8")),
++    ("an echo command accepting a multiple of the record step",
++     lambda i: aem(i, 0x002D)["AMREMOVE"].update(cdls="20, 36, 52"),
++     ("decode: REMOVE_AUDIO_MAPPINGS: command per is 8", "gcd", "is 16")),
+     ("a response the bench saw at another size (as recorded)",
+      lambda i: aem(i, 0x0016)["SCLKS"]["answers"].update({"0": "24"}),
+      ("decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24",)),
+@@ -460,6 +467,15 @@ MUTANTS = (
+     ("a per-record size without its unit",
+      lambda i: cmd(i, "GET_AS_PATH")["response"].pop("unit"),
+      ("schema: GET_AS_PATH: response per must be an integer with its unit",)),
++    ("a zero echo record step",
++     lambda i: cmd(i, "ADD_AUDIO_MAPPINGS")["command"].update(per=0),
++     ("schema: ADD_AUDIO_MAPPINGS: command per must be",)),
++    ("a null echo record step",
++     lambda i: cmd(i, "REMOVE_AUDIO_MAPPINGS")["command"].update(per=None),
++     ("schema: REMOVE_AUDIO_MAPPINGS: command per must be",)),
++    ("a negative record step",
++     lambda i: cmd(i, "GET_AVB_INFO")["response"].update(per=-4),
++     ("schema: GET_AVB_INFO: response per must be",)),
+     ("a floor at or above the command cdl",
+      lambda i: cmd(i, "ACQUIRE_ENTITY")["command"].update(floor=28),
+      ("schema: ACQUIRE_ENTITY: command floor must be",)),
+diff --git a/scripts/aecp_gate/record.py b/scripts/aecp_gate/record.py
+index be31bfa..a5b517d 100644
+--- a/scripts/aecp_gate/record.py
++++ b/scripts/aecp_gate/record.py
+@@ -6,6 +6,7 @@ decode and dispatch, by program name. Written from a sweep (`canonical`,
+ fresh sweep (`record_diff`), and held to the table (`check_record`)."""
+ import copy
+ import json
++from math import gcd
+ from collections.abc import Iterable
+ 
+ from .inputs import (HDR, OUTCOMES, RECORD, RECORD_SCHEMA, ROM_KEY, SWEPT_RAW, SWEPT_SV,
+@@ -293,6 +294,10 @@ def _floor(c: dict, progs: dict, at: str, ck: _Checks) -> None:
+                     f"is cdl {got}, the table's "
+                     f"{'floor' if 'floor' in cmd_ else 'command cdl'} is {floor}")
+     if got is not None and cmd_.get("per"):
++        step = gcd(*(x - floor for x in unranges(progs[first]["cdls"])))
++        if step != cmd_["per"]:
++            ck.p.append(f"  decode: {name}: command per is {cmd_['per']}, "
++                        f"the gcd of accepted offsets from floor {floor} is {step}")
+         odd = [x for x in unranges(progs[first]["cdls"]) if (x - floor) % cmd_["per"]]
+         if odd:
+             did = (f"answers {at} without a program" if first == "engine"
+diff --git a/scripts/aecp_gate/selftest.py b/scripts/aecp_gate/selftest.py
+index d448ec1..f82b527 100644
+--- a/scripts/aecp_gate/selftest.py
++++ b/scripts/aecp_gate/selftest.py
+@@ -13,11 +13,13 @@ from collections.abc import Callable
+ from pathlib import Path
+ 
+ from .gate import check, observed
+-from .inputs import (DOC, PP_PKG, RECORD, SWEPT_RAW, SWEPT_SV, TABLE, TEXTS, UCODE, GateError,
++from .inputs import (DOC, FIELDS, PP_PKG, RECORD, SWEPT_RAW, SWEPT_SV, TABLE, TEXTS, UCODE, GateError,
+                      Inputs, load, load_ucode)
+ from .plants import MUTANTS, rename
+ from .record import record_diff, split_group
+ from .rtl import uns_kinds
++from .fields import plant_field, registry
++from .field_plants import MUTANTS as FIELD_MUTANTS, draft_probe
+ 
+ #: a mutation of a copy of the input files, given the copy's root
+ FileEdit = Callable[[Path], object]
+@@ -42,6 +44,10 @@ def named(t: dict, name: str) -> dict:
+ #: (what, mutation of a copy of the input files, words) per refusal that
+ #: happens while the inputs are read, and per table defect the generator reads
+ FILE_MUTANTS = (
++    ("an unreadable registry", lambda d: (d / FIELDS).unlink(),
++     ("gate refused", "cannot read an input", "aecp_fields.json")),
++    ("a registry that is not JSON", lambda d: (d / FIELDS).write_text("[", encoding="utf-8"),
++     ("gate refused", "aecp_fields.json is not JSON")),
+     ("a table that is not JSON",
+      lambda d: (d / TABLE).write_text("{", encoding="utf-8"),
+      ("gate refused", f"{TABLE} is not JSON")),
+@@ -90,6 +96,24 @@ FILE_MUTANTS = (
+ #: itself refuses: gen_ucode.py runs alone on the copy, as `make` runs it, so
+ #: its own refusal names the command and the field
+ GENERATOR_MUTANTS = (
++    ("the generator: missing entries",
++     edit_table(lambda t: named(t, "GET_CLOCK_SOURCE").pop("entries")),
++     ("GET_CLOCK_SOURCE: entries needs",)),
++    ("the generator: entries is not a list",
++     edit_table(lambda t: named(t, "GET_CLOCK_SOURCE").update(entries="GCLKS")),
++     ("GET_CLOCK_SOURCE: entries needs",)),
++    ("the generator: missing name",
++     edit_table(lambda t: named(t, "GET_CLOCK_SOURCE").pop("name")),
++     ("AEM 0x0017", "name needs",)),
++    ("the generator: non-hexadecimal MVU opcode",
++     edit_table(lambda t: named(t, "GET_MILAN_INFO").update(opcode="0xZZZZ")),
++     ("GET_MILAN_INFO:", "opcode",)),
++    ("the generator: missing commands",
++     edit_table(lambda t: t.pop("commands")),
++     ("commands: needs a non-empty list", "GET_MILAN_INFO")),
++    ("the generator: a command is not an object",
++     edit_table(lambda t: t["commands"].__setitem__(0, "ACQUIRE_ENTITY")),
++     ("commands[0]: needs a command object",)),
+     ("the generator: an entry it never placed",
+      edit_table(lambda t: named(t, "GET_CLOCK_SOURCE")["entries"].append("SCFGRUN2")),
+      ("GET_CLOCK_SOURCE: entries names SCFGRUN2", "placed no E_SCFGRUN2")),
+@@ -125,6 +149,10 @@ def _kinds(pkg: str) -> list:
+ #: words) per finding and refusal only that verdict prints; `make check` runs
+ #: no sweep, so each is planted in what the step is handed
+ OBSERVED_MUTANTS = (
++    ("a stale PR field reference", lambda i: draft_probe(i, False),
++     ("fields: PR body: registry reference differs",)),
++    ("an unreadable PR draft", lambda i: draft_probe(i, True),
++     ("gate refused", "fields: PR body: cannot read draft",)),
+     ("a fresh sweep that is not the recorded one",
+      lambda i: record_diff(_redirected(i.record), i.record),
+      (f"decode: {RECORD} is not what the engine does: decode AEM 0x0016 SCLKS",)),
+@@ -140,7 +168,7 @@ OBSERVED_MUTANTS = (
+ 
+ def copy_inputs(root: Path, d: Path) -> None:
+     """The gate's input files under a fresh directory."""
+-    for p in (TABLE, UCODE, RECORD) + TEXTS + SWEPT_SV + SWEPT_RAW:
++    for p in (TABLE, FIELDS, UCODE, RECORD) + TEXTS + SWEPT_SV + SWEPT_RAW:
+         (d / p).parent.mkdir(parents=True, exist_ok=True)
+         shutil.copyfile(root / p, d / p)
+ 
+@@ -183,7 +211,7 @@ def missed(what: str, words: tuple, got: list) -> int:
+ def on_copy(base: Inputs, fn: Callable[[Inputs], list]) -> list:
+     """What `fn` reports on a copy of `base`: its findings, or its refusal."""
+     inp = Inputs(copy.deepcopy(base.table), dict(base.texts), copy.deepcopy(base.ucode),
+-                 copy.deepcopy(base.record), base.root, dict(base.swept))
++                 copy.deepcopy(base.record), base.root, dict(base.swept), copy.deepcopy(base.registry))
+     try:
+         return fn(inp)
+     except GateError as exc:
+@@ -206,9 +234,9 @@ def selftest(root: Path) -> int:
+         print("AECP COMMAND GATE SELFTEST: FAIL - the unmutated tree does not pass:")
+         print("\n".join(first))
+         return 1
+-    cases = MUTANTS + OBSERVED_MUTANTS + FILE_MUTANTS + GENERATOR_MUTANTS
++    cases = MUTANTS + FIELD_MUTANTS + OBSERVED_MUTANTS + FILE_MUTANTS + GENERATOR_MUTANTS
+     bad = 0
+-    for what, fn, words in MUTANTS:
++    for what, fn, words in MUTANTS + FIELD_MUTANTS:
+         bad += missed(what, words, in_memory(base, fn))
+     for what, fn, words in OBSERVED_MUTANTS:
+         bad += missed(what, words, on_copy(base, fn))
+@@ -216,6 +244,31 @@ def selftest(root: Path) -> int:
+         bad += missed(what, words, planted_copy(root, fn))
+     for what, fn, words in GENERATOR_MUTANTS:
+         bad += missed(what, words, generator_copy(root, fn))
+-    print(f"aecp commands selftest: {len(cases)} planted defects, "
+-          f"{len(cases) - bad} caught by name, {'OK' if not bad else 'FAIL'}")
++    field_bad, field_count = field_sweep(base)
++    bad += field_bad
++    count = len(cases) + field_count
++    print(f"aecp commands selftest: {count} planted defects, "
++          f"{count - bad} caught by name, {'OK' if not bad else 'FAIL'}")
+     return 1 if bad else 0
++
++
++def field_sweep(base: Inputs) -> tuple:
++    """Every held registry entry must execute a drift and fail its named check.
++
++    Regenerate F06.14 first: a semantic claim cannot pass merely because its
++    rendered cell became stale. Registry references are independent of values.
++    """
++    from .doc import regenerated
++    bad, count = 0, 0
++    for entry in registry(base):
++        if entry["status"] != "held":
++            continue
++        def _plant(inp: Inputs) -> None:
++            plant_field(inp, entry["probe"])
++            inp.texts[DOC] = regenerated(inp.table, inp.texts[DOC])
++        count += 1
++        failed = missed(entry["path"], tuple(entry["probe"]["words"]), in_memory(base, _plant))
++        bad += failed
++        print(f"field drift: {entry['path']}: {'MISSED' if failed else 'caught'}: "
++              f"{'; '.join(entry['probe']['words'])}")
++    return bad, count
+diff --git a/scripts/aecp_gate/table.py b/scripts/aecp_gate/table.py
+index b600548..59d4dfd 100644
+--- a/scripts/aecp_gate/table.py
++++ b/scripts/aecp_gate/table.py
+@@ -56,8 +56,8 @@ def check_size(who: str, k: str, s: object) -> list:
+     if not isinstance(s, dict) or not isinstance(s.get("cdl"), int):
+         return [f"  schema: {who}: {k} has no integer cdl"]
+     p = []
+-    if s.get("per") is not None and (not isinstance(s["per"], int) or not s.get("unit")):
+-        p.append(f"  schema: {who}: {k} per must be an integer with its unit")
++    if "per" in s and (type(s["per"]) is not int or s["per"] <= 0 or not s.get("unit")):
++        p.append(f"  schema: {who}: {k} per must be an integer with its unit and greater than zero")
+     if "floor" in s and (k != "command" or not isinstance(s["floor"], int)
+                          or not HDR <= s["floor"] < s["cdl"]):
+         p.append(f"  schema: {who}: {k} floor must be a command's integer from {HDR} "
+diff --git a/scripts/check_aecp_commands.py b/scripts/check_aecp_commands.py
+index a23dd2f..97d7f40 100644
+--- a/scripts/check_aecp_commands.py
++++ b/scripts/check_aecp_commands.py
+@@ -1,88 +1,145 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""The AECP command model is written once; this holds every consumer to it.
++"""Hold the AECP command model to its generated, observed and gated consumers.
+ 
+-WHY THIS EXISTS (issue #73, REQ-VER-002). Each command the AECP engine serves
+-was written down in several places that nothing connected: its opcode in the
+-engine's `OP_*_C` localparams, the top's hazard classifier and the M9 sweep; its
+-sizes, statuses, lock and notify behaviour in the µprograms of
+-`hdl/aecp/ucode/gen_ucode.py` and again, by hand, in F06.14. They had already
+-drifted: F06.14 gave SET/GET_SAMPLING_RATE and SET/GET_CLOCK_SOURCE a 36-octet
+-response where the engine answers 32 (cdl 20), and GET_AUDIO_MAP 32 + 8·N where
+-it answers 36 + 8·N (cdl 24 + 8·N).
++F06.14 is generated; the ROM generator consumes status codes and the MVU opcode.
++The engine decode/dispatch is observed by tb/aecp_cmds, never parsed from source.
++The recorded sweep covers opcodes 0x0000-0x007F, cdl 12-100 and its documented
++stimuli. Its input digests bind the observations to the elaborated sources and ROM.
++The ROM walk holds response sizes, lock/notify and statuses within the registry's
++limits; field values/order and unswept behavior remain unproven.
+ 
+-`hdl/aecp/ucode/aecp_commands.json` is now the one source: opcode, command and
+-response sizes, status set, hazard class, lock and notify flags per served
+-command, and every µPC program the engine dispatches it to. What it drives:
++BEGIN AECP FIELD REGISTRY
++Generated from hdl/aecp/ucode/aecp_fields.json; edit the registry.
++[] means table rows; * means named map members. Held means only the stated scope.
++Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+ 
+-  GENERATED  F06.14 in docs/architecture/06_aecp_engine.md (`--write`), and
+-             gen_ucode.py's status codes and MVU command_type (ROM bytes).
+-  OBSERVED   what the elaborated engine decodes and dispatches. tb/aecp_cmds
+-             sweeps KL_aecp_engine alone and records it in
+-             tb/aecp_cmds/decode.json; the suite holds a fresh sweep to that
+-             record and to the table, and this gate holds the table to the
+-             record. Per served command: the programs the engine dispatches its
+-             opcode to on every outcome of the sweep, the MVU sub-decode
+-             included, are exactly its `entries`; the shortest command it
+-             dispatches to its first entry is its command cdl (or its declared
+-             `floor`); a per-record command is accepted only at cdl + k·per;
+-             every response the bench saw fits its response rule and carries a
+-             status of its set. Every opcode the table does not serve reaches
+-             only the `unserved` program, on every message type swept. The
+-             GET_DYNAMIC_INFO members, their programs and record lengths, its
+-             empty aggregate, and every unsolicited job's command_type, body
+-             and size are the table's. decode.json carries the digest of every
+-             input the sweep was made of (the engine's SystemVerilog by its
+-             code, the bench, the image's inputs, the ROM), so an engine
+-             changed without a new sweep fails this gate by file name and the
+-             suite by command name.
+-  GATED      everything below, because generating it would change an
+-             elaborated input, or a line a reviewed mutation patch anchors on:
+-    engine      KL_aecp_engine.sv's OP_*_C / MVU_*_C / GDI_*_C values (the
+-                lines the M9 gate and the parent inventory read), and every
+-                UPC_*_C entry name claimed by a command or the shared list;
+-    classifier  protocol_processor_top.sv hz_classify, opcode -> class, and
+-                pp_pkg's hazard codes;
+-    scoreboard  KL_pp_scoreboard.sv hz_is_lockprot = the lock commands' classes;
+-    notify      KL_aecp_notify.sv's class -> unsolicited kind case;
+-    status      ucpu_pkg.sv ST_*_C codes, and the table's codes are IEEE
+-                1722.1-2021 Table 7-141's;
+-    rom         the generated µcode, walked from every entry: a lock-protected
+-                command reaches CHECK_LOCK and no other does, its NOTIFY_ENQ
+-                class is the table's, every status a path sets is in its set
+-                and every status in the set is one a path can set, and every
+-                response it sends has the table's size - a fixed rule exactly,
+-                a per-record rule as its fixed part plus whole records (the
+-                walk keeps the fixed part where a loop widens it, and a path
+-                must build the per-record part), a descriptor rule as its
+-                fixed part plus the copy; no path falls into the ROM fill;
+-    8.1         06 section 8.1 lists exactly the served commands.
+-  The table itself: an echo row's response size is its command size.
++- about: held to nothing. Explanatory prose; no consumer validates its assertions.
++- commands: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- commands[].clause: held to nothing. Specification citation prose; no semantic citation check.
++- commands[].command: held to nothing. Command-size container; each leaf is classified below.
++- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and
++  REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an
++  unsolicited body. Consumer: record._floor; table._sizes. Check: command floor or echo equality.
++- commands[].command.floor: held. Explicit shorter accepted floor for echo commands. Consumer:
++  record._floor. Check: declared floor.
++- commands[].command.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100
++  and does not hold this ceiling.
++- commands[].command.per: held. Exact gcd of accepted offsets for both mapping echo commands. Consumer:
++  record._floor. Check: accepted-offset gcd.
++- commands[].command.plus: held to nothing. Variable-part label used in rendering; presence selects a
++  variable size rule, but its wording is not validated.
++- commands[].command.unit: held to nothing. Rendering label for N records; existence is schema-checked,
++  wording is not behavior.
++- commands[].doc: held to nothing. F06.14 rendering data; no semantic validation of the prose.
++- commands[].doc.class: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].doc.mandate: held to nothing. F06.14 rendering prose; changes regenerate text without
++  validating the assertion.
++- commands[].doc.scope: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].doc.size: held to nothing. F06.14 rendering prose; changes regenerate text without validating
++  the assertion.
++- commands[].engine_status: held to nothing. Held to nothing: engine-built status exemptions are trusted;
++  their exact set and reachability are not independently held.
++- commands[].entries: held. Every dispatched program and first-entry decode floor in the observed
++  population. Consumer: record._dispatch; record._floor. Check: dispatch entries.
++- commands[].gdi: held. Observed GET_DYNAMIC_INFO membership. Consumer: record._gdi_members. Check: GDI
++  membership.
++- commands[].hazard: held. Top-level classifier hazard name. Consumer: rtl.check_classifier. Check: command
++  hazard.
++- commands[].lock: held. ROM CHECK_LOCK reachability and scoreboard class membership. Consumer:
++  rom._lock_and_notify; rtl.check_scoreboard. Check: lock protection.
++- commands[].message: held. AEM/MVU dispatch identity, within the observed sweep. Consumer: record._served;
++  table._identity. Check: message dispatch.
++- commands[].name: held to nothing. Identity and diagnostic label; uniqueness is checked, but spelling is
++  not an engine invariant (except the required MVU identity).
++- commands[].notify: held. Presence of the notification contract. Consumer: rom._lock_and_notify;
++  record._unsolicited. Check: notification presence.
++- commands[].notify.body: held. Observed unsolicited dispatch and ROM body length. Consumer:
++  record._unsolicited; rom._lock_and_notify. Check: unsolicited body.
++- commands[].notify.class: held. Enqueued notification class; null means an engine event. Consumer:
++  rom._lock_and_notify; rtl.check_notify. Check: notification class.
++- commands[].notify.doc: held to nothing. F06.14 notification prose; no semantic validation.
++- commands[].notify.kind: held. Notification kind mapping and observed unsolicited job. Consumer:
++  rtl.check_notify; record._unsolicited. Check: notification kind.
++- commands[].opcode: held. Engine constant and observed command_type, within the sweep. Consumer:
++  rtl.check_engine; record._served. Check: opcode.
++- commands[].oversize: held to nothing. Held to nothing: F06.14 rendering input; no gate derives the
++  oversize flag from response size or the Milan list.
++- commands[].response: held to nothing. Response-size container; each leaf is classified below.
++- commands[].response.cdl: held. ROM fixed part, failure/unsolicited bodies and observed answers; echo
++  responses equal command cdl (see command.cdl limits). Consumer: rom._entries; record._answers;
++  table._sizes. Check: response size.
++- commands[].response.echo: held. Observed command-length responses and ROM echo rule. Consumer:
++  record._answers; rom._entries. Check: echo response.
++- commands[].response.engine: held. Engine-built aggregate versus dispatched program. Consumer:
++  record._dispatch. Check: engine-built answer.
++- commands[].response.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl
++  100 and does not hold this ceiling.
++- commands[].response.per: held. ROM variable step; echo step equals the command step, whose accepted-offset
++  gcd is exact. Consumer: rom._entries; table._sizes; record._floor. Check: response record step.
++- commands[].response.plus: held to nothing. Variable-part label used in rendering; presence selects a
++  variable size rule, but its wording is not validated.
++- commands[].response.stub: held. Fixed failure response length. Consumer: rom._entries; record._answers.
++  Check: failure stub.
++- commands[].response.unit: held to nothing. Rendering label for N records; existence is schema-checked,
++  wording is not behavior.
++- commands[].rtl: held. Declared engine constant identity. Consumer: rtl.check_engine. Check: opcode
++  constant.
++- commands[].status: held. ROM path statuses and observed answers, conditional on the trusted common_status
++  and engine_status exemptions. Consumer: rom._statuses; record._answers. Check: command status set.
++- common_status: held to nothing. Status exemptions trusted by the ROM and decode checks; reachability from
++  a shared path only is not checked.
++- common_status.AEM: held to nothing. Held to nothing: these shared-status exemptions are trusted, not
++  proven reachable for every command; they can hide command-owned statuses.
++- common_status.MVU: held to nothing. Held to nothing: these shared-status exemptions are trusted, not
++  proven reachable for every command; they can hide command-owned statuses.
++- documented: held to nothing. Includes six semantic unimplemented GDI members; individual fields below
++  distinguish semantics from identity and rendering.
++- documented[].cells: held to nothing. F06.14 rendering cells; cell count is checked, their prose is not
++  machine semantics.
++- documented[].gdi: held. Optional semantic membership flag for the six unimplemented GDI members. Consumer:
++  record._gdi_members. Check: unimplemented GDI membership.
++- documented[].name: held to nothing. Identity and diagnostic label, also rendered; required by schema,
++  spelling has no behavioral consumer.
++- documented[].opcode: held. Semantic input for the six unimplemented GDI members; other documented rows use
++  opcode as rendering text only. Consumer: rtl._gdi_consts; record._gdi_members. Check: unimplemented GDI
++  opcode.
++- documented[].rtl: held. Optional semantic constant name for the six unimplemented GDI members. Consumer:
++  rtl._gdi_consts. Check: unimplemented GDI constant.
++- documented[].section: held to nothing. F06.14 rendering group and sort order; schema checks the allowed
++  groups, not semantic placement.
++- echo_entries: held to nothing. Trusted shared echo exceptions in size checks; membership is not
++  independently held.
++- fields: held. Sibling registry filename. Consumer: fields.check_fields. Check: export registry.
++- hazard_classes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- hazard_classes.*: held. Hazard code by name. Consumer: rtl.check_classifier. Check: hazard class code.
++- schema: held. Export schema tag. Consumer: table.check_schema. Check: schema tag.
++- shared_entries: held to nothing. Shared-entry inventory keys are checked for missing claims only; added
++  claims are not independently held.
++- shared_entries.*: held to nothing. Diagnostic explanations of shared program names; wording is not checked
++  and adding a key only widens the inventory.
++- status_codes: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- status_codes.*: held to nothing. Container: shape is schema-checked; value claims belong to the individual
++  fields below.
++- status_codes.*.code: held. IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.
++  Consumer: table._status_rows; rtl.check_status_codes. Check: IEEE status code.
++- status_codes.*.rtl: held. Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL
++  constant. Consumer: rtl.check_status_codes. Check: status constant.
++- unserved: held. Default program for every unserved opcode in the observed population. Consumer:
++  record._unserved. Check: unserved program.
++END AECP FIELD REGISTRY
+ 
+-  HELD TO NOTHING (said here, in 09 section 8.10 and in REQ-VER-002):
+-    ACQUIRE_ENTITY's and REGISTER_UNSOLICITED_NOTIFICATION's command cdl
+-    (the engine accepts both from cdl 12, so only the echo rule ties them to
+-    their response); GET_DYNAMIC_INFO's 524 ceilings; the decode of opcodes
+-    above 0x007F and of outcomes no stimulus of the sweep reaches; the
+-    µprograms' field VALUES and order; the ROM layout (check_upc_map.py's);
+-    and every row of F06.14 the table only documents.
+-
+-Every line of a failure names the consumer, and the command that disagrees
+-with it - or, where no command is involved, the opcode, the table field or the
+-file.
+-
+-The checks live in scripts/aecp_gate/, one module per consumer (its docstring
+-lists them); this file is the entry point.
+-
+-Exit 0 = every consumer agrees. Exit 1 = a disagreement, each printed. Exit 2 =
+-an input is unreadable or a pattern found nothing (a stale pattern is itself a
+-failure). `--write` regenerates F06.14 from the table. `--selftest` plants one
+-defect for every finding this gate can print and for every refusal (the table
+-defects the generator reads in a file copy, so the generator runs on them) and
+-requires each to be caught by name. `--observed FILE` is tb/aecp_cmds's step:
+-it holds a fresh sweep to the table and to decode.json (`--write-record`
+-rewrites decode.json from it).
++--write regenerates F06.14 and the tracked registry references. --pr-body FILE
++checks an external review draft's marked field reference (writes with --write).
++--selftest plants every held registry field, every finding and every refusal.
++--observed FILE compares a fresh sweep with the table and recorded decode.json;
++--write-record rewrites that record. Exit 0 agrees, 1 disagrees, 2 refuses input.
+ """
+ 
+ import argparse
+@@ -91,6 +148,7 @@ from pathlib import Path
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ 
++from aecp_gate.field_docs import pr_reference
+ from aecp_gate.doc import rows  # noqa: E402
+ from aecp_gate.gate import check, observed, write  # noqa: E402
+ from aecp_gate.inputs import ROOT, TABLE, GateError, Inputs, load  # noqa: E402
+@@ -109,6 +167,7 @@ def main() -> int:
+     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     ap.add_argument("--selftest", action="store_true", help="plant each defect and require it caught")
+     ap.add_argument("--write", action="store_true", help="regenerate F06.14 from the table")
++    ap.add_argument("--pr-body", type=Path, help="check or regenerate the PR field reference")
+     ap.add_argument("--observed", type=Path, help="tb/aecp_cmds's sweep output to hold")
+     ap.add_argument("--write-record", action="store_true",
+                     help="with --observed: rewrite tb/aecp_cmds/decode.json from it")
+@@ -118,11 +177,16 @@ def main() -> int:
+         if args.selftest:
+             return selftest(args.root)
+         if args.write:
+-            return write(args.root)
++            result = write(args.root)
++            if not result and args.pr_body:
++                pr_reference(load(args.root), args.pr_body, True)
++            return result
+         if args.observed:
+             return observed(args.root, args.observed, args.write_record)
+         inp = load(args.root)
+         problems = check(inp)
++        if args.pr_body:
++            problems += pr_reference(inp, args.pr_body, False)
+     except GateError as exc:
+         print(f"AECP COMMAND GATE: REFUSED - {exc}", file=sys.stderr)
+         return 2
+diff --git a/tb/aecp_cmds/README.md b/tb/aecp_cmds/README.md
+index 3468ba3..1a32991 100644
+--- a/tb/aecp_cmds/README.md
++++ b/tb/aecp_cmds/README.md
+@@ -29,7 +29,7 @@ program, shows wherever it lands.
+   - the same at cdl 16, 24 and 96 with every stream bound and streaming;
+   - configuration 0 @24 with descriptor_type @28 (READ_DESCRIPTOR's form), at
+     cdl 20 and 100;
+-  - descriptor_type @24 with a count of 1 or 2 @28, at cdl 28 and 36;
++  - descriptor_type @24 with count 1 @28 at cdl 24 and 28, and count 2 at cdl 28 and 36;
+   - descriptor_type @24 with SET_STREAM_INFO's MSRP_ACC_LAT_VALID flags @28,
+     with and without bit 31 of the latency @48, at cdl 96;
+   - and a LOCK target @36 that is not ENTITY, at cdl 28.
+@@ -46,6 +46,11 @@ program, shows wherever it lands.
+   and the aggregate with no record.
+ - **Unsolicited jobs.** Every kind, with both directions where a kind has two.
+ 
++The count-one trial at cdl 24 is a half-record control for the eight-byte mapping
++step; cdl 28 accepts one and cdl 36 accepts two. A four-byte engine step adds offset
++4. A sixteen-byte step reaches no positive accepted offset in these count templates,
++so its gcd is 0 and the gate refuses it rather than treating an empty sample as proof.
++
+ The build sets `EN_IDENTIFY_NOTIF_P = 1`, so that the IDENTIFY_NOTIFICATION job
+ runs its program. No command decode reads that parameter. The environment
+ answers at once: a descriptor image from `milan_min.json`, a blank NVM, so the
+@@ -60,9 +65,9 @@ For each served command:
+   exactly the table's `entries`;
+ - the shortest cdl dispatched to its first entry is its command cdl, or its
+   declared `floor`;
+-- a per-record command is accepted only at cdl + k·per;
++- the gcd of accepted offsets from the floor equals the mapping record step exactly;
+ - every response the bench saw fits its response rule and carries a status of
+-  its set.
++  its set, subject to the registry's trusted common_status and engine_status exemptions.
+ 
+ Beyond the served commands:
+ 
+@@ -91,6 +96,8 @@ detected only when the suite fails with a `FAIL:` line carrying its words.
+ | message-type-guard-dropped | `sclks_w` without its message_type 0 guard | `decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS` |
+ | unserved-opcode-decoded | `gcfg_w` also on 0x0005 | `decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG` |
+ | mappings-accepted-between-records | ADD/REMOVE_AUDIO_MAPPINGS accepted at any cdl from 20 + 8·count | `decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl` |
++| mappings-four-byte-record | Mapping length step 8 to 4 | `decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4` |
++| mappings-sixteen-byte-record | Mapping length step 8 to 16 | `decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 0` |
+ | gdi-member-refused | GET_COUNTERS out of `gdi_allowed` | `decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it` |
+ | gdi-record-length | GET_COUNTERS' record reservation 136 to 132 bytes (its program still writes 136, so the engine voids the aggregate) | `decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING` |
+ | gdi-member-dispatch | GET_SAMPLING_RATE's record to `UPC_GCLKS_C` | `decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS` |
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index c01406e..2aee19d 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -24,9 +24,12 @@
+       "hdl/aecp/KL_aecp_resp_buf.sv": "45dbe0d0b1d2f0bc9f640ff73939de9f4f55ec5568e4d71ec07725254b91c4ea",
+       "hdl/aecp/KL_aecp_engine.sv": "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d",
+       "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+-      "tb/aecp_cmds/sim_main.cpp": "6c1ea82ff657d5524d58be8672434d978fa26e768947647e5767d858a3de97e0",
++      "tb/aecp_cmds/sim_main.cpp": "7dfd29cf53d97c4cf393368c85b3b2c93f7c3aa832eb30a58b9efe0ab554c37d",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+       "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
++      "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
++      "hdl/aecp/desc/model_rules.py": "b5ccdc449c63ec4e24ec6390ceffdfaf1c9ed61a0cf3e0d123f045008b12abd9",
++      "tb/common/verilator_harness.hpp": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9",
+       "ucode.hex (generated)": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+     }
+   },
+@@ -53,7 +56,7 @@
+       }},
+       {"opcodes": "0x0004", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+-        "RDESC": {"floor": 20, "cdls": "20, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
++        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
+         "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+         "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
+         "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},
+diff --git a/tb/aecp_cmds/mutants.py b/tb/aecp_cmds/mutants.py
+index 621289d..aa96a92 100644
+--- a/tb/aecp_cmds/mutants.py
++++ b/tb/aecp_cmds/mutants.py
+@@ -73,6 +73,14 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+          "if (({8'd0, cmd_r.cdl}\n                   != (19'd20 + ({3'd0, desc_ty_r} << 3)))",
+          "if (({8'd0, cmd_r.cdl}\n                   < (19'd20 + ({3'd0, desc_ty_r} << 3)))", 1,
+          "decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl"),
++        ("mappings-four-byte-record", ENGINE,
++         "                   != (19'd20 + ({3'd0, desc_ty_r} << 3)))",
++         "                   != (19'd20 + ({3'd0, desc_ty_r} << 2)))", 1,
++         "decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4"),
++        ("mappings-sixteen-byte-record", ENGINE,
++         "                   != (19'd20 + ({3'd0, desc_ty_r} << 3)))",
++         "                   != (19'd20 + ({3'd0, desc_ty_r} << 4)))", 1,
++         "decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 0"),
+         ("gdi-member-refused", ENGINE,
+          "GDI_GET_SIGNAL_SEL_C, OP_GET_COUNTERS_C, GDI_GET_MEM_LEN_C,",
+          "GDI_GET_SIGNAL_SEL_C, GDI_GET_MEM_LEN_C,", 1,
+@@ -125,8 +133,9 @@ def check_variant(variant: Variant) -> dict[str, object]:
+                             ignore=shutil.ignore_patterns("obj*", "*.hex", "image.*",
+                                                           "__pycache__"))
+         (tree / "docs/architecture").mkdir(parents=True)
+-        shutil.copyfile(root / "docs/architecture/06_aecp_engine.md",
+-                        tree / "docs/architecture/06_aecp_engine.md")
++        for filename in ("docs/architecture/06_aecp_engine.md",
++                         "docs/architecture/09_verification.md", "docs/00_MILAN_COMPLIANCE_REVIEW.md"):
++            shutil.copyfile(root / filename, tree / filename)
+         if edit is not None:
+             filename, old, new, count = edit
+             path = tree / filename
+diff --git a/tb/aecp_cmds/sim_main.cpp b/tb/aecp_cmds/sim_main.cpp
+index e1bec80..0d48203 100644
+--- a/tb/aecp_cmds/sim_main.cpp
++++ b/tb/aecp_cmds/sim_main.cpp
+@@ -301,7 +301,9 @@ std::vector<Tpl> templates() {
+     for (uint16_t k : {1, 2}) {
+       Tpl c; snprintf(nm, sizeof nm, "type@24=%04X,count@28=%u", t, k); c.name = nm;
+       put16(c.bytes, 24, t); put16(c.bytes, 28, k);
+-      c.cdls = {28, 36};
++      // Count one at half and whole record lengths exposes a four-byte step;
++      // count two still reaches 36, so the accepted-offset gcd is exactly 8.
++      c.cdls = k == 1 ? std::vector<int>{24, 28} : std::vector<int>{28, 36};
+       out.push_back(c);
+     }
+     Tpl f; snprintf(nm, sizeof nm, "type@24=%04X,flags@28=20000000", t); f.name = nm;

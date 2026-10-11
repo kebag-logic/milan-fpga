@@ -1,0 +1,7 @@
+# probe accept-op-const-changed-rtl-only
+
+# gate rc 1
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 8a73f092c28c): sweep this engine with make -C tb/aecp_cmds record
+  engine: GET_COUNTERS: the table says opcode 0x0029, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x002A

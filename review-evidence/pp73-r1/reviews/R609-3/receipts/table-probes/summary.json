@@ -1,0 +1,216 @@
+[
+  {
+    "probe": "accept-opcode-renumbered-table-only",
+    "doc_regenerated": false,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: GET_COUNTERS: the table's entries name BADARG, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the table's entries name GCTRS, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the table's entries name GCTRSNS, which the engine never dispatches AEM 0x002A to (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "probe": "accept-size-changed-doc-only",
+    "doc_regenerated": false,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  F06.14: row 0x0017 GET_CLOCK_SOURCE, column Resp. size, reads '36 B (cdl 24)' where the table gives '32 B (cdl 20)'"
+    ]
+  },
+  {
+    "probe": "accept-op-const-changed-rtl-only",
+    "doc_regenerated": false,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 8a73f092c28c): sweep this engine with make -C tb/aecp_cmds record",
+      "  engine: GET_COUNTERS: the table says opcode 0x0029, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x002A"
+    ]
+  },
+  {
+    "probe": "accept-command-missing-from-table",
+    "doc_regenerated": false,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  fields: commands[].response.engine: probe must change this table field",
+      "  decode: AEM 0x0029 is no table command and the engine dispatches it to BADARG, not only NOTIMPL",
+      "  decode: AEM 0x0029 is no table command and the engine dispatches it to GCTRS, not only NOTIMPL"
+    ]
+  },
+  {
+    "probe": "accept-command-missing-from-table-doc-regenerated",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  fields: commands[].response.engine: probe must change this table field",
+      "  decode: AEM 0x0029 is no table command and the engine dispatches it to BADARG, not only NOTIMPL",
+      "  decode: AEM 0x0029 is no table command and the engine dispatches it to GCTRS, not only NOTIMPL"
+    ]
+  },
+  {
+    "probe": "oversize-flags-flipped",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "common-status-hides-stream-is-running",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "common-status-adds-unreachable",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "per-echo-8-to-4",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8",
+      "  decode: REMOVE_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8"
+    ]
+  },
+  {
+    "probe": "per-echo-8-to-2-add-only",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 2, the gcd of accepted offsets from floor 20 is 8"
+    ]
+  },
+  {
+    "probe": "per-avb-4-to-2",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 32 + 4·N, the table's response is 32 + 2·N",
+      "  rom: GET_AVB_INFO: E_GAVB answers NO_SUCH_DESCRIPTOR at cdl 32 + 4·N, the table's response is 32 + 2·N",
+      "  rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32 + 4·N, never 32 + 2·N: no path builds the variable part"
+    ]
+  },
+  {
+    "probe": "entries-success-not-first",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: GET_STREAM_INFO: inside GET_DYNAMIC_INFO the engine never dispatches it to NSUPPE"
+    ]
+  },
+  {
+    "probe": "stub-20-to-24",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: READ_DESCRIPTOR: RDESC answered NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  decode: READ_DESCRIPTOR: RDESC answered BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  decode: READ_DESCRIPTOR: RDESCENT answered BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor"
+    ]
+  },
+  {
+    "probe": "lock-flag-dropped",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  scoreboard: hdl/packet_engine/KL_pp_scoreboard.sv hz_is_lockprot is ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG'], the table's lock-protected commands are ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'STREAM_CFG']",
+      "  rom: SET_NAME: the table says lock false, its programs do reach CHECK_LOCK"
+    ]
+  },
+  {
+    "probe": "status-locked-dropped",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  rom: SET_CONFIGURATION: status ENTITY_LOCKED is answered by a path of its programs and missing from the table's status set"
+    ]
+  },
+  {
+    "probe": "gdi-flag-added",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: GET_CONTROL: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it"
+    ]
+  },
+  {
+    "probe": "mvu-hazard-changed",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default RO_SNAPSHOT, not MAP_CFG"
+    ]
+  },
+  {
+    "probe": "echo-entries-add-gctrs",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "engine-status-add",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "shared-entry-add-gcfg",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "mvu-floor-16",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: GET_MILAN_INFO: the shortest MVU 0x0000 the engine dispatches to MVUINFO is cdl 20, the table's floor is 16"
+    ]
+  },
+  {
+    "probe": "notify-kind-changed",
+    "doc_regenerated": true,
+    "gate_rc": 1,
+    "first_lines": [
+      "AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json",
+      "  decode: LOCK_ENTITY: the PP_UNS_CFG_C job answers 0x0006 with GCFG, the table says 0x0001 with LOCKUNS",
+      "  decode: the engine's PP_UNS_LOCK_C job answers 0x0001 with LOCKUNS, which is no table command's notification"
+    ]
+  },
+  {
+    "probe": "gdi-max-524-to-600",
+    "doc_regenerated": true,
+    "gate_rc": 0,
+    "first_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  }
+]

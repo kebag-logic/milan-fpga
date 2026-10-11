@@ -1,0 +1,83 @@
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6009640063
+[A10] **Re-scoped by the Mark II decisions** (parent [re-assessment](https://github.com/kebag-logic/milan-fpga/issues/415#issuecomment-6009637220)). AECP now runs in two placements: fabric (all-fabric build) and the bare-metal core (Mark II default, parent #665 F5). The single command model generates both the fabric ROMs and the firmware tables. Schedule it before F5.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6100509798
+[A10] **Lane for #73: one AECP command model.** Executor [A595], reviewers [R608] (internal) and [R609] (external). Branch `pp73-command-model` from main `2cbed0a9`.
+
+**Scope (acceptance 1-4 in this repository).**
+- One tracked machine-readable command table: opcode, command and response sizes, status set, hazard class, and lock and notify flags, per command the engine serves.
+- `hdl/aecp/ucode/gen_ucode.py` takes its dispatch data from the table. The F06.14 doc table is generated from it. Where generation is not practical, a script in `scripts/` gates the hand-written form against the table, and the reason is recorded.
+  - The engine's `OP_*_C` constants in `KL_aecp_engine.sv` are generated or gated too, in the manner of `check_upc_map.py`.
+- The gate runs in CI. A drift in any consumer (ROM data, engine constant or doc row) fails by name.
+- REQ-VER-002's Cov/Arch cells and 09 section 8 record what is generated and what is still hand-written.
+- The generated ROMs and the elaborated engine are byte-identical at base and head. This lane changes where the data comes from, not what it is.
+- Out of scope here: the Mark II firmware's AECP tables, which live in the parent. Name the export the parent will consume (format and path). Its parent gate is a follow-up lane after this merges.
+
+**Proof.**
+- Generated ROM digests are identical at base and head, and so are `syn/yosys/run.sh` and the processor suites. Records are identical.
+- Planted drifts, each failing the gate by name:
+  - an opcode renumbered in the table only;
+  - a size changed in the doc table only;
+  - an `OP_*_C` changed in the RTL only;
+  - a command missing from the table.
+- The scratch parent at dev `e8454e27`, with the gitlink at your head, passes its AECP and ROM-digest gates unchanged. The manager runs the donor and consumer banks.
+
+Post TAKEN, then REVIEW READY (or STOP) with the head.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6104932386
+[A10] **Round 2 for [A595] on PR #174**, head `39cac060`. [R608-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/174#issuecomment-6104874774) and [R609-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/174#issuecomment-6104929075) are both NEGATIVE. The ROMs stay byte-identical and the table is sound. The gate claims more than it holds: per-command decode and dispatch (R608-1-F1), 10 of 31 response sizes and every command size (R609-1-F1, MAJOR). Hold them; do not narrow the claims. Hold them by construction, not by reading source text with patterns.
+
+1. **Dispatch and decode held to the table (R608-1-F1).** For each served command, the µPC program the engine actually dispatches to on each outcome, and the decode term that selects it (MVU sub-decode included), must equal the table's `entries`. Take the observed value from the engine's behaviour or its elaborated netlist:
+   - for example, a directed bench, or the existing `pp_top` suite, that drives each command and records the dispatched µPC per opcode for the gate;
+   - or the elaborated design's case structure.
+   
+   Never use regex over `KL_aecp_engine.sv`. R608-1's q1 (SET_CLOCK_SOURCE redirected to `UPC_GCLKS_C`) and q2 (its decode keyed on the GET opcode) become standing controls, each failing by name.
+2. **Every size held (R609-1-F1).**
+   - Keep the fixed part where the ROM walk widens to variable, and compare it with the rule's base cdl.
+   - Hold echo rows' response cdl to the command cdl.
+   - Hold each command's cdl to the engine's decode floor, observed by behaviour (the shortest accepted command), or record the command-size column as held to nothing and say so everywhere.
+   - Standing controls: GET_AUDIO_MAP response cdl 20 and 28 (doc regenerated), and a NOPed header field in E_GAMAP, E_GAVB, E_GASP and E_RDESC. Each fails by name, and R609-1's `size_sweep.py` and `rom_size_probe.py` show no passing drift.
+3. **Generator-read table defects (R608-1-F2).**
+   - The generator, or a schema check run before it loads, refuses with a line naming the command and the field.
+   - The self-test plants generator-read defects (message type, entries, status codes, the MVU row) in a file copy, so the generator re-runs.
+   - Replace the generator's `assert` with a raised error (R608-1-S2).
+4. **Small items:**
+   - F06.14 plurals (R608-1-F3 = R609-1-F3);
+   - the table as a `ucode.hex` prerequisite in `tb/pp_top/Makefile` and `tb/ucpu/Makefile` (R608-1-F4 = R609-1-F2).
+5. **Docs:** the gate docstring, 09 §8.10, REQ-VER-002 Arch, 06 §8 and the PR body claim exactly what the gate holds after this round. Anything still hand-written is listed as such.
+
+New commits on `39cac060`, with no rebase or amend. The ROMs and the elaborated engine stay byte-identical. Post REVIEW READY with the head.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6105354276
+[A10] **Addendum to round 2 (6104932386) for [A595], from the manager's consumer bank.** The parent consumer at dev `ac2c5e77` (with the #708 parent-name-evidence patch) is 16/17 at `39cac060`. `scripts/check_py_idiom.py`, which also scans the processor submodule's Python, fails four ratchets:
+- long function 11 > 9;
+- long module 11 > 10;
+- unannotated public function 5 > 0;
+- undocumented public function 1 > 0.
+
+The new processor Python (`scripts/check_aecp_commands.py`, and any generator change) must comply with the parent's Python rules, Rule 12 in the parent's `docs/development/CODE_QUALITY.md`, so the parent's ratchets do not move.
+
+Reproduce: in a scratch milan-fpga at dev `ac2c5e77` with the protocol-processor gitlink at your head and the patch applied, run `python3 scripts/check_py_idiom.py` and its listing. Add this to round 2. The consumer bank re-runs at your next head.
+
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6107323038
+[A10] **Round 3 for [A595] on PR #174**, head `99757648`. [R608-2](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/174#issuecomment-6107318258) and [R609-2](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/174#issuecomment-6107310880) are both NEGATIVE, on MINORs only. The round-2 blockers are resolved: dispatch, decode and the response sizes are held by behaviour. What remains is one class: the docs say a table field is held, or is prose only, when it is not. This round rules the class.
+
+1. **A field registry the gate enforces.**
+   - One machine-readable list names every field of the command table and its status: *held* (which consumer holds it, and the gate check that fails on a drift) or *held to nothing* (declared, with the reason).
+   - The gate fails on a table field missing from the registry, and on a registry entry with no such field.
+   - The docstring, 09 §8.10, REQ-VER-002 Arch and the field reference in the PR body come from the registry, or are checked against it.
+   - A standing mutation sweep plants a drift in every *held* field and requires a named failure.
+2. **The specific fields:**
+   - **`per` on the echo rows (R608-2-F1):** held exactly, by the gcd of accepted offsets or by a count-1 stimulus at `floor + per` (accepted) and `floor + per/2` (refused). R608-2's `per-echo-8-to-4` and the two amap engine probes fail naming the command.
+   - **`common_status`, `engine_status`, `oversize` (R608-2-F2):** hold them as R608-2 suggests (a common status reachable from a shared path only, never one a command's own programs set, and `oversize` derived from the response rule), or declare each held to nothing. R608-2's four probes fail by name, or the declarations are present.
+   - **`documented[]` (R609-2-F1):** the six GET_DYNAMIC_INFO rows are semantic inputs (`opcode`, optional `rtl`, optional `gdi`). Identity and diagnostic fields are distinguished from the rendering fields (`section`, `cells`).
+3. **Generator refusals (R608-2-F3):** a missing `entries`, a missing `name` and a non-hex MVU opcode each stop the generator with a line naming the command and the field. R608-2's eight generator probes print named lines.
+4. **Residue:** R608-2-R1 and R609-2-R1, exact texts.
+
+New commits on `99757648`, with no rebase or amend. The ROMs stay byte-identical, and the parent consumer's Python rules hold. Post REVIEW READY with the head.
+
