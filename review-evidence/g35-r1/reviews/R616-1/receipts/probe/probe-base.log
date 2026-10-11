@@ -1,0 +1,46 @@
+RESULT sync_every_byte FAIL 58 positions, 57 not refused cleanly 0:d0e1w6 1:d0e1w6 2:d0e1w6 3:d0e1w6 4:d0e1w6 5:d0e1w6 6:d0e1w6 7:d0e1w6 8:d0e1w6 9:d0e1w6 10:d0e1w6 11:d0e1w6 12:d0e1w6
+INFO sync_flagged_edge_writes 6 of 58 positions issue a bank write on the flagged byte's own edge
+RESULT sync_every_byte_flagged PASS drops 1 events 0
+RESULT sync_clean_control PASS drops 0 events 1 code 1
+RESULT followup_every_byte FAIL 90 positions, 89 not refused cleanly 0:d0e1w7 1:d0e1w7 2:d0e1w7 3:d0e1w7 4:d0e1w7 5:d0e1w7 6:d0e1w7 7:d0e1w7 8:d0e1w7 9:d0e1w7 10:d0e1w7 11:d0e1w7 12:d0e1w7
+INFO followup_flagged_edge_writes 7 of 90 positions issue a bank write on the flagged byte's own edge
+RESULT followup_every_byte_flagged PASS drops 1 events 0
+RESULT followup_clean_control PASS drops 0 events 1 code 2
+RESULT pdreq_every_byte FAIL 68 positions, 67 not refused cleanly 0:d0e1w4 1:d0e1w4 2:d0e1w4 3:d0e1w4 4:d0e1w4 5:d0e1w4 6:d0e1w4 7:d0e1w4 8:d0e1w4 9:d0e1w4 10:d0e1w4 11:d0e1w4 12:d0e1w4
+INFO pdreq_flagged_edge_writes 4 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdreq_every_byte_flagged PASS drops 1 events 0
+RESULT pdreq_clean_control PASS drops 0 events 1 code 4
+RESULT pdresp_every_byte FAIL 68 positions, 67 not refused cleanly 0:d0e1w8 1:d0e1w8 2:d0e1w8 3:d0e1w8 4:d0e1w8 5:d0e1w8 6:d0e1w8 7:d0e1w8 8:d0e1w8 9:d0e1w8 10:d0e1w8 11:d0e1w8 12:d0e1w8
+INFO pdresp_flagged_edge_writes 8 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdresp_every_byte_flagged PASS drops 1 events 0
+RESULT pdresp_clean_control PASS drops 0 events 1 code 5
+RESULT pdrfu_every_byte FAIL 68 positions, 67 not refused cleanly 0:d0e1w8 1:d0e1w8 2:d0e1w8 3:d0e1w8 4:d0e1w8 5:d0e1w8 6:d0e1w8 7:d0e1w8 8:d0e1w8 9:d0e1w8 10:d0e1w8 11:d0e1w8 12:d0e1w8
+INFO pdrfu_flagged_edge_writes 8 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdrfu_every_byte_flagged PASS drops 1 events 0
+RESULT pdrfu_clean_control PASS drops 0 events 1 code 6
+RESULT signaling_every_byte FAIL 48 positions, 47 not refused cleanly 0:d0e1w4 1:d0e1w4 2:d0e1w4 3:d0e1w4 4:d0e1w4 5:d0e1w4 6:d0e1w4 7:d0e1w4 8:d0e1w4 9:d0e1w4 10:d0e1w4 11:d0e1w4 12:d0e1w4
+INFO signaling_flagged_edge_writes 4 of 48 positions issue a bank write on the flagged byte's own edge
+RESULT signaling_every_byte_flagged PASS drops 1 events 0
+RESULT signaling_clean_control PASS drops 0 events 1 code 7
+RESULT announce_nopath_every_byte FAIL 78 positions, 77 not refused cleanly 0:d0e1w8 1:d0e1w8 2:d0e1w8 3:d0e1w8 4:d0e1w8 5:d0e1w8 6:d0e1w8 7:d0e1w8 8:d0e1w8 9:d0e1w8 10:d0e1w8 11:d0e1w8 12:d0e1w8
+INFO announce_nopath_flagged_edge_writes 7 of 78 positions issue a bank write on the flagged byte's own edge
+RESULT announce_nopath_every_byte_flagged PASS drops 1 events 0
+RESULT announce_nopath_clean_control PASS drops 0 events 1 code 3
+RESULT announce_path1_every_byte FAIL 90 positions, 89 not refused cleanly 0:d0e1w9 1:d0e1w9 2:d0e1w9 3:d0e1w9 4:d0e1w9 5:d0e1w9 6:d0e1w9 7:d0e1w9 8:d0e1w9 9:d0e1w9 10:d0e1w9 11:d0e1w9 12:d0e1w9
+INFO announce_path1_flagged_edge_writes 8 of 90 positions issue a bank write on the flagged byte's own edge
+RESULT announce_path1_every_byte_flagged PASS drops 1 events 0
+RESULT announce_path1_clean_control PASS drops 0 events 1 code 3
+RESULT sync_padded_every_byte FAIL 60 positions, 59 not refused cleanly 0:d0e1w6 1:d0e1w6 2:d0e1w6 3:d0e1w6 4:d0e1w6 5:d0e1w6 6:d0e1w6 7:d0e1w6 8:d0e1w6 9:d0e1w6 10:d0e1w6 11:d0e1w6 12:d0e1w6
+INFO sync_padded_flagged_edge_writes 6 of 60 positions issue a bank write on the flagged byte's own edge
+RESULT sync_padded_every_byte_flagged PASS drops 1 events 0
+RESULT sync_padded_clean_control PASS drops 0 events 1 code 1
+RESULT zero_gap_flagged_then_clean_k0 FAIL drops 0 events 2 last code 4
+RESULT zero_gap_flagged_then_clean_k20 FAIL drops 0 events 2 last code 4
+RESULT zero_gap_flagged_then_clean_k57 PASS drops 1 events 1 last code 4
+RESULT zero_gap_clean_then_flagged_k0 FAIL drops 0 events 2 last code 1
+RESULT zero_gap_clean_then_flagged_k1 FAIL drops 0 events 2 last code 1
+RESULT stray_flagged_byte_then_clean PASS drops 0 events 1
+RESULT one_byte_frame_flagged PASS drops 1 events 0
+RESULT one_byte_frame_flagged_then_clean PASS events 1
+RESULT flag_on_byte_then_idle_gap FAIL drops 0 events 1
+36 probes: 22 PASS, 14 FAIL

@@ -1,0 +1,104 @@
+C0 unmutated head: EQUIVALENT-PASSES rc=0 [298 checks: 298 PASS, 0 FAIL] named=0 faillines=0
+R1 latch deleted (re-applied control): CAUGHT-BY-NAME rc=1 [298 checks: 286 PASS, 12 FAIL] named=12 faillines=12
+    @@ -642,7 +642,6 @@
+             //! #35). Below the sof arm, so the flag on a first byte outlasts
+             //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+             //! directly, since this register settles on the same edge
+    -        if (rx_err_i) bad_r <= 1'b1;
+           end
+         end
+       end
+R2 latch skips the sof byte (other form of the first-byte defect): CAUGHT-BY-NAME rc=1 [298 checks: 286 PASS, 12 FAIL] named=8 faillines=12
+    @@ -642,7 +642,7 @@
+             //! #35). Below the sof arm, so the flag on a first byte outlasts
+             //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+             //! directly, since this register settles on the same edge
+    -        if (rx_err_i) bad_r <= 1'b1;
+    +        if (rx_err_i && !rx_sof_i) bad_r <= 1'b1;
+           end
+         end
+       end
+R3 eof term removed from fin_ok_r (re-applied): CAUGHT-BY-NAME rc=1 [298 checks: 288 PASS, 10 FAIL] named=8 faillines=10
+    @@ -622,7 +622,7 @@
+               if (rx_eof_i) begin
+                 run_r    <= 1'b0;
+                 fin_r    <= 1'b1;
+    -            fin_ok_r <= !bad_r && !rx_err_i && (cnt_r >= min_end_w) &&
+    +            fin_ok_r <= !bad_r && (cnt_r >= min_end_w) &&
+                             (cnt_r >= msg_end_r) &&
+                             ((mtype_r != MT_ANN_C) ||
+                              (ann_tlv_chain_done_after_w &&
+R4 latch only in the first 30 bytes (novel): CAUGHT-BY-NAME rc=1 [298 checks: 286 PASS, 12 FAIL] named=8 faillines=12
+    @@ -642,7 +642,7 @@
+             //! #35). Below the sof arm, so the flag on a first byte outlasts
+             //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+             //! directly, since this register settles on the same edge
+    -        if (rx_err_i) bad_r <= 1'b1;
+    +        if (rx_err_i && (rx_sof_i || cnt_r < 11'd30)) bad_r <= 1'b1;
+           end
+         end
+       end
+R5 an eof flag also counts as a runt drop (novel): CAUGHT-BY-NAME rc=1 [298 checks: 289 PASS, 9 FAIL] named=8 faillines=9
+    @@ -648,7 +648,7 @@
+       end
+     
+       assign fin_drop_w  = fin_r && !fin_ok_r;
+    -  assign runt_drop_w = rx_valid_i && rx_sof_i && rx_eof_i;
+    +  assign runt_drop_w = rx_valid_i && rx_eof_i && (rx_sof_i || rx_err_i);
+     
+       assign drop_cnt_o = drop_cnt_r;
+     
+R6 flag refuses at eof but bank writes continue (novel): CAUGHT-BY-NAME rc=1 [298 checks: 294 PASS, 4 FAIL] named=4 faillines=4
+    @@ -203,6 +203,7 @@
+       // ---- parse state -------------------------------------------------------
+       logic [10:0] cnt_r;          //! absolute byte index of the CURRENT byte
+       logic        run_r;          //! a frame is being consumed
+    +  logic        err_r;
+       logic        bad_r;          //! poisoned: consume to eof, then drop
+       logic [3:0]  mtype_r;
+       logic [15:0] seq_r;
+    @@ -347,6 +348,7 @@
+           cnt_r       <= '0;
+           run_r       <= 1'b0;
+           bad_r       <= 1'b0;
+    +      err_r       <= 1'b0;
+           mtype_r     <= '0;
+           seq_r       <= '0;
+           flags_r     <= '0;
+    @@ -402,6 +404,7 @@
+               cnt_r    <= 11'd1;
+               run_r    <= 1'b1;
+               bad_r    <= 1'b0;
+    +          err_r    <= 1'b0;
+               mtype_r  <= '0;
+               msg_end_r <= '0;
+               steps_r  <= '0;
+    @@ -622,7 +625,7 @@
+               if (rx_eof_i) begin
+                 run_r    <= 1'b0;
+                 fin_r    <= 1'b1;
+    -            fin_ok_r <= !bad_r && !rx_err_i && (cnt_r >= min_end_w) &&
+    +            fin_ok_r <= !bad_r && !err_r && !rx_err_i && (cnt_r >= min_end_w) &&
+                             (cnt_r >= msg_end_r) &&
+                             ((mtype_r != MT_ANN_C) ||
+                              (ann_tlv_chain_done_after_w &&
+    @@ -642,7 +645,7 @@
+             //! #35). Below the sof arm, so the flag on a first byte outlasts
+             //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+             //! directly, since this register settles on the same edge
+    -        if (rx_err_i) bad_r <= 1'b1;
+    +        if (rx_err_i) err_r <= 1'b1;
+           end
+         end
+       end
+R7 latch gated off the eof byte (equivalent: the eof term still refuses): EQUIVALENT-PASSES rc=0 [298 checks: 298 PASS, 0 FAIL] named=0 faillines=0
+    @@ -642,7 +642,7 @@
+             //! #35). Below the sof arm, so the flag on a first byte outlasts
+             //! that arm's clear. The eof byte's own flag also reaches fin_ok_r
+             //! directly, since this register settles on the same edge
+    -        if (rx_err_i) bad_r <= 1'b1;
+    +        if (rx_err_i && !rx_eof_i) bad_r <= 1'b1;
+           end
+         end
+       end
+8 arms: 8 as expected, 0 unexpected

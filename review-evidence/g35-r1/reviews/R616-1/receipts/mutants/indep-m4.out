@@ -1,0 +1,14 @@
+FAIL drop count advanced      got 000000000000003d exp 000000000000003c
+FAIL sync rx_err at every byte: one drop got 0000000000000039 exp 000000000000003a
+  sync: rx_err at byte 57 of 58 was not refused cleanly
+FAIL sync rx_err held from byte 20 to eof: one drop got 000000000000007a exp 0000000000000079
+FAIL fu rx_err at every byte: one drop got 0000000000000059 exp 000000000000005a
+  fu: rx_err at byte 89 of 90 was not refused cleanly
+FAIL fu rx_err held from byte 20 to eof: one drop got 00000000000000d7 exp 00000000000000d6
+FAIL pdreq rx_err at every byte: one drop got 0000000000000043 exp 0000000000000044
+  pdreq: rx_err at byte 67 of 68 was not refused cleanly
+FAIL pdreq rx_err held from byte 20 to eof: one drop got 000000000000011e exp 000000000000011d
+FAIL pdresp rx_err at every byte: one drop got 0000000000000043 exp 0000000000000044
+  pdresp: rx_err at byte 67 of 68 was not refused cleanly
+FAIL pdresp rx_err held from byte 20 to eof: one drop got 0000000000000165 exp 0000000000000164
+298 checks: 289 PASS, 9 FAIL

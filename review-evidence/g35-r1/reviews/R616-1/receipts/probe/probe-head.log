@@ -1,0 +1,46 @@
+RESULT sync_every_byte PASS 58 positions, 0 not refused cleanly
+INFO sync_flagged_edge_writes 6 of 58 positions issue a bank write on the flagged byte's own edge
+RESULT sync_every_byte_flagged PASS drops 1 events 0
+RESULT sync_clean_control PASS drops 0 events 1 code 1
+RESULT followup_every_byte PASS 90 positions, 0 not refused cleanly
+INFO followup_flagged_edge_writes 7 of 90 positions issue a bank write on the flagged byte's own edge
+RESULT followup_every_byte_flagged PASS drops 1 events 0
+RESULT followup_clean_control PASS drops 0 events 1 code 2
+RESULT pdreq_every_byte PASS 68 positions, 0 not refused cleanly
+INFO pdreq_flagged_edge_writes 4 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdreq_every_byte_flagged PASS drops 1 events 0
+RESULT pdreq_clean_control PASS drops 0 events 1 code 4
+RESULT pdresp_every_byte PASS 68 positions, 0 not refused cleanly
+INFO pdresp_flagged_edge_writes 8 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdresp_every_byte_flagged PASS drops 1 events 0
+RESULT pdresp_clean_control PASS drops 0 events 1 code 5
+RESULT pdrfu_every_byte PASS 68 positions, 0 not refused cleanly
+INFO pdrfu_flagged_edge_writes 8 of 68 positions issue a bank write on the flagged byte's own edge
+RESULT pdrfu_every_byte_flagged PASS drops 1 events 0
+RESULT pdrfu_clean_control PASS drops 0 events 1 code 6
+RESULT signaling_every_byte PASS 48 positions, 0 not refused cleanly
+INFO signaling_flagged_edge_writes 4 of 48 positions issue a bank write on the flagged byte's own edge
+RESULT signaling_every_byte_flagged PASS drops 1 events 0
+RESULT signaling_clean_control PASS drops 0 events 1 code 7
+RESULT announce_nopath_every_byte PASS 78 positions, 0 not refused cleanly
+INFO announce_nopath_flagged_edge_writes 7 of 78 positions issue a bank write on the flagged byte's own edge
+RESULT announce_nopath_every_byte_flagged PASS drops 1 events 0
+RESULT announce_nopath_clean_control PASS drops 0 events 1 code 3
+RESULT announce_path1_every_byte PASS 90 positions, 0 not refused cleanly
+INFO announce_path1_flagged_edge_writes 8 of 90 positions issue a bank write on the flagged byte's own edge
+RESULT announce_path1_every_byte_flagged PASS drops 1 events 0
+RESULT announce_path1_clean_control PASS drops 0 events 1 code 3
+RESULT sync_padded_every_byte PASS 60 positions, 0 not refused cleanly
+INFO sync_padded_flagged_edge_writes 6 of 60 positions issue a bank write on the flagged byte's own edge
+RESULT sync_padded_every_byte_flagged PASS drops 1 events 0
+RESULT sync_padded_clean_control PASS drops 0 events 1 code 1
+RESULT zero_gap_flagged_then_clean_k0 PASS drops 1 events 1 last code 4
+RESULT zero_gap_flagged_then_clean_k20 PASS drops 1 events 1 last code 4
+RESULT zero_gap_flagged_then_clean_k57 PASS drops 1 events 1 last code 4
+RESULT zero_gap_clean_then_flagged_k0 PASS drops 1 events 1 last code 4
+RESULT zero_gap_clean_then_flagged_k1 PASS drops 1 events 1 last code 4
+RESULT stray_flagged_byte_then_clean PASS drops 0 events 1
+RESULT one_byte_frame_flagged PASS drops 1 events 0
+RESULT one_byte_frame_flagged_then_clean PASS events 1
+RESULT flag_on_byte_then_idle_gap PASS drops 1 events 0
+36 probes: 36 PASS, 0 FAIL
