@@ -1,0 +1,39 @@
+V_LINK_W3_NOW_MS_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  512 |   localparam int unsigned MBX_EV_LINK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:518:27: Parameter is not used: 'MBX_EV_GM_W1_ID_LO_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  518 |   localparam int unsigned MBX_EV_GM_W1_ID_LO_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:522:27: Parameter is not used: 'MBX_EV_GM_W2_ID_HI_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  522 |   localparam int unsigned MBX_EV_GM_W2_ID_HI_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:526:27: Parameter is not used: 'MBX_EV_GM_W3_DOMAIN_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  526 |   localparam int unsigned MBX_EV_GM_W3_DOMAIN_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:532:27: Parameter is not used: 'MBX_EV_TICK_W1_COUNT_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  532 |   localparam int unsigned MBX_EV_TICK_W1_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:536:27: Parameter is not used: 'MBX_EV_TICK_W3_NOW_MS_WIDTH_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  536 |   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:856:27: Parameter is not used: 'MBX_FRAME_BYTES_MAX_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  856 |   localparam int unsigned MBX_FRAME_BYTES_MAX_C = 32'd1514;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:859:27: Parameter is not used: 'MBX_CH_RX_BASE_TBL_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  859 |   localparam int unsigned MBX_CH_RX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_BASE_C, MBX_CH_ACMP_RX_BASE_C, MBX_CH_AECP_RX_BASE_C, MBX_CH_MAAP_RX_BASE_C, MBX_CH_SRP_RX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r582-7-665int/hdl/milan/mailbox/KL_mbx_pkg.sv:863:27: Parameter is not used: 'MBX_CH_TX_BASE_TBL_C'
+                                                                                              : ... note: In instance 'mbx_width_probe.u_KL_mbx.u_srp_rx'
+  863 |   localparam int unsigned MBX_CH_TX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_BASE_C, MBX_CH_ACMP_TX_BASE_C, MBX_CH_AECP_TX_BASE_C, MBX_CH_MAAP_TX_BASE_C, MBX_CH_SRP_TX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+
+verilator rc=0 width/error lines=1 plant=True
+rc=0

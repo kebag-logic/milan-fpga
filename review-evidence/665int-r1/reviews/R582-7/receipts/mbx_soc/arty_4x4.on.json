@@ -1,0 +1,1395 @@
+{
+ "argv": [
+  "--board",
+  "arty",
+  "--sys-clk-freq",
+  "83.333e6",
+  "--milan-clk-freq",
+  "50e6",
+  "--num-streams",
+  "4",
+  "--audio-interface",
+  "tdm8",
+  "--audio-interface-master",
+  "--talker-wire-chans",
+  "4",
+  "--fabric-gptp",
+  "--cpu",
+  "vexiiriscv",
+  "--software-profile",
+  "baremetal",
+  "--xlen",
+  "32",
+  "--full",
+  "--with-spiflash",
+  "--flashboot",
+  "baremetal",
+  "--timing-opt",
+  "--l2-bytes",
+  "0",
+  "--uart-baudrate",
+  "115200",
+  "--cpu-count",
+  "1",
+  "--entity-gen-dir",
+  "$REVIEWS/r582-7-665int/configs/generated/endstation_arty_4x4",
+  "--ctrl-mailbox"
+ ],
+ "arrays": [
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.LiteDRAMAXI2Native.read.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 10
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.LiteDRAMAXI2Native.read.r_buffer.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 142
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.LiteDRAMAXI2Native.write.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 10
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.LiteDRAMAXI2Native.write.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 12
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.LiteDRAMAXI2Native.write.w_buffer.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 156
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.cpu.memory_port_cdc0.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 14
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.cpu.memory_port_cdc0.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 73
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.cpu.memory_port_cdc0.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 73
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.cpu.memory_port_cdc0.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 142
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.cpu.memory_port_cdc0.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 149
+  },
+  {
+   "attr": [],
+   "depth": 49,
+   "path": "soc.identifier",
+   "ports": [],
+   "width": 8
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.descmem_req_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 43
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.descmem_rsp_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 68
+  },
+  {
+   "attr": [
+    "('ram_style', 'distributed')"
+   ],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 2
+  },
+  {
+   "attr": [
+    "('ram_style', 'distributed')"
+   ],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 2
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 4
+  },
+  {
+   "attr": [
+    "('ram_style', 'block')"
+   ],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 34
+  },
+  {
+   "attr": [
+    "('ram_style', 'block')"
+   ],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 36
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 37
+  },
+  {
+   "attr": [],
+   "depth": 4,
+   "path": "soc.milan.milan_axil_cdc.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 37
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.nvmmem_req_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 43
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.nvmmem_rsp_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 68
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.nvmmem_wd_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 3
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.nvmmem_wr_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 106
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.respmem_req_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 43
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.respmem_rsp_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 68
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.respmem_wd_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 3
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.milan.respmem_wr_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 106
+  },
+  {
+   "attr": [],
+   "depth": 32,
+   "path": "soc.milan_mac.core.rx_datapath.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 82
+  },
+  {
+   "attr": [],
+   "depth": 5,
+   "path": "soc.milan_mac.core.rx_datapath.LiteEthMACCRC32Checker.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 12
+  },
+  {
+   "attr": [],
+   "depth": 32,
+   "path": "soc.milan_mac.core.tx_datapath.ClockDomainCrossing.AsyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 1,
+     "we": false
+    }
+   ],
+   "width": 82
+  },
+  {
+   "attr": [
+    "('ram_style', 'distributed')"
+   ],
+   "depth": 16,
+   "path": "soc.milan_mac.mac_rx_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 2
+  },
+  {
+   "attr": [
+    "('ram_style', 'block')"
+   ],
+   "depth": 16,
+   "path": "soc.milan_mac.mac_rx_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 72
+  },
+  {
+   "attr": [
+    "('ram_style', 'distributed')"
+   ],
+   "depth": 16,
+   "path": "soc.milan_mac.mac_tx_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 2
+  },
+  {
+   "attr": [
+    "('ram_style', 'block')"
+   ],
+   "depth": 16,
+   "path": "soc.milan_mac.mac_tx_cdc.AsyncFIFO.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "write",
+     "mode": 1,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "read",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 72
+  },
+  {
+   "attr": [],
+   "depth": 9,
+   "path": "soc.milan_mac.tx_sf.param_fifo.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 3
+  },
+  {
+   "attr": [],
+   "depth": 512,
+   "path": "soc.milan_mac.tx_sf.payload_fifo.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 82
+  },
+  {
+   "attr": [],
+   "depth": 32768,
+   "path": "soc.rom",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 32
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 8,
+   "path": "soc.sdram.controller.BankMachine.SyncFIFO.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": true,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 24
+  },
+  {
+   "attr": [],
+   "depth": 2048,
+   "path": "soc.sram",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 1,
+     "we": true
+    }
+   ],
+   "width": 32
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.uart.rx_fifo.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 10
+  },
+  {
+   "attr": [],
+   "depth": 16,
+   "path": "soc.uart.tx_fifo.fifo.fifo",
+   "ports": [
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": true
+    },
+    {
+     "async": false,
+     "cd": "sys",
+     "mode": 0,
+     "we": false
+    }
+   ],
+   "width": 10
+  }
+ ],
+ "config": "endstation_arty_4x4",
+ "csr": {
+  "ctrl_mbx": 30,
+  "ppmem": 31
+ },
+ "has_ctrl_mbx": true,
+ "has_milan_axil_cdc": false,
+ "irq": {
+  "ctrl_mbx": 3,
+  "noirq": 0,
+  "timer0": 2,
+  "uart": 1
+ },
+ "mbx_instances": {
+  "KL_mbx": [
+   [
+    "clk_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "gm_change_p_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "gm_id_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "gptp_domain_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "host_addr_i",
+    "Input",
+    13,
+    false
+   ],
+   [
+    "host_be_i",
+    "Input",
+    4,
+    false
+   ],
+   [
+    "host_req_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "host_wdata_i",
+    "Input",
+    32,
+    false
+   ],
+   [
+    "host_we_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "link_up_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "ms_tick_p_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "rst_n",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "rx_data_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "rx_if_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "rx_last_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "rx_valid_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "tx_ready_i",
+    "Input",
+    1,
+    true
+   ],
+   [
+    "host_ack_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "host_rdata_o",
+    "Output",
+    32,
+    false
+   ],
+   [
+    "irq_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "pub_bound_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "pub_da_gate_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "pub_dom_adopted_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "pub_dom_prio_o",
+    "Output",
+    3,
+    false
+   ],
+   [
+    "pub_dom_vid_o",
+    "Output",
+    12,
+    false
+   ],
+   [
+    "pub_idle_slope_bps_o",
+    "Output",
+    32,
+    false
+   ],
+   [
+    "pub_licence_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "pub_sid_o",
+    "Output",
+    1024,
+    false
+   ],
+   [
+    "pub_sid_valid_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "pub_started_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "pub_talker_decl_o",
+    "Output",
+    16,
+    false
+   ],
+   [
+    "rx_ready_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "tx_ch_o",
+    "Output",
+    3,
+    false
+   ],
+   [
+    "tx_data_o",
+    "Output",
+    8,
+    false
+   ],
+   [
+    "tx_if_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "tx_last_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "tx_valid_o",
+    "Output",
+    1,
+    false
+   ]
+  ],
+  "KL_mbx_wb": [
+   [
+    "clk_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "host_ack_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "host_rdata_i",
+    "Input",
+    32,
+    false
+   ],
+   [
+    "rst_n",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "wb_adr_i",
+    "Input",
+    30,
+    false
+   ],
+   [
+    "wb_cyc_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "wb_dat_i",
+    "Input",
+    32,
+    false
+   ],
+   [
+    "wb_sel_i",
+    "Input",
+    4,
+    false
+   ],
+   [
+    "wb_stb_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "wb_we_i",
+    "Input",
+    1,
+    false
+   ],
+   [
+    "host_addr_o",
+    "Output",
+    13,
+    false
+   ],
+   [
+    "host_be_o",
+    "Output",
+    4,
+    false
+   ],
+   [
+    "host_req_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "host_wdata_o",
+    "Output",
+    32,
+    false
+   ],
+   [
+    "host_we_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "wb_ack_o",
+    "Output",
+    1,
+    false
+   ],
+   [
+    "wb_dat_o",
+    "Output",
+    32,
+    false
+   ],
+   [
+    "wb_err_o",
+    "Output",
+    1,
+    false
+   ]
+  ]
+ },
+ "overlaps": [],
+ "regions": {
+  "clint": [
+   4026597376,
+   65536
+  ],
+  "ctrl_mbx": [
+   2416967680,
+   32768
+  ],
+  "main_ram": [
+   1073741824,
+   268435456
+  ],
+  "milan_csr": [
+   2415919104,
+   65536
+  ],
+  "plic": [
+   4039114752,
+   4194304
+  ],
+  "rom": [
+   0,
+   131072
+  ],
+  "spiflash": [
+   16777216,
+   16777216
+  ],
+  "sram": [
+   268435456,
+   8192
+  ]
+ }
+}

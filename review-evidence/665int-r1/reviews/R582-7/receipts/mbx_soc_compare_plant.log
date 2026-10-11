@@ -1,0 +1,10 @@
+arty_4x4: ctrl_mbx region 0x90100000+0x8000, csr 30, irq 3, 49 arrays identical on/off, M2 split arrays 8, KL_mbx 37 ports
+arty_8ch: ctrl_mbx region 0x90100000+0x8000, csr 30, irq 3, 49 arrays identical on/off, M2 split arrays 8, KL_mbx 37 ports
+arty_current: ctrl_mbx region 0x90100000+0x8000, csr 30, irq 3, 49 arrays identical on/off, M2 split arrays 8, KL_mbx 37 ports
+ax7101_1x1_tdm8: ctrl_mbx region 0x90100000+0x8000, csr 30, irq 3, 49 arrays identical on/off, M2 split arrays 8, KL_mbx 37 ports
+ax7101_8x8: ctrl_mbx region 0x90100000+0x8000, csr 30, irq 3, 49 arrays identical on/off, M2 split arrays 8, KL_mbx 37 ports
+5 config(s); 3 difference(s)
+  BAD ax7101_8x8: csr other than ctrl_mbx differ on/off
+  BAD ax7101_8x8: storage arrays differ with the mailbox on
+  BAD ax7101_8x8: M2 split arrays [('mac_rx_cdc', 2, 16, "('ram_style', 'distributed')"), ('mac_rx_cdc', 72, 16, "('ram_style', 'block')"), ('mac_tx_cdc', 2, 16, "('ram_style', 'distributed')"), ('mac_tx_cdc', 72, 16, "('ram_style', 'block')"), ('milan_axil_cdc', 2, 4, "('ram_style', 'distributed')"), ('milan_axil_cdc', 2, 4, "('ram_style', 'distributed')"), ('milan_axil_cdc', 34, 4, "('ram_style', 'block')"), ('milan_axil_cdc', 36, 4, "('ram_style', 'distributed')")]
+rc=1 (expect 1)
