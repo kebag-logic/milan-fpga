@@ -1,0 +1,61 @@
+[same] 0 finding(s), memo {'ran': 943, 'reused': 0}, 25 s: pass: the copies as they are, the base the controls share
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 9 s: stack source includes the mailbox HAL
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 9 s: stack source includes the register-map contract
+[same] 20 finding(s), memo {'ran': 10, 'reused': 937}, 11 s: stack source includes the composition
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 11 s: stack source includes the store's port
+[same] 6 finding(s), memo {'ran': 6, 'reused': 937}, 10 s: stack source includes the loop through a macro
+[same] 11 finding(s), memo {'ran': 584, 'reused': 359}, 15 s: stack public header includes the platform's header
+[same] 2 finding(s), memo {'ran': 4, 'reused': 937}, 9 s: stack source includes a header nobody supplies
+[same] 5 finding(s), memo {'ran': 5, 'reused': 937}, 9 s: stack source includes an OS header
+[same] 2 finding(s), memo {'ran': 4, 'reused': 939}, 9 s: firmware reaches a stack example's header
+[same] 23 finding(s), memo {'ran': 953, 'reused': 455}, 20 s: firmware header reaches a stack source by a relative path
+[same] 2 finding(s), memo {'ran': 42, 'reused': 901}, 13 s: image source reaches a stack test's header
+[same] 10 finding(s), memo {'ran': 590, 'reused': 359}, 13 s: a copy of the stack's wire.h in the firmware
+[same] 1 finding(s), memo {'ran': 17, 'reused': 930}, 10 s: a copy of the stack's adp.c in the firmware
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 9 s: stack source includes the mailbox HAL under the re-entry assertion
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 10 s: stack source includes the platform's header in a debug build
+[same] 2 finding(s), memo {'ran': 10, 'reused': 937}, 10 s: stack source includes the contract in a debug build with the re-entry assertion
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 11 s: firmware adapter reaches a stack test's fake under the re-entry assertion
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 9 s: firmware adapter reaches the stack's test fake by its checkout path under the re-entry assertion
+[same] 2 finding(s), memo {'ran': 10, 'reused': 939}, 9 s: firmware tests a mode by its value
+[same] 2 finding(s), memo {'ran': 162, 'reused': 781}, 10 s: the SRP image's composition reaches a stack source
+[same] 1 finding(s), memo {'ran': 3, 'reused': 940}, 10 s: a stack test includes the mailbox HAL
+[same] 1 finding(s), memo {'ran': 3, 'reused': 940}, 11 s: a stack test includes the firmware's harness
+[same] 1 finding(s), memo {'ran': 9, 'reused': 934}, 12 s: a stack test includes the platform's pool in its release build
+[same] 2 finding(s), memo {'ran': 528, 'reused': 415}, 14 s: a stack public header includes the mailbox HAL for C++ only
+[same] 2 finding(s), memo {'ran': 800, 'reused': 147}, 17 s: a mode an arm writes is explored without being named here
+[same] 2 finding(s), memo {'ran': 10, 'reused': 937}, 10 s: a mode an AECP arm writes is explored without being named here
+[same] 6 finding(s), memo {'ran': 800, 'reused': 147}, 15 s: a mode written in a new builder nobody lists is explored
+[same] 4 finding(s), memo {'ran': 10, 'reused': 937}, 9 s: stack source includes the AECP core's header
+[same] 6 finding(s), memo {'ran': 5, 'reused': 940}, 11 s: a stack test includes the AECP adapter
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 11 s: the AECP core reaches a stack source
+[same] 2 finding(s), memo {'ran': 6, 'reused': 937}, 11 s: the AECP application bridge reaches a stack example's header
+[same] 2 finding(s), memo {'ran': 322, 'reused': 781}, 14 s: the AECP image's SRP composition reaches a stack source
+[same] 1 finding(s), memo {'ran': 535, 'reused': 414}, 14 s: a copy of the stack's acmp.h in the AECP directory
+[same] 4 finding(s), memo {'ran': 42, 'reused': 901}, 9 s: the image reaches a stack example's header under a shape's stream count
+[same] 3 finding(s), memo {'ran': 493, 'reused': 450}, 15 s: a firmware header reaches a stack test's fake in C++ only
+[same] 2 finding(s), memo {'ran': 162, 'reused': 781}, 12 s: the AECP image reaches a stack source at a shape its generated header gives many maps
+[same] 2 finding(s), memo {'ran': 42, 'reused': 939}, 10 s: an adapter reaches a stack source where the SRP shape header is force-included
+[same] 2 finding(s), memo {'ran': 10, 'reused': 939}, 9 s: an adapter reaches a stack source on the two-interface contract
+[same] 2 finding(s), memo {'ran': 10, 'reused': 937}, 9 s: an adapter reaches a stack source where a build leaves lwSRP's profile undefined
+[same] 2 finding(s), memo {'ran': 10, 'reused': 937}, 9 s: the AECP core tests a value only its arms compute
+[same] 2 finding(s), memo {'ran': 800, 'reused': 147}, 15 s: a mode an arm writes as two arguments is explored
+[same] 6 finding(s), memo {'ran': 800, 'reused': 147}, 15 s: a mode a new Makefile writes as two words is explored
+[same] 1 finding(s), memo {'ran': 14, 'reused': 936}, 10 s: a header only the MAAP differential's C++ source reaches includes a stack test's fake in C++ only
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 9 s: a builder names a C++ source that is no file
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 9 s: a builder computes a C++ source's name
+[same] 1 finding(s), memo {'ran': 13, 'reused': 936}, 10 s: a C++ source a builder writes reaches a header that includes a stack example in C++ only
+[same] 1 finding(s), memo {'ran': 14, 'reused': 936}, 10 s: a name NOT_SOURCES lists is followed once it is a file
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 9 s: NOT_SOURCES lists a name its builder no longer holds
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a builder joins -D to a macro it computes
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a builder formats a -D flag's macro
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a builder joins a value to a -D flag
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a builder's f-string computes a -D flag's macro name
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a builder writes a bare -D alone
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a Makefile computes a -D flag's macro
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a Makefile computes a -D flag's value
+[same] 1 finding(s), memo {'ran': 0, 'reused': 943}, 0 s: a Makefile prefixes -D to the macros it lists
+[same] 0 finding(s), memo {'ran': 4, 'reused': 939}, 9 s: pass: the firmware includes a public header
+[same] 0 finding(s), memo {'ran': 6, 'reused': 937}, 9 s: pass: the stack includes only its own header and the C library
+[same] 0 finding(s), memo {'ran': 3, 'reused': 940}, 9 s: pass: a stack test reaches the stack's example
+memo equivalence: 0 control(s) differ of 60

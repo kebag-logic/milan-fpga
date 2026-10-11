@@ -1,0 +1,15 @@
+2026-10-10T21:51:46Z
+RV32 build self-test: 17 checks PASS
+rc=0 after 8 s: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+mutants: 471 of 471 caught
+test_ctrl_firmware: PASS
+rc=0 after 1863 s: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests
+rc=0 after 82 s: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+coverage self-test: 29 of 29 planted cases read as planted
+rc=0 after 1 s: python3 sw/firmware/gtest/fw_coverage.py --selftest
+firmware coverage: PASS (30 files)
+rc=0 after 249 s: python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+2026-10-10T22:28:29Z
+DONE
+fullcap-head.log 324434 bytes sha256 3a2b4107655db9b2425bd780e14f88e21721bf8e527f99e092a25891ab3718ec (not copied: over 200 KB)
