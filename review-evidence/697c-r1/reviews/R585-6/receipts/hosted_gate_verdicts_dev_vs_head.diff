@@ -1,0 +1,144 @@
+294c294
+< [ok] mutant acmp-bind-starts-no-discovery (acmp, acmpwalk): 219 check(s) failed
+---
+> [ok] mutant acmp-bind-starts-no-discovery (acmp, acmpwalk): 239 check(s) failed
+342c342
+< [ok] mutant acmp-sequence-id-never-advances (acmp, acmp): 14 check(s) failed
+---
+> [ok] mutant acmp-sequence-id-never-advances (acmp, acmp): 18 check(s) failed
+376c376
+< [ok] mutant acmp-no-duplicate (acmp, acmpwalk): 52 check(s) failed
+---
+> [ok] mutant acmp-no-duplicate (acmp, acmpwalk): 53 check(s) failed
+382c382
+< [ok] mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk): 3 check(s) failed
+---
+> [ok] mutant acmp-delay-resends-the-old-probe (acmp, acmpwalk): 5 check(s) failed
+472c472
+< [ok] mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 5 check(s) failed
+---
+> [ok] mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 6 check(s) failed
+482c482
+< [ok] mutant acmp-departing-keeps-aging (acmp, acmpwalk): 3 check(s) failed
+---
+> [ok] mutant acmp-departing-keeps-aging (acmp, acmpwalk): 4 check(s) failed
+484c484
+< [ok] mutant acmp-no-aging (acmp, acmpwalk): 6 check(s) failed
+---
+> [ok] mutant acmp-no-aging (acmp, acmpwalk): 9 check(s) failed
+574c574
+< [ok] mutant acmp-bind-reads-the-clock-twice (acmp): 2 check(s) failed
+---
+> [ok] mutant acmp-bind-reads-the-clock-twice (acmp): 3 check(s) failed
+576,591c576,591
+< [ok] mutant acmp-get-rx-state-reads-the-clock (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C1 GET_RX_STATE -> response, interface 0
+< [ok] mutant acmp-probe-response-reads-the-clock-twice (acmp): 2 check(s) failed
+<     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+< [ok] mutant acmp-unbind-reads-the-clock (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0
+< [ok] mutant acmp-talker-reads-the-clock (acmp): 4 check(s) failed
+<     first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C4 talker command -> response, interface 0
+< [ok] mutant acmp-expiry-reads-the-clock-twice (acmp): 4 check(s) failed
+<     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0
+< [ok] mutant acmp-available-reads-the-clock-twice (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0
+< [ok] mutant acmp-departing-samples-the-grandmaster (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0
+< [ok] mutant acmp-aging-samples-the-grandmaster (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+---
+> [ok] mutant acmp-get-rx-state-reads-the-clock (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.CommandPortBudgets: GET_RX_STATE needs no clock
+> [ok] mutant acmp-probe-response-reads-the-clock-twice (acmp): 3 check(s) failed
+>     first: [FAIL] AcmpCore.CommandPortBudgets: successful probe response starts one reservation timer
+> [ok] mutant acmp-unbind-reads-the-clock (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.CommandPortBudgets: UNBIND needs no clock
+> [ok] mutant acmp-talker-reads-the-clock (acmp): 5 check(s) failed
+>     first: [FAIL] AcmpCore.CommandPortBudgets: talker response needs no clock
+> [ok] mutant acmp-expiry-reads-the-clock-twice (acmp): 9 check(s) failed
+>     first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+> [ok] mutant acmp-available-reads-the-clock-twice (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.DiscoveryPortBudgets: AVAILABLE starts one discovery deadline
+> [ok] mutant acmp-departing-samples-the-grandmaster (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.DiscoveryPortBudgets: DEPARTING needs no grandmaster
+> [ok] mutant acmp-aging-samples-the-grandmaster (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.DiscoveryPortBudgets: aging needs no grandmaster
+602,609c602,609
+< [ok] mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0
+< [ok] mutant acmp-retry-samples-the-grandmaster (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY -> TMR_DELAY armed, interface 0
+< [ok] mutant acmp-delay-reads-the-clock-again (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0
+< [ok] mutant acmp-no-tk-samples-the-grandmaster (acmp): 1 check(s) failed
+<     first: [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK -> TMR_DELAY armed, interface 0
+---
+> [ok] mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RESP2
+> [ok] mutant acmp-retry-samples-the-grandmaster (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RETRY
+> [ok] mutant acmp-delay-reads-the-clock-again (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+> [ok] mutant acmp-no-tk-samples-the-grandmaster (acmp): 2 check(s) failed
+>     first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in SETTLED_NO_RSV
+620c620
+< [ok] mutant acmp-discovered-probing-stays-passive (acmp): 1 check(s) failed
+---
+> [ok] mutant acmp-discovered-probing-stays-passive (acmp): 2 check(s) failed
+622c622
+< [ok] mutant acmp-grandmaster-read-twice (acmp, acmp): 6 check(s) failed
+---
+> [ok] mutant acmp-grandmaster-read-twice (acmp, acmp): 8 check(s) failed
+674c674
+< [ok] mutant acmp-probe-timer-before-its-send (acmp, acmp): 12 check(s) failed
+---
+> [ok] mutant acmp-probe-timer-before-its-send (acmp, acmp): 16 check(s) failed
+676c676
+< [ok] mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 4 check(s) failed
+---
+> [ok] mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 6 check(s) failed
+729c729
+<     first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to another talker admits it
+---
+>     first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 re-binding emits one admission
+735c735
+<     first: [FAIL] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens: A29 a sink the store resets is withdrawn at the next open
+---
+>     first: [FAIL] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens: A29 opening after reset emits one withdrawal
+827c827
+<     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 500
+---
+>     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe base interval
+829c829
+<     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 100
+---
+>     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe interval variation
+831c831
+<     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 30000
+---
+>     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: announce base interval
+833c833
+<     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 2000
+---
+>     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: announce interval variation
+835c835
+<     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed:     Which is: 511
+---
+>     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: clock seed spans the probe interval
+883c883
+<     first: [FAIL] MaapCore.InitAndPreferredRangeBounds: Expected: false
+---
+>     first: [FAIL] MaapCore.InitAndPreferredRangeBounds: range past pool end is refused
+885c885
+<     first: [FAIL] MaapCore.ReleaseLossAndRetry: PortOperational invalidates acquired address
+---
+>     first: [FAIL] MaapCore.ReleaseLossAndRetry: loss of PortOperational invalidates the acquired address
+899c899
+<     first: [FAIL] MaapCore.QueueBoundAndWithdrawal:     Which is: 0
+---
+>     first: [FAIL] MaapCore.QueueBoundAndWithdrawal: release clears pending output
+975c975
+<     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: Expected: true
+---
+>     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: accepted ANNOUNCE publishes allocation

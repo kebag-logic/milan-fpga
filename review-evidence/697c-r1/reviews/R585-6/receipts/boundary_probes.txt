@@ -1,0 +1,28 @@
+== Q1 nothing planted (control): rc=0 (38 s)
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS
+== Q2 adp_mbx.c includes a firmware-tree symlink to the stack's examples/rv32/include/string.h: rc=1 (37 s)
+  [FAIL] firmware rv32: adp/port_string.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers
+ctrl_boundary: 52 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (952 configurations, 953 preprocessed), and every Makefile builder's pin prerequisites; 4 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q3 srp_mbx.c includes the stack's include/../examples/rv32/include/string.h: rc=1 (33 s)
+  [FAIL] firmware rv32: srp/srp_mbx.c includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 2 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q4 sw/firmware/ctrl/port/stdbool.h (including ctrl_debug.h) shadows the C library's for the stack: rc=1 (36 s)
+  [FAIL] firmware rv32: port/stdbool.h does not preprocess: #pragma once in main file [-Werror]
+ctrl_boundary: 52 firmware units (25 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (954 configurations, 955 preprocessed), and every Makefile builder's pin prerequisites; 33 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q5 sw/firmware/ctrl_nvm/nvm_store.c includes the stack's examples/rv32/include/string.h: rc=0 (37 s)
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS
+   restored: clean
+== Q6 nothing planted after the probes (control): rc=0 (31 s)
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS

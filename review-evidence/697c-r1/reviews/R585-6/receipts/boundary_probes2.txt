@@ -1,0 +1,15 @@
+== Q7 sw/firmware/ctrl_nvm/plat/stdbool.h shadows the C library's in the image build: rc=0 (32 s)
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS
+third_party/tsn-c-stack/src/adp.c rc 0 reads: ['$REVIEWS/r585-6-697c/sw/firmware/ctrl_nvm/plat/stdbool.h']
+third_party/tsn-c-stack/src/maap.c rc 0 reads: ['$REVIEWS/r585-6-697c/sw/firmware/ctrl_nvm/plat/stdbool.h']
+   restored: clean
+== Q8 sw/firmware/ctrl_nvm/stdbool.h shadows the C library's (comparison): rc=1 (32 s)
+  [FAIL] tests: the stack's tests/test_port.cpp includes sw/firmware/ctrl_nvm/stdbool.h
+  [FAIL] tests: the stack's tests/acmp_fake.hpp includes sw/firmware/ctrl_nvm/stdbool.h
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 19 finding(s)
+ctrl_boundary: FAIL
+   restored: clean
+== Q9 nothing planted after the probes (control): rc=0 (37 s)
+ctrl_boundary: 51 firmware units (24 also as C++) and the stack's sources, headers and tests, host and RV32, in every configuration of 26 build modes from 23791 recorded invocations, 5 shapes and 2 mailbox contracts (948 configurations, 949 preprocessed), and every Makefile builder's pin prerequisites; 0 finding(s)
+ctrl_boundary: PASS
