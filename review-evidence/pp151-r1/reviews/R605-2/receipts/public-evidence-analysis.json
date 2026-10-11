@@ -1,0 +1,67 @@
+{
+  "published_commit": "bda25e67cb4df99a837ccb21383917c90b81a1ad",
+  "recorded_source_head": "ef86ea848dbfb0d869108a1987accb203a17474d",
+  "rtl_diff_previous_head_to_current": "",
+  "netlist_record_lines": 57,
+  "netlist_records_identical": true,
+  "vendor_netlist_summary": "base default rc=0 secs=3767 size=17376531 sha=e5c3b98b2840359cfae10bb75623e6910a9c2f9a1580b16e96dc5161926fe19c roms=518b900c4a565090 23cc67eeadc7ecad \nhead default rc=0 secs=172 size=17376531 sha=e5c3b98b2840359cfae10bb75623e6910a9c2f9a1580b16e96dc5161926fe19c roms=518b900c4a565090 23cc67eeadc7ecad \nbase 9x9 rc=0 secs=179 size=17882923 sha=56bbaf5b5837b440c5bf1d001b43748a493fe5b7e1961355fda19270b6e04014 roms=518b900c4a565090 23cc67eeadc7ecad \nhead 9x9 rc=0 secs=155 size=17882923 sha=56bbaf5b5837b440c5bf1d001b43748a493fe5b7e1961355fda19270b6e04014 roms=518b900c4a565090 23cc67eeadc7ecad \n",
+  "campaign_rcs": {
+    "base": {
+      "camp_acmp": 0,
+      "camp_ctr": 0,
+      "camp_aecp": 0,
+      "camp_adp_engine": 0,
+      "camp_name_state": 0,
+      "camp_notify": 0,
+      "camp_srp_top": 0,
+      "camp_d3": 0,
+      "camp_maap": 0,
+      "camp_nvm_figures": 0,
+      "camp_name_wr": 0,
+      "camp_aecp_dispatch": 0,
+      "camp_srp_admission": 0,
+      "camp_gsi": 0,
+      "camp_desc_mem_guard": 0
+    },
+    "head": {
+      "camp_acmp": 0,
+      "camp_ctr": 0,
+      "camp_aecp": 0,
+      "camp_adp_engine": 0,
+      "camp_name_state": 0,
+      "camp_notify": 0,
+      "camp_srp_top": 0,
+      "camp_d3": 0,
+      "camp_maap": 0,
+      "camp_nvm_figures": 0,
+      "camp_name_wr": 0,
+      "camp_aecp_dispatch": 0,
+      "camp_srp_admission": 0,
+      "camp_gsi": 0,
+      "camp_desc_mem_guard": 0
+    }
+  },
+  "run_suites_records": {
+    "base": "UPC MAP GATE: PASS (61 engine constants, 89 entry points, all agree)\nM9 OPCODE GATE SELFTEST: 9 of 9 PASS\nM9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)\nPASS acmp_listener (3167 checks: 3167 PASS, 0 FAIL)\nPASS acmp_nvm (388 checks: 388 PASS, 0 FAIL)\nPASS acmp_talker (1376 checks: 1376 PASS, 0 FAIL)\nPASS adp_engine (1359 checks: 1359 PASS, 0 FAIL)\nPASS aecp_notify (67 checks: 67 PASS, 0 FAIL)\nPASS ca_originator (16 checks: 16 PASS, 0 FAIL)\nPASS desc_mem_guard (78 checks: 78 PASS, 0 FAIL)\nPASS desc_store (586 checks: 586 PASS, 0 FAIL)\nPASS dispatch (211 checks: 211 PASS, 0 FAIL)\nPASS dyn_state (118 checks: 118 PASS, 0 FAIL)\nPASS event_router (81 checks: 81 PASS, 0 FAIL)\nPASS lsn_admit (18 checks: 18 PASS, 0 FAIL)\nPASS maap (196 checks: 196 PASS, 0 FAIL)\nPASS name_state (1236 checks: 1236 PASS, 0 FAIL)\nPASS nvm_port (1219 checks: 1219 PASS, 0 FAIL)\nPASS originator (107 checks: 107 PASS, 0 FAIL)\nPASS pp_top (10470 checks: 10470 PASS, 0 FAIL)\nPASS prng (76 checks: 76 PASS, 0 FAIL)\nPASS release_merge (18 checks: 18 PASS, 0 FAIL)\nPASS resp_buf (64 checks: 64 PASS, 0 FAIL)\nPASS rx_slots (130 checks: 130 PASS, 0 FAIL)\nPASS rx_validator (555 checks: 555 PASS, 0 FAIL)\nPASS scoreboard (3705 checks: 3705 PASS, 0 FAIL)\nPASS side_port (368 checks: 368 PASS, 0 FAIL)\nPASS srp_admission (991231 checks: 991231 PASS, 0 FAIL)\nPASS srp_decoder (190 checks: 190 PASS, 0 FAIL)\nPASS srp_encoder (581 checks: 581 PASS, 0 FAIL)\nPASS srp_stream_fsms (1347 checks: 1347 PASS, 0 FAIL)\nPASS srp_top (8656 checks: 8656 PASS, 0 FAIL)\nPASS timer_map (1360 checks: 1360 PASS, 0 FAIL)\nPASS timer_service (48 checks: 48 PASS, 0 FAIL)\nPASS tx_arbiter (66 checks: 66 PASS, 0 FAIL)\nPASS tx_slots (95 checks: 95 PASS, 0 FAIL)\nPASS ucpu (437 checks: 437 PASS, 0 FAIL)\nsuites: 1029620 checks total, 0 failing\n",
+    "head": "UPC MAP GATE: PASS (61 engine constants, 89 entry points, all agree)\nM9 OPCODE GATE SELFTEST: 9 of 9 PASS\nM9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)\nPASS acmp_listener (3167 checks: 3167 PASS, 0 FAIL)\nPASS acmp_nvm (388 checks: 388 PASS, 0 FAIL)\nPASS acmp_talker (1376 checks: 1376 PASS, 0 FAIL)\nPASS adp_engine (1359 checks: 1359 PASS, 0 FAIL)\nPASS aecp_notify (67 checks: 67 PASS, 0 FAIL)\nPASS ca_originator (16 checks: 16 PASS, 0 FAIL)\nPASS desc_mem_guard (78 checks: 78 PASS, 0 FAIL)\nPASS desc_store (586 checks: 586 PASS, 0 FAIL)\nPASS dispatch (211 checks: 211 PASS, 0 FAIL)\nPASS dyn_state (118 checks: 118 PASS, 0 FAIL)\nPASS elab_guards (155 checks: 155 PASS, 0 FAIL)\nPASS event_router (81 checks: 81 PASS, 0 FAIL)\nPASS lsn_admit (18 checks: 18 PASS, 0 FAIL)\nPASS maap (196 checks: 196 PASS, 0 FAIL)\nPASS name_state (1236 checks: 1236 PASS, 0 FAIL)\nPASS nvm_port (1219 checks: 1219 PASS, 0 FAIL)\nPASS originator (107 checks: 107 PASS, 0 FAIL)\nPASS pp_top (10470 checks: 10470 PASS, 0 FAIL)\nPASS prng (76 checks: 76 PASS, 0 FAIL)\nPASS release_merge (18 checks: 18 PASS, 0 FAIL)\nPASS resp_buf (64 checks: 64 PASS, 0 FAIL)\nPASS rx_slots (130 checks: 130 PASS, 0 FAIL)\nPASS rx_validator (555 checks: 555 PASS, 0 FAIL)\nPASS scoreboard (3705 checks: 3705 PASS, 0 FAIL)\nPASS side_port (368 checks: 368 PASS, 0 FAIL)\nPASS srp_admission (991231 checks: 991231 PASS, 0 FAIL)\nPASS srp_decoder (190 checks: 190 PASS, 0 FAIL)\nPASS srp_encoder (581 checks: 581 PASS, 0 FAIL)\nPASS srp_stream_fsms (1347 checks: 1347 PASS, 0 FAIL)\nPASS srp_top (8656 checks: 8656 PASS, 0 FAIL)\nPASS timer_map (1360 checks: 1360 PASS, 0 FAIL)\nPASS timer_service (48 checks: 48 PASS, 0 FAIL)\nPASS tx_arbiter (66 checks: 66 PASS, 0 FAIL)\nPASS tx_slots (95 checks: 95 PASS, 0 FAIL)\nPASS ucpu (437 checks: 437 PASS, 0 FAIL)\nsuites: 1029775 checks total, 0 failing\n"
+  },
+  "round1_guard_bench_last_lines": {
+    "head-verilator-yosys-sv2v0.0.13.log": [
+      "elab guards: 155 checks: 155 PASS, 0 FAIL",
+      "make: Leaving directory '<lane>/tb/elab_guards'"
+    ],
+    "head-xelab-synth.log": [
+      "ELAB  synth protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: elaborates",
+      "elab guards: 155 checks: 155 PASS, 0 FAIL"
+    ],
+    "head-verilator-yosys-sv2v0.0.12.log": [
+      "elab guards: 155 checks: 155 PASS, 0 FAIL",
+      "make: Leaving directory '<lane>/tb/elab_guards'"
+    ]
+  },
+  "round1_mutants_last_lines": {
+    "head-sv2v0.0.12.log": "elab guard mutants: 98 of 98 killed",
+    "head-sv2v0.0.13.log": "elab guard mutants: 98 of 98 killed",
+    "head-xelab-synth.log": "elab guard mutants: 14 of 14 killed"
+  }
+}

@@ -1,0 +1,1641 @@
+diff --git a/.github/workflows/hdl.yml b/.github/workflows/hdl.yml
+index 319bdd0..f5d02dd 100644
+--- a/.github/workflows/hdl.yml
++++ b/.github/workflows/hdl.yml
+@@ -111,3 +111,5 @@ jobs:
+           sudo install /tmp/sv2v/*/sv2v /usr/local/bin/
+       - name: Elaborate every top off-vendor
+         run: ./syn/yosys/run.sh
++      - name: Grade elaboration guards with the installed sv2v and yosys
++        run: python3 -B tb/elab_guards/guards.py --frontend yosys --jobs 4
+diff --git a/docs/diagrams/21-integration-faces.svg b/docs/diagrams/21-integration-faces.svg
+index 412cf86..f639bbc 100644
+--- a/docs/diagrams/21-integration-faces.svg
++++ b/docs/diagrams/21-integration-faces.svg
+@@ -50,7 +50,7 @@
+   <text x="464" y="620" font-size="11.5" fill="#4a5058">Derived localparams are internal, not integration overrides.</text>
+   <line x1="464" y1="636" x2="876" y2="636" stroke="#b9c4d4" stroke-width="1"/>
+   <text x="464" y="656" font-size="11.5" fill="#a03030">Use absolute ROM paths; relative paths use the run directory.</text>
+-  <text x="464" y="673" font-size="11.5" fill="#a03030">An over-large stream shape stops the build with $error.</text>
++  <text x="464" y="673" font-size="11.5" fill="#a03030">An over-large stream shape stops the build with $fatal.</text>
+   <text x="464" y="690" font-size="11.5" fill="#a03030">The two memory bases are compile-time, never registers.</text>
+ 
+   <!-- ===== LEFT ===== -->
+diff --git a/docs/guides/hdl-engineer.md b/docs/guides/hdl-engineer.md
+index 00ab054..7c598b0 100644
+--- a/docs/guides/hdl-engineer.md
++++ b/docs/guides/hdl-engineer.md
+@@ -64,6 +64,43 @@ Directory-to-document mapping and the submodule consumption contract are in
+ | CDC | one synchroniser is inside these modules, on purpose: the two flops (`btn_q1_r`, `btn_q2_r`) that take `identify_button_i` into `KL_aecp_notify`, built only with `EN_IDENTIFY_NOTIF_P` = 1 (the ruling on issue #80; [integrator guide](integrator.md) §1 and §6, [02 §2](../architecture/02_interfaces.md) rule 3). Every other input that crosses a domain (`link_up_i`, `gm_change_i`) is annotated "2FF-synced upstream" — that synchroniser is the integrator's. |
+ | Citations | a banner names the clause it implements in plain text: `(Milan §5.6.3)`, `(IEEE 1722.1 §9.3.5.3.3)`. |
+ | Single source | timing values come from [`08_timing.md`](../architecture/08_timing.md) `F08.1` and parameter defaults from [`01_overview.md`](../architecture/01_overview.md) `F01.5`. A localparam cites the `T-…` or `P-…` ID it implements. A copied constant is a defect: it diverges in silence. |
++| Elaboration guards | a guard on parameters is `if (<condition>) begin : <name> $fatal(1, "<message>"); end` at module scope: never `$error`, `$warning` or `$info`, and never inside an `initial` block. Every guard has a violating case and its nearest passing case in [`tb/elab_guards/guards.py`](../../tb/elab_guards/guards.py), whose inventory fails a guard without one. Why, measured: [§2.1](#21-elaboration-guards-stop-every-front-end). |
++
++### 2.1 Elaboration guards stop every front end
++
++A guard exists to stop the build, and whether a severity task stops a build depends on
++the front end. Measured on a one-guard probe, each form violating, through every front end
++the project uses (issue #151). Every form elaborates when its condition is false.
++
++| Violating guard | Verilator 5.050 lint | sv2v 0.0.12 + Yosys 0.66 | sv2v 0.0.13 + Yosys 0.66 | Vivado 2026.1 xelab | Vivado 2026.1 `synth_design` |
++|---|---|---|---|---|---|
++| module scope `$fatal(1, ...)` | refused: `%Warning-USERFATAL` | refused: `ERROR: FATAL: .` | refused: `` ERROR: System task `$finish' executed. `` | refused: `[VRFC 10-8279] $fatal` | refused: `[Synth 8-6058] Synth Error` |
++| module scope `$error` | refused: `%Warning-USERERROR` | refused: `ERROR: <message>.` | **elaborates** | refused: `[XSIM 43-4462] $error` | refused: `[Synth 8-6058] Synth Error` |
++| module scope `$warning` | refused: `%Warning-USERWARN` | **elaborates** | **elaborates** | **elaborates** | **elaborates** |
++| module scope `$info` | **elaborates** | **elaborates** | **elaborates** | **elaborates** | **elaborates** |
++| `$fatal` in an `initial` block | **elaborates** | refused: ``Can't resolve task name `$fatal'`` | refused: `` System task `$finish' executed. `` | **elaborates** | refused: `[Synth 8-6058] Synth Error` |
++
++sv2v 0.0.12 and Yosys 0.66 are the versions the reference platform's CI pins; the
++processor's own hosted portability job installs the latest sv2v, 0.0.13 when measured.
++That column is the reason for `$fatal`: sv2v 0.0.12 hands a `$error` to Yosys, which
++refuses it, but sv2v 0.0.13 lowers it to an `initial $display`, which Yosys never runs.
++A `$fatal` is lowered to a `$display` and a `$finish`, which Yosys does run, so it is
++refused whichever sv2v the job pulls. Module scope is required by the first and fourth
++columns: Verilator lint and xelab never run an `initial` block, so a guard there builds.
++
++Three things the table does not show. Verilator reports `$fatal`, `$error` and `$warning`
++as warnings (`USERFATAL`, `USERERROR`, `USERWARN`); `$info` is an `-Info` note with exit
++status 0. A fatal guard stops a lint by its exit status (`scripts/lint_hdl.sh`, or any run without
++`-Wno-fatal`); a `-Wno-fatal` simulation build carries every severity past, and the lint is
++the gate. Yosys 0.66 prints a `$fatal(1, ...)` as `FATAL: .`, taking the finish number for
++the text, so its words locate the guard but do not give its reason; Verilator's do. And
++Vivado's synthesis words are the same for `$fatal` and `$error`.
++
++The guard bench pins both sides of each selected boundary and kills a tightened and
++a loosened condition for every guard, by name in every selected front end. Its
++recorded scratch contexts expose otherwise masked derived limits without changing
++the guard conditions. Deadline value 1 is tested with only its measured `UNSIGNED`
++comparisons accepted in lint; all other lint warnings and errors still fail that case.
+ 
+ ---
+ 
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index c494912..b7f99f4 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -111,7 +111,7 @@ Three traps worth stating plainly:
+    run directory** — not against the source file. That is the entire reason they are
+    parameters. Hand over absolute paths.
+ 2. **An over-large stream shape stops the build.** The top carries elaboration guards
+-   over the timer-slot map and the owner-tag space; exceeding either raises `$error`
++   over the timer-slot map and the owner-tag space; exceeding either stops elaboration with `$fatal`
+    rather than silently aliasing a timer slot. A too-large shape is a build failure, not
+    a field fault.
+ 3. **A one-stream shape is supported.** Index widths are clamped so a shape of one does
+diff --git a/hdl/README.md b/hdl/README.md
+index 5407ada..109474e 100644
+--- a/hdl/README.md
++++ b/hdl/README.md
+@@ -59,6 +59,10 @@ it with `python3 scripts/gen_matrix.py`.
+ 5. **Spec citations in headers**: every module banner names the clause(s) it
+    implements — `(Milan §…)`, `(IEEE 1722.1 §…)` — in the same plain-text form
+    the documents use.
++6. **Elaboration guards are module-scope `$fatal(1, ...)`**, the one form that
++   stops Verilator lint, sv2v + Yosys and Vivado alike, and each has its cases in
++   `tb/elab_guards/`. The measurement is the
++   [HDL engineer guide §2.1](../docs/guides/hdl-engineer.md#21-elaboration-guards-stop-every-front-end).
+ 
+ ## Consumption contract (submodule)
+ 
+diff --git a/hdl/acmp/KL_acmp_nvm_shadow.sv b/hdl/acmp/KL_acmp_nvm_shadow.sv
+index f83080f..62ce17a 100644
+--- a/hdl/acmp/KL_acmp_nvm_shadow.sv
++++ b/hdl/acmp/KL_acmp_nvm_shadow.sv
+@@ -535,14 +535,14 @@ module KL_acmp_nvm_shadow
+ 
+   // ---- the read phase's deadline (issue #93, S3) ---------------------------
+   if (RETRY_BACKOFF_CYC_P < 1) begin : g_backoff_check
+-    $error("KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
++    $fatal(1, "KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
+   end
+ 
+   //! zero clocks would wrap RS_TMO_CYC_P - 1 below and silently turn the
+   //! deadline into 2^32 clocks (the top's default is CLK_HZ_P / 50, 0 below
+   //! 50 Hz)
+   if (RS_TMO_CYC_P < 1) begin : g_rs_tmo_check
+-    $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
++    $fatal(1, "KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+   end
+ 
+   //! Consecutive cycles the read phase waits on the port without the event
+diff --git a/hdl/acmp/KL_pp_acmp_listener.sv b/hdl/acmp/KL_pp_acmp_listener.sv
+index 66cd356..fe932a3 100644
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -342,9 +342,9 @@ module KL_pp_acmp_listener
+   //! raising this trigger.
+   logic                bnd_was_r;
+ 
+-  initial begin : parameter_checks
+-    if (STRM_TIMEOUT_CYC_P == 0)
+-      $fatal(1, "STRM_TIMEOUT_CYC_P must be greater than zero");
++  //! at module scope: Verilator lint and xelab never see a guard in an initial block
++  if (STRM_TIMEOUT_CYC_P == 0) begin : g_strm_tmo_check
++    $fatal(1, "STRM_TIMEOUT_CYC_P must be greater than zero");
+   end
+ 
+   // fetched ACMPDU fields (zeroed at accept; big-endian shift-in)
+diff --git a/hdl/aecp/KL_aecp_desc_store.sv b/hdl/aecp/KL_aecp_desc_store.sv
+index f70cb00..e06cb8d 100644
+--- a/hdl/aecp/KL_aecp_desc_store.sv
++++ b/hdl/aecp/KL_aecp_desc_store.sv
+@@ -260,17 +260,17 @@ module KL_aecp_desc_store #(
+ 
+   // ---- elaboration guards -------------------------------------------------
+   if ((LINE_BYTES_P % 8) != 0) begin : gen_g_line_align
+-    $error("LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)",
++    $fatal(1, "LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)",
+            LINE_BYTES_P);
+   end
+   if ((LINE_LANES_C > 511) || ((IDX_ENTRIES_P * 2) > 511)) begin : gen_g_beats
+-    $error("a burst exceeds the 9-bit mem_req_beats_o field");
++    $fatal(1, "a burst exceeds the 9-bit mem_req_beats_o field");
+   end
+   if ((NAME_ENTRIES_P == 0) || (NAME_ENTRIES_P > 1024)) begin : gen_g_names
+-    $error("NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
++    $fatal(1, "NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
+   end
+   if (DESC_BASE_P[2:0] != 3'd0) begin : gen_g_base_align
+-    $error("DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
++    $fatal(1, "DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
+   end
+ 
+   // =======================================================================
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 52b6fec..9371c3d 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -941,12 +941,12 @@ module KL_aecp_engine
+   localparam int unsigned RESP_CURSOR_BYTES_C = 1024;
+ 
+   if (FRAME_MAX_C > TX_OVERSIZE_BYTES_P) begin : gen_g_frame_fit
+-    $error("a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)",
++    $fatal(1, "a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)",
+            FRAME_MAX_C, TX_OVERSIZE_BYTES_P);
+   end
+ 
+   if (RESP_BUF_C < ucpu_pkg::RESP_CAP_C) begin : gen_g_resp_cap_fit
+-    $error("response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)",
++    $fatal(1, "response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)",
+            RESP_BUF_C, ucpu_pkg::RESP_CAP_C);
+   end
+ 
+@@ -961,15 +961,15 @@ module KL_aecp_engine
+   localparam int unsigned LINE_MIN_BYTES_C = 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C - 16;
+   localparam int unsigned LINE_MAX_BYTES_C = RESP_CURSOR_BYTES_C - 16;
+   if ((LINE_BYTES_P % 8) != 0) begin : gen_g_line_step
+-    $error("DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)",
++    $fatal(1, "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)",
+            LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+   end
+   if (RESP_BUF_C < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C) begin : gen_g_gamap_page_fit
+-    $error("DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
++    $fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
+            LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg::GAMAP_PAGE_MAX_C);
+   end
+   if (RESP_BUF_C > RESP_CURSOR_BYTES_C) begin : gen_g_line_ceiling
+-    $error("DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor",
++    $fatal(1, "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor",
+            LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+   end
+ 
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 8074f72..fe9aba7 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -364,7 +364,7 @@ module KL_aecp_notify
+   localparam int unsigned N_ROW_C = N_CTRL_P * N_IF_P;
+   localparam int unsigned OIX_W_C = (N_CTRL_P > 1) ? $clog2(N_CTRL_P) : 1;
+   if ((N_IF_P > 1) && (((N_IF_P & (N_IF_P - 1)) != 0) || (N_CTRL_P < 2))) begin : g_rows_guard
+-    $error("KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1",
++    $fatal(1, "KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1",
+            N_IF_P, N_CTRL_P);
+   end
+   //! {eid, mac, seq} = 128 bits x N_ROW_C, read at three indices: the walk
+diff --git a/hdl/aecp/KL_aecp_nvm_writer.sv b/hdl/aecp/KL_aecp_nvm_writer.sv
+index 512651c..5a94198 100644
+--- a/hdl/aecp/KL_aecp_nvm_writer.sv
++++ b/hdl/aecp/KL_aecp_nvm_writer.sv
+@@ -312,18 +312,18 @@ module KL_aecp_nvm_writer #(
+       || (N_STREAM_IN_P < 1) || (N_STREAM_IN_P > 16)
+       || (N_STREAM_OUT_P < 1) || (N_STREAM_OUT_P > 16)
+       || (N_NAME_P < 1) || (N_NAME_P > 128)) begin : g_shape_check
+-    $error("KL_aecp_nvm_writer: a group outgrows its record-id block");
++    $fatal(1, "KL_aecp_nvm_writer: a group outgrows its record-id block");
+   end
+   if (RETRY_BACKOFF_CYC_P < 1) begin : g_backoff_check
+-    $error("KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
++    $fatal(1, "KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
+   end
+   //! zero would wrap RS_TMO_CYC_P - 1 below into a 2^32-clock deadline
+   if (RS_TMO_CYC_P < 1) begin : g_rs_tmo_check
+-    $error("KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
++    $fatal(1, "KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
+   end
+   //! the same wrap below, for the aggregate's RS_AGG_CYC_P - 1
+   if (RS_AGG_CYC_P < 1) begin : g_rs_agg_check
+-    $error("KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
++    $fatal(1, "KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+   end
+ 
+   // ---- constants ---------------------------------------------------------------
+diff --git a/hdl/aecp/KL_aecp_resp_buf.sv b/hdl/aecp/KL_aecp_resp_buf.sv
+index 1ff7afb..32a8240 100644
+--- a/hdl/aecp/KL_aecp_resp_buf.sv
++++ b/hdl/aecp/KL_aecp_resp_buf.sv
+@@ -191,14 +191,14 @@ module KL_aecp_resp_buf #(
+ 
+   // ---- elaboration guards --------------------------------------------------
+   if (RESP_BASE_P[2:0] != 3'd0) begin : gen_g_base_align
+-    $error("RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
++    $fatal(1, "RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
+   end
+   if (RESP_BYTES_P <= 16) begin : gen_g_size
+-    $error("RESP_BYTES_P=%0d leaves no payload above the header record",
++    $fatal(1, "RESP_BYTES_P=%0d leaves no payload above the header record",
+            RESP_BYTES_P);
+   end
+   if (LANES_C > 511) begin : gen_g_beats
+-    $error("a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field",
++    $fatal(1, "a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field",
+            LANES_C);
+   end
+ 
+diff --git a/hdl/aecp/KL_aecp_ucpu.sv b/hdl/aecp/KL_aecp_ucpu.sv
+index 2fbcafb..b93f1e0 100644
+--- a/hdl/aecp/KL_aecp_ucpu.sv
++++ b/hdl/aecp/KL_aecp_ucpu.sv
+@@ -294,7 +294,7 @@ module KL_aecp_ucpu
+   //! 1722.1-2021 §7.4.76.1 still holds GET_DYNAMIC_INFO to 524.
+   if ((RESP_D8_CAP_BYTES_P < RESP_CAP_C)
+       || (RESP_D8_CAP_BYTES_P > 1024)) begin : gen_g_d8_cap
+-    $error("RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)",
++    $fatal(1, "RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)",
+            RESP_D8_CAP_BYTES_P, RESP_CAP_C);
+   end
+   logic [10:0] append_cap_w;
+diff --git a/hdl/packet_engine/KL_pp_nvm_port.sv b/hdl/packet_engine/KL_pp_nvm_port.sv
+index 10850e5..9c78327 100644
+--- a/hdl/packet_engine/KL_pp_nvm_port.sv
++++ b/hdl/packet_engine/KL_pp_nvm_port.sv
+@@ -186,7 +186,7 @@ module KL_pp_nvm_port #(
+   //! 0 would make every owed cycle a deadline and 2^31 or more cannot be
+   //! counted at the width above
+   if ((MEM_TIMEOUT_CYC_P < 1) || (MEM_TIMEOUT_CYC_P > 32'h7FFF_FFFF)) begin : g_tmo_check
+-    $error("KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647",
++    $fatal(1, "KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647",
+            MEM_TIMEOUT_CYC_P);
+   end
+   //! above it the port would ask the device for a WRITE of 8 + payload bytes
+diff --git a/hdl/packet_engine/KL_pp_originator.sv b/hdl/packet_engine/KL_pp_originator.sv
+index 0aaeb6e..c002a03 100644
+--- a/hdl/packet_engine/KL_pp_originator.sv
++++ b/hdl/packet_engine/KL_pp_originator.sv
+@@ -146,7 +146,7 @@ module KL_pp_originator #(
+   localparam int unsigned IFL_N_C = 32'd1 << IFL_AW_C;                  // 16
+ 
+   if (INFLIGHT_P < 32'd1 || INFLIGHT_P > IFL_N_C) begin : g_inflight_check
+-    $error("KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
++    $fatal(1, "KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
+   end
+ 
+   // ------------------------------------------------------- inflight table
+diff --git a/hdl/packet_engine/KL_pp_release_merge.sv b/hdl/packet_engine/KL_pp_release_merge.sv
+index c99648b..00a30dd 100644
+--- a/hdl/packet_engine/KL_pp_release_merge.sv
++++ b/hdl/packet_engine/KL_pp_release_merge.sv
+@@ -35,7 +35,7 @@ module KL_pp_release_merge #(
+ );
+ 
+   if (N_SLOTS_P < 1) begin : g_slot_count_check
+-    $error("KL_pp_release_merge: N_SLOTS_P must be positive");
++    $fatal(1, "KL_pp_release_merge: N_SLOTS_P must be positive");
+   end
+ 
+   logic [N_SLOTS_P-1:0] pending_r;
+diff --git a/hdl/srp/KL_srp_encoder.sv b/hdl/srp/KL_srp_encoder.sv
+index 0688656..40a99ee 100644
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -145,7 +145,7 @@ module KL_srp_encoder #(
+   localparam int unsigned WORST_BYTES_C = 15 + (4 * 6) + (DEPTH_P * 37)
+                                         + 73 + 2;
+   if (WORST_BYTES_C > TX_STD_BYTES_P) begin : g_depth_check
+-    $error("DEPTH_P drain cannot fit a standard TX slot");
++    $fatal(1, "DEPTH_P drain cannot fit a standard TX slot");
+   end
+ 
+   // ---- applications and attribute types (10 §2 / F10.8 constants) --------
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 554b201..dda6b54 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -873,15 +873,15 @@ module protocol_processor_top
+   //! transaction's interface_index and rx_if_index_i are two bits wide, but
+   //! only 1 and 2 are elaborated and graded (issue #69)
+   if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+-    $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++    $fatal(1, "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
+            N_AVB_IF_P);
+   end
+   if (TMR_SLOTS_C > (32'd1 << TMR_AW_C)) begin : gen_g_tmr_aw
+-    $error("F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d",
++    $fatal(1, "F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d",
+            TMR_AW_C, TMR_SLOTS_C);
+   end
+   if (TMR_MAP_C.srp_ls + N_STREAM_IN_P > TMR_SLOTS_C) begin : gen_g_tmr_fit
+-    $error("F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d",
++    $fatal(1, "F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d",
+            TMR_MAP_C.srp_ls + N_STREAM_IN_P, TMR_SLOTS_C);
+   end
+   if ((TMR_ADP_NOADP_BASE_C < TMR_ADP_ADV_BASE_C + N_AVB_IF_P)
+@@ -894,7 +894,7 @@ module protocol_processor_top
+       || (TMR_SRP_TK_BASE_C  < TMR_SRP_CAD_BASE_C   + PP_SRP_CAD_SLOTS_C)
+       || (TMR_SRP_LS_BASE_C  < TMR_SRP_TK_BASE_C    + N_STREAM_OUT_P))
+   begin : gen_g_tmr_overlap
+-    $error("F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d",
++    $fatal(1, "F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d",
+            N_STREAM_IN_P, N_STREAM_OUT_P);
+   end
+   if ((OWN_ADP_END_C   > 32'(PP_OWN_LSTN_C))
+@@ -908,7 +908,7 @@ module protocol_processor_top
+       || (32'(PP_OWN_LOCK_C) + 32'd1 > 32'(PP_OWN_IDENT_C))
+       || (32'(PP_OWN_IDENT_C) + PP_OWN_IDENT_N_C > 32'h0000_00C0)  // originator tag nibble
+       || (OWN_MAAP_END_C   > 32'd256)) begin : gen_g_owner_overlap
+-    $error("F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)",
++    $fatal(1, "F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)",
+            N_STREAM_IN_P, N_STREAM_OUT_P);
+   end
+ 
+diff --git a/tb/adp_engine/mutations/if-top-range-floor-dropped.patch b/tb/adp_engine/mutations/if-top-range-floor-dropped.patch
+index d0b04bd..61fe27e 100644
+--- a/tb/adp_engine/mutations/if-top-range-floor-dropped.patch
++++ b/tb/adp_engine/mutations/if-top-range-floor-dropped.patch
+@@ -6,6 +6,6 @@
+    //! only 1 and 2 are elaborated and graded (issue #69)
+ -  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+ +  if (N_AVB_IF_P > 32'd2) begin : gen_g_avb_if
+-     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++     $fatal(1, "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
+             N_AVB_IF_P);
+    end
+diff --git a/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch b/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch
+index 82051fd..e9e7793 100644
+--- a/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch
++++ b/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch
+@@ -6,6 +6,6 @@
+    //! only 1 and 2 are elaborated and graded (issue #69)
+ -  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+ +  if ((N_AVB_IF_P < 32'd2) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+-     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++     $fatal(1, "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
+             N_AVB_IF_P);
+    end
+diff --git a/tb/adp_engine/mutations/if-top-range-unguarded.patch b/tb/adp_engine/mutations/if-top-range-unguarded.patch
+index b31fb57..7441d22 100644
+--- a/tb/adp_engine/mutations/if-top-range-unguarded.patch
++++ b/tb/adp_engine/mutations/if-top-range-unguarded.patch
+@@ -6,6 +6,6 @@
+    //! only 1 and 2 are elaborated and graded (issue #69)
+ -  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+ +  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd3)) begin : gen_g_avb_if
+-     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++     $fatal(1, "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
+             N_AVB_IF_P);
+    end
+diff --git a/tb/elab_guards/Makefile b/tb/elab_guards/Makefile
+new file mode 100644
+index 0000000..b95dc2e
+--- /dev/null
++++ b/tb/elab_guards/Makefile
+@@ -0,0 +1,26 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++# Elaboration-guard suite - exit 0 = PASS. No model is built: every case is one
++# elaboration. Each guard in hdl/ must be refused, as a $fatal at its own line,
++# by Verilator lint and, when sv2v and yosys are on PATH, by Yosys; its nearest
++# passing boundary must elaborate (only the README's three deadline UNSIGNED
++# cases may warn); and no severity task in hdl/ may be missing from guards.py.
++VERILATOR ?= verilator
++JOBS ?= 4
++MUTANT_OUTPUT ?= /tmp/elab-guard-mutants
++
++run:
++	python3 -B guards.py --verilator "$(VERILATOR)" --jobs $(JOBS)
++
++# The two Vivado legs, xelab and synth_design -rtl, for whoever has Vivado on
++# PATH; slow (one synthesis elaboration per case), so not part of `run`
++vivado:
++	python3 -B guards.py --verilator "$(VERILATOR)" --jobs $(JOBS) \
++	    --frontend xsim --frontend synth
++
++# The bench's own proof: every guard's $error, $warning, initial-block, tightened
++# and loosened form, plus one defect per other check, all failed by name in scratch
++mutants:
++	python3 -B mutants.py --verilator "$(VERILATOR)" --output "$(MUTANT_OUTPUT)" \
++	    --jobs $(JOBS)
++
++.PHONY: run vivado mutants
+diff --git a/tb/elab_guards/README.md b/tb/elab_guards/README.md
+new file mode 100644
+index 0000000..2874763
+--- /dev/null
++++ b/tb/elab_guards/README.md
+@@ -0,0 +1,125 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# Elaboration guards: every guard stops every front end (issue #151)
++
++A guard on parameters exists to stop the build. The front ends this project uses do
++not agree on which severity tasks do that. Verilator reports `$fatal`, `$error` and
++`$warning` as warnings (`USERFATAL`, `USERERROR`, `USERWARN`); `$info` is an `-Info`
++note with exit status 0. sv2v from 0.0.13 lowers a `$error` to an `initial $display`
++that Yosys never runs, Vivado builds through a `$warning`, and Verilator lint and
++xelab never run an
++`initial` block. Only a module-scope `$fatal(1, ...)` is refused by all of them. The
++measurement and the rule are in the
++[HDL engineer guide §2.1](../../docs/guides/hdl-engineer.md#21-elaboration-guards-stop-every-front-end).
++
++A refusal that names the guard is therefore not enough: a module-scope `$error` is
++refused by name in Verilator lint, and Yosys builds straight through it under the sv2v
++after the pinned one. This suite grades the class.
++
++```sh
++make                 # Verilator lint, plus sv2v + Yosys when both are on PATH
++make vivado          # Vivado xelab and synth_design -rtl (slow; not in `make`)
++make mutants         # the suite's own proof (below)
++python3 guards.py --only KL_pp_nvm_port.g_tmo_check --frontend yosys
++```
++
++## What it proves
++
++For each of the 31 guards in `guards.py`'s `GUARDS`, two cases through each front end
++that runs:
++
++- **the violating case is refused as a `$fatal` of that guard**, in the front end's own
++  words, at the guard's own line:
++
++  | Front end | Run as | The refusal it must print |
++  |---|---|---|
++  | `verilator` | `scripts/lint_hdl.sh`'s flags, `--top-module`, `-G` | `%Warning-USERFATAL: <file>:<the guard's line>:<col>: <the guard's words>` |
++  | `yosys` | sv2v over the tree, then `read_verilog -defer; chparam; hierarchy -check -top; proc; opt_clean`, as `syn/yosys/run.sh` runs a top | `all.v:<n>: ERROR: FATAL: .` (sv2v 0.0.12) or ``all.v:<n>: ERROR: System task `$finish' executed.`` (sv2v 0.0.13), where line `<n>` of the lowered file is inside the guard's block |
++  | `xsim` | `xvlog` over the tree, then `xelab -generic_top` | `ERROR: [VRFC 10-8279] $fatal : ... [<file>:<the guard's line>]` |
++  | `synth` | `synth_design -rtl -generic`, one Vivado session per tree | `ERROR: [Synth 8-6058] Synth Error: ... [<file>:<the guard's line>]` |
++
++  Verilator's line must also carry the guard's message with its values (the `words`
++  column of `GUARDS`). Yosys 0.66 prints a `$fatal(1, ...)` as `FATAL: .`, taking the
++  finish number for the text, so its verdict locates the guard by line instead.
++- **the nearest passing case elaborates**: exit status 0 with no `%Warning`, `%Error` or
++  `ERROR` line, except the three measured deadline comparisons below. The exact
++  `scripts/lint_hdl.sh` flags are retained, with no warning suppression.
++
++And one inventory check per guard: every elaboration severity task under `hdl/`
++(`$fatal`, `$error`, `$warning`, `$info`, in any scope, outside comments) must be the one
++task of a guard in `GUARDS`, and every guard in `GUARDS` must be in `hdl/`. A new guard
++with no cases fails `make` until it has them.
++
++The tally is `elab guards: N checks: N PASS, 0 FAIL`: 31 inventory checks and two per
++guard per front end, so 93 with Verilator alone and 155 with Yosys as well.
++
++## The cases
++
++Each guard is elaborated in its own module except the top's five. The two sides
++straddle a boundary by one byte, beat, slot, count, cycle or alignment remainder.
++`gen_g_size` grades 16/17 bytes. The three deadline guards grade 0/1 cycles. At 1,
++Verilator flags the counter's comparison against zero as `UNSIGNED`; the bench
++accepts only those recorded expressions at their source locations, exit 1, and
++exactly the matching warning-count exit line. Every USER diagnostic, other warning,
++other error or other process status still fails. Yosys and both Vivado legs must
++elaborate those passing cases with exit 0.
++
++Some derived limits cannot be reached one unit apart in the shipping context.
++`setup` applies these fixed context edits to both sides in scratch copies of the
++whole HDL tree. No guard condition or message is changed by a fixture.
++
++| Guard | Scratch context | Violating / nearest passing value of the guarded quantity |
++|---|---|---|
++| engine `gen_g_resp_cap_fit` | `RESP_BUF_C = LINE_BYTES_P - 52`, page size 62 so the independent page floor does not mask the passing side; line 575/576 | response buffer 523/524 bytes, original response cap 524 |
++| engine `gen_g_gamap_page_fit` | `RESP_BUF_C = 520 + LINE_BYTES_P / 8`, line 568/576 | response buffer 591/592 bytes, original page floor 592 |
++| engine `gen_g_line_ceiling` | `RESP_BUF_C = 898 + LINE_BYTES_P / 8`, line 1016/1008 | response buffer 1025/1024 bytes, original cursor ceiling 1024 |
++| top `gen_g_tmr_aw` | 7 address bits; 128 slots in the passing context, 129 planted in the violating context | 129/128 slots |
++| top `gen_g_tmr_fit` | map end 91; only violating side plants slot count 90 | 90/91 slots |
++| top `gen_g_tmr_overlap` | only violating side moves the talker base down by one | one-slot overlap / exact adjacency |
++
++The other cases use public parameters directly. Descriptor burst counts use
++4088/4096-byte lines, giving 511/512 beats. Encoder capacity uses 557/558 bytes
++at the default depth. Original full-tree default and shipping elaborations remain
++covered by the processor and parent gates. These fixtures test the boundary
++conditions, not an additional shipping configuration.
++
++## Seams
++
++- A `-Wno-fatal` Verilator simulation build carries every severity past, `$fatal`
++  included, so a suite that overrides a parameter into a guard's range still builds.
++  The Verilator gate is a lint: this suite's, and `scripts/lint_hdl.sh`'s at the
++  defaults.
++- The Vivado legs need Vivado on PATH and are slow, so `make` does not run them.
++- Yosys stops at its first error, so a violating case must reach its own guard first.
++  Where one trips two (the engine's response-cap case also trips its page-fit guard),
++  the graded guard is the one Yosys reaches first. The other front ends are graded on
++  the guard's own line among everything they print.
++
++## Mutation record
++
++`make mutants` plants each arm in a scratch copy of `hdl/` of its own, runs `guards.py
++--only` the arm's guard on it, and counts the arm KILLED only when the bench exits
++non-zero and prints the arm's own FAIL line naming that guard. A control on an
++unplanted copy runs first and must pass.
++
++| Arms | Planted | The check that fails |
++|---|---|---|
++| 31 `error` | the guard's `$fatal(1, ` becomes `$error(` | GUARD: Verilator `USERERROR`; Yosys `ERROR: <message>` under sv2v 0.0.12, nothing under 0.0.13 |
++| 31 `warning` | `$fatal(1, ` becomes `$warning(` | GUARD: Verilator `USERWARN`; Yosys builds |
++| 31 `initial` | the guard's `if` becomes `initial if` | GUARD: Verilator builds; Yosys `Can't resolve task name` under sv2v 0.0.12 |
++| `bench:unlisted` | a new `$fatal` guard in `KL_pp_release_merge` with no case | inventory, naming it |
++| `bench:deleted` | `KL_aecp_engine.gen_g_line_step` deleted | inventory, and GUARD: at 577 the store's own guard refuses one level down, at another guard's line |
++| `bench:message` | `KL_pp_nvm_port.g_tmo_check`'s words changed | GUARD (Verilator's words) |
++| 31 `tightened` | one-unit stricter bound (explicit terms in `BOUNDARIES`) | ELAB, naming the nearest passing case, in **every** selected front end |
++| 31 `loosened` | one-unit looser bound | GUARD, naming the violating case, in **every** selected front end |
++| `bench:deadline_user` | a `$warning` on the deadline's passing side | ELAB: the UNSIGNED exception cannot admit a USER diagnostic |
++| `bench:deadline_other_warning` | an ascending packed range beside the deadline | ELAB: the UNSIGNED exception cannot admit another warning class |
++
++There are 160 arms: five per guard plus the five bench checks above. Alignment
++mutants shrink the allowed remainder from 0 to none, or expand it from 0 to 0..1.
++The owner-tag mutant moves both output-stream limits by one; either unchanged
++comparison would otherwise still refuse the violating shape. A boundary arm is
++unproven if any selected front end misses its named failure.
++
++The hosted `suites` job runs the lint leg. The hosted `portability` job runs the
++Yosys leg explicitly, using its installed sv2v release, even when Verilator is not
++installed in that job.
+diff --git a/tb/elab_guards/guards.py b/tb/elab_guards/guards.py
+new file mode 100644
+index 0000000..88dce6c
+--- /dev/null
++++ b/tb/elab_guards/guards.py
+@@ -0,0 +1,578 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Every elaboration guard in hdl/ stops every front end, and stops it as a $fatal.
++
++A guard is a module-scope `if (<condition>) begin : <name> $fatal(1, ...); end` on
++parameters (the HDL engineer guide's section 2.1, issue #151). The front ends treat
++the elaboration severities differently, and only a module-scope `$fatal` stops all of
++them (the guide's measurement): Verilator reports `$fatal`, `$error` and `$warning`
++as USERFATAL, USERERROR and USERWARN warnings; `$info` is an -Info note with exit 0.
++sv2v from 0.0.13 lowers a `$error` to an `initial $display` that Yosys never runs,
++Vivado carries a `$warning` past, and Verilator lint and xelab never see a guard in an
++`initial` block. So a refusal that names the guard is not proof of the class: a
++module-scope `$error` is refused by name in Verilator lint and missed by Yosys under
++the sv2v after the pinned one.
++
++This bench grades the class, guard by guard. For every guard in GUARDS:
++  - its violating case must be refused by every front end that runs, in that front
++    end's FATAL words, at the guard's own line;
++  - its nearest passing case must elaborate, with only the explicitly recorded
++    UNSIGNED comparisons allowed for the three deadline values of 1.
++And the inventory, so no guard escapes: every elaboration severity task under hdl/
++must belong to a guard in GUARDS, and every guard in GUARDS must be under hdl/.
++
++Front ends (`--frontend`, repeatable; each needs only its own tools on PATH):
++  verilator  scripts/lint_hdl.sh's flags; the refusal is %Warning-USERFATAL
++  yosys      sv2v + Yosys as syn/yosys/run.sh runs them; the refusal is Yosys's
++             `FATAL` (sv2v 0.0.12 passes $fatal through) or its `$finish`
++             (sv2v from 0.0.13 lowers $fatal to $display and $finish)
++  xsim       Vivado xvlog + xelab; the refusal is [VRFC 10-8279] $fatal
++  synth      Vivado synth_design -rtl; the refusal is [Synth 8-6058], which is
++             Vivado's synthesis word for $fatal and $error alike
++Default: verilator, and yosys when sv2v and yosys are both on PATH.
++"""
++import argparse
++from collections.abc import Callable
++import concurrent.futures
++import dataclasses
++import os
++from pathlib import Path
++import re
++import shutil
++import subprocess
++import sys
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[2]
++
++#: scripts/lint_hdl.sh's flags, so a refusal here is a refusal there
++LINT = ("--lint-only", "-Wall", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
++        "-Wno-UNUSEDPARAM")
++#: syn/ooc/protocol_processor_ooc.tcl's part
++PART = "xc7a100tfgg484-2"
++
++Params = tuple[tuple[str, int], ...]
++
++
++@dataclasses.dataclass(frozen=True)
++class Guard:
++    """One guard, the case that must trip it and the nearest case that must not."""
++    module: str         # the module that declares it
++    block: str          # its generate block's name
++    bad: Params         # the violating parameter set ...
++    words: str          # ... and the text Verilator's refusal must carry
++    good: Params        # the nearest passing set
++    top: str = ""       # the module elaborated, when it is not `module`
++    #: (old, new) once in the module's file, for a guard no parameter set reaches
++    #: alone: a violating shape, planted in a scratch copy, never in the tree
++    plant: tuple[str, str] = ()
++    #: Fixed context edits in scratch only, exposing a boundary hidden by another
++    #: guard or by a derived value's stride. No guard condition is edited here.
++    setup: tuple[tuple[str, str, str], ...] = ()
++    #: Only these measured constant comparisons may warn on the passing case.
++    unsigned: tuple[str, ...] = ()
++
++    @property
++    def name(self) -> str:
++        """The module-qualified guard label used in every verdict."""
++        return f"{self.module}.{self.block}"
++
++    @property
++    def elaborated(self) -> str:
++        """The top passed to each front end."""
++        return self.top or self.module
++
++
++TOP = "protocol_processor_top"
++#: The nearest passing boundary is graded even when a deadline of 1 makes a
++#: comparison constant. The three explicit UNSIGNED sites below are the only
++#: exceptions; a USER diagnostic, another warning, or a failed process still fails.
++GUARDS = (
++    Guard("KL_acmp_nvm_shadow", "g_backoff_check", (("RETRY_BACKOFF_CYC_P", 0),),
++          "RETRY_BACKOFF_CYC_P must be at least 1", (("RETRY_BACKOFF_CYC_P", 1),)),
++    Guard("KL_acmp_nvm_shadow", "g_rs_tmo_check", (("RS_TMO_CYC_P", 0),),
++          "RS_TMO_CYC_P must be at least 1", (("RS_TMO_CYC_P", 1),),
++          unsigned=("rs_wd_r >= 32'(RS_TMO_CYC_P - 1)",)),
++    Guard("KL_pp_acmp_listener", "g_strm_tmo_check", (("STRM_TIMEOUT_CYC_P", 0),),
++          "STRM_TIMEOUT_CYC_P must be greater than zero", (("STRM_TIMEOUT_CYC_P", 1),)),
++    Guard("KL_aecp_desc_store", "gen_g_line_align", (("LINE_BYTES_P", 577),),
++          "LINE_BYTES_P=577 must be a multiple of 8", (("LINE_BYTES_P", 576),)),
++    Guard("KL_aecp_desc_store", "gen_g_beats", (("LINE_BYTES_P", 4096),),
++          "a burst exceeds the 9-bit mem_req_beats_o field", (("LINE_BYTES_P", 4088),)),
++    Guard("KL_aecp_desc_store", "gen_g_names", (("NAME_ENTRIES_P", 1025),),
++          "NAME_ENTRIES_P=1025 must be in 1..1024", (("NAME_ENTRIES_P", 1024),)),
++    Guard("KL_aecp_desc_store", "gen_g_base_align", (("DESC_BASE_P", 0x2000_0001),),
++          "DESC_BASE_P=20000001 must be 8-byte aligned", (("DESC_BASE_P", 0x2000_0000),)),
++    Guard("KL_aecp_engine", "gen_g_frame_fit", (("TX_OVERSIZE_BYTES_P", 617),),
++          "a maximum AECP response (618 B) exceeds the oversize slot (617 B)",
++          (("TX_OVERSIZE_BYTES_P", 618),)),
++    # Expose 523/524 bytes without the independent 592-byte page floor masking
++    # the passing case. Only the scratch capacity derivation and page size move.
++    Guard("KL_aecp_engine", "gen_g_resp_cap_fit", (("LINE_BYTES_P", 575),),
++          "response buffer (523 B) is smaller than GET_DYNAMIC_INFO limit (524 B)",
++          (("LINE_BYTES_P", 576),), setup=(
++              ("hdl/aecp/KL_aecp_engine.sv", "RESP_BUF_C   = 16 + LINE_BYTES_P;",
++               "RESP_BUF_C   = LINE_BYTES_P - 52;"),
++              ("hdl/aecp/ucpu_pkg.sv", "GAMAP_PAGE_MAX_C = 71;", "GAMAP_PAGE_MAX_C = 62;"))),
++    Guard("KL_aecp_engine", "gen_g_line_step", (("LINE_BYTES_P", 577),),
++          "DESC_LINE_BYTES_P=577 is not a multiple of 8", (("LINE_BYTES_P", 576),)),
++    Guard("KL_aecp_engine", "gen_g_gamap_page_fit", (("LINE_BYTES_P", 568),),
++          "DESC_LINE_BYTES_P=568 is below 576", (("LINE_BYTES_P", 576),), setup=(
++              ("hdl/aecp/KL_aecp_engine.sv", "RESP_BUF_C   = 16 + LINE_BYTES_P;",
++               "RESP_BUF_C   = 520 + LINE_BYTES_P / 8;"),)),
++    Guard("KL_aecp_engine", "gen_g_line_ceiling", (("LINE_BYTES_P", 1016),),
++          "DESC_LINE_BYTES_P=1016 is above 1008", (("LINE_BYTES_P", 1008),), setup=(
++              ("hdl/aecp/KL_aecp_engine.sv", "RESP_BUF_C   = 16 + LINE_BYTES_P;",
++               "RESP_BUF_C   = 898 + LINE_BYTES_P / 8;"),)),
++    Guard("KL_aecp_notify", "g_rows_guard", (("N_IF_P", 2), ("N_CTRL_P", 1)),
++          "need N_IF_P=2 a power of two and N_CTRL_P=1 above 1",
++          (("N_IF_P", 2), ("N_CTRL_P", 2))),
++    Guard("KL_aecp_nvm_writer", "g_shape_check", (("N_NAME_P", 129),),
++          "a group outgrows its record-id block", (("N_NAME_P", 128),)),
++    Guard("KL_aecp_nvm_writer", "g_backoff_check", (("RETRY_BACKOFF_CYC_P", 0),),
++          "RETRY_BACKOFF_CYC_P must be at least 1", (("RETRY_BACKOFF_CYC_P", 1),)),
++    Guard("KL_aecp_nvm_writer", "g_rs_tmo_check", (("RS_TMO_CYC_P", 0),),
++          "RS_TMO_CYC_P must be at least 1", (("RS_TMO_CYC_P", 1),),
++          unsigned=("wd_r >= 32'(RS_TMO_CYC_P - 1)",)),
++    Guard("KL_aecp_nvm_writer", "g_rs_agg_check", (("RS_AGG_CYC_P", 0),),
++          "RS_AGG_CYC_P must be at least 1", (("RS_AGG_CYC_P", 1),),
++          unsigned=("agg_r >= 32'(RS_AGG_CYC_P - 1)", "agg_r < 32'(RS_AGG_CYC_P - 1)")),
++    Guard("KL_aecp_resp_buf", "gen_g_base_align", (("RESP_BASE_P", 0x2010_0001),),
++          "RESP_BASE_P=20100001 must be 8-byte aligned", (("RESP_BASE_P", 0x2010_0000),)),
++    Guard("KL_aecp_resp_buf", "gen_g_size", (("RESP_BYTES_P", 16),),
++          "RESP_BYTES_P=16 leaves no payload above the header record",
++          (("RESP_BYTES_P", 17),)),
++    Guard("KL_aecp_resp_buf", "gen_g_beats", (("RESP_BYTES_P", 4089),),
++          "a read burst of 512 beats exceeds the 9-bit mem_req_beats_o field",
++          (("RESP_BYTES_P", 4088),)),
++    Guard("KL_aecp_ucpu", "gen_g_d8_cap", (("RESP_D8_CAP_BYTES_P", 1025),),
++          "RESP_D8_CAP_BYTES_P=1025 outside 524..1024", (("RESP_D8_CAP_BYTES_P", 1024),)),
++    Guard("KL_pp_nvm_port", "g_tmo_check", (("MEM_TIMEOUT_CYC_P", 0),),
++          "MEM_TIMEOUT_CYC_P=0 is outside 1 to 2147483647", (("MEM_TIMEOUT_CYC_P", 1),)),
++    Guard("KL_pp_nvm_port", "g_maxp_check", (("MAX_PAYLOAD_P", 65528),),
++          "MAX_PAYLOAD_P=65528 is above 65527", (("MAX_PAYLOAD_P", 65527),)),
++    Guard("KL_pp_originator", "g_inflight_check", (("INFLIGHT_P", 17),),
++          "INFLIGHT_P must be 1..16", (("INFLIGHT_P", 16),)),
++    Guard("KL_pp_release_merge", "g_slot_count_check", (("N_SLOTS_P", 0),),
++          "N_SLOTS_P must be positive", (("N_SLOTS_P", 1),)),
++    Guard("KL_srp_encoder", "g_depth_check", (("TX_STD_BYTES_P", 557),),
++          "DEPTH_P drain cannot fit a standard TX slot", (("TX_STD_BYTES_P", 558),)),
++    Guard(TOP, "gen_g_avb_if", (("N_AVB_IF_P", 3),),
++          "N_AVB_IF_P=3 is outside 1 to 2", (("N_AVB_IF_P", 2),)),
++    # TMR_AW_C is $clog2(TMR_SLOTS_C), so 2^TMR_AW_C covers TMR_SLOTS_C at every
++    # shape that elaborates: the guard holds the width to the map, should either move
++    Guard(TOP, "gen_g_tmr_aw", (), "F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=129", (),
++          plant=("TMR_SLOTS_C  = 128,", "TMR_SLOTS_C  = 129,"), setup=(
++              ("hdl/top/protocol_processor_top.sv", "= TMR_MAP_C.srp_end,", "= 128,"),
++              ("hdl/top/protocol_processor_top.sv", "$clog2(TMR_SLOTS_C),", "7,"))),
++    # TMR_SLOTS_C is the map's own end; only N_AVB_IF_P = 0, refused by gen_g_avb_if
++    # first, reaches this one by parameter
++    Guard(TOP, "gen_g_tmr_fit", (), "F08.4: slot map ends at 91 but P-TIMER-SLOTS=90", (),
++          plant=("= TMR_MAP_C.srp_end,", "= TMR_MAP_C.srp_end - 32'd1,")),
++    # every base is the running sum of the extents before it (pp_pkg::pp_timer_map),
++    # so each comparison is an equality at every shape
++    Guard(TOP, "gen_g_tmr_overlap", (), "F08.4: timer-slot groups OVERLAP at SI=8 SO=8", (),
++          plant=("= TMR_MAP_C.tkr;", "= TMR_MAP_C.tkr - 32'd1;")),
++    Guard(TOP, "gen_g_owner_overlap", (("N_STREAM_IN_P", 16), ("N_STREAM_OUT_P", 17)),
++          "F08.4: owner tags OVERLAP at SI=16 SO=17",
++          (("N_STREAM_IN_P", 16), ("N_STREAM_OUT_P", 16))),
++)
++
++TASK = re.compile(r"\$(fatal|error|warning|info)\b")
++LABEL = re.compile(r"\bbegin\s*:\s*(\w+)")
++MODULE = re.compile(r"^\s*module\s+(\w+)")
++
++
++@dataclasses.dataclass(frozen=True)
++class Site:
++    """Where a guard's severity task is: its file, line, module and block."""
++    path: str
++    line: int
++    module: str
++    block: str
++
++
++def labelled(lines: list[str], line: int) -> tuple[str, str]:
++    """The module and the nearest block label at or above `line` (1-based)."""
++    module = block = ""
++    for text in lines[:line]:
++        code = text.split("//", 1)[0]
++        if found := MODULE.match(code):
++            module, block = found.group(1), ""
++        for found in LABEL.finditer(code):
++            block = found.group(1)
++    return module, block
++
++
++def inventory(root: Path) -> list[Site]:
++    """Every elaboration severity task under hdl/, outside comments."""
++    sites = []
++    for path in sorted((root / "hdl").rglob("*.sv")):
++        lines = path.read_text().splitlines()
++        for number, text in enumerate(lines, 1):
++            if TASK.search(text.split("//", 1)[0]):
++                module, block = labelled(lines, number)
++                sites.append(Site(path.relative_to(root).as_posix(), number, module, block))
++    return sites
++
++
++def sources(root: Path) -> list[str]:
++    """Packages first, then every other file, as lint_hdl.sh and run.sh pass them."""
++    pkgs = sorted(p.relative_to(root).as_posix() for p in (root / "hdl").rglob("*_pkg.sv"))
++    rest = sorted(p.relative_to(root).as_posix() for p in (root / "hdl").rglob("*.sv")
++                  if not p.name.endswith("_pkg.sv"))
++    return pkgs + rest
++
++
++def roms(root: Path, into: Path) -> None:
++    """The two ROM images the tops read by relative name, as run.sh generates them."""
++    subprocess.run([sys.executable, "gen_ucode.py", "-o", str(into / "ucode.hex")],
++                   cwd=root / "hdl/aecp/ucode", stdout=subprocess.DEVNULL, check=True)
++    subprocess.run([sys.executable, "gen_ltn_rom.py", "-o", str(into / "ltn_rom.hex")],
++                   cwd=root / "hdl/acmp/rom", stdout=subprocess.DEVNULL, check=True)
++
++
++@dataclasses.dataclass
++class Case:
++    """One elaboration: a guard, violating or passing, in one tree."""
++    guard: Guard
++    violating: bool
++    tree: Path
++    site: Site | None
++
++    @property
++    def params(self) -> Params:
++        """The independent boundary values for this side of the guard."""
++        return self.guard.bad if self.violating else self.guard.good
++
++    @property
++    def label(self) -> str:
++        """The guard and values printed beside its front-end verdict."""
++        shown = " ".join(f"{k}={v:#x}" if v > 0xFFFFFF else f"{k}={v}"
++                         for k, v in self.params)
++        if self.violating and self.guard.plant:
++            shown = "planted " + (shown or "shape")
++        context = " fixture" if self.guard.setup else ""
++        return f"{self.guard.name} {shown or 'defaults'}{context}"
++
++
++@dataclasses.dataclass
++class Verdict:
++    """One check's outcome, with the front end's own words."""
++    ok: bool
++    words: str
++
++
++def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
++    """Combined output and the tool's own status."""
++    result = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
++                            text=True, errors="replace", check=False)
++    return result.returncode, result.stdout
++
++
++def grade(case: Case, rc: int, out: str, refusal: re.Pattern[str],
++          where: Callable[[re.Match[str]], tuple[str, str] | None]) -> Verdict:
++    """Violating: refused, in the FATAL words, at this guard. Passing: rc 0, quiet."""
++    if not case.violating:
++        noisy = [line for line in out.splitlines() if re.match(r"^(%Warning|%Error|ERROR)", line)]
++        if rc == 0 and not noisy:
++            return Verdict(True, "elaborates")
++        return Verdict(False, f"rc {rc}: " + (noisy[0] if noisy else "no output"))
++    if rc == 0:
++        return Verdict(False, "elaborated; the guard did not stop it")
++    for line in out.splitlines():
++        found = refusal.search(line)
++        if found and where(found) == (case.guard.module, case.guard.block):
++            return Verdict(True, line.strip())
++    # quote the guard's own diagnostic when it printed one, else the first
++    said = [line.strip() for line in out.splitlines() if re.search(r"%Warning|%Error|ERROR", line)]
++    own = [line for line in said if case.site and (f"{case.site.path}:{case.site.line}" in line
++                                                   or case.guard.words in line)]
++    first = (own or said or [f"rc {rc}"])[0]
++    return Verdict(False, f"not refused as a $fatal of this guard: {first}")
++
++
++class Verilator:
++    """scripts/lint_hdl.sh's lint, with the case's parameters."""
++    name = "verilator"
++    REFUSAL = re.compile(r"^%(?:Warning|Error)-USERFATAL: (\S+?):(\d+):\d+: (.*)$")
++
++    def __init__(self, verilator: str):
++        self.verilator = verilator
++
++    def prepare(self, tree: Path) -> None:
++        """No shared compilation is needed before the independent lint runs."""
++        pass
++
++    def check(self, case: Case) -> Verdict:
++        """Lint both boundary sides, retaining severity and source location."""
++        cmd = [self.verilator, *LINT, "--top-module", case.guard.elaborated,
++               *(f"-G{k}={v}" for k, v in case.params), *sources(case.tree)]
++        rc, out = run(cmd, case.tree)
++
++        def where(found: re.Match[str]) -> tuple[str, str] | None:
++            """Identify only a fatal at this guard's line with its expected words."""
++            site = case.site
++            if site and (found.group(1), int(found.group(2))) == (site.path, site.line) \
++                    and case.guard.words in found.group(3):
++                return (site.module, site.block)
++            return None
++        if not case.violating and case.guard.unsigned and rc == 1:
++            allowed = self.deadline_warnings(case, out)
++            if allowed:
++                return Verdict(True, "elaborates; lint rc 1, only measured UNSIGNED: "
++                               + " | ".join(allowed))
++        return grade(case, rc, out, self.REFUSAL, where)
++
++    @staticmethod
++    def deadline_warnings(case: Case, out: str) -> list[str]:
++        """Accept only the recorded constant compares and their warning-only exit."""
++        diagnostics = [line for line in out.splitlines() if line.startswith(("%", "ERROR"))]
++        warnings = [line for line in diagnostics if line.startswith("%Warning-UNSIGNED:")]
++        if not warnings or len(diagnostics) != len(warnings) + 1:
++            return []
++        if diagnostics[-1] != f"%Error: Exiting due to {len(warnings)} warning(s)":
++            return []
++        for line in warnings:
++            found = re.match(r"^%Warning-UNSIGNED: (\S+?):(\d+):\d+: "
++                             r"Comparison is constant due to unsigned arithmetic", line)
++            if not found or not case.site or found.group(1) != case.site.path:
++                return []
++            source = (case.tree / found.group(1)).read_text().splitlines()
++            number = int(found.group(2))
++            if not 1 <= number <= len(source) or not any(
++                    expr in source[number - 1] for expr in case.guard.unsigned):
++                return []
++        return warnings
++
++
++class Yosys:
++    """sv2v once per tree, then the elaboration syn/yosys/run.sh runs per top."""
++    name = "yosys"
++    REFUSAL = re.compile(r"all\.v:(\d+): ERROR: (FATAL\b.*|System task `\$finish' executed\.)")
++
++    def __init__(self):
++        self.lowered: dict[Path, tuple[Path, list[str]]] = {}
++
++    def prepare(self, tree: Path) -> None:
++        """Lower this whole tree once and provide its relative ROM images."""
++        work = Path(tempfile.mkdtemp(prefix="elab-guards-yosys-"))
++        with (work / "all.v").open("w") as out:
++            subprocess.run(["sv2v", *sources(tree)], cwd=tree, stdout=out, check=True)
++        roms(tree, work)
++        self.lowered[tree] = (work, (work / "all.v").read_text().splitlines())
++
++    def check(self, case: Case) -> Verdict:
++        """Elaborate the parameter set and locate a fatal in the lowered guard."""
++        work, lines = self.lowered[case.tree]
++        top = case.guard.elaborated
++        sets = " ".join(f"-set {k} {v}" for k, v in case.params)
++        script = (f"read_verilog -defer all.v; {f'chparam {sets} {top}; ' if sets else ''}"
++                  f"hierarchy -check -top {top}; proc; opt_clean")
++        rc, out = run(["yosys", "-q", "-p", script], work)
++        return grade(case, rc, out, self.REFUSAL,
++                     lambda found: labelled(lines, int(found.group(1))))
++
++    def close(self) -> None:
++        """Remove every lowered tree and its generated images."""
++        for work, _ in self.lowered.values():
++            shutil.rmtree(work, ignore_errors=True)
++
++
++class Xsim:
++    """xvlog once per tree, then xelab with the case's parameters on the top."""
++    name = "xsim"
++    REFUSAL = re.compile(r"^ERROR: \[VRFC 10-8279\] \$fatal : .* \[(\S+):(\d+)\]$")
++
++    def __init__(self):
++        self.work: dict[Path, Path] = {}
++
++    def prepare(self, tree: Path) -> None:
++        """Compile the source files once into an isolated simulation library."""
++        work = Path(tempfile.mkdtemp(prefix="elab-guards-xsim-"))
++        rc, out = run(["xvlog", "-sv", *(str(tree / s) for s in sources(tree))], work)
++        if rc != 0:
++            raise RuntimeError(f"xvlog refused the tree {tree}:\n{out[-2000:]}")
++        self.work[tree] = work
++
++    def check(self, case: Case) -> Verdict:
++        """Elaborate without simulation so an initial task cannot pass as a guard."""
++        work = self.work[case.tree]
++        snap = re.sub(r"\W", "_", case.label)
++        cmd = ["xelab", "-debug", "off", *(a for k, v in case.params
++                                            for a in ("-generic_top", f"{k}={v}")),
++               f"work.{case.guard.elaborated}", "-s", snap]
++        rc, out = run(cmd, work)
++        return grade(case, rc, out, self.REFUSAL, lambda found: self.where(case, found))
++
++    @staticmethod
++    def where(case: Case, found: re.Match[str]) -> tuple[str, str] | None:
++        """Identify a vendor diagnostic by the guard's exact file and line."""
++        site = case.site
++        if site and Path(found.group(1)) == case.tree / site.path \
++                and int(found.group(2)) == site.line:
++            return (site.module, site.block)
++        return None
++
++    def close(self) -> None:
++        """Remove the isolated simulation libraries."""
++        for work in self.work.values():
++            shutil.rmtree(work, ignore_errors=True)
++
++
++class Synth:
++    """One Vivado session per tree runs synth_design -rtl for each case in turn."""
++    name = "synth"
++    REFUSAL = re.compile(r"^ERROR: \[Synth 8-6058\] Synth Error: .* \[(\S+):(\d+)\]$")
++
++    def __init__(self):
++        self.out: dict[tuple[Path, str], tuple[int, str]] = {}
++
++    def run_tree(self, tree: Path, cases: list[Case]) -> None:
++        """Collect each case's synthesis elaboration status in a single session."""
++        work = Path(tempfile.mkdtemp(prefix="elab-guards-synth-"))
++        try:
++            roms(tree, work)
++            tcl = ["set_param general.maxThreads 4"]
++            tcl += [f"read_verilog -sv {{{tree / s}}}" for s in sources(tree)]
++            for i, case in enumerate(cases):
++                generics = " ".join(f"-generic {k}={v}" for k, v in case.params)
++                tcl += [f'puts "@@begin {i}"',
++                        f"set rc [catch {{synth_design -rtl -top {case.guard.elaborated} "
++                        f"-part {PART} {generics}}}]",
++                        "catch {close_design}",
++                        f'puts "@@end {i} rc=$rc"']
++            (work / "cases.tcl").write_text("\n".join(tcl) + "\n")
++            _, log = run(["vivado", "-mode", "batch", "-nojournal", "-nolog",
++                          "-source", "cases.tcl"], work)
++        finally:
++            shutil.rmtree(work, ignore_errors=True)
++        for i, case in enumerate(cases):
++            found = re.search(rf"^@@begin {i}\n(.*?)^@@end {i} rc=(\d+)$", log, re.S | re.M)
++            self.out[(tree, case.label)] = ((int(found.group(2)), found.group(1)) if found
++                                            else (-1, f"no result in the Vivado log:\n{log[-1500:]}"))
++
++    def check(self, case: Case) -> Verdict:
++        """Grade the saved synthesis result by severity and source location."""
++        rc, out = self.out[(case.tree, case.label)]
++        return grade(case, rc, out, self.REFUSAL, lambda found: Xsim.where(case, found))
++
++
++def planted(root: Path, guard: Guard, path: str, into: Path) -> Path:
++    """A scratch copy of hdl/ with the guard's violating shape planted, exactly once."""
++    shutil.copytree(root / "hdl", into / "hdl")
++    target = into / path
++    text = target.read_text()
++    old, new = guard.plant
++    if text.count(old) != 1:
++        raise RuntimeError(f"{guard.name}: the plant `{old}` is not once in {path}")
++    target.write_text(text.replace(old, new))
++    return into
++
++
++def context_tree(root: Path, guard: Guard, into: Path) -> Path:
++    """Expose a hidden boundary through fixed scratch context edits, never guards."""
++    shutil.copytree(root / "hdl", into / "hdl")
++    for path, old, new in guard.setup:
++        target = into / path
++        text = target.read_text()
++        if text.count(old) != 1:
++            raise RuntimeError(f"{guard.name}: context `{old}` is not once in {path}")
++        target.write_text(text.replace(old, new))
++    return into
++
++
++def main() -> int:
++    """Inventory, then every guard's two cases through every selected front end."""
++    parser = argparse.ArgumentParser(description=__doc__,
++                                     formatter_class=argparse.RawDescriptionHelpFormatter)
++    parser.add_argument("--root", type=Path, default=ROOT,
++                        help="the tree whose hdl/ is graded (default: this checkout)")
++    parser.add_argument("--verilator", default=os.environ.get("VERILATOR", "verilator"))
++    parser.add_argument("--frontend", action="append",
++                        choices=("verilator", "yosys", "xsim", "synth"))
++    parser.add_argument("--only", default="", help="comma-separated guard names")
++    parser.add_argument("--jobs", type=int, default=4)
++    args = parser.parse_args()
++    root = args.root.resolve()
++    frontends = args.frontend or (["verilator"] + (
++        ["yosys"] if shutil.which("sv2v") and shutil.which("yosys") else []))
++    if not args.frontend and "yosys" not in frontends:
++        print("YOSYS SKIP (sv2v or yosys is not on PATH)")
++
++    checks = failing = 0
++
++    def verdict(ok: bool, text: str) -> None:
++        """Count and print every result, including the guard on each failure."""
++        nonlocal checks, failing
++        checks += 1
++        failing += not ok
++        print(("" if ok else "FAIL: ") + text, flush=True)
++
++    sites = inventory(root)
++    by_name: dict[str, list[Site]] = {}
++    for site in sites:
++        by_name.setdefault(f"{site.module}.{site.block}", []).append(site)
++    known = {g.name for g in GUARDS}
++    for name, found in sorted(by_name.items()):
++        if name not in known:
++            for site in found:
++                verdict(False, f"inventory {name}: {site.path}:{site.line} is a severity "
++                               "task no guard in GUARDS accounts for")
++    for guard in GUARDS:
++        found = by_name.get(guard.name, [])
++        verdict(len(found) == 1,
++                f"inventory {guard.name}: " + (f"{found[0].path}:{found[0].line}" if len(found) == 1
++                                               else f"{len(found)} severity tasks, not 1"))
++
++    only = set(filter(None, args.only.split(",")))
++    unknown = only - known
++    if unknown:
++        print(f"unknown guard(s): {', '.join(sorted(unknown))}", file=sys.stderr)
++        return 2
++    selected = [g for g in GUARDS if not only or g.name in only]
++    scratch = Path(tempfile.mkdtemp(prefix="elab-guards-"))
++    try:
++        cases = []
++        for guard in selected:
++            site = by_name.get(guard.name, [None])[0]
++            good_tree = (context_tree(root, guard, scratch / (guard.name + "-context"))
++                         if guard.setup else root)
++            bad_tree = good_tree
++            if guard.plant and site:
++                bad_tree = planted(good_tree, guard, site.path, scratch / guard.name)
++            cases += [Case(guard, True, bad_tree, site), Case(guard, False, good_tree, site)]
++        trees = sorted({c.tree for c in cases})
++        for name in frontends:
++            if name == "verilator":
++                engine = Verilator(args.verilator)
++            elif name == "yosys":
++                engine = Yosys()
++            elif name == "xsim":
++                engine = Xsim()
++            else:
++                engine = Synth()
++            try:
++                if name == "synth":
++                    for tree in trees:
++                        engine.run_tree(tree, [c for c in cases if c.tree == tree])
++                else:
++                    for tree in trees:
++                        engine.prepare(tree)
++                jobs = 1 if name == "xsim" else args.jobs
++                with concurrent.futures.ThreadPoolExecutor(max(1, jobs)) as pool:
++                    results = list(pool.map(engine.check, cases))
++            finally:
++                if hasattr(engine, "close"):
++                    engine.close()
++            for case, result in zip(cases, results):
++                kind = "GUARD" if case.violating else "ELAB "
++                verdict(result.ok, f"{kind} {name} {case.label}: {result.words}")
++    finally:
++        shutil.rmtree(scratch, ignore_errors=True)
++    print(f"elab guards: {checks} checks: {checks - failing} PASS, {failing} FAIL")
++    return int(failing != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/elab_guards/mutants.py b/tb/elab_guards/mutants.py
+new file mode 100644
+index 0000000..c890c35
+--- /dev/null
++++ b/tb/elab_guards/mutants.py
+@@ -0,0 +1,310 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Plant each guard's weaker forms, and the bench's own defects; require named failures.
++
++Every guard in guards.py's GUARDS gets five arms, each planted in a scratch copy of
++hdl/ of its own and graded by guards.py on that copy with `--only` the guard:
++  error     its `$fatal(1, ` becomes `$error(`
++  warning   its `$fatal(1, ` becomes `$warning(`
++  initial   its `if` becomes `initial if`, the guard's old placement in the listener
++  tightened its boundary moves by one to refuse the nearest passing value
++  loosened  its boundary moves by one to admit the violating value
++Other arms break the inventory, message check and narrow deadline warning allowance.
++
++An arm is KILLED only when guards.py exits non-zero and prints the arm's own FAIL line,
++naming the guard; the line shows which front ends caught it. A positive control on an
++unplanted copy runs first and must pass. `--jobs N` runs up to N copies at once; the
++results are read in the declared order.
++"""
++import argparse
++import dataclasses
++from collections.abc import Callable
++from pathlib import Path
++import re
++import shutil
++import subprocess
++import sys
++import tempfile
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++sys.path.insert(0, str(ROOT / "tb" / "common"))
++sys.path.insert(0, str(HERE))
++from mutant_pool import add_jobs_argument, in_order  # noqa: E402
++import guards  # noqa: E402
++
++
++@dataclasses.dataclass(frozen=True)
++class Arm:
++    """One planted defect, the guard it is graded on and the FAIL lines that kill it."""
++    name: str
++    guard: str
++    plant: Callable[[Path], None]
++    expect: tuple[str, ...]
++
++
++def replace_once(path: Path, old: str, new: str) -> None:
++    """Edit one file of the scratch tree, refusing drift."""
++    text = path.read_text()
++    if text.count(old) != 1:
++        raise RuntimeError(f"`{old}` is not once in {path}")
++    path.write_text(text.replace(old, new))
++
++
++def site_of(tree: Path, name: str) -> guards.Site:
++    """The guard's severity task in the scratch tree."""
++    found = [s for s in guards.inventory(tree) if f"{s.module}.{s.block}" == name]
++    if len(found) != 1:
++        raise RuntimeError(f"{name}: {len(found)} severity tasks in the scratch tree")
++    return found[0]
++
++
++def severity(name: str, task: str) -> Callable[[Path], None]:
++    """Turn the guard's $fatal(1, ...) into `task`(...), on its own line."""
++    def plant(tree: Path) -> None:
++        """Edit only the located guard's task in this isolated source tree."""
++        site = site_of(tree, name)
++        path = tree / site.path
++        lines = path.read_text().split("\n")
++        if lines[site.line - 1].count("$fatal(1, ") != 1:
++            raise RuntimeError(f"{name}: no `$fatal(1, ` at {site.path}:{site.line}")
++        lines[site.line - 1] = lines[site.line - 1].replace("$fatal(1, ", f"{task}(")
++        path.write_text("\n".join(lines))
++    return plant
++
++
++def initial(name: str) -> Callable[[Path], None]:
++    """Move the guard into an initial block: `if (...)` becomes `initial if (...)`."""
++    def plant(tree: Path) -> None:
++        """Find this guard's opening conditional and move it to time zero."""
++        site = site_of(tree, name)
++        path = tree / site.path
++        lines = path.read_text().split("\n")
++        for k in range(site.line - 1, -1, -1):
++            if re.match(r"^\s*if\s*\(", lines[k]):
++                lines[k] = re.sub(r"^(\s*)if", r"\1initial if", lines[k], count=1)
++                path.write_text("\n".join(lines))
++                return
++        raise RuntimeError(f"{name}: no `if` opens the guard above {site.path}:{site.line}")
++    return plant
++
++
++def delete_line_step(tree: Path) -> None:
++    """Delete KL_aecp_engine's gen_g_line_step whole: at 577 the store's own guard,
++    one level down, is then the first refusal, at another guard's line."""
++    path = tree / "hdl/aecp/KL_aecp_engine.sv"
++    text, n = re.subn(r"\n  if \(\(LINE_BYTES_P % 8\) != 0\) begin : gen_g_line_step\n.*?\n  end\n",
++                      "\n", path.read_text(), count=1, flags=re.S)
++    if n != 1:
++        raise RuntimeError(f"gen_g_line_step is not in {path}")
++    path.write_text(text)
++
++
++# Each tuple is (old condition term, tightened term, loosened term). These are
++# independent defect descriptions, not thresholds derived from GUARDS or RTL.
++# Multi-term owner limits both constrain the selected output-stream boundary.
++BOUNDARIES = {
++    "KL_acmp_nvm_shadow.g_backoff_check": (("RETRY_BACKOFF_CYC_P < 1", "RETRY_BACKOFF_CYC_P < 2",
++                                           "RETRY_BACKOFF_CYC_P < 0"),),
++    "KL_acmp_nvm_shadow.g_rs_tmo_check": (("RS_TMO_CYC_P < 1", "RS_TMO_CYC_P < 2", "RS_TMO_CYC_P < 0"),),
++    "KL_pp_acmp_listener.g_strm_tmo_check": (("STRM_TIMEOUT_CYC_P == 0", "STRM_TIMEOUT_CYC_P <= 1",
++                                             "STRM_TIMEOUT_CYC_P < 0"),),
++    "KL_aecp_desc_store.gen_g_line_align": (("(LINE_BYTES_P % 8) != 0", "(LINE_BYTES_P % 8) >= 0",
++                                            "(LINE_BYTES_P % 8) > 1"),),
++    "KL_aecp_desc_store.gen_g_beats": (("LINE_LANES_C > 511", "LINE_LANES_C >= 511", "LINE_LANES_C > 512"),),
++    "KL_aecp_desc_store.gen_g_names": (("NAME_ENTRIES_P > 1024", "NAME_ENTRIES_P >= 1024",
++                                       "NAME_ENTRIES_P > 1025"),),
++    "KL_aecp_desc_store.gen_g_base_align": (("DESC_BASE_P[2:0] != 3'd0", "DESC_BASE_P[2:0] >= 3'd0",
++                                            "DESC_BASE_P[2:0] > 3'd1"),),
++    "KL_aecp_engine.gen_g_frame_fit": (("FRAME_MAX_C > TX_OVERSIZE_BYTES_P", "FRAME_MAX_C >= TX_OVERSIZE_BYTES_P",
++                                       "FRAME_MAX_C > TX_OVERSIZE_BYTES_P + 1"),),
++    "KL_aecp_engine.gen_g_resp_cap_fit": (("RESP_BUF_C < ucpu_pkg::RESP_CAP_C", "RESP_BUF_C <= ucpu_pkg::RESP_CAP_C",
++                                          "RESP_BUF_C < ucpu_pkg::RESP_CAP_C - 1"),),
++    "KL_aecp_engine.gen_g_line_step": (("(LINE_BYTES_P % 8) != 0", "(LINE_BYTES_P % 8) >= 0",
++                                       "(LINE_BYTES_P % 8) > 1"),),
++    "KL_aecp_engine.gen_g_gamap_page_fit": (("RESP_BUF_C < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C",
++                                            "RESP_BUF_C <= 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C",
++                                            "RESP_BUF_C < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C - 1"),),
++    "KL_aecp_engine.gen_g_line_ceiling": (("RESP_BUF_C > RESP_CURSOR_BYTES_C", "RESP_BUF_C >= RESP_CURSOR_BYTES_C",
++                                          "RESP_BUF_C > RESP_CURSOR_BYTES_C + 1"),),
++    "KL_aecp_notify.g_rows_guard": (("N_CTRL_P < 2", "N_CTRL_P < 3", "N_CTRL_P < 1"),),
++    "KL_aecp_nvm_writer.g_shape_check": (("N_NAME_P > 128", "N_NAME_P >= 128", "N_NAME_P > 129"),),
++    "KL_aecp_nvm_writer.g_backoff_check": (("RETRY_BACKOFF_CYC_P < 1", "RETRY_BACKOFF_CYC_P < 2",
++                                           "RETRY_BACKOFF_CYC_P < 0"),),
++    "KL_aecp_nvm_writer.g_rs_tmo_check": (("RS_TMO_CYC_P < 1", "RS_TMO_CYC_P < 2", "RS_TMO_CYC_P < 0"),),
++    "KL_aecp_nvm_writer.g_rs_agg_check": (("RS_AGG_CYC_P < 1", "RS_AGG_CYC_P < 2", "RS_AGG_CYC_P < 0"),),
++    "KL_aecp_resp_buf.gen_g_base_align": (("RESP_BASE_P[2:0] != 3'd0", "RESP_BASE_P[2:0] >= 3'd0",
++                                          "RESP_BASE_P[2:0] > 3'd1"),),
++    "KL_aecp_resp_buf.gen_g_size": (("RESP_BYTES_P <= 16", "RESP_BYTES_P <= 17", "RESP_BYTES_P < 16"),),
++    "KL_aecp_resp_buf.gen_g_beats": (("LANES_C > 511", "LANES_C >= 511", "LANES_C > 512"),),
++    "KL_aecp_ucpu.gen_g_d8_cap": (("RESP_D8_CAP_BYTES_P > 1024", "RESP_D8_CAP_BYTES_P >= 1024",
++                                  "RESP_D8_CAP_BYTES_P > 1025"),),
++    "KL_pp_nvm_port.g_tmo_check": (("MEM_TIMEOUT_CYC_P < 1", "MEM_TIMEOUT_CYC_P < 2", "MEM_TIMEOUT_CYC_P < 0"),),
++    "KL_pp_nvm_port.g_maxp_check": (("MAX_PAYLOAD_P > MAXP_BOUND_C", "MAX_PAYLOAD_P >= MAXP_BOUND_C",
++                                    "MAX_PAYLOAD_P > MAXP_BOUND_C + 1"),),
++    "KL_pp_originator.g_inflight_check": (("INFLIGHT_P > IFL_N_C", "INFLIGHT_P >= IFL_N_C",
++                                           "INFLIGHT_P > IFL_N_C + 1"),),
++    "KL_pp_release_merge.g_slot_count_check": (("N_SLOTS_P < 1", "N_SLOTS_P < 2", "N_SLOTS_P < 0"),),
++    "KL_srp_encoder.g_depth_check": (("WORST_BYTES_C > TX_STD_BYTES_P", "WORST_BYTES_C >= TX_STD_BYTES_P",
++                                      "WORST_BYTES_C > TX_STD_BYTES_P + 1"),),
++    "protocol_processor_top.gen_g_avb_if": (("N_AVB_IF_P > 32'd2", "N_AVB_IF_P >= 32'd2",
++                                             "N_AVB_IF_P > 32'd3"),),
++    "protocol_processor_top.gen_g_tmr_aw": (("TMR_SLOTS_C > (32'd1 << TMR_AW_C)",
++                                             "TMR_SLOTS_C >= (32'd1 << TMR_AW_C)",
++                                             "TMR_SLOTS_C > ((32'd1 << TMR_AW_C) + 1)"),),
++    "protocol_processor_top.gen_g_tmr_fit": (("N_STREAM_IN_P > TMR_SLOTS_C", "N_STREAM_IN_P >= TMR_SLOTS_C",
++                                              "N_STREAM_IN_P > TMR_SLOTS_C + 1"),),
++    "protocol_processor_top.gen_g_tmr_overlap": (("TMR_TKR_BASE_C     < TMR_LSTN_BASE_C      + N_STREAM_IN_P",
++                                                  "TMR_TKR_BASE_C     <= TMR_LSTN_BASE_C      + N_STREAM_IN_P",
++                                                  "TMR_TKR_BASE_C     < TMR_LSTN_BASE_C      + N_STREAM_IN_P - 1"),),
++    "protocol_processor_top.gen_g_owner_overlap": (
++        ("OWN_SRPTK_END_C > 32'(PP_OWN_TKR_C)", "OWN_SRPTK_END_C >= 32'(PP_OWN_TKR_C)",
++         "OWN_SRPTK_END_C > 32'(PP_OWN_TKR_C) + 1"),
++        ("OWN_TKR_END_C   > 32'(PP_OWN_SRP_LS_C)", "OWN_TKR_END_C   >= 32'(PP_OWN_SRP_LS_C)",
++         "OWN_TKR_END_C   > 32'(PP_OWN_SRP_LS_C) + 1")),
++}
++
++
++def boundary(name: str, side: int) -> Callable[[Path], None]:
++    """Move this guard's fixed boundary by one, without touching sibling guards."""
++    def plant(tree: Path) -> None:
++        """Replace only condition terms in the block owning the located task."""
++        site = site_of(tree, name)
++        path = tree / site.path
++        lines = path.read_text().split("\n")
++        start = next(k for k in range(site.line - 1, -1, -1)
++                     if re.match(r"^\s*if\s*\(", lines[k]))
++        condition = "\n".join(lines[start:site.line - 1])
++        for terms in BOUNDARIES[name]:
++            if condition.count(terms[0]) != 1:
++                raise RuntimeError(f"{name}: boundary term `{terms[0]}` is not once in its condition")
++            condition = condition.replace(terms[0], terms[side])
++        lines[start:site.line - 1] = condition.split("\n")
++        path.write_text("\n".join(lines))
++    return plant
++
++
++def arms() -> list[Arm]:
++    """Five arms per guard, then one arm per other check of the bench."""
++    out = []
++    for g in guards.GUARDS:
++        violating = "FAIL: GUARD "
++        for kind, plant in (("error", severity(g.name, "$error")),
++                            ("warning", severity(g.name, "$warning")),
++                            ("initial", initial(g.name))):
++            out.append(Arm(f"{g.name}:{kind}", g.name, plant, (violating,)))
++        out.append(Arm(f"{g.name}:tightened", g.name, boundary(g.name, 1), ("FAIL: ELAB ",)))
++        out.append(Arm(f"{g.name}:loosened", g.name, boundary(g.name, 2), (violating,)))
++    merge = "hdl/packet_engine/KL_pp_release_merge.sv"
++    shadow = "hdl/acmp/KL_acmp_nvm_shadow.sv"
++    out += [
++        Arm("bench:unlisted", "KL_pp_release_merge.g_slot_count_check",
++            lambda t: replace_once(t / merge, "  logic [N_SLOTS_P-1:0] pending_r;",
++                                   "  if (N_SLOTS_P > 64) begin : g_unlisted_check\n"
++                                   '    $fatal(1, "KL_pp_release_merge: unlisted");\n'
++                                   "  end\n  logic [N_SLOTS_P-1:0] pending_r;"),
++            ("FAIL: inventory KL_pp_release_merge.g_unlisted_check",)),
++        Arm("bench:deleted", "KL_aecp_engine.gen_g_line_step", delete_line_step,
++            ("FAIL: inventory KL_aecp_engine.gen_g_line_step",
++             "FAIL: GUARD ")),
++        Arm("bench:message", "KL_pp_nvm_port.g_tmo_check",
++            lambda t: replace_once(t / "hdl/packet_engine/KL_pp_nvm_port.sv",
++                                   "is outside 1 to 2147483647", "is not within 1 to 2147483647"),
++            ("FAIL: GUARD ",)),
++        Arm("bench:deadline_user", "KL_acmp_nvm_shadow.g_rs_tmo_check",
++            lambda t: replace_once(t / shadow, "  if (RS_TMO_CYC_P < 1)",
++                                   "  if (RS_TMO_CYC_P == 1) begin : g_deadline_user\n"
++                                   "    $warning(\"planted deadline warning\");\n  end\n"
++                                   "  if (RS_TMO_CYC_P < 1)"), ("FAIL: ELAB ",)),
++        Arm("bench:deadline_other_warning", "KL_acmp_nvm_shadow.g_rs_tmo_check",
++            lambda t: replace_once(t / shadow, "  if (RS_TMO_CYC_P < 1)",
++                                   "  logic [-1:0] planted_bad_range;\n  if (RS_TMO_CYC_P < 1)"),
++            ("FAIL: ELAB ",)),
++    ]
++    return out
++
++
++def trial(job: tuple[Arm | None, list[str], Path]) -> tuple[int, str]:
++    """Copy hdl/ to a scratch tree of its own, plant the arm if any, and grade it."""
++    arm, bench, log = job
++    with tempfile.TemporaryDirectory(prefix="elab-guards-mutants-") as tmp:
++        tree = Path(tmp)
++        shutil.copytree(ROOT / "hdl", tree / "hdl")
++        only = []
++        if arm is not None:
++            arm.plant(tree)
++            only = ["--only", arm.guard]
++        with log.open("w") as stream:
++            result = subprocess.run([sys.executable, str(HERE / "guards.py"), "--root",
++                                     str(tree), "--jobs", "1", *bench, *only],
++                                    stdout=stream, stderr=subprocess.STDOUT, check=False)
++        return result.returncode, log.read_text()
++
++
++def killed(arm: Arm, rc: int, contents: str) -> tuple[bool, list[str]]:
++    """Non-zero, a tally, and every expected FAIL line, each naming the arm's guard."""
++    lines = [line for line in contents.splitlines() if line.startswith("FAIL:")]
++    named = [line for line in lines if arm.guard in line or
++             (arm.name == "bench:unlisted" and "g_unlisted_check" in line)]
++    every = all(any(line.startswith(prefix) for line in named) for prefix in arm.expect)
++    if arm.name.endswith((":tightened", ":loosened")):
++        frontends = {line.split()[1] for line in contents.splitlines()
++                     if line.startswith(("GUARD ", "ELAB "))}
++        frontends |= {line.split()[2] for line in lines if line.startswith(("FAIL: GUARD ", "FAIL: ELAB "))}
++        kind = "ELAB" if arm.name.endswith(":tightened") else "GUARD"
++        every = every and bool(frontends) and all(
++            any(re.match(rf"FAIL: {kind}\s+{name}\s", line) for line in named) for name in frontends)
++    return rc != 0 and "checks:" in contents and every, named
++
++
++def main() -> int:
++    """Select arms, isolate every write in scratch trees, fail on any unproven arm."""
++    parser = argparse.ArgumentParser(description=__doc__,
++                                     formatter_class=argparse.RawDescriptionHelpFormatter)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--only", default="", help="comma-separated arm names")
++    parser.add_argument("--verilator", default="verilator")
++    parser.add_argument("--frontend", action="append",
++                        choices=("verilator", "yosys", "xsim", "synth"))
++    add_jobs_argument(parser)
++    args = parser.parse_args()
++    selected = arms()
++    if args.only:
++        wanted = set(args.only.split(","))
++        unknown = wanted - {a.name for a in selected}
++        if unknown:
++            print(f"unknown arm(s): {', '.join(sorted(unknown))}", file=sys.stderr)
++            return 2
++        selected = [a for a in selected if a.name in wanted]
++    if args.output.exists():
++        print(f"refusing to write into the existing {args.output}", file=sys.stderr)
++        return 2
++    args.output.mkdir(parents=True)
++    bench = ["--verilator", args.verilator]
++    for name in args.frontend or ():
++        bench += ["--frontend", name]
++
++    with in_order(trial, [(None, bench, args.output / "control.log")], 1) as results:
++        rc, contents = next(results)
++    ok = rc == 0 and " 0 FAIL" in contents
++    print(f"control: rc={rc} {'PASS' if ok else 'FAIL'}", flush=True)
++    if not ok:
++        print(contents[-4000:])
++        return 1
++    passed = 0
++    units = [(arm, bench, args.output / f"{arm.name.replace(':', '-')}.log") for arm in selected]
++    with in_order(trial, units, args.jobs) as results:
++        for arm, (rc, contents) in zip(selected, results):
++            ok, named = killed(arm, rc, contents)
++            passed += ok
++            print(f"{arm.name}: rc={rc} {'KILLED' if ok else 'UNPROVEN'}", flush=True)
++            for line in named:
++                print(f"    {line[:200]}", flush=True)
++            if not ok:
++                print(contents[-2500:], flush=True)
++    print(f"elab guard mutants: {passed} of {len(selected)} killed")
++    return int(passed != len(selected))
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/nvm_port/README.md b/tb/nvm_port/README.md
+index fbaef8d..2caa9da 100644
+--- a/tb/nvm_port/README.md
++++ b/tb/nvm_port/README.md
+@@ -20,10 +20,10 @@ is their sum. `make` first runs `elab_bounds.sh`, the port's two elaboration
+ guards: the deadline parameter refused by name at 0, 2^31 and 2^32 - 1, built
+ clean at 1 and 2^31 - 1; `MAX_PAYLOAD_P` (issue #17) refused by name and by its
+ bound, 65,527, at 65,528, 65,535 and 2^32 - 1, built clean at 1,024 and 65,527.
+-That refusal must be a `$fatal`: its line must carry `%Warning-USERFATAL` (or
++Both refusals must be a `$fatal`: each line must carry `%Warning-USERFATAL` (or
+ `%Error`), since Verilator reports `$error` and `$warning` as failing warnings
+-too, and where sv2v and yosys are installed yosys must build 65,527 and stop at
+-65,528, which it does only for a `$fatal`.
++too, and where sv2v and yosys are installed yosys must build 1 and 65,527 and stop
++at 0 and 65,528 in its fatal words, which only a `$fatal` gives at every sv2v.
+ 
+ The harness plays BOTH neighbors, independently of the RTL: a **manager BFM**
+ that frames records per 07 §5.2 (magic 0x1722, layout_version, record_id,
+diff --git a/tb/nvm_port/elab_bounds.sh b/tb/nvm_port/elab_bounds.sh
+index ceeebba..8eb783e 100755
+--- a/tb/nvm_port/elab_bounds.sh
++++ b/tb/nvm_port/elab_bounds.sh
+@@ -19,14 +19,15 @@
+ #   then pumps 65543, and 2^32 - 1, which the 16-bit MAXP_C would truncate to
+ #   65535. Its message must name the bound, 65527, as well as the parameter.
+ #
+-#   The payload bound's refusal is a FATAL, not just a failing lint. Verilator
+-#   reports `$fatal`, `$error` and `$warning` alike as warnings, each of which
+-#   fails -Wall, so the refusal's own line must carry %Warning-USERFATAL (or
++#   Both refusals are FATALs, not just failing lints. Verilator reports
++#   `$fatal`, `$error` and `$warning` alike as warnings, each of which fails
++#   -Wall, so each refusal's own line must carry %Warning-USERFATAL (or
+ #   %Error). Where sv2v and yosys are on PATH the class is also graded where it
+-#   decides the outcome: yosys elaborates 65527 and refuses 65528 by running
+-#   the lowered `$fatal`'s `$finish`, and it elaborates through a module-scope
+-#   `$error` or `$warning`. The deadline guard is an `$error`, like every other
+-#   module-scope guard in hdl/, and is graded by name only.
++#   decides the outcome: yosys elaborates the legal value and refuses the first
++#   illegal one in its fatal words: `FATAL` when sv2v passes `$fatal` through
++#   (0.0.12, the reference platform's pin), the lowered `$finish` from 0.0.13.
++#   It builds through a `$warning`, and a `$error` it refuses in other words or
++#   not at all.
+ #
+ # Exit 0 = every claim holds. Same shape as tb/timer_map/shape_elab.sh, and
+ # for the same reasons: the verdict greps read a here-string, never a pipe.
+@@ -98,19 +99,20 @@ fatal_in_yosys() {
+   elif out=$(yosys_at "$work/port.v" "$p" "$bad"); then
+     echo "YOSYS FAIL $p=$bad elaborated; the guard is not a \$fatal"
+     rc=1
+-  elif ! grep -qF '$finish' <<<"$out"; then
+-    echo "YOSYS FAIL $p=$bad failed, but not at the guard's \$finish"
++  elif ! grep -qE 'ERROR: FATAL|[$]finish' <<<"$out"; then
++    echo "YOSYS FAIL $p=$bad failed, but not at the guard's \$fatal"
+     grep -m3 'ERROR' <<<"$out" || true
+     rc=1
+   else
+-    echo "YOSYS OK   $p=$ok elaborates, $p=$bad stops at the guard's \$finish"
++    echo "YOSYS OK   $p=$ok elaborates, $p=$bad stops at the guard's \$fatal"
+   fi
+   rm -rf "$work"
+ }
+ 
+ legal MEM_TIMEOUT_CYC_P 1 2147483647
+-refused MEM_TIMEOUT_CYC_P 'Warning|Error' "is outside 1 to 2147483647" 0 2147483648 4294967295
++refused MEM_TIMEOUT_CYC_P 'Warning-USERFATAL|Error' "is outside 1 to 2147483647" 0 2147483648 4294967295
+ legal MAX_PAYLOAD_P 1024 65527
+ refused MAX_PAYLOAD_P 'Warning-USERFATAL|Error' "is above 65527" 65528 65535 4294967295
++fatal_in_yosys MEM_TIMEOUT_CYC_P 1 0
+ fatal_in_yosys MAX_PAYLOAD_P 65527 65528
+ exit "$rc"
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index b2c6c7e..d36af88 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2221,8 +2221,8 @@ whose 600-byte reservation is not a multiple of 16: OV1 reads a 584-byte descrip
+ `make`) lints the real top, with `scripts/lint_hdl.sh`'s flags, at 576, 584 and
+ 1008, which must lint clean, and at 568, 1016 and 580, which the engine must refuse
+ by name (`DESC_LINE_BYTES_P=568 is below 576`, `...=1016 is above 1008`, `...=580 is
+-not a multiple of 8`). Verilator reports an elaboration `$error` as a warning that a
+-`-Wno-fatal` build carries past, so the verdict is a lint's, which tolerates none.
++not a multiple of 8`), each as a `%Warning-USERFATAL`. Verilator reports an elaboration
++`$fatal` as a warning that a `-Wno-fatal` build carries past, so the verdict is a lint's.
+ 
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+diff --git a/tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch b/tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch
+index dc6f0f5..90ca7cb 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/aecp/KL_aecp_engine.sv
+ +++ b/hdl/aecp/KL_aecp_engine.sv
+ @@ -934,7 +934,7 @@
+-     $error("DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
++     $fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
+             LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg::GAMAP_PAGE_MAX_C);
+    end
+ -  if (RESP_BUF_C > RESP_CURSOR_BYTES_C) begin : gen_g_line_ceiling
+ +  if (1'b0) begin : gen_g_line_ceiling
+-     $error("DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor",
++     $fatal(1, "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor",
+             LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+    end
+diff --git a/tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch b/tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch
+index fbde08f..2ce51f3 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/aecp/KL_aecp_engine.sv
+ +++ b/hdl/aecp/KL_aecp_engine.sv
+ @@ -930,7 +930,7 @@
+-     $error("DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)",
++     $fatal(1, "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)",
+             LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+    end
+ -  if (RESP_BUF_C < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C) begin : gen_g_gamap_page_fit
+ +  if (((RESP_BUF_C + 15) & ~32'd15) < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C) begin : gen_g_gamap_page_fit
+-     $error("DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
++     $fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
+             LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg::GAMAP_PAGE_MAX_C);
+    end
+diff --git a/tb/pp_top/if_guards.py b/tb/pp_top/if_guards.py
+index 59dada4..2e89d21 100644
+--- a/tb/pp_top/if_guards.py
++++ b/tb/pp_top/if_guards.py
+@@ -8,9 +8,9 @@ Each case lints protocol_processor_top, from the sources the Makefile passes
+ after `--`, with the flags of scripts/lint_hdl.sh and one count override: a
+ legal count, one interface or Milan's redundant pair, must lint clean with no
+ warning at all, and a refused one must fail with the top's own message naming
+-N_AVB_IF_P. Verilator reports an elaboration $error as a USERERROR warning,
+-which a -Wno-fatal simulation build carries past, so the verdict is taken from
+-a lint that tolerates no warning.
++N_AVB_IF_P, as a $fatal. Verilator reports an elaboration $fatal as a USERFATAL
++warning, which a -Wno-fatal simulation build carries past, so the verdict is
++taken from a lint that tolerates no warning.
+ """
+ import argparse
+ import subprocess
+@@ -49,7 +49,7 @@ def main() -> int:
+             ok = result.returncode == 0 and not findings
+             outcome = "lints clean" if ok else "must lint clean"
+         else:
+-            named = [f for f in findings if "USERERROR" in f and refusal in f]
++            named = [f for f in findings if "USERFATAL" in f and refusal in f]
+             ok = result.returncode != 0 and bool(named)
+             outcome = f"refused: {refusal}" if ok else f"must be refused: {refusal}"
+         if ok:
+diff --git a/tb/pp_top/line_guards.py b/tb/pp_top/line_guards.py
+index 1f60370..2e1c995 100644
+--- a/tb/pp_top/line_guards.py
++++ b/tb/pp_top/line_guards.py
+@@ -8,9 +8,9 @@ to 1008 (issue #50). Each case lints protocol_processor_top, from the sources
+ the Makefile passes after `--`, with the flags of scripts/lint_hdl.sh and one
+ line override: a legal line must lint clean, and a refused one must fail with
+ the engine's own message naming DESC_LINE_BYTES_P, the parameter an
+-integrator sets. Verilator reports an elaboration $error as a USERERROR
+-warning, which a -Wno-fatal simulation build carries past, so the verdict is
+-taken from a lint that tolerates no warning.
++integrator sets, as a $fatal. Verilator reports an elaboration $fatal as a
++USERFATAL warning, which a -Wno-fatal simulation build carries past, so the
++verdict is taken from a lint that tolerates no warning.
+ """
+ import argparse
+ import subprocess
+@@ -51,7 +51,7 @@ def main() -> int:
+             ok = result.returncode == 0 and not findings
+             outcome = "lints clean" if ok else "must lint clean"
+         else:
+-            named = [f for f in findings if "USERERROR" in f and refusal in f]
++            named = [f for f in findings if "USERFATAL" in f and refusal in f]
+             ok = result.returncode != 0 and bool(named)
+             outcome = f"refused: {refusal}" if ok else f"must be refused: {refusal}"
+         if ok:
