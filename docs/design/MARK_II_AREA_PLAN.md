@@ -535,6 +535,7 @@ M5 restructures the existing live-status read mux and snapshots.
 **Saving:** 600 LUTs (400-1,000), from the historical 2,907-LUT block
 and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 2,893 fixed plus 211-per-stream OOC model.
 New split-interface logic is charged to L2, not saved again here.
+M5 measured 121 LUTs routed and 127 post-synthesis in its scope ([M5 intermediate measurement](#m5-intermediate-measurement)).
 
 **Risk: medium.** Snapshot coherence and AXI-Lite latency must hold.
 **Verification:** CSR, `tcam_csr`, `milan_dp`, firmware host tests,
@@ -987,6 +988,42 @@ The week-4 ruling names its measured target and revised schedule.
 No additional lever has earned credit in these fallback totals.
 A D8 margin exception alone cannot cure an [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) miss.
 It also needs an explicit ruling; no exception is assumed.
+
+### M5 intermediate measurement
+
+[Lane M5](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6098404907) restructures the [L8](#l8-csr-read-path) read path of [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
+The 0x800 window becomes one range of the live read tree, so stage 1 holds one word.
+Stage 2 becomes an OR of that word and the shadow block RAM's word.
+The window's SNAP count words load raw; a two-bit kind per word applies zero or POISON on read.
+Addresses, widths, reset values, access semantics, snapshot coherence and read latency are unchanged.
+A read-path lockstep against the frozen dev `e8454e27` block checks this at both shipping shapes.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| M5 route at `1abe18eb` | 49,577 | 54,226 | 15,791 | 74 / 27 | +0.097 / +0.036 |
+| Routed delta | -690 | -187 | +12 | 0 / 0 | -0.202 / +0.005 |
+| Post-synthesis delta, same runs | -428 | -181 | - | 0 / 0 | - |
+| `csr` scope, routed | 3,037 -> 2,916 | 2,143 -> 2,110 | - | 0 / 2 both | - |
+| `csr` scope, post-synthesis | 3,130 -> 3,003 | 2,143 -> 2,110 | - | 0 / 2 both | - |
+
+The base route equals the `route-1x1` record in every gated figure.
+Against that record, the M5 route passes with no failing endpoint.
+Its worst setup path lies in the CPU's DMA write bridge, which M5 does not change.
+Paths into and out of `csr` keep at least 1.35 ns setup slack at base and 2.55 ns at M5.
+The movement outside `csr` lies in untouched blocks, mostly the processor wrapper.
+That movement is not a reproducible saving.
+
+Out of context, `milan_csr` alone loses 440 LUTs at 1x1 and 179 at 8x8.
+In a wrapper tying what `milan_datapath` ties, it loses 155 and 199.
+The reproducible saving is about 125 LUTs and 33 flip-flops, below the 600 (400-1,000) estimate.
+What remains is the live read mux over about 3,000 live status bits that the register map fixes.
+[#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 211 LUTs per stream do not reproduce; out of context the block grows about 12 per stream.
+M5 adds no block RAM, LUTRAM or DSP.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+The gate record stays unchanged under D7.
 
 ## Lane sequence
 
