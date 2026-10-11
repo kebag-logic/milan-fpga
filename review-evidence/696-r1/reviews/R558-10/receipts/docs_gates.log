@@ -1,0 +1,60 @@
+---- python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 203 md files + 1265 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 python3 scripts/docs_check.py
+---- python3 scripts/check_em_dash.py --base 09c7231eca343607c97c0d66abebb2553688712c
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2 python3 scripts/check_em_dash.py --base 09c7231eca343607c97c0d66abebb2553688712c
+---- python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0 python3 scripts/check_doc_style.py
+---- python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0 python3 scripts/check_gptp_docs.py
+---- python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0 python3 docs/DOC_MAP.gen.py --check
+---- python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0 python3 docs/diagrams/timesync_chain.gen.py --check
+---- python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0 python3 scripts/check_solution_docs.py
+---- python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (5 exact gitlinks, decoded PNG)
+rc=0 python3 docs/diagrams/submodule_boundaries.gen.py --check
+---- python3 scripts/check_submodule_docs.py
+submodule documentation: OK (5 exact gitlinks)
+rc=0 python3 scripts/check_submodule_docs.py
+---- python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0 python3 scripts/check_diagram_pngs.py
+---- python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0 python3 scripts/check_feature_status.py
+---- python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2 python3 scripts/gen_toc.py --verify-anchors
+---- python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2 python3 scripts/gen_toc.py --check
+---- python3 scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0 python3 scripts/check_archive.py
+---- python3 scripts/check_hygiene.py --check
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 python3 scripts/check_hygiene.py --check
+---- python3 scripts/check_py_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 python3 scripts/check_py_idiom.py
+---- python3 scripts/check_cpp_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 python3 scripts/check_cpp_idiom.py
+---- python3 scripts/measure_test_evidence.py --check
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 python3 scripts/measure_test_evidence.py --check
+---- python3 scripts/check_todo_ownership.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 python3 scripts/check_todo_ownership.py
+---- python3 syn/ooc/pp_resource_gate.py check-baseline
+baseline PASS: 3 endpoints
+rc=0 python3 syn/ooc/pp_resource_gate.py check-baseline
