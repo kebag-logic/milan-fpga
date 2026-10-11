@@ -77,10 +77,11 @@ and clang, and its objects' symbols), runs as well.
 THE PIN (ctrl_pin.py). Every gate that builds the stack first runs the shared
 pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
 its checkout the gitlink's whole tree (the same paths, types and modes, every
-file hashing to the tree's blob), git reading the real objects only. This gate
-does too, and holds the pin proof's census (ctrl_pin.census): in the proof's
-modules only its helper names a process-launch facility, and what decides the
-pin names nothing outside the proof's vocabulary. Every target of a Makefile builder
+file hashing to the tree's blob), git reading the real objects only. While the
+proof runs, its audit hook (ctrl_build.audited) refuses every process start
+but its helper's Git, and dynamic code. This gate runs the check too, and the
+pin proof's census (ctrl_pin.census): a lint of the proof's modules, and the
+proof run under the hook from them. Every target of a Makefile builder
 whose recipe builds against the stack must have the pin check as a
 prerequisite, read from make's own dry run.
 

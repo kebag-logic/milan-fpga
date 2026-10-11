@@ -25,8 +25,10 @@ import os
 import shutil
 import stat
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import FrameType
 
 HERE = Path(__file__).resolve().parent
 CTRL = HERE.parent
@@ -194,13 +196,140 @@ class GitRun:
     stderr: str
 
 
+#: The Git program the pin proof runs: the one PATH names when this module is loaded (None: PATH names none). The
+#: helper starts it by this path, and the audit hook lets the helper start no other.
+GIT = shutil.which("git")
+#: What decides the pin: these functions of this module, and all they call.
+DECISION = ("stack_gitlink", "stack_pin", "main")
+#: The audit event a module of the pin proof raises to put its own code under the audit hook (ctrl_pin.py raises
+#: it; this module's code is under it from the helper's definition on).
+PROOF_EVENT = "ctrl_build.proof"
+#: Every audit event of a process start that CPython raises, on any platform; and of a thread's start, since a
+#: thread could change a process start's arguments after the hook has read them.
+LAUNCH_EVENTS = frozenset({"subprocess.Popen", "os.system", "os.exec", "os.posix_spawn", "os.spawn", "os.fork",
+                           "os.forkpty", "os.startfile", "pty.spawn", "webbrowser.open", "_posixsubprocess.fork_exec",
+                           "_winapi.CreateProcess", "_thread.start_new_thread", "_thread.start_joinable_thread"})
+#: The audit events of dynamic code (exec; compile, which exec and eval of a string raise too), and of what would
+#: reach or change the hook's own state: the collector's lists of objects, and a trace or profile function, which
+#: can rewrite a running frame's variables.
+DYNAMIC_EVENTS = frozenset({"exec", "compile", "gc.get_objects", "gc.get_referrers", "gc.get_referents",
+                            "sys.settrace", "sys.setprofile"})
+#: The attributes of a function whose replacement changes what it runs.
+RUNS = frozenset({"__code__", "__defaults__", "__kwdefaults__"})
+#: What the audit hook writes on the standard error before each refusal it raises, so a refusal that is caught
+#: and ignored is still read (ctrl_pin.exercised).
+HOOK_REFUSED = "the pin proof's audit hook refused: "
+
+
+class AuditRefusal(Refusal):
+    """A refusal of the pin proof's audit hook (audited): the line of the proof that asked, and what it asked for."""
+
+
+def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
+    """The helper, after installing the pin proof's audit hook (PEP 578) beside it, before the proof's first Git
+    call (THE HOOK, ctrl_pin.py). An audit hook cannot be removed, and this one binds, as it is installed, all it
+    judges by: the helper's code, this module's namespace, GIT, and every function, builtin and constant it uses,
+    so no later binding of a name, here or anywhere, changes what it does. While the pin proof runs (a function of
+    DECISION, in any thread, or the top level of one of the proof's modules), it refuses every process or thread
+    start but the helper's: the subprocess module starting, for the helper's own code, GIT as a string, with a
+    plain environment that sets GIT_NO_REPLACE_OBJECTS=1 and gives GIT_GRAFT_FILE an absolute path under a file,
+    which cannot exist. It refuses DYNAMIC_EVENTS and an import of importlib while a function of DECISION runs, and
+    wherever the proof's own code asks for them, the helper's included. It refuses, at any time, a replacement of
+    what a function of the proof runs (RUNS). Each refusal is an AuditRefusal naming the proof's line that asked."""
+    proof, code, program, decision, starts, dynamic = [helper.__globals__], helper.__code__, GIT, DECISION, \
+        LAUNCH_EVENTS, DYNAMIC_EVENTS
+    runs, joined, said, refusal, root = RUNS, PROOF_EVENT, HOOK_REFUSED, AuditRefusal, f"{ROOT}/"
+    frame_at, frames, write, stat_of, is_dir, decode = sys._getframe, sys._current_frames, os.write, os.stat, \
+        stat.S_ISDIR, os.fsdecode
+    kind, text, raw, mapping, ordered, listed = type, str, bytes, dict, tuple, list
+    function, failed = type(helper), (OSError, ValueError)
+
+    def ours(frame: FrameType) -> bool:
+        """Whether `frame` runs the code of a module of the pin proof."""
+        for namespace in proof:
+            if frame.f_globals is namespace:
+                return True
+        return False
+
+    def running(loading: bool) -> bool:
+        """Whether, in any thread, a function of DECISION runs (or, `loading`, a proof module's top level)."""
+        for frame in frames().values():
+            while frame is not None:
+                if (frame.f_code.co_name in decision and frame.f_globals is proof[0]) or \
+                        (loading and frame.f_code.co_name == "<module>" and ours(frame)):
+                    return True
+                frame = frame.f_back
+        return False
+
+    def refuse(frame: FrameType, what: str) -> None:
+        """Refuse `what`, asked at the proof's innermost line on `frame`'s stack (`frame`'s own, if none)."""
+        at = frame
+        while at is not None and not ours(at):
+            at = at.f_back
+        at = frame if at is None else at
+        message = f"{at.f_code.co_filename.removeprefix(root)}:{at.f_lineno} {what}"
+        write(2, f"{said}{message}\n".encode(errors="backslashreplace"))
+        raise refusal(message)
+
+    def unlike(event: str, args: tuple, frame: FrameType) -> str | None:
+        """Why a process start while the proof runs is not the helper's (None: it is)."""
+        caller = frame
+        while caller is not None and caller.f_globals.get("__name__") == "subprocess":
+            caller = caller.f_back
+        forked = event == "_posixsubprocess.fork_exec"
+        if caller is None or caller.f_code is not code or event not in ("subprocess.Popen", "os.posix_spawn") and \
+                not forked:
+            first = args[1] if event == "os.spawn" else args[0] if args else "a copy of this interpreter"
+            return f"starts {decode(first) if kind(first) in (text, raw) else first} ({event}) while the pin proof " \
+                   f"runs, not by the helper"
+        given, env = args[0], args[2] if event != "subprocess.Popen" else args[3]
+        if not (kind(given) is text and given == program) and not (forked and kind(given) is ordered and
+                                                                      {decode(g) for g in given} == {program}):
+            return f"has the helper start {given} ({event}), not the Git program PATH names, {program}"
+        if forked and kind(env) is listed:
+            env = {decode(k): decode(v) for k, _, v in (e.partition(b"=") for e in env if kind(e) is raw)}
+        if kind(env) is not mapping or env.get("GIT_NO_REPLACE_OBJECTS") != "1":
+            return f"has the helper start Git ({event}) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a " \
+                   f"replacement object"
+        graft = env.get("GIT_GRAFT_FILE")
+        try:
+            under = kind(graft) is text and graft.startswith("/") and not is_dir(stat_of(graft.rpartition("/")[0])
+                                                                                .st_mode)
+        except failed:
+            under = False
+        return None if under else f"has the helper start Git ({event}) with GIT_GRAFT_FILE {graft}, a path that " \
+                                  f"can exist, so Git would read a graft file"
+
+    def hook(event: str, args: tuple) -> None:
+        """The pin proof's audit hook."""
+        if event == joined:
+            proof.append(frame_at(1).f_globals)
+        elif event in starts:
+            if running(True) and (why := unlike(event, args, frame_at(1))):
+                refuse(frame_at(1), why)
+        elif event in dynamic or event == "import" and kind(args[0]) is text and \
+                (args[0] == "importlib" or args[0].startswith("importlib.")):
+            if ours(frame_at(1)) or running(False):
+                asked = f"an import of {args[0]}" if event == "import" else event
+                refuse(frame_at(1), f"asks for {asked} in the pin proof: dynamic code, or a reach into the audit "
+                                    f"hook's own state")
+        elif event == "object.__setattr__" and kind(args[0]) is function and args[1] in runs:
+            for namespace in proof:
+                if args[0].__globals__ is namespace:
+                    refuse(frame_at(1), f"replaces {args[1]} of {args[0].__qualname__}, a function of the pin proof")
+
+    sys.addaudithook(hook)
+    return helper
+
+
+@audited
 def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
-    """One git command in `directory`, its output captured: the only code of the pin proof's modules (this one
-    and ctrl_pin.py) that names a process-launch facility, and the only process what decides the pin starts,
-    which ctrl_pin.census holds."""
+    """One git command in `directory`, its output captured: the helper, the only code of the pin proof's modules
+    (this one and ctrl_pin.py) that names a process-launch facility, and the only one whose process the pin
+    proof's audit hook lets start while the proof runs (audited): GIT, with git_env's two settings."""
     import subprocess
-    res = subprocess.run(["git", "-C", str(directory), *args], input=stdin, capture_output=True, check=False,
-                         env=git_env(), encoding="utf-8", errors="surrogateescape")
+    res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT, input=stdin, capture_output=True,
+                         check=False, env=git_env(), encoding="utf-8", errors="surrogateescape")
     return GitRun(res.returncode, res.stdout, res.stderr)
 
 

@@ -8,39 +8,63 @@ every file hashing to the tree's blob). Every Python gate that builds the stack
 calls it first. This module holds the rest, for the boundary gate
 (ctrl_boundary.py).
 
-THE CENSUS (census). The pin proof's modules are ctrl_build.py and this one.
-In them only the helper, ctrl_build.git, names a facility that starts a
-process: it runs git with ctrl_build.git_env, which ignores replacement objects
-and names a graft file that does not exist, so git reads the real objects
-only. The census reads the two modules' syntax trees, not their text, so the
-program a call would name does not matter. It refuses:
+THE HOOK (ctrl_build.audited). The pin proof's modules are ctrl_build.py and
+this one; what decides the pin is ctrl_build.DECISION (stack_gitlink,
+stack_pin and the command line's main). Before the proof's first Git call,
+where ctrl_build.py defines its helper (ctrl_build.git), the proof installs a
+PEP 578 audit hook, which stays for the life of the process. An audit hook
+cannot be removed, and this one binds, as it is installed, all it judges by
+(the helper's code, ctrl_build.py's namespace, the Git program, and every
+function, builtin and constant it uses), so no later rebinding of a name
+switches it off. While the proof runs (a function of DECISION, in any thread,
+or the top level of one of the proof's modules), the hook refuses every
+process start the interpreter audits but the helper's: the subprocess module
+starting, for the helper's own code, the Git program PATH named when the proof
+was loaded (ctrl_build.GIT), with GIT_NO_REPLACE_OBJECTS=1 and a
+GIT_GRAFT_FILE that cannot exist, so Git reads the real objects only. It
+refuses every thread start there too, since a thread could change a start's
+arguments after the hook has read them. It
+refuses exec, compile and an import of importlib, and the reaches into its own
+state (the collector's lists of objects, a trace or profile function), while
+a function of DECISION runs and wherever the proof's own code asks for them,
+the helper's included; this module puts its code under the hook by raising
+ctrl_build.PROOF_EVENT. It refuses at any time a replacement of what a
+function of the proof runs (its code or its defaults). Each refusal is a
+ctrl_build.AuditRefusal naming the line of the proof that asked, written first
+to the standard error, so a refusal that is caught and ignored is still read.
+What it covers is a launch through the interpreter's audited interfaces.
+Native code starts a process no audit event names (ctypes, an extension
+module, and before CPython 3.14 _posixsubprocess.fork_exec, which
+multiprocessing's spawn and forkserver call), and that is the remaining
+limit; so is what Git itself starts, and code that runs before the hook is
+installed (ctrl_build.py's top, above the helper). A function of the proof's
+modules that starts a process while the proof is not running is not judged:
+ctrl_build.py's build functions and run, and this module's tool runs (make,
+and the gates the controls run), all through fw_gtest.run.
+
+THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
+text, beside the hook's own check of them (exercised: the pin proof run from
+the texts it is given, under the hook, each refusal reported at its line).
+The guarantee is the hook's: the lint reads the modules as written, so it does
+not see a rebinding by assignment or code built at run time. It refuses:
 - outside the helper, any reference to a process-launch facility, by import,
   alias or attribute: the subprocess, pty and asyncio.subprocess modules and
   their members; os.system, os.popen, os.exec*, os.spawn*, os.posix_spawn*,
   os.fork, os.forkpty and os.startfile; asyncio's create_subprocess_exec and
   create_subprocess_shell. An attribute so named is refused on any object, so
   os reached through another module is refused too;
-- eval, exec, compile, __import__, importlib and builtins; the reflection that
-  reaches an object without naming it (getattr, setattr, delattr, vars,
-  globals, locals, an attribute beginning with an underscore but __name__, a
-  frame's attributes, sys.modules); a wildcard import;
-- in what decides the pin (ROOTS: stack_gitlink, stack_pin and the command
-  line's main) and every function, class and constant of ctrl_build.py they
-  name, followed through each, any name outside the proof's vocabulary
-  (VOCABULARY, BUILTINS, ATTRIBUTES): a few names of os, hashlib, stat,
-  pathlib and argparse, and builtins and attributes of its own values, none of
-  which starts a process. So the pin decision reaches no process but through
-  the helper, by any route or name: ctrl_build.run, the harness's runner, is
-  refused there;
+- anywhere, the helper included, eval, exec, compile, __import__, importlib
+  and builtins, by name, by import or as an attribute of any object (but
+  re.compile); outside the hook, the reflection that reaches an object without
+  naming it (getattr, setattr, delattr, vars, globals, locals, an attribute
+  beginning with an underscore but __name__, a frame's attributes,
+  sys.modules); a wildcard import;
+- in what decides the pin and every function, class and constant of
+  ctrl_build.py it names, followed through each, any name outside the proof's
+  vocabulary (VOCABULARY, BUILTINS, ATTRIBUTES): a few names of os, hashlib,
+  stat, pathlib and argparse, and builtins and attributes of its own values;
 - ctrl_build.py without the helper or with its name bound again, and a helper
   environment that would read a replacement or a graft.
-What remains. A function of another module that starts a process is not a
-facility the census knows: ctrl_build.py's build functions and run, and this
-module's tool runs (run: make, and the gates the controls run), start their
-processes through fw_gtest.run, outside the helper, and the census refuses
-them only where the pin decision would reach them. It reads the modules as
-written: code elsewhere that rebinds their names at run time, or a route of
-Python's own to an object that none of the refused names opens, is not seen.
 
 THE MAKEFILES. A Makefile among the firmware's builders is read with make's
 own database (make -p) and dry run (make -n -B --trace), never restated here,
@@ -59,11 +83,20 @@ link standing in for a file, with a file made executable, and at another
 revision. It refuses, by the edited source's name, an edit that a replacement
 of the pinned tree's src/ or of the pinned commit would make git read as
 pinned, one beside a graft file, and one a clean filter given through the
-clone's attributes turns back into the pinned bytes. The census refuses, each
-at its planted line, a git command run outside the helper (by the harness's
-runner, under a computed name and as a dashed program), an aliased import of
-subprocess, os.system and exec of a string, and a helper environment without
-either of its two settings. The MAAP differential (both its modes) and the AECP
+clone's attributes turns back into the pinned bytes. The pin proof as the
+checkout holds it runs to its verdict under the hook; and the proof run under
+the hook with one bypass planted (census_arms, HOOK_PLANTS) ends, before any
+build, in the hook's refusal at the plant's line: a git command run outside
+the helper (by the harness's runner, under a computed name and as a dashed
+program), an aliased import of subprocess, os.system and exec of a string;
+the helper's name rebound by attribute assignment in either module, and
+os.walk rebound to start Git; inspect.builtins.exec, eval and compile, and
+pkgutil.importlib.import_module; exec, eval and compile inside the helper;
+a thread started, the decision's code replaced, the collector's list of
+objects and a trace function. The Git program rebound is refused for the
+program the helper would start, and the helper's environment without either of
+its two settings, and with the builtins a hook could look up rebound, by the
+setting's name. The MAAP differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
 every Makefile builder whose dry run reaches the stack is run for real, in a
@@ -78,24 +111,32 @@ must be refused by name.
 from __future__ import annotations
 
 import ast
+import json
 import os
 import re
 import shutil
 import stat
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from ctrl_build import HERE, PP, ROOT, STACK, Refusal, git, git_env, stack_gitlink, stack_pin
+from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STACK, Refusal, audited, git, git_env,
+                        stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
 import fw_gtest
+
+#: This module's code is the pin proof's: under the audit hook from here on, as ctrl_build.py's is (THE HOOK).
+sys.audit(PROOF_EVENT)
 
 #: The pin proof's modules, in which only the helper (ctrl_build.git) names a process-launch facility.
 PROOF = (HERE / "ctrl_build.py", HERE / "ctrl_pin.py")
 #: The helper: the one function, of ctrl_build.py, that may name a process-launch facility.
 HELPER = git.__name__
+#: The audit hook's installer, of ctrl_build.py: the one function of the proof that may use reflection.
+HOOK = audited.__name__
 #: What decides the pin, in ctrl_build.py: these functions, and all they name, use only the proof's vocabulary.
-ROOTS = ("stack_gitlink", "stack_pin", "main")
+ROOTS = DECISION
 #: The names that start a process: a module's (subprocess, pty, asyncio.subprocess), and a function's of os,
 #: asyncio or any object.
 LAUNCH_NAMES = frozenset({"subprocess", "pty", "system", "popen", "startfile", "fork", "forkpty", "posix_spawn",
@@ -145,27 +186,107 @@ if "--Mdir" in args and "-o" in args:
 UNPINNED = (ROOT / "tb/verilator/mbx/Makefile", "run-if2: if2-gen | stack-pin\n", "run-if2: if2-gen\n", "run-if2")
 #: How long one bench target may run against the poisoned clone before it is a failure.
 BENCH_TIMEOUT_S = 900
-#: The pin check's read of the pinned tree, where most census controls plant.
+#: The pin proof run from a census's texts in a fresh interpreter (exercised): each module compiled from its text
+#: under its own path in the checkout, so its lines are its file's; ctrl_build.py first, which installs the audit
+#: hook, then ctrl_pin.py; then the command line's pin check. Its arguments: the checkout, and the texts (a JSON
+#: file, by path from the checkout).
+PROOF_RUN = '''import json
+import sys
+import types
+from pathlib import Path
+root, texts = Path(sys.argv[1]), json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+sys.path.insert(0, str(root / "sw/firmware/ctrl/test"))
+for name in ("ctrl_build", "ctrl_pin"):
+    for rel, text in texts.items():
+        if Path(rel).name == name + ".py":
+            module = types.ModuleType(name)
+            module.__file__ = str(root / rel)
+            sys.modules[name] = module
+            exec(compile(text, module.__file__, "exec"), module.__dict__)
+sys.exit(sys.modules["ctrl_build"].main(["--stack-pin"]))
+'''
+#: How long that run may take before it is a failure.
+PROOF_RUN_TIMEOUT_S = 300
+#: Where the pin proof's controls plant in ctrl_build.py: the pin check's reads (of HEAD, of the pinned tree, of
+#: the gitlink), the decision's first function, the helper's own import, and the helper environment's settings.
+HEAD_READ = 'head = git(stack, "rev-parse", "HEAD")'
 TREE_READ = 'tree = git(stack, "ls-tree", "-r", "-t", "-z", "--full-tree", pin)'
-#: The census's standing controls: what each plants; in which pin-proof module; the anchor it replaces there
-#: (None: it is added at the module's end); the planted text, whose first line the census must name; and the
-#: words the finding there must hold. Each starts a process outside the helper, whatever the program it names.
-CENSUS_PLANTS = (
-    ("a Git command run by the harness's runner (ctrl_build.run)", "ctrl_build.py",
-     'head = git(stack, "rev-parse", "HEAD")', 'head = run(["git", "-C", str(stack), "rev-parse", "HEAD"])',
-     "names run"),
+ENTRY_READ = 'entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()'
+GITLINK_DEF = "\n\ndef stack_gitlink("
+HELPER_IMPORT = "    import subprocess\n"
+#: Git through the harness's runner, with the helper's environment, bound as the helper (R584-9's E2b and E6).
+PLAIN = '''def plain(directory: Path, *args: str, stdin: str | None = None) -> object:
+    """git through the harness's runner."""
+    res = fw_gtest.run(["git", "-C", str(directory), *args], env=git_env())
+    return ctrl_build.GitRun(res.returncode, res.stdout, res.stderr)
+
+
+ctrl_build.git = plain
+'''
+#: The pin proof's standing controls under its audit hook: what each plants; in which pin-proof module; the anchor
+#: it replaces there (None: it is added at the module's end); the planted text; the words the hook's refusal must
+#: hold; and whether that refusal must name a line of the plant (else it is the helper's own). Each starts a
+#: process outside the helper, runs dynamic code, or has the helper start another program or Git unhardened.
+HOOK_PLANTS = (
+    ("a Git command run by the harness's runner (ctrl_build.run)", "ctrl_build.py", HEAD_READ,
+     'head = run(["git", "-C", str(stack), "rev-parse", "HEAD"])', "(subprocess.Popen)", True),
     ("a program named by a computed name (git.__name__)", "ctrl_build.py", TREE_READ,
-     'tree = run([git.__name__, "-C", str(stack), "ls-tree", "-r", "-t", "-z", "--full-tree", pin])', "names run"),
+     'tree = run([git.__name__, "-C", str(stack), "ls-tree", "-r", "-t", "-z", "--full-tree", pin])',
+     "(subprocess.Popen)", True),
     ("a dashed program (git-ls-tree)", "ctrl_build.py", TREE_READ,
-     'tree = run(["git-ls-tree", "-r", "-t", "-z", "--full-tree", pin], cwd=stack)', "names run"),
+     'tree = run(["git-ls-tree", "-r", "-t", "-z", "--full-tree", pin], cwd=stack)', "(subprocess.Popen)", True),
     ("an aliased import (from subprocess import run as r)", "ctrl_build.py", TREE_READ,
      'from subprocess import run as r\n    tree = r(["git", "-C", str(stack), "ls-tree", "-r", "-t", "-z", '
-     '"--full-tree", pin])', "imports subprocess.run as r"),
+     '"--full-tree", pin])', "(subprocess.Popen)", True),
     ("os.system, in a line added to ctrl_pin.py", "ctrl_pin.py", None, 'LISTED = os.system("git ls-files")\n',
-     "names os.system"),
-    ("exec of a string", "ctrl_build.py", 'entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()',
+     "(os.system)", True),
+    ("exec of a string", "ctrl_build.py", ENTRY_READ,
      'exec("entry = run([\'git\', \'ls-files\', \'--stage\', \'--\', rel], cwd=root).stdout.split()")',
-     "names exec"),
+     "asks for compile", True),
+    ("the helper's name rebound by attribute assignment in ctrl_build.py", "ctrl_build.py", GITLINK_DEF,
+     "\n\nimport ctrl_build  # noqa: E402\n\n\n" + PLAIN + GITLINK_DEF, "(subprocess.Popen)", True),
+    ("the helper's name rebound by attribute assignment in ctrl_pin.py", "ctrl_pin.py", None,
+     "import ctrl_build  # noqa: E402\n\n\n" + PLAIN, "(subprocess.Popen)", True),
+    ("os.walk, a name of the proof's vocabulary, rebound to start Git", "ctrl_build.py", GITLINK_DEF,
+     '\n\nWALK = os.walk\n\n\ndef walk(top: str) -> object:\n    """os.walk, after a git command."""\n'
+     '    run(["git", "-C", str(top), "status", "--porcelain"])\n    return WALK(top)\n\n\nos.walk = walk\n'
+     + GITLINK_DEF, "(subprocess.Popen)", True),
+    ("inspect.builtins.exec, in lines added to ctrl_pin.py", "ctrl_pin.py", None,
+     'import inspect  # noqa: E402\ninspect.builtins.exec("import subprocess; subprocess.run([\'git\', \'ls-files\'])")'
+     '\n', "asks for compile", True),
+    ("inspect.builtins.eval", "ctrl_build.py", ENTRY_READ,
+     'import inspect\n    entry = inspect.builtins.eval("run([\'git\', \'ls-files\', \'--stage\', \'--\', rel], '
+     'cwd=root)").stdout.split()', "asks for compile", True),
+    ("inspect.builtins.compile", "ctrl_build.py", TREE_READ,
+     'import inspect\n    tree = eval(inspect.builtins.compile("run([\'git\', \'ls-tree\', \'-r\', \'-z\', pin], '
+     'cwd=stack)", "<plant>", "eval"))', "asks for compile", True),
+    ("pkgutil.importlib.import_module", "ctrl_build.py", TREE_READ,
+     'import pkgutil\n    tree = pkgutil.importlib.import_module("subprocess").run(["git", "-C", str(stack), '
+     '"ls-tree", "-r", "-t", "-z", "--full-tree", pin], capture_output=True, encoding="utf-8")', "pin proof", True),
+    ("exec of a string inside the helper", "ctrl_build.py", HELPER_IMPORT,
+     '    exec("import os; os.system(\'git ls-files\')")\n' + HELPER_IMPORT, "asks for compile", True),
+    ("eval inside the helper", "ctrl_build.py", HELPER_IMPORT,
+     '    eval("__import__(\'os\').system(\'git ls-files\')")\n' + HELPER_IMPORT, "asks for compile", True),
+    ("compile inside the helper", "ctrl_build.py", HELPER_IMPORT,
+     '    compile("import os", "<plant>", "exec")\n' + HELPER_IMPORT, "asks for compile", True),
+    ("a thread started, in lines added to ctrl_pin.py", "ctrl_pin.py", None,
+     "import threading  # noqa: E402\nthreading.Thread(target=print).start()\n", "(_thread.start_", True),
+    ("the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py", "ctrl_pin.py", None,
+     "stack_pin.__code__ = mirror.__code__\n", "replaces __code__ of stack_pin", True),
+    ("the collector's list of objects, in lines added to ctrl_pin.py", "ctrl_pin.py", None,
+     "import gc  # noqa: E402\nOBJECTS = gc.get_objects()\n", "asks for gc.get_objects", True),
+    ("a trace function, in a line added to ctrl_pin.py", "ctrl_pin.py", None, "sys.settrace(None)\n",
+     "asks for sys.settrace", True),
+    ("the Git program rebound by attribute assignment in ctrl_pin.py", "ctrl_pin.py", None,
+     'import ctrl_build  # noqa: E402\nctrl_build.GIT = shutil.which("true")\n', "not the Git program", False),
+    ("the helper's environment without GIT_NO_REPLACE_OBJECTS", "ctrl_build.py", '"GIT_NO_REPLACE_OBJECTS": "1", ',
+     "", "without GIT_NO_REPLACE_OBJECTS=1", False),
+    ("the helper's environment without GIT_GRAFT_FILE", "ctrl_build.py", ', "GIT_GRAFT_FILE": NO_GRAFTS', "",
+     "with GIT_GRAFT_FILE None", False),
+    ("the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py", "ctrl_pin.py", None,
+     'import ctrl_build  # noqa: E402\nctrl_build.git_env = lambda: dict(os.environ)\n'
+     'ctrl_build.type = ctrl_build.dict = ctrl_build.isinstance = ctrl_build.any = lambda *args: True\n',
+     "without GIT_NO_REPLACE_OBJECTS=1", False),
 )
 
 
@@ -221,13 +342,12 @@ def spoken(target: str) -> bool:
     return target in VOCABULARY or member in VOCABULARY.get(module, ())
 
 
-def launches(rel: str, tree: ast.Module, exempt: set[int]) -> list[str]:
-    """Outside the helper (`exempt`: its nodes), each reference of a pin-proof module to a process-launch
-    facility, to dynamic code or to reflection, by import, alias, name or attribute; and each wildcard import."""
+def launches(rel: str, tree: ast.Module, helper: set[int], hook: set[int]) -> list[str]:
+    """Each reference of a pin-proof module to dynamic code, the helper's included, by import, alias, name or
+    attribute of any object (but re.compile); outside the helper (`helper`: its nodes), each to a process-launch
+    facility; outside the audit hook's installer (`hook`: its nodes), each to reflection; each wildcard import."""
     found, facility = [], {}
     for node in ast.walk(tree):
-        if id(node) in exempt:
-            continue
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             for alias, name, _ in imported(node):
                 dotted = alias.name if isinstance(node, ast.Import) else f"{node.module or ''}.{alias.name}"
@@ -235,7 +355,7 @@ def launches(rel: str, tree: ast.Module, exempt: set[int]) -> list[str]:
                 if alias.name == "*":
                     found.append(f"{rel}:{node.lineno} imports every name of {node.module}, which the census "
                                  f"cannot follow")
-                elif parts & (LAUNCH_NAMES | DYNAMIC):
+                elif parts & DYNAMIC or (parts & LAUNCH_NAMES and id(node) not in helper):
                     facility[name] = dotted
                     found.append(f"{rel}:{node.lineno} imports {dotted}" + (f" as {name}" if alias.asname else "") +
                                  f", {'a process-launch facility' if parts & LAUNCH_NAMES else 'dynamic code'}")
@@ -243,9 +363,11 @@ def launches(rel: str, tree: ast.Module, exempt: set[int]) -> list[str]:
             found.append(f"{rel}:{node.lineno} names {node.id}, dynamic code or reflection")
         elif isinstance(node, ast.Name) and node.id in facility and isinstance(node.ctx, ast.Load):
             found.append(f"{rel}:{node.lineno} names {node.id}, which is {facility[node.id]}")
-        elif isinstance(node, ast.Attribute) and node.attr in LAUNCH_NAMES:
+        elif isinstance(node, ast.Attribute) and node.attr in DYNAMIC and ast.unparse(node) != "re.compile":
+            found.append(f"{rel}:{node.lineno} names {ast.unparse(node)}, dynamic code or reflection")
+        elif isinstance(node, ast.Attribute) and node.attr in LAUNCH_NAMES and id(node) not in helper:
             found.append(f"{rel}:{node.lineno} names {ast.unparse(node)}, a process-launch facility")
-        elif isinstance(node, ast.Attribute) and REFLECTIVE.match(node.attr):
+        elif isinstance(node, ast.Attribute) and REFLECTIVE.match(node.attr) and id(node) not in hook:
             found.append(f"{rel}:{node.lineno} names {ast.unparse(node)}, reflection that reaches an object "
                          f"without naming it")
     return found
@@ -313,27 +435,53 @@ def reach(rel: str, tree: ast.Module) -> list[str]:
     return found
 
 
+def exercised(texts: dict[str, str]) -> list[str]:
+    """The pin proof run from `texts` (each module's path and text) under its audit hook, in a fresh interpreter
+    and before any build (PROOF_RUN): each refusal of the hook, at the line of the proof that asked; or, if the run
+    did not reach the pin check's verdict, how it ended. The run's environment holds neither of the helper's two
+    settings, so only the helper's own environment can give them."""
+    env = {k: v for k, v in os.environ.items() if k not in ("GIT_NO_REPLACE_OBJECTS", "GIT_GRAFT_FILE")}
+    with tempfile.TemporaryDirectory(prefix="ctrl-pin-") as scratch:
+        given = Path(scratch) / "texts.json"
+        given.write_text(json.dumps(texts), encoding="utf-8")
+        res = fw_gtest.run([sys.executable, "-I", "-B", "-c", PROOF_RUN, str(ROOT), str(given)],
+                           timeout=PROOF_RUN_TIMEOUT_S, env={**env, "LC_ALL": "C"})
+    out = res.stdout + res.stderr
+    refused = [ln.removeprefix(HOOK_REFUSED) for ln in out.splitlines() if ln.startswith(HOOK_REFUSED)]
+    if refused or (res.returncode == 0 and "tsn-c-stack at " in res.stdout):
+        return list(dict.fromkeys(refused))
+    return [f"the pin proof did not reach its verdict under its audit hook: exit {res.returncode}: "
+            f"{out.strip().splitlines()[-1] if out.strip() else 'no output'}"]
+
+
 def census(texts: dict[str, str], env: dict[str, str]) -> list[str]:
     """Each way the pin proof's modules (`texts`: each one's path and text) could start a process other than
-    through the helper (THE CENSUS), and each setting of the helper's environment (`env`) that would let git read
-    a replacement object or a graft."""
+    through the helper, or run dynamic code (THE CENSUS), and each setting of the helper's environment (`env`) that
+    would let git read a replacement object or a graft; then each refusal of the audit hook when the proof runs from
+    the texts (exercised)."""
     findings = []
     builds = [rel for rel in texts if Path(rel).name == "ctrl_build.py"]
     if len(builds) != 1:
         findings.append(f"the census was given {len(builds)} ctrl_build.py, which holds the helper, where it needs one")
     for rel, text in texts.items():
         tree = ast.parse(text, rel)
-        exempt: set[int] = set()
+        helper_nodes: set[int] = set()
+        hook_nodes: set[int] = set()
         if rel in builds:
-            helper = scope(tree).get(HELPER, [])
+            bound = scope(tree)
+            helper = bound.get(HELPER, [])
             defs = [node for kind, node, _ in helper if kind == "def"]
             if not defs:
                 findings.append(f"{rel} holds no helper ({HELPER})")
             findings += [f"{rel}:{node.lineno} binds the helper's name {HELPER} again" for _, node, _ in helper
                          if node is not defs[0]]
-            exempt = {id(n) for helper_def in defs[:1] for n in ast.walk(helper_def)}
+            helper_nodes = {id(n) for helper_def in defs[:1] for n in ast.walk(helper_def)}
+            hooks = [node for kind, node, _ in bound.get(HOOK, []) if kind == "def"]
+            hook_nodes = {id(n) for hook_def in hooks[:1] for n in ast.walk(hook_def)}
             findings += reach(rel, tree)
-        findings += launches(rel, tree, exempt)
+        findings += launches(rel, tree, helper_nodes, hook_nodes)
+    if len(builds) == 1:
+        findings += exercised(texts)
     if env.get("GIT_NO_REPLACE_OBJECTS") != "1":
         findings.append("the pin proof's Git environment does not set GIT_NO_REPLACE_OBJECTS=1, so Git would read "
                         "a replacement object")
@@ -620,45 +768,39 @@ class Clone:
             return False, str(exc)
 
 
-def counted(env: dict[str, str], name: str) -> tuple[bool, str]:
-    """The census of the pin proof with a planted helper environment: accepted unless a finding names the
-    setting `name`, and that finding."""
-    found = census({p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}, env)
-    named = [f for f in found if name in f]
-    return not named, named[0] if named else f"no finding names {name}: {found}"
+def unplanted() -> tuple[bool, str]:
+    """The pin proof as the checkout holds it, run under its audit hook (exercised): accepted when it reaches its
+    verdict with no refusal, and what it ended with."""
+    found = exercised({p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF})
+    return not found, "; ".join(found) or "the pin check's verdict, no refusal"
 
 
-def planted(rel: str, old: str | None, new: str, word: str) -> tuple[bool, str]:
-    """The census of the pin proof with `new` in place of `old` in one of its modules (`rel`, its name; `old`
-    None: `new` added at its end): accepted unless a finding names `new`'s first line and `word`, and that
-    finding."""
+def planted(rel: str, old: str | None, new: str, word: str, at_plant: bool) -> tuple[bool, str]:
+    """The pin proof run under its audit hook (exercised) with `new` in place of `old` in one of its modules (`rel`,
+    its name; `old` None: `new` added at its end): accepted unless a refusal of the hook holds `word` and, if
+    `at_plant`, names a line of `new`; and that refusal."""
     texts = {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}
     key = (HERE / rel).relative_to(ROOT).as_posix()
     text = texts[key]
     if old is not None and text.count(old) != 1:
-        return True, f"the census control's anchor occurs {text.count(old)} times in {rel}"
+        return True, f"the hook control's anchor occurs {text.count(old)} times in {rel}"
     at = len(text) if old is None else text.index(old)
-    line = text[:at].count("\n") + 1
+    first = text[:at].count("\n") + 1
+    last = first + new.count("\n")
+    lines = [f"{key}:{n} " for n in range(first, last + 1)] if at_plant else [""]
     texts[key] = text[:at] + new + text[at + len(old or ""):]
-    found = census(texts, git_env())
-    named = [f for f in found if f.startswith(f"{key}:{line} ") and word in f]
-    return not named, named[0] if named else f"no finding at {key}:{line} that {word}: {found}"
-
-
-def without(name: str) -> dict[str, str]:
-    """The helper's environment without one of its settings."""
-    return {k: v for k, v in git_env().items() if k != name}
+    found = exercised(texts)
+    named = [f for f in found if word in f and any(f.startswith(line) for line in lines)]
+    where = f" at {key}:{first} to {last}" if at_plant else ""
+    return not named, named[0] if named else f"no refusal{where} that holds {word}: {found}"
 
 
 def census_arms() -> list[tuple]:
-    """The census's standing controls: each process start of CENSUS_PLANTS refused at its line, by what it names,
-    and the helper's environment without each of its two settings refused by the setting's name."""
-    arms: list[tuple] = [(f"the census, {what}", lambda: None,
-                          lambda r=rel, o=old, n=new, w=word: planted(r, o, n, w), word)
-                         for what, rel, old, new, word in CENSUS_PLANTS]
-    return arms + [(f"the census, the helper's environment without {name}", lambda: None,
-                    lambda n=name: counted(without(n), n), name)
-                   for name in ("GIT_NO_REPLACE_OBJECTS", "GIT_GRAFT_FILE")]
+    """The pin proof's standing controls under its audit hook, each run before any build: each plant of HOOK_PLANTS
+    ends in the hook's refusal, by its words, at a line of the plant (or, for the helper's own, anywhere)."""
+    return [(f"the audit hook, {what}", lambda: None,
+             lambda r=rel, o=old, n=new, w=word, a=at_plant: planted(r, o, n, w, a), word)
+            for what, rel, old, new, word, at_plant in HOOK_PLANTS]
 
 
 def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
@@ -667,8 +809,8 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
     header the gitlink's tree does not hold, with a symbolic link standing in for a file, with a file made
     executable, and at another revision; and, by the edited source's name, the clone whose src/ tree or whose
     pinned commit is replaced by one holding the edit, the clone with a graft file beside the edit, and the clone
-    whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The census
-    refuses each process start of CENSUS_PLANTS at its line and a helper environment without either setting.
+    whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The pin proof
+    runs to its verdict under its audit hook, and ends in the hook's refusal with each plant of HOOK_PLANTS.
     The MAAP differential (both modes) and the AECP lane's arms, campaign and wire comparison refuse an edited
     clone before building it; every Makefile builder's target that reaches the stack refuses a poisoned one on
     the pin check.
@@ -717,6 +859,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
             ("a source edited beside a graft file", clone.grafted, clone.direct, edited + "src/adp.c"),
             ("a source edited, a clean filter given through attributes turning it back into the pinned blob",
              clone.filtered, clone.direct, edited + "src/adp.c"),
+            ("the pin proof as the checkout holds it, under its audit hook", lambda: None, unplanted, ""),
             *census_arms(),
             ("the MAAP differential, a core source edited", lambda: clone.append("src/maap.c"), differential,
              edited + "src/maap.c"),
