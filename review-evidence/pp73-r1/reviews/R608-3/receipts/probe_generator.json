@@ -1,0 +1,226 @@
+[
+  {
+    "probe": "unmodified",
+    "optimize": false,
+    "rc": 0,
+    "last_line": "scratch/probe-gen/unmodified/ucode.hex: 2048 words, 89 programs",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-entries",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-not-list",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-empty",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-blank-name",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-name",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: AEM 0x0017 (OP_GET_CLOCK_SRC_C): name needs a non-empty string",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "empty-name",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: AEM 0x0017 (OP_GET_CLOCK_SRC_C): name needs a non-empty string",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-opcode-non-hex",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-opcode-five-digits",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-row-missing",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-commands",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: commands: needs a non-empty list including GET_MILAN_INFO",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "command-not-object",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: commands[0]: needs a command object",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entry-never-placed",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries names NOPE, and gen_ucode.py placed no E_NOPE program",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "status-code-not-int",
+    "optimize": false,
+    "rc": 1,
+    "last_line": "aecp_commands.json: status_codes gives no integer code for BAD_ARGUMENTS, which gen_ucode.py's programs set",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "unmodified",
+    "optimize": true,
+    "rc": 0,
+    "last_line": "scratch/probe-gen/unmodified-O/ucode.hex: 2048 words, 89 programs",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-entries",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-not-list",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-empty",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entries-blank-name",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-name",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: AEM 0x0017 (OP_GET_CLOCK_SRC_C): name needs a non-empty string",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "empty-name",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: AEM 0x0017 (OP_GET_CLOCK_SRC_C): name needs a non-empty string",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-opcode-non-hex",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-opcode-five-digits",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "mvu-row-missing",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "missing-commands",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: commands: needs a non-empty list including GET_MILAN_INFO",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "command-not-object",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: commands[0]: needs a command object",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "entry-never-placed",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: GET_CLOCK_SOURCE: entries names NOPE, and gen_ucode.py placed no E_NOPE program",
+    "traceback": false,
+    "as_expected": true
+  },
+  {
+    "probe": "status-code-not-int",
+    "optimize": true,
+    "rc": 1,
+    "last_line": "aecp_commands.json: status_codes gives no integer code for BAD_ARGUMENTS, which gen_ucode.py's programs set",
+    "traceback": false,
+    "as_expected": true
+  }
+]

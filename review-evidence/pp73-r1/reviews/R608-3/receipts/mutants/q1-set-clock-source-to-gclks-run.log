@@ -1,0 +1,6 @@
+FAIL:  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (the fresh sweep)
+FAIL:  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS, which is not one of the table's entries (the fresh sweep)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 GCLKS: observed {"answers": {"0": "20"}, "cdls": "20-100", "floor": 20}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS: observed nothing, recorded {"answers": {"0": "20", "7": "20"}, "cdls": "20-100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "13185a054f1ca5a2cf57390f070378a3d255531e1fdf00132a11782c7c62c386", recorded "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 176 checks: 174 PASS, 2 FAIL
