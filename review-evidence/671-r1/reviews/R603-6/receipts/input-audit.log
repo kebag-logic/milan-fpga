@@ -1,0 +1,23 @@
+Production firmware byte-identical to round 5 and measured commit
+Firmware sha256 497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed
+Source-base delta has no RTL, required gitlink, register-map or KLJ2 codec change
+Generated cases 3550 cold 1839 restart 1711
+Term classes {'verdict': 32, 'byte count': 32, 'prefix CRC': 32, 'trailer': 32}
+  self-test OK: the comparison check, by its own words: the comparison's verdict has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's byte count has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's prefix CRC has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's trailer has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's verdict has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's byte count has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's prefix CRC has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's trailer has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the firmware compares two refused reads by a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest && a.tail == b.tail && a.seq == b.seq, but the terms listed are a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest && a.tail == b.tail
+Single missing class combination refused: verdict
+Single missing class combination refused: byte count
+Single missing class combination refused: prefix CRC
+Single missing class combination refused: trailer
+Full read-bound window sets intact
+All four removal controls rejected by own diagnostic on all three shapes
+Capture receipt: firmware, measured tree and all harness input digests match
+Physical calibration NOT RUN; capture measurement not rerun
+PASS

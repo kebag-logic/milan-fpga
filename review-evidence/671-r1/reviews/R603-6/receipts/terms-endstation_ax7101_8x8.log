@@ -1,0 +1,1665 @@
+CASE slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 1720556080 1720556080
+REVIEW_READ A 6 13256 1720556080 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0x2d4ef0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x1, --read-verdict b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 1720556080 1720556080
+REVIEW_READ B 6 13256 1720556080 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0x489420e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 3074072576 3074072576
+REVIEW_READ A 6 13256 3074072576 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x1ab230e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 3074072576 3074072576
+REVIEW_READ B 6 13256 3074072576 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x77e360e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 3927322291 3927322291
+REVIEW_READ B 6 13256 3927322291 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x0f1120e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 3927322291 3927322291
+REVIEW_READ A 6 13256 3927322291 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xf336f0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x1, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/6/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/6/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x3dff90e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 1720556080 1720556080
+REVIEW_READ A 6 13256 1720556080 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0x3e0e80e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x1, --read-verdict b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/7/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/7/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x2c3cc0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 1720556080 1720556080
+REVIEW_READ B 6 13256 1720556080 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0x2c4bb0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/8/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/8/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x5e4190e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 3074072576 3074072576
+REVIEW_READ A 6 13256 3074072576 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x5e5080e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-verdict b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/9/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/9/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x6565f0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 3074072576 3074072576
+REVIEW_READ B 6 13256 3074072576 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x6574e0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-verdict b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/10/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/10/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x10e0c0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 3927322291 3927322291
+REVIEW_READ B 6 13256 3927322291 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x10efb0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/11/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/11/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x020580e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 3927322291 3927322291
+REVIEW_READ A 6 13256 3927322291 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x021470e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x1, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 2574411215 1720556080
+REVIEW_READ A 4 13264 2574411215 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0xd5baa0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x1, --read-length b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 2574411215 1720556080
+REVIEW_READ B 4 13264 2574411215 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0xda4650e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 1220894719 3074072576
+REVIEW_READ A 4 13264 1220894719 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x647b40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-length b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 1220894719 3074072576
+REVIEW_READ B 4 13264 1220894719 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x9c4d90e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-length b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 367645004 3927322291
+REVIEW_READ B 4 13264 367645004 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x82fa10e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 367645004 3927322291
+REVIEW_READ A 4 13264 367645004 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xfb0c40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x1, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/18/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/18/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xcccb20e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 2574411215 1720556080
+REVIEW_READ A 4 13264 2574411215 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0xccda10e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x1, --read-length b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/19/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/19/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xdc4d90e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 2574411215 1720556080
+REVIEW_READ B 4 13264 2574411215 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0xdc5c80e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/20/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/20/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x996b50e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 1220894719 3074072576
+REVIEW_READ A 4 13264 1220894719 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x997a40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-length b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/21/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/21/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x398930e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 1220894719 3074072576
+REVIEW_READ B 4 13264 1220894719 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x399820e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-length b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/22/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/22/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x1995d0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 367645004 3927322291
+REVIEW_READ B 4 13264 367645004 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x19a4c0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/23/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/23/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x316c00e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 367645004 3927322291
+REVIEW_READ A 4 13264 367645004 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x317af0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 1750471170 1720556080
+REVIEW_READ A 4 13256 525410964 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0xfc8140e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x1, --read-fault b:-5:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 1750471170 1720556080
+REVIEW_READ B 4 13256 525410964 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0xf664a0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3118540850 3074072576
+REVIEW_READ A 4 13256 3471186084 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x00fbe0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault b:-5:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3118540850 3074072576
+REVIEW_READ B 4 13256 3471186084 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xa871e0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault b:-5:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3838682753 3927322291
+REVIEW_READ B 4 13256 2479527447 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0xd3ab00e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3838682753 3927322291
+REVIEW_READ A 4 13256 2479527447 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x464510e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x1, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/30/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/30/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x96a520e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 1750471170 1720556080
+REVIEW_READ A 4 13256 525410964 1720556080
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0x96b410e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x1, --read-fault b:-5:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/31/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/31/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x2c3e00e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 1750471170 1720556080
+REVIEW_READ B 4 13256 525410964 1720556080
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0x2c4cf0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/32/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/32/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x1d0a80e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3118540850 3074072576
+REVIEW_READ A 4 13256 3471186084 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x1d1970e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault b:-5:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/33/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/33/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x422b30e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3118540850 3074072576
+REVIEW_READ B 4 13256 3471186084 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x423a20e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault b:-5:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/34/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/34/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xee4780e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3838682753 3927322291
+REVIEW_READ B 4 13256 2479527447 3927322291
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0xee5670e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/35/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/35/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x87cf60e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3838682753 3927322291
+REVIEW_READ A 4 13256 2479527447 3927322291
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x87de50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 1720556080 1854773808
+REVIEW_READ A 4 13256 1720556080 1871551024
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0x3414c0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 1720556080 1854773808
+REVIEW_READ B 4 13256 1720556080 1871551024
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0xb92d90e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3074072576 3208290304
+REVIEW_READ A 4 13256 3074072576 3191513088
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x49ccd0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3074072576 3208290304
+REVIEW_READ B 4 13256 3074072576 3191513088
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xcd9050e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3927322291 3793104563
+REVIEW_READ B 4 13256 3927322291 3809881779
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0xe74f40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3927322291 3793104563
+REVIEW_READ A 4 13256 3927322291 3809881779
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xac2fe0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x1, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/42/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/42/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xf2b2e0e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 1720556080 1854773808
+REVIEW_READ A 4 13256 1720556080 1871551024
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 13256 B at 0xf2c1d0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x1, --read-fault b:-1:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/43/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/43/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xe47dd0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 1720556080 1854773808
+REVIEW_READ B 4 13256 1720556080 1871551024
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 1; offered B seq 1 (VD_OK), 13256 B at 0xe48cc0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=1 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/44/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/44/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x575080e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3074072576 3208290304
+REVIEW_READ A 4 13256 3074072576 3191513088
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x575f70e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/45/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/45/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xfc62e0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3074072576 3208290304
+REVIEW_READ B 4 13256 3074072576 3191513088
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xfc71d0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/46/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/46/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x083d50e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 3927322291 3793104563
+REVIEW_READ B 4 13256 3927322291 3809881779
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370084; offered A seq 370085 (VD_OK), 13256 B at 0x084c40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/47/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/47/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xff01a0e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3927322291 3793104563
+REVIEW_READ A 4 13256 3927322291 3809881779
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370084, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xff1090e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x5a5a5, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 3074072576 3074072576
+REVIEW_READ A 6 13256 3074072576 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xd4abd0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x5a5a5, --read-verdict b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3074072576 3074072576
+REVIEW_READ B 6 13256 3074072576 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x38a4e0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 268898235 268898235
+REVIEW_READ A 6 13256 268898235 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x5a8dd0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 268898235 268898235
+REVIEW_READ B 6 13256 268898235 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x618d20e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 2631002756 2631002756
+REVIEW_READ B 6 13256 2631002756 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x0cda90e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 2631002756 2631002756
+REVIEW_READ A 6 13256 2631002756 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x530cd0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x5a5a5, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/54/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/54/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xf992a0e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 3074072576 3074072576
+REVIEW_READ A 6 13256 3074072576 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xf9a190e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x5a5a5, --read-verdict b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/55/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/55/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xe76960e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3074072576 3074072576
+REVIEW_READ B 6 13256 3074072576 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xe77850e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/56/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/56/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xc57ec0e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 268898235 268898235
+REVIEW_READ A 6 13256 268898235 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0xc58db0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-verdict b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/57/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/57/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x44e6c0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 268898235 268898235
+REVIEW_READ B 6 13256 268898235 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x44f5b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-verdict b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/58/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/58/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x5e1d20e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 5 13256 2631002756 2631002756
+REVIEW_READ B 6 13256 2631002756 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x5e2c10e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/59/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/59/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xa7c350e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 2631002756 2631002756
+REVIEW_READ A 6 13256 2631002756 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0xa7d240e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x5a5a5, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 1220894719 3074072576
+REVIEW_READ A 4 13264 1220894719 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xf47300e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x5a5a5, --read-length b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 1220894719 3074072576
+REVIEW_READ B 4 13264 1220894719 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x7237b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 4026069060 268898235
+REVIEW_READ A 4 13264 4026069060 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0xca2c50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-length b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 4026069060 268898235
+REVIEW_READ B 4 13264 4026069060 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x2b34b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-length b:1:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 1663964539 2631002756
+REVIEW_READ B 4 13264 1663964539 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x305450e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 1663964539 2631002756
+REVIEW_READ A 4 13264 1663964539 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0xca5f60e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x5a5a5, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/66/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/66/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x1b7fe0e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 1220894719 3074072576
+REVIEW_READ A 4 13264 1220894719 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0x1b8ed0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x5a5a5, --read-length b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/67/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/67/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xc93da0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 1220894719 3074072576
+REVIEW_READ B 4 13264 1220894719 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xc94c90e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/68/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/68/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xebd390e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 4026069060 268898235
+REVIEW_READ A 4 13264 4026069060 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0xebe280e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-length b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/69/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/69/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xedf440e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 4026069060 268898235
+REVIEW_READ B 4 13264 4026069060 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0xee0330e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-length b:2:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/70/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/70/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x0b9c60e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13260 1663964539 2631002756
+REVIEW_READ B 4 13264 1663964539 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x0bab50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/71/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/71/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x196e20e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 1663964539 2631002756
+REVIEW_READ A 4 13264 1663964539 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x197d10e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x5a5a5, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3118540850 3074072576
+REVIEW_READ A 4 13256 3471186084 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xb04f50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x5a5a5, --read-fault b:-5:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3118540850 3074072576
+REVIEW_READ B 4 13256 3471186084 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x8e11b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 517769097 268898235
+REVIEW_READ A 4 13256 1776006943 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x43ac80e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-fault b:-5:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 517769097 268898235
+REVIEW_READ B 4 13256 1776006943 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x5ba440e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-fault b:-5:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 2450154166 2631002756
+REVIEW_READ B 4 13256 3842855456 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x640ce0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 2450154166 2631002756
+REVIEW_READ A 4 13256 3842855456 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0xb0c370e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x5a5a5, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/78/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/78/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xf71c40e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3118540850 3074072576
+REVIEW_READ A 4 13256 3471186084 3074072576
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xf72b30e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x5a5a5, --read-fault b:-5:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/79/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/79/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xd15e10e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3118540850 3074072576
+REVIEW_READ B 4 13256 3471186084 3074072576
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xd16d00e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/80/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/80/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x45d340e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 517769097 268898235
+REVIEW_READ A 4 13256 1776006943 268898235
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x45e230e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-fault b:-5:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/81/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/81/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x56d2c0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 517769097 268898235
+REVIEW_READ B 4 13256 1776006943 268898235
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x56e1b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-fault b:-5:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/82/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/82/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x2f8a80e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 2450154166 2631002756
+REVIEW_READ B 4 13256 3842855456 2631002756
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x2f9970e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/83/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/83/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x78df30e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 2450154166 2631002756
+REVIEW_READ A 4 13256 3842855456 2631002756
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x78ee20e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x5a5a5, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3074072576 3208290304
+REVIEW_READ A 4 13256 3074072576 3191513088
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0xdd05a0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x5a5a5, --read-fault b:-1:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3074072576 3208290304
+REVIEW_READ B 4 13256 3074072576 3191513088
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x29bad0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 268898235 403115963
+REVIEW_READ A 4 13256 268898235 419893179
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x0bfd70e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 268898235 403115963
+REVIEW_READ B 4 13256 268898235 419893179
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x328a40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 2631002756 2496785028
+REVIEW_READ B 4 13256 2631002756 2513562244
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x33f200e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 2631002756 2496785028
+REVIEW_READ A 4 13256 2631002756 2513562244
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x196410e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x5a5a5, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/90/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/90/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x325010e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3074072576 3208290304
+REVIEW_READ A 4 13256 3074072576 3191513088
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 13256 B at 0x325f00e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x5a5a5, --read-fault b:-1:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/91/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/91/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xdf6380e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3074072576 3208290304
+REVIEW_READ B 4 13256 3074072576 3191513088
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xdf7270e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370085 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/92/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/92/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x3ecd80e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 268898235 403115963
+REVIEW_READ A 4 13256 268898235 419893179
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x3edc70e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-fault b:-1:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/93/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/93/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x6b43f0e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 268898235 403115963
+REVIEW_READ B 4 13256 268898235 419893179
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x6b52e0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A newer at seq 0x0, the other older, --read-fault b:-1:2:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/94/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/94/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x2ad220e0, CRC 3e6a6713.
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 4 13256 2631002756 2496785028
+REVIEW_READ B 4 13256 2631002756 2513562244
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 0, slot B VD_OK seq 4294967295; offered A seq 0 (VD_OK), 13256 B at 0x2ae110e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B newer at seq 0x0, the other older, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/95/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/95/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x311750e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 2631002756 2496785028
+REVIEW_READ A 4 13256 2631002756 2513562244
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_OK seq 0; offered B seq 0 (VD_OK), 13256 B at 0x312640e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=0 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=6 boot_reads=6 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x80000000, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 3750413434 3750413434
+REVIEW_READ A 6 13256 3750413434 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0x9724a0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x80000000, --read-verdict b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3750413434 3750413434
+REVIEW_READ B 6 13256 3750413434 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xc47990e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x80000000, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/98/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/98/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xf1f680e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 3750413434 3750413434
+REVIEW_READ A 6 13256 3750413434 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0xf20570e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x80000000, --read-verdict b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/99/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/99/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xc66740e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3750413434 3750413434
+REVIEW_READ B 6 13256 3750413434 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xc67630e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x80000000, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 544553861 3750413434
+REVIEW_READ A 4 13264 544553861 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0x1437d0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x80000000, --read-length b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 544553861 3750413434
+REVIEW_READ B 4 13264 544553861 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xcee7f0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x80000000, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/102/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/102/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xa1d150e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 544553861 3750413434
+REVIEW_READ A 4 13264 544553861 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0xa1e040e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x80000000, --read-length b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/103/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/103/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xf4baa0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 544553861 3750413434
+REVIEW_READ B 4 13264 544553861 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xf4c990e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x80000000, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3511766088 3750413434
+REVIEW_READ A 4 13256 2790685918 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0x2888d0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x80000000, --read-fault b:-5:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3511766088 3750413434
+REVIEW_READ B 4 13256 2790685918 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0x428540e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x80000000, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/106/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/106/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x865c60e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3511766088 3750413434
+REVIEW_READ A 4 13256 2790685918 3750413434
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0x866b50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x80000000, --read-fault b:-5:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/107/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/107/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xabfbc0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3511766088 3750413434
+REVIEW_READ B 4 13256 2790685918 3750413434
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xac0ab0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0x80000000, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3750413434 3616195706
+REVIEW_READ A 4 13256 3750413434 3599418490
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0x2cde20e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0x80000000, --read-fault b:-1:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3750413434 3616195706
+REVIEW_READ B 4 13256 3750413434 3599418490
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xb0b490e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0x80000000, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/110/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/110/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xd67d30e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3750413434 3616195706
+REVIEW_READ A 4 13256 3750413434 3599418490
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 2147483648, slot B VD_BLANK seq 0; offered A seq 2147483648 (VD_OK), 13256 B at 0xd68c20e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0x80000000, --read-fault b:-1:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/111/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/111/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xe6a870e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3750413434 3616195706
+REVIEW_READ B 4 13256 3750413434 3599418490
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 2147483648; offered B seq 2147483648 (VD_OK), 13256 B at 0xe6b760e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=2147483648 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0xffffffff, --read-verdict a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 5 13256 3078091196 3078091196
+REVIEW_READ A 6 13256 3078091196 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x7b5980e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0xffffffff, --read-verdict b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3078091196 3078091196
+REVIEW_READ B 6 13256 3078091196 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0x5511b0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0xffffffff, --read-verdict a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/114/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/114/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x98ab60e0, CRC 3e6a6713.
+REVIEW_READ A 5 13256 3078091196 3078091196
+REVIEW_READ A 6 13256 3078091196 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x98ba50e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0xffffffff, --read-verdict b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/115/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/115/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xa30630e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 5 13256 3078091196 3078091196
+REVIEW_READ B 6 13256 3078091196 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0xa31520e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0xffffffff, --read-length a:0:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13260 1216876099 3078091196
+REVIEW_READ A 4 13264 1216876099 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0xb1ab00e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0xffffffff, --read-length b:2:2 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 1216876099 3078091196
+REVIEW_READ B 4 13264 1216876099 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0xa8d0e0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0xffffffff, --read-length a:1:2
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/118/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/118/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x654d50e0, CRC 3e6a6713.
+REVIEW_READ A 4 13260 1216876099 3078091196
+REVIEW_READ A 4 13264 1216876099 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x655c40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0xffffffff, --read-length b:3:2
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/119/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/119/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x30c800e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13260 1216876099 3078091196
+REVIEW_READ B 4 13264 1216876099 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0x30d6f0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0xffffffff, --read-fault a:-5:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3115088270 3078091196
+REVIEW_READ A 4 13256 3467331864 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x084900e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0xffffffff, --read-fault b:-5:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3115088270 3078091196
+REVIEW_READ B 4 13256 3467331864 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0xbf91c0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0xffffffff, --read-fault a:-5:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/122/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/122/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x7a2710e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3115088270 3078091196
+REVIEW_READ A 4 13256 3467331864 3078091196
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x7a3600e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0xffffffff, --read-fault b:-5:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/123/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/123/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xc7f720e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3115088270 3078091196
+REVIEW_READ B 4 13256 3467331864 3078091196
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0xc80610e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot A valid at seq 0xffffffff, --read-fault a:-1:0:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 4 13256 3078091196 3212308924
+REVIEW_READ A 4 13256 3078091196 3195531708
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x50c790e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot B valid at seq 0xffffffff, --read-fault b:-1:2:2:8 on a writer restart
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=5 boot_reads=5 restart_reads=0 faulty_reads=0 now_ms=115
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3078091196 3212308924
+REVIEW_READ B 4 13256 3078091196 3195531708
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0x4eb990e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+
+CASE slot A valid at seq 0xffffffff, --read-fault a:-1:1:2:8
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/126/rf_a.bin
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/126/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x475220e0, CRC 3e6a6713.
+REVIEW_READ A 4 13256 3078091196 3212308924
+REVIEW_READ A 4 13256 3078091196 3195531708
+REVIEW_READ A 0 13256 0 0
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ B 9 40 429457753 4294967295
+REVIEW_READ A 0 13256 0 0
+Milan NVM: slot A VD_OK seq 4294967295, slot B VD_BLANK seq 0; offered A seq 4294967295 (VD_OK), 13256 B at 0x476110e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+CASE slot B valid at seq 0xffffffff, --read-fault b:-1:3:2:8
+HOST loaded 65536 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/127/rf_a.bin
+HOST loaded 13256 B from <review-packet>/scratch/term-audit/endstation_ax7101_8x8/127/rf_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0xb549e0e0, CRC 3e6a6713.
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ A 9 40 429457753 4294967295
+REVIEW_READ B 4 13256 3078091196 3212308924
+REVIEW_READ B 4 13256 3078091196 3195531708
+REVIEW_READ B 0 13256 0 0
+REVIEW_READ B 0 13256 0 0
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK), 13256 B at 0xb558d0e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=4294967295 base_ok=1 img_len=13212 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=7 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=15
+
+PASS: 128 cases; 32 per term; exact tuple isolation; read/hold/record assertions

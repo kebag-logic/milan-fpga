@@ -1,0 +1,689 @@
+diff --git a/docs/design/SAVED_STATE_FASTCONNECT.md b/docs/design/SAVED_STATE_FASTCONNECT.md
+index 78ddd2580..6e77c2add 100644
+--- a/docs/design/SAVED_STATE_FASTCONNECT.md
++++ b/docs/design/SAVED_STATE_FASTCONNECT.md
+@@ -125,7 +125,7 @@ Implementation and historical evidence remain explicitly distinguished below.
+ | The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
+ | The backend's area | **MEASURED**, on the shipping module | section 8.3: 993 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
+ | The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 417 checks at 8x8 and 146 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
+-| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; nineteen planted writer defects must each redden |
++| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; twenty-three planted writer defects must each redden |
+ | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
+ 
+ **Reconciliation pin.** Parent `c0723222` pins processor
+@@ -797,6 +797,7 @@ The shipping writer calls two refused reads the same when their verdicts, their
+ a CRC-32 over all of their bytes but the last four, and those last four bytes are all equal.
+ A CRC-32 over a whole container and the trailer that closes it is one constant.
+ So a digest over every byte would call any two such containers the same, however they differ.
++The shipping writer's host suite gives each of the four terms two reads that differ in it alone, and a control that removes it.
+ The picked slot is read again and must pass under the sequence it was picked by.
+ The bare-metal store's [Boot section](../../sw/firmware/ctrl_nvm/README.md#boot) states the rule.
+ The shipping writer's is in the [firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index 60f9a512a..a36a31a9f 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -2030,7 +2030,11 @@ so two different containers whose CRCs both close would compare the same
+ ([R603-4-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6107062972)).
+ The comparison always tells apart two reads that differ in one or two
+ bits or only within 32 consecutive bits, and any other two except with a
+-probability of about 2^-32. A slot with no standing verdict is
++probability of about 2^-32. Each of its four terms is pinned by reads that
++differ in that term alone and by a control that removes it
++([R602-5-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6112353068),
++[R603-5-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6112253974)).
++A slot with no standing verdict is
+ UNREAD: `VD_LEN` (rule 4), no sequence taken from it, and its bit in the boot
+ line's `unread=` field. The newer accepted slot (a wrap-safe signed compare
+ of `SEQ`, A on a tie) is read into the stage again, at most three times,
+@@ -2180,15 +2184,17 @@ byte, the verdict the firmware prints for every section 6.2 refusal equals
+ transaction failures and the heartbeat through a 3 s erase, and the read
+ faults of #671 (a header, sequence or record-area byte, the blank or older
+ slot's, an entity or record-area byte under a CRC closed over the faulty
+-bytes, an all-`0xFF` read, and the other slot's container) over every
++bytes, an all-`0xFF` read, the other slot's container, and two reads that
++differ in one term of the refused-read comparison alone) over every
+ window starting at a read the boot opens, one to four reads long or the
+ whole boot, with the other slot blank or both valid across the wrap, at the
+ sequence boundaries, on the cold boot and on a writer restart without a
+ fabric reset (the re-attach path), each followed by a change, its commit
+ and a clean reboot, with every case's reads and hold pinned to a reference
+-model of the writer's reads; `--self-test` plants nineteen writer defects
+-and requires each to be caught, the fourteen #671 ones on the first shape
+-and both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
++model of the writer's reads; `--self-test` plants twenty-three writer
++defects and requires each to be caught, the eighteen #671 ones on the first
++shape and both product shapes by a finding of their own, four of them one
++term of the comparison removed each. A partial ownership fixture protects an open record beside an unaligned edge.
+ The edge-crossing word-copy control must fail that fixture.
+ What it cannot
+ prove is the board: the real LiteSPI master, the real DRAM window and the
+diff --git a/sw/firmware/nvm_hosttest/README.md b/sw/firmware/nvm_hosttest/README.md
+index 066db0158..c732fd342 100644
+--- a/sw/firmware/nvm_hosttest/README.md
++++ b/sw/firmware/nvm_hosttest/README.md
+@@ -9,7 +9,7 @@ every shipped shape passed and every planted defect reddened.
+ - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
+ - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
+ - **[What is graded](#what-is-graded)** -- fourteen checks per shape, all on bytes
+-- **[The negative controls](#the-negative-controls)** -- nineteen writer defects planted into a copy, each of which must be caught
++- **[The negative controls](#the-negative-controls)** -- twenty-three writer defects planted into a copy, each of which must be caught
+ - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
+ - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
+ 
+@@ -52,7 +52,19 @@ overlay.
+   every faulty read is a different container whose CRC closes
+   (`--read-sealed SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
+   as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
+-  slot's bytes (`--read-other SLOT:SKIP:COUNT`). Counted from the read the
++  slot's bytes (`--read-other SLOT:SKIP:COUNT`). An `OFF` below zero counts
++  back from the end of the container the slot's length word names: `-1` is
++  the trailer's last byte and `-5` the last byte its CRC covers. Two more
++  faults forge the four bytes before the trailer so that the CRC-32 over
++  every byte before it is a value the fault fixes, and so change one term of
++  the writer's comparison of two refused reads and keep the others:
++  `--read-length SLOT:SKIP:COUNT` grows the length word by four on every
++  faulty read, moves the slot's trailer value to the end that length names
++  and forges the CRC to its complement, so each read is refused `VD_CRC`
++  with another byte count; `--read-verdict SLOT:SKIP:COUNT` XORs the entity,
++  model or record-layout word in turn and closes the CRC on the slot's own
++  trailer, so any three faulty reads in a row are refused `VD_ENT`,
++  `VD_SHAPE` and `VD_REC`. Counted from the read the
+   fault is armed at (power-on for one given before `--boot`), the first SKIP
+   reads are clean and the next COUNT are faulty. The memory-mapped read
+   always returns bytes, so wrong bytes are the only media fault the shipping
+@@ -139,15 +151,36 @@ the harness through boot, idle time and console commands, and compares bytes:
+     R603-4-F1's class, two sealed faulty reads that open one slot's
+     judgement and then a clean read, meets every sequence of its group
+     besides, both ways round and on both entry paths, for each sealed
+-    manner (`read_fault_cases.sealed_class`).
++    manner (`read_fault_cases.sealed_class`). The writer compares two
++    refused reads by four terms, listed once in
++    `read_fault_cases.COMPARISON`: the verdict, the byte count, the CRC-32
++    over all but the last four bytes (the prefix CRC) and those four bytes
++    (the trailer). Each term has a class of its own
++    (`read_fault_cases.term_class`): two faulty reads that differ from one
++    another in that term alone open the faulted slot's judgement, the window
++    the reference model finds, and its third read is clean. The verdict
++    class is `--read-verdict`, the byte count's `--read-length`, the prefix
++    CRC's the last byte before the trailer (`--read-fault SLOT:-5`) and the
++    trailer's its last byte (`--read-fault SLOT:-1`), so only the term keeps
++    the two reads from agreeing (R602-5-F1, R603-5-F1). Each class runs at
++    every sequence of each group whose faulted slot holds a container (1,
++    0x5A5A5, 0x80000000 and 0xFFFFFFFF with the other slot blank), both ways
++    round and on both entry paths: 32 cases per term. A finding that a
++    refused verdict stood on such a case's faulted slot names the term
++    ("which differ only in their trailer"). The suite
++    fails when the firmware's `nvm_reads_agree` compares by other terms
++    than the list, or when a listed term has no class at one of those
++    places or no control (`read_fault_cases.comparison_findings`, checked
++    against the firmware as shipped).
+     A reference model of the writer's reads (`read_fault_cases.expect`),
+     written once from the rule, gives each case the reads it opens, the
+     slots it leaves unread and why. A case it finds outside the rule's
+     stated detection limit is not run: two faulty reads of one judgement
+     return the same bytes (all `0xFF` twice), or a faulty read returns the
+-    other slot's valid container and it stands. That leaves 3,422 of 3,508
+-    cases per shape, 1,647 restarts and 1,775 cold boots; every window keeps its
+-    byte faults, sealed or not, which are always inside the limit. Each case makes a real
++    other slot's valid container and it stands. That leaves 3,550 of 3,636
++    cases per shape, 1,711 restarts and 1,839 cold boots, 128 of them the
++    terms' classes; every window keeps its byte faults, sealed or not, which
++    are always inside the limit. Each case makes a real
+     change, lets the debounce commit it and boots again clean. The faulty
+     boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its
+     bit in `unread=`), and offers the newer slot it accepts, and its window
+@@ -173,8 +206,8 @@ the harness through boot, idle time and console commands, and compares bytes:
+     retire, not the slot, for each cause: an older backend contract, a boot
+     load ended with none accepted, a window gone live
+     (`--boot-backend contract|over|live`) and four refused window loads. The
+-    cases run on `--jobs` threads, every CPU by default, the groups
+-    interleaved; the harness is deterministic, so a clean reboot of slots an
++    cases run on `--jobs` threads, every CPU by default, the groups and the
++    terms' classes interleaved; the harness is deterministic, so a clean reboot of slots an
+     earlier case already booted is not run again;
+ 14. a slot whose bytes read cleanly but fail validation (a foreign entity,
+     a bad CRC) names no generation: with the other slot blank, no slot is
+@@ -194,14 +227,16 @@ harness and requires the suite to redden:
+ | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
+ | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
+ 
+-Those five are graded by checks 1 to 12. Fourteen #671 defects are graded
++Those five are graded by checks 1 to 12. Eighteen #671 defects are graded
+ by checks 13 and 14. Each is planted into the first shape and into both
+ product shapes (`endstation_ax7101_1x1_tdm8`, `endstation_ax7101_8x8`), and
+ must be caught on every one by a finding carrying its own words. Check 14
+ runs first, and check 13 stops at the first such finding, so a control's
+ other findings are not counted; that keeps `--self-test` inside the twenty
+ minutes the builder gate gives it. Each group's windows run the whole boot
+-first, then the longest. The `r_` and `p_` controls and
++first, then the longest, and the terms' classes run beside the groups. The
++four `r_omit_` controls are generated from `read_fault_cases.COMPARISON`,
++one per term. The `r_` and `p_` controls and
+ `restage_fail_not_unread` are the plants of PR #715's reviews, under their
+ names:
+ 
+@@ -221,6 +256,15 @@ names:
+ | `r_judge_four_tries` | a judgement takes four reads, over the stated three, inside the total bound | "want exactly" |
+ | `p_restage_unbounded` | the picked slot's re-stage has no bound, so a fault after its judgement read is read until it ends | "want exactly" |
+ | `r_restage_four_tries` | a re-stage takes four reads, over the stated three | "want exactly" |
++| `r_omit_verdict` | the verdict term is removed from the comparison, the other three kept (R602-5-F1, R603-5-F1) | "which differ only in their verdict" |
++| `r_omit_byte_count` | the byte count term is removed from the comparison | "which differ only in their byte count" |
++| `r_omit_prefix_crc` | the prefix CRC term is removed from the comparison | "which differ only in their prefix CRC" |
++| `r_omit_trailer` | the trailer term is removed from the comparison, which looks redundant for a sealed container and is not for a faulted trailer | "which differ only in their trailer" |
++
++The self-test also requires the comparison check to fail, by its own
++words, for each term with its class taken out of the campaign, for each
++term with its control taken out, and for a firmware that compares by one
++term more than the list.
+ 
+ The self-test also invokes the PHY host checks.
+ Their IEEE-timed peer catches missing publication, deferred recovery and
+diff --git a/sw/firmware/nvm_hosttest/nvm_host.c b/sw/firmware/nvm_hosttest/nvm_host.c
+index 978c254df..cb81fd9f6 100644
+--- a/sw/firmware/nvm_hosttest/nvm_host.c
++++ b/sw/firmware/nvm_hosttest/nvm_host.c
+@@ -178,14 +178,26 @@ struct flash_model {
+  * faulty read, or reads the slot as the other slot's bytes. That last one is
+  * an address fault: a valid container does not name its slot, so no rule over
+  * the bytes sees it on a judgement read, and the re-stage refuses it only by
+- * the sequence it was picked by. */
+-enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER };
++ * the sequence it was picked by. An XORed byte below zero counts back from
++ * the end of the container the slot's length word names: -1 is the trailer's
++ * last byte, -5 the last byte before it.
++ *
++ * Two more faults change one term of the writer's comparison of two refused
++ * reads and keep the others (#671 round 6), by forging the last four bytes
++ * before the trailer so the CRC-32 over every byte before it is a value the
++ * fault fixes. RF_LEN grows the length word by four on every faulty read,
++ * moves the slot's trailer value to the end that length names and forges the
++ * CRC to that value's complement, so each read has another byte count and is
++ * refused VD_CRC. RF_VERDICT XORs the entity, model or record layout word in
++ * turn and forges the CRC to the slot's own trailer value, which closes it, so
++ * any three faulty reads in a row are refused VD_ENT, VD_SHAPE and VD_REC. */
++enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER, RF_LEN, RF_VERDICT };
+ 
+ struct read_fault {
+ 	int armed;
+ 	uint32_t slot;          /* the slot's flash offset */
+ 	uint32_t other;         /* the other slot's, in RF_OTHER mode */
+-	uint32_t off;           /* the byte inside it, in RF_XOR and RF_SEAL modes */
++	long off;               /* the byte inside it, in RF_XOR and RF_SEAL modes */
+ 	enum read_fault_mode mode;
+ 	unsigned int skip;
+ 	unsigned int count;
+@@ -540,20 +552,88 @@ void nvm_host_tick(int cycles)
+ 
+ static void summary(void);
+ 
++static uint32_t get32(const uint8_t *p)
++{
++	return p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
++	       (uint32_t)p[3] << 24;
++}
++
++static void put32(uint8_t *p, uint32_t v)
++{
++	unsigned int i;
++
++	for (i = 0; i < 4u; ++i)
++		p[i] = (uint8_t)(v >> (8u * i));
++}
++
+ /* RF_SEAL: the slot's trailer, where its length word places it, recomputed
+  * over the bytes before it. A length no container can have is left alone. */
+ static void seal_slot(uint8_t *s)
+ {
+-	uint32_t len = s[16] | (uint32_t)s[17] << 8 | (uint32_t)s[18] << 16 |
+-		       (uint32_t)s[19] << 24;
+-	unsigned int crc;
+-	unsigned int i;
++	uint32_t len = get32(s + 16);
+ 
+ 	if (len < 44u || len > 0x10000u)
+ 		return;
+-	crc = crc32(s, len - 4u);
+-	for (i = 0; i < 4u; ++i)
+-		s[len - 4u + i] = (uint8_t)(crc >> (8u * i));
++	put32(s + len - 4u, crc32(s, len - 4u));
++}
++
++/* The four bytes at `at` set so the CRC-32 over the slot's first at + 4
++ * bytes is `want`. Four message bytes are XORed into the register ahead of
++ * 32 shifts, and each shift can be undone, so the register `want` needs is
++ * run back 32 shifts and XORed with the register before the four bytes. */
++static void forge_crc(uint8_t *s, uint32_t at, uint32_t want)
++{
++	uint32_t r = ~want;
++	unsigned int bit;
++
++	for (bit = 0; bit < 32u; ++bit)
++		r = (r & 0x80000000u) ? ((r ^ 0xedb88320u) << 1) | 1u : r << 1;
++	put32(s + at, r ^ ~crc32(s, at));
++}
++
++/* The words RF_VERDICT XORs, in the order the rule tests them after the CRC:
++ * the entity (VD_ENT), the model (VD_SHAPE) and the record layout (VD_REC). */
++static const uint32_t verdict_words[3] = {
++	20u, 28u, 36u
++};
++
++/* The n-th faulty read's view of the slot at `s`, which holds its clean
++ * bytes. A fault placed by the container's end needs a slot that names a
++ * length; one that does not is a harness error, not a fault. */
++static void fault_slot(uint8_t *s, unsigned int n)
++{
++	uint8_t x = (uint8_t)((rf.base - 1u + n) % 255u + 1u);
++	uint32_t len = get32(s + 16);
++	uint32_t grown = len + 4u * (n + 1u);
++
++	if ((rf.mode == RF_LEN || rf.mode == RF_VERDICT || rf.off < 0) &&
++	    (len < 48u || len > 0x10000u || (uint32_t)-rf.off > len ||
++	     (rf.mode == RF_LEN && grown > 0x10000u))) {
++		fprintf(stderr, "HOST: read fault %d on a slot of length %#x\n",
++			(int)rf.mode, (unsigned int)len);
++		exit(2);
++	}
++	switch (rf.mode) {
++	case RF_FF:
++		memset(s, 0xff, 0x10000u);
++		break;
++	case RF_OTHER:
++		memcpy(s, nvm_host_flash + rf.other, 0x10000u);
++		break;
++	case RF_LEN:
++		put32(s + grown - 4u, get32(s + len - 4u));
++		put32(s + 16, grown);
++		forge_crc(s, grown - 8u, ~get32(s + grown - 4u));
++		break;
++	case RF_VERDICT:
++		s[verdict_words[n % 3u]] ^= x;
++		forge_crc(s, len - 8u, get32(s + len - 4u));
++		break;
++	default:
++		s[rf.off < 0 ? len - (uint32_t)-rf.off : (uint32_t)rf.off] ^= x;
++		if (rf.mode == RF_SEAL)
++			seal_slot(s);
++	}
+ }
+ 
+ uintptr_t nvm_host_flash_base(void)
+@@ -577,28 +657,21 @@ uintptr_t nvm_host_flash_base(void)
+ 		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
+ 		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
+ 	view_loaded = 1;
+-	if (rf.mode == RF_FF)
+-		memset(flash_view + rf.slot, 0xff, 0x10000u);
+-	else if (rf.mode == RF_OTHER)
+-		memcpy(flash_view + rf.slot, nvm_host_flash + rf.other, 0x10000u);
+-	else
+-		flash_view[rf.slot + rf.off] ^=
+-			(uint8_t)((rf.base - 1u + (k - rf.skip)) % 255u + 1u);
+-	if (rf.mode == RF_SEAL)
+-		seal_slot(flash_view + rf.slot);
++	fault_slot(flash_view + rf.slot, k - rf.skip);
+ 	rf.hits++;
+ 	return (uintptr_t)flash_view;
+ }
+ 
+-/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff
+- * SLOT:SKIP:COUNT and --read-other SLOT:SKIP:COUNT */
++/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff,
++ * --read-other, --read-length and --read-verdict SLOT:SKIP:COUNT */
+ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
+ {
+-	unsigned long v[4] = {0};
++	long v[4] = {0};
+ 	unsigned int n = 0;
+ 	const char *p = spec + 1;
+ 	char *end = NULL;
+ 	int bytewise = mode == RF_XOR || mode == RF_SEAL;
++	unsigned int at = bytewise ? 1u : 0u;    /* where SKIP is */
+ 
+ 	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
+ 	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
+@@ -606,11 +679,11 @@ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
+ 		exit(2);
+ 	}
+ 	while (*p == ':' && n < 4u) {
+-		v[n++] = strtoul(p + 1, &end, 0);
++		v[n++] = strtol(p + 1, &end, 0);
+ 		p = end;
+ 	}
+-	if (*p != '\0' || n < (bytewise ? 3u : 2u) ||
+-	    (bytewise && (v[0] >= 0x10000u || v[3] < 1u || v[3] > 255u))) {
++	if (*p != '\0' || n < at + 2u || v[at] < 0 || v[at + 1u] < 0 ||
++	    (bytewise && (v[0] <= -0x10000 || v[0] >= 0x10000 || v[3] < 1 || v[3] > 255))) {
+ 		fprintf(stderr, "HOST: bad read fault %s\n", spec);
+ 		exit(2);
+ 	}
+@@ -618,9 +691,9 @@ static void arm_read_fault(const char *spec, enum read_fault_mode mode)
+ 	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
+ 	rf.other = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0u : 0x10000u);
+ 	rf.mode = mode;
+-	rf.off = bytewise ? (uint32_t)v[0] : 0u;
+-	rf.skip = (unsigned int)(bytewise ? v[1] : v[0]);
+-	rf.count = (unsigned int)(bytewise ? v[2] : v[1]);
++	rf.off = bytewise ? v[0] : 0;
++	rf.skip = (unsigned int)v[at];
++	rf.count = (unsigned int)v[at + 1u];
+ 	rf.base = bytewise ? (unsigned int)v[3] : 8u;
+ }
+ 
+@@ -889,6 +962,10 @@ int main(int argc, char **argv)
+ 			arm_from_here(v, RF_FF);
+ 		else if (strcmp(a, "--read-other") == 0 && v)
+ 			arm_from_here(v, RF_OTHER);
++		else if (strcmp(a, "--read-length") == 0 && v)
++			arm_from_here(v, RF_LEN);
++		else if (strcmp(a, "--read-verdict") == 0 && v)
++			arm_from_here(v, RF_VERDICT);
+ 		else if (strcmp(a, "--erase-ms") == 0 && v)
+ 			fl.erase_ns = MS(strtoul(v, NULL, 0));
+ 		else if (strcmp(a, "--walk-closed") == 0) {
+diff --git a/sw/firmware/nvm_hosttest/read_fault_cases.py b/sw/firmware/nvm_hosttest/read_fault_cases.py
+index bd0a29e93..59c60452e 100644
+--- a/sw/firmware/nvm_hosttest/read_fault_cases.py
++++ b/sw/firmware/nvm_hosttest/read_fault_cases.py
+@@ -15,6 +15,30 @@ from __future__ import annotations
+ import re
+ from dataclasses import dataclass
+ 
++#: the writer's comparison of two refused reads of one slot
++#: (`nvm_reads_agree`), listed once: each term's name, the firmware's
++#: spelling of it, and the manner of fault whose faulty reads differ from one
++#: another in that term alone (R602-5-F1, R603-5-F1). Check 13's term classes
++#: (`term_class`) and the `r_omit_` controls are generated from it, and
++#: `comparison_findings` fails a term with no class or no control
++COMPARISON = (("verdict", "a.vd == b.vd", "--read-verdict"),
++              ("byte count", "a.bytes == b.bytes", "--read-length"),
++              ("prefix CRC", "a.digest == b.digest", "prefix-end"),
++              ("trailer", "a.tail == b.tail", "trailer"))
++AGREE_RE = re.compile(r"static int nvm_reads_agree\(struct nvm_read a, struct nvm_read b\)\n"
++                      r"\{\n\treturn ([^;]*);\n\}")
++
++
++def control_of(term: str) -> str:
++    """The name of the control that removes `term` from the comparison."""
++    return "r_omit_" + term.lower().replace(" ", "_")
++
++
++def alone_in(term: str) -> str:
++    """The words a finding on reads that differ in `term` alone carries."""
++    return f"which differ only in their {term}"
++
++
+ #: the #671 defects: label -> (every (text, replacement) pair the plant
+ #: makes, each text occurring exactly once, and the words of the finding
+ #: that must catch it)
+@@ -116,6 +140,9 @@ READ_FAULT_MUTATIONS = {
+           "\tfor (n = 0; n < NVM_READ_TRIES + 1u; ++n) {\n\t\trd = nvm_read_slot(slot);\n"
+           "\t\tif (rd.vd == VD_OK && rd.seq == seq)"),),
+         "want exactly"),
++    # R602-5-F1 and R603-5-F1: one term of the comparison removed, the rest
++    # kept, for each term in turn
++    **{control_of(term): (((spelling, "1"),), alone_in(term)) for term, spelling, _ in COMPARISON},
+ }
+ 
+ #: the product shapes, which the #671 controls are planted into besides the
+@@ -162,8 +189,11 @@ GROUPS = ((False, "valid", ("magic", "seq", "body", "sealed-entity", "sealed-bod
+            BOTH_VALID_SEQS),
+           (True, "other", ("magic", "body", "sealed-entity", "sealed-body"), BOTH_VALID_SEQS))
+ #: a flipped byte: its offset (None is the record area's middle byte, which
+-#: depends on the shape) and the first faulty read's XOR
+-FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8)}
++#: depends on the shape; below zero counts back from the end of the container
++#: the slot's length word names, so -1 is the trailer's last byte and -5 the
++#: last byte its CRC covers) and the first faulty read's XOR
++FLIPS = {"magic": (0, 8), "seq": (0x0B, 0x80), "body": (None, 8),
++         "prefix-end": (-5, 8), "trailer": (-1, 8)}
+ #: a flipped byte under a closing CRC (--read-sealed): VD_ENT, or VD_REC by
+ #: the flipped record's CRC-16
+ SEALED = {"sealed-entity": (20, 8), "sealed-body": (None, 8)}
+@@ -225,9 +255,10 @@ def fault_cases(body: int) -> list[FaultCase]:
+     two faulty reads of one judgement return the same bytes (all 0xFF
+     twice), or a faulty read returns the other slot's valid container and it
+     stands, and no rule over the bytes sees either (`expect`). R603-4-F1's
+-    class meets every sequence of its group besides (`sealed_class`). The
+-    groups' lists are interleaved, so a planted control meets every group
+-    early. `body` is the shape's record-area byte."""
++    class meets every sequence of its group besides (`sealed_class`), and so
++    does each comparison term's class (`term_class`), in a list of its own.
++    The lists are interleaved, so a planted control meets every group and
++    every term early. `body` is the shape's record-area byte."""
+     lists = []
+     for restart in (True, False):
+         for older, faulted, manners, seqs in GROUPS:
+@@ -242,7 +273,7 @@ def fault_cases(body: int) -> list[FaultCase]:
+                 have = set(group)
+                 group += [case for case in sealed_class((older, faulted, manners, seqs), valid, restart, body)
+                           if case not in have]
+-                lists.append(group)
++                lists += [group, term_class((older, faulted, manners, seqs), valid, restart, body)]
+     return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
+ 
+ 
+@@ -265,6 +296,80 @@ def sealed_class(group: tuple, valid: str, restart: bool, body: int) -> list[Fau
+             if expect(case).judgement["ab".index(slot)] == "ffc"]
+ 
+ 
++def term_class(group: tuple, valid: str, restart: bool, body: int) -> list[FaultCase]:
++    """Each comparison term's class at every sequence of a group whose
++    faulted slot holds a container (R602-5-F1, R603-5-F1): two faulty reads
++    that differ from one another in that term alone open the slot's
++    judgement, the window the reference model finds, and its third read is
++    clean, so only that term keeps the two from agreeing. The terms take
++    turns within each sequence, so a planted control meets its own early."""
++    older, faulted, _, seqs = group
++    slot = faulted_slot(faulted, valid)
++    bound = BOOT_READ_BOUND - int(restart)
++    return [case for seq in seqs for _, _, manner in COMPARISON for skip in range(bound)
++            for case in (FaultCase(valid, older, seq, fault(manner, slot, skip, 2, body), skip, 2, restart),)
++            if (older or faulted == "valid") and expect(case).judgement["ab".index(slot)] == "ffc"]
++
++
++def term_of(case: FaultCase) -> str:
++    """The comparison term a case's faulty reads alone differ in, or ''."""
++    option, arg = case.fault
++    where = arg.split(":")[1]
++    return next((term for term, _, manner in COMPARISON
++                 if manner == option or (option == "--read-fault" and manner in FLIPS
++                                         and str(FLIPS[manner][0]) == where)), "")
++
++
++def comparison_findings(firmware: str, cases: list[FaultCase], controls: dict | None = None) -> list[str]:
++    """Check 13's own reach over the comparison (#671 round 6): the firmware
++    compares two refused reads by exactly the terms COMPARISON lists, and
++    each term has its class among `cases` at every sequence, both ways round
++    and on both entry paths, of every group whose faulted slot holds a
++    container, and a control in `controls` (READ_FAULT_MUTATIONS by default)
++    that removes that term alone."""
++    controls = READ_FAULT_MUTATIONS if controls is None else controls
++    found = AGREE_RE.search(firmware)
++    spelled = tuple(" ".join(term.split()) for term in found.group(1).split("&&")) if found else ()
++    listed = tuple(spelling for _, spelling, _ in COMPARISON)
++    f = [] if spelled == listed else [
++        f"the firmware compares two refused reads by {' && '.join(spelled) or 'nothing found'}, "
++        f"but the terms listed are {' && '.join(listed)}"]
++    for term, spelling, _ in COMPARISON:
++        have = {(c.older, c.fault[1][0] == c.valid, c.valid, c.seq, c.restart) for c in cases
++                if term_of(c) == term and expect(c).judgement["ab".index(c.fault[1][0])] == "ffc"}
++        want = {(older, faulted == "valid", valid, seq, restart) for older, faulted, _, seqs in GROUPS
++                if older or faulted == "valid" for valid in "ab" for seq in seqs for restart in (True, False)}
++        if want - have:
++            f.append(f"the comparison's {term} has no fault class at {len(want - have)} place(s), "
++                     f"first {min(want - have)}")
++        if controls.get(control_of(term)) != (((spelling, "1"),), alone_in(term)):
++            f.append(f"the comparison's {term} has no control that removes it alone")
++    return f
++
++
++def comparison_self_test(firmware: str, cases: list[FaultCase]) -> list[str]:
++    """`comparison_findings` must fail, in its own words, for each term with
++    its class taken out of `cases`, for each term with its control taken
++    out, and for a firmware comparing by one term more than COMPARISON
++    lists. A plant it passes is a finding."""
++    last = COMPARISON[-1][1]
++    plants = [(f"the comparison's {term} has no fault class", firmware,
++               [c for c in cases if term_of(c) != term], None) for term, _, _ in COMPARISON]
++    plants += [(f"the comparison's {term} has no control", firmware, cases,
++                {k: v for k, v in READ_FAULT_MUTATIONS.items() if k != control_of(term)})
++               for term, _, _ in COMPARISON]
++    plants.append(("&& a.seq == b.seq, but the terms listed",
++                   firmware.replace(f"{last};", f"{last} && a.seq == b.seq;"), cases, None))
++    findings = []
++    for words, text, have, controls in plants:
++        got = [x for x in comparison_findings(text, have, controls) if words in x]
++        if got:
++            print(f"  self-test OK: the comparison check, by its own words: {got[0]}")
++        else:
++            findings.append(f"self-test: the comparison check did not say {words!r}")
++    return findings
++
++
+ def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str, str]:
+     """The harness option and argument for one manner of fault."""
+     if manner.startswith("--"):
+@@ -296,7 +401,8 @@ def expect(case: FaultCase) -> Expect:
+     never so is UNREAD, and the other VD_OK slot is re-staged in turn. A
+     clean read returns the slot's container or blank; a faulty one returns
+     bytes no other read returns, a blank read, or the other slot's clean
+-    read, as the case's option says."""
++    read, as the case's option says. A judgement's reads are consecutive, so
++    the verdict fault, three words in turn, keeps every two of them apart."""
+     clean = {case.valid.upper(): ("OK", case.seq, "newer"),
+              case.other.upper(): ("OK", (case.seq - 1) & SEQ_MASK, "older") if case.older else ("BLANK",)}
+     option, arg = case.fault
+@@ -309,6 +415,7 @@ def expect(case: FaultCase) -> Expect:
+         if slot != arg[0].upper() or not case.skip <= reads - 1 < case.skip + case.count:
+             return clean[slot]
+         return {"--read-fault": ("REFUSED", reads), "--read-sealed": ("REFUSED", reads),
++                "--read-length": ("REFUSED", reads), "--read-verdict": ("REFUSED", reads),
+                 "--read-ff": ("BLANK",)}.get(option, clean["BA"["AB".index(slot)]])
+ 
+     judgement = {"A": "", "B": ""}
+@@ -345,19 +452,21 @@ def judged(case: FaultCase, boot: re.Match, unread: int) -> list[str]:
+     """Each slot's boot verdict is what its bytes say when read cleanly, or
+     the slot is UNREAD: VD_LEN, no sequence, its bit in `unread=`. Every
+     case check 13 runs is inside the rule's detection limit (`fault_cases`),
+-    so no other verdict may stand."""
++    so no other verdict may stand. On the faulted slot of a comparison
++    term's class, the finding names the term the reads alone differ in."""
+     findings = []
+     for n, letter in enumerate("AB"):
+         vd, seq, bit = boot.group(1 + 2 * n), int(boot.group(2 + 2 * n)), (unread >> n) & 1
+         want_vd, want_seq = case.truth()[letter]
+         if (vd, bit) == ("VD_LEN", 1) or ((vd, seq, bit) == (want_vd, want_seq, 0)):
+             continue
++        term = term_of(case) if case.fault[1][0] == letter.lower() else ""
+         if vd == "VD_LEN" and want_vd != "VD_LEN":
+             findings.append(f"{case.name}: slot {letter} did not read back as it was judged, "
+                             f"yet the boot line does not name it unread: {boot.group(0)}")
+         elif vd != want_vd:
+-            findings.append(f"{case.name}: slot {letter} was taken as {vd} on reads that "
+-                            f"returned different bytes: {boot.group(0)}")
++            findings.append(f"{case.name}: slot {letter} was taken as {vd} on reads that returned "
++                            f"different bytes{', ' + alone_in(term) if term else ''}: {boot.group(0)}")
+         else:
+             findings.append(f"{case.name}: slot {letter} reads {vd} seq {seq:#x} unread bit {bit}, "
+                             f"but holds {want_vd} seq {want_seq:#x}: {boot.group(0)}")
+diff --git a/sw/firmware/nvm_hosttest/test_nvm_firmware.py b/sw/firmware/nvm_hosttest/test_nvm_firmware.py
+index 614475448..1fd815fe6 100755
+--- a/sw/firmware/nvm_hosttest/test_nvm_firmware.py
++++ b/sw/firmware/nvm_hosttest/test_nvm_firmware.py
+@@ -49,27 +49,27 @@ WHAT IT GRADES, per shipped shape, all on bytes:
+      on the cold boot and on a writer restart without a fabric reset,
+      `writer_restart.py`), over a header, sequence or record-area byte, the
+      blank or older slot's, an entity or record-area byte under a CRC closed
+-     over the faulty bytes, an all-0xFF read or the other slot's container,
++     over the faulty bytes, an all-0xFF read, the other slot's container, or
++     two reads differing in one term of the refused-read comparison alone,
+      one slot valid and the other blank or both valid, both ways round, is
+      followed by a change, its commit and a clean reboot. The boot line
+      names each slot as its bytes read or UNREAD and offers the newer slot it
+      accepts, the window is that slot's container byte for byte (a restart
+      leaves it as it was), and every saved record and the change survive, or
+      the writer was HELD, persisted nothing and named each unread slot and
+-     why; the reads opened and the hold are the reference model's
+-     (`read_fault_cases.expect`);
++     why; the reads and the hold are the model's (`read_fault_cases.expect`);
+  14. a cleanly read but refused slot names no generation: with no slot
+      accepted, the first commit is at sequence 1.
+ 
+-NEGATIVE CONTROLS. `--self-test` plants nineteen writer defects into a copy
+-of the firmware, one at a time, and requires the suite to redden on each:
+-the ascending-id check removed, the heartbeat dropped from the erase poll
+-loop, the read-back verify skipped, the erased-record rule accepting a header
+-alone, a word copy crossing into an open neighbour, and fourteen #671
++NEGATIVE CONTROLS. `--self-test` plants twenty-three writer defects into a
++copy of the firmware, one at a time, and requires the suite to redden on
++each: the ascending-id check removed, the heartbeat dropped from the erase
++poll loop, the read-back verify skipped, the erased-record rule accepting a
++header alone, a word copy crossing into an open neighbour, and eighteen #671
+ defects, each planted into the first shape and both product shapes and
+ caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
+-says what each is). A control that stays green is reported as the finding
+-it is.
++says what each is; four drop one term each of `read_fault_cases.COMPARISON`,
++which must be the firmware's, each term with a class and a control).
+ 
+ Usage:
+     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
+@@ -111,10 +111,10 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
+ from check_nvm_record_space import expected_payloads          # noqa: E402
+ from flash_map import literal                                  # noqa: E402
+ from boot_policy import fabric_constants                       # noqa: E402
+-from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE,  # noqa: E402
+-                              PRODUCT_SHAPES, READ_FAULT_MUTATIONS, RETIRE_CAUSES,
+-                              UNREAD_RE, FaultCase, expect, fault_cases, hold_findings,
+-                              line_findings, read_findings, restart_findings)
++from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE, PRODUCT_SHAPES,  # noqa: E402
++                              READ_FAULT_MUTATIONS, RETIRE_CAUSES, UNREAD_RE, FaultCase, comparison_findings,
++                              comparison_self_test, expect, fault_cases, hold_findings, line_findings,
++                              read_findings, restart_findings)
+ from writer_restart import host_restart                        # noqa: E402
+ 
+ FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
+@@ -781,10 +781,9 @@ def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
+     real change and lets the debounce commit it, then boots again clean.
+     The faulty boot's line, offer and window must be what its reads proved,
+     and every saved record and the change survive the reboot, or the faulty
+-    boot HELD the writer, persisted nothing, said so, and the reboot
+-    restores every saved record. `bench.jobs` threads walk the cases, each in
+-    a directory of its own; with `until`, the walk stops at the first
+-    finding carrying those words, which is all a planted control needs.
++    boot HELD, persisted nothing, said so, and the reboot restores every
++    saved record. `bench.jobs` threads walk the cases, each in a directory
++    of its own; `until` stops the walk at the first finding with its words.
+     """
+     fr = fault_run(bench)
+     cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
+@@ -906,8 +905,7 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
+         if not got:
+             findings.append(f"self-test: the {label} defect was NOT caught")
+         else:
+-            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); "
+-                  f"first: {got[0]}")
++            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); first: {got[0]}")
+     return findings
+ 
+ 
+@@ -971,7 +969,8 @@ def main() -> int:
+             work.mkdir()
+             bench = replace(make_bench(cfg, work, firmware_text), jobs=max(1, a.jobs))
+             benches.append(bench)
+-            got = grade(bench)
++            cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
++            got = grade(bench) + comparison_findings(firmware_text, cases)
+             got += disabled.grade(cfg, work / "disabled", firmware_text)
+             got += bootwalk.grade(cfg, work / "boot-walk", firmware_text, bench)
+             disabled.check_link_guard(bench)
+@@ -983,6 +982,7 @@ def main() -> int:
+             findings += self_test_read_faults(
+                 [b for b in benches if b is benches[0] or b.cfg.stem in PRODUCT_SHAPES],
+                 Path(tmp) / "read-fault-mutant", firmware_text)
++            findings += comparison_self_test(firmware_text, cases)
+             findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
+             findings += bootwalk.self_test(cfgs[0], Path(tmp) / "boot-walk-mutant", firmware_text)
+             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],
