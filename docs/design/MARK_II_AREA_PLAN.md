@@ -39,7 +39,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 - **No double counting:** M3/M10 receive zero default-image credit.
   Their AECP hardware leaves with F5.
   M4 is replaced by the split; diagnostics remain enabled.
-- **Firmware allocation:** 224 KB, budgeted at about 50 RAMB36 tiles.
+- **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 53 at the largest shape.
   The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
   Its reuse and packing assumptions require routed confirmation.
 - **Qualification risk:** F5, target service timing and bench acceptance remain.
@@ -432,7 +432,7 @@ A software protocol owner must not become a software media path.
 firmware capacity and F5 qualification remain implementation obligations.
 The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the earlier approximately 128 KB budget.
 F5's limit is now 224 KB, including AECP.
-Budget about 50 RAMB36 tiles for firmware.
+The [ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds it: up to 56 RAMB36 as mapped.
 The [memory ledger](#firmware-and-block-ram-ledger) includes the measured preflight and packing risk.
 Measure linked code, data, stack, static pools and saved-state staging.
 The current ROM parameter does not establish Mark II capacity.
@@ -595,7 +595,7 @@ Shared sites or larger replacement logic can erase that saving.
 Anonymous DDR logic could instead increase the measured saving.
 M8a must replace these assumptions with a routed delta.
 M0s and M9 retain independent primitive and memory-capacity checks.
-M8a replaces the existing CPU memory allocation within the 50-tile budget.
+M8a replaces the existing CPU memory allocation within the owner's 224 KB, up to 56 RAMB36 as mapped.
 It must reconcile that reuse against the [memory ledger](#firmware-and-block-ram-ledger).
 The lane owns its memory-map migration and both placement contracts.
 
@@ -738,6 +738,8 @@ The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecommen
 This supersedes the approximately 128 KB figure.
 The device still reserves 13.5 of its 135 tiles.
 The usable ceiling remains 121.5 tiles.
+The [ruling on M8a's STOP](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds the owner's 224 KB: up to 56 RAMB36 as mapped.
+Because M8a is split-placement only, its ledger takes the conditional release below.
 
 The [F5 sizing preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) used dev `5603c353`.
 It linked existing protocol code with the F1 store retained.
@@ -758,9 +760,8 @@ They establish neither F5 completion nor mapped RAMB36 counts.
 
 The 50-tile figure uses approximately 4.5 KB per RAMB36.
 That is raw capacity; mapping can expose less usable storage.
-For example, 224 KiB needs 56 tiles at 4 KiB usable each.
-That example is a packing check, not a new F5 threshold.
-M8a must report actual usable bytes and allocated primitives.
+224 KiB is 56 tiles at 4 KiB usable each; the ruling makes that the limit.
+[M8a-1](SPLIT_CONTROL_MEMORY.md#5-fit) reports the usable bytes and allocated primitives.
 
 This ledger first withholds the wrapper's remaining 11 tiles.
 It credits only the same removed scopes as L2's LUT basis.
@@ -772,36 +773,39 @@ The firmware row replaces CPU memory, so replacement storage counts once.
 | Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
 | L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
 | Measured mailbox replacement | +1 | +10 | +6 | 87 |
-| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
-| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
-| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
-| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+| M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +52 | +2 | +53 | 122 |
+| M2 maximum additional allocation | +2 | 0 | +2 | 124 |
+| Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 113 |
 
 The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
 The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
-The reuse estimate comes from the [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
-That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
-It is historical attribution, not a new census of `a5ca6e51`.
-M8a must confirm the reusable count at its actual checkpoint.
-Any retained boot memory outside the firmware allocation adds a debit.
-The allocation must also contain stack, pools and shape-sized saved-state staging.
-Any descriptor image or alignment space outside it adds a debit.
+The [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reported BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+M8a-1 measured 16 + 2 RAMB36 and no RAMB18 at `e8454e27`.
+The census's RAMB18 is the 49-byte identifier memory, which stays.
+The split builds neither BIOS memory, so no boot memory is retained outside the allocation.
+The allocation contains the stack, pools, shape-sized staging, descriptor image and alignment.
+Its 53 tiles are Vivado's mapping of the 8x8 two-interface image's banks.
+Vivado trims constant ROM bit columns and puts one sparse 1,024-word ROM bank in 231 LUTs.
+With every bank in block RAM, the same banks take 54.5 tiles.
 No separate smaller-core RAM saving is credited.
 
-Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
-The conditional release subtracts eleven once, giving 109.5.
+Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 53 + 2 = 124`.
+The conditional release subtracts eleven once, giving 113.
+With every bank in block RAM: `125.5`, and 114.5 after the release.
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
 
-Before the conditional release, the estimate leaves one tile below 121.5.
-After it, 109.5 tiles leaves twelve below that ceiling.
+Before the conditional release, the measured total is 2.5 tiles over 121.5.
+The split takes the release: 113 tiles leaves 8.5 below that ceiling.
+With every bank in block RAM, 114.5 leaves seven.
 Both leave the separate 13.5-tile reserve untouched.
-Neither number proves integrated fit.
+Neither number proves integrated fit; M8a-2's route does.
 Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
 Each lane must debit them before accepting its LUT saving.
-Without the estimated CPU-memory reuse, those totals become 139 and 128.
-Both exceed the ceiling; reuse is a prerequisite, not free headroom.
+Keeping the BIOS ROM and SRAM would add 18: 142 and 131.
+Both exceed the ceiling, which is why the split builds neither.
 
 **What gives way above 50 firmware tiles:** the remaining wrapper storage.
 These disjoint scopes are outside the six AECP tiles and SRP half-tile:

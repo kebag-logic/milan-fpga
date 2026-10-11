@@ -822,6 +822,13 @@ list, so a switch-on build carries a different `VexiiRiscvLitex_<hash>` from
 the shipping one. The datapath side is held
 idle in F0.
 
+Since #640 M8a-1 the switch also selects the split placement's firmware
+memory: it requires `--ctrl-firmware <elf>`, builds no BIOS ROM or BIOS SRAM,
+and builds `rom` and `sram` block RAM from that image, with the firmware
+owning the reset entry. See
+[Split placement control memory](SPLIT_CONTROL_MEMORY.md). Off, nothing
+changes, and the default export is digest-identical again.
+
 The proof is a gateware export (no Vivado) of every shipped config, with the
 base and the head `milan_soc.py`, compared after removing the run's
 timestamps, output paths and LiteX's comment-only hierarchy tree, whose order

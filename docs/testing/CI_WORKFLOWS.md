@@ -1181,6 +1181,11 @@ Verilator the member declares a skip (`RESULT: SKIP`, counted skipped, never
 failed) and the aggregate reports INCOMPLETE rather than a green that would
 claim a comparison nobody ran.
 
+The RV32 SDK this job installs serves one member the same way.
+`test_ctrl_memory` (#640 M8a) links a probe through the split placement's
+link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
+SDK step installs; without a compiler that member declares a skip too.
+
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume
 `protocol-processor`, `gptp-processor`, and the five shipping primitives under

@@ -221,7 +221,7 @@ The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
 
 The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the approximately 128 KB firmware budget.
 The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916) allows 224 KB, AECP included.
-Budget about 50 RAMB36 tiles for the complete firmware allocation.
+The [ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds it: up to 56 RAMB36 as mapped; M8a-1 maps 53 at the largest shape.
 The [F5 preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) measured 94,688 bytes for shipping 1x1 with one interface.
 The largest supported shape with two interfaces measured 147,360 bytes.
 Both fixtures retain F1 but exclude AECP and its descriptor image.
@@ -234,29 +234,30 @@ The [memory ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger) gives ea
 | Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
 | L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
 | Measured mailbox replacement | +1 | +10 | +6 | 87 |
-| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
-| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
-| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
-| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+| M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +52 | +2 | +53 | 122 |
+| M2 maximum additional allocation | +2 | 0 | +2 | 124 |
+| Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 113 |
 
-The CPU-memory reuse uses the [historical SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
-M8a must confirm it at the actual checkpoint.
-Retained boot storage outside the firmware allocation adds a debit.
-Descriptor images, alignment and saved-state staging outside it add debits.
-Without that reuse, the totals become 139 and 128 tiles.
+M8a-1 measured the BIOS ROM and SRAM at `e8454e27`: 16 + 2 RAMB36, no RAMB18.
+The [historical SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) also counted the identifier's RAMB18, which stays.
+The split builds neither BIOS memory, so no boot storage is retained outside the allocation.
+Descriptor images, alignment and saved-state staging are inside it.
+Keeping the BIOS memories would add 18: 142 and 131 tiles.
 Neither fits the ceiling.
 
-The nominal 50 tiles use approximately 4.5 KB raw capacity each.
-A 4 KiB usable mapping would require 56 tiles for 224 KiB.
-Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
-Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
-The conditional release subtracts eleven once, giving 109.5.
+The nominal 50 tiles used approximately 4.5 KB raw capacity each.
+A 4 KiB usable mapping requires 56 tiles for 224 KiB, the ruled limit.
+Actual primitive counts decide fit: [M8a-1's mapping](SPLIT_CONTROL_MEMORY.md#5-fit) gives 53 at the largest shape.
+With every bank in block RAM it gives 54.5.
+Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 53 + 2 = 124`.
+The conditional release subtracts eleven once, giving 113.
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
 
-At 50 tiles, the ledger leaves one tile before conditional reclamation.
-After it, twelve tiles remain below 121.5.
+Measured, the ledger is 2.5 tiles over 121.5 before conditional reclamation.
+The split takes it: 113 tiles leaves 8.5 below 121.5, or seven with every bank in block RAM.
 At 56 firmware tiles, the conditional total is 115.5, leaving six.
 The separate 13.5-tile reserve remains untouched in these estimates.
 Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.

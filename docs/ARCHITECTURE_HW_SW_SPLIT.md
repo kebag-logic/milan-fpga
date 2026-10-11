@@ -178,6 +178,7 @@ In the ownerless test form:
 
 F0's `--ctrl-mailbox` switch is default-off.
 Its datapath inputs remain idle until protocol integration connects them.
+It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
 F1's flash and state ports await integration with those owners.
 Access counts and model time do not prove target service latency.
 F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).
