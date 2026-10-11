@@ -9,33 +9,27 @@ and versioned names) that runs
 
     <recorder> <capture> <name> <real compiler> <argument>...
 
-It has the real compiler expand the invocation (THE EXPANSION), appends one
-record to <capture>/records.jsonl, and then executes the real compiler with
-the same arguments, so what it compiles and writes is what it would have
-without the capture. A record holds the name the compiler was called by, the
-real compiler, the arguments, the working directory, every input with the
-language the compiler's expansion gave it (and, for C++, the digest of its
-text), the digest of the expansion's report, the builder files on the Python
-stack of the process that started it (CTRL_CAPTURE_FROM, set by ctrl_capture's
-audit hook), the builder file of the command the capture ran it under
-(CTRL_CAPTURE_RUN, set by ctrl_capture.run), and the digest of the map of
-texts kept beside it. The text of every C++ source, and of every header
-outside the checkout a C++ source reaches in a builder's own directories (the
-temporary directory, the compile's, the source's) by its #include lines read
-as text in every branch against the directories the compiler reported, is
-kept under <capture>/text/ by its SHA-256, so a source a builder writes and
-deletes is still read. A C++ source outside the checkout, the temporary
-directory and the compile's that was there before the capture began (its
-inode changed earlier than the capture's start marker's, CTRL_CAPTURE_START)
-is an installed tool's own (Verilator's runtime, which its builds compile):
-its digest is recorded as "installed", and nothing of it is kept or followed.
-A file a builder writes or copies anywhere is its own. It is C so that a
-compile costs the capture about a millisecond.
+It has the real compiler expand the invocation (THE EXPANSION), has it list
+what each source's compile reads (THE DEPENDENCY PASS), runs the real
+compiler with the same arguments and waits for it, so what it compiles and
+writes is what it would have without the capture, appends one record to
+<capture>/records.jsonl, and exits as the compiler did (a signal the
+recorder takes meanwhile is passed on to the compiler, and a signal that ends
+the compiler ends the recorder). A record holds the name the compiler was
+called by, the real compiler, the arguments, the working directory, every
+input with the
+language the compiler's expansion gave it and, for a source it compiles (C,
+C++ or preprocessed assembler), the digest of its dependency pass's kept
+list or why the pass gave none, the digest of the expansion's report, the
+builder files on the Python stack of the process that started it
+(CTRL_CAPTURE_FROM, set by ctrl_capture's audit hook) and the builder file of
+the command the capture ran it under (CTRL_CAPTURE_RUN, set by
+ctrl_capture.run), and the compile's exit status. It is C so that a compile
+costs the capture little more than its own dependency pass.
 
-A record that cannot be written stops the compile (exit 2, the reason on
-standard error), and so does a C++ source that reaches more headers than one
-compile keeps (CLOSURE): a capture never misses an invocation, or a header,
-silently.
+A record that cannot be written fails the invocation (exit 2, the reason on
+standard error), even when the compile passed: a capture never misses an
+invocation silently.
 
 THE EXPANSION (ctrl_expand.py). Before it records, the recorder has the real
 compiler expand the invocation: the expansion's arguments are the
@@ -49,6 +43,30 @@ directory it reported is unchanged, and only when every argument is one of
 the plain forms (PLAIN in RECORDER) and none holds a response file (@);
 otherwise it runs ctrl_expand.py's helper (CTRL_CAPTURE_EXPAND), which runs
 the compiler, keeps its report and writes the entry the recorder reads back.
+
+THE DEPENDENCY PASS. For each source the expansion says it compiles, the
+recorder runs the real compiler once more, in the invocation's directory and
+environment (LC_ALL=C, so its messages are read in English), with the
+invocation's own arguments: its output and dependency options dropped as the
+expansion drops them, every other input left out (one source per pass), and
+-M -MF <file> -MT dependencies -H -fpch-preprocess added (and
+-Qunused-arguments for a driver the expansion found to be Clang, as it adds).
+The compiler writes the rule of every file the compile reads (-M: the source,
+what the command line reads first, what the source includes, the system
+headers too) and, on its standard error, the tree of the files the source's
+own #include lines read, each at its depth (-H; GCC and Clang print neither a
+file the command line reads first nor what that file reads). -fpch-preprocess
+has GCC read a precompiled header the compile reads first, as the compile
+does, rather than the header's text; the rule then leaves out what the header
+read, which the record of the compile that made it holds (ctrl_capture's
+reader adds it). Every name is resolved from the directory
+while the files are there. The list (the source aside) and the tree, as
+indexes into it, are kept under <capture>/text/ by their SHA-256. A pass
+gives none, and the record says why, when the compiler fails (but on #error
+or #warning directives alone, after which it still lists every file it read),
+writes no rule, names first a file that is not the source, names a file that
+does not exist, or prints a tree entry the rule does not hold, and for a
+source read from standard input, which a pass cannot read again.
 """
 
 #: The recorder (see THE RECORDER), C11 and POSIX.
@@ -57,6 +75,7 @@ RECORDER = r'''/* ctrl_shim.py's recorder (#697): <recorder> <capture> <name> <r
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,13 +84,19 @@ RECORDER = r'''/* ctrl_shim.py's recorder (#697): <recorder> <capture> <name> <r
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define CLOSURE 1024 /* how many headers one compile keeps beside its sources; more refuses the compile */
-
 extern char **environ;
 
+/* The compile the recorder waits for, which each of PASSED it takes is passed on to. */
+static volatile pid_t compiling;
+static const int PASSED[] = {SIGINT, SIGTERM, SIGHUP};
+
+static void pass_on(int sig)
+{
+    if (compiling > 0)
+        kill(compiling, sig);
+}
+
 typedef struct { char *data; size_t len, cap; } Buf;
-typedef struct { char *path; char hex[65]; } Kept;
-typedef struct { Kept items[CLOSURE]; int count; } Map;
 
 static void fail(const char *what, const char *detail)
 {
@@ -189,23 +214,6 @@ static char *slurp(const char *path, size_t *len)
     return b.data;
 }
 
-static int regular(const char *path)
-{
-    struct stat st;
-    return stat(path, &st) == 0 && S_ISREG(st.st_mode);
-}
-
-/* Whether a resolved path is `top` or under it. */
-static int under(const char *path, const char *top)
-{
-    size_t n = strlen(top);
-    while (n > 1 && top[n - 1] == '/')
-        n--;
-    if (n == 1 && top[0] == '/')
-        return 1;
-    return strncmp(path, top, n) == 0 && (path[n] == '\0' || path[n] == '/');
-}
-
 /* base/name resolved (name as it is when absolute), or base/name joined when it resolves to nothing. */
 static char *joined(const char *base, const char *name, int resolve)
 {
@@ -233,25 +241,6 @@ static void keep(const char *capture, const char *data, size_t len, char hex[65]
     }
     free(path);
     free(part);
-}
-
-static int has(const Map *m, const char *path)
-{
-    for (int i = 0; i < m->count; i++)
-        if (strcmp(m->items[i].path, path) == 0)
-            return 1;
-    return 0;
-}
-
-static void add(Map *m, const char *capture, const char *path, const char *data, size_t len)
-{
-    if (has(m, path))
-        return;
-    if (m->count >= CLOSURE)
-        fail("a C++ source reaches more headers than the capture keeps for one compile:", path);
-    m->items[m->count].path = strdup(path);
-    keep(capture, data, len, m->items[m->count].hex);
-    m->count++;
 }
 
 /* ---- the arguments: which are inputs, which are outputs, which leave an expansion reusable ---- */
@@ -375,10 +364,8 @@ static char *stand_in(const char *capture, int n, const char *arg)
 
 typedef struct {
     char report[65];
-    int rc, fresh, valid;
+    int rc, fresh, valid, clang;
     const char **lang;
-    char **dirs;
-    int ndirs;
     char error[400];
 } Entry;
 
@@ -424,17 +411,14 @@ static void load(const char *path, int ninputs, int accept_fresh, Entry *e)
             char *l = strchr(line + 5, ' ');
             if (k >= 0 && k < ninputs && l != NULL)
                 e->lang[k] = strdup(l + 1);
-        } else if (!strncmp(line, "dir ", 4)) {
-            char **more = realloc(e->dirs, (size_t)(e->ndirs + 1) * sizeof *more);
-            if (more == NULL)
-                fail("out of memory", NULL);
-            e->dirs = more;
-            e->dirs[e->ndirs++] = strdup(line + 4);
+        } else if (!strncmp(line, "dir ", 4))
             holds &= stat(line + 4, &st) == 0 && S_ISDIR(st.st_mode);
-        } else if (!strncmp(line, "nodir ", 6))
+        else if (!strncmp(line, "nodir ", 6))
             holds &= stat(line + 6, &st) != 0;
         else if (!strncmp(line, "file ", 5))
             holds &= unchanged(line + 5);
+        else if (!strcmp(line, "driver clang"))
+            e->clang = 1;
         else if (!strcmp(line, "fresh"))
             e->fresh = 1;
         else if (!strncmp(line, "error ", 6))
@@ -456,7 +440,7 @@ static void cache_key(const char *real, const char *cwd, char **exp, int nexp, c
     char line[160];
     if (stat(real, &st) != 0)
         memset(&st, 0, sizeof st);
-    text(&b, "ctrl-expand 1\n");
+    text(&b, "ctrl-expand 2\n");
     text(&b, real);
     snprintf(line, sizeof line, "\n%llu %llu %lld %lld\n", (unsigned long long)st.st_dev,
              (unsigned long long)st.st_ino, (long long)st.st_size, (long long)nanos(st.st_mtim));
@@ -526,103 +510,253 @@ static void helper(const char *capture, const char *path, int fresh, int stdin_k
     free(argv);
 }
 
-/* ---- the headers a C++ source reaches outside the checkout ---- */
+/* ---- the dependency pass (see THE DEPENDENCY PASS) ---- */
 
-static int outside_root(const char *path, const char *root) { return !under(path, root); }
+typedef struct { char **path; int count, cap; } List;
 
-/* Whether a file is the builder's: in the checkout, the builder's temporary directory or the compile's working
- * directory, or written (or copied) since the capture began, its inode changed no earlier than the capture's start
- * marker's (`start`, CTRL_CAPTURE_START). Only a file elsewhere that was there before is an installed tool's own (a
- * runtime the tool compiles into the build). */
-static int own(const char *path, const char *root, const char *temp, const char *here, const struct stat *start)
+/* The index of a path in the list, added when it is not there yet. */
+static int indexed(List *l, const char *path)
 {
-    struct stat st;
-    if (under(path, root) || under(path, temp) || under(path, here))
-        return 1;
-    if (start == NULL || stat(path, &st) != 0)
-        return 1;
-    return st.st_ctim.tv_sec > start->st_ctim.tv_sec ||
-           (st.st_ctim.tv_sec == start->st_ctim.tv_sec && st.st_ctim.tv_nsec >= start->st_ctim.tv_nsec);
+    for (int i = 0; i < l->count; i++)
+        if (strcmp(l->path[i], path) == 0)
+            return i;
+    if (l->count == l->cap) {
+        l->cap = l->cap ? l->cap * 2 : 64;
+        l->path = realloc(l->path, (size_t)l->cap * sizeof *l->path);
+        if (l->path == NULL)
+            fail("out of memory", NULL);
+    }
+    l->path[l->count] = strdup(path);
+    return l->count++;
 }
 
-static void closure(Map *kept, const char *capture, const char *root, char *const *tops, int ntops,
-                    const char *source, char *data, size_t len, char **dirs, int ndirs)
+static int find(const List *l, const char *path)
 {
-    char *queue_path[CLOSURE + 1];
-    char *queue_data[CLOSURE + 1];
-    size_t queue_len[CLOSURE + 1];
-    int queued = 0;
-    queue_path[queued] = strdup(source);
-    queue_data[queued] = data;
-    queue_len[queued++] = len;
-    while (queued > 0) {
-        queued--;
-        char *path = queue_path[queued], *body = queue_data[queued];
-        size_t n = queue_len[queued];
-        Buf flat = {0};
-        put(&flat, "", 0);
-        for (size_t i = 0; i < n; i++) {
-            if (body[i] == '\\' && i + 1 < n && body[i + 1] == '\n') {
-                i++;
-                continue;
-            }
-            put(&flat, body + i, 1);
+    for (int i = 0; i < l->count; i++)
+        if (strcmp(l->path[i], path) == 0)
+            return i;
+    return -1;
+}
+
+/* The prerequisites of a dependency rule, unescaped as GCC and Clang write them: a line continuation is a blank,
+ * "\ " a space, "\#" a '#', "$$" a '$'. Each is written into `rule` in place; their count, or -1 with no rule. */
+static int prerequisites(char *rule, char ***out)
+{
+    char *colon = strstr(rule, "dependencies:");
+    if (colon != rule)
+        return -1;
+    char *src = rule + strlen("dependencies:"), *dst = src, *start = NULL;
+    int count = 0, cap = 0;
+    char **words = NULL;
+    for (;; src++) {
+        int blank = *src == '\0' || *src == ' ' || *src == '\t' || *src == '\n' || *src == '\r';
+        if (*src == '\\' && (src[1] == '\n' || (src[1] == '\r' && src[2] == '\n'))) {
+            src += src[1] == '\r' ? 2 : 1;
+            blank = 1;
         }
-        char *dir = strdup(path), *slash = strrchr(dir, '/');
-        if (slash != NULL)
-            *slash = '\0';
-        for (char *line = flat.data; line != NULL && *line; ) {
-            char *end = strchr(line, '\n'), *p = line;
-            if (end != NULL)
-                *end = '\0';
-            p += strspn(p, " \t\r\f\v");
-            if (*p == '#') {
-                p++;
-                p += strspn(p, " \t\r\f\v");
-                if (!strncmp(p, "include", 7)) {
-                    p += 7;
-                    if (!strncmp(p, "_next", 5))
-                        p += 5;
-                    p += strspn(p, " \t\r\f\v");
-                    if (*p == '<' || *p == '"') {
-                        int quote = *p == '"';
-                        char *name = ++p;
-                        size_t len_name = strcspn(name, ">\"");
-                        if (len_name > 0 && name[len_name] != '\0') {
-                            name[len_name] = '\0';
-                            for (int b = quote ? -1 : 0; b < ndirs; b++) {
-                                char *hit = joined(b < 0 ? dir : dirs[b], name, 1);
-                                int ours = 0;
-                                for (int t = 0; t < ntops; t++)
-                                    ours |= under(hit, tops[t]);
-                                size_t hit_len = 0;
-                                char *hit_data = NULL;
-                                if (has(kept, hit) || !outside_root(hit, root) || !ours || !regular(hit) ||
-                                    (hit_data = slurp(hit, &hit_len)) == NULL) {
-                                    free(hit);
-                                    continue;
-                                }
-                                add(kept, capture, hit, hit_data, hit_len);
-                                if (queued >= CLOSURE)
-                                    fail("a C++ source reaches more headers than the capture keeps for one compile:",
-                                         source);
-                                queue_path[queued] = hit;
-                                queue_data[queued] = hit_data;
-                                queue_len[queued++] = hit_len;
-                                break;
-                            }
-                        }
-                    }
+        if (blank) {
+            if (start != NULL) {
+                *dst++ = '\0';
+                if (count == cap) {
+                    cap = cap ? cap * 2 : 64;
+                    words = realloc(words, (size_t)cap * sizeof *words);
+                    if (words == NULL)
+                        fail("out of memory", NULL);
                 }
+                words[count++] = start;
+                start = NULL;
             }
-            line = end != NULL ? end + 1 : NULL;
+            if (*src == '\0')
+                break;
+            continue;
         }
-        free(flat.data);
-        free(dir);
-        free(path);
-        if (body != data)
-            free(body);
+        if (start == NULL)
+            start = dst;
+        if (*src == '\\' && (src[1] == ' ' || src[1] == '#'))
+            src++;
+        else if (*src == '$' && src[1] == '$')
+            src++;
+        *dst++ = *src;
     }
+    *out = words;
+    return count;
+}
+
+/* The dependency pass of input `self` (its argument at `at[self]`): the digest of its kept list and tree in `hex`,
+ * or why it gives none in `error`. */
+static void dependencies(const char *capture, const char *real, char **args, int nargs, const int *at, int ninputs,
+                         int self, int clang, const char *cwd, char hex[65], char error[400])
+{
+    static int passes;
+    char *depfile = NULL;
+    hex[0] = error[0] = '\0';
+    if (!strcmp(args[at[self]], "-")) {
+        snprintf(error, 400, "it compiles its standard input, which a dependency pass cannot read again");
+        return;
+    }
+    if (asprintf(&depfile, "%s/deps/%ld.%d.d", capture, (long)getpid(), passes++) < 0)
+        fail("out of memory", NULL);
+    char **argv = calloc((size_t)nargs + 10, sizeof *argv);
+    if (argv == NULL)
+        fail("out of memory", NULL);
+    int n = 0, input = 0;
+    argv[n++] = (char *)real;
+    for (int i = 0; i < nargs; i++) {
+        char *arg = args[i];
+        if (one_of(arg, SEPARATE)) {
+            if (!one_of(arg, OUTPUTS) && i + 1 < nargs) {
+                argv[n++] = arg;
+                argv[n++] = args[i + 1];
+            }
+            i++;
+            continue;
+        }
+        if (arg[0] == '-' && arg[1] != '\0' && output(arg))
+            continue;
+        if (input < ninputs && at[input] == i) {
+            if (input++ != self)
+                continue;
+        }
+        argv[n++] = arg;
+    }
+    const char *tail[] = {"-M", "-MF", depfile, "-MT", "dependencies", "-H", "-fpch-preprocess"};
+    for (size_t i = 0; i < sizeof tail / sizeof tail[0]; i++)
+        argv[n++] = (char *)tail[i];
+    if (clang)
+        argv[n++] = "-Qunused-arguments";
+    int pipefd[2];
+    if (pipe(pipefd) != 0)
+        fail("cannot make a pipe for a dependency pass", NULL);
+    pid_t pid = fork();
+    if (pid == 0) {
+        int null = open("/dev/null", O_RDWR);
+        if (null >= 0) {
+            dup2(null, 0);
+            dup2(null, 1);
+        }
+        dup2(pipefd[1], 2);
+        close(pipefd[0]);
+        close(pipefd[1]);
+        setenv("LC_ALL", "C", 1);
+        execv(real, argv);
+        _exit(127);
+    }
+    close(pipefd[1]);
+    Buf err = {0};
+    put(&err, "", 0);
+    char chunk[65536];
+    ssize_t got;
+    while ((got = read(pipefd[0], chunk, sizeof chunk)) > 0 || (got < 0 && errno == EINTR))
+        if (got > 0)
+            put(&err, chunk, (size_t)got);
+    close(pipefd[0]);
+    int status = 0;
+    if (pid < 0)
+        fail("cannot start a dependency pass of", args[at[self]]);
+    while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
+        ;
+    free(argv);
+    /* the compiler's verdict: a failure on #error or #warning directives alone still lists every file it read */
+    int said = 0, stops = 0;
+    char first[300] = "";
+    for (char *line = err.data; line != NULL && *line; ) {
+        char *end = strchr(line, '\n'), *mark = NULL;
+        if (end != NULL)
+            *end = '\0';
+        if ((mark = strstr(line, "error: ")) != NULL) {
+            mark += strlen("error: ");
+            said++;
+            stops += !strncmp(mark, "#error", 6) || !strncmp(mark, "#warning", 8);
+            if (!first[0])
+                snprintf(first, sizeof first, "%s", mark);
+        }
+        if (end != NULL)
+            *end = '\n';
+        line = end != NULL ? end + 1 : NULL;
+    }
+    int ok = WIFEXITED(status) && WEXITSTATUS(status) == 0;
+    if (!ok && !(WIFEXITED(status) && said > 0 && said == stops)) {
+        if (first[0])
+            snprintf(error, 400, "its dependency pass failed: %s", first);
+        else
+            snprintf(error, 400, "its dependency pass failed (%s %d)", WIFEXITED(status) ? "exit" : "signal",
+                     WIFEXITED(status) ? WEXITSTATUS(status) : WTERMSIG(status));
+        unlink(depfile);
+        free(depfile);
+        free(err.data);
+        return;
+    }
+    size_t len = 0;
+    char *rule = slurp(depfile, &len), **words = NULL;
+    unlink(depfile);
+    free(depfile);
+    int count = rule != NULL ? prerequisites(rule, &words) : -1;
+    List deps = {0};
+    char *source = joined(cwd, args[at[self]], 1);
+    if (count < 1) {
+        snprintf(error, 400, "its dependency pass wrote no rule naming what it read");
+    } else {
+        char *main_file = joined(cwd, words[0], 1);
+        if (strcmp(main_file, source) != 0)
+            snprintf(error, 400, "its dependency rule names %.150s first, not the source", words[0]);
+        free(main_file);
+    }
+    indexed(&deps, source);
+    for (int i = 1; !error[0] && i < count; i++) {
+        char *name = joined(cwd, words[i], 0), *resolved = realpath(name, NULL);
+        if (resolved == NULL)
+            snprintf(error, 400, "its dependency rule names %.250s, which is no file", words[i]);
+        else
+            indexed(&deps, resolved);
+        free(resolved);
+        free(name);
+    }
+    /* the tree: each line of -H is dots (its depth), a blank and the file's name; '!' or 'x' marks a precompiled
+     * header the compiler tried, which the rule lists by its header */
+    Buf tree = {0};
+    put(&tree, "", 0);
+    for (char *line = err.data; !error[0] && line != NULL && *line; ) {
+        char *end = strchr(line, '\n');
+        if (end != NULL)
+            *end = '\0';
+        size_t dots = strspn(line, ".");
+        if (dots > 0 && line[dots] == ' ') {
+            char *named = joined(cwd, line + dots + 1, 0), *resolved = realpath(named, NULL);
+            int k = resolved != NULL ? find(&deps, resolved) : -1;
+            free(named);
+            if (k < 0) {
+                snprintf(error, 400, "its include tree names %.250s, which its dependency rule does not",
+                         line + dots + 1);
+            } else {
+                char item[48];
+                snprintf(item, sizeof item, "%s[%zu, %d]", tree.len > 0 ? ", " : "", dots, k - 1);
+                text(&tree, item);
+            }
+            free(resolved);
+        }
+        line = end != NULL ? end + 1 : NULL;
+    }
+    if (!error[0]) {
+        Buf kept = {0};
+        text(&kept, "{\"deps\": [");
+        for (int i = 1; i < deps.count; i++) {
+            text(&kept, i > 1 ? ", " : "");
+            quoted(&kept, deps.path[i]);
+        }
+        text(&kept, "], \"tree\": [");
+        text(&kept, tree.data);
+        text(&kept, "]}");
+        keep(capture, kept.data, kept.len, hex);
+        free(kept.data);
+    }
+    for (int i = 0; i < deps.count; i++)
+        free(deps.path[i]);
+    free(deps.path);
+    free(tree.data);
+    free(words);
+    free(rule);
+    free(source);
+    free(err.data);
 }
 
 int main(int argc, char **argv)
@@ -632,7 +766,6 @@ int main(int argc, char **argv)
         return 2;
     }
     const char *capture = argv[1], *name = argv[2], *real = argv[3];
-    const char *root = getenv("CTRL_CAPTURE_ROOT") ? getenv("CTRL_CAPTURE_ROOT") : "/";
     char **args = argv + 4;
     int nargs = argc - 4;
     char cwd[PATH_MAX];
@@ -658,7 +791,8 @@ int main(int argc, char **argv)
      * outputs dropped, then -E -dD -v -fpch-preprocess */
     char **exp = calloc((size_t)nargs + 8, sizeof *exp), **inputs = calloc((size_t)nargs + 1, sizeof *inputs);
     char **kept_real = calloc((size_t)nargs + 1, sizeof *kept_real);
-    if (exp == NULL || inputs == NULL || kept_real == NULL)
+    int *input_at = calloc((size_t)nargs + 1, sizeof *input_at);
+    if (exp == NULL || inputs == NULL || kept_real == NULL || input_at == NULL)
         fail("out of memory", NULL);
     int nexp = 0, ninputs = 0, nreal = 0, stdin_k = -1, reusable = !pch, files = 0;
     exp[nexp++] = (char *)real;
@@ -678,6 +812,7 @@ int main(int argc, char **argv)
             continue;
         if (!strcmp(arg, "-")) {
             stdin_k = ninputs;
+            input_at[ninputs] = at;
             inputs[ninputs++] = arg;
             exp[nexp++] = arg;
         } else if (arg[0] == '-' || arg[0] == '@') {
@@ -687,9 +822,11 @@ int main(int argc, char **argv)
             if (asprintf(&kept_real[nreal++], "%d=%s", ninputs, arg) < 0)
                 fail("out of memory", NULL);
             exp[nexp++] = arg;
+            input_at[ninputs] = at;
             inputs[ninputs++] = arg;
         } else {
             exp[nexp++] = stand_in(capture, ninputs, arg);
+            input_at[ninputs] = at;
             inputs[ninputs++] = arg;
         }
     }
@@ -711,13 +848,6 @@ int main(int argc, char **argv)
     }
     if (!reusable)
         unlink(entry);
-    char *temp = realpath(getenv("TMPDIR") && *getenv("TMPDIR") ? getenv("TMPDIR") : "/tmp", NULL);
-    char *here = realpath(cwd, NULL);
-    const char *temp_dir = temp ? temp : "/tmp", *here_dir = here ? here : cwd;
-    struct stat begun;
-    const char *marker = getenv("CTRL_CAPTURE_START");
-    const struct stat *start = marker != NULL && stat(marker, &begun) == 0 ? &begun : NULL;
-    Map kept = {0};
     Buf r = {0};
     text(&r, "{\"tool\": ");
     quoted(&r, name);
@@ -734,30 +864,17 @@ int main(int argc, char **argv)
     for (int i = 0; i < ninputs; i++) {
         char *full = strcmp(inputs[i], "-") ? joined(cwd, inputs[i], 1) : strdup("-");
         const char *lang = e.valid && e.lang[i] != NULL ? e.lang[i] : "other";
-        char hex[65] = "";
-        size_t len = 0;
-        char *data = NULL;
-        if (!strcmp(lang, "c++")) {
-            if (strcmp(full, "-") && regular(full) && !own(full, root, temp_dir, here_dir, start)) {
-                /* an installed tool's own source (a runtime it compiles into the build): not the builder's */
-                snprintf(hex, sizeof hex, "installed");
-            } else if (strcmp(full, "-") && regular(full) && (data = slurp(full, &len)) != NULL) {
-                keep(capture, data, len, hex);
-                char *dir = strdup(full), *slash = strrchr(dir, '/');
-                if (slash != NULL)
-                    *slash = '\0';
-                char *tops[3] = {(char *)temp_dir, (char *)here_dir, dir};
-                closure(&kept, capture, root, tops, 3, full, data, len, e.dirs, e.ndirs);
-                free(dir);
-                free(data);
-            }
-        }
+        char hex[65] = "", error[400] = "";
+        if (!strcmp(lang, "c") || !strcmp(lang, "c++") || !strcmp(lang, "assembler"))
+            dependencies(capture, real, args, nargs, input_at, ninputs, i, e.clang, cwd, hex, error);
         text(&r, i ? ", [" : "[");
         quoted(&r, full);
         text(&r, ", ");
         quoted(&r, lang);
         text(&r, ", ");
         quoted(&r, hex);
+        text(&r, ", ");
+        quoted(&r, error);
         text(&r, "]");
         free(full);
     }
@@ -767,38 +884,45 @@ int main(int argc, char **argv)
     quoted(&r, e.valid ? e.report : "");
     text(&r, ", \"expand_error\": ");
     quoted(&r, e.valid || !expanded ? e.error : "the capture's expansion helper wrote no entry it could read back");
-    text(&r, ", \"kept\": ");
-    if (kept.count > 0) {
-        Buf map = {0};
-        char hex[65];
-        text(&map, "{");
-        for (int i = 0; i < kept.count; i++) {
-            text(&map, i ? ", " : "");
-            quoted(&map, kept.items[i].path);
-            text(&map, ": ");
-            quoted(&map, kept.items[i].hex);
-        }
-        text(&map, "}");
-        keep(capture, map.data, map.len, hex);
-        quoted(&r, hex);
-        free(map.data);
-    } else {
-        quoted(&r, "");
-    }
     text(&r, ", \"from\": ");
     quoted(&r, getenv("CTRL_CAPTURE_FROM") ? getenv("CTRL_CAPTURE_FROM") : "");
     text(&r, ", \"run\": ");
     quoted(&r, getenv("CTRL_CAPTURE_RUN") ? getenv("CTRL_CAPTURE_RUN") : "");
-    text(&r, "}\n");
+    /* the compile itself, waited for: a signal the recorder takes is passed on to it, and its exit status (a signal's
+     * as 128 and its number) is recorded with the invocation and is then the recorder's own */
+    struct sigaction pass;
+    memset(&pass, 0, sizeof pass);
+    pass.sa_handler = pass_on;
+    sigemptyset(&pass.sa_mask);
+    for (size_t i = 0; i < sizeof PASSED / sizeof PASSED[0]; i++)
+        sigaction(PASSED[i], &pass, NULL);
+    argv[3] = (char *)real;
+    pid_t pid = fork();
+    if (pid == 0) {
+        execv(real, argv + 3);
+        perror("ctrl_shim: cannot run the compiler");
+        _exit(127);
+    }
+    if (pid < 0)
+        fail("cannot start the compiler", real);
+    compiling = pid;
+    int status = 0;
+    while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
+        ;
+    int rc = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+    char closing[48];
+    snprintf(closing, sizeof closing, ", \"rc\": %d}\n", rc);
+    text(&r, closing);
     char *path = NULL;
     if (asprintf(&path, "%s/records.jsonl", capture) < 0)
         fail("out of memory", NULL);
     int fd = open(path, O_WRONLY | O_APPEND | O_CREAT, 0644);
     if (fd < 0 || write(fd, r.data, r.len) != (ssize_t)r.len || close(fd) != 0)
         fail("cannot append to", path);
-    argv[3] = (char *)real;
-    execv(real, argv + 3);
-    perror("ctrl_shim: cannot run the compiler");
-    return 127;
+    if (WIFSIGNALED(status)) {
+        signal(WTERMSIG(status), SIG_DFL);
+        raise(WTERMSIG(status));
+    }
+    return rc;
 }
 '''

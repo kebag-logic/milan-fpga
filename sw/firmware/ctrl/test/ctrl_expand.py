@@ -28,7 +28,8 @@ read a stand-in as an option's value, is no expansion: the reader refuses it
 by name (refusal).
 
 Clang makes an argument -E leaves unused an error under a builder's -Werror:
-for a driver whose baseline defines __clang__, -Qunused-arguments is added.
+for a driver whose baseline defines __clang__, -Qunused-arguments is added,
+and the entry says so ("driver clang"), for the recorder's dependency pass.
 """
 
 from __future__ import annotations
@@ -214,8 +215,9 @@ def keep(capture: Path, text: str) -> str:
 
 
 def installed(where: Path, cwd: Path) -> bool:
-    """Whether a file is an installed tool's own, as the recorder judges a C++ source (own, in RECORDER): outside
-    the checkout, the temporary directory and the compile's, and its inode changed before the capture began."""
+    """Whether a file is an installed tool's own: outside the checkout, the temporary directory and the compile's,
+    and its inode changed before the capture began (CTRL_CAPTURE_START), so a file a builder writes or copies
+    anywhere is the builder's."""
     tops = [Path(os.environ.get("TMPDIR") or "/tmp").resolve(), cwd.resolve()]
     tops += [Path(os.environ["CTRL_CAPTURE_ROOT"]).resolve()] if os.environ.get("CTRL_CAPTURE_ROOT") else []
     start = os.environ.get("CTRL_CAPTURE_START", "")
@@ -309,13 +311,17 @@ def expand_main(argv: list[str]) -> int:
         # Clang makes an argument -E leaves unused (-c, a linker input) an error under a builder's -Werror; its
         # own baseline says it is Clang, and -Qunused-arguments (which GCC refuses) keeps those arguments quiet
         base = json.loads((capture / "text" / baseline(capture, command[0], "c")).read_text(encoding="utf-8"))
-        if any(name == "__clang__" for unit in read(base["out"], base["err"]).units for name, _, _ in unit.builtins):
+        units = read(base["out"], base["err"]).units
+        clang = any(name == "__clang__" for unit in units for name, _, _ in unit.builtins)
+        if clang:
             command = [*command, "-Qunused-arguments"]
         report = preprocess(command, Path.cwd(), dict(os.environ), capture / "expand" / "in", inputs)
         report["stdin"] = stdin
         languages = sorted({unit.language for unit in read(report["out"], report["err"]).units})
         report["baseline"] = {language: baseline(capture, command[0], language) for language in languages}
         lines = entry(capture, report, keep(capture, json.dumps(report, sort_keys=True)), fresh)
+        # the dependency pass adds what the expansion adds for Clang (ctrl_shim, THE DEPENDENCY PASS)
+        lines[2:2] = ["driver clang"] if clang else []
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
         lines = [f"error the capture's expansion helper failed: {type(exc).__name__}: {exc}".replace("\n", " "),
                  "fresh"]

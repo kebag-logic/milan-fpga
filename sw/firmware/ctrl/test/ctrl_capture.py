@@ -11,7 +11,8 @@ names it, its sibling tools beside it), and one for CC and CXX where they are
 set. Each wrapper runs the recorder (ctrl_shim.RECORDER, compiled into DIR/bin
 with the real C compiler), which has the real compiler expand the invocation
 (ctrl_expand, THE EXPANSION: its own report of the macros, the directories and
-the files read first its arguments give), records it, and then runs the real
+the files read first its arguments give) and list what each source's compile
+reads (ctrl_shim, THE DEPENDENCY PASS), records it, and then runs the real
 compiler with the same arguments, so every object, binary and image is what it
 would be without the capture. Python processes it starts load an audit hook
 (DIR/hook/sitecustomize.py) that names, for every process they start, the
@@ -22,10 +23,12 @@ each command, its directory and its exit status. The exit status is the
 command's.
 
 THE READER. load(DIR) gives every invocation the capture holds, each with the
-compiler's own expansion of it (Expansion, read from the kept report) and the
-builders it came from: the checkout's files on the Python stack of the process
-that ran the compiler, and the script or Makefile of the command the capture
-ran (CTRL_CAPTURE_RUN, which run() sets and every process below inherits).
+compiler's own expansion of it (Expansion, read from the kept report), each
+source's dependency list (Deps, read from the kept list, or why the recorder
+has none) and the builders it came from: the checkout's files on the Python
+stack of the process that ran the compiler, and the script or Makefile of the
+command the capture ran (CTRL_CAPTURE_RUN, which run() sets and every process
+below inherits).
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_capture.py --out DIR -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
@@ -205,7 +208,7 @@ def install(capture: Path) -> dict[str, str]:
 def installed(capture: Path) -> dict[str, str]:
     """The capture's wrappers (a sibling of the RV32 compiler that is no compiler, linked as it is) and hook."""
     bin_dir, hook = capture / "bin", capture / "hook"
-    for part in (bin_dir, hook, capture / "text", capture / "expand" / "in"):
+    for part in (bin_dir, hook, capture / "text", capture / "expand" / "in", capture / "deps"):
         part.mkdir(parents=True, exist_ok=True)
     # the capture's start: a file whose inode changed since was written by a run of the capture (ctrl_shim's own)
     if not (capture / "start").is_file():
@@ -304,22 +307,53 @@ class Expansion:
 
 
 @dataclass(frozen=True)
+class Deps:
+    """What one source's compile reads, as its dependency pass listed it (ctrl_shim, THE DEPENDENCY PASS): every
+    file but the source itself, resolved, and the tree of those its own #include lines read, each at its depth
+    with its index in `files` (-1 for the source)."""
+
+    files: tuple[str, ...]
+    tree: tuple[tuple[int, int], ...]
+
+    def edges(self, source: str) -> list[tuple[str, str]]:
+        """Every (includer, file) the tree holds: each file with the file whose #include line read it there."""
+        found: list[tuple[str, str]] = []
+        stack = [source]
+        for depth, index in self.tree:
+            del stack[depth:]
+            path = source if index < 0 else self.files[index]
+            found.append((stack[-1], path))
+            stack.append(path)
+        return found
+
+
+@dataclass(frozen=True)
+class Source:
+    """One input of a recorded compile: its path (resolved), the language the compiler's expansion gave it ("other"
+    for a linker input), and, for a source it compiles, its dependency list, or why the recorder has none."""
+
+    path: str
+    lang: str
+    deps: Deps | None
+    error: str
+
+
+@dataclass(frozen=True)
 class Invocation:
-    """One recorded compile: the name it was called by, its arguments and directory, each input with the language
-    the compiler's expansion gave it and its digest, the compiler's expansion of it (None when it names no input,
-    which compiles nothing, or, with `failed` saying why, when the capture could not have it made), the
-    expansions of the compiles that made each precompiled header it read first, the texts the capture kept for it
-    (path to digest), and the checkout's builder files it came from."""
+    """One recorded compile: the name it was called by, its arguments and directory, each input (Source), the
+    compiler's expansion of it (None when it names no input, which compiles nothing, or, with `failed` saying why,
+    when the capture could not have it made), the expansions of the compiles that made each precompiled header it
+    read first, the checkout's builder files it came from, and the compile's exit status."""
 
     tool: str
     args: tuple[str, ...]
     cwd: str
-    sources: tuple[tuple[str, str, str], ...]
+    sources: tuple[Source, ...]
     expansion: Expansion | None
     failed: str
     first: tuple[Expansion, ...]
-    kept: tuple[tuple[str, str], ...]
     builders: frozenset[str]
+    rc: int = 0
 
 
 @dataclass(frozen=True)
@@ -422,28 +456,49 @@ def expansion(digest: str, text: Callable[[str], str]) -> Expansion:
                      tuple(sorted(report["pch"].items())), tuple(bases.items()))
 
 
-def invocation(raw: dict, kept: Callable[[str], object], expanded: Callable[[str], Expansion],
-               made_by: dict[str, Expansion]) -> Invocation:
+def deps(text: str) -> Deps:
+    """A kept dependency list, read."""
+    kept = json.loads(text)
+    files = tuple(sys.intern(path) for path in kept["deps"])
+    tree = tuple((int(depth), int(index)) for depth, index in kept["tree"])
+    if any(depth < 1 or not -1 <= index < len(files) for depth, index in tree):
+        raise ValueError("a dependency tree names a file its list does not hold")
+    return Deps(files, tree)
+
+
+def invocation(raw: dict, listed: Callable[[str], Deps], expanded: Callable[[str], Expansion],
+               made_by: dict[str, tuple[Expansion, tuple[str, ...]]]) -> Invocation:
     """One record, read: its builders are the Python stack's that started it and the builder file of the command
-    the capture ran (THE CAPTURE); the headers kept beside it are a kept text (`kept` reads one), and so is the
-    report of the compiler's expansion of it (`expanded` reads one). Each precompiled header it read first is
-    the expansion of the compile the capture holds that made it (`made_by`, by output, the records before it)."""
+    the capture ran (THE CAPTURE); each source's dependency list is a kept text (`listed` reads one), and so is
+    the report of the compiler's expansion of it (`expanded` reads one). Each precompiled header it read first is
+    the expansion of the compile the capture holds that made it (`made_by`, by output, the records before it), and
+    what that compile read (its header and the files its list holds) is read by this one too: a dependency pass
+    that reads the precompiled header, as the compile does, lists none of it (ctrl_shim, THE DEPENDENCY PASS)."""
     builders = set(json.loads(raw.get("from") or "[]")) | set(json.loads(raw.get("run") or "[]"))
-    beside = kept(raw["kept"]) if raw["kept"] else {}
     made = expanded(raw["expansion"]) if raw["expansion"] else None
     # an invocation naming no input compiles nothing, and the recorder expands nothing of it
     failed = raw["expand_error"] or ("" if made is not None or not raw["expanded"] else
                                      "the recorder holds no expansion of it")
-    first = []
+    first, header = [], []
     for _, where in made.pch if made is not None else ():
         if where not in made_by:
             failed = failed or f"it reads the precompiled header {where} first, which no compile the capture holds made"
         else:
-            first.append(made_by[where])
+            first.append(made_by[where][0])
+            header += made_by[where][1]
+    if "rc" not in raw or any(len(entry) != 4 for entry in raw["sources"]):
+        raise ValueError("a recorder that lists no dependencies made it: capture again")
+    sources = []
+    for path, lang, digest, error in raw["sources"]:
+        deps = listed(digest) if digest else None
+        if deps is not None and header:
+            deps = Deps(deps.files + tuple(f for f in dict.fromkeys(header) if f not in deps.files), deps.tree)
+        sources.append(Source(path, lang, deps, error))
     if made is not None and raw.get("output"):
-        made_by[raw["output"]] = made
-    return Invocation(raw["tool"], tuple(raw["args"]), raw["cwd"], tuple(tuple(s) for s in raw["sources"]), made,
-                      failed, tuple(first), tuple(sorted(beside.items())), frozenset(builders))
+        read = tuple(f for s in sources if s.deps is not None for f in (s.path, *s.deps.files))
+        made_by[raw["output"]] = (made, read)
+    return Invocation(raw["tool"], tuple(raw["args"]), raw["cwd"], tuple(sources), made, failed, tuple(first),
+                      frozenset(builders), int(raw["rc"]))
 
 
 def load(where: Path, required: bool = True) -> Capture:
@@ -455,9 +510,9 @@ def load(where: Path, required: bool = True) -> Capture:
     invocations, bypassed = [], []
 
     @lru_cache(maxsize=None)
-    def kept(digest: str) -> object:
-        """A kept map, read once."""
-        return json.loads((where / "text" / digest).read_text(encoding="utf-8"))
+    def listed(digest: str) -> Deps:
+        """A kept dependency list, read once."""
+        return deps((where / "text" / digest).read_text(encoding="utf-8"))
 
     @lru_cache(maxsize=None)
     def expanded(digest: str) -> Expansion:
@@ -465,14 +520,14 @@ def load(where: Path, required: bool = True) -> Capture:
         return expansion(digest, lambda d: (where / "text" / d).read_text(encoding="utf-8"))
 
     lines = records.read_text(encoding="utf-8").splitlines() if records.is_file() else []
-    made_by: dict[str, Expansion] = {}
+    made_by: dict[str, tuple[Expansion, tuple[str, ...]]] = {}
     for number, line in enumerate(lines, 1):
         try:
             raw = json.loads(line)
             if "bypass" in raw:
                 bypassed.append({**raw, "from": json.loads(raw.get("from") or "[]")})
             else:
-                invocations.append(invocation(raw, kept, expanded, made_by))
+                invocations.append(invocation(raw, listed, expanded, made_by))
         except (OSError, ValueError, KeyError, TypeError) as exc:
             raise CaptureError(f"the capture at {where} has an unreadable record, line {number}: {exc}") from exc
     commands = tuple(json.loads(line) for line in manifest.read_text(encoding="utf-8").splitlines() if line)

@@ -7,10 +7,9 @@ stack_gate, under the same capture): the image builders, which need only the
 RV32 compiler. ctrl_image.py links its own shapes (ctrl_image.SHAPES, the
 shipping one and the largest); ctrl_image_selftest.py runs its controls;
 ctrl_srp_image.py compiles those shapes at one and two interfaces, without
-SRP, with it, and with AECP. Their -D and -U flags are the same at every
-shape: a shape is the generated headers they search, which the boundary takes
-for every shipped config from the same generators (ctrl_configs.shape_dim).
-ctrl_srp_image.py links against the bare-metal runtime archives, which
+SRP, with it, and with AECP: every source both images compile, the saved-state
+store's among them, as they compile it. ctrl_srp_image.py links against the
+bare-metal runtime archives, which
 ctrl_image_runtime.py builds from sources outside the checkout: it is given
 archives that do not exist, so it compiles every object and then stops at its
 link, and it must stop there and nowhere else. The images themselves are
@@ -22,14 +21,20 @@ ones the run leaves out (ctrl_configs.Scope). Each must exit 0: a builder
 that fails may have compiled less than it does.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
-control_capture): the stack's own gate's CMake build runs under the capture
-too, and a control's planted builder runs through a capture of its own,
-joined to the run's for that control alone.
+replayed, control_capture): the stack's own gate's CMake build runs under the
+capture too. A control's planted builder compiles a copy of the checkout's
+firmware tree and stack (ctrl_boundary.mirror) through a capture of its own,
+given the copy, the arms' include path for it, and the gate's directory to
+import a builder's own compile functions from (the image builder's, the
+arms'); a replay runs a compile of the run's capture again, its own
+arguments with the firmware's tree and the stack in them the copy's. What it
+compiled is judged, joined to the run's capture for what a capture must hold.
 """
 
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -40,7 +45,7 @@ from pathlib import Path
 
 import ctrl_capture
 import ctrl_image
-from ctrl_build import HERE, ROOT, STACK, Refusal
+from ctrl_build import CTRL, HERE, NVM_DIR, ROOT, STACK, Refusal, Tree, includes
 from ctrl_capture import Capture
 from ctrl_configs import BUILDERS, CONFIGS, Scope, run
 from ctrl_pin import named_compilers
@@ -138,8 +143,8 @@ def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None) -
 
 
 def captures(given: list[Path] | None, work: Path, scope: Scope) -> list[ctrl_capture.Capture]:
-    """The captures the gate judges beside its own: the ones given, each of whose builder runs exited 0, or one
-    it makes by running every known builder the run judges under it."""
+    """The captures the gate judges beside its own: the ones given, each of whose builder runs exited 0 in this
+    checkout, or one it makes by running every known builder the run judges under it."""
     if not given:
         mine = work / "standalone"
         print("no capture given: running every known builder the run judges under one", flush=True)
@@ -150,6 +155,12 @@ def captures(given: list[Path] | None, work: Path, scope: Scope) -> list[ctrl_ca
     if failed:
         raise Refusal("a builder run of the capture failed, so it may have compiled less than it does: " +
                       "; ".join(failed))
+    # what a compile read is judged where it lives: another checkout's files are none of this one's
+    elsewhere = [f"{' '.join(c['argv'])} ran in {c['cwd']}" for capture in loaded for c in capture.commands
+                 if not Path(c["cwd"]).resolve().is_relative_to(ROOT.resolve())]
+    if elsewhere:
+        raise Refusal("a builder run of the capture ran outside this checkout, whose files are none of this one's: " +
+                      "; ".join(elsewhere))
     return loaded
 
 
@@ -177,10 +188,21 @@ def stack_gate(selftest: bool, work: Path, capture: Path | None) -> tuple[list[s
                                                   f"exit {res.returncode}"]
 
 
-def planted_run(plant: Plant, trees: object, work: Path, capture: Path) -> list[dict]:
-    """A plant's builder, run through `capture` in a directory of its own beside the copies of `trees` (its ctrl
-    tree and stack), its files beside it there before the capture began (a tick of the file clock earlier); a
-    planted Makefile's compilers named by a path, as bypass records (ctrl_pin.named_compilers)."""
+def planted_env(root: Path, where: Path) -> dict[str, str]:
+    """What a planted builder is given: the copy (its root, its ctrl tree, its stack and its store), its own
+    directory, the real gcc, the gate's directory (to import a builder's own functions from) and the arms' include
+    path for the copy (ctrl_build.includes)."""
+    ctrl, stack = root / CTRL.relative_to(ROOT), root / STACK.relative_to(ROOT)
+    arms = includes(Tree(ctrl, where / "out", where / "reuse", stack=stack))
+    return {"PLANT_ROOT": str(root), "PLANT_CTRL": str(ctrl), "PLANT_STACK": str(stack),
+            "PLANT_NVM": str(root / NVM_DIR.relative_to(ROOT)), "PLANT_WORK": str(where),
+            "PLANT_GCC": shutil.which("gcc") or "gcc", "PLANT_TESTS": str(HERE), "PLANT_INCLUDES": " ".join(arms)}
+
+
+def planted_run(plant: Plant, root: Path, work: Path, capture: Path) -> list[dict]:
+    """A plant's builder, run through `capture` in a directory of its own beside the copy of the checkout at
+    `root`, its files beside it there before the capture began (a tick of the file clock earlier); a planted
+    Makefile's compilers named by a path, as bypass records (ctrl_pin.named_compilers)."""
     where = (work / "builder").resolve()
     shutil.rmtree(where, ignore_errors=True)
     where.mkdir(parents=True)
@@ -193,30 +215,55 @@ def planted_run(plant: Plant, trees: object, work: Path, capture: Path) -> list[
     builder = where / ("planted.mk" if plant.make else "planted_builder.py")
     builder.write_text(plant.run, encoding="utf-8")
     argv = ["make", "-f", str(builder), "planted"] if plant.make else [sys.executable, str(builder)]
-    given = {"PLANT_CTRL": str(trees.ctrl), "PLANT_STACK": str(trees.stack), "PLANT_WORK": str(where),
-             "PLANT_GCC": shutil.which("gcc") or "gcc"}
+    given = planted_env(root, where)
     ctrl_capture.run(capture, argv, cwd=where, capture_output=True, text=True, env_extra=given)
     return named_compilers(builder, {**ctrl_capture.install(capture), **given}) if plant.make else []
 
 
-def control_capture(plant: Plant, trees: object, base: Capture, work: Path) -> Capture:
-    """The capture a control is judged against: the base the controls share, altered as the plant says, or with
-    what its planted builder compiled, run through the capture beside the copies (a shared one ran before the
-    base: its invocations are the base's)."""
+def replayed(plant: Plant, root: Path, base: Capture, work: Path, capture: Path) -> None:
+    """A plant's replay: every compile of the run's capture whose source is named `plant.replay`, run again through
+    `capture` with its own arguments, in its own directory, the firmware's tree and the stack in them the copy's,
+    and its output its own (a wire comparison the gate's run built, with a mode only that builder gives)."""
+    moves = {str(tree): str(root / tree.relative_to(ROOT)) for tree in (CTRL, NVM_DIR, STACK)}
+    moved = re.compile("|".join(rf"{re.escape(tree)}(?=/|$)" for tree in moves))
+    done: set[tuple[str, ...]] = set()
+    for inv in base.invocations:
+        # a compile whose inputs are gone (a builder's temporary files) cannot run again
+        sources = [s for s in inv.sources if Path(s.path).name == plant.replay and s.deps is not None and
+                   all(Path(f).exists() for f in s.deps.files)]
+        if not sources or inv.args in done:
+            continue
+        done.add(inv.args)
+        args = [moved.sub(lambda m: moves[m[0]], arg) for arg in inv.args]
+        args = [str(work / f"replayed-{len(done)}") if at and args[at - 1] == "-o" else arg
+                for at, arg in enumerate(args)]
+        ctrl_capture.run(capture, [inv.tool, *args], cwd=Path(inv.cwd), capture_output=True, text=True)
+
+
+def control_capture(plant: Plant, root: Path, base: Capture, work: Path) -> tuple[Capture, Capture]:
+    """The capture a control is judged against, and the part of it its own compiles are: the base the controls
+    share, altered as the plant says, with nothing of its own; or the base and what its planted builder (or its
+    replay) compiled from the copy of the checkout at `root`, run through a capture of its own."""
+    nothing = Capture((), (), (), ())
     if plant.alter == "missing":
-        return ctrl_capture.load(work / "no-capture")
+        return ctrl_capture.load(work / "no-capture"), nothing
     if plant.alter == "empty":
         (work / "empty").mkdir(parents=True, exist_ok=True)
         for name in ("records.jsonl", "manifest.jsonl"):
             (work / "empty" / name).write_text("", encoding="utf-8")
-        return ctrl_capture.load(work / "empty")
+        return ctrl_capture.load(work / "empty"), nothing
     if plant.alter.startswith("drop "):
         lost = plant.alter.removeprefix("drop ")
         return replace(base, invocations=tuple(inv for inv in base.invocations if lost not in inv.builders),
-                       parts=())
-    if not plant.run or plant.shared:
-        return base
+                       parts=()), nothing
+    if not plant.run and not plant.replay:
+        return base, nothing
     capture = (work / "capture").resolve()
     shutil.rmtree(capture, ignore_errors=True)
-    named = planted_run(plant, trees, work, capture)
-    return base + ctrl_capture.load(capture, required=False) + Capture((), (), (), tuple(named))
+    if plant.replay:
+        replayed(plant, root, base, work, capture)
+        named: list[dict] = []
+    else:
+        named = planted_run(plant, root, work, capture)
+    own = ctrl_capture.load(capture, required=False) + Capture((), (), (), tuple(named))
+    return base + own, own
