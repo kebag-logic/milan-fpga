@@ -1,0 +1,10 @@
+probe: q2_decode_sclks_on_GET_opcode
+expect: SET_CLOCK_SOURCE's decode keyed on another OP_*_C: does the gate see it?
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 3df4eea44873): sweep this engine with make -C tb/aecp_cmds record
+--- stderr

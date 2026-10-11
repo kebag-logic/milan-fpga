@@ -1,0 +1,1163 @@
+# [A595] HANDOFF - processor #73, one AECP command model
+
+## Round 4
+
+Status: REVIEW READY. All required processor, campaign and scratch-parent checks
+are complete. Validation completed 2026-10-11T23:52:03+02:00. Head:
+`4029dc5de2a0a540d6a015c747319fbee7abba2e`, branch `pp73-command-model`.
+Resume head: `15981b511370a8cfb58ec023fae27f8a800c058c`; original base:
+`2cbed0a987c1e68402658d69459ab7e5aa571adc`. Processor origin and original-base
+ancestry are verified. This section supersedes the historical rounds below.
+
+Assignment: issue #73 comment 6112358948, answering reviews R608-3 (6112257211)
+and R609-3 (6112326328). No repeated TAKEN, push, PR edit, rebase or amend.
+
+| Commit | One-line subject |
+|---|---|
+| 4029dc5 | Hold shared echo exemptions to membership and non-success responses |
+
+### Construction and named controls
+
+`echo_entries` now accepts only programs shared by at least two commands without a
+first-entry owner, or programs explicitly listed in `shared_entries`. BADARG and
+NSUPPE are explicitly listed because both also serve as first entries. Both the ROM
+walk and observed-response check apply that exemption only to non-SUCCESS answers.
+A SUCCESS answer still has to satisfy the command's response rule. The intrinsic
+`response.echo` rule and its already documented command-floor limits are unchanged.
+
+The registry has 62 fields: 30 held and 32 held to nothing. The docstring, section
+09 field reference, REQ-VER-002 Arch and PR draft reference are regenerated.
+The ordinary and optimized self-tests catch 231/231 planted defects. All 130
+finding/refusal sites have a named plant. Disabling each new membership, ROM-size
+or observed-size check makes the self-test fail with its own plant name.
+`TIZ4NS` exercises inferred sharing; explicitly listing EAVL exercises the second
+membership option with its unmodified, correctly sized response. Both pass.
+
+The exact reviewed echo-hide file edit is a standing self-test: three EAVL BUILD_FLD
+words become NOPs and EAVL is appended to echo_entries. The external review script
+was also run unchanged for echo-hide and echo-control. A separately preserved
+adaptation explicitly lists EAVL as shared, bypassing only the membership refusal
+so the SUCCESS restriction is tested after re-recording.
+
+| External probe | write | record | gate | suite | Named failure |
+|---|---:|---:|---:|---:|---|
+| echo-hide, unchanged | 1 | 2 | 1 | 2 | schema: echo_entries: EAVL; neither shared without a first-entry owner nor listed in shared_entries |
+| echo-control, unchanged | 0 | 2 | 1 | 2 | ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12; response is 32; ROM also names E_EAVL |
+| echo-hide plus explicit shared declaration | 0 | 2 | 1 | 2 | same semantic size failures after re-recording |
+
+These nonzero results are expected negative controls, not failing golden banks.
+Small receipts are under receipts/r4; large artifacts remain in scratch and
+are recorded by size and SHA256. Raw logs and exit statuses are separate.
+
+### Identity already established
+
+| Artifact | Bytes | SHA256 at original base and head |
+|---|---:|---|
+| ucode.hex | 26624 | 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 |
+| ltn_rom.hex | 6138 | 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 |
+| all.v | 765014 | f648c57785e873e8bd7075dd7af633d017d0abf5d4a44a607e832b67e05a1b59 |
+| engine.il | 2724680 | 95d8c336bbebdc204e9b2fc0d30aa0c3e48f20cf720f1373a28cc2d9068801d5 |
+
+The ROMs also match the resume head. All 46 production HDL files and the recorded
+decode observation are unchanged. The 610-file head export matches the committed
+source exactly; no generated files are left in the processor working tree.
+
+### Command table consumers and export
+
+The complete field-to-consumer map is receipts/r4/consumer-locations.tsv; all 231
+planted drifts and their required failure words are receipts/r4/planted-drifts.tsv.
+
+| Consumer | Form | File:line |
+|---|---|---|
+| Command table and registry | Tracked export | hdl/aecp/ucode/aecp_commands.json:1; hdl/aecp/ucode/aecp_fields.json:1 |
+| ROM status/MVU data and dispatch inventory | Generated/gated | hdl/aecp/ucode/gen_ucode.py:80, :183, :2481 |
+| F06.14 and realized inventory | Generated/gated | scripts/aecp_gate/doc.py:98; scripts/aecp_gate/doc.py:128 |
+| Engine OP/MVU/GDI/UPC declarations | Gated | scripts/aecp_gate/rtl.py:155 |
+| Classifier and hazard codes | Gated | scripts/aecp_gate/rtl.py:185 |
+| Scoreboard lock classes | Gated | scripts/aecp_gate/rtl.py:210 |
+| Notification map and status constants | Gated | scripts/aecp_gate/rtl.py:219; scripts/aecp_gate/rtl.py:243 |
+| Observed decode/dispatch, command floors, GDI and unsolicited jobs | Gated | scripts/aecp_gate/record.py:460; scripts/aecp_gate/record.py:521 |
+| Echo membership | Gated | scripts/aecp_gate/table.py:169 |
+| ROM SUCCESS response size | Gated | scripts/aecp_gate/rom.py:315 |
+| Observed SUCCESS response size | Gated | scripts/aecp_gate/record.py:310 |
+| All ROM paths, lock, notification and size rules | Gated | scripts/aecp_gate/rom.py:401 |
+| Exhaustive field registry and each held-field drift | Gated | scripts/aecp_gate/fields.py:36; scripts/aecp_gate/selftest.py:270 |
+| Docstring, 09 section 8.10, REQ-VER-002 Arch and PR field reference | Generated/gated | scripts/aecp_gate/field_docs.py:71; scripts/aecp_gate/field_docs.py:86 |
+| Exact echo-hide file plant and separate SUCCESS controls | Standing controls | scripts/aecp_gate/selftest.py:44; scripts/aecp_gate/plants.py:62 |
+| Build and CI | Required gates | Makefile:48; .github/workflows/hdl.yml:30, :95 |
+
+Named parent export: `protocol-processor/hdl/aecp/ucode/aecp_commands.json`,
+JSON schema `aecp-command-table/1`, with sibling `aecp_fields.json` named by
+`fields`. Firmware consumption and its parent gate remain a follow-up.
+
+### Processor suites and record identity
+
+Original base is 2cbed0a9; head is 4029dc5. The source export matches all 610 tracked
+blobs. All commands use the pinned simulation release and the specified 3.12.3
+interpreter. Tool identities, sizes and digests are in receipts/r4/toolchain.txt.
+The converter and synthesizer were again absent from the stated tools directory;
+the retained v0.0.12 converter and installed 0.66 synthesizer identities are recorded.
+
+| Command | Base | Head | Record identity |
+|---|---|---|---|
+| `scripts/run_suites.sh` | rc 0; 1029620 checks | rc 0; 1029796 checks | every original record byte-identical; the observer adds 176 checks; both logs also match the prior round |
+| `scripts/lint_hdl.sh` | rc 0 | rc 0 | byte-identical |
+| `make -j16 check` | rc 0 | rc 0 | original records unchanged apart from documented link/file census additions; adds the command gate and 231-plant self-test |
+| `python3 scripts/gen_matrix.py --check` | rc 0 | rc 0 | byte-identical |
+| `syn/yosys/run.sh` | rc 0 | rc 0 | byte-identical |
+
+No original test record changed. The command gate's added records and census
+additions are explicit in receipts/r4/comparisons/suites.txt and check.diff.
+
+### Scratch-parent table
+
+Only the existing scratch parent is used. Its origin and full original dev SHA
+are verified. Every explicit submodule Git command is preceded by a check that
+its top-level directory is that submodule. No parent commit or push was made.
+
+| Parent / check | Base | Head | Identity |
+|---|---|---|---|
+| e8454e2751d05b02ee8e5a571857589ab358ab86: BDD, AECP included | rc 0; 404 scenarios | rc 0; 404 scenarios | identical after removing elapsed times |
+| same parent: feature-status self-test | rc 0 | rc 0 | byte-identical |
+| same parent: processor source-list check/self-test | rc 0 | rc 0 | byte-identical |
+| same parent: ROM ledger record and ROM verification/tcam | both rc 0 | both rc 0 | same digests; only the ledger commit key differs |
+| consumer ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 with the two applicable evidence-reader patches: Python gate, listing and self-test | unchanged historical budgets | all three rc 0; 54 self-test checks | all budgets unchanged: long functions 9/9, long modules 10/10, signatures/docstrings 0/0, parameter count 7/7 |
+
+The parent is restored to e8454e27 with the protocol-processor gitlink at
+4029dc5de2a0a540d6a015c747319fbee7abba2e. Temporary evidence-reader and ROM-ledger
+patches are restored. The parent has only the staged processor gitlink change.
+The final audit moved four generated bytecode caches outside the parent. The
+submodule is clean, including ignored files; its documentation environment was
+also moved to scratch.
+
+### Campaign table and records
+
+All nine existing campaigns were executed anew on original base and head. Driver
+commands use --jobs where supported; the AECP and counter campaigns use two workers,
+the final D3 runs use two, and the other drivers use one. Top-level builds use
+make -j16. The final compiler limiter permits four concurrent builds with two
+compiler workers each, invoking the unchanged pinned simulator. Active campaigns
+were subsequently allowed the full 16-CPU allocation; sources and checks stayed
+unchanged.
+
+| Campaign | Base | Head | Record identity |
+|---|---|---|---|
+| d3 | rc 0 | rc 0 | identical stdout line multiset; JSON records identical after documented normalization |
+| aecp_dispatch | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| aecp | rc 0 | rc 0 | byte-identical stdout |
+| ctr | rc 0 | rc 0 | byte-identical stdout |
+| notify | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| gsi | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| acmp | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| name_wr | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| name_state | rc 0 | rc 0 | byte-identical stdout; JSON records identical after documented normalization |
+| aecp_cmds | original base production with final observer/gates: rc 0 | rc 0 | all 16 controls plus golden/restored records identical; preceding-gate baseline also identical |
+
+Raw commands, logs and statuses are in receipts/r4/logs and receipts/r4/camp.
+The campaign comparison sorts completion-order records and removes only scratch
+paths; verdicts, checks, counts and payloads are preserved. Comparison code and
+results are retained. No original record changed; the 176-check observer remains
+an addition to the original-base suite bank.
+
+### Retained orchestration attempts and limits
+
+The two partial one-worker D3 runs were intentionally stopped and replaced by
+complete two-worker runs. Partial logs, rc 143 and output records remain under
+`d3-incomplete`; they are not counted as validation. The original shell runner
+was edited while older invocations were active, causing those shells to report
+an error at their old file offset after recording the child command's status.
+Their orchestration errors are retained. Subsequent invocations use the frozen
+runner, and the D3 restarts use its immutable copy. Every final product-command
+status is 0 and every required record comparison passes. No source defect was
+waived or reclassified as a setup failure.
+
+The memory cap was reached during compilation, with no out-of-memory kill. The final limiter reduces compiler concurrency while campaign
+simulations remain concurrent. No process remains active at handoff. Large logs,
+ROMs and elaborated files stay in scratch; the packet records their sizes and
+SHA256 values. No toolchain, installed package, environment, source-tree export
+or file over 200000 bytes is in this output directory.
+
+The field registry and generated references explicitly retain their prior limits:
+common/engine status exemptions, oversize, unswept outcomes and opcodes, GDI ceilings,
+selected echo command-floor relations, ROM field contents/order, independent golden
+models and stimulus generation. The assignment adds membership and non-SUCCESS
+scope for echo_entries; it does not extend those other observations.
+
+The manager owns R1 through parent #495 at merge, hosted acceptance, the current-dev
+merge candidate, and the firmware consumer follow-up. No hardware or vendor
+implementation run was used. No push, PR edit, rebase, amend or repeated TAKEN was
+performed. The final action is a new REVIEW READY comment on processor issue #73.
+
+## Round 3
+
+Status: REVIEW READY. All required final processor, campaign and scratch-parent
+checks are complete and passing. Validation completed 2026-10-11 13:30 CEST.
+Head: `15981b511370a8cfb58ec023fae27f8a800c058c`, branch `pp73-command-model`.
+Resume: `9975764846e7e63bccf0b68a5188d5cc7f23f890`; original base:
+`2cbed0a987c1e68402658d69459ab7e5aa571adc`. Origin is the assigned processor
+repository. Initial and candidate working trees were clean. No push, amend,
+rebase, PR edit or repeated TAKEN. Historical rounds below retain their own heads
+and counts; this section supersedes their field claims and current-state statements.
+
+The assignment is issue #73 comment 6107323038, answering PR #174 reviews
+6107318258 and 6107310880. The round-2 Python-rule addendum 6105354276 applies.
+The exact two requested historical wording corrections are in PR-BODY.md.
+
+| Commit | One-line subject |
+|---|---|
+| 347d5bd | Hold echo record steps exactly and name unreadable generator fields |
+| 5500baa | Enforce an exhaustive command field registry and generate its checked references |
+| 72818bf | Refuse zero null and negative command record steps |
+| 15981b5 | Observe half-record mapping lengths and retain both engine step controls |
+
+### Field contract and consumers at 15981b5
+
+Command table: `hdl/aecp/ucode/aecp_commands.json:1`, schema
+`aecp-command-table/1`, 30 AEM commands and one MVU command. Its `fields` names
+sibling `aecp_fields.json:1`: 62 normalized field paths, 29 held within a stated
+scope and 33 held to nothing with reasons. `[]` folds row indices and `*` folds
+named map members. Container declarations do not claim their children's semantics.
+Current export sizes and SHA256 values are in receipts/r3/export-artifacts.tsv.
+The complete field-to-consumer/check/scope map, with file:line locations, is
+`receipts/r3/consumer-locations.tsv`.
+
+| Consumer or output | Generated or gated; file:line |
+|---|---|
+| Registry completeness, status and executable claim | `scripts/aecp_gate/fields.py:36`; missing/stale fields, duplicate entries and incomplete claims fail |
+| Every held field's mutation | `scripts/aecp_gate/selftest.py:255` through `make check`; each probe targets its own existing field and requires its named failure |
+| F06.14 rows | generated by `doc.py:71`, gated by `doc.py:98`; `docs/architecture/06_aecp_engine.md:247` |
+| Gate docstring and 09 field reference | generated/checked by `field_docs.py:70`; `scripts/check_aecp_commands.py:13`, `docs/architecture/09_verification.md:551` |
+| REQ-VER-002 Arch | generated compact contract from registry, `docs/00_MILAN_COMPLIANCE_REVIEW.md:535` |
+| External PR field reference | generated/checked by `field_docs.py:85` via `--pr-body`; stale/unreadable draft and broken markers are planted failures |
+| ROM status / MVU command_type | read from table by `gen_ucode.py:80` / `:183`; named refusals and byte identity |
+| ROM DISPATCH entry inventory | `gen_ucode.py:2481`; refuses missing names/entries or absent programs, selects no ROM word |
+| Observed decode, dispatch, floors, exact echo step, responses, GDI and unsolicited jobs | `record.py:460`, `gate.py:70`; `tb/aecp_cmds/decode.json`; fresh suite sweep compared with record |
+| Swept input digests | `inputs.py:40`, `record.py:521`; now also descriptor validator/rules and shared simulation harness |
+| Engine OP/MVU/GDI/UPC declarations | `rtl.py:155`; production `KL_aecp_engine.sv:698`; UPC addresses separately held by check_upc_map.py |
+| Hazard classifier / codes | `rtl.py:185`; `hdl/top/protocol_processor_top.sv:1645`, `hdl/common/pp_pkg.sv:53` |
+| Scoreboard lock protection | `rtl.py:210`; `hdl/packet_engine/KL_pp_scoreboard.sv:112` |
+| Notify mapping / queued classes | `rtl.py:219`; `hdl/aecp/KL_aecp_notify.sv:597` and `:834` |
+| Status constants | `rtl.py:243`; `hdl/aecp/ucpu_pkg.sv:106`; IEEE values also `table.py:76` |
+| ROM path lock, notification, statuses and sizes | `rom.py:400`; generated microcode walked from every entry |
+| Realized 06 section 8.1 inventory | `doc.py:128` |
+| Build and CI | `Makefile:48`; `.github/workflows/hdl.yml:30` and `:95`; suite plus 16 compiled controls |
+
+Module names without prefixes in this table are under `scripts/aecp_gate/`;
+gen_ucode.py is under `hdl/aecp/ucode/`.
+The trusted exemptions `common_status`, `commands[].engine_status` and
+`commands[].oversize` are explicitly held to nothing. Their four review probes
+remain green, as permitted by the assignment with these declarations. Status
+claims are conditional on those exemptions. For the six unimplemented GDI members,
+`documented[].opcode`, optional `rtl` and optional `gdi` are semantic inputs;
+names are identity/diagnostic labels and `section`/`cells` are rendering data.
+Other limits remain explicit: GDI ceilings 524, unswept outcomes, opcodes above
+0x007F, shared echo exceptions, selected command cdl echo-only relations, ROM
+field values/order, ACMP ROM and descriptor image, F05.3, F08.1 and reference
+models. No golden model or stimulus generator is claimed.
+
+### Named drifts and review probes
+
+`receipts/r3/planted-drifts.tsv` lists **all 220** plants and their required
+failing words, including every held field's standing drift. All 220 were caught.
+A separate audit reaches all 128 finding/refusal sites with named plants (coverage.log).
+The held-field sweep regenerates F06.14 before requiring a semantic failure.
+
+| Required drift | Result / failing words |
+|---|---|
+| Echo per 8 -> 4 and 8 -> 2 in command/response | ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS: accepted-offset gcd |
+| Mapping engine width 8 -> 4, then re-record | suite/re-record/gate fail by ADD/REMOVE command; gcd 4 |
+| Mapping engine width 8 -> 16, then re-record | suite/re-record/gate fail by ADD/REMOVE command; gcd 0 |
+| Every held field (29 registry entries) | named consumer failure; exact words in planted-drifts.tsv |
+| Table field absent from registry / stale registry field | `table field missing from registry` / `registry entry has no such table field` |
+| Stale generated references including PR body | `registry reference differs` |
+| Missing entries / missing name | generator names `GET_CLOCK_SOURCE: entries` / `AEM 0x0017 (OP_GET_CLOCK_SRC_C): name` |
+| Nonhex MVU opcode | generator names `GET_MILAN_INFO` and `an 0xHHHH opcode` |
+| All eight generator probes, normal and optimized | all 16 executions refused by command/field; generator-final.txt |
+| Three documented-GDI semantic probes | all fail by name; review-export-final.log |
+| Zero, null, negative record steps | each refused as nonpositive/noninteger per |
+
+The initial gcd-only attempt exposed a missing stimulus: the count-one template
+had not tried cdl 24. Final templates use count one at 24 and 28, count two at 28
+and 36. Trial count remains 585760; the suite has 176 checks. The sixteen-byte
+mutant accepts no positive offset in these bounded templates, hence gcd zero;
+no valid sixteen-byte-record observation is claimed. Both mapping defects are
+standing compiled controls. The final control campaign has 16/16 detections plus
+passing golden/restored runs. The original 14 control records are compared with
+the resume head; a full 16-control run also checks original base production
+sources with the final observer/model/gate overlay. All 16 controls plus
+golden/restored records match head exactly, rc 0 on both sides; the two new controls are additional. Exact failures for all 16 compiled controls
+are in `receipts/r3/compiled-controls.tsv`. The review
+`mvu-pid-first-byte-unchecked` probe still passes after re-recording: that wrong
+protocol-id pattern is outside the observed population, an explicitly unproven
+limit, and is not one of the two required mapping probes.
+
+### ROM, engine and observation identity
+
+| Artifact | Bytes | Base/head SHA256 (identical) |
+|---|---:|---|
+| ucode.hex | 26624 | 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 |
+| ltn_rom.hex | 6138 | 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 |
+| Converted production all.v | 765014 | f648c57785e873e8bd7075dd7af633d017d0abf5d4a44a607e832b67e05a1b59 |
+| Elaborated/processed engine.il | 2724680 | 95d8c336bbebdc204e9b2fc0d30aa0c3e48f20cf720f1373a28cc2d9068801d5 |
+| Final observer decode.json | 14476 | 44a2f83041aeedcd83e4c72e582bfaadd8ee23706dacc18bcf0fd6f1da567a80 |
+
+ROM images were independently generated from base and head. Converted sources
+and elaborated engine were compared byte for byte. Large artifacts stay in
+scratch, recorded by size/digest. The final observer on original base production
+sources and final head sources produces identical decode.json. Against 99757648,
+only the stimulus digest, three added input digests and newly observed cdl 24 on
+READ_DESCRIPTOR differ: an instrumentation change. All 46 original production HDL blobs match the base; no production HDL/ROM change.
+
+### Named parent export
+
+`protocol-processor/hdl/aecp/ucode/aecp_commands.json`, JSON
+`aecp-command-table/1`, with sibling `aecp_fields.json` named by `fields`.
+Firmware consumption and its parent gate remain follow-up work. The existing
+head-only command-campaign evidence disposition remains necessary when adopting
+the pin. The baseline name-campaign disposition is also applied for consumer
+checks. No parent gate or Python budget is relaxed. Applied patches and their hashes are
+in `receipts/r3/consumer/`; the head-only patch remains at the packet root.
+
+### Full validation banks
+
+Base is 2cbed0a9, final head 15981b5. The base suite runs in the verified scratch
+submodule; the head suite runs concurrently in its verified 610-blob export.
+Git-dependent checks and parent gates use the scratch submodule.
+Every suite/campaign has a raw log and exit-status receipt;
+commands are never piped. Independent banks run concurrently, campaign drivers
+receive --jobs and builds use make -j16. Every submodule Git command has a preceding
+top-level-directory identity check.
+
+| Processor command | Base | Head | Identity |
+|---|---|---|---|
+| scripts/run_suites.sh | rc 0; 1029620 checks, zero failures | rc 0; 1029796 checks, zero failures | every original record byte-identical; head log also identical to round 2; adds only the 176-check observer |
+| scripts/lint_hdl.sh | rc 0 | rc 0 | byte-identical |
+| make check | rc 0 | rc 0 | original records unchanged except links 1187 -> 1188 and files 563 -> 571; adds the 220-plant self-test and command gate |
+| scripts/gen_matrix.py --check | rc 0 | rc 0 | byte-identical |
+| syn/yosys/run.sh | rc 0 | rc 0 | byte-identical |
+
+| Campaign | Base | Head | Identity |
+|---|---|---|---|
+| d3 | rc 0 | rc 0 | identical line multiset, 117 lines; JSON records compared |
+| aecp_dispatch | rc 0 | rc 0 | byte-identical, 275 lines; JSON records compared |
+| aecp | rc 0 | rc 0 | byte-identical, 700 lines; JSON records compared |
+| ctr | rc 0 | rc 0 | byte-identical, 113 lines; JSON records compared |
+| notify | rc 0 | rc 0 | identical line multiset, 107 lines; JSON records compared |
+| gsi | rc 0 | rc 0 | byte-identical, 23 lines; JSON records compared |
+| acmp | rc 0 | rc 0 | identical line multiset, 58 lines; JSON records compared |
+| name_wr | rc 0 | rc 0 | byte-identical, 4 lines; JSON records compared |
+| name_state | rc 0 | rc 0 | byte-identical, 17 lines; JSON records compared |
+| aecp_cmds | base production + final observer: 16 controls, rc 0 | 16 controls, rc 0 | all 18 records byte-identical; original 14 controls also match resume |
+
+The nine existing campaign exports began at 5500baa and were synchronized to
+15981b5 before their queued work. None of their HDL, pp_top, name_state, common
+bench or opcode/map gate inputs changed between these commits. All 588 base and 610 final-head tracked blobs were rehashed with zero mismatches.
+The provenance receipt names synchronized paths; the final Git-dependent bank checks out 15981b5 itself.
+
+| Scratch-parent command / pin | Base | Head |
+|---|---|---|
+| e8454e2751d05b02ee8e5a571857589ab358ab86: BDD, feature-status self-test, source list self-test/check, ROM ledger record, ROM verification plus tcam | all rc 0; 404 scenarios | all rc 0; 404 scenarios; records identical except elapsed time and gitlink key |
+| ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 with applicable patches: Python gate, listing, self-test | historical round-2 unchanged budgets | all three rc 0; every count and budget unchanged; 54 self-test checks |
+
+Pinned simulator 5.050 is exported. Converter v0.0.12 and synthesis 0.66
+identities (paths, versions, byte sizes and SHA256) are in receipts/r3/toolchain.txt.
+The converter and synthesizer were absent under the stated tools directory; the
+retained pinned converter and installed synthesizer are recorded exactly.
+Suites use the CI simulation path; conversion/synthesis is separately required.
+The parent Python counts remain: long functions 9/9, long modules 10/10,
+unannotated public functions 0/0, undocumented 0/0, too many parameters 7/7.
+No hardware, flashing or Vivado run. Source-bank results do not claim manager
+merge-candidate or hosted acceptance.
+
+### Retained retries and receipt handling
+
+- First base make check in a metadata-free export returned 2 because the ID gate
+  needs Git. The verified scratch-submodule rerun passed.
+- First base suites included conversion tooling on PATH and triggered an optional
+  NVM-port guard with a different expected diagnostic in synthesis 0.66 (one failure).
+  The CI simulation-path run reported 1029620 checks, zero failures, but its running
+  wrapper had been replaced and did not save rc. Its log is retained as missing-rc;
+  the fixed-wrapper rerun returned 0 with a byte-identical log and supplies the required captured status.
+- Initial four-byte engine probe exposed the missing count-one/cdl-24 stimulus,
+  now fixed. The first sixteen-byte control expected gcd 16; the bounded observation
+  is gcd 0. Its expectation was corrected and the full 16-control campaign passed.
+- After each D3 driver saves rc 0, its old sequential queue is terminated to avoid
+  repeating the other eight campaign pairs; those run independently under
+  concurrent-base and concurrent-head. Canceled queue wrappers are not verdicts.
+  Freed notification or D3 workers can start ACMP early. Name campaigns and GSI
+  also run ahead of the queue with one worker per side; exclusive per-campaign locks let the
+  later queue reuse its completed receipt without a duplicate run.
+
+Small receipts are stored under receipts/r3. LARGE-ARTIFACTS.tsv records larger
+files by size/SHA256. Metadata PATH lines omit unrelated invocation entries where
+needed; validation stdout, verdicts and rc remain intact. No toolchain, installed
+package, environment, tree export or file over 200000 bytes is included.
+The scratch parent is restored to e8454e27 with only its staged final-head gitlink
+changed; its submodule is clean and the temporary patches are removed.
+All validation processes have exited. The 12 GiB memory limit recorded no
+out-of-memory kills. The documentation environment created during validation was
+moved to scratch; the worktree is clean, including ignored files. Comparison
+programs are included under receipts/r3/bin. MANIFEST.json records every packet
+file by size and SHA256; large artifacts are represented by hashes, never copied.
+Publication: [[A595] REVIEW READY 15981b511370a8cfb58ec023fae27f8a800c058c](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/73#issuecomment-6108586852).
+No push or PR edit was performed. The final PR draft closes #73 within the
+assigned processor acceptance scope; parent firmware consumption remains follow-up.
+
+## Round 2
+
+Status: REVIEW READY. Round 2 and its Python-rule addendum are complete at
+`9975764846e7e63bccf0b68a5188d5cc7f23f890` on `pp73-command-model`.
+Validation completed at 10:30 CEST on 2026-10-11. The working tree is clean. Ten new commits
+sit on `39cac060f6f3730cf8172adc6424c275cd268517`; no rebase, no amend, no push.
+The 06:58 CEST resume retained the validation processes that survived the external
+usage-limit interruption. TAKEN was not posted again.
+
+Assignment: issue #73 comment 6104932386. It answers R608-1 (PR #174 comment 6104874774)
+and R609-1 (comment 6104929075), which were both NEGATIVE at 39cac060. The addendum is
+comment 6105354276 (the parent consumer's Python idiom ratchets). The session was started
+at 05:15 CEST, stopped by the manager at about 06:16 to add the addendum, and resumed at
+06:17. Items 1 to 5 had been committed at 06:13-06:15. On resume they were re-read and
+re-checked, and their records were re-taken at the final head (below).
+
+### Commits (one-line subjects, configured identity)
+
+| Commit | Subject | Answers |
+|---|---|---|
+| 359e40d | Name the command and the field when gen_ucode.py cannot read the AECP command table, and raise instead of assert | R608-1-F2 (generator side), R608-1-S2 = R609-1-S3 |
+| c814a42 | Hold the AECP command table to the engine's observed decode, dispatch and response sizes from a new tb/aecp_cmds sweep, and every size and generator-read field to it | R608-1-F1, R609-1-F1, R608-1-F2 (gate side), R608-1-F3 = R609-1-F3, R609-1-S1/S2/S4, R608-1-S1 |
+| a21fe3c | List the AECP command table as a ucode.hex prerequisite in tb/pp_top and tb/ucpu | R608-1-F4 = R609-1-F2 |
+| bca0251 | Run the AECP command decode standing controls in the CI suites job | R608-1-F1 (standing controls) |
+| 629aefb | Record what the AECP command table generates, observes, gates and leaves held to nothing in REQ-VER-002, 06 section 8 and 09 sections 1, 7 and 8.10 | item 5 |
+| 238ebe1 | Split the AECP command gate into one module per consumer under scripts/aecp_gate, each function short, annotated and documented | addendum (Rule 12) |
+| 13b03dc | Declare one name per declaration in tb/aecp_cmds/sim_main.cpp and record its new digest in decode.json | the parent's Rule 11 gate (found while checking the addendum) |
+| c06a2cc | Record the AECP command gate's modules and its Python rule in 09 sections 7 and 8.10, and say exactly what a failure line names | item 5 |
+| 649d353 | Plant the record drift, the unreadable sweep and the unparsed unsolicited kinds that only tb/aecp_cmds' verdict reports in the AECP command gate's self-test | "every new check needs a planted mutant" |
+| 9975764 | Keep the AECP command gate's load, check, Inputs, rom_op and GateError importable from its entry point for the reviews' ROM size probe | lets R609-1's `rom_size_probe.py` run unchanged |
+
+Files changed in round 2 (`git diff --stat 39cac06 9975764`): the table, `gen_ucode.py`,
+the gate (`scripts/check_aecp_commands.py` and the new `scripts/aecp_gate/`, 10 files),
+the new suite `tb/aecp_cmds/` (Makefile, README, wrapper, bench, `decode.json`,
+`mutants.py`), `tb/pp_top/Makefile`, `tb/ucpu/Makefile`, `Makefile`,
+`.github/workflows/hdl.yml`, REQ-VER-002, 06, 09 and `docs/traceability/MODULE_MATRIX.md`
+(regenerated by `gen_matrix.py`: the new suite covers seven modules). No `.sv` under `hdl/`
+changed: `git diff --stat 2cbed0a9..9975764 -- '*.sv' '*.svh' '*.v' '*.vh' '*.hex' '*.mem'
+'*.tcl' '*.xdc'` lists only the new testbench wrapper `tb/aecp_cmds/aecp_cmds_wrap.sv`. No
+register-map, top-level port or parameter change.
+
+### What each finding became
+
+- **R608-1-F1, dispatch and decode held to the table.** A new suite, `tb/aecp_cmds`,
+  drives `KL_aecp_engine` alone (`aecp_cmds_wrap.sv`, `sim_main.cpp`). It records the µPC
+  that the engine hands its µCPU and the response it sends. The same stimulus goes to every
+  opcode 0x0000-0x007F: every cdl 12-100, every descriptor type 0x0000-0x0028 and 0xFFFF,
+  idle and streaming, the other message types, MVU command_types under the Milan
+  protocol_id and four wrong ids, GET_DYNAMIC_INFO records of every command_type, and every
+  unsolicited kind. That is 585760 trials in about 45 s. The gate's `--observed` step
+  canonicalises the raw output by program name into `tb/aecp_cmds/decode.json` and holds it
+  to the table: per served command, the programs dispatched on every outcome (the MVU
+  sub-decode included) are exactly its `entries`. Unserved opcodes reach only `NOTIMPL`.
+  The GET_DYNAMIC_INFO members and record lengths are held, and so are the unsolicited jobs.
+  `make check` holds the table to `decode.json`, and `decode.json` carries the digest of
+  every swept input: the engine's SystemVerilog by its code, the bench, the image's inputs
+  and the ROM. So an engine edit without a re-sweep fails `make check` by file name, and the
+  suite fails it by command name. No regex reads `KL_aecp_engine.sv` for decode or dispatch.
+  The `OP_*_C`/`GDI_*_C`/`UPC_*_C` declarations are still read, because the M9 gate and
+  the parent inventory read those lines. q1 and q2 are standing controls
+  (`make -C tb/aecp_cmds mutants`, run in CI's suites job).
+- **R609-1-F1, every size held.**
+  - The ROM walk keeps the fixed part where it widens a loop (`absorb`, `Var(base, per)`)
+    and the length at a descriptor's first COPY_BUFFER. `fits` compares both with the
+    rule's base cdl, and a variable rule needs some SUCCESS path that builds the variable
+    part.
+  - An echo row's response cdl must equal its command cdl (schema).
+  - Each command cdl is held to the engine's observed decode floor: the shortest command
+    dispatched to the first entry. Three commands declare `floor: 12`, because the engine
+    judges no length for them: ACQUIRE_ENTITY, REGISTER_UNSOLICITED_NOTIFICATION and
+    IDENTIFY_NOTIFICATION. Their command cdl is recorded as held to nothing but the echo
+    rule (docstring, 09 §8.10, REQ-VER-002).
+  - The standing controls are self-test plants: GET_AUDIO_MAP response cdl 20 and 28 with
+    F06.14 regenerated, and a NOPed header field in E_GAMAP, E_GAVB, E_GASP and E_RDESC.
+- **R608-1-F2, generator-read defects.** `check_schema` refuses, by command and field,
+  every table defect the generator reads (message type, the MVU row, status codes,
+  entries), before the generator runs. The generator itself stops with a line naming the
+  command and the field, and with `SystemExit` rather than `assert`, so `python3 -O` keeps
+  the stop. The self-test plants seven of these defects in a file copy, so the gate and the
+  generator re-run on them, and five more with the generator run alone.
+- **F3 (both reviews), plurals.** `resp_text` no longer appends `s`. F06.14 was
+  regenerated: `grep -c 'mappingss\|entriess' docs/architecture/06_aecp_engine.md` gives 0.
+- **R608-1-F4 = R609-1-F2, the `ucode.hex` prerequisites.** `tb/pp_top/Makefile:238`,
+  `tb/ucpu/Makefile:22` and `tb/aecp_cmds/Makefile:45` list the table. Probe at head:
+  build, `make -q ucode.hex` rc 0; touch the table, `make -q` rc 1; rebuild, rc 0, in all
+  three suites. The "run make clean" workaround was removed from 09 §8.10.
+- **Suggestions taken.**
+  - The table's `fields` object describes every field and marks the F06.14 prose
+    (R608-1-S1, R609-1-S4).
+  - Table 7-141 codes are held to a fixed list in the gate, so STREAM_IS_RUNNING 12 -> 13
+    fails (R609-1-S1).
+  - A documented row without a name is a named schema finding, not a traceback (R609-1-S2).
+- **Docs.** The gate docstring, 09 §7 and §8.10, REQ-VER-002 Arch and 06 §8 claim what the
+  gate holds and list what is still hand-written. In §8.10 those are: the µprograms' field
+  values, the ROM layout, the two echo command sizes, GET_DYNAMIC_INFO's 524 ceilings,
+  opcodes above 0x007F, the ACMP ROM, the descriptor image, F05.3, F08.1 and the `tb/`
+  models. A failure line names the consumer and the command, or, where no command is
+  involved, the opcode, the table field or the file (c06a2cc made this claim exact).
+- **Addendum, the parent's Python rule.** The 2374-line gate became an entry point plus
+  `scripts/aecp_gate/`: inputs 157, table 192, rtl 253, rom 412, record 542, doc 147,
+  gate 88, plants 580, selftest 221 and `__init__` 16 lines. No function is over 100
+  lines, none takes more than six parameters, and every public function, nested ones
+  included, is annotated and documented. The walk's 123-line loop became `_branches` /
+  `_registers` / `_length` / `_straight` over a `_State` tuple, and it keeps the original
+  push order, because widening depends on visit order. `check_record` (191 lines) became one
+  function per check over a `_Checks` tally, and `mutants()` (457 lines) became the data
+  table `MUTANTS`. Equivalence: a scratch harness (`bin/equiv.py`) ran the old file (629aefb)
+  and the package on every in-memory, file-copy and generator-alone plant (150), on
+  `--observed` over one recorded sweep, on the canonical `decode.json` text written from it,
+  and on `--write` after a GET_AUDIO_MAP drift. The 2384-line dumps are identical once the
+  random temporary-directory names are masked (190906 B each, sha256
+  53752f0b4f41522394bf8b9641d73ab91479f0eea71902b8103ac20b6a98c368). The gate's output did
+  not change.
+
+### The command table and its consumers (file:line at head 9975764)
+
+Table: `hdl/aecp/ucode/aecp_commands.json`, 26654 B, sha256
+345ded8e0cb2d56b480deac989bb37b65a2a1bfdcc28fb3864fc53d78c3009a8, schema
+`aecp-command-table/1`, 31 served commands. Decode record: `tb/aecp_cmds/decode.json`,
+14152 B, sha256 c7d2a05e4b823f01568ec4eb4efdac13e486ecd219231dc2388822ce935e155d.
+
+| Consumer | Form | Where | Held by (scripts/aecp_gate/) |
+|---|---|---|---|
+| F06.14 rows | generated (`--write`) | docs/architecture/06_aecp_engine.md:247-291 | doc.py `check_doc` :98, `render` :71 |
+| status codes `_ST` | generated (read at ROM generation; refuses by name) | hdl/aecp/ucode/gen_ucode.py:48 | table.py `check_schema` :168 (and IEEE Table 7-141, `IEEE_STATUS` :14) |
+| MVU command_type | generated (refuses by name) | hdl/aecp/ucode/gen_ucode.py:155 | table.py `check_schema`; ROM byte identity |
+| `DISPATCH` | an entry check only; selects no ROM word (refuses by name) | hdl/aecp/ucode/gen_ucode.py:2458 | rom.py `check_rom` :400 |
+| what the engine decodes and dispatches (opcode -> programs on every outcome, MVU sub-decode, length floors, per-record lengths, responses, unserved opcodes, GET_DYNAMIC_INFO members and record lengths, unsolicited jobs) | hand-written, **observed** | hdl/aecp/KL_aecp_engine.sv (decode wires, `upc_r` arms, `gdi_allowed`, `uns_kind_map`) | tb/aecp_cmds sweep -> gate.py `observed` :64 / record.py `check_record` :455; `make check` via `decode.json`, pinned by record.py `check_swept` :516 |
+| OP_*_C, MVU_GET_MILAN_INFO_C, GDI_*_C values | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:698-827 | rtl.py `check_engine` :155 |
+| UPC_*_C names | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:838-923 | rtl.py `check_engine` (addresses: check_upc_map.py) |
+| hz_classify | hand-written, gated | hdl/top/protocol_processor_top.sv:1645 | rtl.py `check_classifier` :185 |
+| PP_HZ_* codes | hand-written, gated | hdl/common/pp_pkg.sv:53-61 | rtl.py `check_classifier` |
+| hz_is_lockprot | hand-written, gated | hdl/packet_engine/KL_pp_scoreboard.sv:112 | rtl.py `check_scoreboard` :210 |
+| notify class -> kind, queued classes | hand-written, gated | hdl/aecp/KL_aecp_notify.sv:597, :834 | rtl.py `check_notify` :219 |
+| ST_*_C | hand-written, gated | hdl/aecp/ucpu_pkg.sv:106-119 | rtl.py `check_status_codes` :243 |
+| the µprograms (lock, notify class, status set, every size, fill) | hand-written, gated on the generated ROM | gen_ucode.py programs | rom.py `walk` :230, `fits` :286, `check_rom` :400 |
+| echo rows | the table itself | aecp_commands.json | table.py `check_schema` |
+| 06 §8.1 | hand-written, gated | docs/architecture/06_aecp_engine.md:1212 | doc.py `check_inventory` :128 |
+| `ucode.hex` prerequisites | build rules | tb/pp_top/Makefile:238, tb/ucpu/Makefile:22, tb/aecp_cmds/Makefile:45 | the probe above |
+| make check | wiring | Makefile:15, :48 | `aecpcmd`: `--selftest`, then the gate |
+| CI | wiring | .github/workflows/hdl.yml:30-34 (docs-gates: `make check`), :88-95 (suites: `make -C tb/aecp_cmds mutants`; `run_suites.sh` runs `tb/aecp_cmds`) | |
+| REQ-VER-002, 06 §8, 09 §1/§7/§8.10 | docs | docs/00_MILAN_COMPLIANCE_REVIEW.md:535; 06:1202-1210, :1424-1430; 09:29, :127, :458-542 | |
+
+### Planted drifts at head (each in a scratch export; never committed)
+
+R608-1's and R609-1's own scripts ran unchanged from the `pp73-review-evidence` branch
+(`python3 -I SCRIPT HEAD_EXPORT ...`). Every probe tree passed unplanted first (p0_clean
+rc 0).
+
+| Drift | Gate | rc | Failing words (verbatim) |
+|---|---|---|---|
+| R608-1 q1: SET_CLOCK_SOURCE's success arm -> `UPC_GCLKS_C` (`drift_probes.py`) | `python3 -B scripts/check_aecp_commands.py` | 1 | `decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 13185a054f1c): sweep this engine with make -C tb/aecp_cmds record` |
+| the same tree | `make` in tb/aecp_cmds (the suite) | 2 (suite 1: `176 checks: 174 PASS, 2 FAIL`) | `FAIL:  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (the fresh sweep)`; `FAIL:  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS, which is not one of the table's entries (the fresh sweep)` |
+| R608-1 q2: `sclks_w` keyed on `OP_GET_CLOCK_SRC_C` | gate | 1 | `decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 3df4eea44873): ...` |
+| the same tree | the suite | 2 (`176 checks: 172 PASS, 4 FAIL`) | `FAIL:  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (the fresh sweep)` (and SET_CLOCK_SOURCE's entries BADARG4, SCLKS, TIZ4NS never reached) |
+| R608-1 p5e: GET_MILAN_INFO message `AAU` in the file (`drift_probes2.py`) | gate | 1 | `schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU`; `schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type` |
+| R608-1 p5 / p5b: message `AA` (gate / `--write`) | gate, `--write` | 1, 1 | the same schema lines; F06.14 untouched |
+| R608-1 p8: GET_CLOCK_SOURCE entries + `SCFGRUN2` in the file | gate | 1 | `decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)`; `engine: GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C, so the engine cannot dispatch to it` |
+| the same table, generator alone (also with `python3 -O`) | `python3 -B gen_ucode.py -o u.hex` | 1 | `aecp_commands.json: GET_CLOCK_SOURCE: entries names SCFGRUN2, and gen_ucode.py placed no E_SCFGRUN2 program` |
+| STREAM_IS_RUNNING's row removed / GET_MILAN_INFO message `AAU`, generator alone | gen_ucode.py | 1, 1 | `aecp_commands.json: status_codes gives no integer code for STREAM_IS_RUNNING, which gen_ucode.py's programs set`; `aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type` |
+| R608-1 p1-p4, p6, p7, p9 (table opcode, doc size, RTL opcode, missing command, `make aecpcmd`, generator status source, NO_RESOURCES 9) | gate / make | 1 (p6 2) | each by name, as in round 1 |
+| R609-1 `size_sweep.py`: every served command's response cdl +4, then command cdl +4, F06.14 regenerated | gate | 62 of 62 rc 1 | `response: 31 held by a consumer, 0 held to the table alone: []`; `command: 31 held by a consumer, 0 held to the table alone: []` |
+| R609-1 `rom_size_probe.py`: the first reachable BUILD_FIELD / APPEND NOPed in E_RDESC, E_GAVB, E_GASP, E_GAMAP, E_GSTRI, E_GCTRS | in memory | every one FAILS (E_AMADD, E_REGUN and E_RDESC's APPEND have none reachable, as at 39cac06) | e.g. `rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22 + 8·N, the table's response is 24 + 8·N`; `rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 +` ...; `rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16, never 16 + 8·N: no path builds the variable part` |
+| GET_AUDIO_MAP response cdl 20 / 24 / 28, F06.14 regenerated (`bin/gamap_probe.py`, R609-1's probe) | gate | 1 / 0 / 1 | cdl 20: `rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N` and `decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N` (13 findings); cdl 28: the same with 28 (13 findings); cdl 24 is the engine's |
+| the self-test (`--selftest`, first in `make aecpcmd`) | in memory, file copy, generator alone, `--observed` steps | 0 | `aecp commands selftest: 153 planted defects, 153 caught by name, OK` (131 in memory, 3 `--observed` steps, 14 in a file copy, 5 generator alone) |
+| the three new plants' checks broken in turn (record diff off, the unreadable-sweep refusal reworded, the PP_UNS refusal removed) | `--selftest` | 1 each | `SELFTEST FAIL: 'a fresh sweep that is not the recorded one' was not caught by name ...`; `... 'a sweep output that cannot be read' ...`; `... 'pp_pkg's unsolicited kinds written in another form' ...` (`153 planted defects, 152 caught by name, FAIL`) |
+
+Coverage (`bin/pkg_coverage.py`, R608-1's `selftest_coverage.py` re-pointed at the package):
+every finding site (93) and refusal site (18) in `scripts/aecp_gate/` outside the self-test's
+own modules prints, under some plant, a line carrying that plant's words:
+`sites: 111 (93 findings, 18 refusals), covered by name: 111, not: 0`.
+
+Standing controls (`python3 tb/aecp_cmds/mutants.py`, CI's suites job): rc 0 at
+9975764, completed 07:02 CEST. All 14 defects were caught by name; both golden
+runs passed. The raw record is `r2/camp/head/aecp_cmds.log`.
+
+### ROM digests and record identity (base 2cbed0a9 vs head 9975764)
+
+| Image | base | head | identical |
+|---|---|---|---|
+| ucode.hex (26624 B) | 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 | same | yes (`cmp`) |
+| ltn_rom.hex (6138 B) | 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 | same | yes (`cmp`) |
+
+Generated from `git archive` exports of each commit. Both equal the parent ledger's rows for
+pin 2ad2f845 and round 1's digests. No `.sv` under `hdl/` changed, so the elaborated engine
+is unchanged: the portability record below elaborates and synthesises `KL_aecp_engine`
+with its ROM. The descriptor-image generator is unchanged.
+
+### Parent export
+
+Unchanged in place and format: superproject path
+`protocol-processor/hdl/aecp/ucode/aecp_commands.json`, JSON, `"schema":
+"aecp-command-table/1"`, one `commands[]` row per served command. New in round 2: the
+`fields` object is the field reference. It separates the machine semantics from the F06.14
+prose (`clause`, `doc`, `notify.doc`, `documented`). The parent gate is a follow-up lane.
+
+### The parent consumer bank (addendum)
+
+Scratch parent: kebag-logic/milan-fpga dev ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5 (the
+manager's consumer dev). It was fetched into the round-1 scratch clone and checked out
+detached. Two patches were applied in its working tree, never committed:
+
+- `parent-name-evidence.patch` from `review-evidence/pp170-r1/author/` on
+  `pp170-review-evidence` (c8ef8d9d), sha256 2ec42e1f...;
+- this lane's `parent-aecp-cmds-evidence.patch`, in this directory, 1078 B, sha256
+  19d41c7b589ddf51892c7c63108077525b7a690f784b8de7bc77f93184f1bada.
+
+`git apply` takes the two in either order. The lane's patch adds one disposition to
+`scripts/measure_test_evidence_readers.py`. The new mutation driver
+`protocol-processor/tb/aecp_cmds/mutants.py` plants edits into a copy of the engine, so
+`measure_test_evidence.py` classifies it as a DUT-source reader. Without a disposition it is
+UNEXPLAINED: `--check` rc 1, `1 unexplained DUT-source reader(s) > ratchet 0`. This is the
+same parent adaptation lane pp170 owed for `tb/name_state/mutants.py`.
+
+`third_party/verilog-axis`, `third_party/lwSRP` and `external` were initialised, because
+the RTL source-list, SoC-source and lint gates refuse without them.
+
+| Gate (parent `scripts/`) | gitlink 39cac060 | gitlink 629aefb (before the addendum's fixes) | gitlink 13b03dc |
+|---|---|---|---|
+| `check_py_idiom.py` | 1: long function 11 > 9, long module 11 > 10, unannotated public function 5 > 0, undocumented public function 1 > 0 (reproduces the addendum) | 1: 12 > 9, 11 > 10, 15 > 0, 4 > 0, too many parameters 8 > 7 | 0: long function 9 <= 9, long module 10 <= 10, unannotated 0 <= 0, undocumented 0 <= 0, too many parameters 7 <= 7 |
+| `check_cpp_idiom.py` | 0 | 1: multi-declarator declaration 8 > 0 (`tb/aecp_cmds/sim_main.cpp`) | 0 |
+| `measure_test_evidence.py --check` / `--selftest` | 0 / 0 | 1 / 1 (UNEXPLAINED reader, before the lane's patch) | 0 / 0 with the lane's patch: `TEST-EVIDENCE RATCHET: PASS (71 <= 77 ..., 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 ...)`; tb/aecp_cmds is an armed suite (`mutants` driver mutants.py) |
+| `check_sv_idiom.py`, `check_sh_idiom.py`, `check_hygiene.py`, `measure_naming.py`, `measure_fail_fast.py`, `measure_control_flow.py --selftest`, `measure_cohesion.py --selftest`, `check_todo_ownership.py`, `check_port_contracts.py`, `check_rtl_source_lists.py`, `check_soc_sources.py`, `check_nvm_record_space.py`, `check_entity_shape.py --self-test`, `pp_srcs.py --check --selftest`, `lint_rtl.py --check --self-test`, `check_feature_status.py` (each with its self-test) | 0 | 0, except `check_rtl_source_lists.py`, `check_soc_sources.py` and `lint_rtl.py`, which refused (rc 2 / 1) because the third-party trees were not yet initialised; not re-run at this commit | 0 |
+| `check_submodule_docs.py` | 1: `protocol-processor: documented pin differs from Git`, `submodule diagram stale` | 1, same | 1, byte-identical output: the pin record, which any moved gitlink fails until an adoption re-records it; not this lane's |
+
+The base/head record of this bank is in the scratch-parent table below.
+
+### Final-head validation records (complete)
+
+
+The base is original processor main `2cbed0a987c1e68402658d69459ab7e5aa571adc`;
+the head is `9975764846e7e63bccf0b68a5188d5cc7f23f890`. The base and head
+campaign exports were rehashed against their commit trees: 588 and 606 tracked
+blobs respectively, zero mismatches. The suite bank uses the same scratch
+submodule directory for both sides. Each command writes its own log and return
+code; neither suite nor campaign commands are piped. Campaigns run concurrently
+with the suite bank and with their opposite side, with `--jobs 2`; each generated
+build runs `make -j16`. The recorded tool identities from round 1 still apply.
+
+| Processor record | Base rc | Head rc | Identity |
+|---|---|---|---|
+| `scripts/lint_hdl.sh` | 0 | 0 | byte-identical |
+| `make check` | 0 | 0 | existing checks identical except links 1187 -> 1188 and files 563 -> 570; adds the 153-plant self-test and the command gate |
+| `scripts/gen_matrix.py --check` | 0 | 0 | byte-identical |
+| `syn/yosys/run.sh` | 0 | 0 | byte-identical, including the engine elaboration and synthesis |
+| `scripts/run_suites.sh` | 0, 1029620 checks, 0 failing | 0, 1029796 checks, 0 failing | every pre-existing record byte-identical; adds only aecp_cmds (176 checks) and its contribution to the total |
+
+| Campaign | Base rc | Head rc | Identity |
+|---|---|---|---|
+| `aecp_dispatch` | 0 | 0 | log byte-identical (275 lines); results.json identical after temporary-path normalization |
+| `aecp` | 0 | 0 | byte-identical, 700 lines |
+| `ctr` | 0 | 0 | byte-identical, 113 lines |
+| `notify` | 0, 93 of 93 killed | 0, 93 of 93 killed | log identical as a sorted multiset (107 lines); results.json identical after normalization |
+| `gsi` | 0, 20 detected | 0, 20 detected | byte-identical, 23 lines; results.json identical after normalization |
+| `acmp` | 0, 51 of 51 killed | 0, 51 of 51 killed | log identical as a sorted multiset (58 lines); results.json identical after normalization |
+| `name_wr` | 0 | 0 | byte-identical, 4 lines; results.json identical |
+| `name_state` | 0, 16 killed | 0, 16 killed | byte-identical, 17 lines; results.json identical after normalization |
+| `d3` | 0, 110 of 110 killed | 0, 110 of 110 killed | log identical as a sorted multiset (117 lines); results.json identical after normalization |
+| `aecp_cmds` (new) | absent from base | 0, all 14 caught by name | new checks |
+
+| Scratch-parent record | Base | Head |
+|---|---|---|
+| consumer dev `ac2c5e77`, BDD, source-list and ROM gates | 0 (404 BDD scenarios) | 0 (404 BDD scenarios) |
+| consumer dev `ac2c5e77`, Python gate and listing; remaining consumer bank | 35/36 commands rc 0; only submodule_docs rc 1 (moved pin); evidence checks with the baseline patch set | 35/36 commands rc 0; only submodule_docs rc 1, byte-identical to base; Python budgets unchanged |
+| original dev `e8454e27`, BDD, source-list, feature-status and ROM gates | all 0; 404 BDD scenarios | all 0; 404 BDD scenarios; source-list and ROM-verify logs byte-identical, BDD identical without elapsed times, ROM rows identical apart from commit key |
+
+Parent bank receipt correction: the first consumer-base run mistakenly carried the
+head-only `tb/aecp_cmds/mutants.py` disposition in addition to the baseline's
+`parent-name-evidence.patch`. Since that suite is absent at base, the test-evidence
+gate and self-test correctly failed with `stale dispositions:
+['protocol-processor/tb/aecp_cmds/mutants.py']`. Those receipts are retained under
+`r2/pgates/base/bank/with-head-patch/`. Only those two commands were rerun with
+the baseline's applicable patch set (the name-evidence patch alone); both rc 0.
+Head uses both patches and both commands pass. No ratchet or gate was changed.
+The corrected patch and command log are retained too. The parent comparison
+checks every individual rc, not the enclosing script's rc.
+
+The scratch parent is left at `e8454e2751d05b02ee8e5a571857589ab358ab86`, with only
+`M  protocol-processor` in its status: staged gitlink and submodule HEAD are both
+`9975764846e7e63bccf0b68a5188d5cc7f23f890`. The temporary consumer patches were
+removed; nothing there was committed or pushed. The submodule has no tracked changes.
+
+The preprocessed engine is byte-identical as well: sha256
+`7ebbeda1420ffd265838a81d6ebc9791095da14f089ecbbcbf84af475e8c6cd4`.
+The raw engine exports stay in scratch, with only their digest and size in the
+handoff packet. No simulation or build result is claimed until its rc exists.
+
+### Completion and evidence packet
+
+All nine existing campaign pairs returned 0. Their named records match, with only
+completion order and scratch paths normalized where documented in the table.
+D3 finished with 110/110 named detections at both commits; its 117-line records
+are identical as sorted multisets. The new campaign caught all 14 controls.
+All validation processes have exited, and the owned memory sampler was stopped.
+The unit limit was 12288 MiB, its sampled peak 12287 MiB, and its cumulative
+`memory.events` reports `oom 0`, `oom_kill 0` and `oom_group_kill 0`.
+
+The packet contains the raw small records under `receipts/`, including
+`comparisons/suites.txt`, `comparisons/campaigns.txt`, `comparisons/parent.txt`,
+reviewer probe failures, the refactor-equivalence records, and the corrected
+parent evidence checks alongside their retained initial failures.
+`MANIFEST.json` records each packet file's size and SHA256.
+`LARGE-ARTIFACTS.tsv` records sizes and SHA256 values for larger logs and generated
+artifacts retained in scratch. No tree export, toolchain or installed package is
+included, and no packet file exceeds 200000 bytes.
+
+### Behavioural standing-control receipts at 9975764
+
+Each build and sweep returned 0; the gate returned 1 with the line below. The
+campaign returned 0 only after all fourteen and both golden runs passed.
+
+| Planted engine or generator drift | Actual named failure |
+|---|---|
+| q1-set-clock-source-to-gclks | `FAIL:  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (the fresh sweep)` |
+| q2-set-clock-source-decoded-on-get | `FAIL:  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (the fresh sweep)` |
+| floor-set-clock-source-16 | `FAIL:  decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 16, the table's command cdl is 20` |
+| mvu-sub-decode-other-command-type | `FAIL:  decode: GET_MILAN_INFO: the table's entries name MVUINFO, which the engine never dispatches MVU 0x0000 to (the fresh sweep)` |
+| mvu-protocol-id-tail-unchecked | `FAIL:  decode: MVU/wrong-protocol-id 0x0000 is no table command and the engine dispatches it to MVUINFO, not only NOTIMPL` |
+| message-type-guard-dropped | `FAIL:  decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL` |
+| unserved-opcode-decoded | `FAIL:  decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG, not only NOTIMPL` |
+| mappings-accepted-between-records | `FAIL:  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 21-27, 29-35, 37-43, 45-51, 53-59, 61-67, 69-75, 77-83, 85-91, 93-99, which is no 20 + 8·N` |
+| gdi-member-refused | `FAIL:  decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it` |
+| gdi-record-length | `FAIL:  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record` |
+| gdi-member-dispatch | `FAIL:  decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS, which is not one of its entries` |
+| unsolicited-command-type | `FAIL:  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0007 with GCFG, the table says 0x0006 with GCFG` |
+| unsolicited-body | `FAIL:  decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers 0x0016 with GSRATE, the table says 0x0016 with GCLKS` |
+| response-field-dropped | `FAIL:  decode: GET_CLOCK_SOURCE: GCLKS answered SUCCESS at cdl 18, the table's response is 20` |
+
+### Complete self-test drift inventory at 9975764
+
+Each row is one planted defect. The listed fragments must occur together in one
+failure line; `--selftest` verifies that requirement for all 153. File-copy rows
+exercise input loading and generation; generator-only rows exercise its own refusal.
+The behavioural standing controls are recorded separately above.
+
+| Plant route | Planted drift | Required failing gate words |
+|---|---|---|
+| memory | an opcode renumbered in the table only | `engine: GET_SAMPLING_RATE`; `0x001E` |
+| memory | a size changed in the doc table only | `F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size` |
+| memory | an OP_*_C changed in the RTL only | `engine: GET_SAMPLING_RATE`; `OP_GET_SAMP_RATE_C = 0x001E` |
+| memory | a command missing from the table | `OP_GET_AS_PATH_C = 0x0028 and the table has no command` |
+| memory | a command missing from the table, as the engine decodes it | `decode: AEM 0x0028 is no table command`; `GASP` |
+| memory | an OP_*_C written in another form | `OP_GET_AS_PATH_C is not written` |
+| memory | a GDI_*_C the table does not document | `GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such` |
+| memory | a success arm redirected to another program (R608-1 q1, as recorded) | `decode: SET_CLOCK_SOURCE: the table's entries name SCLKS` |
+| memory | a success arm redirected to another program, the other line | `decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS` |
+| memory | a decode keyed on another opcode (R608-1 q2, as recorded) | `decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS` |
+| memory | an entry the engine cannot dispatch to | `GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C` |
+| memory | an entry the engine never dispatches the command to | `decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN` |
+| memory | an engine entry no command claims | `UPC_NSUPP1_C is claimed by no command` |
+| memory | a command cdl off the engine's decode floor | `decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20` |
+| memory | a decode floor moved in the engine (as recorded) | `decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016`; `is cdl 16` |
+| memory | a declared floor dropped from the table | `decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024`; `the table's command cdl is 16` |
+| memory | a per-record command accepted between records (as recorded) | `decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24` |
+| memory | a response the bench saw at another size (as recorded) | `decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24` |
+| memory | a response the bench saw at the command's length on a fixed rule (as recorded) | `decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length` |
+| memory | a status the bench saw outside the set (as recorded) | `decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES` |
+| memory | a program that sent no frame (as recorded) | `decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame` |
+| memory | a command answered without a program (as recorded) | `decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program` |
+| memory | a command the bench saw dropped (as recorded) | `decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped` |
+| memory | a served command the sweep never sent (as recorded) | `decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000` |
+| memory | an unserved opcode decoded (as recorded) | `decode: AEM 0x0003 is no table command`; `GCFG` |
+| memory | another message type decoded as AEM (as recorded) | `decode: AVC 0x0016 is no table command`; `SCLKS` |
+| memory | an engine source changed after the sweep | `decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv`; `sweep this engine with make -C tb/aecp_cmds record` |
+| memory | the bench changed after the sweep | `decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp` |
+| memory | the ROM changed after the sweep | `decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated)` |
+| memory | a trial that never ended (as recorded) | `decode: tb/aecp_cmds/decode.json: 1 trials never ended` |
+| memory | a record of another schema | `decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0'` |
+| memory | a record without its parts | `decode: tb/aecp_cmds/decode.json is not a decode record` |
+| memory | a GET_DYNAMIC_INFO member the engine refuses (as recorded) | `decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member` |
+| memory | a GET_DYNAMIC_INFO flag changed in the table | `decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO` |
+| memory | a GET_DYNAMIC_INFO record length changed (as recorded) | `decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes` |
+| memory | a GET_DYNAMIC_INFO member that never runs its program (as recorded) | `decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG` |
+| memory | a GET_DYNAMIC_INFO record dispatched outside the entries (as recorded) | `decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS` |
+| memory | GET_DYNAMIC_INFO's empty aggregate at another size (as recorded) | `decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16` |
+| memory | a GET_DYNAMIC_INFO record that voids the aggregate (as recorded) | `decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12` |
+| memory | GET_DYNAMIC_INFO's response cdl changed in the table | `decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12` |
+| memory | an unsolicited job carrying another command_type (as recorded) | `decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers` |
+| memory | an unsolicited job no table command claims (as recorded) | `decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG` |
+| memory | an unsolicited body changed in the table | `decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers` |
+| memory | an unsolicited kind the engine does not run | `decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job` |
+| memory | an unsolicited job at another size (as recorded) | `decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24` |
+| memory | an unsolicited arm no command claims | `decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB` |
+| memory | a hazard class changed in the top | `classifier: SET_NAME: the table says NAME_WR`; `0x0010 STREAM_CFG` |
+| memory | a hazard class changed in the table | `classifier: GET_COUNTERS: the table says MAP_CFG` |
+| memory | a classified opcode no command carries | `hz_classify names 0x004B` |
+| memory | a hazard code changed in pp_pkg | `classifier: hazard class IDENTIFY is 8 in the table and 9` |
+| memory | a lock flag changed in the table | `rom: SET_CONTROL: the table says lock false` |
+| memory | CHECK_LOCK dropped from a program | `rom: SET_CLOCK_SOURCE: the table says lock true`; `never reach CHECK_LOCK` |
+| memory | the scoreboard's lock-protected set changed | `scoreboard:`; `hz_is_lockprot` |
+| memory | a notification class changed in the table | `rom: SET_SAMPLING_RATE: its programs enqueue notification class [5]` |
+| memory | a NOTIFY_ENQ class changed in a program | `rom: SET_CONTROL: its programs enqueue notification class [2]` |
+| memory | the notify block's class map changed | `notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C` |
+| memory | a status dropped from the table | `rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered` |
+| memory | a status the programs cannot answer | `rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table` |
+| memory | a refusal status changed in a program | `rom: SET_CONFIGURATION: status NO_RESOURCES is answered` |
+| memory | a status code changed in ucpu_pkg | `status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9` |
+| memory | a response size changed in the table | `rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20` |
+| memory | a field dropped from a program | `rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl` |
+| memory | GET_AUDIO_MAP's response cdl 20, F06.14 regenerated | `rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N`; `the table's response is 20 + 8·N` |
+| memory | GET_AUDIO_MAP's response cdl 28, F06.14 regenerated | `rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N`; `the table's response is 28 + 8·N` |
+| memory | a header field NOPed in E_GAMAP | `rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22` |
+| memory | a header field NOPed in E_GAVB | `rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28` |
+| memory | a header field NOPed in E_GASP | `rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14` |
+| memory | a header field NOPed in E_RDESC | `rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy` |
+| memory | the record APPEND NOPed in E_GAMAP | `rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24`; `no path builds the variable part` |
+| memory | the record APPEND NOPed in E_GAVB | `rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32` |
+| memory | the record APPEND NOPed in E_GASP | `rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16` |
+| memory | a per-record response read as a fixed one | `rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8·N, the table's response is 16` |
+| memory | an echo row's response off its command size | `schema: ACQUIRE_ENTITY: an echo response is the command's own size` |
+| memory | an echo row's command off its response size | `schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size` |
+| memory | an unsolicited body of another size | `unsolicited body E_STRMUNS is cdl 12` |
+| memory | a path into the ROM fill | `rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word` |
+| memory | section 8.1 missing a served command | `8.1: ENTITY_AVAILABLE (AEM 0x0002) is served` |
+| memory | a row missing from F06.14 | `F06.14: row 0x0029 GET_COUNTERS is missing` |
+| memory | two commands on one opcode | `schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's` |
+| memory | a status the table does not define | `schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes` |
+| memory | a status code off IEEE Table 7-141 (no RTL constant holds it) | `schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12` |
+| memory | a status code that is not an integer | `schema: status NO_RESOURCES: code must be an integer` |
+| memory | a common status the table does not define | `schema: common_status AEM: status BUSY is not in status_codes` |
+| memory | an unserved program that is no shared entry | `schema: unserved 'NOTIMPL2' is no shared entry` |
+| memory | a table of another schema | `schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2'` |
+| memory | an empty part of the table | `schema: status_codes, hazard_classes or commands is empty` |
+| memory | a command without a field | `schema: GET_NAME: missing hazard` |
+| memory | a command listed twice | `schema: GET_NAME is listed twice` |
+| memory | a message type that is neither AEM nor MVU | `schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU` |
+| memory | the MVU row the generator reads, gone | `schema: GET_MILAN_INFO: no command with message MVU` |
+| memory | a message type without its common statuses | `schema: GET_MILAN_INFO: message 'MVU' has no common_status row` |
+| memory | an opcode not written 0xHHHH | `schema: GET_NAME: opcode '0x11' is not 0xHHHH` |
+| memory | a hazard class the table does not define | `schema: GET_NAME: hazard NAME_RD is not in hazard_classes` |
+| memory | a flag that is not true or false | `schema: GET_NAME: lock, gdi and oversize must be true or false` |
+| memory | a size without an integer cdl | `schema: GET_NAME: response has no integer cdl` |
+| memory | a per-record size without its unit | `schema: GET_AS_PATH: response per must be an integer with its unit` |
+| memory | a floor at or above the command cdl | `schema: ACQUIRE_ENTITY: command floor must be` |
+| memory | an entry listed twice | `schema: GET_NAME: entries must be a non-empty list of names without repeats` |
+| memory | a notification without its body | `schema: SET_NAME: notify must be null or carry class, kind and body` |
+| memory | an unserved F06.14 row short of a cell | `schema: documented row '0x0003': needs` |
+| memory | an unserved F06.14 row without its name (R609-1 S2) | `schema: documented row '0x0003': needs` |
+| memory | a constant the engine does not declare | `engine: GET_NAME: the table names OP_GET_NAMES_C`; `declares no such constant` |
+| memory | a GDI_*_C renumbered in the table | `engine: GET_VIDEO_FORMAT: the table says 0x000C`; `GDI_GET_VIDEO_FMT_C = 0x000B` |
+| memory | a GDI_*_C the engine does not declare | `engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C` |
+| memory | a hazard code pp_pkg adds | `classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not` |
+| memory | a non-AEM command off the classifier's default | `classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default` |
+| memory | a class the notify block maps and does not queue | `notify:`; `class 9 (START_STREAMING) is in one only` |
+| memory | a class off the notify block's map whose kind another class carries | `notify: SET_NAME: class 6 is not in`; `its kind PP_UNS_NAME_C is another class's` |
+| memory | a class the notify block maps and no command enqueues | `notify:`; `maps class 10 to PP_UNS_STRM_C and no table command enqueues it` |
+| memory | a ucpu_pkg status the table does not name | `status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it` |
+| memory | an engine-built status on a program-built response | `rom: GET_NAME: engine_status is only for an engine-built response` |
+| memory | an entry the generator never placed | `rom: ENTITY_AVAILABLE: entry EAVL is no placed program` |
+| memory | a status code the table does not know set in a program | `rom: SET_CONFIGURATION: a path sets status 13, which the table does not know` |
+| memory | a notification body the generator never placed | `rom: START_STREAMING: notification body STRMUNS is no placed program` |
+| memory | F06.14's header changed | `F06.14: the header is not` |
+| memory | a row repeated in F06.14 | `F06.14: 42 rows where the table generates 41` |
+| memory | a row in F06.14 the table does not generate | `F06.14: row 0x0029 GET_COUNTER is not in the table` |
+| memory | an F06.14 row with an extra cell | `F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12` |
+| memory | F06.14 rows out of order | `F06.14: the rows are out of the generated order` |
+| memory | section 8.1 listing a command the engine does not serve | `8.1: section 8.1 lists AEM 0x0003 and the table serves no such command` |
+| memory | a parsed block renamed (a stale pattern) | `gate refused`; `hz_classify`; `the pattern has gone stale` |
+| memory | a parsed block with no end | `gate refused`; `hdl/aecp/KL_aecp_notify.sv emit_pick: no ` |
+| memory | the engine's entries written in another form | `gate refused`; `hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing` |
+| memory | hz_classify's opcode case written in another form | `gate refused`; `hz_classify's default or its opcode case is not parseable` |
+| memory | hz_classify's opcode labels written in another form | `gate refused`; `hz_classify's opcode case parsed nothing` |
+| memory | pp_pkg's hazard codes written in another form | `gate refused`; `no PP_HZ_* enum parsed` |
+| memory | hz_is_lockprot naming a class without its alias | `gate refused`; `hz_is_lockprot is not parseable` |
+| memory | the notify block's queued classes written in another form | `gate refused`; `the command-class map is not parseable` |
+| memory | ucpu_pkg's status codes written in another form | `gate refused`; `no ST_*_C parsed` |
+| memory | F06.14's end marker gone | `gate refused`; `the F06.14 markers are missing` |
+| memory | section 8.1's heading renamed | `gate refused`; `section 8.1's table is not parseable` |
+| observed step | a fresh sweep that is not the recorded one | `decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS` |
+| observed step | a sweep output that cannot be read | `gate refused`; `the sweep's output`; `cannot be read` |
+| observed step | pp_pkg's unsolicited kinds written in another form | `gate refused`; `no PP_UNS_*_C kind parsed` |
+| file copy | a table that is not JSON | `gate refused`; `hdl/aecp/ucode/aecp_commands.json is not JSON` |
+| file copy | a decode record that is not JSON | `gate refused`; `tb/aecp_cmds/decode.json is not JSON` |
+| file copy | an input that cannot be read | `gate refused`; `cannot read an input` |
+| file copy | a decode record that cannot be read | `gate refused`; `cannot read an input` |
+| file copy | a swept input that cannot be read | `gate refused`; `cannot read an input` |
+| file copy | a generator that does not run | `gate refused`; `hdl/aecp/ucode/gen_ucode.py did not generate` |
+| file copy | a generator of another shape | `gate refused`; `hdl/aecp/ucode/gen_ucode.py defines no occupied` |
+| file copy | a message type the generator cannot read, in the file (R608-1 p5e) | `schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU` |
+| file copy | a message type the generator cannot read, in the file (R608-1 p5) | `schema: GET_MILAN_INFO: no command with message MVU` |
+| file copy | an entry the generator never placed, in the file (R608-1 p8) | `decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2` |
+| file copy | a status code row the generator reads, gone from the file | `schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes` |
+| file copy | a status code the generator reads, not an integer in the file | `schema: status NO_RESOURCES: code must be an integer` |
+| file copy | a status code changed in the file only | `schema: status NO_RESOURCES is 9 in the table` |
+| file copy | the MVU row the generator reads, renamed in the file | `schema: GET_MILAN_INFO: no command with message MVU` |
+| generator alone | the generator: an entry it never placed | `GET_CLOCK_SOURCE: entries names SCFGRUN2`; `placed no E_SCFGRUN2` |
+| generator alone | the generator: a status code row it reads, gone | `status_codes gives no integer code for STREAM_IS_RUNNING` |
+| generator alone | the generator: a status code it reads, not an integer | `status_codes gives no integer code for BAD_ARGUMENTS` |
+| generator alone | the generator: the MVU row it reads, gone | `GET_MILAN_INFO: no command with message MVU` |
+| generator alone | the generator: the MVU opcode it reads, not hexadecimal | `GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode` |
+
+## Round 1
+
+Status: REVIEW READY at head 39cac06 (posted on #73 as comment 6104386579). Every acceptance item of #73 and every proof item
+of the lane comment is met (see the tables below). Resumed 2026-10-10 21:34 after an
+external usage-limit stop at 21:06; no gate had failed. TAKEN was posted once (comment
+6100517434) and is not repeated.
+
+- Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+- Branch: pp73-command-model (local only; never pushed)
+- Base: main 2cbed0a987c1e68402658d69459ab7e5aa571adc
+- Head: 39cac060f6f3730cf8172adc6424c275cd268517
+
+## Commits (one-line subjects, configured identity)
+
+| Commit | Subject |
+|---|---|
+| 6433bdc | Take the µcode status codes, MVU command type and dispatch map from one AECP command table |
+| b96268c | Generate F06.14 from the AECP command table and gate every engine, ROM and doc consumer against it |
+| 3b6b049 | Run the AECP command gate in make check and so in the CI docs-gates job |
+| 7053ccd | Record what the AECP command table generates and gates in REQ-VER-002, 06 section 8 and 09 sections 7 and 8 |
+| 67bf163 | Drop unused gate fields and refuse a message type the table cannot render |
+| 39cac06 | Plant a defect for every finding and refusal of the AECP command gate, and record the suites' ucode.hex prerequisite |
+
+Files changed against base: `hdl/aecp/ucode/aecp_commands.json` (new),
+`scripts/check_aecp_commands.py` (new), `hdl/aecp/ucode/gen_ucode.py`, `Makefile`,
+`.github/workflows/hdl.yml`, `docs/00_MILAN_COMPLIANCE_REVIEW.md`,
+`docs/architecture/06_aecp_engine.md`, `docs/architecture/09_verification.md`. No `.sv`,
+`.svh`, `.v`, `.hex`, `.tcl` or `.xdc` file changes (`git diff --stat 2cbed0a..HEAD -- '*.sv'
+'*.svh' '*.v' '*.vh' '*.hex' '*.mem' '*.tcl' '*.xdc'` is empty). No register-map, top-level
+port or parameter change.
+
+## The command table
+
+`hdl/aecp/ucode/aecp_commands.json` (24555 B, sha256
+8aabc52ce6841bab0744227fcdf041184bf3177e02b0769d15a9ad1c3ac88e1a), schema
+`aecp-command-table/1`, 31 served commands (30 AEM + MVU GET_MILAN_INFO). Per command:
+name, message, opcode, engine constant (`rtl`), clause, command and response sizes as cdl
+(fixed, `per` N records, `plus` descriptor/records, `echo`, failure `stub`, engine-built),
+status set, hazard class, lock, notify (`class` the µprogram enqueues, or null for an engine
+event; unsolicited `kind`; `body` program), GDI and oversize flags, µPC `entries` (success
+program first), F06.14 prose. Top level: Table 7-141 status codes (with their `ucpu_pkg`
+names), hazard-class codes, `common_status` per message type (AEM ENTITY_MISBEHAVING, MVU
+NOT_IMPLEMENTED), the shared echo programs, the shared entries, and the F06.14 rows of
+unserved commands.
+
+## Consumers: generated or gated (file:line at head 39cac06)
+
+Gate = `scripts/check_aecp_commands.py`; `make check` target `aecpcmd` (Makefile:48) runs
+`--selftest` (:1351) and then the gate.
+
+| Consumer | Form | Where | Gate check |
+|---|---|---|---|
+| F06.14 rows | generated (`--write`, :1378) | docs/architecture/06_aecp_engine.md:247-291 (markers) | check_doc :845 (rows :800, render :824) |
+| status codes ST_* | generated (read at ROM generation) | hdl/aecp/ucode/gen_ucode.py:42-53 | the ROM walk maps every status a path sets to the table, check_rom :699 |
+| MVU command_type | generated | hdl/aecp/ucode/gen_ucode.py:141 | ROM byte identity (digest below) |
+| DISPATCH (command -> entries -> address) | generated; generation asserts each entry is a placed program | hdl/aecp/ucode/gen_ucode.py:2438 | check_rom :699 compares it to the table |
+| OP_*_C, MVU_GET_MILAN_INFO_C, GDI_*_C | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:698-827 | check_engine :506 |
+| gdi_allowed | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:1090 | check_engine :506 |
+| GET_DYNAMIC_INFO record lengths and UPCs | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:1111 | check_engine :506 |
+| uns_kind_map (kind -> command_type, body) | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:1404 | check_engine :506 |
+| UPC_*_C entries (claimed by command, body or shared list) | hand-written, gated | hdl/aecp/KL_aecp_engine.sv:838-923 | check_engine :506 (addresses: check_upc_map.py) |
+| hz_classify (opcode -> class) | hand-written, gated | hdl/top/protocol_processor_top.sv:1645 | check_classifier :599 |
+| PP_HZ_* codes | hand-written, gated | hdl/common/pp_pkg.sv:53-61 | check_classifier :599 |
+| hz_is_lockprot | hand-written, gated | hdl/packet_engine/KL_pp_scoreboard.sv:112 | check_scoreboard :624 |
+| notify class -> kind, queued classes | hand-written, gated | hdl/aecp/KL_aecp_notify.sv:597, :834 | check_notify :633 |
+| ST_*_C | hand-written, gated | hdl/aecp/ucpu_pkg.sv:106-119 | check_status_codes :657 |
+| the µprograms (lock, notify class, status set, sizes, fill) | hand-written, gated on the generated ROM | hdl/aecp/ucode/gen_ucode.py (programs) | walk :310, check_rom :699 |
+| 06 §8.1 inventory | hand-written, gated | docs/architecture/06_aecp_engine.md:1210 | check_inventory :875 |
+| the table's own shape | - | hdl/aecp/ucode/aecp_commands.json | check_schema :448 |
+| make check | wiring | Makefile:15, :48 | `aecpcmd` (self-test, then gate) |
+| CI | wiring | .github/workflows/hdl.yml:30-35 (docs-gates job runs `make check`) | |
+| REQ-VER-002, 09 §1/§7/§8.10 | docs | docs/00_MILAN_COMPLIANCE_REVIEW.md:535; docs/architecture/09_verification.md:29, :127, :135, :458 | |
+
+Why the RTL is gated and not generated (recorded in 09 §8.10): the elaborated engine and
+every ROM stay byte-identical; the parent's AECP inventory gate and `check_m9_opcodes.py`
+read the `OP_*_C` lines; the reviewed mutation patches under `tb/` anchor on the
+generator's and the engine's own lines.
+
+## Findings the gate made on the base tree (fixed in the docs, RTL untouched)
+
+- F06.14 gave SET/GET_SAMPLING_RATE and SET/GET_CLOCK_SOURCE "36 B"; the engine answers
+  32 B (cdl 20): tb/pp_top W9b/W10 grade cdl 20, and the parent model's SERVED says 20.
+- F06.14 gave GET_AUDIO_MAP "32 + 8·N"; the engine answers 36 + 8·N B (cdl 24 + 8·N, as
+  06 §8.1 and gen_ucode.py:876 say).
+- 06 §8.1 ("what it answers today") had no SET_NAME / GET_NAME row; both are served.
+- UPC_NAMEERR_C is declared in the engine and never dispatched (a branch target of the
+  name programs); recorded as a shared entry rather than claimed by a command.
+
+## Known limitation (recorded in 09 §8.10, not changed: outside this lane's file scope)
+
+`tb/pp_top/Makefile:236` and `tb/ucpu/Makefile:20` list `gen_ucode.py` alone as
+`ucode.hex`'s prerequisite. After an edit to the table alone, an incremental build there
+keeps the old ROM until `make clean`; CI builds from a fresh checkout. Changing those
+Makefiles is a follow-up (they are suite build files, and the head campaigns copy
+`tb/pp_top`).
+
+## Planted drifts (at head)
+
+Each applied to a fresh `git archive` export of the head 39cac06 under the scratch
+directory (never committed); the export first passes unplanted (rc 0), then the planted
+gate `python3 -B scripts/check_aecp_commands.py` exits 1 and `make aecpcmd` exits 2 (its
+self-test stops first, because its precondition, a passing tree, fails, and prints the
+same lines). The same seven drifts at 67bf163 gave byte-identical gate output; only
+make's own `Makefile:48` became `Makefile:49` (the comment above the target grew a line).
+
+| # | Drift | Failing gate words (verbatim) |
+|---|---|---|
+| 1 | an opcode renumbered in the table only (GET_SAMPLING_RATE 0x0015 -> 0x001E) | `engine: GET_SAMPLING_RATE: the table says opcode 0x001E, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x0015`; also `classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0015, which no table command carries`, `F06.14: row 0x001E GET_SAMPLING_RATE is missing (run --write)`, `F06.14: row 0x0015 GET_SAMPLING_RATE is not in the table`, `8.1: GET_SAMPLING_RATE (AEM 0x001E) is served and section 8.1 does not list it`, `8.1: section 8.1 lists AEM 0x0015 and the table serves no such command` |
+| 2 | a size changed in the doc table only (F06.14 row 0x0015 Resp. size 32 B (cdl 20) -> 36 B (cdl 24)) | `F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size, reads '36 B (cdl 24)' where the table gives '32 B (cdl 20)'` |
+| 3 | an OP_*_C changed in the RTL only (OP_GET_SAMP_RATE_C 16'h0015 -> 16'h001E) | `engine: GET_SAMPLING_RATE: the table says opcode 0x0015, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x001E` |
+| 4 | a command missing from the table (the GET_AS_PATH row deleted) | `engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_AS_PATH_C = 0x0028 and the table has no command for it`; also `engine: UPC_GASP_C is claimed by no command, notification body or shared entry of the table`, `engine: uns_kind_map's PP_UNS_ASP_C arm is no command's notification`, `classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0028, which no table command carries`, `F06.14: 41 rows where the table generates 40`, `F06.14: row 0x0028 GET_AS_PATH is not in the table`, `8.1: section 8.1 lists AEM 0x0028 and the table serves no such command` |
+| 5 | ROM data changed in the generator only (SET_CLOCK_SOURCE's NOTIFY_ENQ imm 8 -> 5) | `rom: SET_CLOCK_SOURCE: its programs enqueue notification class [5], the table says [8]` |
+| 6 | a size changed in the table only (GET_CLOCK_SOURCE response cdl 20 -> 24) | `engine: GET_CLOCK_SOURCE: its GET_DYNAMIC_INFO record is 8 bytes, the table's response is cdl 24 (12 bytes)`; `rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20, the table's response is 24` (and its NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS and E_TIZ4NS NOT_SUPPORTED arms); `F06.14: row 0x0017 GET_CLOCK_SOURCE, column Resp. size, reads '32 B (cdl 20)' where the table gives '36 B (cdl 24)'` |
+| 7 | a status code changed in the table only, which the generator reads (NO_RESOURCES 8 -> 9) | `status: NO_RESOURCES is 9 in the table and ST_NO_RESOURCES_C = 8 in hdl/aecp/ucpu_pkg.sv` |
+
+The self-test (`--selftest`, first in `make aecpcmd`) plants 89 defects, one for every
+finding the gate can print and for every refusal (85 in memory, 4 in a temporary copy of
+the input files: a table that is not JSON, an unreadable input, a generator that does not
+run, a generator of another shape), and requires each caught by name:
+`aecp commands selftest: 89 planted defects, 89 caught by name, OK`. A check that a wrong
+expectation is reported as missed passes too (scratch probe, not committed).
+
+## ROM digests and record identity (base vs head)
+
+Generated from `git archive` exports of each commit in scratch.
+
+| Image | base 2cbed0a9 | head 39cac06 | identical |
+|---|---|---|---|
+| ucode.hex (26624 B) | 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 | 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 | yes (cmp) |
+| ltn_rom.hex (6138 B) | 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 | 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 | yes (cmp) |
+| descriptor image, milan_min (3224 B; 67bf163, generator untouched since) | 11d6491b7f16642392961a0c2c9c04a91dfeab9b626169cac3a32b6c0843a8fb | 11d6491b7f16642392961a0c2c9c04a91dfeab9b626169cac3a32b6c0843a8fb | yes |
+
+Both ROM digests equal the parent ledger's rows for its current pin 2ad2f845, and the
+scratch parent's `ooc.sh --record-rom-digests` with the gitlink at 39cac06 recorded the
+same two digests. Elaborated engine: no `.sv` input changed (`git diff --stat 2cbed0a..HEAD
+-- '*.sv' '*.svh'` is empty), its `$readmemh` image `ucode.hex` is byte-identical, and the
+`syn/yosys/run.sh` record (which elaborates and synthesises `KL_aecp_engine`) is
+byte-identical at base and head.
+
+## Parent export
+
+The parent's Mark II firmware tables are to consume the table itself: superproject path
+`protocol-processor/hdl/aecp/ucode/aecp_commands.json`, JSON, `"schema":
+"aecp-command-table/1"`, one `commands[]` row per served command (fields as above). The
+parent gate is a follow-up lane after this merges.
+
+## Toolchain identities
+
+- Verilator 5.050 (2026-07-01 rev v5.050), the pinned wrapper
+  $VALIDATION_TOOLS/pinned-verilator-5.050/verilator, exported for every run (host default
+  5.052 never used).
+- sv2v v0.0.12: binary sha256 b29952bc8f400ca90207507db0ff6763263e03d3eec711da80338430ed636b9b
+  (the release zip sha256 ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00).
+- Yosys 0.66 (git sha1 86f2ddebc-dirty, distribution package 0.66-1), binary sha256
+  ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b.
+- Neither sv2v nor Yosys is under $VALIDATION_TOOLS as the brief says (re-checked on resume:
+  `find $VALIDATION_TOOLS -iname '*sv2v*' -o -iname '*yosys*'` finds only Verilator's own
+  test files). The host's copies were used and are identified above. The CI portability job
+  installs the distribution Yosys and sv2v "latest", not a pinned release.
+
+## Suites (base and head in the same directory: the scratch parent's processor submodule)
+
+| Record | Command | Toolchain on PATH | base rc / summary | head rc / summary | identical |
+|---|---|---|---|---|---|
+| suites | `./scripts/run_suites.sh` | Verilator 5.050 only (the CI suites job's) | 0, `suites: 1029620 checks total, 0 failing` | 0, same (02:16) | byte-identical (38 lines, the UPC map and M9 gates included) |
+| lint | `./scripts/lint_hdl.sh` | Verilator 5.050 | 0 (41 lines) | 0 | byte-identical |
+| docs gate | `make check` | mmdc 11.16.0, WaveDrom venv | 0 | 0 | identical except what the change adds: `links: 1187` -> `1188` (09 §8.10's new `#fig-09-env` link), `ids: 563 files` -> `564` (the new table under `hdl/`), and the two new `aecpcmd` lines `aecp commands selftest: 89 planted defects, 89 caught by name, OK` and `aecp commands: 31 commands, 84 entries walked, F06.14 41 rows, OK` |
+| matrix | `python3 scripts/gen_matrix.py --check` | - | 0, `matrix: OK (94 rows, 0 untested)` | 0, same | byte-identical |
+| portability | `./syn/yosys/run.sh` | sv2v v0.0.12, Yosys 0.66 | 0 (71 lines, 42 tops) | 0 | byte-identical (every top's elaboration and the synth_xilinx statistics, KL_aecp_engine and its ROM included) |
+
+The head records were produced at 01:46-01:49 on 2026-10-11 by a chain started once base
+d3 had passed: the submodule fetched the lane's branch and checked out 39cac06 detached,
+and `git clean -fdX -- tb hdl syn scripts docs` removed the base runs' build products
+(the WaveDrom venv at the root kept). A preview of lint, matrix and Yosys in the lane
+checkout at 23:10 on 2026-10-10 gave the same bytes.
+
+Pre-existing, toolchain-dependent, not this lane's: with sv2v v0.0.12 on PATH,
+`tb/nvm_port`'s optional Yosys arm (`elab_bounds.sh`, run by its `make`) fails at base:
+`YOSYS FAIL MAX_PAYLOAD_P=65528 failed, but not at the guard's $finish` (sv2v 0.0.12 lowers
+`$fatal` so that Yosys 0.66 stops with `ERROR: FATAL: .` instead of the `$finish` the arm
+greps for). sv2v v0.0.13 passes that arm, and CI's suites job has no sv2v at all, so the
+arm SKIPs there. The suites are therefore recorded with the CI suites job's toolchain
+(Verilator only) at both base and head.
+
+## Campaigns (every campaign that builds the changed generator)
+
+Every driver copies `hdl/`, `tb/common` and its suite into a private temporary tree, so
+`aecp_commands.json` travels with `gen_ucode.py`. Base ran in the scratch submodule at
+2cbed0a9, head in the lane checkout (which stayed clean: `git status --porcelain --ignored`
+empty); the stdout logs carry no paths. The head runs other than d3 started at 67bf163;
+`git diff --stat 67bf163 39cac06 -- hdl tb` is empty, so every campaign input is the head's.
+Memory: each Verilator build runs its own `make -j 16`; this unit peaked at the 12 GB cap
+once (see d3) and otherwise at 9.2 GB.
+All `tb/` mutation patches that touch `gen_ucode.py` apply at head (`git apply --check`).
+
+| Campaign | Command | base rc / tally | head rc / tally | identical |
+|---|---|---|---|---|
+| aecp_dispatch | `python3 tb/pp_top/aecp_dispatch_mutants.py --output OUT --verilator verilator --jobs 2` | 0 | 0 | log byte-identical (275 lines); results.json identical |
+| aecp | `python3 tb/pp_top/aecp_mutants.py --output OUT --jobs 2` | 0 | 0 | log byte-identical (700 lines) |
+| ctr | `python3 tb/pp_top/ctr_mutants.py --output OUT --jobs 2` | 0 | 0 | log byte-identical (113 lines) |
+| notify | `python3 tb/pp_top/notify_mutants.py --output OUT --verilator verilator --jobs 2` | 0, `C6 notification mutations: 93 of 93 KILLED by their named checks; goldens PASS` | 0, same | log identical as a sorted multiset (107 lines; the driver prints in completion order); results.json identical sorted |
+| gsi | `python3 tb/pp_top/gsi_mutants.py --output OUT --verilator verilator --jobs 2` | 0 | 0 | log byte-identical (23 lines); results.json identical sorted |
+| acmp | `python3 tb/pp_top/acmp_mutants.py --output OUT --verilator verilator --jobs 2` | 0, `ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS` | 0, same | log identical as a sorted multiset (58 lines; completion order); results.json identical sorted |
+| name_wr | `python3 tb/pp_top/name_wr_mutant.py --output OUT` | 0, `Name-write mutation: decode killed; golden and restored PASS` | 0, same | log byte-identical (4 lines); results.json identical |
+| name_state | `python3 tb/name_state/mutants.py --output OUT --verilator verilator --jobs 2` | 0 | 0 | log identical as a sorted multiset (17 lines; completion order); results.json identical sorted |
+| d3 | `python3 tb/pp_top/d3_mutants.py --output OUT --verilator verilator --jobs N` (base N = 2, head N = 1) | 0, `D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS` (00:04-01:46) | 0, same (00:36-03:53) | log identical as a sorted multiset (117 lines; completion order); results.json identical sorted |
+
+d3 history, all recorded in `campaigns.meta`: the first d3 runs (base from 23:22, head from
+23:33) were both ended by an external SIGTERM at the same second, 00:03:16 (rc 143 on both
+sides; only the python drivers were signalled, their parent shells exited normally; no OOM
+event in this unit; nothing in this session sent it). Before the signal every golden printed
+PASS and every mutant verdict was KILLED (34 base, 24 head); the partial logs are kept as
+`d3-sigterm-0003.log`. Both were re-run from the start at 00:04. With both sides' goldens
+building at once this unit's memory reached its 12 GB cap (`memory.events` max 2759, swap
+absorbed it, `oom_kill` 0), so this session stopped the head re-run at 00:15 and started it
+again at 00:36 with `--jobs 1` beside base. A later restart with more jobs was not made (the
+command was refused), so the head record above is the uninterrupted `--jobs 1` run.
+
+Every campaign: base rc 0 and head rc 0. `bin/compare_camp.py` in scratch compares each
+stdout log byte for byte and as a sorted multiset, and each results.json with its records
+sorted and the random temporary-tree paths removed. Per-trial build logs are not records:
+they carry that path and make's interleaving.
+
+## Scratch parent
+
+kebag-logic/milan-fpga dev e8454e2751d05b02ee8e5a571857589ab358ab86, cloned under the
+scratch directory; never committed or pushed. Gates run with the `protocol-processor`
+gitlink staged at the submodule's checkout.
+
+| Gate | Command | base (gitlink 2cbed0a9) | head (gitlink 39cac06) | identical |
+|---|---|---|---|---|
+| BDD tiers, AECP included (`aecp_response_contract.feature`: "the served inventory matches the opcodes the engine RTL decodes", "the served MVU inventory matches the MVU command types the engine RTL decodes") | `cd tests && python3 -m behave --no-capture -f plain` | 0, `14 features passed, 0 failed, 0 skipped`, `404 scenarios passed` | 0, same | yes apart from per-step timings (2840 lines) |
+| feature status self-test | `python3 scripts/check_feature_status.py --self-test` | 0 | 0 | byte-identical |
+| processor source list | `python3 scripts/pp_srcs.py --check --selftest` | 0 | 0 | byte-identical |
+| ROM-digest ledger, record at the pin | `syn/yosys/ooc.sh --record-rom-digests` | 0; rows for 2cbed0a9: ltn_rom.hex 23cc67ee..., ucode.hex 518b900c... | 0; rows for 39cac06: ltn_rom.hex 23cc67ee..., ucode.hex 518b900c... | yes; both equal the rows of the parent's current pin 2ad2f845 |
+| ROM-digest verify | `syn/yosys/ooc.sh tcam` | 0 | 0 | byte-identical |
+
+Identity at head: parent HEAD e8454e2751d05b02ee8e5a571857589ab358ab86, staged gitlink
+39cac060f6f3730cf8172adc6424c275cd268517, submodule HEAD 39cac06, gptp gitlink 5dce647. The
+ledger is re-recorded for the staged pin in scratch (the ledger refuses an unrecorded pin,
+by design) and restored by `git checkout` afterwards; the parent's gates themselves are
+unchanged. `git status --short` in the parent after the run: `M  protocol-processor`
+(the staged gitlink) only.
+
+The scratch parent was cloned at dev e8454e27 (resolved with `git rev-parse`) and is left
+with its submodule checked out at 39cac06 and the gitlink staged there; nothing in it was
+committed or pushed. Before every git command in the submodule its
+`git rev-parse --show-toplevel` was checked to be that directory.
+
+## Not used, and follow-ups
+
+- Vivado was not needed by any gate of this lane and was not run (so the lock was never
+  taken). No hardware, bench, push, PR or rebase.
+- Follow-up: add `aecp_commands.json` to the `ucode.hex` prerequisites in
+  `tb/pp_top/Makefile` and `tb/ucpu/Makefile` (outside this lane's file scope; recorded in
+  09 §8.10).
+- Follow-up (parent): the parent gate that holds the Mark II firmware's AECP tables to
+  `protocol-processor/hdl/aecp/ucode/aecp_commands.json`.
+- Observation, not this lane's: CI's portability job installs sv2v "latest" rather than a
+  pinned release; the records here used v0.0.12.
+
+## Scratch locations (not in the tree, not in this directory)
+
+Records under the scratch directory $VALIDATION_STORAGE/pp73-a595: `logs/` (base-* and head-*
+logs, rc and meta files, chain.log, memsample.log), `camp/{base,head}/` (campaign logs, rc
+files, outputs, campaigns.meta), `pgates/{base,head}/`, `drifts-final/` (39cac06) and
+`drifts-67bf163/`, `rom-base/`, `rom-final/`, and the helper scripts in `bin/`.

@@ -1,0 +1,8 @@
+probe: p9_status_code_NO_RESOURCES_9_file
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  schema: status NO_RESOURCES is 9 in the table, IEEE 1722.1-2021 Table 7-141 gives 8
+--- stderr

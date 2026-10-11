@@ -1,0 +1,9 @@
+probe: p5c_aem_message_AA
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  schema: GET_NAME: message 'AA' is neither AEM nor MVU
+  schema: GET_NAME: message 'AA' has no common_status row
+--- stderr
