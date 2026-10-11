@@ -1,0 +1,61 @@
+{
+ "q_restage_while_to_if@endstation_ax7101_8x8": {
+  "what": "the fallback slot is offered without its own re-stage",
+  "findings": 66,
+  "by_kind": {
+   "want exactly": 46,
+   "is not the container it judged": 16,
+   "another valid container": 4
+  },
+  "first": [
+   "slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A newer at seq 0x0, the other older, --read-fault a:6646:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A newer at seq 0x5a5a5, the other older, --read-other a:1:4 on a writer restart: the writer restart read the flash 5 times, want exactly 6"
+  ],
+  "seconds": 35.3
+ },
+ "q_go_live_not_retired@endstation_ax7101_8x8": {
+  "what": "a held writer is not retired (keeps answering the liveness deadline?)",
+  "findings": 227,
+  "by_kind": {
+   "persisted something": 226,
+   "did not refuse the console": 1
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 3, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 13212, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}",
+   "slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 3, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 13212, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}",
+   "slot A valid at seq 0x1, --read-fault b:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 13212, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}"
+  ],
+  "seconds": 36.1
+ },
+ "q_restage_no_fault_count@endstation_ax7101_8x8": {
+  "what": "a failed re-stage read is not counted in read faults=",
+  "findings": 0,
+  "by_kind": {},
+  "first": [],
+  "seconds": 35.4
+ },
+ "base@endstation_ax7101_8x8": {
+  "what": "the pre-#671 writer, graded by this head's checks 13 and 14",
+  "findings": 2660,
+  "by_kind": {
+   "want exactly": 1676,
+   "on reads that returned different bytes": 267,
+   "re-attached live": 106,
+   "neither committed nor refused": 53,
+   "was lost on the clean reboot": 124,
+   "other saved record": 116,
+   "did not hold the writer": 120,
+   "is not the container it judged": 99,
+   "another valid container": 14,
+   "did not refuse the console": 1,
+   "named the slot on the console": 4
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 2 times, want exactly 5",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: slot A was taken as VD_MAGIC on reads that returned different bytes: Milan NVM: slot A VD_MAGIC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_MAGIC)",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live"
+  ],
+  "seconds": 36.2
+ }
+}

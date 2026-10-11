@@ -1,0 +1,121 @@
+{
+ "q_judge_no_second_agree@endstation_arty_4x4": {
+  "what": "a third read that agrees only with the second does not stand",
+  "findings": 11,
+  "by_kind": {
+   "held the writer; the bound must resolve it": 8,
+   "persisted something": 3
+  },
+  "first": [
+   "slot A valid at seq 0x80000000, --read-fault b:0:0:3:8: a fault the bound resolves held the writer; the bound must resolve it",
+   "slot A valid at seq 0x5a5a5, --read-fault b:0:0:2:8 on a writer restart: a fault the bound resolves held the writer; the bound must resolve it",
+   "slot A valid at seq 0x5a5a5, --read-fault b:0:0:2:8 on a writer restart: the held writer persisted something or kept its claim after the restart (no count moved): {'hb': 1, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 0, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 370085, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 2, 'now_ms': 1615}"
+  ],
+  "seconds": 38.6
+ },
+ "q_go_live_not_retired@endstation_arty_4x4": {
+  "what": "a held writer is not retired (keeps answering the liveness deadline?)",
+  "findings": 227,
+  "by_kind": {
+   "persisted something": 226,
+   "did not refuse the console": 1
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 3, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}",
+   "slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 3, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}",
+   "slot A valid at seq 0x1, --read-fault b:0:0:64:8 on a writer restart: the held writer persisted something or kept its claim after the restart (hb moved): {'hb': 13, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 0, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 0, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 10, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 5, 'now_ms': 3115}"
+  ],
+  "seconds": 35.4
+ },
+ "q_restage_while_to_if@endstation_arty_4x4": {
+  "what": "the fallback slot is offered without its own re-stage",
+  "findings": 66,
+  "by_kind": {
+   "want exactly": 46,
+   "is not the container it judged": 16,
+   "another valid container": 4
+  },
+  "first": [
+   "slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A newer at seq 0x0, the other older, --read-fault a:2422:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A newer at seq 0x5a5a5, the other older, --read-other a:1:4 on a writer restart: the writer restart read the flash 5 times, want exactly 6"
+  ],
+  "seconds": 31.0
+ },
+ "q_judge_no_unread_mark@endstation_arty_4x4": {
+  "what": "a judgement with no standing verdict does not mark the slot UNREAD",
+  "findings": 353,
+  "by_kind": {
+   "does not name it unread": 140,
+   "re-attached live": 65,
+   "neither committed nor refused": 6,
+   "was lost on the clean reboot": 20,
+   "other saved record": 36,
+   "did not hold the writer": 75,
+   "did not refuse the console": 1,
+   "named the slot on the console": 4
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_LEN)",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change was neither committed nor refused: {'hb': 13, 'acks': 0, 'starts': 2, 'erases': 2, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 1, 'valid': 1, 'verdict': 11, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 4764, 'losses': 1, 'arms': 2, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 2, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 12, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 7, 'now_ms': 3115}"
+  ],
+  "seconds": 30.9
+ },
+ "q_ok_needs_agreement@endstation_arty_4x4": {
+  "what": "an OK verdict also needs a second agreeing read",
+  "findings": 2456,
+  "by_kind": {
+   "want exactly": 2039,
+   "did not hold the writer": 27,
+   "held the writer; the bound must resolve it": 197,
+   "persisted something": 95,
+   "names another cause": 24,
+   "on reads that returned different bytes": 18,
+   "re-attached live": 24,
+   "was lost on the clean reboot": 4,
+   "another valid container": 1,
+   "other saved record": 11
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault b:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5",
+   "slot B valid at seq 0x5a5a5, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5",
+   "slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5"
+  ],
+  "seconds": 31.2
+ },
+ "q_hold_on_unstaged_only@endstation_arty_4x4": {
+  "what": "only a failed re-stage holds the writer, not a failed judgement",
+  "findings": 209,
+  "by_kind": {
+   "re-attached live": 65,
+   "neither committed nor refused": 6,
+   "was lost on the clean reboot": 20,
+   "other saved record": 36,
+   "did not hold the writer": 75,
+   "did not refuse the console": 1
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change was neither committed nor refused: {'hb': 13, 'acks': 0, 'starts': 2, 'erases': 2, 'programs': 0, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 1, 'stale': 1, 'valid': 1, 'verdict': 11, 'blank': 0, 'fail': 0, 'done': 1, 'seq': 0, 'base_ok': 1, 'img_len': 4764, 'losses': 1, 'arms': 2, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 2, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 12, 'boot_reads': 5, 'restart_reads': 5, 'faulty_reads': 7, 'now_ms': 3115}",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the clean reboot did not offer a slot: Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK)"
+  ],
+  "seconds": 37.0
+ },
+ "q_hold_on_a_only@endstation_arty_4x4": {
+  "what": "only slot A unread holds the writer",
+  "findings": 148,
+  "by_kind": {
+   "re-attached live": 51,
+   "was lost on the clean reboot": 22,
+   "did not hold the writer": 52,
+   "other saved record": 23
+  },
+  "first": [
+   "slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live",
+   "slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243",
+   "slot A valid at seq 0x1, --read-fault b:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live"
+  ],
+  "seconds": 34.6
+ }
+}

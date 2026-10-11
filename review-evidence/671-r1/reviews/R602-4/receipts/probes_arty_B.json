@@ -1,0 +1,89 @@
+{
+ "q_restage_two_tries@endstation_arty_4x4": {
+  "what": "a re-stage takes two reads, under the stated three",
+  "findings": 193,
+  "by_kind": {
+   "want exactly": 118,
+   "held the writer; the bound must resolve it": 50,
+   "persisted something": 25
+  },
+  "first": [
+   "slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A newer at seq 0x0, the other older, --read-fault a:2422:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6",
+   "slot A valid at seq 0x80000000, --read-fault a:0:1:4:8 on a writer restart: the writer restart read the flash 5 times, want exactly 6"
+  ],
+  "seconds": 37.9
+ },
+ "q_judge_two_tries@endstation_arty_4x4": {
+  "what": "a judgement takes two reads, under the stated three",
+  "findings": 311,
+  "by_kind": {
+   "want exactly": 211,
+   "held the writer; the bound must resolve it": 71,
+   "persisted something": 29
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+   "slot B valid at seq 0x5a5a5, --read-fault b:0:0:64:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+   "slot A valid at seq 0x1, --read-fault b:0:0:64:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5"
+  ],
+  "seconds": 35.3
+ },
+ "q_unstaged_wrong_slot@endstation_arty_4x4": {
+  "what": "the re-stage cause is recorded against the wrong slot",
+  "findings": 86,
+  "by_kind": {
+   "names another cause": 86
+  },
+  "first": [
+   "slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: the hold names another cause than its reads gave: want 'Milan NVM: slot A did not read back as it was judged in 3 reads; its authority is unknown'",
+   "slot A newer at seq 0x0, the other older, --read-fault a:2422:1:4:8 on a writer restart: the hold names another cause than its reads gave: want 'Milan NVM: slot A did not read back as it was judged in 3 reads; its authority is unknown'",
+   "slot A newer at seq 0x5a5a5, the other older, --read-other a:1:4 on a writer restart: the hold names another cause than its reads gave: want 'Milan NVM: slot A did not read back as it was judged in 3 reads; its authority is unknown'"
+  ],
+  "seconds": 31.1
+ },
+ "q_restage_no_fault_count@endstation_arty_4x4": {
+  "what": "a failed re-stage read is not counted in read faults=",
+  "findings": 0,
+  "by_kind": {},
+  "first": [],
+  "seconds": 30.7
+ },
+ "q_judge_no_fault_count@endstation_arty_4x4": {
+  "what": "a differing judgement read is not counted in read faults=",
+  "findings": 0,
+  "by_kind": {},
+  "first": [],
+  "seconds": 30.9
+ },
+ "q_digest_ignores_bytes@endstation_arty_4x4": {
+  "what": "agreement ignores the byte count (expected equivalent)",
+  "findings": 0,
+  "by_kind": {},
+  "first": [],
+  "seconds": 36.3
+ },
+ "base@endstation_arty_4x4": {
+  "what": "the pre-#671 writer, graded by this head's checks 13 and 14",
+  "findings": 2660,
+  "by_kind": {
+   "want exactly": 1676,
+   "on reads that returned different bytes": 267,
+   "re-attached live": 106,
+   "neither committed nor refused": 53,
+   "was lost on the clean reboot": 124,
+   "other saved record": 116,
+   "did not hold the writer": 120,
+   "is not the container it judged": 99,
+   "another valid container": 14,
+   "did not refuse the console": 1,
+   "named the slot on the console": 4
+  },
+  "first": [
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 2 times, want exactly 5",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: slot A was taken as VD_MAGIC on reads that returned different bytes: Milan NVM: slot A VD_MAGIC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_MAGIC)",
+   "slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live"
+  ],
+  "seconds": 35.8
+ }
+}

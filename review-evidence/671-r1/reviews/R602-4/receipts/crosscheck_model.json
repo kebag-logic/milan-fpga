@@ -1,0 +1,123 @@
+{
+ "generated": 2244,
+ "kept": 2158,
+ "dropped": 86,
+ "kept_cold": 1119,
+ "kept_restart": 1039,
+ "model_mismatches": 0,
+ "mismatch_examples": [],
+ "dropped_by_option": {
+  "--read-ff": 24,
+  "--read-other": 62
+ },
+ "byte_fault_cases_dropped": [],
+ "windows_complete": true,
+ "max_reads_cold": 8,
+ "max_reads_restart": 7,
+ "seq_coverage": {
+  "(False, False, '--read-fault', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, False, '--read-fault', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, False, '--read-ff', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, False, '--read-ff', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, False, '--read-other', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, False, '--read-other', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(False, True, '--read-fault', 'a')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(False, True, '--read-fault', 'b')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(False, True, '--read-other', 'a')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(False, True, '--read-other', 'b')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(True, False, '--read-fault', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, False, '--read-fault', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, False, '--read-ff', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, False, '--read-ff', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, False, '--read-other', 'a')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, False, '--read-other', 'b')": [
+   "0x1",
+   "0x5a5a5",
+   "0x80000000",
+   "0xffffffff"
+  ],
+  "(True, True, '--read-fault', 'a')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(True, True, '--read-fault', 'b')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(True, True, '--read-other', 'a')": [
+   "0x0",
+   "0x5a5a5"
+  ],
+  "(True, True, '--read-other', 'b')": [
+   "0x0",
+   "0x5a5a5"
+  ]
+ }
+}
