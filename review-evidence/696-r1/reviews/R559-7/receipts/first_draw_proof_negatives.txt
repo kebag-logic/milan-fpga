@@ -1,0 +1,21 @@
+== plant q9
+FAIL A every carry run x every word x counts 1..8 disjoint (violations 32, least spare -7)
+PASS B every carry run draws a different first probe fold (violations 0)
+PASS C seed bits 16..31 -> offset word rank 16
+PASS D offset+probe joint rank 22
+PASS E offset map rank 16
+rc=1
+== plant q3
+PASS A every carry run x every word x counts 1..8 disjoint (violations 0, least spare 1)
+PASS B every carry run draws a different first probe fold (violations 0)
+FAIL C seed bits 16..31 -> offset word rank 15
+PASS D offset+probe joint rank 22
+PASS E offset map rank 16
+rc=1
+== plant rowrep
+PASS A every carry run x every word x counts 1..8 disjoint (violations 0, least spare 1)
+FAIL B every carry run draws a different first probe fold (violations 5)
+PASS C seed bits 16..31 -> offset word rank 16
+FAIL D offset+probe joint rank 21
+PASS E offset map rank 16
+rc=1

@@ -1,0 +1,6 @@
+probe p_q8_first_draw_count_fixed_8 (reproduces R559-6-S2 at this head)
+anchor: ": offset_fold(seed_next_w), count_i)" replaced by ": offset_fold(seed_next_w), 8'd8)" (Begin! draw clipped for a block of 8 whatever count_i is)
+build rc=0
+run rc=0
+KL_maap: 186 checks, 0 failures
+verdict: ESCAPED
