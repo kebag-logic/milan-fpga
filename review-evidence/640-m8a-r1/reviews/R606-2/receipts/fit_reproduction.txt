@@ -1,0 +1,35 @@
+# reviewer split ELF sha256 vs author's published evidence-m81/elf.sha256 (final-fit rows)
+endstation_ax7101_1x1_tdm8-if1 reviewer=22521d1436238ed7dd7277730d948b1ba5006cf2311eab49320657e4bf4b641d author=22521d1436238ed7dd7277730d948b1ba5006cf2311eab49320657e4bf4b641d IDENTICAL
+endstation_ax7101_1x1_tdm8-if2 reviewer=61c5c4d05c109fdc5f5fd582ddcb2d2a051d7c130c358d983efb0f0a17bb7b08 author=61c5c4d05c109fdc5f5fd582ddcb2d2a051d7c130c358d983efb0f0a17bb7b08 IDENTICAL
+endstation_ax7101_8x8-if1 reviewer=611d57c0c17788328ad643e7735838a2ed73cb5f2c88a21617f2498abe0eb8b5 author=611d57c0c17788328ad643e7735838a2ed73cb5f2c88a21617f2498abe0eb8b5 IDENTICAL
+endstation_ax7101_8x8-if2 reviewer=8a4d7fa9cd34dd1717ad401132e2fa0be4e8a4c518cecb67e31f6056a692674a author=8a4d7fa9cd34dd1717ad401132e2fa0be4e8a4c518cecb67e31f6056a692674a IDENTICAL
+
+# fit from size.json (split plan) and flat span
+endstation_ax7101_1x1_tdm8-if1 rom 95032 [65536, 16384, 8192, 4096, 2048] sram 45520 [32768, 8192, 4096, 2048] planned_tiles 35.0 flat_span 140400 floor 35
+endstation_ax7101_1x1_tdm8-if2 rom 96320 [65536, 32768] sram 56880 [32768, 16384, 8192] planned_tiles 38.0 flat_span 153056 floor 38
+endstation_ax7101_8x8-if1 rom 108680 [65536, 32768, 8192, 4096] sram 86080 [65536, 16384, 4096, 2048] planned_tiles 48.5 flat_span 194224 floor 48
+endstation_ax7101_8x8-if2 rom 110056 [65536, 32768, 8192, 4096] sram 112208 [65536, 32768, 8192, 4096, 2048] planned_tiles 54.5 flat_span 221728 floor 55
+
+# key symbols (nm) of the largest image
+10019644 B _ebss
+100001c0 D _edata
+100001c0 B _fbss
+10000000 D _fdata
+0001ac28 A _fdata_rom
+10016134 b nvm_stage
+1001b650 B _stack_top
+00000000 T _start
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 0149dc 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        000149e0 0159e0 006246 00   A  0   0  8
+  [ 3] .data             PROGBITS        10000000 01c000 0001c0 00  WA  0   0  4
+  [ 4] .bss              NOBITS          100001c0 01c1c0 019484 00  WA  0   0 16
+  [ 5] .stack            NOBITS          10019650 01c650 002000 00  WA  0   0 16
+  [ 6] .riscv.attributes RISCV_ATTRIBUTES 00000000 01c1c0 00001c 00      0   0  1
+  [ 7] .symtab           SYMTAB          00000000 01c1dc 003ee0 10      8 806  4
+  [ 8] .strtab           STRTAB          00000000 0200bc 00178d 00      0   0  1
+  [ 9] .shstrtab         STRTAB          00000000 021849 00004d 00      0   0  1
+Entry point 0x0
+  LOAD           0x001000 0x00000000 0x00000000 0x1ac26 0x1ac26 R E 0x1000
+  LOAD           0x01c000 0x10000000 0x0001ac28 0x001c0 0x19644 RW  0x1000
+  LOAD           0x000650 0x10019650 0x0001adf0 0x00000 0x02000 RW  0x1000

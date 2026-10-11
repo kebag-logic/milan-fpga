@@ -1,0 +1,62 @@
+# exports: base = git archive ac2c5e77 (+ submodules at the same gitlinks), head = this clone at 76605880; PYTHONHASHSEED=0; --no-compile-software --no-compile-gateware
+base-default-1x1 rc=0 cpu=VexiiRiscvLitex_f5f08b170311db53220574624f819159 files=22
+head-default-1x1 rc=0 cpu=VexiiRiscvLitex_f5f08b170311db53220574624f819159 files=22
+base-default-8x8 rc=0 cpu=VexiiRiscvLitex_f5f08b170311db53220574624f819159 files=22
+head-default-8x8 rc=0 cpu=VexiiRiscvLitex_f5f08b170311db53220574624f819159 files=22
+base-mbx-1x1 rc=0 cpu=VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae files=22
+base-mbx-8x8 rc=0 cpu=VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae files=22
+head-split-1x1 rc=0 cpu=VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 files=25
+head-split-8x8 rc=0 cpu=VexiiRiscvLitex_dd10544c3ff1037f8a13f4ce3a3dd432 files=24
+
+# default litex.log differences are run stamps, stdout interleaving and the hierarchy-tree order only:
+< # Started: 2026-10-11T09:32:22
+> # Started: 2026-10-11T09:32:20
+< INFO:SoC:Creating SoC... (2026-10-11 09:32:21)
+> INFO:SoC:Creating SoC... (2026-10-11 09:32:19)
+< - timer0VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+<  : 2
+> - timer0 : 2
+> VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+
+# split csr.csv vs base --ctrl-mailbox csr.csv (1x1, 8x8):
+205,206c205,206
+< memory_region,rom,0x00000000,131072,cached
+< memory_region,sram,0x10000000,8192,cached
+---
+> memory_region,rom,0x00000000,229376,cached
+> memory_region,sram,0x10000000,229376,cached
+205,206c205,206
+< memory_region,rom,0x00000000,131072,cached
+< memory_region,sram,0x10000000,8192,cached
+---
+> memory_region,rom,0x00000000,229376,cached
+> memory_region,sram,0x10000000,229376,cached
+
+# split memories (reg [31:0] name[0:N]) 1x1 then 8x8:
+reg [31:0] rom_bank0[0:16383]
+reg [31:0] rom_bank1[0:4095]
+reg [31:0] rom_bank2[0:2047]
+reg [31:0] rom_bank3[0:1023]
+reg [31:0] rom_bank4[0:511]
+reg [31:0] sram_bank0[0:8191]
+reg [31:0] sram_bank1[0:2047]
+reg [31:0] sram_bank2[0:1023]
+reg [31:0] sram_bank3[0:511]
+reg [31:0] rom_bank0[0:16383]
+reg [31:0] rom_bank1[0:8191]
+reg [31:0] rom_bank2[0:2047]
+reg [31:0] rom_bank3[0:1023]
+reg [31:0] sram_bank0[0:16383]
+reg [31:0] sram_bank1[0:8191]
+reg [31:0] sram_bank2[0:2047]
+reg [31:0] sram_bank3[0:1023]
+reg [31:0] sram_bank4[0:511]
+# base --ctrl-mailbox memories 1x1:
+reg [31:0] rom[0:32767]
+reg [31:0] sram[0:2047]
+# split region decode in the SoC bus (1x1):
+8252:    socbushandler0_slave_sel[0] = (socbushandler0_shared_adr[29:16] == 1'd0);
+8253:    socbushandler0_slave_sel[1] = (socbushandler0_shared_adr[29:16] == 11'h400);
+# split variables.mak libraries:
+LIBS=libc libcompiler_rt libbase libfatfs liblitespi liblitedram libliteeth liblitesdcard liblitesata
+ALWAYS_LINK_LIBS=

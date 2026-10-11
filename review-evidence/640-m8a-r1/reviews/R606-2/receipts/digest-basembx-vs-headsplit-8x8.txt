@@ -1,0 +1,27 @@
+same   aem_desc.bin
+same   aem_desc.json
+same   aem_desc.map
+DIFFER csr.csv
+DIFFER csr.json
+same   flashboot_layout.json
+DIFFER gateware/alinx_ax7101.tcl
+DIFFER gateware/alinx_ax7101.v
+same   gateware/alinx_ax7101.xdc
+same   gateware/alinx_ax7101_mem.init
+only-in-a gateware/alinx_ax7101_rom.init
+only-in-b gateware/alinx_ax7101_rom_bank0.init
+only-in-b gateware/alinx_ax7101_rom_bank1.init
+only-in-b gateware/alinx_ax7101_rom_bank2.init
+only-in-b gateware/alinx_ax7101_rom_bank3.init
+only-in-a gateware/alinx_ax7101_sram.init
+same   gateware/build_alinx_ax7101.sh
+DIFFER litex.log
+same   software/include/generated/csr.h
+same   software/include/generated/git.h
+DIFFER software/include/generated/mem.h
+same   software/include/generated/output_format.ld
+DIFFER software/include/generated/regions.ld
+same   software/include/generated/sdram_phy.h
+same   software/include/generated/soc.h
+DIFFER software/include/generated/variables.mak
+TOTAL a=22 b=24 differ_or_missing=14

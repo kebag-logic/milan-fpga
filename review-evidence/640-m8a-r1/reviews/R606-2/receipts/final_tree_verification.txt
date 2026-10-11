@@ -1,0 +1,27 @@
+# final clone verification
+HEAD 76605880a20005cbc2acad1b23ba2ccebde64ca8 tree 0d5e91af9d99c5c2f30e5c4aa1723f463dbe303d
+write-tree (index) 0d5e91af9d99c5c2f30e5c4aa1723f463dbe303d
+status --porcelain (tracked+untracked, no ignored):
+[end status]
+diff-index HEAD (bytes/modes):
+[end diff-index]
+ls-files -s sha256 95e2b7944be8ea1010f1011d9e17f7b9e7b939b9b27dec4f3d0039c9c90a90bd  -
+ls-tree -r HEAD sha256 4c53c63e6b061b30c554644e2ccda68da3ae5d56bcaa3569a12128a854beda54  -
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 9197193e47a6bb1c45a56d90a18c1784123aba44	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+ 9197193e47a6bb1c45a56d90a18c1784123aba44 third_party/lwSRP (9197193)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+re-hash of every tracked worktree file vs index:
+rehashed=1278 mismatched=0
+gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty=0
+protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a dirty=0
+third_party/lwSRP 9197193e47a6bb1c45a56d90a18c1784123aba44 dirty=0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
