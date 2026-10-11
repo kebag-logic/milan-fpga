@@ -1,0 +1,15 @@
+# cwd: (clone) head 4cab445aa2475903b6cf8b87566d2c8a1e15e391
+# cmd: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator
+# start: 2026-10-11T09:23:21Z
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (12 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 2 (66 s)
+REFUSED: sw/firmware/ctrl/test/test_ctrl_firmware.py exited 2 under the capture, so it may have compiled less than it does: toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+REFUSED: maap_csr.c does not compile:
+/tmp/ctrl-fw-sl7gu6ei/checkout/acmpif2/ctrl/maap/maap_csr.c:6:10: fatal error: ../../../../third_party/tsn-c-stack/examples/adp_port.h: No such file or directory
+    6 | #include "../../../../third_party/tsn-c-stack/examples/adp_port.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+# end: 2026-10-11T09:24:39Z rc=2

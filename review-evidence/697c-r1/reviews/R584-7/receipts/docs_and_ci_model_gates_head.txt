@@ -1,0 +1,20 @@
+rc=0 6s  python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 202 md files + 1242 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 0s  python3 scripts/check_submodule_docs.py :: submodule documentation: OK (6 exact gitlinks)
+rc=0 0s  python3 scripts/check_submodule_docs.py --selftest :: submodule documentation selftest: OK (table and diagram controls)
+rc=0 1s  python3 docs/diagrams/submodule_boundaries.gen.py --check :: submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0 0s  python3 docs/diagrams/submodule_boundaries.gen.py --selftest :: submodule diagram selftest: OK (valid wrong-raster control)
+rc=0 1s  python3 docs/DOC_MAP.gen.py --check :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0 0s  python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0 0s  python3 scripts/check_solution_docs.py :: solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=2 1s  python3 scripts/check_em_dash.py --base aef7ac66605c4404900ce04cbaaeff88e41bb880 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=0 0s  python3 scripts/ci_events.py --check :: ci_events: OK (1902 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0 20s  python3 scripts/ci_events.py --selftest :: selftest: PASS (1902 contract items, 2610 arms)
+rc=0 6s  python3 scripts/ci_scope.py --selftest :: selftest: PASS
+rc=0 0s  python3 sw/firmware/gtest/fw_coverage.py --selftest :: coverage self-test: 29 of 29 planted cases read as planted
+rc=0 0s  python3 sw/firmware/ctrl/test/ctrl_build.py --stack-pin :: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+== md-venv
+check_em_dash: 0 finding(s) over 342 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [aef7ac66..HEAD]
+rc=0
+== md-venv-40cdefe08ebd
+check_em_dash: 0 finding(s) over 342 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [aef7ac66..HEAD]
+rc=0

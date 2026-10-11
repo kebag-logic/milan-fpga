@@ -1,0 +1,72 @@
+# cwd: (clone) head 4cab445aa2475903b6cf8b87566d2c8a1e15e391
+# cmd: python3 $PACKET/scripts/stack_plants_probe.py $PACKET/scratch/probe-stack --require-rv32 --selftest --without verilator
+# start: 2026-10-11T09:23:21Z
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (11 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (411 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (114 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (310 s)
+capture: 3049 compiler invocations from 19 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py
+  LEFT OUT: tb/verilator/mbx/Makefile, which needs Verilator, which this run has none of (--without verilator)
+  LEFT OUT: sw/firmware/ctrl/test/maap_differential.py, which needs Verilator, which this run has none of (--without verilator)
+  LEFT OUT: sw/firmware/ctrl/test/aecp_wire.py, which needs Verilator, which this run has none of (--without verilator)
+  1 compile(s) failed, each with its dependency pass, and compiled nothing: sw/firmware/gtest/fw_gtest.py, sw/firmware/gtest/fw_rv32_selftest.py ran riscv32-linux-gcc -march=rv32i -mabi=ilp32 -fno-stack-protector -fstack-usage -Os -std=c11 -Wall -Werror --sysroot=/tmp/fw-rv32-lseg96zg/sysroot -nostdinc -isystem $PACKET ...
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (8 s)
+    ctrl_image_selftest.py: exit 0 (16 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+[ok] boundary control pass: the copies as they are, the base the controls share: passes
+[ok] boundary control R584-7 K1: a stack source includes the mailbox register-map contract (host arms' C compile): stack: tsn-c-stack/src/maap.c reads sw/firmware/ctrl/mbx/mbx_contract.h (included by tsn-c-stack/src/maap.c), which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+[ok] boundary control R584-7 K2: a stack public header includes the platform loop under NDEBUG (a firmware adapter's compile): stack: tsn-c-stack/include/adp.h includes sw/firmware/ctrl/loop/ctrl_loop.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+[ok] boundary control R584-7 K3: a stack source includes the mailbox HAL (the image builder's RV32 compile): stack: tsn-c-stack/src/acmp.c reads sw/firmware/ctrl/mbx/mbx_hal.h (included by tsn-c-stack/src/acmp.c), which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+[ok] boundary control R584-7 K4: a stack test includes the app (the arms' C++ test compile): stack: tsn-c-stack/tests/test_adp.cpp includes sw/firmware/ctrl/app/ctrl_app.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+[ok] boundary control R584-7 K5: a stack public header includes the saved-state port (an adapter's compile): stack: tsn-c-stack/include/acmp.h includes sw/firmware/ctrl_nvm/nvm_state.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+[ok] boundary control R584-7 K6: a stack source includes a mailbox header by a relative path (the image builder's RV32 compile): stack: tsn-c-stack/src/maap.c reads sw/firmware/ctrl/mbx/mbx_wire.h (included by tsn-c-stack/src/maap.c), which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+[ok] boundary control R584-7 K7 pass: a firmware adapter includes the stack's public wire.h by a relative path: passes
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+[ok] tsn-c-stack pin control, an edit hidden from git status (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 2822 compiled sources of 3049 recorded invocations (1622 the firmware's, 347 the stack's, 853 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 0 finding(s), 8 boundary and 20 pin controls, 0 misbehaved
+ctrl_boundary: PASS
+# end: 2026-10-11T09:38:29Z rc=0

@@ -1,0 +1,5 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --jobs 3 --slice K/3, K=1..3, at 4cab445a (host gcc/g++ 16.2.1, GoogleTest 1.18.0, Python 3.14, pinned RV32 SDK gcc 14.3.0)
+slice 1: rc=0 | tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 | arms [ok]: 59 | mutants: 157 of 157 caught (slice 1 of 3 of 471) | later [ok]: 264 non-ok verdicts: 0 | ESCAPED lines: 0 | test_ctrl_firmware: PASS
+slice 2: rc=0 | tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 | arms [ok]: 59 | mutants: 157 of 157 caught (slice 2 of 3 of 471) | later [ok]: 264 non-ok verdicts: 0 | ESCAPED lines: 0 | test_ctrl_firmware: PASS
+slice 3: rc=0 | tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 | arms [ok]: 59 | mutants: 157 of 157 caught (slice 3 of 3 of 471) | later [ok]: 263 non-ok verdicts: 0 | ESCAPED lines: 0 | test_ctrl_firmware: PASS
+AECP/SRP/lwSRP verdict names across slices (distinct): 244

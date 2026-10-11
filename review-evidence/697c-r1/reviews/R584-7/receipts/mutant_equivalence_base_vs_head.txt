@@ -1,0 +1,10 @@
+control plants: base 471 head 471; names only in base []; only in head []
+mutated programs token-identical: 471; differing: 0; plants with unchanged (old,new) text: 428
+plants whose kills (arm, test, words) differ: 2
+  KILLS acmp-admit-ignores-another-talker
+    base: [['acmp', 'AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker', 'A29 a re-bind to another talker admits it'], ['acmp', 'AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding', 'B8 a BIND_RX of another talker rewrites the entry']]
+    head: [['acmp', 'AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker', 'A29 re-binding emits one admission'], ['acmp', 'AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding', 'B8 a BIND_RX of another talker rewrites the entry']]
+  KILLS acmp-reset-forgets-the-admitted
+    base: [['acmp', 'AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens', 'A29 a sink the store resets is withdrawn at the next open']]
+    head: [['acmp', 'AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens', 'A29 opening after reset emits one withdrawal']]
+AECP defects: base 74 head 74; identical: True

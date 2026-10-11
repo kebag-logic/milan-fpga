@@ -1,0 +1,26 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp_nvm.h b/sw/firmware/ctrl/aecp/aecp_nvm.h
+index dad13b356..d77db694c 100644
+--- a/sw/firmware/ctrl/aecp/aecp_nvm.h
++++ b/sw/firmware/ctrl/aecp/aecp_nvm.h
+@@ -3,6 +3,9 @@
+ #define CTRL_AECP_NVM_H
+ #include "aecp_state.h"
+ #include "nvm_state.h"
++#ifdef __cplusplus
++#include "../examples/adp_port.h"
++#endif
+ 
+ // Generated writable-name ordinals are the existing image's name table order.
+ struct aecp_nvm {
+diff --git a/sw/firmware/ctrl/maap/maap_csr.c b/sw/firmware/ctrl/maap/maap_csr.c
+index dcdc72b07..e7cde1e51 100644
+--- a/sw/firmware/ctrl/maap/maap_csr.c
++++ b/sw/firmware/ctrl/maap/maap_csr.c
+@@ -3,6 +3,7 @@
+ // Existing offsets and packing: docs/reference/REGISTER_MAP.md, AAF, CRFT,
+ // MAAP_CTRL and 0x800 stream window. Shipping firmware never calls this port.
+ #include "maap_csr.h"
++#include "../examples/adp_port.h"
+ 
+ #include <string.h>
+ 

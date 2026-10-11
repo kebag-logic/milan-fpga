@@ -1,0 +1,11 @@
+pin 1a9f651cdf7846b8e10ac246a6ef6916960fbb92; substitute ae982af85ec97286bd35b39403926d8f0eaec81d
+1. clean clone at the pin:
+ACCEPTED: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+2. worktree holds ae982af85ec97286bd35b39403926d8f0eaec81d's files under the proven paths, HEAD still the pin, no replace ref:
+REFUSED: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt, cmake/rv32.cmake, examples/rv32/include/assert.h, examples/rv32/include/string.h, examples/rv32/link.ld, examples/rv32/runtime.c, examples/rv32/smoke.c, examples/rv32/start.S, include/acmp.h, include/adp.h, include/maap.h, include/wire.h, scripts/assertion-defaults.json, scripts/assertion_forms.py, scripts/assertion_messages.py
+3. same worktree, refs/replace/1a9f651cdf7846b8e10ac246a6ef6916960fbb92 -> ae982af85ec97286bd35b39403926d8f0eaec81d:
+ACCEPTED: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+   HEAD reads: 1a9f651cdf7846b8e10ac246a6ef6916960fbb92; git status --short | wc -l: 64
+   src/adp.c on disk equals the pin's blob: no
+4. same, with GIT_NO_REPLACE_OBJECTS=1 in the environment (the repository's own pattern):
+REFUSED: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt, cmake/rv32.cmake, examples/rv32/include/assert.h, examples/rv32/include/string.h, examples/rv32/link.ld, examples/rv32/runtime.c, examples/rv32/smoke.c, examples/rv32/start.S, include/acmp.h, include/adp.h, include/maap.h, include/wire.h, scripts/assertion-defaults.json, scripts/assertion_forms.py, scripts/assertion_messages.py

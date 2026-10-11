@@ -1,0 +1,17 @@
+# cmd: cmake -S third_party/tsn-c-stack -B <scratch> -DCMAKE_BUILD_TYPE=Debug; cmake --build -j8; ctest -j8 (GoogleTest 1.14.0 prefix)
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/stack-cmake
+[ 97%] Built target port_tests
+[100%] Linking CXX executable adp_tests
+[100%] Built target adp_tests
+4/7 Test #5: adp_release ......................   Passed    0.00 sec
+5/7 Test #3: maap_tests .......................   Passed    0.02 sec
+6/7 Test #6: adp_debug ........................   Passed    0.09 sec
+7/7 Test #7: maap_debug .......................   Passed    0.14 sec
+
+100% tests passed out of 7
+
+Total Test time (real) =   0.15 sec

@@ -1,0 +1,9 @@
+$ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --build-only --self-test
+test_ctrl_firmware.py: error: --build-only runs no test, so it plants no defect: drop --self-test
+rc=2
+$ python3 sw/firmware/gtest/fw_coverage.py --build-only --check
+fw_coverage.py: error: argument --check: not allowed with argument --build-only
+rc=2
+$ python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --build-only --self-test
+test_ctrl_nvm.py: error: --build-only runs no test, so it plants no defect: drop --self-test
+rc=2
