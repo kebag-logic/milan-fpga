@@ -1,0 +1,5 @@
+docs/diagrams/submodule_boundaries.png SHA256 6d380e362cb70e23ec8b103a1a48ee3555126403b2a7f6e4b1810b8e078384f6
+docs/diagrams/timesync_chain.png SHA256 3f761703271ebc15535bf3af2833dddef5be74b0e68e4c98cec416d0967e1e42
+Viewed both decoded PNGs at the reviewed head. Boundary labels read: protocol-processor 2ad2f845dd58, gptp-processor 7dda9c3b4d65, verilog-axis 48ff7a7e2ef7, lwSRP 08ee86e812a0, external efeb541ae5fe. All match the recorded gitlinks. Labels and arrows are legible with no missing node or clipped pin.
+The time ownership diagram reads gptp-processor 7dda9c3b4d65 and preserves the PHC, atomic publication, launch timestamp and media boundaries. All three timesync_chain blobs equal the prior reviewed head.
+Generator --check and decoded-pixel provenance checks pass; visual inspection complements those checks.

@@ -1,0 +1,265 @@
+{
+ "candidate": {
+  "parent": "034e2e30f225f3fcd755cac8ad01c60dda5b366a",
+  "donor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+ },
+ "base": {
+  "parent": "5603c353137e90c1fa95429f6d00ef7a2298d9ee",
+  "donor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+ },
+ "pairs": [
+  {
+   "label": "1x1-50-on",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-1x1-50-on/capture.log",
+    "bytes": 4056,
+    "sha256": "01f72663af25e764b3d2336799533ae6c9ce0d95bd5c7817da78917de0be43b1"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-1x1-50-on/capture.log",
+    "bytes": 4056,
+    "sha256": "01f72663af25e764b3d2336799533ae6c9ce0d95bd5c7817da78917de0be43b1"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "1x1-50-off",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-1x1-50-off/capture.log",
+    "bytes": 3775,
+    "sha256": "5ade9a6e67b903d9cd1374d90a8bb8f04e83794b6d816060fd2f42d4eafb7c7a"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-1x1-50-off/capture.log",
+    "bytes": 3775,
+    "sha256": "5ade9a6e67b903d9cd1374d90a8bb8f04e83794b6d816060fd2f42d4eafb7c7a"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "8x8-50-on",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-8x8-50-on/capture.log",
+    "bytes": 4076,
+    "sha256": "1e637b00877cba32a17e5b5e6c758fbbd311d867203520610460edf89eda42f9"
+   },
+   "base_log": {
+    "path": "round1e-attribution/base-8x8-50-on/capture.log",
+    "bytes": 4076,
+    "sha256": "1e637b00877cba32a17e5b5e6c758fbbd311d867203520610460edf89eda42f9"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "8x8-50-off",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-8x8-50-off/capture.log",
+    "bytes": 3913,
+    "sha256": "6399c81cc09b798e1ddfcaf3ecd2c7765a85869dcc303fd1107654abb77f21ed"
+   },
+   "base_log": {
+    "path": "round1e-attribution/base-8x8-50-off/capture.log",
+    "bytes": 3913,
+    "sha256": "6399c81cc09b798e1ddfcaf3ecd2c7765a85869dcc303fd1107654abb77f21ed"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "8x8-100-on",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-8x8-100-on/capture.log",
+    "bytes": 4125,
+    "sha256": "63afb13860f998a6a4487434b2afdd851c121faf8aeab90851db7c5525ab1a6d"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-8x8-100-on/capture.log",
+    "bytes": 4125,
+    "sha256": "63afb13860f998a6a4487434b2afdd851c121faf8aeab90851db7c5525ab1a6d"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "8x8-100-off",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-8x8-100-off/capture.log",
+    "bytes": 3913,
+    "sha256": "ff4a2e45e2fe2fc758dea2460d82068c89e70d31a38e13f35077101d3cca88ea"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-8x8-100-off/capture.log",
+    "bytes": 3913,
+    "sha256": "ff4a2e45e2fe2fc758dea2460d82068c89e70d31a38e13f35077101d3cca88ea"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 16,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "skip-copy",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --captures 2 --mutation skip-copy --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-skip-copy/capture.log",
+    "bytes": 2416,
+    "sha256": "eb1ac8583dd179a4a3ceebe6c148b6223689804305b1dfe9e11c47f3df9b0c80"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-skip-copy/capture.log",
+    "bytes": 2416,
+    "sha256": "eb1ac8583dd179a4a3ceebe6c148b6223689804305b1dfe9e11c47f3df9b0c80"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 2,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "no-traffic",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --captures 2 --mutation no-traffic --build-dir '<build>'",
+   "candidate_rc": 0,
+   "base_rc": 0,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-no-traffic/capture.log",
+    "bytes": 1893,
+    "sha256": "914d1c10dadb5138e130eeebc0a342baae1ca1c2faabaaca98558d29b1871ffd"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-no-traffic/capture.log",
+    "bytes": 1893,
+    "sha256": "914d1c10dadb5138e130eeebc0a342baae1ca1c2faabaaca98558d29b1871ffd"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 2,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  },
+  {
+   "label": "byte-only",
+   "recipe": "unshare -Urn $PRODUCT_PYTHON -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --captures 2 --mutation byte-only --build-dir '<build>' --baseline-measurement '<baseline>'",
+   "candidate_rc": 0,
+   "base_rc": 1,
+   "candidate_log": {
+    "path": "round1e-campaign/capture-byte-only/capture.log",
+    "bytes": 2366,
+    "sha256": "19327660eae0953aefd9ebeade4de92256602e49a8e5fbe64938a87f03d417f5"
+   },
+   "base_log": {
+    "path": "round1f-base/capture-byte-only/capture.log",
+    "bytes": 2366,
+    "sha256": "19327660eae0953aefd9ebeade4de92256602e49a8e5fbe64938a87f03d417f5"
+   },
+   "candidate_gptp_rom": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+   "base_gptp_rom": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+   "rows": 2,
+   "checks": {
+    "recipe_equal": true,
+    "candidate_checkout": true,
+    "base_checkout": true,
+    "simulator_5052": true,
+    "gptp_rom_differs": true,
+    "capture_log_identical": true,
+    "capture_done": true
+   }
+  }
+ ],
+ "pass": true
+}

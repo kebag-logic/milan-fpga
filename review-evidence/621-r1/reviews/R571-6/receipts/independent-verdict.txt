@@ -1,0 +1,14 @@
+[R571] POSITIVE - exact head 8c3e892c2b7130d88d16fb6a26136856975e1ea9
+
+Independent merge-delta assessment written before reading prior reviewer reports.
+No new blocking, major or minor merge-delta defect found. Prior public findings reconciliation is pending; this assessment alone is not the final review packet.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | REQUIREMENTS.md:154; issue scope rulings; gptp-processor/docs/INTEGRATION.md:192; source.diff and tree-verification.log: retained phase-step and media assertions | R571-6 | 8c3e892c2b7130d88d16fb6a26136856975e1ea9 |
+| RTL | CLEAN | gptp-processor gitlink; donor generator; hdl/milan/milan_datapath.sv and plain merge comparison; tree-verification.log | R571-6 | 8c3e892c2b7130d88d16fb6a26136856975e1ea9 |
+| Robustness | CLEAN | sim_phc_step.cpp crossing/silence checks; test_sim_pool.py and relocated unchanged backpressure checks (28/28); generator PNG controls | R571-6 | 8c3e892c2b7130d88d16fb6a26136856975e1ea9 |
+| Tests | CLEAN | milan_dp/Makefile; milan_dp_gm_steps/Makefile; suite_shards.py; sim-pool 17/17; ci_events 2374 arms; capture receipt gate | R571-6 | 8c3e892c2b7130d88d16fb6a26136856975e1ea9 |
+| Docs | CLEAN | PNG_MANIFEST.json; both viewed diagrams and generators; docs-check, em-dash, TOC, anchor, path and pin gates | R571-6 | 8c3e892c2b7130d88d16fb6a26136856975e1ea9 |
+
+Limits: delta review, no full banks or hardware execution. Default backpressure fixture #720 remains a separately scoped, publicly acknowledged pre-existing limitation; its default invocation was stopped, not passed. Relocated execution supplies the exact recipe.py bytes without changing the tests. Hosted long gates are pending. No manager source bank exists at this head; candidate validation remains a later manager duty.

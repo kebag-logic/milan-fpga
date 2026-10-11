@@ -1,0 +1,17 @@
+diff-check	0	git diff --check 5603c353137e90c1fa95429f6d00ef7a2298d9ee HEAD
+nvm-capture	0	python3 scripts/check_nvm_capture.py
+nvm-capture-bytes	1	python3 scripts/check_nvm_capture.py --mutation bytes
+nvm-capture-records	1	python3 scripts/check_nvm_capture.py --mutation records
+nvm-capture-clock	1	python3 scripts/check_nvm_capture.py --mutation clock
+nvm-capture-ignore-off-timing	1	python3 scripts/check_nvm_capture.py --mutation ignore-off-timing
+lint	0	python3 scripts/lint_rtl.py --check
+docs-check	0	python3 scripts/docs_check.py
+cpp-idiom	0	python3 scripts/check_cpp_idiom.py
+py-idiom	0	python3 scripts/check_py_idiom.py
+doc-style	0	python3 scripts/check_doc_style.py
+gptp-docs	0	python3 scripts/check_gptp_docs.py --with-submodule
+diagram-pngs	0	python3 scripts/check_diagram_pngs.py
+toc	0	python3 scripts/gen_toc.py --check
+em-dash	0	python3 scripts/check_em_dash.py --base 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+byte-only-controls	0	env PYTHONPATH=tb/verilator/nvm_capture_cpu python3 -B -c import run; run.byte_only_controls(); print("byte-only controls pass")
+clean-after	0	git status --porcelain empty

@@ -1,0 +1,19 @@
+STEP cycle=20000936 ns=1000001000
+STEP cycle=48800866 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600205
+STEP cycle=80800866 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600205
+STEP cycle=113601263 ns=10000000
+ARM t1 before forward step drops=0 outage_ns=0 exchanges=4 last_req=137600205
+STEP cycle=145601263 ns=-10000000
+ARM t1 before backward step drops=0 outage_ns=0 exchanges=4 last_req=169600205
+STEP cycle=177607663 ns=10000000
+ARM response before step drops=0 outage_ns=0 exchanges=4 last_req=201600205
+STEP cycle=209610063 ns=-10000000
+ARM deferred t1 after step drops=0 outage_ns=0 exchanges=4 last_req=233600205
+== phc_step: checks: 49   failures: 0 ==
+RESULT: PASS
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+phc_step campaign: 4 checks: 4 PASS, 0 FAIL

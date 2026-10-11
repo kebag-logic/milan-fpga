@@ -1,0 +1,66 @@
+NOT RUN: stable-tu comparison during transition window
+NOT RUN: stable-tu comparison during transition window
+NOT RUN: stable-tu comparison during transition window
+NOT RUN: stable-tu comparison during transition window
+RECENTRE totals decisions=2 completed=2 planted=0
+AUDIO comparisons payload=6517392 sample_order=814672 packet_sequence=135935
+simulated_duration_seconds=16.992556520 cycles=849627826
+clock_audio_hz=24575738.529227 clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20
+NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 143   failures: 0 ==
+RESULT: PASS
+wall_clock_seconds=3845.29 process_exit_status=0
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+[ ok ] --no-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --no-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --no-tx-control: activity and payload assertions still fail
+[ ok ] --no-tx-control: comparison history matches the selected control
+[ ok ] --no-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --no-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --no-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --no-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --stop-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --stop-tx-control: activity and payload assertions still fail
+[ ok ] --stop-tx-control: comparison history matches the selected control
+[ ok ] --stop-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --stop-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --stop-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+[ ok ] --no-pdelay-control: missing response retains a nonzero DUT verdict
+[ ok ] --no-pdelay-control: a real request was unanswered
+[ ok ] --no-pdelay-control: missing response assertion still fails
+[ ok ] --no-pdelay-control: first exchange remains incomplete
+[ ok ] --no-pdelay-control: the unchanged acquisition deadline actually elapsed
+[ ok ] --no-pdelay-control: acquired publication was reached and retains its health failure
+[ ok ] --no-pdelay-control: uncounted omission: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: no unexecuted pass: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: uncounted omission: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: peer delay equals independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: peer delay equals independent event oracle within 28 ns
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+[ ok ] --extra-repeat-control: control ran
+[ ok ] --extra-repeat-control: wire ordering oracle rejects the planted step
+[ ok ] --extra-repeat-control: error belongs to the required PDU location
+[ ok ] --extra-repeat-control: the measured wire step is the planted fault
+[ ok ] --extra-repeat-control: payload and packet sequence remain valid
+[ ok ] --extra-repeat-control: declared step and both unchanged counters were observed
+[ ok ] --extra-repeat-control: no unrelated failing assertion
+[ ok ] --large-step-control: control ran
+[ ok ] --large-step-control: wire ordering oracle rejects the planted step
+[ ok ] --large-step-control: error belongs to the required PDU location
+[ ok ] --large-step-control: the measured wire step is the planted fault
+[ ok ] --large-step-control: payload and packet sequence remain valid
+[ ok ] --large-step-control: declared step and both unchanged counters were observed
+[ ok ] --large-step-control: no unrelated failing assertion
+== ax1x1gptp recentre controls: checks: 14   failures: 0 ==

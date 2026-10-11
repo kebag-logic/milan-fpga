@@ -1,0 +1,73 @@
+[
+  {
+    "name": "test-evidence-selftest",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "rc": 0,
+    "seconds": 7.812
+  },
+  {
+    "name": "capture-mutation-bytes",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "bytes"
+    ],
+    "expected_rc": 1,
+    "rc": 1,
+    "seconds": 0.994
+  },
+  {
+    "name": "capture-mutation-records",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "records"
+    ],
+    "expected_rc": 1,
+    "rc": 1,
+    "seconds": 1.026
+  },
+  {
+    "name": "capture-mutation-clock",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "clock"
+    ],
+    "expected_rc": 1,
+    "rc": 1,
+    "seconds": 1.016
+  },
+  {
+    "name": "capture-mutation-ignore-off-timing",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "ignore-off-timing"
+    ],
+    "expected_rc": 1,
+    "rc": 1,
+    "seconds": 1.132
+  },
+  {
+    "name": "capture-mutation-receipt-opt-out",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "receipt-opt-out"
+    ],
+    "expected_rc": 1,
+    "rc": 1,
+    "seconds": 1.047
+  }
+]

@@ -1,0 +1,2593 @@
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index fe6ae0ea3..5254544e2 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -227,13 +227,16 @@ Five negative controls join it in the default sweep:
+ 
+ Each fails a named check of the leg.
+ 
++The `milan_dp_gm_steps` suite runs the leg and these controls.
++They run the leg without its #621 phase.
++
+ Disabling render re-base fails its counted-event check.
+ 
+ The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
+ 
+ [#387's correction](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) records that acceptance interpretation.
+ 
+-`make gmstep-mutants` plants the whole inventory.
++`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants the whole inventory.
+ 
+ Five controls restore PHC-only causes on the INTERNAL option-off leg.
+ 
+@@ -269,7 +272,7 @@ Legacy writes remain acknowledged and ineffective.
+ | `gptp_shadow` | Atomic state and immediate discontinuity |
+ | `clkvalid` | Holdover, steps, and option-off values |
+ | `milan_dp` | Public CSR and protocol consumers |
+-| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
++| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+ | `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
+ | `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
+ | `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17). Pending ends at the first PDU at the adopted level (T18) |
+diff --git a/docs/design/GPTP_PLANE.md b/docs/design/GPTP_PLANE.md
+index ae760c50d..f1ddad579 100644
+--- a/docs/design/GPTP_PLANE.md
++++ b/docs/design/GPTP_PLANE.md
+@@ -29,10 +29,10 @@ This page defines parent integration.
+ 
+ | Reader | Parent guide | Engine guide |
+ |---|---|---|
+-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md) |
+-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md) |
+-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md) |
+-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md) |
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/TEST_DEVELOPER.md) |
+ 
+ Parent guides own integration behavior.
+ 
+@@ -94,6 +94,76 @@ Reset is synchronous and active-low.
+ - `pub_disc_o` exposes pre-commit health discontinuities.
+ - Consumers never combine different publication generations.
+ 
++### Peer delay during PHC steps
++
++A servo phase step preserves the last valid link delay.
++
++It invalidates the rate window spanning that step.
++
++The next clean exchange seeds replacement rate history.
++
++An overlapping completed exchange proves liveness without replacing measurements.
++
++Missing responses and multiple responders retain their existing failure paths.
++
++These references are from IEEE 802.1AS-2020.
++
++| Clause | Contract |
++|---|---|
++| 11.2.2 | Peer-delay conditions determine asCapable |
++| 11.2.19.3.3 | Successive timestamps determine neighbour rate ratio |
++| 11.2.19.3.4 | Consistent timestamp differences determine link delay |
++| 11.2.20 | The responder supplies its own timestamp pair |
++
++Issue #621's regression uses an independent peer LocalClock.
++
++Both signed 10 ms changes enter through Announce and Sync.
++
++The real PHC counter applies the servo's step pulse.
++
++Crossing responses and delayed transmit timestamps remain covered.
++
++Excessive delay and peer silence still clear asCapable.
++
++An answered crossing exchange still resets the lost-response count.
++
++The fourth unanswered request after it clears asCapable.
++
++An unanswered crossing request earns no liveness credit.
++
++The third unanswered request after it clears asCapable.
++
++```sh
++make -C tb/verilator/gptp_plane phc-step
++make -C tb/verilator/milan_dp gmstep
++```
++
++The first command includes six planted-defect controls.
++
++The two credit-deletion controls plant the same deletion.
++
++Each comes from one review round.
++
++So five distinct defects run.
++
++A positive control removes only the Milan cease rule.
++
++That deletion makes ROM room for the step-credit plant.
++
++The second checks uncertainty, public counters, and media continuity.
++
++Its compressed clock leaves the selected CRF servo unlocked.
++
++While following that unlocked servo, both domain counters remain unchanged.
++
++The INTERNAL arm requires one unlock/lock pair per step.
++
++Each identity change produces one uncertainty episode.
++
++GPTP_GM_CHANGED increments once.
++
++The physical five-step repeat remains issue #621's later acceptance.
++
+ ## Timestamp boundaries
+ 
+ | Direction | Reference point | Pairing key | Root evidence |
+diff --git a/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md b/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+index 2c5cd6623..410c7ad7c 100644
+--- a/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
++++ b/docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+@@ -1616,16 +1616,20 @@ Memory shape: the stage holds one container.
+ [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
+ derives 3336 bytes at 1x1 and 13256 at 8x8.
+ 
+-Timing. MEASURED on 2026-10-02 in the
++Timing. MEASURED on 2026-10-09 in the
+ [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
+ The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
+-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) requires this remeasurement.
++The [#621 final ruling](https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382) requires this remeasurement, at the #629 census.
++The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the previous one.
+ The CLOCK_SOURCE NAME records #629 adds grow the census.
+-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the previous one.
+-Measured commit: `a2f1734283f367d0d522c8c7cda09b79aff60d06`.
+-Measured tree: `c28595df81fb96ae7cb554216c76a23917105169`.
++The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the one before it.
++Measured commit: `034e2e30f225f3fcd755cac8ad01c60dda5b366a`.
++Measured tree: `a5d1a1b02212c04de89292893fcf022b39620848`.
+ Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+-Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
++Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
++gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
++The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
++Capture-SoC RTL changes on dev moved the timing figures from the previous receipt; a dev 8x8 configuration change moved only its recorded configuration hash.
+ The receipt's BIOS patch digest is informational provenance.
+ Native service receipts also bind the installed build inputs.
+ **Hold sizing uses the writer's actual clock.**
+@@ -1638,9 +1642,9 @@ The backend retains its nominal 50 ms hold.
+ Its free-running millisecond tick gives a 49 ms guaranteed floor.
+ The first tick can arrive immediately after ARM.
+ The acceptance limit is therefore 24.5 ms, half that floor.
+-**The worst 8x8 measurement is 13.86484 ms.**
+-Its floor ratio is 3.5341x.
+-The margin to 24.5 ms is 10.63516 ms.
++**The worst 8x8 measurement is 13.86318 ms.**
++Its floor ratio is 3.5345x.
++The margin to 24.5 ms is 10.63682 ms.
+ The previous census measured 13.23352 ms.
+ The historical pre-word-copy maximum was 24.30246 ms, at that census.
+ The word-copy remedy gained 11.06894 ms of margin there.
+@@ -1657,8 +1661,8 @@ The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
+ |---|---|---|---|---|
+ | 1x1 | 50 / 100, contract | ON | 3.96022 to 3.96728 | 12.3510x |
+ | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91182 | 12.5261x |
+-| 8x8 | 50 / 100, contract | ON | 13.84836 to 13.86484 | 3.5341x |
+-| 8x8 | 50 / 100, contract | OFF | 13.67682 to 13.69390 | 3.5782x |
++| 8x8 | 50 / 100, contract | ON | 13.84682 to 13.86318 | 3.5345x |
++| 8x8 | 50 / 100, contract | OFF | 13.68947 to 13.69390 | 3.5782x |
+ | 8x8 | 100 / 100, non-contract | ON | 10.41821 to 10.42973 | 4.6981x |
+ | 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
+ 
+@@ -1704,6 +1708,7 @@ Named controls alter bytes, records and clocks independently.
+ A slower OFF fixture must determine the published maximum.
+ A planted grader ignoring OFF timing fails that fixture.
+ The OFF timing limit checks equality and one extra tick.
++A receipt arm that names a control is still graded against the production bound.
+ Both simulation controls also detect missing copying and missing traffic.
+ 
+ Measurements retire the six-instructions-per-byte and fifty-instructions-per-record estimates.
+@@ -1805,10 +1810,10 @@ Physical timing and memory ordering remain UNRESOLVED 6.
+    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
+    Both shapes use the contract's 50 MHz CPU and aligned edges.
+    Each has 16 captures per traffic arm, ON and OFF.
+-   The worst 8x8 copy is 13.86484 ms across both arms.
++   The worst 8x8 copy is 13.86318 ms across both arms.
+    It covers 13,210 bytes and 164 records, including output maps.
+-   Its ratio to the guaranteed 49 ms floor is 3.5341x.
+-   The 24.5 ms margin is 10.63516 ms.
++   Its ratio to the guaranteed 49 ms floor is 3.5345x.
++   The 24.5 ms margin is 10.63682 ms.
+    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
+    The unchanged nominal 50 ms hold is retained conditionally.
+    The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 958bbcfca..16bf761d8 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -112,7 +112,7 @@ The offset is local time minus grandmaster time.
+ | Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+ | PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
+ | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/INTEGRATION.md#step-versus-slew-policy) |
+ 
+ The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
+ 
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+index ce6f8fabd..336df1a2b 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,16 +9,16 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1760,
+-      "raster_sha256": "c25826685fa0434e1aaee02e1ed9de9b7f14848f6209d5c559e257f2a08cbdd1",
++      "raster_sha256": "5cfd36aca6bc79879a4ff36466d74d373b88aeacd158598c29efa1e83efb1858",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "420e587e35fdefe4867724b682e275d74c1a54d6cfa73238867e8d09d4cf339a",
++      "source_sha256": "b4a3a7c76606813d42dd0a8a49782ea498ba39dd545536bbd7bc6814354e3210",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+       "height": 1350,
+-      "raster_sha256": "e69c8895f9e4646df8259233d28a15cd99f8c39c2dc6328d205522d4936292f8",
++      "raster_sha256": "d3930b328dff0643bcffcbc133ba78178375eabac8da28503c5b4ce915f851a7",
+       "source": "docs/diagrams/timesync_chain.drawio",
+-      "source_sha256": "013b66762a40084090e9655e6e26dc7b21505aec474b8989b44d15b69fe6838e",
++      "source_sha256": "d0d8333bdc92d7f8c45c163b1ec016020714a7dfcd399ad1d011dc2e9a48c036",
+       "width": 2400
+     },
+     "docs/diagrams/wd_axis_backpressure.png": {
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+index e1aba6dde..93af02a9c 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 2ad2f845dd58&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="675" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1000" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 2ad2f845dd58&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 7dda9c3b4d65&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="675" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1000" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+index ef2f837f8..aa98df27d 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/diagrams/submodule_boundaries.svg b/docs/diagrams/submodule_boundaries.svg
+index 42c25f2a2..42d45a342 100644
+--- a/docs/diagrams/submodule_boundaries.svg
++++ b/docs/diagrams/submodule_boundaries.svg
+@@ -38,7 +38,7 @@
+ <text x="133" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE TIME</text>
+ <text x="53" y="580" font-size="20" font-weight="bold" fill="#212121">gptp-processor</text>
+ <text x="53" y="623" font-size="16" fill="#37474F">IEEE 802.1AS fabric engine</text>
+-<text x="53" y="662" font-size="16" fill="#37474F">pin 5dce647ab5a0</text>
++<text x="53" y="662" font-size="16" fill="#37474F">pin 7dda9c3b4d65</text>
+ <text x="53" y="688" font-size="16" fill="#37474F">wrapper:</text>
+ <text x="53" y="709" font-size="16" fill="#37474F">hdl/ieee8021as/gptp_plane/</text>
+ <text x="53" y="730" font-size="16" fill="#37474F">KL_gptp_shadow.sv</text>
+diff --git a/docs/diagrams/timesync_chain.drawio b/docs/diagrams/timesync_chain.drawio
+index 8d2f08a35..d271813bf 100644
+--- a/docs/diagrams/timesync_chain.drawio
++++ b/docs/diagrams/timesync_chain.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership and integration" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="45" as="geometry"/></mxCell><mxCell id="status" value="Product owner: implemented. Media consumption: implemented." style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="65" width="900" height="28" as="geometry"/></mxCell><mxCell id="network-boundary" value="NETWORK TIME" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="35" y="95" width="260" height="28" as="geometry"/></mxCell><mxCell id="timestamp-boundary" value="TIMESTAMP AND PUBLICATION BOUNDARIES" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#B26A00;" vertex="1" parent="1"><mxGeometry x="35" y="310" width="420" height="28" as="geometry"/></mxCell><mxCell id="media-boundary" value="PRESENTATION AND MEDIA BOUNDARY" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="35" y="610" width="390" height="28" as="geometry"/></mxCell><mxCell id="sources" value="Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#78909C;" vertex="1" parent="1"><mxGeometry x="35" y="840" width="1250" height="25" as="geometry"/></mxCell><mxCell id="n-peer" value="&lt;b&gt;802.1AS peer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ethernet wire" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-rx" value="&lt;b&gt;Parent RX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;accepted MAC beats&lt;br&gt;first-beat PHC time" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="250" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-engine" value="&lt;b&gt;Fabric gPTP engine&lt;/b&gt;&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;protocol, timers, servo" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="545" y="115" width="300" height="150" as="geometry"/></mxCell><mxCell id="n-tx" value="&lt;b&gt;Parent TX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;byte-to-wide transport&lt;br&gt;valid-ready backpressure" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="895" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-mac" value="&lt;b&gt;MAC boundary&lt;/b&gt;&lt;br&gt;&lt;br&gt;actual TX acceptance" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="1190" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-phc" value="&lt;b&gt;PHC counter&lt;/b&gt;&lt;br&gt;&lt;br&gt;network nanoseconds&lt;br&gt;rate and phase controls" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="150" y="350" width="300" height="135" as="geometry"/></mxCell><mxCell id="n-publish" value="&lt;b&gt;Atomic publication&lt;/b&gt;&lt;br&gt;&lt;br&gt;GM, parent, path&lt;br&gt;delay, flags, commit" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="535" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-consumers" value="&lt;b&gt;Public consumers&lt;/b&gt;&lt;br&gt;&lt;br&gt;CSR and protocol&lt;br&gt;AVTP tu and status" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="900" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-stamp" value="&lt;b&gt;Egress launch timestamp&lt;/b&gt;&lt;br&gt;&lt;br&gt;the frame&#x27;s own launch&lt;br&gt;one stage before the pads&lt;br&gt;sequence plus type" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="1260" y="350" width="285" height="135" as="geometry"/></mxCell><mxCell id="n-avtp" value="&lt;b&gt;AVTP timeline&lt;/b&gt;&lt;br&gt;&lt;br&gt;PHC dates AAF and CRF&lt;br&gt;tu reports uncertainty" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1"><mxGeometry x="115" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-crf" value="&lt;b&gt;CRF measurement&lt;/b&gt;&lt;br&gt;&lt;br&gt;remote phase and rate&lt;br&gt;selection reaches root" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="565" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-media" value="&lt;b&gt;Media clock lineage&lt;/b&gt;&lt;br&gt;&lt;br&gt;INTERNAL: free-run&lt;br&gt;CRF: steered and aligned" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="1070" y="635" width="380" height="165" as="geometry"/></mxCell><mxCell id="n-select" value="&lt;b&gt;CRF steering gates&lt;/b&gt;&lt;br&gt;&lt;br&gt;status: implemented&lt;br&gt;rate and grid loops" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="920" y="525" width="245" height="100" as="geometry"/></mxCell><mxCell id="e-0" value="RX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-peer" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-rx" target="n-engine"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-2" value="bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-tx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-3" value="TX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-tx" target="n-mac"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-4" value="PHC time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-5" value="rate / phase" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-engine" target="n-phc"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="310"/><mxPoint x="450" y="310"/></Array></mxGeometry></mxCell><mxCell id="e-6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-7" value="state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-publish" target="n-consumers"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-8" value="launched frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-mac" target="n-stamp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-9" value="return tuple" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-stamp" target="n-engine"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1402" y="290"/><mxPoint x="800" y="290"/></Array></mxGeometry></mxCell><mxCell id="e-10" value="presentation time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-avtp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-11" value="common time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-crf"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="450"/><mxPoint x="500" y="610"/><mxPoint x="730" y="610"/></Array></mxGeometry></mxCell><mxCell id="e-12" value="internal events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-media" target="n-crf"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-13" value="rate error" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-crf" target="n-select"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="680"/></Array></mxGeometry></mxCell><mxCell id="e-14" value="steer / align" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-select" target="n-media"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1260" y="575"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership and integration" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="45" as="geometry"/></mxCell><mxCell id="status" value="Product owner: implemented. Media consumption: implemented." style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="65" width="900" height="28" as="geometry"/></mxCell><mxCell id="network-boundary" value="NETWORK TIME" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="35" y="95" width="260" height="28" as="geometry"/></mxCell><mxCell id="timestamp-boundary" value="TIMESTAMP AND PUBLICATION BOUNDARIES" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#B26A00;" vertex="1" parent="1"><mxGeometry x="35" y="310" width="420" height="28" as="geometry"/></mxCell><mxCell id="media-boundary" value="PRESENTATION AND MEDIA BOUNDARY" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="35" y="610" width="390" height="28" as="geometry"/></mxCell><mxCell id="sources" value="Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#78909C;" vertex="1" parent="1"><mxGeometry x="35" y="840" width="1250" height="25" as="geometry"/></mxCell><mxCell id="n-peer" value="&lt;b&gt;802.1AS peer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ethernet wire" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-rx" value="&lt;b&gt;Parent RX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;accepted MAC beats&lt;br&gt;first-beat PHC time" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="250" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-engine" value="&lt;b&gt;Fabric gPTP engine&lt;/b&gt;&lt;br&gt;&lt;br&gt;pin 7dda9c3b4d65&lt;br&gt;protocol, timers, servo" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="545" y="115" width="300" height="150" as="geometry"/></mxCell><mxCell id="n-tx" value="&lt;b&gt;Parent TX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;byte-to-wide transport&lt;br&gt;valid-ready backpressure" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="895" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-mac" value="&lt;b&gt;MAC boundary&lt;/b&gt;&lt;br&gt;&lt;br&gt;actual TX acceptance" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="1190" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-phc" value="&lt;b&gt;PHC counter&lt;/b&gt;&lt;br&gt;&lt;br&gt;network nanoseconds&lt;br&gt;rate and phase controls" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="150" y="350" width="300" height="135" as="geometry"/></mxCell><mxCell id="n-publish" value="&lt;b&gt;Atomic publication&lt;/b&gt;&lt;br&gt;&lt;br&gt;GM, parent, path&lt;br&gt;delay, flags, commit" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="535" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-consumers" value="&lt;b&gt;Public consumers&lt;/b&gt;&lt;br&gt;&lt;br&gt;CSR and protocol&lt;br&gt;AVTP tu and status" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="900" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-stamp" value="&lt;b&gt;Egress launch timestamp&lt;/b&gt;&lt;br&gt;&lt;br&gt;the frame&#x27;s own launch&lt;br&gt;one stage before the pads&lt;br&gt;sequence plus type" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="1260" y="350" width="285" height="135" as="geometry"/></mxCell><mxCell id="n-avtp" value="&lt;b&gt;AVTP timeline&lt;/b&gt;&lt;br&gt;&lt;br&gt;PHC dates AAF and CRF&lt;br&gt;tu reports uncertainty" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1"><mxGeometry x="115" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-crf" value="&lt;b&gt;CRF measurement&lt;/b&gt;&lt;br&gt;&lt;br&gt;remote phase and rate&lt;br&gt;selection reaches root" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="565" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-media" value="&lt;b&gt;Media clock lineage&lt;/b&gt;&lt;br&gt;&lt;br&gt;INTERNAL: free-run&lt;br&gt;CRF: steered and aligned" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="1070" y="635" width="380" height="165" as="geometry"/></mxCell><mxCell id="n-select" value="&lt;b&gt;CRF steering gates&lt;/b&gt;&lt;br&gt;&lt;br&gt;status: implemented&lt;br&gt;rate and grid loops" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="920" y="525" width="245" height="100" as="geometry"/></mxCell><mxCell id="e-0" value="RX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-peer" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-rx" target="n-engine"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-2" value="bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-tx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-3" value="TX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-tx" target="n-mac"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-4" value="PHC time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-5" value="rate / phase" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-engine" target="n-phc"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="310"/><mxPoint x="450" y="310"/></Array></mxGeometry></mxCell><mxCell id="e-6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-7" value="state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-publish" target="n-consumers"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-8" value="launched frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-mac" target="n-stamp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-9" value="return tuple" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-stamp" target="n-engine"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1402" y="290"/><mxPoint x="800" y="290"/></Array></mxGeometry></mxCell><mxCell id="e-10" value="presentation time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-avtp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-11" value="common time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-crf"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="450"/><mxPoint x="500" y="610"/><mxPoint x="730" y="610"/></Array></mxGeometry></mxCell><mxCell id="e-12" value="internal events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-media" target="n-crf"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-13" value="rate error" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-crf" target="n-select"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="680"/></Array></mxGeometry></mxCell><mxCell id="e-14" value="steer / align" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-select" target="n-media"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1260" y="575"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/timesync_chain.png b/docs/diagrams/timesync_chain.png
+index 30a184dbf..0a9ce460b 100644
+Binary files a/docs/diagrams/timesync_chain.png and b/docs/diagrams/timesync_chain.png differ
+diff --git a/docs/diagrams/timesync_chain.svg b/docs/diagrams/timesync_chain.svg
+index d138ce09a..ca6649c45 100644
+--- a/docs/diagrams/timesync_chain.svg
++++ b/docs/diagrams/timesync_chain.svg
+@@ -44,7 +44,7 @@
+ <text x="372.5" y="210" text-anchor="middle" font-size="14" fill="#37474F">first-beat PHC time</text>
+ <rect id="engine" x="545" y="115" width="300" height="150" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+ <text x="695.0" y="149" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Fabric gPTP engine</text>
+-<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 5dce647ab5a0</text>
++<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 7dda9c3b4d65</text>
+ <text x="695.0" y="200" text-anchor="middle" font-size="14" fill="#37474F">protocol, timers, servo</text>
+ <rect id="tx" x="895" y="125" width="245" height="130" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+ <text x="1017.5" y="159" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Parent TX seam</text>
+diff --git a/docs/guides/gptp/HDL_DEVELOPER.md b/docs/guides/gptp/HDL_DEVELOPER.md
+index ef413143a..f1c7cbd17 100644
+--- a/docs/guides/gptp/HDL_DEVELOPER.md
++++ b/docs/guides/gptp/HDL_DEVELOPER.md
+@@ -30,13 +30,13 @@ Never patch imported behavior inside the parent lane.
+ 
+ Land donor changes before advancing its pin.
+ 
+-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md).
++Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/HDL_DEVELOPER.md).
+ 
+ ## Preserve timing
+ 
+-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/rx_accept.svg)
++![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/diagrams/wavedrom/rx_accept.svg)
+ 
+-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/tx_backpressure.svg)
++![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/diagrams/wavedrom/tx_backpressure.svg)
+ 
+ ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
+ 
+@@ -99,4 +99,4 @@ Never convert a refused frame into partial data.
+ - Run lint and portability gates.
+ - Record exact-head evidence publicly.
+ 
+-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md).
++Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/SOURCE_EVIDENCE.md).
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index f671d60a5..1b827d0bc 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -20,7 +20,7 @@ Use this page for delivery decisions.
+ - Atomic publication prevents contradictory consumer state.
+ - Direct health drives every AVTP uncertainty bit.
+ 
+-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/MANAGER.md).
+ 
+ ## Status
+ 
+@@ -50,7 +50,7 @@ Simulation remains necessary but insufficient.
+ 
+ Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+ 
+-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/MANAGER.md).
+ 
+ ## Release evidence
+ 
+diff --git a/docs/guides/gptp/SYSTEM_INTEGRATOR.md b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+index a6e747d2b..0ebee7aa2 100644
+--- a/docs/guides/gptp/SYSTEM_INTEGRATOR.md
++++ b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+@@ -58,7 +58,7 @@ A build without a MAC ties the record face off.
+ 
+ That plane then delivers no timestamp and counts the loss.
+ 
+-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md).
++Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/INTEGRATION.md).
+ 
+ ## Observe
+ 
+diff --git a/docs/guides/gptp/TEST_DEVELOPER.md b/docs/guides/gptp/TEST_DEVELOPER.md
+index 24742f732..df69dccdd 100644
+--- a/docs/guides/gptp/TEST_DEVELOPER.md
++++ b/docs/guides/gptp/TEST_DEVELOPER.md
+@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
+ 
+ Python models must not mirror implementation blindly.
+ 
+-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md).
++Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/TEST_DEVELOPER.md).
+ 
+ ## Choose a suite
+ 
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index 3f2f8bc62..5819aef82 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-| `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++| `gptp-processor` | `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+@@ -288,10 +288,10 @@ The parent carries it to the CRF servo (#545).
+ 
+ Window overlap preserves lock until measured correction completes.
+ 
+-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md)
+-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md)
+-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
+-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/TEST_DEVELOPER.md)
+ 
+ Processor PR 156 resolves both former RX-interface contradictions.
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 84b7fe427..55602bf14 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -281,11 +281,29 @@ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+ That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+ That historical budget left 1140.1 s: 31.7%, approximately 32%.
+ These historical samples do not measure the corrected candidate.
+-The five default gmstep controls remain in `run` (#602).
++The five default gmstep controls stayed in `run` (#602) until #621.
+ The additional controls stay in the explicit `gmstep-mutants` campaign.
+ The hosted shards allow 120 minutes; #673's envelopes appear above.
+ If later exact-head margin falls below 10%, split further.
+ 
++#621 split further. Its small-step phase took the gmstep leg from 48 s to
++253 s of CPU, and `milan_dp` ran that leg seven times: the clean leg, the
++driver's positive control and five controls. Hosted run 38048622822 then
++timed out at 4800 s. Dev's own windows before it were already above 60% of
++that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
++to 38067159953. The leg and its five default controls therefore moved to the
++`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
++default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
++`suite_shards.py` pins that owner among its five-worker landmarks.
++The new suite keeps the 1800 s default budget. The clean leg runs every
++phase once; the controls run without the #621 phase, which holds none of
++their named checks. Its README records the native per-leg times at base,
++at the #621 head and at the split head. Natively the leg and its controls
++were 21.9% of `milan_dp` at base. Removed from the six dev windows above,
++that projects `milan_dp` to 2323 to 2750 s, at most 57.3% of 4800 s. The
++new suite projects to about 909 s, 50.5% of 1800 s. Hosted runs at the
++pushed head confirm or replace both projections.
++
+ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+ It runs nightly at 01:17 UTC and on manual dispatch.
+ PR and push events exclude this job from execution.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index b32ea603e..4ea1a693d 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -275,7 +275,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+ | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
+ | #658 power-on audio maps, the 13 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants` | the change's own validation, and every reviewer of a change that touches the map stores, their reset or the boot window in `milan_datapath.sv`, `gen_nvm_window.py` or the `[DYNMAP]` section of `sim_nxn.cpp` |
+-| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
++| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls, each gmstep control on the whole leg, the #621 phase included | `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
+ | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+ The default sweep still runs both render legs and the leg-side defect arms,
+@@ -399,8 +399,10 @@ The #653 `[UNB]` unbind checks run there too.
+ The #443 render CSR checks stay in `obj_aclk`.
+ Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
+ The #658 `dynmap` leg runs in the pool; its focused `dynmap` and `dynmap-mutants` targets remain available.
+-The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
+-The render-law and default GM-step mutation controls run after it succeeds.
++The `gptp` and `gptp-lat` prerequisites run before the ordinary pool.
++The render-law mutation controls run after it succeeds.
++The `gmstep` leg and its default controls left `run` for wall clock (#621).
++They run in the `milan_dp_gm_steps` suite, through this suite's `gmstep` recipe.
+ Explicit mutation campaigns above retain their separate targets and full inventories.
+ 
+ **The processor submodules serve more suites than name them.**
+@@ -608,6 +610,7 @@ verdicts and for check counts.
+ | [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery. Since #74 item 2 the real `KL_chan_map_capture` counters grade a lock raced onto the tick from either side, a held and a surplus frame there, and one free-running passage each way, with two mutants that must fail |
+ | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a followed source, and since #629 (A2-a) at INTERNAL too; it free-runs only while the aligner is disengaged. Check 10 (#617) moves the trim on every cycle around the terminal count, every end move on both shapes: one tick per period, no counter wrap |
+ | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
++| [`tb/verilator/milan_dp_gm_steps`](../../tb/verilator/milan_dp_gm_steps) | **#387, #602 and #621, the GM step leg and its five acceptance controls**, split out of `milan_dp` for wall clock: `make -C tb/verilator/milan_dp_gm_steps`. `milan_dp`'s `gmstep` recipe runs the clean leg with every phase once. `gmstep_mutants.py --no-small-steps` then plants the five controls, each on the leg without its #621 phase, which holds none of their named checks. Its README tabulates the native per-leg times that moved it |
+ | [`tb/verilator/milan_dp_mclk`](../../tb/verilator/milan_dp_mclk) | **#629 at the root**: the `milan_datapath` rows of the [media-clock following design](../design/MEDIA_CLOCK_FOLLOWING.md#simulation)'s test plan on a two-stream TDM8 elaboration at the true audio clock ratio, the servo closed through a modelled MMCM fine phase shift. Leg A follows AAF input 0 within 0.5 ppm, with the CSR words, the echo, a loss leg, a lock loss and the followed talker's `tu` edges; leg C takes W2 onto the CRF input and follows it; leg B the CRF lock loss, the switch rows (one onto a talker silent past the meter's timeout) and INTERNAL with the aligner engaged (A2-a). `mclk_mutants.py` runs the three legs (A, B, C) beside sixteen named mutants planted once as mutant schemata, among them the meter's `tu` taken from the `tv` net |
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds under CRF, and the commit-to-pin walk is stopped under CRF. Since #629's A2-a INTERNAL is aligned too: its window may not walk at the divider plan's `+10.64` ppm, and back at INTERNAL after the deselect the walk stays stopped. That window opens while the aligner is still pulling the grid in after T14's serial-clock hold, so since #643 the setpoint law at INTERNAL is the `[LAW]` phase's: it waits for the aligner's settled report (engaged, error inside 1/64 sample for 2048 ticks, within the 32768-tick ceiling counted from the start of that wait), then starts a fresh stream at each of eighteen feed phases against an observed media tick, sixteen over one tick plus +927 and +1156. Each phase must hold the settled report throughout, read a fill of exactly 14 events (the setpoint plus that PDU) at every PDU end and pop every first event inside (8, 9] ticks of it, plus the pop pulse's one-cycle register. Each phase must also be gradable, with no PDU end within the 9-cycle ambiguity window of a pop, and that margin is a check. Both laws are graded at the render stage's own reference, the PDU end, under the ambiguity window the [media-clock following test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation) measures and states. Its `[PULLIN]` phase (#647) runs a fresh stream at a `[LAW]` feed phase through T14's serial-clock hold and grades it again after the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one settle recentre, the stage's one recentre since the hold, `SLIP_LB` static from it on, and the law. The default leg omits this long phase. The explicit `tdm8render-pullin` target preserves its standing phase after the full serial/CRF/LAW history (`--with-pullin`) and runs all eighteen boot phases, `PULLIN_JOBS` legs at a time, from inside the suite directory |
+ | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
+diff --git a/docs/traceability/ieee8021as.md b/docs/traceability/ieee8021as.md
+index 26ed717ba..86f5edb35 100644
+--- a/docs/traceability/ieee8021as.md
++++ b/docs/traceability/ieee8021as.md
+@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
+ 
+ The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
+ 
+-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md) maps internals.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9/docs/SOURCE_EVIDENCE.md) maps internals.
+ 
+ ## Requirement mapping
+ 
+diff --git a/gptp-processor b/gptp-processor
+index 5dce647ab..7dda9c3b4 160000
+--- a/gptp-processor
++++ b/gptp-processor
+@@ -1 +1 @@
+-Subproject commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
++Subproject commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9
+diff --git a/scripts/check_nvm_capture.py b/scripts/check_nvm_capture.py
+index ba5a0b79d..02d95f364 100644
+--- a/scripts/check_nvm_capture.py
++++ b/scripts/check_nvm_capture.py
+@@ -52,6 +52,16 @@ def check_inputs(actual: dict, measured: dict) -> None:
+                            f'current={actual}, measured-for={measured}')
+ 
+ 
++def production_spec(arm: dict, census: dict) -> dict:
++    """Every receipt arm is a production point, whatever else the arm carries.
++
++    Only the named scenario fields reach the grader. The census comes from the
++    generated shape, and the production timing bound always applies.
++    """
++    keys = ('shape', 'captures', 'sys_hz', 'cpu_hz', 'configured_cpu_hz', 'phase', 'traffic')
++    return dict({key: arm[key] for key in keys}, **census, mutation='none')
++
++
+ def check_receipt(receipt: dict, actual: dict) -> None:
+     """Regrade every recorded capture and recompute each published maximum."""
+     check_inputs(actual, receipt['measured_for'])
+@@ -78,7 +88,7 @@ def check_receipt(receipt: dict, actual: dict) -> None:
+                for row in arm['rows']):
+             raise RuntimeError('receipt rows differ from the generated census')
+         census = dict(raw_bytes=source['raw_bytes'], records=source['records'])
+-        summary = capture.grade_rows(arm['rows'], dict(arm, **census))
++        summary = capture.grade_rows(arm['rows'], production_spec(arm, census))
+         for key, value in summary.items():
+             if arm[key] != value:
+                 raise RuntimeError(f'receipt summary differs from rows: {key}')
+@@ -118,6 +128,37 @@ def timing_controls(census: dict) -> None:
+         raise RuntimeError('OFF timing limit was ignored')
+ 
+ 
++def opt_out_control(receipt: dict, actual: dict) -> None:
++    """An arm naming a control must not escape the production bound.
++
++    The plant is one capture a single tick over half the floor, in an arm that
++    also claims the byte-only control. Its summaries and the published maxima
++    are recomputed to match, so the bound is the only reason left to refuse.
++    """
++    planted = deepcopy(receipt)
++    arm = planted['measurements'][0]
++    arm['mutation'] = 'byte-only'
++    arm['rows'][0]['sys_cycles'] = recipe.HOLD_FLOOR_MS * arm['sys_hz'] // 2000 + 1
++    source = actual[arm['shape']]
++    arm.update(capture.grade_rows(arm['rows'], dict(arm, raw_bytes=source['raw_bytes'],
++                                                    records=source['records'])))
++    arms = planted['measurements']
++    planted['maxima'] = []
++    for shape, clock in sorted({(item['shape'], item['cpu_hz']) for item in arms}):
++        worst = capture.maximum_ms([item for item in arms
++                                    if (item['shape'], item['cpu_hz']) == (shape, clock)])
++        planted['maxima'].append(dict(shape=shape, cpu_hz=clock, maximum_ms=worst,
++                                      margin=recipe.HOLD_FLOOR_MS / worst))
++    try:
++        check_receipt(planted, actual)
++    except RuntimeError as exc:
++        if 'half the 49 ms' not in str(exc):
++            raise
++    else:
++        raise RuntimeError('receipt arm escaped the production timing bound')
++    print('CONTROL receipt-opt-out: production bound applied despite a control field')
++
++
+ def selftest(actual: dict) -> None:
+     """Named controls alter each live input before the real comparison."""
+     for name, field in (('bytes', 'raw_bytes'), ('records', 'records'),
+@@ -150,10 +191,16 @@ def ignore_off_timing(arms: list[dict]) -> float:
+                for arm in arms if arm['traffic'] == 'on' for row in arm['rows'])
+ 
+ 
++def opted_out_spec(arm: dict, census: dict) -> dict:
++    """Deliberately unguarded spec, exercised only as a failing control."""
++    return dict(arm, **census)
++
++
+ def main() -> int:
+     """Run input and grading controls before checking the measured receipt."""
+     parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument('--mutation', choices=['bytes', 'records', 'clock', 'ignore-off-timing'])
++    parser.add_argument('--mutation', choices=['bytes', 'records', 'clock', 'ignore-off-timing',
++                                               'receipt-opt-out'])
+     args = parser.parse_args()
+     try:
+         actual = current_inputs()
+@@ -161,10 +208,14 @@ def main() -> int:
+         if args.mutation == 'ignore-off-timing':
+             with patch.object(capture, 'maximum_ms', side_effect=ignore_off_timing):
+                 timing_controls(actual[recipe.SHAPES[0]])
+-        elif args.mutation:
++        receipt = json.loads((HARNESS / 'measurements.json').read_text())
++        if args.mutation == 'receipt-opt-out':
++            with patch.object(sys.modules[__name__], 'production_spec', side_effect=opted_out_spec):
++                opt_out_control(receipt, actual)
++        opt_out_control(receipt, actual)
++        if args.mutation in ('bytes', 'records', 'clock'):
+             field = {'bytes': 'raw_bytes', 'records': 'records', 'clock': 'cpu_hz'}[args.mutation]
+             actual[recipe.SHAPES[0]][field] += 1
+-        receipt = json.loads((HARNESS / 'measurements.json').read_text())
+         check_receipt(receipt, actual)
+     except (RuntimeError, KeyError, ValueError) as exc:
+         print(f'FAIL: {exc}', file=sys.stderr)
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index 87d88b6e6..ff019d513 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -110,6 +110,16 @@ DUT_READER_DISPOSITIONS = {
+         "compilation at four axis rates, then applies independent stimuli and "
+         "hard-coded expectations for quiet noise, recovery dwell, reset, source "
+         "priority, LOCKED dwell and ceiling; it reads no expected value from the text",
++    "tb/verilator/gptp_plane/phc_step.py":
++        "mutation campaign; it generates each arm's ROM from the donor microcode generator, planting "
++        "one of six named defects from its own table (a stale rate window, a measured crossing "
++        "exchange, measurement never rearmed, two deletions of a crossing exchange's liveness "
++        "credit, and liveness credit for a stepped request that was never answered; the two "
++        "deletions, one per review round, plant the same deletion, so five distinct defects run) "
++        "into a scratch copy, and requires the named runtime check of the real-counter step "
++        "regression to fail while the clean image and a control that deletes only the cease rule "
++        "pass; expected values come from the independent peer model and the physical link "
++        "constants, none from the generator text",
+     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
+         "orchestration lifecycle fixture; it identifies the planted mutation and "
+         "compares caller bytes/modes/index across interruption. Synthetic commands "
+@@ -131,10 +141,6 @@ DUT_READER_DISPOSITIONS = {
+         "of a restored input format or of an output format row, no crossbar writer) into a copy of "
+         "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
+         "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
+-    "tb/verilator/milan_dp/gmstep_mutants.py":
+-        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+-        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+-        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
+     "tb/verilator/milan_dp/render_csr_controls.py":
+         "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+         "and bit-9 selector defects into copies and requires named failures. Its "
+@@ -142,6 +148,12 @@ DUT_READER_DISPOSITIONS = {
+         "despite accepted ingress; no expected value is derived from source text",
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
++    "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py":
++        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
++        "named failure on milan_dp's gmstep leg or, for five, its option-off leg. The milan_dp_gm_steps sweep "
++        "plants the five #387/#602 acceptance controls on the gmstep leg without its #621 phase, which holds "
++        "none of their named checks; gmstep-mutants plants all on the whole leg, and --slew selects the three "
++        "#545 controls",
+     "tb/verilator/milan_dp_mclk/mclk_mutants.py":
+         "mutation campaign; it plants the #629 design's fourteen named root defects as "
+         "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index 64b4c4b25..e3d767e26 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -177,13 +177,16 @@ def selftest() -> int:
+     # Pin runtime landmarks and the three specialized owners. The workflow
+     # installs tsn-gen only for tsn_fuzz's worker and Yosys/sv2v only for
+     # chmap_capture's worker, and proves the last worker runs milan_dp alone,
+-    # so an assignment-rule change must fail here.
++    # so an assignment-rule change must fail here. milan_dp_gm_steps left
++    # milan_dp's worker for wall clock (#621) and was named for worker 3, the
++    # one with the most headroom; a rule that moves it must fail here too.
+     landmarks = {
+         "milan_dp": 4,
+         "pp_shadow": 1,
+         "mmcm_servo": 2,
+         "tsn_fuzz": 1,
+         "chmap_capture": 3,
++        "milan_dp_gm_steps": 3,
+     }
+     got = {suite: shard_owner(suite, 5) for suite in landmarks}
+     ok = got == landmarks
+diff --git a/syn/yosys/rom_digests.tsv b/syn/yosys/rom_digests.tsv
+index 9b8208dc5..ce4739cb3 100644
+--- a/syn/yosys/rom_digests.tsv
++++ b/syn/yosys/rom_digests.tsv
+@@ -29,6 +29,7 @@
+ 6a9a12416b90158cb4762ab100ede2711bdab76f	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 6a9a12416b90158cb4762ab100ede2711bdab76f	ucode.hex	305d682d98073506334b343e8b3c815c3e2e4ffbb3806f42c94aa826aa6729e8
+ 6e6237f4ccccb8053d6db55266742eb9d1f63acf	gptp_ucode.hex	7a80d82e3d36ac7fe70eb202d77b9ba0b58daf356c78cb2cc0aba347a181a586
++7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp_ucode.hex	a435fba6167238268fa9074dd4645dd03380e56ff1eeea273fd3fc2fcecab9fd
+ 7fa64e99490b4648797374d3fdb1fedf08145e91	gptp_ucode.hex	548b15c133f2b13835ca0221fc9d3d31ba0f46a9f49a878ee0633fc24ad48b8a
+ 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+diff --git a/tb/verilator/README.md b/tb/verilator/README.md
+index 64712199c..51797ad89 100644
+--- a/tb/verilator/README.md
++++ b/tb/verilator/README.md
+@@ -59,8 +59,9 @@ Reserved bits and twoStepFlag remain ignored on reception.
+ | [`cdc/`](cdc) | `cdc_pulse.sv` + `cdc_handshake.sv` | Open CDC primitives that replaced `xpm_cdc_*` (T1.4): across two *independent* clocks — every source pulse yields one dest pulse; each value crosses byte-exact with req/ack (16 checks). | `cd cdc && make` |
+ | [`mac_rmon/`](mac_rmon) | `KL_mac_rmon_events.sv` (two shapes: a MAC that checks FCS/preamble/bad-frame, and one that checks none) | The block that turns MAC-boundary facts into the `ethernet_events` pulse vector — the RMON "decorative ABI" fix. Per-frame derivation at the AXIS boundary across an asynchronous clock ratio (exactly one 1-cycle destination pulse per frame; mid-frame beats and a backpressured `tlast` count for nothing), good-vs-bad RX frames mutually exclusive, MAC error counters turned into pulses with a counter RESET (link-guard reinit) deliberately emitting none, and — the honesty half — `cap_o` tracking the parameters rather than the wish: the four MAC-internal lanes are never claimed, an unattached boundary reports cap 0 **and** stays silent, and the no-checks shape drops the three optional lanes from the mask (2 × 28 checks). | `cd mac_rmon && make` |
+ | [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
+-| [`milan_dp/`](milan_dp) | `milan_datapath.sv` | Whole-wrapper integration: CSR identity/version, classifier programming, byte-exact memory/MAC paths, NxN routing and protocol-processor publication. The #447 render lane has its own suite directory, `milan_dp_render/`, built from this suite's exported source list and elaboration flags. Product-on gPTP checks cover BMCA/sync/pdelay, coherent GM/parent/path publication, CLOCK_DOMAIN counters/notifications and AAF/CRF `tu`; verification-only option OFF proves zero-owner, zero-publication, write-inert fail-safe behavior. Pruned and generated NxN shapes elaborate and retain their structural-zero contracts. | `cd milan_dp && make` |
++| [`milan_dp/`](milan_dp) | `milan_datapath.sv` | Whole-wrapper integration: CSR identity/version, classifier programming, byte-exact memory/MAC paths, NxN routing and protocol-processor publication. The #447 render lane has its own suite directory, `milan_dp_render/`, built from this suite's exported source list and elaboration flags. The gmstep leg and its controls run in `milan_dp_gm_steps/`, through this suite's recipe. Product-on gPTP checks cover BMCA/sync/pdelay, coherent GM/parent/path publication, CLOCK_DOMAIN counters/notifications and AAF/CRF `tu`; verification-only option OFF proves zero-owner, zero-publication, write-inert fail-safe behavior. Pruned and generated NxN shapes elaborate and retain their structural-zero contracts. | `cd milan_dp && make` |
+ | [`milan_dp_render/`](milan_dp_render) | `milan_datapath.sv` at the shipping AX7101 1x1 TDM8 parameters (`KL_tdm_render_master` live) | **#447, the shipping TDM8 master render lane**: the `tdm8render` leg drives a dynamic AUDIO_MAP command through the real ACMP/AECP path and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver, grading identity, slot position, padding, the render epoch over resets and bind losses, the graceful-flush frame boundary and the commit-to-pin terms at INTERNAL and under a live CRF selection; `tdm8render-multi` grades the stream-qualified epoch mask and the nonphysical in-range cluster key on a generated two-stream shape. The decoder is a dsp_a receiver (fsync sampled on the bclk rise, slot 0's MSB on the rise after the one that read it high, #452) and the leg runs a NEGATIVE-CONTROL decoder beside it on the same three pins, attributing the pulse to the rise where fsync reads low again: that reading must reproduce no injected media event and must be exactly one bit late. Its `[LAW]` phase (#643) grades the #386 render law at INTERNAL only once the aligner reports settled, on a fresh stream at each of eighteen feed phases against an observed media tick, and grades it at the render stage's own reference, the PDU end, only where it is gradable: a phase with a PDU end within the measured 9-cycle ambiguity window of a pop is reported NOT GRADABLE, neither passed nor failed, and every standing phase must be gradable, its margin a check of its own. The explicit `tdm8render-law-boundary` target scans +/-40 cycles across that boundary and prints every window's walk. A stream already running through an aligner pull-in is not graded there; that is the open design gap #647. Its default target also runs the leg-side defect arms; the full mutation campaign is the explicit `tdm8render-mutants` target, because a per-mutant rebuild does not fit a shard's wall clock. | `cd milan_dp_render && make` |
++| [`milan_dp_gm_steps/`](milan_dp_gm_steps) | `milan_datapath.sv`, through `milan_dp`'s gmstep recipe | **#387, #602 and #621, the GM step leg and its five acceptance controls**, split out of `milan_dp` for wall clock. The clean leg runs every phase once: the 1.5 s GM change under CRF selection, then the #621 +10 ms and -10 ms steps under CRF and INTERNAL selection, then the CRF restart, slew and coincident phases. The controls run the leg without the #621 phase, which holds none of their named checks; the explicit `gmstep-mutants` target runs the whole inventory on the whole leg. | `cd milan_dp_gm_steps && make` |
+ | [`milan_dp_gptp/`](milan_dp_gptp) | `milan_datapath.sv` | One-stream, eight-channel TDM8 integration at 50 MHz with independent peer events, diagnostic audio, loss/recovery/reset, backpressure and accounting controls. Selected separately for nightly/manual execution; the boundary excludes MAC/PHY timing and hardware compliance. | `cd milan_dp_gptp && make` |
+ | [`avtp_stream/`](avtp_stream) | `avtp_stream_parser.sv` | IEEE 1722 AVTP stream-header monitor (the S1 AVTP-engine foundation): stream-id / presentation-time / subtype / `tv` extraction against a programmable stream-match table, accept + reject cases, untagged and VLAN-tagged frames (21 checks). | `cd avtp_stream && make` |
+ | [`avtp_parser/`](avtp_parser) | `avtp_stream_parser.sv` + `KL_stream_table.sv`, at **five shapes** (`N_STREAMS` = 1 / 4 / 8, `BIG_ENDIAN=1`, and the table+parser pairing at N=8) | The listener **accept verdict** and, above all, its **reject leg**: `stream_id` byte order as lifted off the wire, the VLAN-tagged vs untagged offset with both mis-offset negatives, the subtype/`sv` gate swept, every table entry reachable at each N (entries 4..7 exist only at N=8), the compare's failure modes — byte-reversed arm, transposed `SID_LO`/`SID_HI`, one-bit-off, armed-but-disabled — each asserted as the exact `0x8B4` APRB signature (*PARSED climbs, MATCHED does not, the latch shows the wire value*), frame-stream integrity (one verdict per frame, back-to-back with no gap, backpressure, the 56-byte header floor), 600 randomised frames per shape against an independent model, and TRAP-1: any entry-0 window write detaches the ACMP alias for good (~10 660 checks). | `cd avtp_parser && make` |
+diff --git a/tb/verilator/gptp_plane/Makefile b/tb/verilator/gptp_plane/Makefile
+index a288d7b09..94f99d9ad 100644
+--- a/tb/verilator/gptp_plane/Makefile
++++ b/tb/verilator/gptp_plane/Makefile
+@@ -20,6 +20,13 @@ SRCS = gptp_plane_wrap.sv \
+        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
+ CPP  = sim_main.cpp
+ 
++.PHONY: all phc-step
++.DEFAULT_GOAL := all
++all: run phc-step
++
++phc-step:
++	python3 phc_step.py --mutants
++
+ run: gptp_ucode.hex
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_plane_sim
+ 	./obj_dir/Vgptp_plane_sim
+diff --git a/tb/verilator/gptp_plane/gptp_plane_wrap.sv b/tb/verilator/gptp_plane/gptp_plane_wrap.sv
+index 9b5b5f85c..ae812ae0d 100644
+--- a/tb/verilator/gptp_plane/gptp_plane_wrap.sv
++++ b/tb/verilator/gptp_plane/gptp_plane_wrap.sv
+@@ -23,8 +23,9 @@
+ //                enter through the event-specific rx_ts_i and txts_ns_i
+ //                faces. The addend latch is the one piece of fabric the
+ //                splice adds beyond wires; it lives here until then. The
+-//                counter runs its 125 MHz shape (8.0 ns Q8.24 increment)
+-//                while the bench clock is CLK_HZ_P -- the engine's µcode
++//                counter defaults to an 8.0 ns Q8.24 increment, with
++//                PHC_INCR_P selecting a true-time regression clock.
++//                The bench clock is CLK_HZ_P -- the engine's µcode
+ //                gain is generated for the bench's ticks-per-interval, so
+ //                the closed loop is exact in counter time.
+ //---------------------------------------------------------------------------//
+@@ -32,7 +33,8 @@
+ 
+ module gptp_plane_wrap #(
+     parameter string       UCODE_HEX_P = "gptp_ucode.hex",
+-    parameter int unsigned CLK_HZ_P    = 2_000_000
++    parameter int unsigned CLK_HZ_P    = 2_000_000,
++    parameter logic [31:0] PHC_INCR_P  = 32'h0800_0000
+ ) (
+     input  wire         clk_i,
+     input  wire         rst_n,
+@@ -108,7 +110,7 @@ module gptp_plane_wrap #(
+       .clk                  (clk_i),
+       .resetn               (rst_n),
+       .enable_i             (1'b1),
+-      .incr_i               (32'h0800_0000),   // 8.0 ns, the 125 MHz shape
++      .incr_i               (PHC_INCR_P),
+       .adj_i                (adj_r),
+       .tod_wr_i             (64'd0),
+       .cmd_load_i           (1'b0),
+diff --git a/tb/verilator/gptp_plane/phc_step.py b/tb/verilator/gptp_plane/phc_step.py
+new file mode 100644
+index 000000000..7a2af9a46
+--- /dev/null
++++ b/tb/verilator/gptp_plane/phc_step.py
+@@ -0,0 +1,130 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Run the real-counter step regression and its isolated microcode defects."""
++
++import argparse
++import os
++from pathlib import Path
++import subprocess
++import tempfile
++
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[2]
++GENERATOR = ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py"
++
++
++def invoke(argv: list[str], cwd: Path, log: Path) -> int:
++    """Keep the complete command output and return its actual exit status."""
++    with log.open("w") as stream:
++        result = subprocess.run(argv, cwd=cwd, stdout=stream, stderr=subprocess.STDOUT, check=False)
++    return result.returncode
++
++
++def plant(source: str, name: str, scope: str | None, old: str, new: str) -> str:
++    """Replace one anchor that is unique within the named function, or the file."""
++    start, end = 0, len(source)
++    if scope:
++        start = source.index(f"\ndef {scope}(")
++        end = source.find("\ndef ", start + 1)
++        end = len(source) if end < 0 else end
++    region = source[start:end]
++    if region.count(old) != 1:
++        raise RuntimeError(f"{name}: mutation anchor is not unique")
++    return source[:start] + region.replace(old, new) + source[end:]
++
++
++def run(work: Path, generator: Path, mutants: bool) -> None:
++    """One compiled counter/engine model, independently generated ROM per arm."""
++    work.mkdir(parents=True, exist_ok=True)
++    donor = ROOT / "gptp-processor/hdl"
++    sources = [HERE / "gptp_plane_wrap.sv", ROOT / "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv"]
++    sources.extend(donor / path for path in (
++        "ucpu/gptp_ucpu_pkg.sv", "ucpu/KL_gptp_ucpu.sv",
++        "wire/KL_gptp_rx_parser.sv", "wire/KL_gptp_tx_slot.sv",
++        "common/KL_gptp_timer.sv", "top/KL_gptp_engine.sv"))
++    binary = work / "obj/phc_step"
++    command = [os.environ.get("VERILATOR", "verilator"), "--cc", "--exe", "--build", "-j",
++               os.environ.get("VERILATOR_JOBS", "2"), "--top-module", "gptp_plane_wrap",
++               "--Mdir", str(binary.parent), "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME",
++               "-Wno-UNUSEDSIGNAL", "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
++               "-GCLK_HZ_P=8000000", "-GPHC_INCR_P=2097152000",
++               "-CFLAGS", "-std=c++17 -O2 -Wall -Wextra",
++               *map(str, sources), str(HERE / "sim_phc_step.cpp"), "-o", binary.name]
++    if invoke(command, ROOT, work / "build.log"):
++        raise RuntimeError("step regression compilation failed; see build.log")
++    source = generator.read_text()
++    arms = [("clean", source, None)]
++    if mutants:
++        credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
++        liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
++        unanswered = "asCapable falls at the third unanswered request after an unanswered crossing request"
++        # The timer program has no free ROM word, so the credit plant below
++        # displaces the Milan cease rule. Removing only that rule must pass.
++        cease = "    _tmr_cease_rule(p)\n"
++        step_credit = ('    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n'
++                       '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)\n'
++                       '    p.emit("BRS", cnd=BRS_Z, label="r571_skip")\n'
++                       '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
++                       '    p.label("r571_skip")\n')
++        arms.append(("nocease-control", plant(source, "nocease-control", "prog_tmr", cease, ""), None))
++        defects = (
++            ("stale-rate-window", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)\n',
++             "", "asCapable never falls after step"),
++            ("crossing-exchange", None, '    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
++             '    p.emit("MOVE", rd=RT, ra=0, imm=0)\n', "no invalid link-delay publication"),
++            ("never-rearm-measurement", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
++             "", "real excessive delay still clears asCapable"),
++            # The two review rounds' plants delete the crossing exchange's
++            # liveness credit through different anchors; both write the same
++            # generator text, so five distinct defects run.
++            ("liveness-not-marked", "prog_leg_pdepoch", credit, "", liveness),
++            ("r571-no-liveness", None, credit + '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair',
++             '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair', liveness),
++            # Credit a request that a PHC step overlapped, whether or not its
++            # exchange ever completed.
++            ("credit-on-step", "prog_tmr", cease, step_credit, unanswered),
++        )
++        for name, scope, old, new, assertion in defects:
++            arms.append((name, plant(source, name, scope, old, new), assertion))
++    for name, program, assertion in arms:
++        directory = work / name
++        directory.mkdir(exist_ok=True)
++        script = directory / "generate.py"
++        script.write_text(program)
++        if invoke(["python3", str(script), "--clk-hz", "8000000", "-o", "gptp_ucode.hex"],
++                  directory, directory / "generate.log"):
++            raise RuntimeError(f"{name}: generation failed")
++        rc = invoke([str(binary)], directory, directory / "run.log")
++        log = (directory / "run.log").read_text()
++        if assertion is None:
++            if name == "clean":
++                print(log, end="", flush=True)
++            if rc != 0 or "RESULT: PASS" not in log:
++                raise RuntimeError(f"{name} step regression failed")
++            if name != "clean":
++                print(f"PASS control {name}: every check passes", flush=True)
++        elif rc != 1 or f"[FAIL] {assertion}" not in log:
++            raise RuntimeError(f"{name}: required runtime assertion did not reject the defect")
++        else:
++            print(f"PASS planted defect {name}: {assertion}", flush=True)
++    print(f"phc_step campaign: {len(arms)} checks: {len(arms)} PASS, 0 FAIL", flush=True)
++
++
++def main() -> None:
++    """Use a retained external directory when requested, otherwise clean up."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--work", type=Path)
++    parser.add_argument("--generator", type=Path, default=GENERATOR)
++    parser.add_argument("--mutants", action="store_true")
++    args = parser.parse_args()
++    if args.work:
++        run(args.work.resolve(), args.generator.resolve(), args.mutants)
++    else:
++        with tempfile.TemporaryDirectory(prefix="gptp-phc-step-") as directory:
++            run(Path(directory), args.generator.resolve(), args.mutants)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tb/verilator/gptp_plane/sim_phc_step.cpp b/tb/verilator/gptp_plane/sim_phc_step.cpp
+new file mode 100644
+index 000000000..6238ab284
+--- /dev/null
++++ b/tb/verilator/gptp_plane/sim_phc_step.cpp
+@@ -0,0 +1,397 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Issue #621: real PHC, independent peer LocalClock and real second cadence.
++// A better Announce followed by Sync/Follow_Up drives each signed 10 ms step.
++// Peer delay timestamps never derive from the DUT's PHC. The physical link
++// is 500 ns each way and the responder turnaround is 800 us.
++#include "Vgptp_plane_wrap.h"
++#include "../../common/verilator_harness.hpp"
++#include <verilated.h>
++#include <cstdint>
++#include <cstdio>
++#include <deque>
++#include <vector>
++#include <utility>
++
++namespace {
++constexpr uint64_t kHz = 8000000;
++constexpr uint64_t kTickNs = 125;
++constexpr uint64_t kLinkNs = 500;
++constexpr uint64_t kTurnNs = 800000;
++constexpr uint64_t kOurId = 0x02A1B2FFFEC3D4E5ULL;
++constexpr uint64_t kPeerId = 0x0080E1FFFE112233ULL;
++constexpr uint64_t kPeerEpochNs = 20000000000ULL;
++constexpr uint64_t kGmA = 0x00AACCFFFE010203ULL;
++constexpr uint64_t kGmB = 0x00BBDDFFFE040506ULL;
++
++struct Frame {
++  std::vector<uint8_t> bytes;
++  void put(uint64_t v, unsigned n) {
++    for (unsigned i = n; i != 0; --i)
++      bytes.push_back(static_cast<uint8_t>(v >> (8 * (i - 1))));
++  }
++  void timestamp(uint64_t ns) { put(ns / 1000000000, 6); put(ns % 1000000000, 4); }
++};
++
++Frame header(unsigned type, uint16_t seq, unsigned body, unsigned flags = 0) {
++  Frame f;
++  f.put(0x0180C200000EULL, 6); f.put(0x0080E1112233ULL, 6); f.put(0x88F7, 2);
++  f.put(0x10 | type, 1); f.put(2, 1); f.put(34 + body, 2);
++  f.put(0, 2); f.put(flags, 2); f.put(0, 8); f.put(0, 4);
++  f.put(kPeerId, 8); f.put(1, 2); f.put(seq, 2); f.put(5, 1); f.put(0x7F, 1);
++  return f;
++}
++
++struct Scheduled {
++  uint64_t cycle;
++  Frame frame;
++};
++
++struct Stamp {
++  uint64_t cycle;
++  uint64_t ns;
++  uint16_t seq;
++  unsigned type;
++};
++
++class Harness {
++ public:
++  int run() {
++    dut_->rst_n = 0;
++    dut_->tx_ready_i = 1; dut_->tx_credit_i = 1;
++    dut_->txts_ok_i = 1; dut_->txts_gen_i = 1;
++    for (int i = 0; i < 8; ++i) tick();
++    dut_->rst_n = 1;
++    drive(6 * kHz);
++    check_.that("setup: asCapable and sync established", (dut_->pub_flags_o & 13) == 13);
++    check_.that("setup: independent peer yields physical link delay", valid_delay());
++    exercise_step("forward", 10000000, kGmB, 50);
++    exercise_step("backward", -10000000, kGmA, 25);
++    exercise_crossing("t1 before forward step", 10000000, 200, 500, 0);
++    exercise_crossing("t1 before backward step", -10000000, 200, 500, 0);
++    exercise_crossing("response before step", 10000000, 6600, 4000, 0);
++    exercise_crossing("deferred t1 after step", -10000000, 9000, 500, 20000);
++    prove_real_failures();
++    exercise_liveness();
++    exercise_unanswered_crossing();
++    return check_.report();
++  }
++
++ private:
++  const milan::tb::Model<Vgptp_plane_wrap> model_;
++  Vgptp_plane_wrap* dut_ = model_.get();
++  milan::tb::Checker check_{"phc_step"};
++  uint64_t cycle_ = 0;
++  uint64_t gm_epoch_ns_ = 1000000000;
++  uint64_t gm_id_ = kGmA;
++  unsigned priority_ = 100;
++  uint16_t sync_seq_ = 1;
++  uint16_t announce_seq_ = 1;
++  uint64_t next_sync_ = kHz / 8;
++  uint64_t next_announce_ = kHz / 2;
++  uint64_t steps_ = 0;
++  int64_t last_step_ns_ = 0;
++  uint64_t last_step_cycle_ = 0;
++  uint64_t last_request_cycle_ = 0;
++  uint64_t exchanges_ = 0;
++  std::deque<Scheduled> frames_;
++  std::deque<Stamp> stamps_;
++  uint64_t link_ns_ = kLinkNs;
++  uint64_t fu_delay_cycles_ = 500;
++  uint64_t stamp_delay_cycles_ = 0;
++  bool answer_ = true;
++  bool silent_after_probe_ = false;
++  bool answer_probe_ = true;
++  uint64_t unanswered_ = 0;
++  uint64_t unanswered_at_drop_ = 0;
++  Frame receiving_;
++  size_t rx_offset_ = 0;
++  std::vector<uint8_t> transmitting_;
++  uint64_t tx_phc_ns_ = 0;
++  uint64_t tx_cycle_ = 0;
++  bool monitor_ = false;
++  bool capable_prev_ = false;
++  uint64_t drops_ = 0;
++  uint64_t bad_delays_ = 0;
++  uint64_t low_start_ = 0;
++  uint64_t low_ticks_ = 0;
++  uint64_t probe_request_ = 0;
++  uint64_t probe_response_ = 0;
++  uint64_t probe_follow_up_ = 0;
++  uint64_t probe_stamp_ = 0;
++  uint16_t probe_seq_ = 0;
++
++  bool valid_delay() const {
++    return dut_->pub_pdelay_ns_o >= kLinkNs - kTickNs &&
++           dut_->pub_pdelay_ns_o <= kLinkNs + kTickNs;
++  }
++
++  void schedule(Frame frame, uint64_t at) {
++    auto it = frames_.begin();
++    while (it != frames_.end() && it->cycle <= at) ++it;
++    frames_.insert(it, Scheduled{at, std::move(frame)});
++  }
++
++  void announce() {
++    auto f = header(0xB, announce_seq_++, 30, 8);
++    f.timestamp(0); f.put(0xFFC4, 2); f.put(0, 1);
++    f.put(priority_, 1); f.put(0xF8FE436A, 4); f.put(248, 1);
++    f.put(gm_id_, 8); f.put(0, 2); f.put(0xA0, 1);
++    schedule(std::move(f), cycle_);
++  }
++
++  void sync() {
++    const auto seq = sync_seq_++;
++    auto f = header(0, seq, 10, 0x0208);
++    f.timestamp(0);
++    // Its origin is finalized at actual SOF, after any queued response.
++    schedule(std::move(f), cycle_);
++  }
++
++  void start_receive() {
++    if (!receiving_.bytes.empty() || frames_.empty() || frames_.front().cycle > cycle_)
++      return;
++    receiving_ = std::move(frames_.front().frame);
++    frames_.pop_front(); rx_offset_ = 0;
++    dut_->rx_ts_i = dut_->phc_ns_o;
++    const unsigned type = receiving_.bytes[14] & 15;
++    const uint16_t seq = (receiving_.bytes[44] << 8) | receiving_.bytes[45];
++    if (monitor_ && probe_request_ && seq == probe_seq_) {
++      if (type == 3) probe_response_ = cycle_;
++      if (type == 10) probe_follow_up_ = cycle_;
++    }
++    if ((receiving_.bytes[14] & 15) == 0) {
++      const uint16_t seq = (receiving_.bytes[44] << 8) | receiving_.bytes[45];
++      auto fu = header(8, seq, 42);
++      fu.timestamp(cycle_ * kTickNs + gm_epoch_ns_ - link_ns_);
++      fu.put(3, 2); fu.put(28, 2); fu.put(0x0080C2, 3); fu.put(1, 3);
++      fu.put(0, 4); fu.put(0, 2); fu.put(0, 8); fu.put(0, 4); fu.put(0, 4);
++      schedule(std::move(fu), cycle_ + 500);
++    }
++  }
++
++  void transmit_complete() {
++    if (transmitting_.size() < 46) return;
++    const unsigned type = transmitting_[14] & 15;
++    const uint16_t seq = (transmitting_[44] << 8) | transmitting_[45];
++    if (type == 0 || type == 2 || type == 3) {
++      stamps_.push_back({cycle_ + (type == 2 ? stamp_delay_cycles_ : 0), tx_phc_ns_, seq, type});
++    }
++    if (type != 2) return;
++    last_request_cycle_ = tx_cycle_;
++    if (monitor_ && !probe_request_) {
++      probe_request_ = tx_cycle_; probe_seq_ = seq;
++    }
++    if (silent_after_probe_ && seq != probe_seq_) { ++unanswered_; return; }
++    if (!answer_ || !answer_probe_) return;
++    const uint64_t t2 = tx_cycle_ * kTickNs + kPeerEpochNs + link_ns_;
++    const uint64_t t3 = t2 + kTurnNs;
++    const uint64_t response_cycle = tx_cycle_ + (2 * link_ns_ + kTurnNs) / kTickNs;
++    auto response = header(3, seq, 20, 0x0200);
++    response.timestamp(t2); response.put(kOurId, 8); response.put(1, 2);
++    schedule(std::move(response), response_cycle);
++    auto fu = header(0xA, seq, 20);
++    fu.timestamp(t3); fu.put(kOurId, 8); fu.put(1, 2);
++    schedule(std::move(fu), response_cycle + fu_delay_cycles_);
++    ++exchanges_;
++  }
++
++  void tick() {
++    if (!dut_->txts_valid_i && !stamps_.empty() && stamps_.front().cycle <= cycle_) {
++      const auto stamp = stamps_.front(); stamps_.pop_front();
++      dut_->txts_ns_i = stamp.ns; dut_->txts_seq_i = stamp.seq;
++      dut_->txts_type_i = stamp.type; dut_->txts_valid_i = 1;
++    }
++    start_receive();
++    dut_->rx_valid_i = !receiving_.bytes.empty();
++    dut_->rx_sof_i = dut_->rx_valid_i && rx_offset_ == 0;
++    dut_->rx_eof_i = dut_->rx_valid_i && rx_offset_ + 1 == receiving_.bytes.size();
++    if (dut_->rx_valid_i) dut_->rx_data_i = receiving_.bytes[rx_offset_];
++    dut_->clk_i = 0; dut_->eval();
++    const bool stamp_taken = dut_->txts_valid_i && dut_->txts_ready_o;
++    if (dut_->tx_valid_o && dut_->tx_ready_i) {
++      if (dut_->tx_sof_o) {
++        transmitting_.clear(); tx_phc_ns_ = dut_->phc_ns_o; tx_cycle_ = cycle_;
++      }
++      transmitting_.push_back(dut_->tx_data_o);
++    }
++    const bool tx_end = dut_->tx_valid_o && dut_->tx_ready_i && dut_->tx_eof_o;
++    dut_->clk_i = 1; dut_->eval();
++    if (stamp_taken) {
++      if (monitor_ && dut_->txts_type_i == 2 && dut_->txts_seq_i == probe_seq_)
++        probe_stamp_ = cycle_;
++      dut_->txts_valid_i = 0;
++    }
++    if (tx_end) transmit_complete();
++    if (dut_->rx_valid_i && ++rx_offset_ == receiving_.bytes.size()) receiving_.bytes.clear();
++    if (dut_->tap_step_we_o) {
++      ++steps_; last_step_ns_ = static_cast<int64_t>(dut_->tap_step_o);
++      last_step_cycle_ = cycle_;
++      printf("STEP cycle=%llu ns=%lld\n", static_cast<unsigned long long>(cycle_),
++             static_cast<long long>(last_step_ns_));
++    }
++    const bool capable = (dut_->pub_flags_o & 4) != 0;
++    if (monitor_) {
++      if (!capable && capable_prev_) {
++        ++drops_; low_start_ = cycle_; unanswered_at_drop_ = unanswered_;
++        printf("LOSS cycle=%llu delay=%d since_step_ns=%llu unanswered=%llu\n",
++               static_cast<unsigned long long>(cycle_), static_cast<int32_t>(dut_->pub_pdelay_ns_o),
++               static_cast<unsigned long long>((cycle_ - last_step_cycle_) * kTickNs),
++               static_cast<unsigned long long>(unanswered_));
++      }
++      if (capable && !capable_prev_) {
++        low_ticks_ += cycle_ - low_start_;
++        printf("RETURN outage_ns=%llu\n", static_cast<unsigned long long>((cycle_ - low_start_) * kTickNs));
++      }
++      if (dut_->pub_commit_o && !valid_delay()) ++bad_delays_;
++    }
++    capable_prev_ = capable;
++    ++cycle_;
++  }
++
++  void drive(uint64_t cycles) {
++    const uint64_t end = cycle_ + cycles;
++    while (cycle_ < end) {
++      if (cycle_ >= next_announce_) { announce(); next_announce_ = cycle_ + kHz; }
++      if (cycle_ >= next_sync_) { sync(); next_sync_ = cycle_ + kHz / 8; }
++      tick();
++    }
++  }
++
++  void exercise_step(const char* name, int64_t delta, uint64_t identity, unsigned priority) {
++    gm_id_ = identity; priority_ = priority;
++    exercise(name, delta, kHz / 10);
++  }
++
++  void exercise_crossing(const char* name, int64_t delta, uint64_t phase,
++                         uint64_t fu_delay, uint64_t stamp_delay) {
++    // Reach 1 ms before the next scheduled request. Its cadence is fixed
++    // by the timer, and every observed request checks that assumption below.
++    const uint64_t target = last_request_cycle_ + kHz;
++    if (target > cycle_ + 8000) drive(target - cycle_ - 8000);
++    fu_delay_cycles_ = fu_delay; stamp_delay_cycles_ = stamp_delay;
++    gm_id_ = gm_id_ == kGmA ? kGmB : kGmA;
++    --priority_;
++    exercise(name, delta, target + phase - cycle_);
++    check_.that("crossing: request precedes the actual step", probe_request_ < last_step_cycle_);
++    if (stamp_delay) {
++      check_.that("crossing: complete response precedes step and delayed t1 follows",
++                  probe_response_ < probe_follow_up_ && probe_follow_up_ < last_step_cycle_ &&
++                  last_step_cycle_ < probe_stamp_);
++    } else if (fu_delay > 500) {
++      check_.that("crossing: step falls between response and follow-up",
++                  probe_response_ < last_step_cycle_ && last_step_cycle_ < probe_follow_up_);
++    } else {
++      check_.that("crossing: step falls between returned t1 and response",
++                  probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
++    }
++    fu_delay_cycles_ = 500; stamp_delay_cycles_ = 0;
++  }
++
++  void exercise(const char* name, int64_t delta, uint64_t sync_delay) {
++    const uint64_t initial_steps = steps_;
++    const uint64_t initial_exchanges = exchanges_;
++    drops_ = bad_delays_ = low_ticks_ = 0;
++    probe_request_ = probe_response_ = probe_follow_up_ = probe_stamp_ = 0;
++    monitor_ = true;
++    gm_epoch_ns_ += delta;
++    announce(); next_announce_ = cycle_ + kHz;
++    // Place the new Sync at the selected phase of the peer exchange.
++    next_sync_ = cycle_ + sync_delay;
++    drive(4 * kHz);
++    monitor_ = false;
++    printf("ARM %s drops=%llu outage_ns=%llu exchanges=%llu last_req=%llu\n", name,
++           static_cast<unsigned long long>(drops_), static_cast<unsigned long long>(low_ticks_ * kTickNs),
++           static_cast<unsigned long long>(exchanges_ - initial_exchanges),
++           static_cast<unsigned long long>(last_request_cycle_));
++    check_.dec("one grandmaster-driven step", steps_ - initial_steps, 1);
++    check_.that("step has intended sign and magnitude", last_step_ns_ >= delta - 1000 && last_step_ns_ <= delta + 1000);
++    check_.dec("asCapable never falls after step", drops_, 0);
++    check_.dec("no invalid link-delay publication", bad_delays_, 0);
++    check_.that("four peer exchanges actually occurred", exchanges_ - initial_exchanges >= 4);
++    check_.that("settled link delay remains physical", valid_delay());
++  }
++
++  void prove_real_failures() {
++    link_ns_ = 1500;
++    drive(2 * kHz);
++    check_.dec("real excessive delay still clears asCapable", dut_->pub_flags_o & 4, 0);
++    link_ns_ = kLinkNs;
++    drive(3 * kHz);
++    check_.dec("good exchanges requalify after real fault", dut_->pub_flags_o & 4, 4);
++    answer_ = false;
++    drive(5 * kHz);
++    check_.dec("missing peer still clears asCapable", dut_->pub_flags_o & 4, 0);
++  }
++
++  void requalify(const char* what) {
++    answer_ = true;
++    drive(4 * kHz);
++    check_.dec(what, dut_->pub_flags_o & 4, 4);
++  }
++
++  // A better grandmaster's +10 ms step lands between the next request's
++  // returned t1 and its response. The peer answers no later request, and
++  // that crossing request only when answer_crossing is set.
++  uint64_t silence_across_step(const char* name, bool answer_crossing) {
++    const uint64_t target = last_request_cycle_ + kHz;
++    if (target > cycle_ + 8000) drive(target - cycle_ - 8000);
++    gm_id_ = gm_id_ == kGmA ? kGmB : kGmA;
++    --priority_;
++    const uint64_t initial_steps = steps_;
++    drops_ = bad_delays_ = low_ticks_ = unanswered_ = unanswered_at_drop_ = 0;
++    probe_request_ = probe_response_ = probe_follow_up_ = probe_stamp_ = 0;
++    monitor_ = silent_after_probe_ = true;
++    answer_probe_ = answer_crossing;
++    gm_epoch_ns_ += 10000000;
++    announce(); next_announce_ = cycle_ + kHz;
++    next_sync_ = target + 200;
++    drive(6 * kHz);
++    monitor_ = silent_after_probe_ = false;
++    answer_probe_ = true;
++    printf("ARM %s drops=%llu unanswered=%llu unanswered_at_drop=%llu\n", name,
++           static_cast<unsigned long long>(drops_), static_cast<unsigned long long>(unanswered_),
++           static_cast<unsigned long long>(unanswered_at_drop_));
++    return steps_ - initial_steps;
++  }
++
++  void exercise_liveness() {
++    // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
++    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
++    // that is answered, the fourth unanswered request, not the third,
++    // clears asCapable when the next interval judges it lost.
++    requalify("liveness: answered exchanges requalify after silence");
++    check_.dec("liveness: one grandmaster-driven step", silence_across_step("liveness", true), 1);
++    check_.that("liveness: step falls between returned t1 and response",
++                probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
++    check_.dec("liveness: no invalid link-delay publication", bad_delays_, 0);
++    check_.dec("liveness: asCapable falls once while the peer is silent", drops_, 1);
++    check_.dec("asCapable falls at the fourth unanswered request after a crossing exchange",
++               unanswered_at_drop_, 4);
++  }
++
++  void exercise_unanswered_crossing() {
++    // The same step, but the peer ignores the crossing request too. Without
++    // a response nothing resets lostResponses (11.2.19): that request is the
++    // first lost, so the third unanswered request after it clears asCapable.
++    requalify("unanswered crossing: answered exchanges requalify after silence");
++    check_.dec("unanswered crossing: one grandmaster-driven step",
++               silence_across_step("unanswered crossing", false), 1);
++    const uint64_t due = probe_request_ + (2 * link_ns_ + kTurnNs) / kTickNs;
++    check_.that("unanswered crossing: step falls between returned t1 and due response",
++                probe_stamp_ < last_step_cycle_ && last_step_cycle_ < due);
++    check_.that("unanswered crossing: crossing exchange never completes",
++                probe_response_ == 0 && probe_follow_up_ == 0);
++    check_.dec("unanswered crossing: no invalid link-delay publication", bad_delays_, 0);
++    check_.dec("unanswered crossing: asCapable falls once while the peer is silent", drops_, 1);
++    check_.dec("asCapable falls at the third unanswered request after an unanswered crossing request",
++               unanswered_at_drop_, 3);
++  }
++};
++}
++
++int main(int argc, char** argv) {
++  Verilated::commandArgs(argc, argv);
++  Harness harness;
++  return harness.run();
++}
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index ac011fcc1..59ea2df0b 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -21,11 +21,9 @@
+ #                 a format change under Milan 5.4.2.7 and a restored format
+ #   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
+ #                 outside the sweep's deadline
+-#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
+-#                 the acceptance's controls of it (gmstep_mutants.py)
+-#   make gmstep-mutants - that leg's whole control inventory, with five
+-#                 controls of the option-off leg's #602 PHC-only mr exclusions, outside
+-#                 the sweep's deadline
++#   make gmstep - run only the #387 GM step re-base leg. The sweep runs it,
++#                 and its acceptance controls, in ../milan_dp_gm_steps, which
++#                 also holds its whole control inventory (gmstep-mutants)
+ #   make clean  - remove build artifacts
+ 
+ VERILATOR ?= verilator
+@@ -215,7 +213,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -371,13 +369,16 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
+ # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
+ # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
+-# model). `run` runs it and then its negative controls, gmstep_mutants.py,
+-# which build mutated copies through this same recipe (GMSTEP_MDIR and
+-# DP_SRC, CLKV_SRC, RSP_SRC or MCR_SRC overridden); the sweep plants the five
+-# controls the #387/#602 acceptances name, and gmstep-mutants below the whole
+-# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
+-# that many fabric cycles before the peer's media feed starts, which moves
+-# the accept phase against the media tick; the leg must pass at every delay.
++# model). The ../milan_dp_gm_steps suite runs it and then its negative
++# controls, ../milan_dp_gm_steps/gmstep_mutants.py, which build mutated copies
++# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RSP_SRC or
++# MCR_SRC overridden); the sweep plants the five controls the #387/#602
++# acceptances name, and that suite's gmstep-mutants target the whole
++# inventory. `run` here no longer runs the leg (#621): its #621 phase made it
++# the costliest leg on this suite's worker. The AEM image is the shipping
++# config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
++# media feed starts, which moves the accept phase against the media tick; the
++# leg must pass at every delay.
+ GMSTEP_MDIR ?= obj_gmstep
+ GMSTEP_FEED_DELAY ?= 0
+ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+@@ -390,11 +391,6 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ gmstep: gmstep-build
+ 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+ 
+-# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
+-# gmstep leg's whole control inventory, one datapath elaboration per control.
+-gmstep-mutants: gmstep
+-	python3 gmstep_mutants.py --all
+-
+ # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
+ # target above leaves both constants at their zero defaults and therefore
+ # grades the UNCORRECTED stamps bit for bit; this one elaborates non-zero,
+@@ -423,9 +419,10 @@ gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ 
+ # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
+ # with the gPTP product plane structurally absent and every legacy write inert.
+-# Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
+-# a MUTATED datapath (DP_SRC) for its option-off controls (#602: a PHC-only
+-# re-base leaves mr and MEDIA_RESET unchanged).
++# Its build alone, into OPTOFF_MDIR, is what ../milan_dp_gm_steps/
++# gmstep_mutants.py rebuilds with a MUTATED datapath (DP_SRC) for its
++# option-off controls (#602: a PHC-only re-base leaves mr and MEDIA_RESET
++# unchanged).
+ OPTOFF_MDIR ?= obj_dir
+ option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
+@@ -541,7 +538,7 @@ ax1x1gptp: ax1x1gptp-build
+ ax1x1gptp-extended: AX_GPTP_ARGS = --extended
+ ax1x1gptp-extended: ax1x1gptp
+ 
+-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
++run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+ 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+ 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
+ # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
+@@ -633,8 +630,6 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+ 	  ./obj_aclk/Vmilan_dp_aclk
+ 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
+ 	python3 render_mutants.py
+-	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
+-	python3 gmstep_mutants.py
+ # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
+ # target stays here so there is only one source/parameter/build recipe.
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index e924987e4..8aec153e5 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -78,7 +78,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
+ | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+ | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
+-| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; `gmstep_mutants.py` plants five controls in the sweep and `make gmstep-mutants` the whole inventory |
++| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
+ 
+ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ 
+@@ -897,9 +897,13 @@ accept phase. At head `471892a9`, both round-2 reviews measured 103 checks
+ and zero failures at all 42 delays ([R366-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861287085),
+ [R367-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861301512)).
+ 
+-**It runs in the default sweep, with its negative controls.**
+-`run` invokes `gmstep_mutants.py` after the clean leg.
+-It rebuilds through the same `gmstep-build` recipe.
++**It runs in the default sweep, with its negative controls, in its own suite.**
++`run` here no longer runs it: the #621 phase made it this suite's costliest leg.
++The [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs the clean leg once.
++Then it invokes its [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py).
++That driver rebuilds through this suite's `gmstep-build` recipe.
++In the sweep it passes `--no-small-steps`, which leaves out only the #621 phase.
++No sweep control names a check in that phase; its README tabulates them.
+ `GMSTEP_MDIR` selects a disposable build directory.
+ `DP_SRC`, `CLKV_SRC`, `RSP_SRC` and `MCR_SRC` select mutated copies.
+ Each control must fail its named check:
+@@ -927,8 +931,9 @@ Each control must fail its named check:
+ Each control costs one datapath elaboration.
+ The sweep carries five controls named by the two acceptances.
+ 
+-The explicit `make gmstep-mutants` target runs all twenty controls.
+-The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
++The explicit `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` target runs all twenty controls.
++Each runs on the whole leg, the #621 phase included.
++The `CONTROLS` list in [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py) defines that inventory.
+ 
+ It includes the seventeen tabulated above, plus three #545 controls.
+ The additions cover the policy level and applied-rate tail.
+@@ -1376,6 +1381,6 @@ Real Sync pairs raise and clear the exported slew level.
+ It measures fractional PHC advances into each staged servo sample.
+ The last measured slew increment identifies the release tail.
+ The phase checks wiring; it does not grade media-loop settling.
+-Run `python3 gmstep_mutants.py --slew` for the connection controls.
++Run `python3 gmstep_mutants.py --slew` in `../milan_dp_gm_steps` for the connection controls.
+ Tied-low input, missing tail and added addend delay must fail.
+-These controls also belong to `make gmstep-mutants`.
++These controls also belong to that suite's `make gmstep-mutants`.
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index bf962b157..18963132f 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -17,8 +17,8 @@
+ // the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+ // opened by the escape bit), pending genuine mr requests (tb/verilator/tkdiag
+ // T17 and T18 grade the unchanged restart engine PDU by PDU), and the
+-// physical re-base (#117). Its
+-// negative controls are gmstep_mutants.py.
++// physical re-base (#117). Its negative controls are
++// ../milan_dp_gm_steps/gmstep_mutants.py, and that suite runs this leg.
+ //
+ // Elaboration: the `gptp` leg's (AX7101 1x1 TDM8 entity, fabric gPTP ON, the
+ // fabric clock compressed to 2 MHz so the plane's real timers fit a runnable
+@@ -26,9 +26,9 @@
+ // cycles). Everything below is in fabric cycles and PHC nanoseconds of this
+ // model; nothing is scaled back to wall time.
+ //
+-// Peer: one link partner at a 600 ns one-way delay. Its Pdelay answers are
+-// fabricated against the DUT's own PHC exactly as sim_gptp.cpp does, so the
+-// published delay stays at the link delay across a PHC step. Its Sync origins
++// Peer: one link partner at a 600 ns one-way delay. Its Pdelay answers use
++// an independent LocalClock driven by fabric cycles. Request launch records
++// identify physical time without importing the DUT's stepped epoch. Sync origins
+ // come from an INDEPENDENT grandmaster timeline, gm(c) = 8 c + epoch: GM A's
+ // epoch puts it seconds ahead of the reset PHC (the link-up pair steps), and
+ // the change to GM B moves the epoch by kGmStepNs. Nothing about the new
+@@ -58,10 +58,18 @@
+ // rate, no pause beyond four of its intervals, counting the silence from its
+ // last PDU to the end of the graded window.
+ //
+-// Usage: Vmilan_dp_gmstep <aem image> [feed delay]. The optional feed delay
+-// (fabric cycles, default 0) idles before the peer's media feed starts, which
+-// moves the accept phase against the media tick; a correct datapath passes at
+-// every delay. Exit 0 only when every check passes.
++// Issue #621: after the GM change a further phase steps the grandmaster by
++// +10 ms and -10 ms under CRF and then INTERNAL selection, and grades
++// asCapable, the published link delay, tu, the public counters and media
++// continuity across several Pdelay intervals of each step.
++//
++// Usage: Vmilan_dp_gmstep <aem image> [feed delay] [--no-small-steps]. The
++// optional feed delay (fabric cycles, default 0) idles before the peer's
++// media feed starts, which moves the accept phase against the media tick; a
++// correct datapath passes at every delay. --no-small-steps leaves the #621
++// phase out, and nothing else: the sweep runs its gmstep_mutants.py controls
++// that way, because none of their named checks is in that phase, and runs
++// the clean leg once with it. Exit 0 only when every check passes.
+ 
+ #include "../../common/verilator_harness.hpp"
+ #include "../../common/gptp_launch_observer.hpp"
+@@ -240,6 +248,10 @@ struct Trace {
+     uint64_t tu_fall_cyc = 0;
+     uint64_t identity_cyc = 0;          //! first cycle the bank named GM B
+     bool tu_at_identity = false;
++    uint64_t tu_rises = 0;
++    uint64_t incapable_cycles = 0;
++    uint64_t bad_delay_cycles = 0;
++    uint64_t servo_locked_cycles = 0;
+     uint64_t render_triggers = 0;       //! render_recentre_p_w pulses
+     std::vector<uint64_t> recentre_cycs;  //! cycles the counted tally moved
+ };
+@@ -256,8 +268,8 @@ struct AxiFires {
+ 
+ class GmStepHarness {
+  public:
+-    GmStepHarness(std::vector<uint8_t> image, uint64_t feed_delay)
+-        : descriptor_(std::move(image)), feed_delay_(feed_delay) {
++    GmStepHarness(std::vector<uint8_t> image, uint64_t feed_delay, bool small_steps)
++        : descriptor_(std::move(image)), feed_delay_(feed_delay), small_steps_(small_steps) {
+         check_.echo_passes();
+     }
+     int run();
+@@ -268,6 +280,7 @@ class GmStepHarness {
+     milan::tb::Checker check_{"gmstep"};
+     std::vector<uint8_t> descriptor_;
+     uint64_t feed_delay_ = 0;                  //! idle before the media feed
++    bool small_steps_ = true;                  //! run the #621 phase
+     milan::tb::GptpLaunchObserver observer_{kPhcTickNs};
+     uint64_t cyc_ = 0;
+     uint64_t phc_prev_ = 0;
+@@ -375,6 +388,7 @@ class GmStepHarness {
+     void provision_media();
+     void baseline();
+     void change_grandmaster();
++    void check_small_grandmaster_steps();
+     void check_slew_connection();
+     void check_crf_restart();
+     void check_coincident_restart();
+@@ -468,7 +482,7 @@ void GmStepHarness::observe() {
+     settime_pulses_ += settime;
+     coincident_pulses_ += crf_toggle && settime;
+     const bool tu = root->milan_datapath__DOT__clkv_tu_w;
+-    if (tu && !trace_.tu_prev) trace_.tu_rise_cyc = cyc_;
++    if (tu && !trace_.tu_prev) { trace_.tu_rise_cyc = cyc_; ++trace_.tu_rises; }
+     if (!tu && trace_.tu_prev) trace_.tu_fall_cyc = cyc_;
+     //! both are read after the same edge: the bank's identity and the tu every
+     //! talker stamps during the cycle that follows it
+@@ -477,6 +491,10 @@ void GmStepHarness::observe() {
+         trace_.tu_at_identity = tu;
+     }
+     trace_.tu_prev = tu;
++    if (!(root->milan_datapath__DOT__gptp_pub_flags_w & 4)) ++trace_.incapable_cycles;
++    trace_.servo_locked_cycles += (root->milan_datapath__DOT__mcsrv_stat_w & 7) == 4;
++    const uint32_t delay = root->milan_datapath__DOT__gptp_pub_pdelay_w;
++    if (delay < kLinkNs - 16 || delay > kLinkNs + 16) ++trace_.bad_delay_cycles;
+     if (root->milan_datapath__DOT__gptp_step_we_w) {
+         ++trace_.step_pulses;
+         trace_.step_pulse_cyc = cyc_;
+@@ -600,15 +618,13 @@ void GmStepHarness::schedule() {
+     }
+ }
+ 
+-//! A Pdelay response is fabricated here, against the PHC the DUT will stamp
+-//! its first beat with: t2 = now + 5 ms and a residence that leaves exactly
+-//! the link delay, so a PHC step between t1 and now cancels (sim_gptp.cpp).
++//! Responder timestamps follow physical cycles, independent of DUT steps.
++//! Scheduling jitter changes residence time, never the physical link delay.
+ void GmStepHarness::start_frame(Outgoing what) {
+     if (what.kind == Kind::Crf) crf_start_cyc_ = cyc_;
+     if (what.kind == Kind::PdelayResp) {
+-        const uint64_t now = phc_ns();
+-        const uint64_t t2 = now + 5000000;
+-        const uint64_t t3 = t2 + (now - what.value) - 2 * static_cast<uint64_t>(kLinkNs);
++        const uint64_t t2 = what.value + 20000000000ULL;
++        const uint64_t t3 = 20000000000ULL + cyc_ * kPhcTickNs - kLinkNs;
+         control_.push_back({Kind::PdelayRespFu, what.seq, t3, what.tail, 0, cyc_ + 16});
+         what.value = t2;
+     }
+@@ -661,8 +677,7 @@ void GmStepHarness::rx_drive() {
+ 
+ //! One receive beat went in. The first beat of a Sync is the instant the DUT
+ //! stamps, so the Follow_Up's origin is the grandmaster's time at that
+-//! instant less the link; a Pdelay response is answered the same way
+-//! sim_gptp.cpp does, against the PHC the DUT stamps it with.
++//! instant less the link. Pdelay uses the independent peer LocalClock.
+ void GmStepHarness::rx_accepted() {
+     const bool first = rx_off_ == 0;
+     rx_off_ += 8;
+@@ -696,7 +711,7 @@ void GmStepHarness::complete_tx() {
+ }
+ 
+ //! Queue an answer to every Pdelay_Req once its launch has been reported
+-//! (#360); start_frame() fabricates its times.
++//! (#360); start_frame() supplies independent peer LocalClock timestamps.
+ void GmStepHarness::service_pdelay() {
+     while (pd_scan_ < tx_frames_.size()) {
+         const std::vector<uint8_t>& req = tx_frames_[pd_scan_];
+@@ -705,8 +720,10 @@ void GmStepHarness::service_pdelay() {
+             continue;
+         }
+         uint64_t t1 = 0;
+-        if (!observer_.t1_of(0x2, static_cast<unsigned>(be(req, 44, 2)), &t1)) return;
+-        Outgoing resp{Kind::PdelayResp, static_cast<uint16_t>(be(req, 44, 2)), t1,
++        uint64_t at_cycle = 0;
++        if (!observer_.t1_of(0x2, static_cast<unsigned>(be(req, 44, 2)), &t1, &at_cycle)) return;
++        const uint64_t t2 = at_cycle * kPhcTickNs - observer_.correction_ns() + kLinkNs;
++        Outgoing resp{Kind::PdelayResp, static_cast<uint16_t>(be(req, 44, 2)), t2,
+                       std::vector<uint8_t>(req.begin() + 34, req.begin() + 44), 0, cyc_ + 300};
+         control_.push_back(resp);
+         ++pd_scan_;
+@@ -930,6 +947,66 @@ void GmStepHarness::change_grandmaster() {
+     grade_the_event(sout0, sout_mid, mid_cyc, sin0, recentres0, rails0, talker0);
+ }
+ 
++//! Issue #621: observe several complete Pdelay intervals after both signs.
++//! The public GET_COUNTERS responses grade effects at their consumer boundary.
++void GmStepHarness::check_small_grandmaster_steps() {
++    for (const bool internal : {false, true}) {
++        const uint8_t source = internal ? 0 : kCrfClockSource;
++        const auto selected = aecp_transaction(0x0016, 0x7410, {0x00, 0x24, 0x00, 0x00,
++                                                              0x00, source, 0x00, 0x00});
++        check_.dec("621: clock selection succeeds", selected.size() > 16 ? selected[16] >> 3 : 255, 0);
++        run_cycles(3 * kClkHz);
++        check_.dec("621: root resolves selected clock source",
++                   dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, !internal);
++        for (const int64_t delta : {10000000LL, -10000000LL}) {
++            const auto avb0 = counters(0x7400, 0x0009);
++            const auto domain0 = counters(0x7401, 0x0024);
++            const auto sout0 = counters(0x7402, 0x0006);
++            sin0_accepts_.first = accepts_.size();
++            const auto sin0 = counters(0x7403, 0x0005);
++            sin0_accepts_.second = accepts_.size();
++            const size_t talker0 = talker_.size();
++            trace_ = Trace{};
++            trace_.tu_prev = dut_->rootp->milan_datapath__DOT__clkv_tu_w;
++            check_.dec("621: tu clear before the step", trace_.tu_prev, 0);
++            gm_id_ += 1; --gm_priority_; gm_epoch_ += delta;
++            media_follows_sync_ = true;
++            next_announce_ = cyc_; next_sync_ = cyc_ + kGmSyncDelayCyc;
++            run_cycles(4 * kClkHz);
++            const auto avb1 = counters(0x7404, 0x0009);
++            const auto domain1 = counters(0x7405, 0x0024);
++            const auto sout1 = counters(0x7406, 0x0006);
++            sin1_accepts_.first = accepts_.size();
++            const auto sin1 = counters(0x7407, 0x0005);
++            sin1_accepts_.second = accepts_.size();
++            printf("621: %s signed step %lld, tu episodes %llu\n", internal ? "INTERNAL" : "CRF",
++                   static_cast<long long>(delta),
++                   static_cast<unsigned long long>(trace_.tu_rises));
++            check_.dec("621: exactly one step", trace_.step_pulses, 1);
++            check_.that("621: signed 10 ms PHC step", trace_.step_ns > delta - 1000 && trace_.step_ns < delta + 1000);
++            check_.dec("621: asCapable held every cycle", trace_.incapable_cycles, 0);
++            check_.dec("621: valid link delay every cycle", trace_.bad_delay_cycles, 0);
++            check_.dec("621: one tu episode", trace_.tu_rises, 1);
++            check_.dec("621: tu clears again", dut_->rootp->milan_datapath__DOT__clkv_tu_w, 0);
++            check_.dec("621: one GPTP_GM_CHANGED", counter_word(avb1, 5) - counter_word(avb0, 5), 1);
++            // The existing compressed-clock model leaves the CRF servo unlocked.
++            // Under #629 C1 this keeps CLOCK_DOMAIN unlocked while following.
++            // At INTERNAL, the same tu episode must produce one public edge pair.
++            check_.dec("621: CRF servo remains unlocked throughout", trace_.servo_locked_cycles, 0);
++            check_.dec("621: CLOCK_DOMAIN UNLOCKED delta", counter_word(domain1, 1) - counter_word(domain0, 1), internal ? 1 : 0);
++            check_.dec("621: CLOCK_DOMAIN LOCKED delta", counter_word(domain1, 0) - counter_word(domain0, 0), internal ? 1 : 0);
++            check_.dec("621: no outgoing mr change", mr_toggles_since(talker0), 0);
++            check_.dec("621: no MEDIA_RESET", counter_word(sout1, 2) - counter_word(sout0, 2), 0);
++            grade_the_licence(talker0, sin0, sin1);
++        }
++    }
++    const auto restored = aecp_transaction(0x0016, 0x7411, {0x00, 0x24, 0x00, 0x00,
++                                                          0x00, kCrfClockSource, 0x00, 0x00});
++    check_.dec("621: restore CRF selection succeeds", restored.size() > 16 ? restored[16] >> 3 : 255, 0);
++    run_cycles(kClkHz / 10);
++    check_.dec("621: CRF source restored", dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, 1);
++}
++
+ void GmStepHarness::grade_the_event(const std::vector<uint8_t>& sout0,
+                                     const std::vector<uint8_t>& sout_mid, uint64_t mid_cyc,
+                                     const std::vector<uint8_t>& sin0, uint64_t recentres0,
+@@ -1206,6 +1283,8 @@ int GmStepHarness::run() {
+         provision_media();
+         baseline();
+         change_grandmaster();
++        if (small_steps_) check_small_grandmaster_steps();
++        else printf("gmstep: the #621 small-step phase is left out (--no-small-steps)\n");
+         check_crf_restart();
+         check_slew_connection();
+         check_coincident_restart();
+@@ -1222,28 +1301,34 @@ int GmStepHarness::run() {
+ int main(int argc, char** argv) {
+     Verilated::commandArgs(argc, argv);
+     setvbuf(stdout, nullptr, _IOLBF, 0);
+-    if (argc != 2 && argc != 3) {
+-        fprintf(stderr, "usage: %s <aem image> [feed delay cycles]\n", argv[0]);
++    std::vector<std::string> args(argv + 1, argv + argc);
++    const auto skip = std::find(args.begin(), args.end(), "--no-small-steps");
++    const bool small_steps = skip == args.end();
++    if (!small_steps) args.erase(skip);
++    const bool option = std::any_of(args.begin(), args.end(),
++                                    [](const std::string& a) { return a.rfind("--", 0) == 0; });
++    if (args.empty() || args.size() > 2 || option) {
++        fprintf(stderr, "usage: %s <aem image> [feed delay cycles] [--no-small-steps]\n", argv[0]);
+         return 2;
+     }
+     uint64_t feed_delay = 0;
+-    if (argc == 3) {
+-        const std::string text = argv[2];
++    if (args.size() == 2) {
++        const std::string& text = args[1];
+         if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos
+                 || text.size() > 6) {
+-            fprintf(stderr, "gmstep: the feed delay %s is not a cycle count below 10^6\n", argv[2]);
++            fprintf(stderr, "gmstep: the feed delay %s is not a cycle count below 10^6\n", text.c_str());
+             return 2;
+         }
+         feed_delay = std::stoull(text);
+     }
+-    std::ifstream file(argv[1], std::ios::binary);
++    std::ifstream file(args[0], std::ios::binary);
+     std::vector<uint8_t> image{std::istreambuf_iterator<char>(file),
+                                std::istreambuf_iterator<char>()};
+     if (image.empty()) {
+-        fprintf(stderr, "gmstep: the AEM image %s is missing or empty\n", argv[1]);
++        fprintf(stderr, "gmstep: the AEM image %s is missing or empty\n", args[0].c_str());
+         return 2;
+     }
+     printf("gmstep: feed delay %llu cycles\n", static_cast<unsigned long long>(feed_delay));
+-    GmStepHarness harness(std::move(image), feed_delay);
++    GmStepHarness harness(std::move(image), feed_delay, small_steps);
+     return harness.run();
+ }
+diff --git a/tb/verilator/milan_dp/test_sim_pool.py b/tb/verilator/milan_dp/test_sim_pool.py
+index 8fdc1e58a..48cad39ac 100644
+--- a/tb/verilator/milan_dp/test_sim_pool.py
++++ b/tb/verilator/milan_dp/test_sim_pool.py
+@@ -34,8 +34,10 @@ What the arms hold, and why each one is here:
+   order, the dump file ends with the last writer's bytes, and an empty name
+   fails at the first writer as the sequential recipe did;
+ * the runner's own lines add no check and no failure to the suite's tally;
+-* the Makefile hands the runner the eleven legs of the recipe, in the recipe's
+-  order and with its banners, at two workers unless SIM_JOBS says one.
++* the Makefile hands the runner the twelve legs of the recipe, in the recipe's
++  order and with its banners, at two workers unless SIM_JOBS says one; then
++  render_mutants.py is the recipe's last step, and nothing of the #387 GM step
++  leg is built or run (#621 moved it to ../milan_dp_gm_steps).
+ 
+ A runner that never has two legs alive leaves the two arms that need two
+ waiting rather than passing: ending that wait is the person's or the per-suite
+@@ -67,7 +69,8 @@ RUNNER = HERE / "sim_pool.py"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import FAIL_MARKER, log_reports_failure, scan  # noqa: E402
+ 
+-#: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530.
++#: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530,
++#: and the #658 leg dev 30e3c018 (PR #670) added.
+ #: The rebase retains this full inventory and each existing execution phase.
+ LEGACY_LEGS = (
+     (None, "./obj_dir/Vmilan_dp_sim"),
+@@ -76,6 +79,8 @@ LEGACY_LEGS = (
+      "./obj_notify/Vmilan_dp_notify"),
+     ("---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----",
+      "./obj_crflic/Vmilan_dp_crflic"),
++    ("---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----",
++     "./obj_dynmap/Vmilan_dp_dynmap"),
+     (None, "./obj_nxn/Vmilan_dp_nxn"),
+     ("---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----",
+      "./obj_nxndv/Vmilan_dp_nxndv"),
+@@ -856,10 +861,12 @@ def logical_lines(text: str) -> list[str]:
+ 
+ 
+ def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
+-    """`make -n run`: the runner gets exactly the recipe's eleven legs, in its
++    """`make -n run`: the runner gets exactly the recipe's twelve legs, in its
+     order and with its banners, two workers unless SIM_JOBS=1 and whatever
+     -j says, after all ordinary builds and before render_mutants.py, on a line
+-    whose errors make does not ignore."""
++    whose errors make does not ignore. render_mutants.py is the last step, and
++    no line builds or runs the #387 GM step leg, its banner or its controls:
++    #621 moved them to ../milan_dp_gm_steps, and run no longer depends on it."""
+     expected: list[str] = []
+     for banner, exe in LEGACY_LEGS:
+         if banner is not None:
+@@ -886,7 +893,10 @@ def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
+         assert len(built) == len(LEGACY_LEGS), f"{extra}: {len(built)} of the ordinary builds"
+         render_at = lines.index("python3 render_mutants.py")
+         assert max(built) < runner_at[0] < render_at, extra
+-        assert render_at < lines.index("python3 gmstep_mutants.py"), extra
++        after = [line for line in lines[render_at + 1:] if not line.startswith("make: ")]
++        assert after == [], f"{extra}: steps after render_mutants.py: {after}"
++        gmstep = [line for line in lines if "gmstep" in line.lower() or "gm step" in line.lower()]
++        assert gmstep == [], f"{extra}: run still builds or runs the GM step leg: {gmstep}"
+     recipe = [line for line in (HERE / "Makefile").read_text().splitlines()
+               if "sim_pool.py" in line and line.startswith("\t")]
+     assert len(recipe) == 1, recipe
+diff --git a/tb/verilator/milan_dp/test_sim_pool_backpressure.py b/tb/verilator/milan_dp/test_sim_pool_backpressure.py
+index b1a18c576..2e876751d 100644
+--- a/tb/verilator/milan_dp/test_sim_pool_backpressure.py
++++ b/tb/verilator/milan_dp/test_sim_pool_backpressure.py
+@@ -84,30 +84,31 @@ def prepare(case: Scenario, recipe: bool, body: str) -> tuple[list[str], list]:
+     if not recipe:
+         return [sys.executable, "sim_pool.py", "--jobs=2", *commands], selected
+     (case.dir / "Makefile").write_bytes((HERE / "Makefile").read_bytes())
+-    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat",
+-                 "obj_gmstep/Vmilan_dp_gmstep"):
++    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat"):
+         exe = case.dir / path
+         exe.parent.mkdir(exist_ok=True)
+         exe.write_text("#!/bin/sh\nexit 0\n")
+         exe.chmod(0o755)
+     (case.dir / "render_mutants.py").write_text(
+         "from pathlib import Path\nPath('render-ran').touch()\n")
++    # #621 moved the GM step leg's controls to ../milan_dp_gm_steps; this
++    # stand-in shows a run recipe that runs them here again.
+     (case.dir / "gmstep_mutants.py").write_text(
+         "from pathlib import Path\nPath('gmstep-controls-ran').touch()\n")
+     argv = ["make", "-s", "--no-print-directory", "-f", "Makefile", "run",
+             f"CURDIR={HERE}", f"VERILATOR={case.dir}/compiler", "VERILATOR_JOBS=8"]
+     # Query expanded prerequisites from the actual recipe, rather than keep
+-    # a second generated-input inventory. All three prerequisite legs execute.
++    # a second generated-input inventory. Both prerequisite legs execute.
+     # CRFLIC_BUILD also adds a target-specific .SHELLSTATUS assignment.
+     # That database row is a variable, not the run prerequisite list.
+     database = subprocess.run(["make", "-np", "-C", str(HERE), "run"],
+                               env=clean_env(), capture_output=True, text=True, check=True)
+     prerequisites = next(line.split()[1:] for line in database.stdout.splitlines()
+                          if line.startswith("run:") and ":=" not in line)
++    assert "gmstep" not in prerequisites, f"run depends on the GM step leg: {prerequisites}"
+     for name in prerequisites:
+-        if name not in ("gptp", "gptp-lat", "gmstep"):
++        if name not in ("gptp", "gptp-lat"):
+             argv += ["-o", name]
+-    argv += ["-o", "gmstep-build"]
+     return argv, selected
+ 
+ 
+@@ -125,11 +126,10 @@ def check_delivery(case: Scenario, selected: list, body: str, prefix: bytes,
+                                 for index, (banner, exe) in enumerate(selected)])
+         assert disk == expected, "legacy binary transcript changed"
+         suffix = (b"---- #386 render law: the same leg against mutated setpoint stages and datapath ----\n"
+-                  b"---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----\n"
+                   if recipe else b"")
+         assert output == prefix + expected + suffix, "pipe output lost/duplicated/reordered bytes"
+         assert (case.dir / "render-ran").exists() == recipe
+-        assert (case.dir / "gmstep-controls-ran").exists() == recipe
++        assert not (case.dir / "gmstep-controls-ran").exists(), "run ran the GM step controls"
+     else:
+         assert (prefix + disk).startswith(output), "partial delivery is not a transcript prefix"
+         assert len(output) == len(prefix), "consumer drained before cancellation assertions"
+diff --git a/tb/verilator/milan_dp_gm_steps/Makefile b/tb/verilator/milan_dp_gm_steps/Makefile
+new file mode 100644
+index 000000000..5f95980de
+--- /dev/null
++++ b/tb/verilator/milan_dp_gm_steps/Makefile
+@@ -0,0 +1,36 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++#
++# THE GM STEP LEG (#387, #602, #621) AND ITS DEFAULT CONTROLS, split out of
++# tb/verilator/milan_dp for wall clock. ../milan_dp keeps the leg's one
++# recipe, its harness (sim_gmstep.cpp) and the generated images it reads;
++# this suite runs them on its own worker, and owns their control driver.
++#
++#   make                - the clean leg with every phase, then the five
++#                         acceptance controls; those run the leg without its
++#                         #621 small-step phase, which holds none of their
++#                         named checks
++#   make gmstep-mutants - the whole control inventory, every control on the
++#                         whole leg: an explicit campaign, outside the sweep's
++#                         deadline (docs/testing/TESTING.md)
++#
++# WHY THIS IS ITS OWN SUITE DIRECTORY (#621 runtime round). The #621 phase
++# took the leg from 48 s to 253 s of CPU, and the sweep ran the leg seven
++# times: the clean leg, the driver's positive control and five controls. On
++# hosted run 38048622822 milan_dp then hit its 4800 s limit. Without this
++# change dev's own milan_dp already took 2973-3520 s on hosted pushes, over
++# 60% of that limit. Moving the leg and its controls here takes its whole
++# share off milan_dp's worker. Every check and control still runs on every
++# PR; only the controls skip the phase none of them names. Native per-leg
++# times and the hosted projection are in this suite's README.
++
++.PHONY: all run gmstep-mutants
++all: run
++
++run:
++	$(MAKE) -C ../milan_dp gmstep
++	python3 gmstep_mutants.py --no-small-steps
++
++gmstep-mutants:
++	$(MAKE) -C ../milan_dp gmstep
++	python3 gmstep_mutants.py --all
+diff --git a/tb/verilator/milan_dp_gm_steps/README.md b/tb/verilator/milan_dp_gm_steps/README.md
+new file mode 100644
+index 000000000..fe3fd0276
+--- /dev/null
++++ b/tb/verilator/milan_dp_gm_steps/README.md
+@@ -0,0 +1,122 @@
++<!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++
++# milan_dp_gm_steps: the GM step leg and its controls (#387, #602, #621)
++
++This suite runs the `milan_dp` gmstep leg and its five acceptance controls
++on their own worker. `../milan_dp` keeps the leg's one recipe, its harness
++`sim_gmstep.cpp` and the generated images the leg reads at run time. This
++directory owns the control driver, `gmstep_mutants.py`.
++
++## Contents
++
++- **[What runs](#what-runs)** -- The clean leg with every phase, then the controls.
++- **[Why the controls leave out the #621 phase](#why-the-controls-leave-out-the-621-phase)** -- No named check is in it, and the explicit campaign keeps the whole leg.
++- **[Why this is its own suite](#why-this-is-its-own-suite)** -- The measured cost of each `milan_dp` leg at base and at the #621 head.
++- **[Running](#running)** -- The default target, the explicit campaign and the leg alone.
++
++## What runs
++
++| Step | Command | What it grades |
++|---|---|---|
++| 1 | `make -C ../milan_dp gmstep` | The clean leg with every phase: acquisition, media, baseline, the #387 1.5 s GM change, the #621 small steps (+10 ms and -10 ms under CRF, then INTERNAL selection), the selected CRF restart, the slew connection and the 32 coincident-restart delays |
++| 2 | `python3 gmstep_mutants.py --no-small-steps` | The positive control, then the five controls the #387/#602 acceptances name, each on the leg without its #621 phase. Each control must fail its named check |
++
++The [`milan_dp` README](../milan_dp/README.md#gm-step-re-base-leg-387) describes
++the leg's phases and the whole control inventory.
++The [gPTP plane design](../../../docs/design/GPTP_PLANE.md#peer-delay-during-phc-steps)
++describes the #621 phase.
++
++## Why the controls leave out the #621 phase
++
++The harness flag `--no-small-steps` removes that one phase and nothing else.
++The five sweep controls name these checks, none of them in the #621 phase:
++
++| Control | Named check | Phase it lies in |
++|---|---|---|
++| the PHC re-base restart term is restored | restart: a PHC-only step leaves outgoing mr unchanged | GM change |
++| the source-change term is removed | source control: a real source change toggles mr once | media |
++| selected CRF `mr` propagation is removed | CRF control: selected CRF mr propagates exactly once | selected CRF restart |
++| the grandmaster identity re-bases the render stage as well as the step | render: the GM change is one counted re-base event | GM change |
++| the step does not re-centre the render stage | render: the GM change is one counted re-base event | GM change |
++
++A separate profiled run at `83239549` spent 173 of its 222 CPU seconds there.
++Running it in every control cost five runs of it, plus the positive control's.
++At `83239549`, with the phase in every run, four controls broke no #621 check.
++The restart-term control also broke the eight #621 `mr` and MEDIA_RESET checks.
++Only its named check is graded, here and before.
++`make gmstep-mutants` still runs every control through the whole leg.
++
++## Why this is its own suite
++
++On hosted run 38048622822 `milan_dp` reached its 4800 s limit at `83239549`.
++Without that change, dev's own `milan_dp` took 2973 to 3520 s on hosted pushes.
++That is over 60% of the limit already, so removing the #621 phase alone could
++not restore the margin. The gmstep leg and its controls left `milan_dp` together.
++
++Native per-leg times of `milan_dp`, one suite run per head, both started together
++on the same loaded eight-core host with two-job Verilator builds. Seconds of wall
++clock; the run legs also give their CPU seconds.
++
++| Leg | Base `5603c353` | Head `83239549` | Change |
++|---|---:|---:|---:|
++| `gptp` build and run | 178.5 | 179.6 | +1.1 |
++| `gptp-lat` build and run | 180.8 | 185.0 | +4.2 |
++| `gmstep` build | 57.7 | 54.7 | -3.0 |
++| `gmstep` clean run | 56.4 (47.8 CPU) | 262.1 (252.5 CPU) | +205.7 |
++| twelve ordinary builds | 566.9 | 552.5 | -14.4 |
++| `sim_pool`, twelve ordinary legs | 748.9 | 748.3 | -0.6 |
++| `render_mutants.py` | 565.7 | 586.2 | +20.5 |
++| `gmstep_mutants.py`: five control builds | 246.1 | 226.4 | -19.7 |
++| `gmstep_mutants.py`: six runs, the positive control's included | 264.8 | 1326.4 | +1061.6 |
++| generators, image tools and the driver's own work | 2.5 | 2.7 | +0.2 |
++| whole suite, `make` start to end | 2870.1 | 4126.6 | +1256.5 |
++
++The gmstep leg's seven runs cost the time.
++Each run grew by the #621 phase, about 205 s.
++
++At the split head `0e3eef5b`, each suite ran in its own clean checkout, the
++two started together on the same host. Seconds of wall clock, with CPU seconds
++in brackets:
++
++| `milan_dp` leg | Head `83239549` | Split head `0e3eef5b` |
++|---|---:|---:|
++| `gptp` build and run | 179.6 (215.7) | 165.0 (199.1) |
++| `gptp-lat` build and run | 185.1 (221.9) | 153.2 (183.3) |
++| `gmstep` build and clean run | 316.8 (348.5) | moved |
++| twelve ordinary builds | 552.4 (992.7) | 539.3 (927.1) |
++| `sim_pool`, twelve ordinary legs | 748.3 (900.1) | 728.9 (871.1) |
++| `render_mutants.py` | 586.2 (727.2) | 537.3 (666.0) |
++| `gmstep_mutants.py` | 1555.0 | moved |
++| whole suite, `make` start to end | 4126.6 | 2124.4 |
++
++| `milan_dp_gm_steps` leg at `0e3eef5b` | Seconds |
++|---|---:|
++| `gmstep` build | 46.2 (81.6) |
++| `gmstep` clean run, every phase | 216.8 (215.9) |
++| `gmstep_mutants.py`: five control builds | 233.5 (409.9) |
++| `gmstep_mutants.py`: six runs without the #621 phase, and its own work | 243.8 |
++| whole suite, `make` start to end | 741.0 |
++
++The host was less loaded during this pair, so the unchanged legs ran 2 to 17%
++faster than in the first pair. The hosted projection below therefore removes the
++gmstep share measured in the first pair rather than using the split-head total.
++
++**Hosted projection.** The six dev pushes from run 37968528697 to run
++38067159953 took 2972.7 to 3519.6 s for `milan_dp`, 1.036 to 1.226 times this
++host's base total. At 1.226 the #621 head projects to 5060 s: both hosted runs
++of it timed out at 4800 s. The gmstep leg and its controls were 627.3 s of the
++2870.1 s base total, 21.9%. Without them those six windows become 2323 to
++2750 s, at most 57.3% of 4800 s. This suite projects to 741.0 x 1.226 = 909 s,
++50.5% of its 1800 s budget. Hosted runs confirm or replace these figures.
++
++## Running
++
++```sh
++make -C tb/verilator/milan_dp_gm_steps
++make -C tb/verilator/milan_dp_gm_steps gmstep-mutants
++make -C tb/verilator/milan_dp gmstep
++```
++
++The first is the sweep's target. The second is the explicit campaign, outside the
++sweep's deadline. The third runs the clean leg alone.
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+similarity index 89%
+rename from tb/verilator/milan_dp/gmstep_mutants.py
+rename to tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+index 58b308f6e..c8584c867 100755
+--- a/tb/verilator/milan_dp/gmstep_mutants.py
++++ b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+@@ -22,6 +22,13 @@ It also restores both PHC causes together and vetoes a genuine CRF request
+ on the very cycle a software settime re-bases the PHC.
+ Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
+ 
++The recipe, the harness and the generated images the legs read belong to
++tb/verilator/milan_dp; this driver builds and runs them there. With
++--no-small-steps every gmstep run, the positive control's included, leaves
++out the #621 small-step phase and nothing else. The sweep runs its controls
++that way: none of their named checks is in that phase, and the suite runs
++the clean leg once with it. The explicit campaigns run the whole leg.
++
+ What bounds a run. This driver sets no host-time deadline (rule 8's
+ wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
+ cycle-bounded by construction: every phase runs a fixed cycle count, every
+@@ -31,7 +38,8 @@ the clean leg. The host-time bound of the default run is the sweep's
+ per-suite guard in scripts/run_all_suites.sh; the SIGTERM handler turns that
+ kill into an exit that removes the temporary directory.
+ 
+-Usage: python3 gmstep_mutants.py [--all]   (run from tb/verilator/milan_dp)
++Usage: python3 gmstep_mutants.py [--all | --slew] [--no-small-steps]
++(run from tb/verilator/milan_dp_gm_steps)
+ Exit 0 = every control was caught and the clean leg still passes.
+ """
+ 
+@@ -44,6 +52,9 @@ from pathlib import Path
+ from typing import NamedTuple
+ 
+ HERE = Path(__file__).resolve().parent
++#: the suite that owns both legs' recipes and harnesses, and the run directory
++#: of their binaries: they read the generated ROM images there
++DP = HERE.parent / "milan_dp"
+ SOURCES = {
+     "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
+     "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+@@ -81,12 +92,13 @@ class Leg(NamedTuple):
+     exe_name: str
+     harness: str                #: its C++ harness, an input of the recipe
+     takes_aem: bool             #: it reads the AEM image beside its binary
++    short_flag: str = ""        #: what --no-small-steps passes it, if anything
+ 
+ 
+ LEGS = {
+-    "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", HERE / "obj_gmstep",
+-                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True),
+-    "option-off": Leg("option-off-build", "OPTOFF_MDIR", HERE / "obj_dir",
++    "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", DP / "obj_gmstep",
++                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps"),
++    "option-off": Leg("option-off-build", "OPTOFF_MDIR", DP / "obj_dir",
+                       "Vmilan_dp_sim", "sim_main.cpp", False),
+ }
+ 
+@@ -236,9 +248,9 @@ CONTROLS = [
+ 
+ 
+ def build(leg: Leg, sources: dict[str, Path], mdir: Path) -> Path | None:
+-    """Build `leg` against `sources` through the suite's own recipe; the
++    """Build `leg` against `sources` through its own recipe in milan_dp; the
+     executable, or None when the recipe failed or left none."""
+-    command = ["make", "-s", "-C", str(HERE), leg.target, f"{leg.mdir_var}={mdir}"]
++    command = ["make", "-s", "-C", str(DP), leg.target, f"{leg.mdir_var}={mdir}"]
+     command += [f"{MAKE_VAR[key]}={path}" for key, path in sources.items()]
+     out = subprocess.run(command, capture_output=True, text=True, check=False)
+     exe = mdir / leg.exe_name
+@@ -255,21 +267,23 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
+     Makefile itself. A list that cannot be read counts as stale."""
+     # GNU make 4.3 can inherit directory printing from a parent recipe even
+     # with -s. Keep that chatter out of the source-path inventory for both legs.
+-    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
++    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(DP), "print-srcs"],
+                          capture_output=True, text=True, check=False)
+     if out.returncode != 0 or not exe.is_file():
+         return False
+-    inputs = [HERE / name for name in out.stdout.split()]
+-    inputs += [HERE / leg.harness, HERE / "Makefile"]
++    inputs = [DP / name for name in out.stdout.split()]
++    inputs += [DP / leg.harness, DP / "Makefile"]
+     built = exe.stat().st_mtime
+     return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
+ 
+ 
+-def run_leg(leg: Leg, exe: Path) -> tuple[int, str]:
++def run_leg(leg: Leg, exe: Path, short: bool) -> tuple[int, str]:
+     """(rc, stdout) of one run of the leg, with no host deadline: it is
+-    cycle-bounded (module docstring). The AEM image sits beside the binary."""
++    cycle-bounded (module docstring). The AEM image sits beside the binary.
++    `short` passes the leg's --no-small-steps flag, when it has one."""
+     command = [str(exe)] + ([str(exe.parent / "aemi.bin")] if leg.takes_aem else [])
+-    out = subprocess.run(command, cwd=str(HERE), capture_output=True, text=True,
++    command += [leg.short_flag] if short and leg.short_flag else []
++    out = subprocess.run(command, cwd=str(DP), capture_output=True, text=True,
+                          check=False)
+     return out.returncode, out.stdout + out.stderr
+ 
+@@ -297,7 +311,7 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
+     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
+ 
+ 
+-def run_control(control: Control, work: Path, tag: int) -> bool:
++def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
+     """Plant one control, build and run the leg; True when it was caught."""
+     base = SOURCES[control.source].resolve()
+     text = base.read_text()
+@@ -317,7 +331,7 @@ def run_control(control: Control, work: Path, tag: int) -> bool:
+         print(f"[FAIL] control {control.name!r} did not compile; a control that cannot "
+               f"build proves nothing about the leg")
+         return False
+-    rc, out = run_leg(leg, exe)
++    rc, out = run_leg(leg, exe, short)
+     answer = verdict(rc, out, control.breaks)
+     if answer == "caught":
+         broke = failed_checks(out)
+@@ -341,6 +355,8 @@ def main() -> int:
+     parser.add_argument("--all", action="store_true",
+                         help="plant the whole inventory, not only the acceptance's controls")
+     parser.add_argument("--slew", action="store_true", help="plant only the #545 connection controls")
++    parser.add_argument("--no-small-steps", action="store_true",
++                        help="run every gmstep leg without its #621 small-step phase")
+     args = parser.parse_args()
+ 
+     def on_sigterm(*_: object) -> None:
+@@ -358,19 +374,21 @@ def main() -> int:
+             leg = LEGS[key]
+             exe = leg.clean_mdir / leg.exe_name
+             if not is_fresh(leg, exe):
+-                print(f"[INFO] {exe.relative_to(HERE)} is missing or older than its "
++                print(f"[INFO] {exe.relative_to(DP)} is missing or older than its "
+                       f"sources: the positive control is rebuilt")
+                 exe = build(leg, {}, work / f"obj_clean_{leg.target}")
+-            answer = verdict(*run_leg(leg, exe), None) if exe else "did not compile"
++            answer = (verdict(*run_leg(leg, exe, args.no_small_steps), None) if exe
++                      else "did not compile")
++            mode = f" ({leg.short_flag})" if args.no_small_steps and leg.short_flag else ""
+             if answer == "pass":
+                 passes += 1
+-                print(f"[PASS] the unmutated gateware still passes the {key} leg")
++                print(f"[PASS] the unmutated gateware still passes the {key} leg{mode}")
+             else:
+                 fails += 1
+-                print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg "
++                print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg{mode} "
+                       f"({answer}) - every control result on it is meaningless")
+         for tag, control in enumerate(selected):
+-            if run_control(control, work, tag):
++            if run_control(control, work, tag, args.no_small_steps):
+                 passes += 1
+             else:
+                 fails += 1
+diff --git a/tb/verilator/nvm_capture_cpu/README.md b/tb/verilator/nvm_capture_cpu/README.md
+index e645efa14..9e1f576d0 100644
+--- a/tb/verilator/nvm_capture_cpu/README.md
++++ b/tb/verilator/nvm_capture_cpu/README.md
+@@ -181,6 +181,8 @@ Named controls change bytes, records, CPU and configured clocks.
+ Timing controls check half-floor equality and one tick beyond it.
+ A slower OFF fixture must determine the published maximum.
+ A planted grader excluding OFF must fail that fixture.
++Every receipt arm is graded as production, even one that names a control.
++A planted arm claiming the byte-only control must still fail the bound.
+ All controls execute before the ordinary gate verdict.
+ These explicit mutations must each exit nonzero:
+ 
+@@ -189,4 +191,5 @@ python3 scripts/check_nvm_capture.py --mutation bytes
+ python3 scripts/check_nvm_capture.py --mutation records
+ python3 scripts/check_nvm_capture.py --mutation clock
+ python3 scripts/check_nvm_capture.py --mutation ignore-off-timing
++python3 scripts/check_nvm_capture.py --mutation receipt-opt-out
+ ```
+diff --git a/tb/verilator/nvm_capture_cpu/measurements.json b/tb/verilator/nvm_capture_cpu/measurements.json
+index a6b27c8b6..a85d51e4d 100644
+--- a/tb/verilator/nvm_capture_cpu/measurements.json
++++ b/tb/verilator/nvm_capture_cpu/measurements.json
+@@ -1,6 +1,6 @@
+ {
+-  "date": "2026-10-02",
+-  "base": "a2f1734283f367d0d522c8c7cda09b79aff60d06",
++  "date": "2026-10-09",
++  "base": "034e2e30f225f3fcd755cac8ad01c60dda5b366a",
+   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
+   "soc_component_revisions": {
+     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+@@ -43,7 +43,7 @@
+     "sim_main.cpp": "6badc0169535098690357f4c3ad114cf116843d66b08342cbfeb0cde990e3e96",
+     "recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+     "probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+-    "run.py": "1bddc676e452a885f11f8cc1e6fe75a3b6e0df8f8d704baade0ee1f5f72d5dea"
++    "run.py": "c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659"
+   },
+   "measurements": [
+     {
+@@ -92,7 +92,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24691,
++          "requests": 24690,
+           "responses": 26,
+           "reads": 1006
+         },
+@@ -116,7 +116,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24694,
++          "requests": 24693,
+           "responses": 26,
+           "reads": 1014
+         },
+@@ -152,7 +152,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24697,
++          "requests": 24698,
+           "responses": 26,
+           "reads": 1010
+         },
+@@ -164,7 +164,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24665,
++          "requests": 24664,
+           "responses": 25,
+           "reads": 1006
+         },
+@@ -176,7 +176,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24665,
++          "requests": 24664,
+           "responses": 25,
+           "reads": 1006
+         },
+@@ -188,7 +188,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24665,
++          "requests": 24664,
+           "responses": 25,
+           "reads": 1006
+         },
+@@ -200,7 +200,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24690,
++          "requests": 24691,
+           "responses": 26,
+           "reads": 1006
+         },
+@@ -212,7 +212,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24671,
++          "requests": 24672,
+           "responses": 26,
+           "reads": 998
+         },
+@@ -236,7 +236,7 @@
+           "records": 54,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 24690,
++          "requests": 24691,
+           "responses": 26,
+           "reads": 1006
+         },
+@@ -258,7 +258,7 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+       "bios_sha256": "afb2f54f1a80549c12ed853a6ce9789da822da1408e15f6be0a8c4e859eaed57",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
+     },
+     {
+@@ -473,7 +473,7 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+       "bios_sha256": "d001869a7db6bfe9b633903a47d4a18c02809375b3ff74d9fa8558378facd27e",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
+       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
+     },
+     {
+@@ -484,45 +484,45 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 13.848360000000001,
+-      "maximum_ms": 13.86484,
++      "minimum_ms": 13.84682,
++      "maximum_ms": 13.86318,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 3.5341193984207537,
++      "margin": 3.534542579696722,
+       "rows": [
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1385074,
++          "sys_cycles": 1385678,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86480,
+-          "responses": 91,
+-          "reads": 3549
++          "requests": 86518,
++          "responses": 92,
++          "reads": 3558
+         },
+         {
+           "index": 1,
+           "ok": 1,
+-          "sys_cycles": 1386484,
++          "sys_cycles": 1384682,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86569,
+-          "responses": 92,
+-          "reads": 3587
++          "requests": 86456,
++          "responses": 91,
++          "reads": 3575
+         },
+         {
+           "index": 2,
+           "ok": 1,
+-          "sys_cycles": 1386318,
++          "sys_cycles": 1386046,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86559,
++          "requests": 86541,
+           "responses": 91,
+           "reads": 3549
+         },
+@@ -606,7 +606,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86466,
++          "requests": 86465,
+           "responses": 91,
+           "reads": 3559
+         },
+@@ -642,7 +642,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 86472,
++          "requests": 86471,
+           "responses": 91,
+           "reads": 3549
+         },
+@@ -688,8 +688,8 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+       "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -699,7 +699,7 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "off",
+-      "minimum_ms": 13.67682,
++      "minimum_ms": 13.68947,
+       "maximum_ms": 13.6939,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+@@ -708,7 +708,7 @@
+         {
+           "index": 0,
+           "ok": 1,
+-          "sys_cycles": 1367682,
++          "sys_cycles": 1369030,
+           "raw": 13210,
+           "records": 164,
+           "mismatches": 0,
+@@ -903,8 +903,8 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+       "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -928,7 +928,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130120,
++          "requests": 130119,
+           "responses": 90,
+           "reads": 3510
+         },
+@@ -952,7 +952,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130105,
++          "requests": 130104,
+           "responses": 91,
+           "reads": 3535
+         },
+@@ -964,7 +964,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130119,
++          "requests": 130118,
+           "responses": 91,
+           "reads": 3534
+         },
+@@ -976,7 +976,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130206,
++          "requests": 130207,
+           "responses": 90,
+           "reads": 3534
+         },
+@@ -988,7 +988,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130119,
++          "requests": 130118,
+           "responses": 91,
+           "reads": 3534
+         },
+@@ -1036,7 +1036,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130118,
++          "requests": 130119,
+           "responses": 91,
+           "reads": 3534
+         },
+@@ -1048,7 +1048,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130207,
++          "requests": 130206,
+           "responses": 90,
+           "reads": 3534
+         },
+@@ -1072,7 +1072,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130216,
++          "requests": 130217,
+           "responses": 91,
+           "reads": 3535
+         },
+@@ -1096,7 +1096,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130217,
++          "requests": 130216,
+           "responses": 91,
+           "reads": 3535
+         },
+@@ -1108,7 +1108,7 @@
+           "records": 164,
+           "mismatches": 0,
+           "open": 0,
+-          "requests": 130187,
++          "requests": 130188,
+           "responses": 90,
+           "reads": 3510
+         }
+@@ -1118,8 +1118,8 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "d28f6c6bea6d7a0af75c59a46f39e68904f75f0c94d24ec15e078e5794a69160",
+       "bios_sha256": "ce4fe46a6f8e2981b5d521f3cfe036fb379ad8849b7f41bc56fc11600473c15d",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -1333,8 +1333,8 @@
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+       "instrumented_firmware_sha256": "8cefa0a704c114277a5c5273adb3a4c714a0c288ae5ff7d9d713dee6fe9d03d1",
+       "bios_sha256": "5914abcb1cf5a94c600ec1ef4e00b22187414895b4f8259a5e338717fe25baac",
+-      "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+-      "config_sha256": "a3f90aab180da408f64f2b03b3b128174b38cea19decb679b8dce7bd5e51e563"
++      "gptp_ucode_sha256": "fd3dad06a18b590aa5cdf4aa9bc7bf0a77220fe7e6214ea940870980f12de9f1",
++      "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
+     }
+   ],
+   "maxima": [
+@@ -1347,8 +1347,8 @@
+     {
+       "shape": "endstation_ax7101_8x8",
+       "cpu_hz": 50000000,
+-      "maximum_ms": 13.86484,
+-      "margin": 3.5341193984207537
++      "maximum_ms": 13.86318,
++      "margin": 3.534542579696722
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -1357,13 +1357,13 @@
+       "margin": 4.698108196472967
+     }
+   ],
+-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634",
++  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382",
+   "processor_pins": {
+-    "protocol-processor": "b2db3a970cedbbff2f8ba813acb96122c442bc58",
+-    "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
++    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
++    "gptp-processor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   },
+-  "tree": "c28595df81fb96ae7cb554216c76a23917105169",
++  "tree": "a5d1a1b02212c04de89292893fcf022b39620848",
+   "reproduction_environment": {
+     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
+     "PYTHONHASHSEED": "0",
+@@ -1374,6 +1374,6 @@
+     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
+     "SCRATCH": "external build directory, outside the repository; one per arm"
+   },
+-  "provenance": "All six arms measure the unchanged #70 lane 2 firmware for the census #629 grows (the CLOCK_SOURCE NAME records of the AAF listeners), at processor pin b2db3a97. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The six arms ran in parallel from the tree of a2f17342. A first run at 62822ca6, before the meter's port split and the TX-trace fix, reproduced every capture's cycle count in the five arms it graded; its 8x8 OFF arm could not be graded, a TX trace having split a CAPTURE row, which a2f17342 fixes. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
++  "provenance": "All six arms measure the unchanged #70 lane 2 firmware at the #629 census, from the tree of 034e2e30 (gPTP pin 7dda9c3b, protocol-processor pin 2ad2f845) on Verilator 5.052, in four parallel workers. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The #621 base, 5603c353 with gPTP pin 5dce647a, writes byte-identical capture logs in all six arms and the three named controls, so the #621 gPTP change has no capture effect. The previous values were measured at a2f17342; that tree reproduces them in each arm rerun there (1x1 / 50 MHz ON, 8x8 / 50 MHz ON and OFF). The changed values come from capture-SoC RTL and the 8x8 configuration changing on dev between a2f17342 and 5603c353. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
+ }
+diff --git a/tb/verilator/nvm_capture_cpu/run.py b/tb/verilator/nvm_capture_cpu/run.py
+index c2948e66d..4e3006961 100644
+--- a/tb/verilator/nvm_capture_cpu/run.py
++++ b/tb/verilator/nvm_capture_cpu/run.py
+@@ -56,7 +56,7 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
+ 
+ 
+ def grade_rows(rows: list[dict], spec: dict) -> dict:
+-    """Apply the same timing and byte oracle to both traffic arms.
++    """Check every capture and bound production timing in both traffic arms.
+ 
+     The census each row must copy is the spec's, derived from the generated
+     shape by `nvm_shape.closed_record_census`, never restated here.
+@@ -75,7 +75,8 @@ def grade_rows(rows: list[dict], spec: dict) -> dict:
+         if (spec['traffic'] == 'on' and not all(value > 0 for value in counts)
+                 or spec['traffic'] == 'off' and any(counts)):
+             raise RuntimeError(f'traffic arm failed: {row}')
+-        if row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']:
++        if (spec.get('mutation', 'none') == 'none'
++                and row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']):
+             raise RuntimeError('worst measured copy exceeds half the 49 ms hold floor')
+     elapsed = [row['sys_cycles'] / spec['sys_hz'] * 1000 for row in rows]
+     return dict(shape=spec['shape'], captures=len(rows), sys_hz=spec['sys_hz'],
+@@ -101,7 +102,7 @@ def grade_byte_only(measured: dict, baseline: dict) -> None:
+ 
+ 
+ def byte_only_controls() -> None:
+-    """Accept the ratio boundary; reject a faster or mismatched control."""
++    """Separate the production time bound from the byte-only slowdown check."""
+     baseline = dict(shape=SHAPES[0], cpu_hz=CPU_HZ, sys_hz=100_000_000,
+                     configured_cpu_hz=CPU_HZ, phase='fixed', traffic='on', maximum_ms=10)
+     measured = dict(baseline, minimum_ms=15)
+@@ -112,6 +113,17 @@ def byte_only_controls() -> None:
+         except RuntimeError:
+             continue
+         raise RuntimeError('byte-only grading control escaped')
++    row = dict(index=0, ok=1, sys_cycles=2_500_000, raw=4, records=1,
++               mismatches=0, open=0, requests=1, responses=1, reads=1)
++    spec = dict(baseline, captures=1, raw_bytes=4, records=1, mutation='byte-only')
++    grade_byte_only(grade_rows([row], spec), baseline)
++    try:
++        grade_rows([row], dict(spec, mutation='none'))
++    except RuntimeError as exc:
++        if 'half the 49 ms' not in str(exc):
++            raise
++    else:
++        raise RuntimeError('production timing bound was ignored')
+ 
+ 
+ def maximum_ms(arms: list[dict]) -> float:

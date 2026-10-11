@@ -1,0 +1,166 @@
+[
+  {
+    "name": "docs-check",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 12.765
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "cfadd767a7ad47aaee68de655e1066cc000fb8a0"
+    ],
+    "rc": 2,
+    "seconds": 2.962
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.156
+  },
+  {
+    "name": "toc-anchors",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "seconds": 0.137
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.159
+  },
+  {
+    "name": "ci-events-check",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.512
+  },
+  {
+    "name": "ci-events-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 25.063
+  },
+  {
+    "name": "test-evidence",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 11.583
+  },
+  {
+    "name": "submodule-docs",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 1.307
+  },
+  {
+    "name": "diagram-pngs",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 1.035
+  },
+  {
+    "name": "diagram-pngs-selftest",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.975
+  },
+  {
+    "name": "submodule-diagram",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.154
+  },
+  {
+    "name": "timesync-diagram",
+    "argv": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.844
+  },
+  {
+    "name": "suite-shards",
+    "argv": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.179
+  },
+  {
+    "name": "sim-pool",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/test_sim_pool.py"
+    ],
+    "rc": 0,
+    "seconds": 15.974
+  },
+  {
+    "name": "sim-pool-backpressure",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/test_sim_pool_backpressure.py"
+    ],
+    "rc": -15,
+    "seconds": 40.45
+  },
+  {
+    "name": "capture-receipt",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 1.164
+  }
+]

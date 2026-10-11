@@ -1,0 +1,33 @@
+[
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "cfadd767a7ad47aaee68de655e1066cc000fb8a0"
+    ],
+    "rc": 0,
+    "seconds": 4.868
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.274
+  },
+  {
+    "name": "toc-anchors",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 5.206
+  }
+]
