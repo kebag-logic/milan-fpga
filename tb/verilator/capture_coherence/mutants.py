@@ -169,12 +169,12 @@ NCO_EQ = (("    else if (32'(cnt_r) >= end_w) begin", "    else if (32'(cnt_r) =
 #: break, spelled as the harness prints them)
 MUTATIONS = [
     ("junction", "the walk reads the per-pair stage (the ce550952 latest-sample law)",
-     (("                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;",
-       "                               ? tdm_stage_r[idx_f[TDMPW_C-1:0]] : 48'd0;"),),
+     (("      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];",
+       "      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_stage_r[p];"),),
      (TORN, "[W] walks reading two TDM frames")),
     ("junction", "no walk snapshot: the walk reads the frame bank live",
-     (("                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;",
-       "                               ? tdm_frame_r[idx_f[TDMPW_C-1:0]] : 48'd0;"),),
+     (("      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];",
+       "      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_frame_r[p];"),),
      TORN),
     ("junction", "the frame is closed by its first pair",
      (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",

@@ -546,6 +546,15 @@ run_tops() {
       continue
     fi
 
+    # Restore converted elaboration errors before the cache hashes the input.
+    # Inactive generate branches remain legal; active guards fail at binding.
+    if ! python3 "$R/syn/yosys/enforce_elaboration.py" "$TMP/$top.v"; then
+      printf "  [FAIL] %-22s elaboration guard conversion failed\n" "$top"
+      record_result top "$top" FAIL 1 "$MODE" ""
+      fail=$((fail + 1))
+      continue
+    fi
+
     # Written with a placeholder for this run's scratch directory FIRST and
     # substituted second: the placeholder form is the result cache's key
     # (#350), and no two runs could share a key over a mktemp path.

@@ -40,6 +40,25 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
    fully mapped to generic logic (`$_AND_`, `$_DFF_`, `$_MUX_`, …) — nothing
    Xilinx-specific left.
 
+Both flows enforce elaboration errors, including converted diagnostics (#651).
+`enforce_elaboration.py` restores converted error/fatal displays to `$error` tasks.
+Yosys 0.66 refuses these when their generate branch is active.
+The refusal names `$error`; converted diagnostics lose their specific message.
+Generate conditions remain intact; inactive branches still pass.
+Parameter overrides activate the same guards during hierarchy binding.
+The normalized input also feeds the result-cache digest.
+Old cached passes for converted errors therefore cannot clear this check.
+The hosted portability workers call this same `run.sh` path.
+
+```sh
+python3 syn/yosys/guard_selftest.py
+```
+
+The controls exercise both flows with real synthesis.
+They cover valid boundaries, refused values, overrides and both modes.
+Deleting enforcement reproduces the false pass, including its cached form.
+Native `$error` and `$fatal` tasks remain unchanged.
+
 ## Tooling
 - `yosys` — **CI takes this gate's verdict with Yosys `v0.66`** (#287), declared
   once per workflow file as `YOSYS_VERSION` in

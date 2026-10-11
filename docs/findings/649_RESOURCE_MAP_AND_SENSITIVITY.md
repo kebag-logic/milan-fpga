@@ -22,10 +22,15 @@ The opportunities at the end are recommendations, each with its cost in function
 - **Streams are the expensive parameter.** Out of context, each stream per direction adds 3,828 LUTs, 2,911 FFs and 1.5 BRAM tiles, two thirds of the LUTs in the processor. With 18 slices free, no shape above 1x1 fits this device.
 - **Channels and the TDM bus width are free.** Eight channels per stream cost the same as two, and 32 capture slots the same as 8; the render lane is what costs, 499 routed LUTs.
 - **The optional blocks are small against the gap.** Pruning the RX address filter, the latency taps, the loopback lane and the probes could save up to about 1,200 routed LUTs, a tenth of NFR-RES-01's 12,727-LUT gap. The other optional blocks carry functions the product ships.
-- **Yosys is a direction, not a figure.** Its LUT counts are 2.2 to 2.8 times Vivado's after optimization, block ratios spread over two orders of magnitude, and it does not enforce the RTL's elaboration guards. The out-of-context Vivado anchor predicts the route within 3.3 percent.
+- **Yosys is a direction, not a figure.** Its LUT counts are 2.2 to 2.8 times Vivado's after optimization, block ratios spread over two orders of magnitude, and the measured flows ignored converted elaboration guards. The out-of-context Vivado anchor predicts the route within 3.3 percent.
 - **Refused shapes.** The builder accepted an eight-stream TDM8 configuration that the RTL refuses (235 writable names against the saved-state backend's 128). Since #652 the builder refuses it when it is generated, so the sweep records it as refused and does not price it.
 - **SoC options.** The recipe's one software profile refuses every CPU, cache and L2 option; priced from a scratch recipe copy, each further core costs about 1,480 LUTs, both L1 caches about 1,200 and NaxRiscv about 14,300, and an L2 is built only with the L1 caches. The DDR3 controller and PHY hold 2,599 of the SoC top's 6,072 flip-flops.
 - **The second port** would replicate at least 7,100 routed LUTs and 9,918 FFs of measured per-port blocks, plus its MAC; nothing is recommended about it.
+
+**Update 2026-10-09 (#651).** Both synthesis flows now refuse active guards.
+Pinned sv2v 0.0.12 preserves native `$error` tasks.
+`enforce_elaboration.py` restores converted diagnostics from sv2v 0.0.13.
+The historical guard finding and resource measurements remain unchanged.
 
 ## Method
 
@@ -97,10 +102,15 @@ Columns follow `ooc.sh`: LUT counts LUT1 to LUT6 plus the LUT6 equivalents of di
 Yosys 0.66 and sv2v v0.0.13 ran every point.
 
 **Elaboration guards.**
-sv2v turns an elaboration-time `$error` in a generate block into an `initial $display`, which Yosys does not enforce.
-So a point the RTL refuses still maps, with no error: neither `ooc.sh` nor `run.sh` looks for the converted message.
+At the measured revision, sv2v converted guards into `initial $display`.
+Yosys ignored those converted elaboration errors.
+Neither synthesis flow checked the converted message then.
+Consequently, configurations refused by RTL guards still mapped.
 `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
 A point whose guard fires, or whose shape the builder refuses, is listed in [the refusals](#guard-refusals) and left out of every fit.
+Issue #651 subsequently adds guard enforcement to both synthesis flows.
+Their converted error tasks now fail when their generate branch activates.
+The measurements below retain their original method and revision.
 A point with no guard record, or whose lint hit a hard error, is not treated as clean: `resmap_models.py` stops and names it.
 
 ### Vivado calibration anchors

@@ -198,7 +198,10 @@
                     from the byte-serial MAC), so the skid cannot
                     sustainably overflow; if a harness drives faster anyway
                     the NEWEST commit is refused and counted on
-                    lb_skip_cnt_o.
+                    lb_skip_cnt_o. A skid entry is a commit DESCRIPTOR (its
+                    form and beat slot): both commits of a beat are
+                    arrangements of that beat's {stash-or-0, smp0, smp1},
+                    which a 4-slot beat bank holds once (#640 M6).
                   * POP: each media tick runs a PRE-WALK of LB_PAIRS_C + 1
                     cycles before the slot walk, popping exactly one event
                     per non-empty pair into the lb_hold_r bank; the slot walk
@@ -726,8 +729,14 @@ module KL_chan_map_capture #(
   //! event of its own (mono / odd channel count)
   wire cm0_v_w    = lb_w0_w && (lb_ch0_w[0] || lb_last0_w);
   wire [23:0] cm0_l_w = stash_vld_r ? stash_val_r : 24'd0;
-  wire [47:0] cm0_data_w = lb_ch0_w[0] ? {cm0_l_w, lb_smp0_w}
-                                       : {lb_smp0_w, 24'd0};
+  //! commit FORMS: every commit word is one of four arrangements of the
+  //! beat's own {stash-or-0, smp0, smp1} - the skid keeps the form, not the
+  //! word (see the beat bank below)
+  localparam logic [1:0] CF_STASH_SMP0_C = 2'd0,   //! {cm0_l, smp0}: odd ch0
+                         CF_SMP0_ZERO_C  = 2'd1,   //! {smp0, 0}: even final ch0
+                         CF_SMP0_SMP1_C  = 2'd2,   //! {smp0, smp1}: aligned pair
+                         CF_SMP1_ZERO_C  = 2'd3;   //! {smp1, 0}: lone even ch1
+  wire [1:0] cm0_form_w = lb_ch0_w[0] ? CF_STASH_SMP0_C : CF_SMP0_ZERO_C;
   wire [LBPW_C-1:0] cm0_addr_w = lb_a0_w;
   //! smp1: consumed by smp0 into one aligned {smp0, smp1} commit, or an
   //! {L, 0} event of its own, or it opens the stash (force-committed {L, 0}
@@ -736,8 +745,7 @@ module KL_chan_map_capture #(
   wire cm1_solo_v_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
                       && (lb_last1_w || lb_tlast_i);
   wire cm1_v_w    = lb_pair01_w || cm1_solo_v_w;
-  wire [47:0] cm1_data_w = lb_pair01_w ? {lb_smp0_w, lb_smp1_w}
-                                       : {lb_smp1_w, 24'd0};
+  wire [1:0] cm1_form_w = lb_pair01_w ? CF_SMP0_SMP1_C : CF_SMP1_ZERO_C;
   wire [LBPW_C-1:0] cm1_addr_w = lb_pair01_w ? lb_a0_w : lb_a1_w;
   wire stash_open_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
                       && !lb_last1_w && !lb_tlast_i;
@@ -815,19 +823,45 @@ module KL_chan_map_capture #(
   logic [LB_DROPW_C-1:0] act_drop_r [N_LB_STREAMS_P]; //! this walk: same drop for every pair
 
   //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
-  logic [47:0]       skid_data_r [LB_SKID_C];
+  //! #640 M6: an entry is a commit DESCRIPTOR - its form and the beat-bank
+  //! slot of the beat it came from - not the 48-bit word. The two commits a
+  //! beat can make are both arrangements of that beat's {stash-or-0, smp0,
+  //! smp1}, so the beat is written ONCE, into a LB_SKID_C-slot LUT-RAM bank
+  //! (one write port), and the drain rebuilds the head commit's word from
+  //! it. Capacity, order, refusal and flush-kill laws are the skid's own:
+  //! only the payload field changed form.
+  logic [1:0]        skid_form_r [LB_SKID_C];
+  logic [1:0]        skid_beat_r [LB_SKID_C];
   logic [LBPW_C-1:0] skid_addr_r [LB_SKID_C];
   logic [3:0]        skid_strm_r [LB_SKID_C];
   logic [LB_SKID_C-1:0] skid_v_r;
   logic [1:0]        skid_wp_r, skid_rp_r;
   logic [2:0]        skid_cnt_r;
+  //! the beat bank: {stash-or-0, smp0, smp1} of each beat with a commit in
+  //! the skid. No reset: a slot is read only through a descriptor written
+  //! with it. Live commits form a FIFO suffix, so their beats are the
+  //! newest few written; a beat is admitted only when its commits fit, so
+  //! at most LB_SKID_C - 1 older beats are live and the slot it takes is
+  //! never one a live descriptor names (the head being drained that same
+  //! cycle is read before the edge that overwrites it).
+  logic [71:0]       beat_bank_r [LB_SKID_C];
+  logic [1:0]        beat_wp_r;
 
   //! drain one entry per cycle whenever the skid holds any; a head entry
   //! killed by a flush is skipped (advances, writes nothing)
   wire skid_drain_w = (skid_cnt_r != 3'd0);
   wire push_ram_w   = skid_drain_w && skid_v_r[skid_rp_r];
   wire [LBPW_C-1:0] push_pair_w = skid_addr_r[skid_rp_r];
-  wire [47:0]       push_data_w = skid_data_r[skid_rp_r];
+  wire [71:0]       head_beat_w = beat_bank_r[skid_beat_r[skid_rp_r]];
+  logic [47:0]      push_data_w;
+  always_comb begin : head_commit_word
+    unique case (skid_form_r[skid_rp_r])
+      CF_STASH_SMP0_C : push_data_w = {head_beat_w[71:48], head_beat_w[47:24]};
+      CF_SMP0_ZERO_C  : push_data_w = {head_beat_w[47:24], 24'd0};
+      CF_SMP0_SMP1_C  : push_data_w = {head_beat_w[47:24], head_beat_w[23:0]};
+      default         : push_data_w = {head_beat_w[23:0],  24'd0};
+    endcase
+  end : head_commit_word
 
   //! enqueue admission: up to 2 commits per beat, drop the NEWEST (counted)
   //! if a harness outruns the >= 8-cycle wire beat spacing; a same-cycle
@@ -842,7 +876,7 @@ module KL_chan_map_capture #(
   wire skid_ovf1_w = cm1_v_w && !beat_flush_w && !skid_acc1_w;
   //! slot 0 of the enqueue carries cm0 when present, else cm1
   wire enq0_v_w = cm0_v_w ? skid_acc0_w : skid_acc1_w;
-  wire [47:0]       enq0_data_w = cm0_v_w ? cm0_data_w : cm1_data_w;
+  wire [1:0]        enq0_form_w = cm0_v_w ? cm0_form_w : cm1_form_w;
   wire [LBPW_C-1:0] enq0_addr_w = cm0_v_w ? cm0_addr_w : cm1_addr_w;
   wire enq1_v_w = cm0_v_w && skid_acc1_w;
   wire [1:0] skid_wp0_w = skid_wp_r;
@@ -968,6 +1002,11 @@ module KL_chan_map_capture #(
   wire [16:0] skip_sum_w = 17'(lb_skip_cnt_o) + 17'(skip_inc_w);
   wire [16:0] dup_sum_w  = 17'(lb_dup_cnt_o) + 17'(pop_dup_w);
 
+  //! the beat bank's one write port
+  always_ff @(posedge clk_i) begin : beat_bank_write
+    if (enq0_v_w) beat_bank_r[beat_wp_r] <= {cm0_l_w, lb_smp0_w, lb_smp1_w};
+  end : beat_bank_write
+
   //! pop data-return pipeline (registered array read = BRAM-shaped)
   logic [47:0]       q_rdata_r;
   logic              pop_ret_v_r;
@@ -993,6 +1032,15 @@ module KL_chan_map_capture #(
       rc_arm_r       <= '0;
       rc_dec_r       <= '0;
       skid_v_r       <= '0;
+      //! functionally invisible (a descriptor is read only once written):
+      //! with the loopback feed tied off, these never-written arrays send
+      //! Verilator 5.050's gate optimiser into an internal error
+      //! (V3Gate.cpp:986) unless they take a reset
+      for (int k = 0; k < int'(LB_SKID_C); k++) begin
+        skid_form_r[k] <= '0;
+        skid_beat_r[k] <= '0;
+      end
+      beat_wp_r      <= 2'd0;
       skid_wp_r      <= 2'd0;
       skid_rp_r      <= 2'd0;
       skid_cnt_r     <= 3'd0;
@@ -1004,13 +1052,18 @@ module KL_chan_map_capture #(
     end
     else begin
       //! ---- skid enqueue (up to 2) / drain (1) --------------------------
+      //! a beat with an admitted commit takes the next bank slot (enq1
+      //! implies enq0: two commits need two free entries, one needs one)
       if (enq0_v_w) begin
-        skid_data_r[skid_wp0_w] <= enq0_data_w;
+        skid_form_r[skid_wp0_w] <= enq0_form_w;
+        skid_beat_r[skid_wp0_w] <= beat_wp_r;
         skid_addr_r[skid_wp0_w] <= enq0_addr_w;
         skid_strm_r[skid_wp0_w] <= lb_tuser_i;
+        beat_wp_r               <= beat_wp_r + 2'd1;
       end
       if (enq1_v_w) begin
-        skid_data_r[skid_wp1_w] <= cm1_data_w;
+        skid_form_r[skid_wp1_w] <= cm1_form_w;
+        skid_beat_r[skid_wp1_w] <= beat_wp_r;
         skid_addr_r[skid_wp1_w] <= cm1_addr_w;
         skid_strm_r[skid_wp1_w] <= lb_tuser_i;
       end
@@ -1216,43 +1269,67 @@ module KL_chan_map_capture #(
   wire [12:0] ent_l_w = map_r[{slot_r, 1'b0}];   //! even channel 2p
   wire [12:0] ent_r_w = map_r[{slot_r, 1'b1}];   //! odd channel 2p+1
 
-  //! per-channel resolver: entry {en, half, src, idxh, idx} -> the 24-bit
-  //! sample of ITS mono cluster (the selected half of the source pair).
-  //! An entry naming a stream/pair the build does not keep resolves to
-  //! silence (the §5 "illegal encoding behaves as disabled" rule); the
-  //! TONE bucket carries the same value on both halves by construction.
-  function automatic logic [23:0] resolve_ch(input logic [12:0] e);
-    logic        en_f;
+  //! THE SOURCE TABLE (#640 M6): every mono cluster a channel can carry,
+  //! as one flat table of 24-bit samples - 0 silence, 1/2 the I2S pair's
+  //! L/R, 3 the tone, then each TDM walk pair's L/R, then each LOOP hold
+  //! pair's L/R. A channel entry decodes to ONE binary index into it, and
+  //! the channel reads that row: a single indexed read per channel, where
+  //! the earlier per-channel resolver selected a source bucket, then a pair
+  //! inside it, then a half - three nested multiplexers per channel.
+  localparam int unsigned CAND_TDM_C  = 4;                     //! first TDM row
+  localparam int unsigned CAND_LOOP_C = CAND_TDM_C + 2 * N_TDM_PAIRS_C;
+  localparam int unsigned N_CAND_C    = CAND_LOOP_C + 2 * LB_PAIRS_C;
+  localparam int unsigned CANDW_C     = $clog2(N_CAND_C);
+  logic [23:0] cand_w [N_CAND_C];
+  always_comb begin : source_table
+    cand_w[0] = 24'd0;
+    {cand_w[1], cand_w[2]} = i2s_hold_r;
+    cand_w[3] = tone_smp_i;
+    for (int p = 0; p < int'(N_TDM_PAIRS_C); p++)
+      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];
+    for (int q = 0; q < int'(LB_PAIRS_C); q++)
+      {cand_w[CAND_LOOP_C + 2*q], cand_w[CAND_LOOP_C + 2*q + 1]} = lb_hold_r[q];
+  end : source_table
+
+  //! per-channel decode: entry {en, half, src, idxh, idx} -> the row of
+  //! ITS mono cluster (the selected half of the source pair). An entry
+  //! naming a stream/pair the build does not keep resolves to silence (the
+  //! §5 "illegal encoding behaves as disabled" rule); the TONE bucket
+  //! carries the same value on both halves by construction, so it is one
+  //! row.
+  function automatic logic [CANDW_C-1:0] source_row(input logic [12:0] e);
     logic        half_f;
-    logic [2:0]  src_f;
     logic [3:0]  idxh_f, idx_f;
-    logic [47:0] pair_f;
     logic        lbok_f;
     begin
-      en_f = e[12]; half_f = e[11]; src_f = e[10:8];
-      idxh_f = e[7:4]; idx_f = e[3:0];
+      half_f = e[11]; idxh_f = e[7:4]; idx_f = e[3:0];
       lbok_f = (32'(idxh_f) < N_LB_STREAMS_P) && (32'(idx_f) < LB_PPS_C);
-      unique case (en_f ? src_f : 3'd0)
-        SRC_I2S_C : pair_f = i2s_hold_r;
-        SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
-                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;
-        SRC_TONE_C: pair_f = {tone_smp_i, tone_smp_i};
-        SRC_LOOP_C: pair_f = lbok_f
-                               ? lb_hold_r[LBPW_C'(32'(idxh_f) * LB_PPS_C
-                                                   + 32'(idx_f))]
-                               : 48'd0;
-        default   : pair_f = 48'd0;
+      unique case (e[12] ? e[10:8] : 3'd0)
+        SRC_I2S_C : source_row = CANDW_C'(1 + 32'(half_f));
+        SRC_TDM_C : source_row = (32'(idx_f) < N_TDM_PAIRS_C)
+                                 ? CANDW_C'(CAND_TDM_C + 2 * 32'(idx_f)
+                                            + 32'(half_f))
+                                 : '0;
+        SRC_TONE_C: source_row = CANDW_C'(3);
+        SRC_LOOP_C: source_row = lbok_f
+                                 ? CANDW_C'(CAND_LOOP_C
+                                            + 2 * (32'(idxh_f) * LB_PPS_C
+                                                   + 32'(idx_f))
+                                            + 32'(half_f))
+                                 : '0;
+        default   : source_row = '0;
       endcase
-      resolve_ch = half_f ? pair_f[23:0] : pair_f[47:24];
     end
   endfunction
 
   //! An UNMAPPED channel resolves to DIGITAL SILENCE rather than dropping
   //! out of the walk (Milan v1.2 5.3.9.1 lets a channel be "not mapped";
-  //! 5.3.7.3 still owes the stream its packets). The resolver gates on the
+  //! 5.3.7.3 still owes the stream its packets). The decode gates on the
   //! entry's own enable, so the FSM below stays branch-free.
-  wire [23:0] out_l_w = resolve_ch(ent_l_w);
-  wire [23:0] out_r_w = resolve_ch(ent_r_w);
+  wire [CANDW_C-1:0] row_l_w = source_row(ent_l_w);
+  wire [CANDW_C-1:0] row_r_w = source_row(ent_r_w);
+  wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
+  wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
 
   // ---------------------------------------------------------------------- //
   // Emit walk FSM (pre-walk pop, then the slot walk)                        //

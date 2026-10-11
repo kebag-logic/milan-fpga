@@ -191,12 +191,17 @@ def shape_prereqs_from_database(directory: Path,
     means the database could not be read and nothing is verified."""
     env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
     try:
-        run = subprocess.run(["make", "-pqrR", "-f", makefile],
+        # Query an empty goal: missing build products must not turn a
+        # complete parse into rc 2. With this goal, rc 2 means a make
+        # error, even when make printed a partial "# Files" database.
+        run = subprocess.run(["make", "-pqrR", "-f", makefile,
+                              "--eval", f"{MAKE_PROBE_TARGET}: ;",
+                              MAKE_PROBE_TARGET],
                              cwd=directory, env=env, capture_output=True,
                              text=True, timeout=60)
     except (OSError, subprocess.TimeoutExpired):
         return False, []
-    if "# Files" not in run.stdout:
+    if run.returncode not in (0, 1) or "# Files" not in run.stdout:
         return False, []
     tokens = set()
     for line in run.stdout.splitlines():

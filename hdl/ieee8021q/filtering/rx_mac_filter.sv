@@ -142,13 +142,13 @@ module rx_mac_filter #(
   //  suite that builds this module carries (tb/verilator/rx_filter, milan_dp,
   //  root datapath and tcam_csr) because -Wno-fatal on its own demotes a $error to a
   //  warning and the illegal shape BUILDS. Vivado refuses it at elaboration.
-  //  It is NOT enforced on the sv2v -> Yosys path (syn/yosys/run.sh, ooc.sh):
-  //  sv2v lowers a module-scope $error to an `initial $display`, which Yosys
-  //  ignores, so that flow synthesises an illegal shape without a word. A
-  //  Yosys-side check would take the shape of
-  //  protocol-processor/tb/timer_map/shape_elab.sh - elaborate each illegal
-  //  shape and require the guard's own message - fed the original
-  //  SystemVerilog, since Yosys's own `read_verilog -sv` does honour it.
+  //  Both Yosys flows (syn/yosys/run.sh, ooc.sh) refuse active guards (#651).
+  //  Pinned sv2v 0.0.12 preserves native $error tasks. For converted
+  //  diagnostics from sv2v 0.0.13, enforce_elaboration.py restores $error
+  //  tasks before hierarchy binding; Yosys 0.66 refuses those tasks.
+  //  Inactive generate branches remain legal. The processor's separate
+  //  protocol-processor/tb/timer_map/shape_elab.sh checks original
+  //  SystemVerilog and requires the guard's own diagnostic.
   // =======================================================================
   if (TDATA_WIDTH < 48) begin : gen_guard_dmac_in_beat0
     $error("rx_mac_filter: TDATA_WIDTH=%0d cannot carry the 48-bit destination address in one beat, and the first-beat compare this module is built on would read past the end of s_tdata and filter on undefined bits. The 802.3 destination address is 6 bytes (IEEE 802.3 3.2.3), so the RX datapath must be at least 48 bits wide.",
