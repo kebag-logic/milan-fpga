@@ -279,8 +279,9 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
       # #697: each firmware step runs under ctrl_capture.py, which records
-      # every compiler invocation its builders make (a wrapper on PATH runs
-      # the real compiler unchanged) into one capture the boundary judges.
+      # every compiler invocation its builders make, with the compiler's own
+      # list of what each source's compile reads (a wrapper on PATH runs the
+      # real compiler unchanged), into one capture the boundary judges.
       - name: Run the control-plane firmware suites and RV32 builds
         run: |
           set -euo pipefail
@@ -296,25 +297,25 @@ jobs:
           python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --selftest
           python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
 
-      # #697: the TSN stack's boundary from both sides, each unit judged in
-      # every configuration the capture of the steps above recorded its
-      # builders compiling it in (language, modes), and at every shape and
-      # contract: the cores include only their own headers and the C library,
-      # the stack's tests reach nothing of this repository, the firmware
-      # reaches only the stack's public headers, every Makefile target that
-      # builds the stack is pinned, and the stack's own gate (its CMake build
-      # with gcc and clang) and the image builders run under the capture here;
-      # planted and pin controls first. This job has no Verilator, so the
-      # builders that need it are named and left out (--without verilator):
-      # firmware-verilator judges them.
+      # #697: the TSN stack's boundary from both sides, in exactly the
+      # compiles the capture of the steps above recorded, each judged by the
+      # compiler's own dependency output for that invocation: the cores read
+      # only their own files and the C implementation's headers, the stack's
+      # tests nothing of this repository, the firmware (the saved-state store
+      # and both images included) only the stack's public headers; every
+      # Makefile target that builds the stack is pinned, and the stack's own
+      # gate (its CMake build with gcc and clang) and the image builders run
+      # under the capture here; planted and pin controls first. This job has
+      # no Verilator, so the builders that need it are named and left out
+      # (--without verilator): firmware-verilator judges them.
       - name: Hold the TSN stack boundary in both directions
         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture "$RUNNER_TEMP/ctrl-capture" --without verilator
 
-  # #697: the TSN stack's boundary over the configurations only the builders
-  # that need Verilator compile: the mailbox bench, the MAAP differential
-  # and the AECP wire comparison at each reference it pins, each run by its
-  # own commands (ctrl_configs.BUILDERS) under the gate's own capture, with
-  # the controls that need their capture (--only verilator). The firmware
+  # #697: the TSN stack's boundary over the compiles only the builders that
+  # need Verilator make: the mailbox bench, the MAAP differential and the
+  # AECP wire comparison at each reference it pins, each run by its own
+  # commands (ctrl_configs.BUILDERS) under the gate's own capture, with the
+  # controls that need their capture (--only verilator). The firmware
   # steps' builders are firmware-unit's, named here and left out.
   firmware-verilator:
     needs: changes

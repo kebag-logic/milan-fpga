@@ -54,32 +54,28 @@ pull-request update and on every push to `dev`. It produces one stable
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
   The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
-  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler has the real compiler expand each invocation, records it and runs the real compiler unchanged.
+  Its firmware steps run under one capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler has the real compiler expand each invocation and list what each source's compile reads, runs the real compiler unchanged and records both with its exit status.
   The boundary step runs last, judges that capture, and holds both directions with planted controls.
-  It judges each unit in every configuration the capture recorded its builders compiling: as C, and as C++ where a recorded C++ compile reaches it.
-  Its configurations are the macros each recorded invocation's own expansion reports, every shipped config's shape and generated headers, the image's stream counts and both mailbox contracts.
-  The compiler reads each invocation's arguments itself, so a response file, `-Wp,`, `-Xpreprocessor`, a long option or a file read first gives the modes it gives the real compile.
-  It refuses a missing or empty capture, a known builder the capture holds nothing of, and an invocation the compiler could not expand, by name.
+  It judges exactly the sources the capture recorded as compiled, each by the compiler's own dependency output for that invocation: `-M` with the invocation's own arguments, directory and environment, and `-H`'s tree of what the source's own `#include` lines read.
+  It builds no include path and lists no source: it classifies each file a compile read by where it lives.
+  A compile of a firmware source reads no stack file outside `include/`, and no firmware file includes one in any compile; the firmware's sources include the saved-state store's and both images' own.
+  A compile of a stack source reads, through its own `#include` lines, only the stack's files and the C implementation's headers, and no stack file includes anything else.
+  The stack's tests reach nothing of this repository outside the submodule.
+  It refuses a missing or empty capture, a known builder the capture holds nothing of, an invocation the compiler could not expand, and a source a passing compile compiled whose dependency output failed or is incomplete, by name.
   It runs the stack's own gate and the image builders under the capture itself.
   The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`); `firmware-verilator` judges them.
-  The cores include only their own headers and the C library.
-  The stack's tests reach nothing of this repository outside the submodule.
-  The firmware reaches only the stack's public headers.
   The stack's own boundary gate runs with gcc and clang.
   Every Makefile target that builds against the stack has the pin check as a prerequisite.
   Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
   Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
   The boundary step's budget is 5 of the job's 45 minutes, its self-test included.
-  It runs each preprocessing once per run and reuses it wherever it would read the same, so its controls share one prepared base.
-  A control that must be refused stops at its finding, and the stack's own self-test runs beside the controls.
-  A unit's configurations go to four compilers at once, the hosted runner's CPU count.
-  The capture's recorder is compiled C, so it adds a millisecond or two to each of the job's 23,000 compiles.
-  The compiler's own expansion runs once for each of the 551 distinct argument vectors among them and is reused for the rest.
-  Under it the firmware steps took 2203 s in the CI-parity container, where they took 2188 s at `92b5be18`.
-  On a hosted runner the step took 93 s at `e07b3054` (job 114206016568), before the capture, and 113 s at `92b5be18` (job 114282060753), with it.
-  The step now judges twelve more controls and the one file of the checkout a compile reads first.
-  On the same four CPUs of a shared host, one run after the other, it took 117.6 s where `92b5be18`'s took 100.5 s.
-  Scaled to the hosted 113 s, it takes about 132 s, which leaves about 168 s of the 300 s budget, a 56% margin.
+  Its controls compile planted copies through captures of their own, four at once, the hosted runner's CPU count, and the stack's own self-test runs beside them.
+  The capture's recorder is compiled C; to each of the job's 23,000 compiles it adds a dependency pass, a preprocessing of that compile's source.
+  The compiler's own expansion runs once for each distinct argument vector and is reused for the rest.
+  Under it the firmware steps took 2497 s in the CI-parity container on four CPUs, where round 6's took 2203 s: about 13% more.
+  On the same four CPUs, one run after the other, the step took 80 s where `5b4f6fbe`'s took 132 s, since it preprocesses nothing itself.
+  On a hosted runner at `5b4f6fbe`, before the dependency pass, the step took 93 s (job 114344992704) and the job 1861 s of its 2700 s.
+  The same ratios put the step near 60 s and the job near 2050 s; a hosted run gives the figure that counts.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
@@ -92,13 +88,14 @@ pull-request update and on every push to `dev`. It produces one stable
   two at the merged #69 revision, each tree taken from the processor
   submodule's own objects).
   Each runs by its own commands (`ctrl_configs.BUILDERS`) under the gate's own capture, with the pinned Verilator from the cache `verilator-lint` shares.
-  The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it (the modes only the wire comparison's references give) and the pin controls.
+  The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it and the pin controls.
+  Those controls replay the wire comparison's and the differential's own recorded compiles on a planted copy, and drop the wire comparison's compiles from the capture.
   It names the firmware steps' builders and their controls as `firmware-unit`'s.
-  Each recorded compile is judged whole, with every mode it was given, in the job that ran it.
+  Each recorded compile is judged whole, in the job that ran it.
   Its budget is the job's own 40 minutes.
-  A replica of the step took 440 s on four CPUs of a shared host, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
-  Of that, the bench took 50 s, the differential 142 s and the wire comparison at both references 210 s; the judgement and its controls took the rest.
-  With the job's setup on a warm Verilator cache, that is under a third of the 40 minutes; a hosted run gives the figure that counts.
+  On a hosted runner at `5b4f6fbe`, before the dependency pass, the step took 438 s (job 114344992708) and the job 473 s, a fifth of the 40 minutes.
+  A replica of the step took 486 s on four CPUs of a shared host, where `5b4f6fbe`'s took 452 s, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
+  Of that, the bench took 58 s, the differential 143 s and the wire comparison at both references 215 s; the judgement and its controls took the rest.
 
 A change containing only documentation skips the Verilator and Yosys setup
 jobs, `firmware-unit` and `firmware-verilator`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a

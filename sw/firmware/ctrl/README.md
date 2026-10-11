@@ -77,76 +77,83 @@ The adapters, the app, the loop, the HAL and both images compile its `src/*.c` u
 Its callback and timing obligations are in its
 [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md).
 
-[`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions.
-It preprocesses the stack's sources and headers with this firmware's own host and RV32 flags.
-Every dependency must be a stack public header or a C library header.
-It preprocesses the stack's tests as C++, as the arms compile them.
-They may reach anything of the stack and the host's libraries, and nothing else of this repository.
-It preprocesses every firmware source and header, AECP's included, and every image source, on the host and for RV32.
-The firmware's units are those of every directory here but `host/` and `test/`, and every C source under `test/`.
-Their include path is every firmware directory, a shape's generated headers, and the stack's other directories last.
-A dependency on the stack outside `include/` is refused.
-So is a file under `sw/firmware` named as a stack source or header.
-Every unit is judged as its builders compile it, and nothing about that is listed here or read from a builder's text or arguments: it is what the compiler reports of the builders' compiler invocations as they ran.
+[`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions, in the builders' own compiles.
+It judges exactly the sources a capture of the builders' compiler invocations recorded as compiled; it lists no source of its own.
+What each of those compiles read is the compiler's own dependency output for that invocation, made as it ran.
+That is the rule `-M` writes with the invocation's own arguments, in its directory and environment: every file the compile reads, system headers included.
+Beside it, `-H` prints the tree of what the source's own `#include` lines read, each file under the one whose `#include` read it.
+The gate builds no include path and resolves no header: it classifies every file a compile read by where it lives.
+The stack's files are those under `third_party/tsn-c-stack`, and its public headers are its `include/`.
+The C implementation's headers are those the compiler reads and searches when run with no argument.
+For the RV32 builds they are also the freestanding C library headers those builds supply ([`rv32_include`](../gtest/rv32_include)), which `-nostdinc` leaves as the only C library there.
+The firmware's files are those under `sw/firmware` but its test equipment, which is the harness (`sw/firmware/gtest`), `sw/firmware/nvm_hosttest`, and every `host/` and `test/` directory.
+Every file of the checkout that an RV32 compile compiles or reads is the firmware's too, wherever it lives: the images' own sources under `test/` and lwSRP's.
+So the saved-state store's sources ([`ctrl_nvm`](../ctrl_nvm)), which both images compile, are judged as every other firmware source is.
+A compile of a firmware source may read no stack file outside `include/`.
+No firmware file may include one, in any compile, a test's C++ compile of a firmware header included.
+A compile of a stack source may read, through the source's own `#include` lines, only the stack's files and the C implementation's headers.
+A source or header of the stack's `tests/` may also read the host's libraries outside the checkout (GoogleTest).
+No stack file may include anything else, in any compile.
+So a platform header on a builder's include path that is named like a C library header (`ctrl_nvm/plat/stdbool.h`) is refused when the stack reads it.
+What a compile reads first through its command line (`-include`, `-imacros`) is the builder's, not the source's.
+A stack file outside `include/` read so refuses the gate, and so does a file of the checkout outside the stack read so into a compile of a stack source.
+The SRP builds force-include their generated shape header, and the two-interface builds their generated mailbox contract, into every unit they compile, the stack's sources among them.
+Those generated files lie outside the checkout, and what they read must be no file of the checkout outside the stack.
+Test equipment, and a builder's own files, are held by the `#include` lines of the firmware and stack files they read, not by their own.
+This repository's tests use the stack's test fakes (`tests/acmp_fake.hpp`), so a rename among them in the stack breaks those tests.
+A mode reaches only the compiles a builder gives it: a defect under a mode is found in every compile given that mode, and in no other.
+A source a compile compiled whose dependency output fails or is incomplete refuses the gate by name.
+That is a pass that failed, but on `#error` or `#warning` alone, after which the compiler still lists every file it read.
+It is also one that wrote no rule, named first a file that is not the source, named a file that does not exist, or printed a tree entry the rule does not hold, and a source read from standard input, which a pass cannot read again.
+A compile that itself failed compiled nothing, so nothing it read is in an object: where its pass failed with it, the run names it and does not refuse it.
+The RV32 self-test compiles planted header defects that must fail so, and a builder's failed probe would be named the same way.
+A file under `sw/firmware` named as a stack source or header is refused too.
 [`ctrl_capture.py`](test/ctrl_capture.py) runs a builder with a recording wrapper first on `PATH` for every C and C++ compiler name, for the RV32 compiler (`MILAN_RV32_CC`), and for `CC` and `CXX` where they are set.
-The wrapper's recorder ([`ctrl_shim.py`](test/ctrl_shim.py), compiled into the capture when it starts) has the real compiler expand each invocation ([`ctrl_expand.py`](test/ctrl_expand.py)), records it, and then runs the real compiler with the same arguments, so every object, binary and image is what it would be without it.
+The wrapper's recorder ([`ctrl_shim.py`](test/ctrl_shim.py), compiled into the capture when it starts) has the real compiler expand each invocation ([`ctrl_expand.py`](test/ctrl_expand.py)) and list what each source's compile reads, records it, and then runs the real compiler with the same arguments, so every object, binary and image is what it would be without it.
 The expansion is the real compiler run with the invocation's own arguments, in its directory and environment, over empty stand-ins of its inputs, with its output and dependency options dropped and `-E -dD -v -fpch-preprocess` added.
 So the compiler reads every other argument itself: a response file (`@f`), `-Wp,`, `-Xpreprocessor`, `--define-macro`, `--include-directory` and the other long options, `-include` and `-imacros`.
-Its line markers say where each macro came from (the driver's built-ins, the command line, a file read first) and which files it read first, and `-v` says which directories it searches.
-The same driver run with no argument is the baseline: what it predefines, reads and searches on its own is the implementation's.
+It says which language each input is compiled in and which files the command line reads first, and the same driver run with no argument is the baseline: what it reads and searches on its own is the implementation's.
 A compile whose output is a precompiled header (`.gch`) is expanded over its real header, and a compile that reads one first reads what that compile's expansion reported.
 An expansion is reused for the same arguments, directory, environment and compiler while every file and directory it reported is unchanged, and only when every argument is a plain form.
-It keeps the text of every C++ source, and of every header outside the checkout that a C++ source reaches in a builder's own directories through the directories the compiler reported, so a source a builder writes and deletes is still read.
-A compile whose C++ source reaches more than 1024 such headers stops (exit 2), as one whose record cannot be written does.
-A C++ source outside the checkout and outside the builder's temporary and working directories that was there before the capture began is an installed tool's own (Verilator's runtime, which its builds compile), and it is not followed.
-The recorder reads that from the file's inode change time against the capture's start marker, so a source a builder writes or copies anywhere is its own; a file read first is judged the same way.
+The dependency pass is the real compiler run once more for each source the expansion says it compiles, with the invocation's own arguments, in its directory and environment.
+Its output and dependency options are dropped as the expansion drops them, its other inputs are left out, and `-M -MF <file> -MT dependencies -H -fpch-preprocess` is added, with `-Qunused-arguments` for Clang as the expansion adds it.
+`-fpch-preprocess` has the pass read a precompiled header the compile reads first, as the compile does, and what that header read is taken from the compile that made it.
+The recorder resolves every file the pass names while it is there, and keeps the list and the tree in the capture.
+It then runs the compile itself, waits for it, and records its exit status with the invocation.
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
 The hosted `firmware-unit` job runs its firmware steps under one capture, and the boundary step judges it (`--capture`).
+A capture given must have been made in this checkout, its builders run here: one run in another checkout refuses the gate, since that checkout's files are none of this one's.
 Run without one, the gate first runs every known builder it judges under a capture of its own, by that builder's own commands.
 Either way it runs the stack's own gate and the image builders under the capture itself ([`ctrl_runs.py`](test/ctrl_runs.py)).
 `ctrl_srp_image.py` compiles every object there and stops at its link, which needs runtime archives built from sources outside the checkout.
+The image builders take each shape through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
 [`ctrl_configs.py`](test/ctrl_configs.py) lists the known builders that compile (`BUILDERS`).
 A missing or empty capture refuses the gate by name.
-So does a known builder the capture holds no invocation of, and a C++ compile of a source that was no file or of standard input.
+So does a known builder the capture holds no invocation of.
 So does an invocation the compiler could not expand: the expansion failed, printed fewer translation units than it ran (its output went to a response file's `-o`), compiled an input the recorder never saw (a response file's), or read a stand-in as an option's value.
-So does a precompiled header read first that no compile in the capture made, a file of the stack other than its public headers read first, and a file of the checkout read first into a compile of the stack's own sources.
+So does a precompiled header read first that no compile in the capture made.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
 `--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-unit` has no Verilator.
 `--only verilator` judges those three alone, under the gate's own capture, and names the others.
 Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
-The two jobs split the builders, never an invocation: each recorded compile is judged whole, with every mode it was given, in the job that ran it.
-Only a run given both captures also tries a mode only one job records beside a mode only the other does, which no compile combines.
+The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
 Each must have compiled in the capture, be a known builder, or be listed in `OUTSIDE` with the reason its compiles are none of the firmware's; the run that holds the firmware steps checks this.
-Every unit is judged as C.
-A firmware unit that a recorded C++ compile reaches is judged as C++ too, with the arms' test include path.
-That compile's source is read as the trees hold it, or as the capture kept it, and every `#include` is followed as text in every branch through the directories its expansion searched.
-A file of the checkout outside the stack that a compile read first is judged as a firmware unit too.
-The build modes are the macros each recorded invocation's expansion has when its source begins, with each value the builds gave them (`NDEBUG`, `CTRL_REENTRY_ASSERT`, the re-entry tests', the SRP builds' and the AECP arms' switches, the arms' interface counts, the AECP wire comparison's).
-They are every macro the command line, the driver's built-ins, or a file of the checkout or of a builder read first defines, and every one the command line or such a file leaves undefined or the baseline predefines and the invocation does not.
-A macro that the C library's headers, an installed tool's, or a generated header the shapes and contracts model define is not a mode, and neither is a name the C implementation reserves.
-The image's stream counts are read from the image builder's own `ctrl_image.shape_build`, at every shipped config; a recorded one that no shipped config gives refuses the gate.
-Every shipped config (`configs/*.yaml`) is a shape, with the headers the builders' own generators write for it.
-Those come through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-unit` has it, and refuses without it.
-The SRP shape header is force-included, as the SRP builds compile every unit, or left out, as the others do.
-The mailbox contract is the tracked one or the variant its generator writes for every other interface count it admits.
-The compiler reports the macros each unit tests or expands (`-dU`).
-Those that the conditionals and `#include` lines of the files it reads name can decide what it includes.
-The gate tries every combination of their alternatives, until no new one appears.
-A configuration that stops on an `#error` is one no builder compiles, and what it reads is still judged.
-A finding names the smallest configuration that reaches it, beyond the unit's default build.
 It also runs the stack's own boundary gate, beside the rest.
-It runs each preprocessing once per run and reuses it where it would read the same: the same unit and arguments, every file it read unchanged, and no file added or removed that it could look up by name.
-`--selftest` first judges unplanted copies of both trees, the base every control shares, which must pass.
-A control's planted builder runs through the capture, and what it compiled joins the run's capture for that control.
-One that only compiles a mode runs once, before the base, and its invocations join the base every control shares.
-It then plants 95 defects, each refused by name, and five passing controls, where the firmware steps' capture is.
-Among them is each spelling a compiler takes a mode, a directory or a file read first in (`-Wp,`, `-Xpreprocessor`, the long options, a response file, `-imacros`, a precompiled header), each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
-Where the Verilator builders' capture is, it plants four more: a header the wire comparison reaches includes a stack example only under a mode its one-interface or its two-interface reference gives (`PP_TOP_TIM_DEFAULTS`, `PP_TOP_IF2`, `AECP_WIRE_INTERFACES=2`), and that capture without the wire comparison's compiles.
+`--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
+Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
+It then plants 93 defects, each refused by name, and eight passing controls, where the firmware steps' capture is.
+A control's planted builder compiles the planted copy through a capture of its own, and what it compiled is judged.
+It compiles the copy as the builders do (the image builder's and the arms' own compile functions), in a spelling of its own, or as a replay: a compile of the run's capture run again with the copy's trees in its arguments (the SRP image builder's).
+Among them are R584-6's N1 (a store source reaching the stack's `examples/`, as the image builder compiles it) and R585-6's Q7 (a store platform header that shadows `stdbool.h` for the stack in the image build).
+Among them too are each spelling a compiler takes a mode or a file read first in (`-Wp,`, `-Xpreprocessor`, the long options, a response file, `-imacros`, `-include`, a precompiled header), each form a builder can write a mode or a C++ source's name in, and each way the capture can be missing, empty or incomplete.
+A passing compile whose pass gives no list is refused (its standard input; a builder's own `-Wp,-MD`, which overrides the pass's rule), and a compile that fails passes (a header nobody supplies; a source that is no file).
+Where the Verilator builders' capture is, it plants five more, each a replay or an alteration of that capture.
+In three, a header the wire comparison reaches includes a stack file only under a mode its one-interface or its two-interface reference gives (`PP_TOP_TIM_DEFAULTS`, `PP_TOP_IF2`, `AECP_WIRE_INTERFACES=2`).
+The fourth is a header only the MAAP differential's C++ source reaches, and the fifth is that capture without the wire comparison's compiles.
 A run names each control of the other run as left out.
-A control that must be refused stops at the finding it names.
 
 Every gate that builds the stack first runs the same pin check (`ctrl_build.py --stack-pin`).
 The submodule must be at its gitlink.
