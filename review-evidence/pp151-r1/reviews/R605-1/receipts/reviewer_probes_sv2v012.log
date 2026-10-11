@@ -1,0 +1,31 @@
+R1-listener-base-form: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: inventory KL_pp_acmp_listener.parameter_checks: hdl/acmp/KL_pp_acmp_listener.sv:347 is a severity task no guard in GUARDS accounts for
+    FAIL: inventory KL_pp_acmp_listener.g_strm_tmo_check: 0 severity tasks, not 1
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/acmp/KL_pp_acmp_listener.sv:312:9: Ascending bit range vector: left < right o
+    FAIL: GUARD yosys KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: all.v:2045: ERROR: Can't resolve task name `$fatal'.
+R2-encoder-info: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check DEPTH_P=13: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_srp_encoder.g_depth_check DEPTH_P=13: elaborated; the guard did not stop it
+R3-notify-display: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: inventory KL_aecp_notify.g_rows_guard: 0 severity tasks, not 1
+    FAIL: GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: not refused as a $fatal of this guard: %Error: hdl/aecp/KL_aecp_notify.sv:367:5: syntax error, unexpected $display
+    FAIL: ELAB  verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: rc 1: %Error: hdl/aecp/KL_aecp_notify.sv:367:5: syntax error, unexpected $display
+R4-owner-initial-inside-block: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a 
+    FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:21710: ERROR: Can't resolve task name `$fatal'.
+R5-respbuf-fatal0: expect SURVIVE, SURVIVED rc=0 AS-EXPECTED
+R6-shadow-rs-tmo-tightened-to-2: expect SURVIVE, SURVIVED rc=0 AS-EXPECTED
+R7-tmr-aw-error: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=6 cannot index P-TIMER-SLOTS=91
+    FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape: not refused as a $fatal of this guard: all.v:21695: ERROR: F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d.
+R8-originator-warning: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/packet_engine/KL_pp_originator.sv:149:5: KL_pp_originator: INFLIGHT_P must be 1..16 (ow
+    FAIL: GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: elaborated; the guard did not stop it
+R9-ucpu-label-renamed: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: inventory KL_aecp_ucpu.gen_g_d8_cap_x: hdl/aecp/KL_aecp_ucpu.sv:297 is a severity task no guard in GUARDS accounts for
+    FAIL: inventory KL_aecp_ucpu.gen_g_d8_cap: 0 severity tasks, not 1
+    FAIL: GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 outside 524..1024 (the 10-bit 
+    FAIL: GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: not refused as a $fatal of this guard: all.v:11480: ERROR: FATAL: .
+R10-nvmport-lint-off: expect KILL, KILLED rc=1 AS-EXPECTED
+    FAIL: GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: elaborated; the guard did not stop it
+reviewer probes: 10 run, 0 unexpected

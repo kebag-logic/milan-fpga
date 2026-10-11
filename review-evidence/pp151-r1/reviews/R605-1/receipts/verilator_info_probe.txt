@@ -1,0 +1,17 @@
+$ verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --top-module r605_info_mod -GP=0 r605_info_mod.sv   (pinned Verilator 5.050)
+-Info: r605_info_mod.sv:6:5: probe: P=0 must be at least 1
+                           : ... note: In instance 'r605_info_mod'
+    6 |     $info("probe: P=%0d must be at least 1", P);
+      |     ^~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+rc=0
+
+module r605_info_mod #(parameter int unsigned P = 1) (
+    input  wire  a_i,
+    output logic y_o
+);
+  if (P < 1) begin : g_check
+    $info("probe: P=%0d must be at least 1", P);
+  end
+  assign y_o = a_i;
+endmodule

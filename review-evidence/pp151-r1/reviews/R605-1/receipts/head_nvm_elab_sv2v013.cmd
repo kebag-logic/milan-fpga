@@ -1,0 +1,1 @@
+make elab VERILATOR=verilator

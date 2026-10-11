@@ -1,0 +1,96 @@
+python3 -B guards.py --verilator "verilator" --jobs 4
+YOSYS SKIP (sv2v or yosys is not on PATH)
+inventory KL_acmp_nvm_shadow.g_backoff_check: hdl/acmp/KL_acmp_nvm_shadow.sv:538
+inventory KL_acmp_nvm_shadow.g_rs_tmo_check: hdl/acmp/KL_acmp_nvm_shadow.sv:545
+inventory KL_pp_acmp_listener.g_strm_tmo_check: hdl/acmp/KL_pp_acmp_listener.sv:347
+inventory KL_aecp_desc_store.gen_g_line_align: hdl/aecp/KL_aecp_desc_store.sv:263
+inventory KL_aecp_desc_store.gen_g_beats: hdl/aecp/KL_aecp_desc_store.sv:267
+inventory KL_aecp_desc_store.gen_g_names: hdl/aecp/KL_aecp_desc_store.sv:270
+inventory KL_aecp_desc_store.gen_g_base_align: hdl/aecp/KL_aecp_desc_store.sv:273
+inventory KL_aecp_engine.gen_g_frame_fit: hdl/aecp/KL_aecp_engine.sv:944
+inventory KL_aecp_engine.gen_g_resp_cap_fit: hdl/aecp/KL_aecp_engine.sv:949
+inventory KL_aecp_engine.gen_g_line_step: hdl/aecp/KL_aecp_engine.sv:964
+inventory KL_aecp_engine.gen_g_gamap_page_fit: hdl/aecp/KL_aecp_engine.sv:968
+inventory KL_aecp_engine.gen_g_line_ceiling: hdl/aecp/KL_aecp_engine.sv:972
+inventory KL_aecp_notify.g_rows_guard: hdl/aecp/KL_aecp_notify.sv:367
+inventory KL_aecp_nvm_writer.g_shape_check: hdl/aecp/KL_aecp_nvm_writer.sv:315
+inventory KL_aecp_nvm_writer.g_backoff_check: hdl/aecp/KL_aecp_nvm_writer.sv:318
+inventory KL_aecp_nvm_writer.g_rs_tmo_check: hdl/aecp/KL_aecp_nvm_writer.sv:322
+inventory KL_aecp_nvm_writer.g_rs_agg_check: hdl/aecp/KL_aecp_nvm_writer.sv:326
+inventory KL_aecp_resp_buf.gen_g_base_align: hdl/aecp/KL_aecp_resp_buf.sv:194
+inventory KL_aecp_resp_buf.gen_g_size: hdl/aecp/KL_aecp_resp_buf.sv:197
+inventory KL_aecp_resp_buf.gen_g_beats: hdl/aecp/KL_aecp_resp_buf.sv:201
+inventory KL_aecp_ucpu.gen_g_d8_cap: hdl/aecp/KL_aecp_ucpu.sv:297
+inventory KL_pp_nvm_port.g_tmo_check: hdl/packet_engine/KL_pp_nvm_port.sv:189
+inventory KL_pp_nvm_port.g_maxp_check: hdl/packet_engine/KL_pp_nvm_port.sv:198
+inventory KL_pp_originator.g_inflight_check: hdl/packet_engine/KL_pp_originator.sv:149
+inventory KL_pp_release_merge.g_slot_count_check: hdl/packet_engine/KL_pp_release_merge.sv:38
+inventory KL_srp_encoder.g_depth_check: hdl/srp/KL_srp_encoder.sv:148
+inventory protocol_processor_top.gen_g_avb_if: hdl/top/protocol_processor_top.sv:876
+inventory protocol_processor_top.gen_g_tmr_aw: hdl/top/protocol_processor_top.sv:880
+inventory protocol_processor_top.gen_g_tmr_fit: hdl/top/protocol_processor_top.sv:884
+inventory protocol_processor_top.gen_g_tmr_overlap: hdl/top/protocol_processor_top.sv:897
+inventory protocol_processor_top.gen_g_owner_overlap: hdl/top/protocol_processor_top.sv:911
+GUARD verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=0: %Warning-USERFATAL: hdl/acmp/KL_acmp_nvm_shadow.sv:538:5: KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1
+ELAB  verilator KL_acmp_nvm_shadow.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=0: %Warning-USERFATAL: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+ELAB  verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=2: elaborates
+GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: %Warning-USERFATAL: hdl/acmp/KL_pp_acmp_listener.sv:347:5: STRM_TIMEOUT_CYC_P must be greater than zero
+ELAB  verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=1: elaborates
+GUARD verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=580: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:263:5: LINE_BYTES_P=580 must be a multiple of 8 (64-bit lanes)
+ELAB  verilator KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=576: elaborates
+GUARD verilator KL_aecp_desc_store.gen_g_beats IDX_ENTRIES_P=256: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:267:5: a burst exceeds the 9-bit mem_req_beats_o field
+ELAB  verilator KL_aecp_desc_store.gen_g_beats IDX_ENTRIES_P=255: elaborates
+GUARD verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:270:5: NAME_ENTRIES_P=1025 must be in 1..1024
+ELAB  verilator KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1024: elaborates
+GUARD verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000004: %Warning-USERFATAL: hdl/aecp/KL_aecp_desc_store.sv:273:5: DESC_BASE_P=20000004 must be 8-byte aligned
+ELAB  verilator KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000008: elaborates
+GUARD verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:944:5: a maximum AECP response (618 B) exceeds the oversize slot (617 B)
+ELAB  verilator KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=618: elaborates
+GUARD verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=504: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:949:5: response buffer (520 B) is smaller than GET_DYNAMIC_INFO limit (524 B)
+ELAB  verilator KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=576: elaborates
+GUARD verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=580: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:964:5: DESC_LINE_BYTES_P=580 is not a multiple of 8 (legal: 576..1008 in steps of 8)
+ELAB  verilator KL_aecp_engine.gen_g_line_step LINE_BYTES_P=576: elaborates
+GUARD verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:968:5: DESC_LINE_BYTES_P=568 is below 576: no room for a 71-record GET_AUDIO_MAP page
+ELAB  verilator KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=576: elaborates
+GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016: %Warning-USERFATAL: hdl/aecp/KL_aecp_engine.sv:972:5: DESC_LINE_BYTES_P=1016 is above 1008: 16 + line passes the 1024-byte cursor
+ELAB  verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008: elaborates
+GUARD verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: %Warning-USERFATAL: hdl/aecp/KL_aecp_notify.sv:367:5: KL_aecp_notify: rows {index, port} need N_IF_P=2 a power of two and N_CTRL_P=1 above 1
+ELAB  verilator KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=2: elaborates
+GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgrows its record-id block
+ELAB  verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: elaborates
+GUARD verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:318:5: KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1
+ELAB  verilator KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=1: elaborates
+GUARD verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:322:5: KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1
+ELAB  verilator KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=2: elaborates
+GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:326:5: KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1
+ELAB  verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=2: elaborates
+GUARD verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100004: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:194:5: RESP_BASE_P=20100004 must be 8-byte aligned
+ELAB  verilator KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100008: elaborates
+GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=16 leaves no payload above the header record
+ELAB  verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=24: elaborates
+GUARD verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:201:5: a read burst of 512 beats exceeds the 9-bit mem_req_beats_o field
+ELAB  verilator KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4088: elaborates
+GUARD verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 outside 524..1024 (the 10-bit cursor)
+ELAB  verilator KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1024: elaborates
+GUARD verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: %Warning-USERFATAL: hdl/packet_engine/KL_pp_nvm_port.sv:189:5: KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=0 is outside 1 to 2147483647
+ELAB  verilator KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=1: elaborates
+GUARD verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: %Warning-USERFATAL: hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_P=65528 is above 65527: 8 + it overflows dev_len_o
+ELAB  verilator KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65527: elaborates
+GUARD verilator KL_pp_originator.g_inflight_check INFLIGHT_P=17: %Warning-USERFATAL: hdl/packet_engine/KL_pp_originator.sv:149:5: KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)
+ELAB  verilator KL_pp_originator.g_inflight_check INFLIGHT_P=16: elaborates
+GUARD verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: %Warning-USERFATAL: hdl/packet_engine/KL_pp_release_merge.sv:38:5: KL_pp_release_merge: N_SLOTS_P must be positive
+ELAB  verilator KL_pp_release_merge.g_slot_count_check N_SLOTS_P=1: elaborates
+GUARD verilator KL_srp_encoder.g_depth_check DEPTH_P=13: %Warning-USERFATAL: hdl/srp/KL_srp_encoder.sv:148:5: DEPTH_P drain cannot fit a standard TX slot
+ELAB  verilator KL_srp_encoder.g_depth_check DEPTH_P=12: elaborates
+GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=3 is outside 1 to 2 (P-N-AVB-INTERFACES)
+ELAB  verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: elaborates
+GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=6 cannot index P-TIMER-SLOTS=91
+ELAB  verilator protocol_processor_top.gen_g_tmr_aw defaults: elaborates
+GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91 but P-TIMER-SLOTS=90
+ELAB  verilator protocol_processor_top.gen_g_tmr_fit defaults: elaborates
+GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot groups OVERLAP at SI=8 SO=8
+ELAB  verilator protocol_processor_top.gen_g_tmr_overlap defaults: elaborates
+GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:911:5: F08.4: owner tags OVERLAP at SI=16 SO=17 (8-bit expiry bus)
+ELAB  verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: elaborates
+elab guards: 93 checks: 93 PASS, 0 FAIL
