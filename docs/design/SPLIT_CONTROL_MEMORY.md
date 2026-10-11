@@ -85,7 +85,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
-`add_ctrl_memory` checks the CPU's origins, then plans the image, which runs every rule up to `budget`.
+`add_ctrl_memory` checks the CPU's origins, then reads and plans the image, which runs every other rule but the two staging rules.
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
 [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
