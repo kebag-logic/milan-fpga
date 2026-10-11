@@ -1,0 +1,2938 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Executing script file `$REVIEWS/g35-r616-2-packet/scratch/equiv/equiv_free.ys' --
+
+1. Executing Verilog-2005 frontend: $REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v
+Parsing SystemVerilog input from `$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v' to AST representation.
+Generating RTLIL representation for module `\parser_base'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: $REVIEWS/g35-r616-2-packet/scratch/equiv/wrap_base_free.v
+Parsing SystemVerilog input from `$REVIEWS/g35-r616-2-packet/scratch/equiv/wrap_base_free.v' to AST representation.
+Generating RTLIL representation for module `\wrap_base'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: $REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v
+Parsing SystemVerilog input from `$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v' to AST representation.
+Generating RTLIL representation for module `\parser_head'.
+Successfully finished Verilog frontend.
+
+4. Executing Verilog-2005 frontend: $REVIEWS/g35-r616-2-packet/scratch/equiv/wrap_head_free.v
+Parsing SystemVerilog input from `$REVIEWS/g35-r616-2-packet/scratch/equiv/wrap_head_free.v' to AST representation.
+Generating RTLIL representation for module `\wrap_head'.
+Successfully finished Verilog frontend.
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:162$340'.
+Found and cleaned up 1 empty switch in `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:112$281'.
+Found and cleaned up 1 empty switch in `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:162$99'.
+Found and cleaned up 1 empty switch in `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:112$40'.
+Cleaned up 4 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 18 switch rules as full_case in process $proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341 in module parser_head.
+Marked 18 switch rules as full_case in process $proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100 in module parser_base.
+Removed a total of 0 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 4 redundant assignments.
+Promoted 20 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~107 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:444$482'.
+Creating decoders for process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:130$478'.
+Creating decoders for process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+     1/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$446
+     2/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$447
+     3/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$444
+     4/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$443
+     5/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$439
+     6/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$438
+     7/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$436
+     8/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$435
+     9/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$429
+    10/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$428
+    11/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$420
+    12/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$419
+    13/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$397
+    14/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$396
+    15/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp[10:0]$370
+    16/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result[10:0]$369
+    17/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$367
+    18/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$366
+    19/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp[10:0]$365
+    20/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result[10:0]$364
+    21/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$363
+    22/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$362
+    23/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp[10:0]$361
+    24/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result[10:0]$360
+    25/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$359
+    26/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$358
+    27/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp[10:0]$357
+    28/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result[10:0]$356
+    29/62: $0\ev_valid_o[0:0]
+    30/62: $0\bank_we_o[0:0]
+    31/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp[4:0]$350
+    32/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result[4:0]$349
+    33/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp[10:0]$348
+    34/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result[10:0]$347
+    35/62: $0\fin_ok_r[0:0]
+    36/62: $0\fin_r[0:0]
+    37/62: $0\drop_cnt_r[15:0]
+    38/62: $0\pt_self_r[0:0]
+    39/62: $0\pt_seen_r[0:0]
+    40/62: $0\pt_run_r[0:0]
+    41/62: $0\pt_byte_r[2:0]
+    42/62: $0\pt_cnt_r[7:0]
+    43/62: $0\pt_left_r[15:0]
+    44/62: $0\tlv_chain_done_r[0:0]
+    45/62: $0\tlv_left_r[15:0]
+    46/62: $0\tlv_hdr_pos_r[1:0]
+    47/62: $0\tlv_hdr_run_r[0:0]
+    48/62: $0\gm_r[63:0]
+    49/62: $0\steps_r[15:0]
+    50/62: $0\msg_end_r[10:0]
+    51/62: $0\utc_r[15:0]
+    52/62: $0\acc_r[63:0]
+    53/62: $0\flags_r[15:0]
+    54/62: $0\seq_r[15:0]
+    55/62: $0\mtype_r[3:0]
+    56/62: $0\bad_r[0:0]
+    57/62: $0\run_r[0:0]
+    58/62: $0\cnt_r[10:0]
+    59/62: $0\ev_seq_o[15:0]
+    60/62: $0\ev_code_o[7:0]
+    61/62: $0\bank_wdata_o[63:0]
+    62/62: $0\bank_addr_o[4:0]
+Creating decoders for process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:162$340'.
+     1/1: $1\ev_map_w[7:0]
+Creating decoders for process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:112$281'.
+     1/1: $1\min_end_w[10:0]
+Creating decoders for process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:442$241'.
+Creating decoders for process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:130$237'.
+Creating decoders for process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+     1/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$205
+     2/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$206
+     3/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$203
+     4/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$202
+     5/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$198
+     6/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$197
+     7/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$195
+     8/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$194
+     9/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$188
+    10/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$187
+    11/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$179
+    12/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$178
+    13/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$156
+    14/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$155
+    15/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp[10:0]$129
+    16/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result[10:0]$128
+    17/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$126
+    18/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$125
+    19/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp[10:0]$124
+    20/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result[10:0]$123
+    21/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$122
+    22/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$121
+    23/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp[10:0]$120
+    24/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result[10:0]$119
+    25/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$118
+    26/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$117
+    27/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp[10:0]$116
+    28/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result[10:0]$115
+    29/62: $0\ev_valid_o[0:0]
+    30/62: $0\bank_we_o[0:0]
+    31/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp[4:0]$109
+    32/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result[4:0]$108
+    33/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp[10:0]$107
+    34/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result[10:0]$106
+    35/62: $0\fin_ok_r[0:0]
+    36/62: $0\fin_r[0:0]
+    37/62: $0\drop_cnt_r[15:0]
+    38/62: $0\pt_self_r[0:0]
+    39/62: $0\pt_seen_r[0:0]
+    40/62: $0\pt_run_r[0:0]
+    41/62: $0\pt_byte_r[2:0]
+    42/62: $0\pt_cnt_r[7:0]
+    43/62: $0\pt_left_r[15:0]
+    44/62: $0\tlv_chain_done_r[0:0]
+    45/62: $0\tlv_left_r[15:0]
+    46/62: $0\tlv_hdr_pos_r[1:0]
+    47/62: $0\tlv_hdr_run_r[0:0]
+    48/62: $0\gm_r[63:0]
+    49/62: $0\steps_r[15:0]
+    50/62: $0\msg_end_r[10:0]
+    51/62: $0\utc_r[15:0]
+    52/62: $0\acc_r[63:0]
+    53/62: $0\flags_r[15:0]
+    54/62: $0\seq_r[15:0]
+    55/62: $0\mtype_r[3:0]
+    56/62: $0\bad_r[0:0]
+    57/62: $0\run_r[0:0]
+    58/62: $0\cnt_r[10:0]
+    59/62: $0\ev_seq_o[15:0]
+    60/62: $0\ev_code_o[7:0]
+    61/62: $0\bank_wdata_o[63:0]
+    62/62: $0\bank_addr_o[4:0]
+Creating decoders for process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:162$99'.
+     1/1: $1\ev_map_w[7:0]
+Creating decoders for process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:112$40'.
+     1/1: $1\min_end_w[10:0]
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\parser_head.\_sv2v_0' from process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:444$482'.
+No latch inferred for signal `\parser_head.\sv2v_cast_16$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:130$248.$result' from process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:130$478'.
+No latch inferred for signal `\parser_head.\ev_map_w' from process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:162$340'.
+No latch inferred for signal `\parser_head.\min_end_w' from process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:112$281'.
+No latch inferred for signal `\parser_base.\_sv2v_0' from process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:442$241'.
+No latch inferred for signal `\parser_base.\sv2v_cast_16$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:130$7.$result' from process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:130$237'.
+No latch inferred for signal `\parser_base.\ev_map_w' from process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:162$99'.
+No latch inferred for signal `\parser_base.\min_end_w' from process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:112$40'.
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\parser_head.\bank_we_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3285' with positive edge clock.
+Creating register for signal `\parser_head.\bank_addr_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3286' with positive edge clock.
+Creating register for signal `\parser_head.\bank_wdata_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3287' with positive edge clock.
+Creating register for signal `\parser_head.\ev_valid_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3288' with positive edge clock.
+Creating register for signal `\parser_head.\ev_code_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3289' with positive edge clock.
+Creating register for signal `\parser_head.\ev_seq_o' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3290' with positive edge clock.
+Creating register for signal `\parser_head.\cnt_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3291' with positive edge clock.
+Creating register for signal `\parser_head.\run_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3292' with positive edge clock.
+Creating register for signal `\parser_head.\bad_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3293' with positive edge clock.
+Creating register for signal `\parser_head.\mtype_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3294' with positive edge clock.
+Creating register for signal `\parser_head.\seq_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3295' with positive edge clock.
+Creating register for signal `\parser_head.\flags_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3296' with positive edge clock.
+Creating register for signal `\parser_head.\acc_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3297' with positive edge clock.
+Creating register for signal `\parser_head.\utc_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3298' with positive edge clock.
+Creating register for signal `\parser_head.\msg_end_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3299' with positive edge clock.
+Creating register for signal `\parser_head.\steps_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3300' with positive edge clock.
+Creating register for signal `\parser_head.\gm_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3301' with positive edge clock.
+Creating register for signal `\parser_head.\tlv_hdr_run_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3302' with positive edge clock.
+Creating register for signal `\parser_head.\tlv_hdr_pos_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3303' with positive edge clock.
+Creating register for signal `\parser_head.\tlv_left_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3304' with positive edge clock.
+Creating register for signal `\parser_head.\tlv_chain_done_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3305' with positive edge clock.
+Creating register for signal `\parser_head.\pt_left_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3306' with positive edge clock.
+Creating register for signal `\parser_head.\pt_cnt_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3307' with positive edge clock.
+Creating register for signal `\parser_head.\pt_byte_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3308' with positive edge clock.
+Creating register for signal `\parser_head.\pt_run_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3309' with positive edge clock.
+Creating register for signal `\parser_head.\pt_seen_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3310' with positive edge clock.
+Creating register for signal `\parser_head.\pt_self_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3311' with positive edge clock.
+Creating register for signal `\parser_head.\drop_cnt_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3312' with positive edge clock.
+Creating register for signal `\parser_head.\fin_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3313' with positive edge clock.
+Creating register for signal `\parser_head.\fin_ok_r' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3314' with positive edge clock.
+Creating register for signal `\parser_head.\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.$result' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3315' with positive edge clock.
+Creating register for signal `\parser_head.\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$257.inp' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3316' with positive edge clock.
+Creating register for signal `\parser_head.\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.$result' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3317' with positive edge clock.
+Creating register for signal `\parser_head.\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$279.inp' using process `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+  created $dff cell `$procdff$3318' with positive edge clock.
+Creating register for signal `\parser_base.\bank_we_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3319' with positive edge clock.
+Creating register for signal `\parser_base.\bank_addr_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3320' with positive edge clock.
+Creating register for signal `\parser_base.\bank_wdata_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3321' with positive edge clock.
+Creating register for signal `\parser_base.\ev_valid_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3322' with positive edge clock.
+Creating register for signal `\parser_base.\ev_code_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3323' with positive edge clock.
+Creating register for signal `\parser_base.\ev_seq_o' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3324' with positive edge clock.
+Creating register for signal `\parser_base.\cnt_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3325' with positive edge clock.
+Creating register for signal `\parser_base.\run_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3326' with positive edge clock.
+Creating register for signal `\parser_base.\bad_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3327' with positive edge clock.
+Creating register for signal `\parser_base.\mtype_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3328' with positive edge clock.
+Creating register for signal `\parser_base.\seq_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3329' with positive edge clock.
+Creating register for signal `\parser_base.\flags_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3330' with positive edge clock.
+Creating register for signal `\parser_base.\acc_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3331' with positive edge clock.
+Creating register for signal `\parser_base.\utc_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3332' with positive edge clock.
+Creating register for signal `\parser_base.\msg_end_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3333' with positive edge clock.
+Creating register for signal `\parser_base.\steps_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3334' with positive edge clock.
+Creating register for signal `\parser_base.\gm_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3335' with positive edge clock.
+Creating register for signal `\parser_base.\tlv_hdr_run_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3336' with positive edge clock.
+Creating register for signal `\parser_base.\tlv_hdr_pos_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3337' with positive edge clock.
+Creating register for signal `\parser_base.\tlv_left_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3338' with positive edge clock.
+Creating register for signal `\parser_base.\tlv_chain_done_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3339' with positive edge clock.
+Creating register for signal `\parser_base.\pt_left_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3340' with positive edge clock.
+Creating register for signal `\parser_base.\pt_cnt_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3341' with positive edge clock.
+Creating register for signal `\parser_base.\pt_byte_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3342' with positive edge clock.
+Creating register for signal `\parser_base.\pt_run_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3343' with positive edge clock.
+Creating register for signal `\parser_base.\pt_seen_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3344' with positive edge clock.
+Creating register for signal `\parser_base.\pt_self_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3345' with positive edge clock.
+Creating register for signal `\parser_base.\drop_cnt_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3346' with positive edge clock.
+Creating register for signal `\parser_base.\fin_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3347' with positive edge clock.
+Creating register for signal `\parser_base.\fin_ok_r' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3348' with positive edge clock.
+Creating register for signal `\parser_base.\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.$result' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3349' with positive edge clock.
+Creating register for signal `\parser_base.\sv2v_cast_11$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$16.inp' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3350' with positive edge clock.
+Creating register for signal `\parser_base.\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.$result' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3351' with positive edge clock.
+Creating register for signal `\parser_base.\sv2v_cast_5$func$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$38.inp' using process `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+  created $dff cell `$procdff$3352' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:444$482'.
+Removing empty process `parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:130$478'.
+Found and cleaned up 52 empty switches in `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+Removing empty process `parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:181$341'.
+Found and cleaned up 1 empty switch in `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:162$340'.
+Removing empty process `parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:162$340'.
+Found and cleaned up 1 empty switch in `\parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:112$281'.
+Removing empty process `parser_head.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:112$281'.
+Removing empty process `parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:442$241'.
+Removing empty process `parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:130$237'.
+Found and cleaned up 51 empty switches in `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+Removing empty process `parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:181$100'.
+Found and cleaned up 1 empty switch in `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:162$99'.
+Removing empty process `parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:162$99'.
+Found and cleaned up 1 empty switch in `\parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:112$40'.
+Removing empty process `parser_base.$proc$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:112$40'.
+Cleaned up 107 empty switches.
+
+5.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module wrap_head.
+Optimizing module parser_head.
+<suppressed ~116 debug messages>
+Optimizing module wrap_base.
+Optimizing module parser_base.
+<suppressed ~116 debug messages>
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \wrap_head..
+Finding unused cells or wires in module \parser_head..
+Finding unused cells or wires in module \wrap_base..
+Finding unused cells or wires in module \parser_base..
+Removed 344 unused cells and 1447 unused wires.
+<suppressed ~350 debug messages>
+
+7. Executing FLATTEN pass (flatten design).
+<suppressed ~2 debug messages>
+Renaming module \wrap_base to \gold.
+Renaming module \wrap_head to \gate.
+
+8. Executing ASYNC2SYNC pass.
+
+9. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: u._sv2v_0_gold (1'0), u._sv2v_0_gate (1'0) -> u._sv2v_0
+Presumably equivalent wires: u.clk_i_gold (\clk_i_gold), u.clk_i_gate (\clk_i_gate) -> u.clk_i
+Presumably equivalent wires: u.rst_n_gold (\rst_n_gold), u.rst_n_gate (\rst_n_gate) -> u.rst_n
+Presumably equivalent wires: u.rx_valid_i_gold (\rx_valid_i_gold), u.rx_valid_i_gate (\rx_valid_i_gate) -> u.rx_valid_i
+Presumably equivalent wires: u.rx_data_i_gold (\rx_data_i_gold), u.rx_data_i_gate (\rx_data_i_gate) -> u.rx_data_i
+Presumably equivalent wires: u.rx_sof_i_gold (\rx_sof_i_gold), u.rx_sof_i_gate (\rx_sof_i_gate) -> u.rx_sof_i
+Presumably equivalent wires: u.rx_eof_i_gold (\rx_eof_i_gold), u.rx_eof_i_gate (\rx_eof_i_gate) -> u.rx_eof_i
+Presumably equivalent wires: u.rx_err_i_gold (\rx_err_i_gold), u.rx_err_i_gate (\rx_err_i_gate) -> u.rx_err_i
+Presumably equivalent wires: u.local_clock_id_i_gold (\local_clock_id_i_gold), u.local_clock_id_i_gate (\local_clock_id_i_gate) -> u.local_clock_id_i
+Presumably equivalent wires: u.local_clock_valid_i_gold (\local_clock_valid_i_gold), u.local_clock_valid_i_gate (\local_clock_valid_i_gate) -> u.local_clock_valid_i
+Presumably equivalent wires: u.bank_we_o_gold (\u.bank_we_o_gold), u.bank_we_o_gate (\u.bank_we_o_gate) -> u.bank_we_o
+Presumably equivalent wires: u.bank_addr_o_gold (\u.bank_addr_o_gold), u.bank_addr_o_gate (\u.bank_addr_o_gate) -> u.bank_addr_o
+Presumably equivalent wires: u.bank_wdata_o_gold (\u.bank_wdata_o_gold), u.bank_wdata_o_gate (\u.bank_wdata_o_gate) -> u.bank_wdata_o
+Presumably equivalent wires: u.ev_valid_o_gold (\u.ev_valid_o_gold), u.ev_valid_o_gate (\u.ev_valid_o_gate) -> u.ev_valid_o
+Presumably equivalent wires: u.ev_code_o_gold (\u.ev_code_o_gold), u.ev_code_o_gate (\u.ev_code_o_gate) -> u.ev_code_o
+Presumably equivalent wires: u.ev_seq_o_gold (\u.ev_seq_o_gold), u.ev_seq_o_gate (\u.ev_seq_o_gate) -> u.ev_seq_o
+Presumably equivalent wires: u.drop_cnt_o_gold (\u.drop_cnt_r_gold), u.drop_cnt_o_gate (\u.drop_cnt_r_gate) -> u.drop_cnt_o
+Presumably equivalent wires: u.cnt_r_gold (\u.cnt_r_gold), u.cnt_r_gate (\u.cnt_r_gate) -> u.cnt_r
+Presumably equivalent wires: u.run_r_gold (\u.run_r_gold), u.run_r_gate (\u.run_r_gate) -> u.run_r
+Presumably equivalent wires: u.bad_r_gold (\u.bad_r_gold), u.bad_r_gate (\u.bad_r_gate) -> u.bad_r
+Presumably equivalent wires: u.mtype_r_gold (\u.mtype_r_gold), u.mtype_r_gate (\u.mtype_r_gate) -> u.mtype_r
+Presumably equivalent wires: u.seq_r_gold (\u.seq_r_gold), u.seq_r_gate (\u.seq_r_gate) -> u.seq_r
+Presumably equivalent wires: u.flags_r_gold (\u.flags_r_gold), u.flags_r_gate (\u.flags_r_gate) -> u.flags_r
+Presumably equivalent wires: u.acc_r_gold (\u.acc_r_gold), u.acc_r_gate (\u.acc_r_gate) -> u.acc_r
+Presumably equivalent wires: u.utc_r_gold (\u.utc_r_gold), u.utc_r_gate (\u.utc_r_gate) -> u.utc_r
+Presumably equivalent wires: u.msg_end_r_gold (\u.msg_end_r_gold), u.msg_end_r_gate (\u.msg_end_r_gate) -> u.msg_end_r
+Presumably equivalent wires: u.steps_r_gold (\u.steps_r_gold), u.steps_r_gate (\u.steps_r_gate) -> u.steps_r
+Presumably equivalent wires: u.gm_r_gold (\u.gm_r_gold), u.gm_r_gate (\u.gm_r_gate) -> u.gm_r
+Presumably equivalent wires: u.tlv_hdr_run_r_gold (\u.tlv_hdr_run_r_gold), u.tlv_hdr_run_r_gate (\u.tlv_hdr_run_r_gate) -> u.tlv_hdr_run_r
+Presumably equivalent wires: u.tlv_hdr_pos_r_gold (\u.tlv_hdr_pos_r_gold), u.tlv_hdr_pos_r_gate (\u.tlv_hdr_pos_r_gate) -> u.tlv_hdr_pos_r
+Presumably equivalent wires: u.tlv_left_r_gold (\u.tlv_left_r_gold), u.tlv_left_r_gate (\u.tlv_left_r_gate) -> u.tlv_left_r
+Presumably equivalent wires: u.tlv_chain_done_r_gold (\u.tlv_chain_done_r_gold), u.tlv_chain_done_r_gate (\u.tlv_chain_done_r_gate) -> u.tlv_chain_done_r
+Presumably equivalent wires: u.pt_left_r_gold (\u.pt_left_r_gold), u.pt_left_r_gate (\u.pt_left_r_gate) -> u.pt_left_r
+Presumably equivalent wires: u.pt_cnt_r_gold (\u.pt_cnt_r_gold), u.pt_cnt_r_gate (\u.pt_cnt_r_gate) -> u.pt_cnt_r
+Presumably equivalent wires: u.pt_byte_r_gold (\u.pt_byte_r_gold), u.pt_byte_r_gate (\u.pt_byte_r_gate) -> u.pt_byte_r
+Presumably equivalent wires: u.pt_run_r_gold (\u.pt_run_r_gold), u.pt_run_r_gate (\u.pt_run_r_gate) -> u.pt_run_r
+Presumably equivalent wires: u.pt_seen_r_gold (\u.pt_seen_r_gold), u.pt_seen_r_gate (\u.pt_seen_r_gate) -> u.pt_seen_r
+Presumably equivalent wires: u.pt_self_r_gold (\u.pt_self_r_gold), u.pt_self_r_gate (\u.pt_self_r_gate) -> u.pt_self_r
+Presumably equivalent wires: u.drop_cnt_r_gold (\u.drop_cnt_r_gold), u.drop_cnt_r_gate (\u.drop_cnt_r_gate) -> u.drop_cnt_r
+Presumably equivalent wires: u.fin_drop_w_gold (\u.fin_drop_w_gold), u.fin_drop_w_gate (\u.fin_drop_w_gate) -> u.fin_drop_w
+Presumably equivalent wires: u.runt_drop_w_gold (\u.runt_drop_w_gold), u.runt_drop_w_gate (\u.runt_drop_w_gate) -> u.runt_drop_w
+Presumably equivalent wires: u.fin_r_gold (\u.fin_r_gold), u.fin_r_gate (\u.fin_r_gate) -> u.fin_r
+Presumably equivalent wires: u.fin_ok_r_gold (\u.fin_ok_r_gold), u.fin_ok_r_gate (\u.fin_ok_r_gate) -> u.fin_ok_r
+Presumably equivalent wires: u.acc_nxt_w_gold ({ \u.acc_r_gold [55:0] \rx_data_i_gold }), u.acc_nxt_w_gate ({ \u.acc_r_gate [55:0] \rx_data_i_gate }) -> u.acc_nxt_w
+Presumably equivalent wires: u.min_end_w_gold (\u.min_end_w_gold), u.min_end_w_gate (\u.min_end_w_gate) -> u.min_end_w
+Presumably equivalent wires: u.min_len_w_gold (\u.min_len_w_gold), u.min_len_w_gate (\u.min_len_w_gate) -> u.min_len_w
+Presumably equivalent wires: u.ann_tlv_header_byte_w_gold (\u.ann_tlv_header_byte_w_gold), u.ann_tlv_header_byte_w_gate (\u.ann_tlv_header_byte_w_gate) -> u.ann_tlv_header_byte_w
+Presumably equivalent wires: u.ann_tlv_header_end_w_gold (\u.ann_tlv_header_end_w_gold), u.ann_tlv_header_end_w_gate (\u.ann_tlv_header_end_w_gate) -> u.ann_tlv_header_end_w
+Presumably equivalent wires: u.ann_tlv_value_byte_w_gold (\u.ann_tlv_value_byte_w_gold), u.ann_tlv_value_byte_w_gate (\u.ann_tlv_value_byte_w_gate) -> u.ann_tlv_value_byte_w
+Presumably equivalent wires: u.ann_tlv_value_end_w_gold (\u.ann_tlv_value_end_w_gold), u.ann_tlv_value_end_w_gate (\u.ann_tlv_value_end_w_gate) -> u.ann_tlv_value_end_w
+Presumably equivalent wires: u.ann_tlv_header_bad_w_gold (\u.ann_tlv_header_bad_w_gold), u.ann_tlv_header_bad_w_gate (\u.ann_tlv_header_bad_w_gate) -> u.ann_tlv_header_bad_w
+Presumably equivalent wires: u.ann_tlv_chain_done_after_w_gold (\u.ann_tlv_chain_done_after_w_gold), u.ann_tlv_chain_done_after_w_gate (\u.ann_tlv_chain_done_after_w_gate) -> u.ann_tlv_chain_done_after_w
+Presumably equivalent wires: u.ann_pt_byte_w_gold (\u.ann_pt_byte_w_gold), u.ann_pt_byte_w_gate (\u.ann_pt_byte_w_gate) -> u.ann_pt_byte_w
+Presumably equivalent wires: u.ann_pt_identity_w_gold (\u.ann_pt_identity_w_gold), u.ann_pt_identity_w_gate (\u.ann_pt_identity_w_gate) -> u.ann_pt_identity_w
+Presumably equivalent wires: u.ann_head_bad_w_gold (\u.ann_head_bad_w_gold), u.ann_head_bad_w_gate (\u.ann_head_bad_w_gate) -> u.ann_head_bad_w
+Presumably equivalent wires: u.ann_pt_left_after_w_gold (\u.ann_pt_left_after_w_gold), u.ann_pt_left_after_w_gate (\u.ann_pt_left_after_w_gate) -> u.ann_pt_left_after_w
+Presumably equivalent wires: u.ann_tlv_type_w_gold (\u.acc_r_gold [23:8]), u.ann_tlv_type_w_gate (\u.acc_r_gate [23:8]) -> u.ann_tlv_type_w
+Presumably equivalent wires: u.ann_tlv_len_w_gold ({ \u.acc_r_gold [7:0] \rx_data_i_gold }), u.ann_tlv_len_w_gate ({ \u.acc_r_gate [7:0] \rx_data_i_gate }) -> u.ann_tlv_len_w
+Presumably equivalent wires: u.ev_map_w_gold (\u.ev_map_w_gold), u.ev_map_w_gate (\u.ev_map_w_gate) -> u.ev_map_w
+Presumably equivalent wires: drop_cnt_o_gold (\u.drop_cnt_r_gold), drop_cnt_o_gate (\u.drop_cnt_r_gate) -> drop_cnt_o
+Presumably equivalent wires: ev_seq_o_gold (\u.ev_seq_o_gold), ev_seq_o_gate (\u.ev_seq_o_gate) -> ev_seq_o
+Presumably equivalent wires: ev_code_o_gold (\u.ev_code_o_gold), ev_code_o_gate (\u.ev_code_o_gate) -> ev_code_o
+Presumably equivalent wires: ev_valid_o_gold (\u.ev_valid_o_gold), ev_valid_o_gate (\u.ev_valid_o_gate) -> ev_valid_o
+Presumably equivalent wires: bank_wdata_o_gold (\u.bank_wdata_o_gold), bank_wdata_o_gate (\u.bank_wdata_o_gate) -> bank_wdata_o
+Presumably equivalent wires: bank_addr_o_gold (\u.bank_addr_o_gold), bank_addr_o_gate (\u.bank_addr_o_gate) -> bank_addr_o
+Presumably equivalent wires: bank_we_o_gold (\u.bank_we_o_gold), bank_we_o_gate (\u.bank_we_o_gate) -> bank_we_o
+Presumably equivalent wires: local_clock_valid_i_gold (\local_clock_valid_i_gold), local_clock_valid_i_gate (\local_clock_valid_i_gate) -> local_clock_valid_i
+Presumably equivalent wires: local_clock_id_i_gold (\local_clock_id_i_gold), local_clock_id_i_gate (\local_clock_id_i_gate) -> local_clock_id_i
+Presumably equivalent wires: rx_err_i_gold (\rx_err_i_gold), rx_err_i_gate (\rx_err_i_gate) -> rx_err_i
+Presumably equivalent wires: rx_eof_i_gold (\rx_eof_i_gold), rx_eof_i_gate (\rx_eof_i_gate) -> rx_eof_i
+Presumably equivalent wires: rx_sof_i_gold (\rx_sof_i_gold), rx_sof_i_gate (\rx_sof_i_gate) -> rx_sof_i
+Presumably equivalent wires: rx_data_i_gold (\rx_data_i_gold), rx_data_i_gate (\rx_data_i_gate) -> rx_data_i
+Presumably equivalent wires: rx_valid_i_gold (\rx_valid_i_gold), rx_valid_i_gate (\rx_valid_i_gate) -> rx_valid_i
+Presumably equivalent wires: rst_n_gold (\rst_n_gold), rst_n_gate (\rst_n_gate) -> rst_n
+Presumably equivalent wires: clk_i_gold (\clk_i_gold), clk_i_gate (\clk_i_gate) -> clk_i
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:144$284_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:144$285_gate ($logic_and): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:144$286_gate ($le): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:144$286_gate ($le): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:145$288_gate ($eq): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:145$289_gate ($logic_and): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:146$290_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:146$291_gate ($logic_not): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:146$293_gate ($reduce_bool): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:146$295_gate ($le): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:146$295_gate ($le): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:147$297_gate ($eq): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:147$298_gate ($logic_and): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input B of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$299_gate ($add): { 1'0 \u.acc_r_gate [7:0] \rx_data_i_gate } -> { 1'0 \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$299_gate ($add): { 6'000000 \u.cnt_r_gate } -> { 6'000000 \u.cnt_r }
+Changing input B of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$300_gate ($gt): { 6'000000 \u.msg_end_r_gate } -> { 6'000000 \u.msg_end_r }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$302_gate ($eq): \u.acc_r_gate [23:8] -> \u.acc_r [23:8]
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$303_gate ($logic_not): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$305_gate ($logic_or): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$306_gate ($add): { 1'0 \u.steps_r_gate } -> { 1'0 \u.steps_r }
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$307_gate ($ne): { 4'0000 \u.acc_r_gate [7:0] \rx_data_i_gate [7:3] } -> { 4'0000 \u.acc_r [7:0] \rx_data_i_gate [7:3] }
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:148$311_gate ($logic_and): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$312_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$313_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$315_gate ($logic_or): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$316_gate ($logic_not): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$317_gate ($logic_and): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$318_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$318_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$320_gate ($logic_not): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$323_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$323_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:149$324_gate ($logic_and): \u.ann_tlv_value_end_w_gate -> \u.ann_tlv_value_end_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:150$326_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:150$327_gate ($logic_and): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:150$328_gate ($reduce_bool): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:150$330_gate ($le): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:150$330_gate ($le): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:151$332_gate ($eq): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:151$333_gate ($logic_and): \u.ann_pt_byte_w_gate -> \u.ann_pt_byte_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:152$334_gate ($logic_not): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:152$335_gate ($logic_and): \u.ann_pt_identity_w_gate -> \u.ann_pt_identity_w
+Changing input B of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:152$336_gate ($ne): \u.gm_r_gate -> \u.gm_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:152$336_gate ($ne): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input S of cell $flatten\u.$ternary$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:153$338_gate ($mux): \u.ann_pt_byte_w_gate -> \u.ann_pt_byte_w
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:153$339_gate ($sub): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1570_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1570_gate ($mux): \u.flags_r_gate -> \u.flags_r
+Changing input B of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:217$351_gate ($logic_or): \u.runt_drop_w_gate -> \u.runt_drop_w
+Changing input A of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:217$351_gate ($logic_or): \u.fin_drop_w_gate -> \u.fin_drop_w
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:218$352_gate ($logic_and): \u.runt_drop_w_gate -> \u.runt_drop_w
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:218$352_gate ($logic_and): \u.fin_drop_w_gate -> \u.fin_drop_w
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:218$354_gate ($add): \u.drop_cnt_r_gate -> \drop_cnt_o
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:222$355_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:254$368_gate ($add): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:259$371_gate ($ne): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1573_gate ($mux): \u.flags_r_gate -> \u.flags_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:274$386_gate ($add): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:275$387_gate ($lt): \u.min_len_w_gate -> \u.min_len_w
+Changing input A of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:275$387_gate ($lt): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:275$388_gate ($gt): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:282$391_gate ($logic_not): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:287$392_gate ($logic_not): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:292$393_gate ($logic_not): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:299$394_gate ($logic_not): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1575_gate ($mux): \u.flags_r_gate -> \u.flags_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:307$398_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:307$399_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:307$400_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:307$401_gate ($logic_not): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:308$403_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:313$404_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:319$405_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:319$406_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:320$408_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:325$409_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:331$410_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:332$411_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:332$412_gate ($ne): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:334$414_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:334$415_gate ($ne): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:336$417_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:342$418_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:343$421_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:345$422_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:350$423_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:356$424_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:358$425_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:362$426_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:364$427_gate ($gt): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:371$431_gate ($add): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:377$432_gate ($logic_not): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:380$433_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:380$433_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:387$434_gate ($eq): \u.acc_r_gate [23:8] -> \u.acc_r [23:8]
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:399$437_gate ($sub): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:401$440_gate ($sub): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:402$441_gate ($add): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:403$442_gate ($eq): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:404$445_gate ($lt): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:406$448_gate ($add): { 2'00 \u.pt_cnt_r_gate [2:0] } -> { 2'00 \u.pt_cnt_r [2:0] }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:409$449_gate ($eq): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:411$450_gate ($logic_not): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:411$451_gate ($ne): \u.gm_r_gate -> \u.gm_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:411$451_gate ($ne): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:413$453_gate ($add): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:418$454_gate ($eq): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:418$454_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$455_gate ($logic_not): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$458_gate ($ge): \u.min_end_w_gate -> \u.min_end_w
+Changing input A of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$458_gate ($ge): \u.cnt_r_gate -> \u.cnt_r
+Changing input B of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$460_gate ($ge): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$460_gate ($ge): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$462_gate ($ne): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$463_gate ($logic_not): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$464_gate ($logic_and): \u.ann_tlv_chain_done_after_w_gate -> \u.ann_tlv_chain_done_after_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$465_gate ($logic_not): \u.ann_head_bad_w_gate -> \u.ann_head_bad_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$467_gate ($logic_not): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:431$468_gate ($logic_not): \u.ann_pt_left_after_w_gate -> \u.ann_pt_left_after_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:441$474_gate ($logic_not): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:441$475_gate ($logic_and): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1884_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1883_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1882_CMP2_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1882_CMP1_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1882_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1881_CMP0_gate ($logic_not): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1877_CMP0_gate ($logic_not): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1876_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1875_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1874_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1873_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1872_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1871_CMP0_gate ($eq): \u.mtype_r_gate -> \u.mtype_r
+Changing input S of cell $flatten\u.$procmux$1859_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$1857_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1853_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$1850_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1848_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1815_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1814_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1813_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1812_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$1806_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1806_gate ($mux): \u.bank_addr_o_gate -> \bank_addr_o
+Changing input S of cell $flatten\u.$procmux$1804_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$1804_gate ($mux): \u.bank_addr_o_gate -> \bank_addr_o
+Changing input A of cell $flatten\u.$procmux$1802_gate ($mux): \u.bank_addr_o_gate -> \bank_addr_o
+Changing input S of cell $flatten\u.$procmux$1792_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$1790_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1786_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$1783_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1781_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input B of cell $flatten\u.$procmux$1777_gate ($mux): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1771_gate ($mux): { \u.acc_r_gate [15:0] \rx_data_i_gate 40'0000000000000000000000000000000000000000 } -> { \u.acc_r [15:0] \rx_data_i_gate 40'0000000000000000000000000000000000000000 }
+Changing input B of cell $flatten\u.$procmux$1769_gate ($mux): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1767_gate ($mux): { \u.utc_r_gate \u.acc_r_gate [39:0] \rx_data_i_gate } -> { \u.utc_r \u.acc_r [39:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1762_gate ($mux): { \u.acc_r_gate [39:0] \rx_data_i_gate 16'0000000000000000 } -> { \u.acc_r [39:0] \rx_data_i_gate 16'0000000000000000 }
+Changing input B of cell $flatten\u.$procmux$1758_gate ($mux): { 48'000000000000000000000000000000000000000000000000 \u.acc_r_gate [7:0] \rx_data_i_gate } -> { 48'000000000000000000000000000000000000000000000000 \u.acc_r [7:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1756_gate ($mux): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1752_gate ($mux): { 32'00000000000000000000000000000000 \u.acc_r_gate [23:0] \rx_data_i_gate } -> { 32'00000000000000000000000000000000 \u.acc_r [23:0] \rx_data_i_gate }
+Changing input B of cell $flatten\u.$procmux$1750_gate ($mux): { 16'0000000000000000 \u.acc_r_gate [39:0] \rx_data_i_gate } -> { 16'0000000000000000 \u.acc_r [39:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1748_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1747_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1746_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input B of cell $flatten\u.$procmux$1744_gate ($pmux): { \u.acc_r_gate [55:0] \rx_data_i_gate \u.acc_r_gate [55:0] \rx_data_i_gate 48'000000000000000000000000000000000000000000000000 \u.acc_r_gate [7:0] \rx_data_i_gate 12'000000000000 \u.mtype_r_gate \u.seq_r_gate 8'00000000 \u.flags_r_gate \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate \u.acc_r [55:0] \rx_data_i_gate 48'000000000000000000000000000000000000000000000000 \u.acc_r [7:0] \rx_data_i_gate 12'000000000000 \u.mtype_r \u.seq_r 8'00000000 \u.flags_r \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1745_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$1739_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1739_gate ($mux): \u.bank_wdata_o_gate -> \bank_wdata_o
+Changing input S of cell $flatten\u.$procmux$1737_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$1737_gate ($mux): \u.bank_wdata_o_gate -> \bank_wdata_o
+Changing input B of cell $flatten\u.$procmux$1735_gate ($mux): { 55'0000000000000000000000000000000000000000000000000000000 \u.pt_self_r_gate \u.pt_cnt_r_gate } -> { 55'0000000000000000000000000000000000000000000000000000000 \u.pt_self_r \u.pt_cnt_r }
+Changing input A of cell $flatten\u.$procmux$1735_gate ($mux): \u.bank_wdata_o_gate -> \bank_wdata_o
+Changing input S of cell $flatten\u.$procmux$1730_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1730_gate ($mux): \u.ev_code_o_gate -> \ev_code_o
+Changing input S of cell $flatten\u.$procmux$1728_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$1728_gate ($mux): \u.ev_map_w_gate -> \u.ev_map_w
+Changing input A of cell $flatten\u.$procmux$1728_gate ($mux): \u.ev_code_o_gate -> \ev_code_o
+Changing input S of cell $flatten\u.$procmux$1723_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1723_gate ($mux): \u.ev_seq_o_gate -> \ev_seq_o
+Changing input S of cell $flatten\u.$procmux$1721_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$1721_gate ($mux): \u.seq_r_gate -> \u.seq_r
+Changing input A of cell $flatten\u.$procmux$1721_gate ($mux): \u.ev_seq_o_gate -> \ev_seq_o
+Changing input A of cell $flatten\u.$procmux$1716_gate ($mux): \u.cnt_r_gate -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$1711_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1711_gate ($mux): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1704_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$1697_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1697_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1695_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1688_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1681_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1681_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1679_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1675_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$1673_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$1670_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$1666_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1664_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1648_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1646_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1645_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1639_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1638_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1636_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1635_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1633_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1631_gate ($pmux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1632_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1629_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$1615_gate ($mux): \u.mtype_r_gate -> \u.mtype_r
+Changing input S of cell $flatten\u.$procmux$1610_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1610_gate ($mux): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1608_gate ($mux): \u.mtype_r_gate -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$1609_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1591_gate ($mux): \u.seq_r_gate -> \u.seq_r
+Changing input S of cell $flatten\u.$procmux$971_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$973_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input S of cell $flatten\u.$procmux$980_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$982_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$988_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$989_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$990_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$991_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$1024_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1026_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1029_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$1033_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$1035_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input B of cell $flatten\u.$procmux$1589_gate ($mux): \u.seq_r_gate -> \u.seq_r
+Changing input S of cell $flatten\u.$procmux$1586_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1586_gate ($mux): \u.seq_r_gate -> \u.seq_r
+Changing input B of cell $flatten\u.$procmux$1584_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1584_gate ($mux): \u.seq_r_gate -> \u.seq_r
+Changing input A of cell $flatten\u.$procmux$1585_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1059_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$1061_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1061_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$1064_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$1066_gate ($mux): \u.fin_ok_r_gate -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$1071_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$1071_gate ($mux): \u.fin_r_gate -> \u.fin_r
+Changing input S of cell $flatten\u.$procmux$1077_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1087_gate ($mux): \u.drop_cnt_r_gate -> \drop_cnt_o
+Changing input A of cell $flatten\u.$procmux$1099_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$1101_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$1103_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1103_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$1105_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1105_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$1108_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input B of cell $flatten\u.$procmux$1108_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$1110_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$1112_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1112_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$1114_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1114_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$1119_gate ($mux): \u.pt_self_r_gate -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$1130_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input B of cell $flatten\u.$procmux$1133_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1136_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$1136_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1139_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$1139_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1141_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1141_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$procmux$1143_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1145_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1145_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1147_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1147_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$procmux$1152_gate ($mux): \u.pt_seen_r_gate -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$1162_gate ($mux): \u.ann_tlv_value_end_w_gate -> \u.ann_tlv_value_end_w
+Changing input A of cell $flatten\u.$procmux$1162_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1164_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1164_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1174_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$1174_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1177_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$1177_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1179_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1181_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1183_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1183_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1185_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1185_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1190_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$1201_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1201_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1203_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1203_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$1207_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input B of cell $flatten\u.$procmux$1210_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1213_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$1213_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1216_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$1216_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1218_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1220_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1222_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1222_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$1224_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1224_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$1229_gate ($mux): \u.pt_byte_r_gate -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$1241_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1243_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1243_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1245_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1245_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1248_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input B of cell $flatten\u.$procmux$1248_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$procmux$1250_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1252_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1252_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1254_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1254_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$procmux$1259_gate ($mux): \u.pt_cnt_r_gate -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$1270_gate ($mux): \u.pt_run_r_gate -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$1270_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1272_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1272_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input B of cell $flatten\u.$procmux$1276_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1276_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input B of cell $flatten\u.$procmux$1279_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1282_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$1282_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1285_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$1285_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1287_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1289_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1291_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1291_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$1293_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1293_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input A of cell $flatten\u.$procmux$1298_gate ($mux): \u.pt_left_r_gate -> \u.pt_left_r
+Changing input A of cell $flatten\u.$procmux$1308_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$procmux$1310_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$1316_gate ($mux): \u.ann_tlv_value_end_w_gate -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$1318_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1328_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$1331_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$1333_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1335_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$1337_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1337_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$1339_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1339_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$procmux$1344_gate ($mux): \u.tlv_chain_done_r_gate -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$1354_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$1354_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$1358_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input S of cell $flatten\u.$procmux$1361_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$1361_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$1364_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$1364_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$1366_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1368_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$1370_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1370_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$1372_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1372_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$1377_gate ($mux): \u.tlv_left_r_gate -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$1386_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input B of cell $flatten\u.$procmux$1389_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$1391_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$1397_gate ($mux): \u.ann_tlv_value_end_w_gate -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$1399_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1403_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$1405_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1407_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$1409_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1409_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$1411_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1411_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$1416_gate ($mux): \u.tlv_hdr_pos_r_gate -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$1425_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$procmux$1428_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$procmux$1430_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$1436_gate ($mux): \u.ann_tlv_value_end_w_gate -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$1438_gate ($mux): \u.ann_tlv_value_byte_w_gate -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$1448_gate ($mux): \u.ann_tlv_header_bad_w_gate -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$1451_gate ($mux): \u.ann_tlv_header_end_w_gate -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$1453_gate ($mux): \u.ann_tlv_header_byte_w_gate -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$1455_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$1457_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1457_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$1459_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1459_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$procmux$1464_gate ($mux): \u.tlv_hdr_run_r_gate -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$procmux$1473_gate ($mux): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1473_gate ($mux): \u.gm_r_gate -> \u.gm_r
+Changing input A of cell $flatten\u.$procmux$1475_gate ($mux): \u.gm_r_gate -> \u.gm_r
+Changing input S of cell $flatten\u.$procmux$1477_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1477_gate ($mux): \u.gm_r_gate -> \u.gm_r
+Changing input S of cell $flatten\u.$procmux$1479_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1479_gate ($mux): \u.gm_r_gate -> \u.gm_r
+Changing input A of cell $flatten\u.$procmux$1484_gate ($mux): \u.gm_r_gate -> \u.gm_r
+Changing input B of cell $flatten\u.$procmux$1493_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1493_gate ($mux): \u.steps_r_gate -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$1495_gate ($mux): \u.steps_r_gate -> \u.steps_r
+Changing input S of cell $flatten\u.$procmux$1497_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1497_gate ($mux): \u.steps_r_gate -> \u.steps_r
+Changing input S of cell $flatten\u.$procmux$1499_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1499_gate ($mux): \u.steps_r_gate -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$1504_gate ($mux): \u.steps_r_gate -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$1520_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$1519_gate ($mux): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input S of cell $flatten\u.$procmux$1521_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1521_gate ($mux): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input A of cell $flatten\u.$procmux$1526_gate ($mux): \u.msg_end_r_gate -> \u.msg_end_r
+Changing input B of cell $flatten\u.$procmux$1535_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1535_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input A of cell $flatten\u.$procmux$1537_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$1539_gate ($mux): \u.bad_r_gate -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$1539_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$1541_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$1541_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input B of cell $flatten\u.$procmux$1544_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input A of cell $flatten\u.$procmux$1546_gate ($mux): \u.utc_r_gate -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$1553_gate ($mux): \u.run_r_gate -> \u.run_r
+Changing input B of cell $flatten\u.$procmux$1553_gate ($mux): { \u.acc_r_gate [55:0] \rx_data_i_gate } -> { \u.acc_r [55:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1553_gate ($mux): \u.acc_r_gate -> \u.acc_r
+Changing input A of cell $flatten\u.$procmux$1558_gate ($mux): \u.acc_r_gate -> \u.acc_r
+Changing input A of cell $flatten\u.$procmux$1569_CMP0_gate ($eq): \u.cnt_r_gate -> \u.cnt_r
+Changing input B of cell $flatten\u.$procmux$1568_gate ($mux): { \u.acc_r_gate [7:0] \rx_data_i_gate } -> { \u.acc_r [7:0] \rx_data_i_gate }
+Changing input A of cell $flatten\u.$procmux$1568_gate ($mux): \u.flags_r_gate -> \u.flags_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_head.v:130$282_gate ($add): { 5'00000 \u.min_end_w_gate } -> { 5'00000 \u.min_end_w }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:144$43_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:144$44_gold ($logic_and): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:144$45_gold ($le): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:144$45_gold ($le): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:145$47_gold ($eq): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:145$48_gold ($logic_and): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:146$49_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:146$50_gold ($logic_not): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:146$52_gold ($reduce_bool): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:146$54_gold ($le): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:146$54_gold ($le): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:147$56_gold ($eq): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:147$57_gold ($logic_and): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input B of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$58_gold ($add): { 1'0 \u.acc_r_gold [7:0] \rx_data_i_gold } -> { 1'0 \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$58_gold ($add): { 6'000000 \u.cnt_r_gold } -> { 6'000000 \u.cnt_r }
+Changing input B of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$59_gold ($gt): { 6'000000 \u.msg_end_r_gold } -> { 6'000000 \u.msg_end_r }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$61_gold ($eq): \u.acc_r_gold [23:8] -> \u.acc_r [23:8]
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$62_gold ($logic_not): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$64_gold ($logic_or): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$65_gold ($add): { 1'0 \u.steps_r_gold } -> { 1'0 \u.steps_r }
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$66_gold ($ne): { 4'0000 \u.acc_r_gold [7:0] \rx_data_i_gold [7:3] } -> { 4'0000 \u.acc_r [7:0] \rx_data_i_gold [7:3] }
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:148$70_gold ($logic_and): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$71_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$72_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$74_gold ($logic_or): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$75_gold ($logic_not): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$76_gold ($logic_and): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$77_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$77_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$79_gold ($logic_not): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$82_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$82_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:149$83_gold ($logic_and): \u.ann_tlv_value_end_w_gold -> \u.ann_tlv_value_end_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:150$85_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:150$86_gold ($logic_and): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:150$87_gold ($reduce_bool): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input B of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:150$89_gold ($le): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$le$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:150$89_gold ($le): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:151$91_gold ($eq): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:151$92_gold ($logic_and): \u.ann_pt_byte_w_gold -> \u.ann_pt_byte_w
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:152$93_gold ($logic_not): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:152$94_gold ($logic_and): \u.ann_pt_identity_w_gold -> \u.ann_pt_identity_w
+Changing input B of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:152$95_gold ($ne): \u.gm_r_gold -> \u.gm_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:152$95_gold ($ne): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input S of cell $flatten\u.$ternary$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:153$97_gold ($mux): \u.ann_pt_byte_w_gold -> \u.ann_pt_byte_w
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:153$98_gold ($sub): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input B of cell $flatten\u.$procmux$2970_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2970_gold ($mux): \u.flags_r_gold -> \u.flags_r
+Changing input B of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:217$110_gold ($logic_or): \u.runt_drop_w_gold -> \u.runt_drop_w
+Changing input A of cell $flatten\u.$logic_or$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:217$110_gold ($logic_or): \u.fin_drop_w_gold -> \u.fin_drop_w
+Changing input B of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:218$111_gold ($logic_and): \u.runt_drop_w_gold -> \u.runt_drop_w
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:218$111_gold ($logic_and): \u.fin_drop_w_gold -> \u.fin_drop_w
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:218$113_gold ($add): \u.drop_cnt_r_gold -> \drop_cnt_o
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:222$114_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:254$127_gold ($add): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:259$130_gold ($ne): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input S of cell $flatten\u.$procmux$2972_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2972_gold ($mux): \u.flags_r_gold -> \u.flags_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:274$145_gold ($add): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:275$146_gold ($lt): \u.min_len_w_gold -> \u.min_len_w
+Changing input A of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:275$146_gold ($lt): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:275$147_gold ($gt): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:282$150_gold ($logic_not): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:287$151_gold ($logic_not): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:292$152_gold ($logic_not): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:299$153_gold ($logic_not): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2975_gold ($mux): \u.flags_r_gold -> \u.flags_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:307$157_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:307$158_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:307$159_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:307$160_gold ($logic_not): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:308$162_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:313$163_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:319$164_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:319$165_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:320$167_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:325$168_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:331$169_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:332$170_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:332$171_gold ($ne): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:334$173_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:334$174_gold ($ne): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:336$176_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:342$177_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:343$180_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:345$181_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:350$182_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:356$183_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:358$184_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:362$185_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$gt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:364$186_gold ($gt): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$procmux$2977_gold ($mux): \u.flags_r_gold -> \u.flags_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:371$190_gold ($add): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:377$191_gold ($logic_not): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:380$192_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:380$192_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:387$193_gold ($eq): \u.acc_r_gold [23:8] -> \u.acc_r [23:8]
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:399$196_gold ($sub): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$sub$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:401$199_gold ($sub): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:402$200_gold ($add): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:403$201_gold ($eq): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$lt$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:404$204_gold ($lt): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:406$207_gold ($add): { 2'00 \u.pt_cnt_r_gold [2:0] } -> { 2'00 \u.pt_cnt_r [2:0] }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:409$208_gold ($eq): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:411$209_gold ($logic_not): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:411$210_gold ($ne): \u.gm_r_gold -> \u.gm_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:411$210_gold ($ne): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:413$212_gold ($add): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input B of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:418$213_gold ($eq): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:418$213_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$214_gold ($logic_not): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$217_gold ($ge): \u.min_end_w_gold -> \u.min_end_w
+Changing input A of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$217_gold ($ge): \u.cnt_r_gold -> \u.cnt_r
+Changing input B of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$219_gold ($ge): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$ge$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$219_gold ($ge): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$ne$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$221_gold ($ne): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$222_gold ($logic_not): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$223_gold ($logic_and): \u.ann_tlv_chain_done_after_w_gold -> \u.ann_tlv_chain_done_after_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$224_gold ($logic_not): \u.ann_head_bad_w_gold -> \u.ann_head_bad_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$226_gold ($logic_not): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$eq$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:431$227_gold ($logic_not): \u.ann_pt_left_after_w_gold -> \u.ann_pt_left_after_w
+Changing input A of cell $flatten\u.$logic_not$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:439$233_gold ($logic_not): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$logic_and$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:439$234_gold ($logic_and): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$3284_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3283_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3282_CMP2_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3282_CMP1_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3282_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3281_CMP0_gold ($logic_not): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3277_CMP0_gold ($logic_not): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3276_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3275_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3274_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3273_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3272_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3271_CMP0_gold ($eq): \u.mtype_r_gold -> \u.mtype_r
+Changing input S of cell $flatten\u.$procmux$3259_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$3257_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$3253_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$3250_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$3248_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$3215_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3214_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3213_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3212_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$3206_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$3206_gold ($mux): \u.bank_addr_o_gold -> \bank_addr_o
+Changing input S of cell $flatten\u.$procmux$3204_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$3204_gold ($mux): \u.bank_addr_o_gold -> \bank_addr_o
+Changing input A of cell $flatten\u.$procmux$3202_gold ($mux): \u.bank_addr_o_gold -> \bank_addr_o
+Changing input S of cell $flatten\u.$procmux$3192_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$3190_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$3186_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$3183_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$3181_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input B of cell $flatten\u.$procmux$3177_gold ($mux): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3171_gold ($mux): { \u.acc_r_gold [15:0] \rx_data_i_gold 40'0000000000000000000000000000000000000000 } -> { \u.acc_r [15:0] \rx_data_i_gold 40'0000000000000000000000000000000000000000 }
+Changing input B of cell $flatten\u.$procmux$3169_gold ($mux): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3167_gold ($mux): { \u.utc_r_gold \u.acc_r_gold [39:0] \rx_data_i_gold } -> { \u.utc_r \u.acc_r [39:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3162_gold ($mux): { \u.acc_r_gold [39:0] \rx_data_i_gold 16'0000000000000000 } -> { \u.acc_r [39:0] \rx_data_i_gold 16'0000000000000000 }
+Changing input B of cell $flatten\u.$procmux$3158_gold ($mux): { 48'000000000000000000000000000000000000000000000000 \u.acc_r_gold [7:0] \rx_data_i_gold } -> { 48'000000000000000000000000000000000000000000000000 \u.acc_r [7:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3156_gold ($mux): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3152_gold ($mux): { 32'00000000000000000000000000000000 \u.acc_r_gold [23:0] \rx_data_i_gold } -> { 32'00000000000000000000000000000000 \u.acc_r [23:0] \rx_data_i_gold }
+Changing input B of cell $flatten\u.$procmux$3150_gold ($mux): { 16'0000000000000000 \u.acc_r_gold [39:0] \rx_data_i_gold } -> { 16'0000000000000000 \u.acc_r [39:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$3148_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3147_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3146_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input B of cell $flatten\u.$procmux$3144_gold ($pmux): { \u.acc_r_gold [55:0] \rx_data_i_gold \u.acc_r_gold [55:0] \rx_data_i_gold 48'000000000000000000000000000000000000000000000000 \u.acc_r_gold [7:0] \rx_data_i_gold 12'000000000000 \u.mtype_r_gold \u.seq_r_gold 8'00000000 \u.flags_r_gold \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold \u.acc_r [55:0] \rx_data_i_gold 48'000000000000000000000000000000000000000000000000 \u.acc_r [7:0] \rx_data_i_gold 12'000000000000 \u.mtype_r \u.seq_r 8'00000000 \u.flags_r \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$3145_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$3139_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$3139_gold ($mux): \u.bank_wdata_o_gold -> \bank_wdata_o
+Changing input S of cell $flatten\u.$procmux$3137_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$3137_gold ($mux): \u.bank_wdata_o_gold -> \bank_wdata_o
+Changing input B of cell $flatten\u.$procmux$3135_gold ($mux): { 55'0000000000000000000000000000000000000000000000000000000 \u.pt_self_r_gold \u.pt_cnt_r_gold } -> { 55'0000000000000000000000000000000000000000000000000000000 \u.pt_self_r \u.pt_cnt_r }
+Changing input A of cell $flatten\u.$procmux$3135_gold ($mux): \u.bank_wdata_o_gold -> \bank_wdata_o
+Changing input S of cell $flatten\u.$procmux$3130_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$3130_gold ($mux): \u.ev_code_o_gold -> \ev_code_o
+Changing input S of cell $flatten\u.$procmux$3128_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$3128_gold ($mux): \u.ev_map_w_gold -> \u.ev_map_w
+Changing input A of cell $flatten\u.$procmux$3128_gold ($mux): \u.ev_code_o_gold -> \ev_code_o
+Changing input S of cell $flatten\u.$procmux$3123_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$3123_gold ($mux): \u.ev_seq_o_gold -> \ev_seq_o
+Changing input S of cell $flatten\u.$procmux$3121_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$3121_gold ($mux): \u.seq_r_gold -> \u.seq_r
+Changing input A of cell $flatten\u.$procmux$3121_gold ($mux): \u.ev_seq_o_gold -> \ev_seq_o
+Changing input A of cell $flatten\u.$procmux$3116_gold ($mux): \u.cnt_r_gold -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$3111_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3111_gold ($mux): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3104_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$3097_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3097_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3095_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3088_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$3083_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3083_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$3081_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$3077_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$3075_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$3072_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$3068_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$3066_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$3050_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3048_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3047_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3041_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3040_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3038_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3037_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3035_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3033_gold ($pmux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3034_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$3031_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input A of cell $flatten\u.$procmux$3017_gold ($mux): \u.mtype_r_gold -> \u.mtype_r
+Changing input S of cell $flatten\u.$procmux$3012_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$3012_gold ($mux): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3010_gold ($mux): \u.mtype_r_gold -> \u.mtype_r
+Changing input A of cell $flatten\u.$procmux$3011_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2993_gold ($mux): \u.seq_r_gold -> \u.seq_r
+Changing input B of cell $flatten\u.$procmux$2991_gold ($mux): \u.seq_r_gold -> \u.seq_r
+Changing input S of cell $flatten\u.$procmux$2373_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$2375_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input S of cell $flatten\u.$procmux$2382_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$2384_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$2390_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2391_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2392_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2393_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input S of cell $flatten\u.$procmux$2426_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2428_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$2431_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input S of cell $flatten\u.$procmux$2435_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input S of cell $flatten\u.$procmux$2437_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input S of cell $flatten\u.$procmux$2988_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2988_gold ($mux): \u.seq_r_gold -> \u.seq_r
+Changing input B of cell $flatten\u.$procmux$2986_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2986_gold ($mux): \u.seq_r_gold -> \u.seq_r
+Changing input A of cell $flatten\u.$procmux$2987_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2461_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$2463_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2463_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input B of cell $flatten\u.$procmux$2466_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input A of cell $flatten\u.$procmux$2468_gold ($mux): \u.fin_ok_r_gold -> \u.fin_ok_r
+Changing input S of cell $flatten\u.$procmux$2473_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input A of cell $flatten\u.$procmux$2473_gold ($mux): \u.fin_r_gold -> \u.fin_r
+Changing input S of cell $flatten\u.$procmux$2479_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2489_gold ($mux): \u.drop_cnt_r_gold -> \drop_cnt_o
+Changing input A of cell $flatten\u.$procmux$2501_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$2503_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$2505_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$2505_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$2507_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2507_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$2510_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input B of cell $flatten\u.$procmux$2510_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$2512_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$2514_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2514_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input S of cell $flatten\u.$procmux$2516_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2516_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$2521_gold ($mux): \u.pt_self_r_gold -> \u.pt_self_r
+Changing input A of cell $flatten\u.$procmux$2532_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input B of cell $flatten\u.$procmux$2535_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2538_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$2538_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2541_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$2541_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2543_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2543_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$procmux$2545_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2547_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2547_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2549_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2549_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input A of cell $flatten\u.$procmux$2554_gold ($mux): \u.pt_seen_r_gold -> \u.pt_seen_r
+Changing input S of cell $flatten\u.$procmux$2564_gold ($mux): \u.ann_tlv_value_end_w_gold -> \u.ann_tlv_value_end_w
+Changing input A of cell $flatten\u.$procmux$2564_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2566_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2566_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2576_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$2576_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2579_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$2579_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2581_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2583_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2585_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2585_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2587_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2587_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$2592_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input S of cell $flatten\u.$procmux$2603_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$2603_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2605_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2605_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$2609_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input B of cell $flatten\u.$procmux$2612_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2615_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$2615_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2618_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$2618_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2620_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2622_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2624_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2624_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input S of cell $flatten\u.$procmux$2626_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2626_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$2631_gold ($mux): \u.pt_byte_r_gold -> \u.pt_byte_r
+Changing input A of cell $flatten\u.$procmux$2643_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2645_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$2645_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2647_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2647_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2650_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input B of cell $flatten\u.$procmux$2650_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$procmux$2652_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2654_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2654_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2656_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2656_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input A of cell $flatten\u.$procmux$2661_gold ($mux): \u.pt_cnt_r_gold -> \u.pt_cnt_r
+Changing input S of cell $flatten\u.$procmux$2672_gold ($mux): \u.pt_run_r_gold -> \u.pt_run_r
+Changing input A of cell $flatten\u.$procmux$2672_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2674_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2674_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input B of cell $flatten\u.$procmux$2678_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2678_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input B of cell $flatten\u.$procmux$2681_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2684_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$2684_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2687_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$2687_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2689_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2691_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2693_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2693_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input S of cell $flatten\u.$procmux$2695_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2695_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input A of cell $flatten\u.$procmux$2700_gold ($mux): \u.pt_left_r_gold -> \u.pt_left_r
+Changing input A of cell $flatten\u.$procmux$2710_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$procmux$2712_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$2718_gold ($mux): \u.ann_tlv_value_end_w_gold -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$2720_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$2730_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$2733_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$2735_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2737_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$2739_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2739_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$2741_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2741_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input A of cell $flatten\u.$procmux$2746_gold ($mux): \u.tlv_chain_done_r_gold -> \u.tlv_chain_done_r
+Changing input S of cell $flatten\u.$procmux$2756_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input A of cell $flatten\u.$procmux$2756_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$2760_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input S of cell $flatten\u.$procmux$2763_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input B of cell $flatten\u.$procmux$2763_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$2766_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input A of cell $flatten\u.$procmux$2766_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$2768_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2770_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$2772_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2772_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input S of cell $flatten\u.$procmux$2774_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2774_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$2779_gold ($mux): \u.tlv_left_r_gold -> \u.tlv_left_r
+Changing input A of cell $flatten\u.$procmux$2788_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input B of cell $flatten\u.$procmux$2791_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$2793_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$2799_gold ($mux): \u.ann_tlv_value_end_w_gold -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$2801_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$2805_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$2807_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2809_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$2811_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2811_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input S of cell $flatten\u.$procmux$2813_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2813_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$2818_gold ($mux): \u.tlv_hdr_pos_r_gold -> \u.tlv_hdr_pos_r
+Changing input A of cell $flatten\u.$procmux$2827_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$procmux$2830_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$procmux$2832_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$2838_gold ($mux): \u.ann_tlv_value_end_w_gold -> \u.ann_tlv_value_end_w
+Changing input S of cell $flatten\u.$procmux$2840_gold ($mux): \u.ann_tlv_value_byte_w_gold -> \u.ann_tlv_value_byte_w
+Changing input S of cell $flatten\u.$procmux$2850_gold ($mux): \u.ann_tlv_header_bad_w_gold -> \u.ann_tlv_header_bad_w
+Changing input S of cell $flatten\u.$procmux$2853_gold ($mux): \u.ann_tlv_header_end_w_gold -> \u.ann_tlv_header_end_w
+Changing input S of cell $flatten\u.$procmux$2855_gold ($mux): \u.ann_tlv_header_byte_w_gold -> \u.ann_tlv_header_byte_w
+Changing input A of cell $flatten\u.$procmux$2857_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$2859_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2859_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input S of cell $flatten\u.$procmux$2861_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2861_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input A of cell $flatten\u.$procmux$2866_gold ($mux): \u.tlv_hdr_run_r_gold -> \u.tlv_hdr_run_r
+Changing input B of cell $flatten\u.$procmux$2875_gold ($mux): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2875_gold ($mux): \u.gm_r_gold -> \u.gm_r
+Changing input A of cell $flatten\u.$procmux$2877_gold ($mux): \u.gm_r_gold -> \u.gm_r
+Changing input S of cell $flatten\u.$procmux$2879_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2879_gold ($mux): \u.gm_r_gold -> \u.gm_r
+Changing input S of cell $flatten\u.$procmux$2881_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2881_gold ($mux): \u.gm_r_gold -> \u.gm_r
+Changing input A of cell $flatten\u.$procmux$2886_gold ($mux): \u.gm_r_gold -> \u.gm_r
+Changing input B of cell $flatten\u.$procmux$2895_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2895_gold ($mux): \u.steps_r_gold -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$2897_gold ($mux): \u.steps_r_gold -> \u.steps_r
+Changing input S of cell $flatten\u.$procmux$2899_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2899_gold ($mux): \u.steps_r_gold -> \u.steps_r
+Changing input S of cell $flatten\u.$procmux$2901_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2901_gold ($mux): \u.steps_r_gold -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$2906_gold ($mux): \u.steps_r_gold -> \u.steps_r
+Changing input A of cell $flatten\u.$procmux$2922_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$procmux$2921_gold ($mux): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input S of cell $flatten\u.$procmux$2923_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2923_gold ($mux): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input A of cell $flatten\u.$procmux$2928_gold ($mux): \u.msg_end_r_gold -> \u.msg_end_r
+Changing input B of cell $flatten\u.$procmux$2937_gold ($mux): { \u.acc_r_gold [7:0] \rx_data_i_gold } -> { \u.acc_r [7:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2937_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input A of cell $flatten\u.$procmux$2939_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$2941_gold ($mux): \u.bad_r_gold -> \u.bad_r
+Changing input B of cell $flatten\u.$procmux$2941_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$2943_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input A of cell $flatten\u.$procmux$2943_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input B of cell $flatten\u.$procmux$2946_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input A of cell $flatten\u.$procmux$2948_gold ($mux): \u.utc_r_gold -> \u.utc_r
+Changing input S of cell $flatten\u.$procmux$2955_gold ($mux): \u.run_r_gold -> \u.run_r
+Changing input B of cell $flatten\u.$procmux$2955_gold ($mux): { \u.acc_r_gold [55:0] \rx_data_i_gold } -> { \u.acc_r [55:0] \rx_data_i_gold }
+Changing input A of cell $flatten\u.$procmux$2955_gold ($mux): \u.acc_r_gold -> \u.acc_r
+Changing input A of cell $flatten\u.$procmux$2960_gold ($mux): \u.acc_r_gold -> \u.acc_r
+Changing input A of cell $flatten\u.$procmux$2971_CMP0_gold ($eq): \u.cnt_r_gold -> \u.cnt_r
+Changing input A of cell $flatten\u.$add$$REVIEWS/g35-r616-2-packet/scratch/equiv/parser_base.v:130$41_gold ($add): { 5'00000 \u.min_end_w_gold } -> { 5'00000 \u.min_end_w }
+Presumably equivalent cells: u_gold u_gate ($scopeinfo) -> u
+
+10. Executing HIERARCHY pass (managing design hierarchy).
+
+10.1. Analyzing design hierarchy..
+Top module:  \equiv
+
+10.2. Analyzing design hierarchy..
+Top module:  \equiv
+Removing unused module `\gate'.
+Removing unused module `\parser_head'.
+Removing unused module `\gold'.
+Removing unused module `\parser_base'.
+Removed 4 unused modules.
+
+11. Executing EQUIV_SIMPLE pass.
+Found 748 unproven $equiv cells (66 groups) in equiv:
+  Trying to prove $equiv for \bank_we_o:ezsat
+ezsat
+ success!
+ Grouping SAT models for \bank_addr_o:
+  Trying to prove $equiv for \bank_addr_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \bank_addr_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \bank_addr_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \bank_addr_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \bank_addr_o [4]:ezsat
+ success!
+ Grouping SAT models for \bank_wdata_o:
+  Trying to prove $equiv for \bank_wdata_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [15]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [16]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [17]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [18]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [19]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [20]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [21]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [22]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [23]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [24]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [25]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [26]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [27]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [28]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [29]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [30]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [31]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [32]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [33]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [34]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [35]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [36]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [37]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [38]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [39]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [40]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [41]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [42]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [43]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [44]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [45]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [46]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [47]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [48]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [49]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [50]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [51]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [52]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [53]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [54]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [55]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [56]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [57]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [58]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [59]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [60]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [61]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [62]:ezsat
+ success!
+  Trying to prove $equiv for \bank_wdata_o [63]:ezsat
+ success!
+  Trying to prove $equiv for \ev_valid_o:ezsat
+ezsat
+ success!
+ Grouping SAT models for \ev_code_o:
+  Trying to prove $equiv for \ev_code_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \ev_code_o [7]:ezsat
+ success!
+ Grouping SAT models for \ev_seq_o:
+  Trying to prove $equiv for \ev_seq_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \ev_seq_o [15]:ezsat
+ success!
+ Grouping SAT models for \drop_cnt_o:
+  Trying to prove $equiv for \drop_cnt_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \drop_cnt_o [15]:ezsat
+ success!
+  Trying to prove $equiv for \u._sv2v_0:ezsat
+ success!
+  Trying to prove $equiv for \u.clk_i:ezsat
+ success!
+  Trying to prove $equiv for \u.rst_n:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_valid_i:ezsat
+ success!
+ Grouping SAT models for \u.rx_data_i:
+  Trying to prove $equiv for \u.rx_data_i [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_data_i [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_sof_i:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_eof_i:ezsat
+ success!
+  Trying to prove $equiv for \u.rx_err_i:ezsat
+ success!
+ Grouping SAT models for \u.local_clock_id_i:
+  Trying to prove $equiv for \u.local_clock_id_i [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [16]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [17]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [18]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [19]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [20]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [21]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [22]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [23]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [24]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [25]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [26]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [27]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [28]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [29]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [30]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [31]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [32]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [33]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [34]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [35]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [36]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [37]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [38]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [39]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [40]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [41]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [42]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [43]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [44]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [45]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [46]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [47]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [48]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [49]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [50]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [51]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [52]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [53]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [54]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [55]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [56]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [57]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [58]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [59]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [60]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [61]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [62]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_id_i [63]:ezsat
+ success!
+  Trying to prove $equiv for \u.local_clock_valid_i:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_we_o:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.bank_addr_o:
+  Trying to prove $equiv for \u.bank_addr_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.bank_addr_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_addr_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_addr_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_addr_o [4]:ezsat
+ success!
+ Grouping SAT models for \u.bank_wdata_o:
+  Trying to prove $equiv for \u.bank_wdata_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [16]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [17]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [18]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [19]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [20]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [21]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [22]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [23]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [24]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [25]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [26]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [27]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [28]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [29]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [30]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [31]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [32]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [33]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [34]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [35]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [36]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [37]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [38]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [39]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [40]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [41]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [42]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [43]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [44]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [45]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [46]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [47]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [48]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [49]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [50]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [51]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [52]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [53]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [54]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [55]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [56]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [57]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [58]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [59]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [60]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [61]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [62]:ezsat
+ success!
+  Trying to prove $equiv for \u.bank_wdata_o [63]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_valid_o:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.ev_code_o:
+  Trying to prove $equiv for \u.ev_code_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_code_o [7]:ezsat
+ success!
+ Grouping SAT models for \u.ev_seq_o:
+  Trying to prove $equiv for \u.ev_seq_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_seq_o [15]:ezsat
+ success!
+ Grouping SAT models for \u.drop_cnt_o:
+  Trying to prove $equiv for \u.drop_cnt_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_o [15]:ezsat
+ success!
+ Grouping SAT models for \u.cnt_r:
+  Trying to prove $equiv for \u.cnt_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.cnt_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.run_r:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.bad_r:ezsat
+ezsat
+ezsat
+ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \u.mtype_r:
+  Trying to prove $equiv for \u.mtype_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.mtype_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.mtype_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.mtype_r [3]:ezsat
+ success!
+ Grouping SAT models for \u.seq_r:
+  Trying to prove $equiv for \u.seq_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.seq_r [15]:ezsat
+ success!
+ Grouping SAT models for \u.flags_r:
+  Trying to prove $equiv for \u.flags_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.flags_r [15]:ezsat
+ success!
+ Grouping SAT models for \u.acc_r:
+  Trying to prove $equiv for \u.acc_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [16]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [17]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [18]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [19]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [20]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [21]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [22]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [23]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [24]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [25]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [26]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [27]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [28]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [29]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [30]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [31]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [32]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [33]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [34]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [35]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [36]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [37]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [38]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [39]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [40]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [41]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [42]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [43]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [44]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [45]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [46]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [47]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [48]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [49]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [50]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [51]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [52]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [53]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [54]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [55]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [56]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [57]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [58]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [59]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [60]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [61]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [62]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_r [63]:ezsat
+ success!
+ Grouping SAT models for \u.utc_r:
+  Trying to prove $equiv for \u.utc_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.utc_r [15]:ezsat
+ success!
+ Grouping SAT models for \u.msg_end_r:
+  Trying to prove $equiv for \u.msg_end_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.msg_end_r [10]:ezsat
+ success!
+ Grouping SAT models for \u.steps_r:
+  Trying to prove $equiv for \u.steps_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.steps_r [15]:ezsat
+ success!
+ Grouping SAT models for \u.gm_r:
+  Trying to prove $equiv for \u.gm_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [16]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [17]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [18]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [19]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [20]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [21]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [22]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [23]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [24]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [25]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [26]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [27]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [28]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [29]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [30]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [31]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [32]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [33]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [34]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [35]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [36]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [37]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [38]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [39]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [40]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [41]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [42]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [43]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [44]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [45]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [46]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [47]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [48]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [49]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [50]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [51]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [52]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [53]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [54]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [55]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [56]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [57]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [58]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [59]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [60]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [61]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [62]:ezsat
+ success!
+  Trying to prove $equiv for \u.gm_r [63]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_hdr_run_r:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.tlv_hdr_pos_r:
+  Trying to prove $equiv for \u.tlv_hdr_pos_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_hdr_pos_r [1]:ezsat
+ success!
+ Grouping SAT models for \u.tlv_left_r:
+  Trying to prove $equiv for \u.tlv_left_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_left_r [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.tlv_chain_done_r:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.pt_left_r:
+  Trying to prove $equiv for \u.pt_left_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_left_r [15]:ezsat
+ success!
+ Grouping SAT models for \u.pt_cnt_r:
+  Trying to prove $equiv for \u.pt_cnt_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_cnt_r [7]:ezsat
+ success!
+ Grouping SAT models for \u.pt_byte_r:
+  Trying to prove $equiv for \u.pt_byte_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.pt_byte_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_byte_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.pt_run_r:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.pt_seen_r:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.pt_self_r:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.drop_cnt_r:
+  Trying to prove $equiv for \u.drop_cnt_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.drop_cnt_r [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.fin_drop_w:ezsat
+ success!
+  Trying to prove $equiv for \u.runt_drop_w:ezsat
+ success!
+  Trying to prove $equiv for \u.fin_r:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.fin_ok_r:ezsat
+ezsat
+ success!
+ Grouping SAT models for \u.acc_nxt_w:
+  Trying to prove $equiv for \u.acc_nxt_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [8]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [16]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [17]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [18]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [19]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [20]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [21]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [22]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [23]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [24]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [25]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [26]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [27]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [28]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [29]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [30]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [31]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [32]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [33]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [34]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [35]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [36]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [37]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [38]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [39]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [40]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [41]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [42]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [43]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [44]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [45]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [46]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [47]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [48]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [49]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [50]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [51]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [52]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [53]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [54]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [55]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [56]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [57]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [58]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [59]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [60]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [61]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [62]:ezsat
+ success!
+  Trying to prove $equiv for \u.acc_nxt_w [63]:ezsat
+ success!
+ Grouping SAT models for \u.min_end_w:
+  Trying to prove $equiv for \u.min_end_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_end_w [10]:ezsat
+ success!
+ Grouping SAT models for \u.min_len_w:
+  Trying to prove $equiv for \u.min_len_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.min_len_w [15]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_header_byte_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_header_end_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_value_byte_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_value_end_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_header_bad_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_chain_done_after_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_byte_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_identity_w:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_head_bad_w:ezsat
+ success!
+ Grouping SAT models for \u.ann_pt_left_after_w:
+  Trying to prove $equiv for \u.ann_pt_left_after_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_pt_left_after_w [15]:ezsat
+ success!
+ Grouping SAT models for \u.ann_tlv_type_w:
+  Trying to prove $equiv for \u.ann_tlv_type_w [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [8]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_type_w [15]:ezsat
+ success!
+ Grouping SAT models for \u.ann_tlv_len_w:
+  Trying to prove $equiv for \u.ann_tlv_len_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [7]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [8]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [9]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [10]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [11]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [12]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [13]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [14]:ezsat
+ success!
+  Trying to prove $equiv for \u.ann_tlv_len_w [15]:ezsat
+ success!
+ Grouping SAT models for \u.ev_map_w:
+  Trying to prove $equiv for \u.ev_map_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [6]:ezsat
+ success!
+  Trying to prove $equiv for \u.ev_map_w [7]:ezsat
+ success!
+Proved 747 previously unproven $equiv cells.
+
+12. Executing EQUIV_INDUCT pass.
+Found 1 unproven $equiv cells in module equiv:
+  Proving existence of base case for step 1. (162849 clauses over 60612 variables)
+  Proving induction step 1. (333355 clauses over 123902 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 2. (333356 clauses over 123902 variables)
+  Proving induction step 2. (503862 clauses over 187192 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 3. (503863 clauses over 187192 variables)
+  Proving induction step 3. (674369 clauses over 250482 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 4. (674370 clauses over 250482 variables)
+  Proving induction step 4. (844876 clauses over 313772 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 5. (844877 clauses over 313772 variables)
+  Proving induction step 5. (1015383 clauses over 377062 variables)
+  Proof for induction step failed. Trying to prove individual $equiv from workset.
+  Trying to prove $equiv for \u.bad_r: failed.
+Proved 0 previously unproven $equiv cells.
+
+13. Executing EQUIV_STATUS pass.
+Found 748 $equiv cells in equiv:
+  Of those cells 747 are proven and 1 are unproven.
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$3558: \u.bad_r_gold \u.bad_r_gate
+Found a total of 1 unproven $equiv cells.
+ERROR: Found 1 unproven $equiv cells in 'equiv_status -assert'.

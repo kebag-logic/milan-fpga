@@ -1,0 +1,20 @@
+Verilator 5.050 2026-07-01 rev v5.050
+622510b0091560e7a5d7fed6372f817ce665bcd298cffee134678ad1dc582a3a  $REVIEWS/g35-r616-2-packet/scratch/mpad/hdl/wire/KL_gptp_rx_parser.sv
+INFO sync len=58 clean writes=6 max writes up to flag=6 max after=0
+INFO fu len=90 clean writes=7 max writes up to flag=7 max after=0
+INFO pdreq len=68 clean writes=4 max writes up to flag=4 max after=0
+INFO pdresp len=68 clean writes=8 max writes up to flag=8 max after=0
+INFO pdrfu len=68 clean writes=8 max writes up to flag=8 max after=0
+INFO sig len=58 clean writes=4 max writes up to flag=4 max after=0
+INFO ann len=78 clean writes=8 max writes up to flag=7 max after=0
+INFO ann_pt3 len=106 clean writes=11 max writes up to flag=10 max after=0
+INFO ann_pt9 len=154 clean writes=16 max writes up to flag=15 max after=0
+  ann_pad p=78 drops+0 ev=1 after=1 prefix_ok=1
+  ann_pad p=79 drops+0 ev=1 after=1 prefix_ok=1
+  ann_pad p=80 drops+0 ev=1 after=1 prefix_ok=1
+  ann_pad p=81 drops+0 ev=1 after=1 prefix_ok=1
+  ann_pad p=82 drops+0 ev=1 after=1 prefix_ok=1
+FAIL ann_pad every byte refused cleanly (bytes failing) got 5 exp 0
+INFO ann_pad len=84 clean writes=8 max writes up to flag=7 max after=1
+FAIL ann_pad random multi-flag sets refused once (bad trials) got 3 exp 0
+568 checks: 566 PASS, 2 FAIL

@@ -1,0 +1,4 @@
+652c652
+<         if (rx_err_i) bad_r <= 1'b1;
+---
+>         if (rx_err_i && (rx_sof_i || cnt_r <= 11'(OFF_MSGLEN_END_C) || cnt_r <= msg_end_r)) bad_r <= 1'b1;
