@@ -1,0 +1,13 @@
+== over-budget rc=1 sbt_ran=0 exported=0
+    raise Refusal("allocation over budget",
+ctrl_memory.Refusal: allocation over budget: 59.5 RAMB36 (rom 120168 bytes in 120832, sram 121552 bytes in 122880) exceeds the 56-RAMB36 budget
+== overlap rc=1 sbt_ran=0 exported=0
+    raise Refusal("memory-map overlap",
+ctrl_memory.Refusal: memory-map overlap: .bss at 0x10000000 lies inside .data [0x10000000, 0x10000004) (addresses)
+== wrong-shape rc=1 sbt_ran=0 exported=0
+    raise Refusal("staging buffer", f"{STAGE_SYMBOL} is {size} bytes; the {shape} "
+ctrl_memory.Refusal: staging buffer: nvm_stage is 13264 bytes; the endstation_ax7101_1x1_tdm8 shape stages 3344
+== mailbox-only rc=2 sbt_ran=0 exported=0
+milan_soc.py: error: --ctrl-mailbox and --ctrl-firmware go together: the split placement's firmware owns the reset entry and sizes its own block RAM (#640 M8a)
+== firmware-only rc=2 sbt_ran=0 exported=0
+milan_soc.py: error: --ctrl-mailbox and --ctrl-firmware go together: the split placement's firmware owns the reset entry and sizes its own block RAM (#640 M8a)
