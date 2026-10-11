@@ -1,0 +1,12 @@
+suite                        checks   failures  tallies
+gptp_plane                         99          0        3
+milan_dp                        11955          0       15
+milan_dp_gm_steps                 196          0        2
+
+checks: 12250   in-suite failures: 0
+tally rc=0
+suite_tally: cannot read $PACKET/scratch/tally: [Errno 21] Is a directory: '$PACKET/scratch/tally'
+verdict rc=2
+verdict gptp_plane.log rc=0
+verdict milan_dp_gm_steps.log rc=0
+verdict milan_dp.log rc=0

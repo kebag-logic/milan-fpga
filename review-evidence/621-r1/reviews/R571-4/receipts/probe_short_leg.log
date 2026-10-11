@@ -1,0 +1,17 @@
+args=[] rc=2
+args=[--no-small-steps] rc=2
+args=[obj_gmstep/aemi.bin 0 --bogus] rc=2
+args=[obj_gmstep/aemi.bin --no-small-steps --no-small-steps] rc=2
+args=[obj_gmstep/aemi.bin 0 1] rc=2
+args=[obj_gmstep/aemi.bin -5] rc=2
+args=[obj_gmstep/aemi.bin 1000000] rc=2
+args=[/nonexistent.bin --no-small-steps] rc=2
+short (flag last) rc=0
+short (flag first, delay 0) rc=0
+full=190 short=104 phase block lines 51-136
+     58 621
+     28 licence
+checks in the block that are neither 621 nor licence: 0
+short == full minus the contiguous phase block
+flag position does not matter
+probe_short_leg verdict: PASS
