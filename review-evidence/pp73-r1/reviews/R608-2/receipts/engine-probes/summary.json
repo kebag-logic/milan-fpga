@@ -1,0 +1,67 @@
+[
+  {
+    "probe": "amap-record-4-bytes",
+    "build_rc": 0,
+    "sweep_rc": 0,
+    "suite_rc": 1,
+    "rerecord_rc": 0,
+    "gate_after_rerecord_rc": 0,
+    "suite_lines": [
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C AMADD: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C NSUPPE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 100\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36, 100\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D AMREMOVE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D NSUPPE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 100\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36, 100\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed \"4cdf9ddf59e1cd9f527f7f65ccec21ca82439bd11a47ae251ca85d647c95e61c\", recorded \"4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d\" (make -C tb/aecp_cmds record)",
+      "aecp_cmds: 585760 trials swept; 176 checks: 175 PASS, 1 FAIL"
+    ],
+    "rerecord_lines": [
+      "aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials",
+      "aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL"
+    ],
+    "gate_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "amap-record-16-bytes",
+    "build_rc": 0,
+    "sweep_rc": 0,
+    "suite_rc": 1,
+    "rerecord_rc": 0,
+    "gate_after_rerecord_rc": 0,
+    "suite_lines": [
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C AMADD: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 36\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C NSUPPE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 36, 100\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36, 100\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D AMREMOVE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 36\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D NSUPPE: observed {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 36, 100\", \"floor\": 20}, recorded {\"answers\": {\"11\": \"echo\"}, \"cdls\": \"20, 28, 36, 100\", \"floor\": 20} (make -C tb/aecp_cmds record)",
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed \"599ac378e4175067a8af99c8eda90e02fa60cd9ba3f53ced847bc9df3f131de3\", recorded \"4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d\" (make -C tb/aecp_cmds record)",
+      "aecp_cmds: 585760 trials swept; 176 checks: 175 PASS, 1 FAIL"
+    ],
+    "rerecord_lines": [
+      "aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials",
+      "aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL"
+    ],
+    "gate_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  },
+  {
+    "probe": "mvu-pid-first-byte-unchecked",
+    "build_rc": 0,
+    "sweep_rc": 0,
+    "suite_rc": 1,
+    "rerecord_rc": 0,
+    "gate_after_rerecord_rc": 0,
+    "suite_lines": [
+      "FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed \"a0237edccaefddd416b2ff29ea04e68a944cd07f4b915b038480d158f538bfc7\", recorded \"4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d\" (make -C tb/aecp_cmds record)",
+      "aecp_cmds: 585760 trials swept; 176 checks: 175 PASS, 1 FAIL"
+    ],
+    "rerecord_lines": [
+      "aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials",
+      "aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL"
+    ],
+    "gate_lines": [
+      "aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK"
+    ]
+  }
+]

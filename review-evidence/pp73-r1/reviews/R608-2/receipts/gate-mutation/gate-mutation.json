@@ -1,0 +1,1170 @@
+[
+  {
+    "site": "scripts/aecp_gate/inputs.py:95",
+    "line": "raise GateError(f\"{UCODE} did not generate: {why}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                  ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:100",
+    "line": "raise GateError(f\"{UCODE} defines no {name}: the generator's shape has \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                    ^^^^^^^^^^^^",
+      "AttributeError: module 'gen_ucode_for_gate' has no attribute 'occupied'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:112",
+    "line": "raise GateError(f\"cannot read an input: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                              ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:116",
+    "line": "raise GateError(f\"{rel} is not JSON: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                           ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/inputs.py:128",
+    "line": "raise GateError(f\"cannot read an input: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                              ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:60",
+    "line": "p.append(f\"  schema: {who}: {k} per must be an integer with its unit\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                  ~^^^^^^^^",
+      "KeyError: 'unit'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:63",
+    "line": "p.append(f\"  schema: {who}: {k} floor must be a command's integer from {HDR} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: ACQUIRE_ENTITY: the shortest AEM 0x0000 the engine dispatches to NSUPPE is cdl 12, the table's floor is 28",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:83",
+    "line": "p.append(f\"  schema: status {name}: code must be an integer\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (gate refused: hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for NO_RESOURCES, which gen_ucode.py's programs set)",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:85",
+    "line": "p.append(f\"  schema: status {name} is {code} in the table, IEEE 1722.1-2021 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 0020803d1a77): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:90",
+    "line": "p.append(f\"  schema: common_status {msg}: status {s} is not in status_codes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:92",
+    "line": "p.append(f\"  schema: unserved {t.get('unserved')!r} is no shared entry\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: MVU/wrong-protocol-id 0x0000-0x007F is no table command and the engine dispatches it to NOTIMPL, not only NOTIMPL2",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:100",
+    "line": "p.append(f\"  schema: {who} is listed twice\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  schema: GET_NAME: opcode 0x0011 is also GET_NAME's",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:103",
+    "line": "p.append(f\"  schema: {who}: message {c['message']!r} is neither AEM nor MVU\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:105",
+    "line": "p.append(f\"  schema: {who}: message {c['message']!r} has no common_status row\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  rom: GET_MILAN_INFO: status NOT_IMPLEMENTED is answered by a path of its programs and missing from the table's status set",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:108",
+    "line": "p.append(f\"  schema: {who}: opcode {c['opcode']!r} is not 0xHHHH\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: GET_NAME: the table says opcode 0x11, hdl/aecp/KL_aecp_engine.sv OP_GET_NAME_C = 0x0011",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:110",
+    "line": "p.append(f\"  schema: {who}: opcode {c['opcode']} is also \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: the engine's PP_UNS_STRM_C job answers 0x0023 with STRMUNS, which is no table command's notification",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:127",
+    "line": "p.append(f\"  schema: {who}: an echo response is the command's own size: \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 20, 28, 36, which is no 24 + 8·N",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:139",
+    "line": "p.append(f\"  schema: {who}: status {s} is not in status_codes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (gate refused: hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for STREAM_IS_RUNNING, which gen_ucode.py's programs set)",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:141",
+    "line": "p.append(f\"  schema: {who}: hazard {c['hazard']} is not in hazard_classes\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0011 GET_NAME, column Class, reads 'RO_SNAPSHOT' where the table gives 'NAME_RD'",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:144",
+    "line": "p.append(f\"  schema: {who}: lock, gdi and oversize must be true or false\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  rom: GET_NAME: the table says lock no, its programs never reach CHECK_LOCK",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:149",
+    "line": "p.append(f\"  schema: {who}: entries must be a non-empty list of names without repeats\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:152",
+    "line": "p.append(f\"  schema: {who}: notify must be null or carry class, kind and body\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                     ~~^^^^^^^^",
+      "KeyError: 'body'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:162",
+    "line": "p.append(f\"  schema: documented row {d.get('opcode') if isinstance(d, dict) else d!r}: \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                        ~^^^^^^^^",
+      "KeyError: 'name'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:174",
+    "line": "p.append(f\"  schema: {TABLE} declares {t.get('schema')!r}, this gate reads {SCHEMA!r}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:186",
+    "line": "p.append(f\"  schema: {who}: missing {', '.join(miss)}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "              ~^^^^^^^^^^",
+      "KeyError: 'hazard'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/table.py:190",
+    "line": "p.append(\"  schema: GET_MILAN_INFO: no command with message MVU, whose opcode \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (gate refused: hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:22",
+    "line": "raise GateError(f\"{what}: '{start}' not found - the pattern has gone stale\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                            ^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'end'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:25",
+    "line": "raise GateError(f\"{what}: no '{end}' after '{start}'\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                  ^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'start'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:49",
+    "line": "raise GateError(f\"{ENGINE}: a pattern parsed nothing\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: READ_DESCRIPTOR: entry RDESC has no UPC_RDESC_C, so the engine cannot dispatch to it",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:63",
+    "line": "raise GateError(f\"{TOP}: hz_classify's default or its opcode case is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                              ^^^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:71",
+    "line": "raise GateError(f\"{TOP}: hz_classify's opcode case parsed nothing\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  classifier: SET_SAMPLING_RATE: the table says CLOCK_CFG, hdl/top/protocol_processor_top.sv hz_classify gives 0x0014 RO_SNAPSHOT",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:80",
+    "line": "raise GateError(f\"{PP_PKG}: no PP_HZ_* enum parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  classifier: hazard class NAME_WR is 5 in the table and None in hdl/common/pp_pkg.sv",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:89",
+    "line": "raise GateError(f\"{PP_PKG}: no PP_UNS_*_C kind parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  kinds parsed: {}",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:102",
+    "line": "raise GateError(f\"{SCOREBOARD}: hz_is_lockprot is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "            ~~~~~^^^",
+      "KeyError: 'HZ_NAME_WR_C'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:115",
+    "line": "raise GateError(f\"{NOTIFY}: the command-class map is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                         ^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:125",
+    "line": "raise GateError(f\"{UCPU_PKG}: no ST_*_C parsed\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = None in hdl/aecp/ucpu_pkg.sv",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:141",
+    "line": "p.append(f\"  engine: {ENGINE} declares {name} = 0x{val:04X} and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0048 GET_MEMORY_OBJECT_LENGTH is not in the table",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:144",
+    "line": "p.append(f\"  engine: {d['name']}: the table says {d['opcode']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x000B GET_VIDEO_FORMAT is not in the table",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:147",
+    "line": "p.append(f\"  engine: {ENGINE} decodes {name} = 0x{val:04X} and the table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: 41 rows where the table generates 40",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:150",
+    "line": "p.append(f\"  engine: {docs[name]['name']}: the table names {name} and {ENGINE} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: hdl/aecp/KL_aecp_engine.sv declares GDI_GET_VIDEO_FMT_C = 0x000B and the table documents no such GET_DYNAMIC_INFO member",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:160",
+    "line": "p.append(f\"  engine: {name} is not written `localparam logic [15:0] {name} = \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: GET_AS_PATH: the table names OP_GET_AS_PATH_C and hdl/aecp/KL_aecp_engine.sv declares no such constant",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:165",
+    "line": "p.append(f\"  engine: {c['name']}: the table names {c['rtl']} and \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_NAME_C = 0x0011 and the table has no command for it",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:168",
+    "line": "p.append(f\"  engine: {c['name']}: the table says opcode {c['opcode']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:177",
+    "line": "p.append(f\"  engine: {c['name']}: entry {e} has no UPC_{e}_C, so the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:180",
+    "line": "p.append(f\"  engine: UPC_{e}_C is claimed by no command, notification body or \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: GET_CONTROL: the engine dispatches AEM 0x0019 to NSUPP1, which is not one of the table's entries (tb/aecp_cmds/decode.json)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:190",
+    "line": "p.append(f\"  classifier: hazard class {name} is {code} in the table and \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:193",
+    "line": "p.append(f\"  classifier: {PP_PKG} declares PP_HZ_{name} and the table does not\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:198",
+    "line": "p.append(f\"  classifier: {c['name']}: the table says {c['hazard']}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0029 GET_COUNTERS, column Class, reads 'RO_SNAPSHOT' where the table gives 'MAP_CFG'",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:201",
+    "line": "p.append(f\"  classifier: {TOP} hz_classify names 0x{op:04X}, which no table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  8.1: section 8.1 lists AEM 0x004B and the table serves no such command",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:205",
+    "line": "p.append(f\"  classifier: {c['name']}: a non-AEM command takes the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row MVU 0x0000 GET_MILAN_INFO, column Class, reads 'RO_SNAPSHOT' where the table gives 'MAP_CFG'",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:228",
+    "line": "p.append(f\"  notify: {c['name']}: class {k} is {cmap[k]} in {NOTIFY}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:231",
+    "line": "p.append(f\"  notify: {NOTIFY} queues classes {sorted(queued)} and maps \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:234",
+    "line": "p.append(f\"  notify: {c['name']}: class {k} is not in {NOTIFY}'s map, yet \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  rom: SET_NAME: its programs enqueue notification class [7], the table says [6]",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:238",
+    "line": "p.append(f\"  notify: {NOTIFY} maps class {k} to {kind} and no table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:249",
+    "line": "p.append(f\"  status: {name} is {code} in the table and {rtl} = \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rtl.py:252",
+    "line": "p.append(f\"  status: {UCPU_PKG} declares {rtl} and the table has no status for it\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:324",
+    "line": "p.append(f\"  rom: {name}: entry {e} is no placed program in {UCODE}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  rom: ENTITY_AVAILABLE: status SUCCESS is in the table's status set and no path of its programs can answer it",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:328",
+    "line": "p.append(f\"  rom: {name}: a path from E_{e} runs into ROM word {pc}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 12600a91b10d): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:338",
+    "line": "p.append(f\"  rom: {name}: E_{e} answers {code_of.get(s, s)} at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  rom: GET_AS_PATH: its unsolicited body E_GASP is cdl 16 + 8·N, the table's response is 16",
+      "aecp commands selftest: 153 planted defects, 144 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:356",
+    "line": "p.append(f\"  rom: {name}: its programs answer SUCCESS only at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is d536fbe31586): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:361",
+    "line": "p.append(f\"  rom: {name}: a path sets status {s}, which the table \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is c4ae0d50e58f): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:367",
+    "line": "p.append(f\"  rom: {name}: status {s} is answered by a path of its programs \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 46ab702caddb): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:370",
+    "line": "p.append(f\"  rom: {name}: status {s} is in the table's status set and no \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0002 ENTITY_AVAILABLE, column Status set, reads 'SUCCESS' where the table gives 'SUCCESS, NO_RESOURCES'",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:380",
+    "line": "p.append(f\"  rom: {name}: the table says lock {str(c['lock']).lower()}, its \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 83ff9f820109): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:384",
+    "line": "p.append(f\"  rom: {name}: its programs enqueue notification class \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 87510fae3bad): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:395",
+    "line": "p.append(f\"  rom: {name}: its unsolicited body E_{body} is cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 3b49af4e8993): sweep this engine with make -C tb/aecp_cmds record",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/rom.py:407",
+    "line": "p.append(f\"  rom: {c['name']}: engine_status is only for an engine-built response\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:48",
+    "line": "out.append(f\"{nums[i]}\" if i == j else f\"{nums[i]}-{nums[j]}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: AVC  is no table command and the engine dispatches it to SCLKS, not only NOTIMPL",
+      "aecp commands selftest: 153 planted defects, 149 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:187",
+    "line": "lines.append(f\"    {_one(b)}: [\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:189",
+    "line": "lines.append(f'      {{\"opcodes\": {_one(g[\"opcodes\"])}, \"programs\": {{')",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:192",
+    "line": "lines.append(f\"        {_one(pn)}: {_one(info)}{_comma(pi, len(progs))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:193",
+    "line": "lines.append(f\"      }}}}{_comma(gi, len(groups))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:194",
+    "line": "lines.append(f\"    ]{_comma(j, len(v))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:204",
+    "line": "lines.append(f\"    {_one(a)}: {{\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:207",
+    "line": "lines.append(f\"      {_one(c)}: {_one(d)}{_comma(si, len(sub))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:208",
+    "line": "lines.append(f\"    }}{_comma(j, len(items))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:210",
+    "line": "lines.append(f\"    {_one(a)}: {_one(b)}{_comma(j, len(items))}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:226",
+    "line": "lines.append('  \"about\": [')",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:228",
+    "line": "lines.append(f\"  ]{tail}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:230",
+    "line": "lines.append(f\"  {_one(k)}: {_one(v)}{tail}\")",
+    "selftest_rc": 0,
+    "survivor": true,
+    "tail": [
+      "aecp commands selftest: 153 planted defects, 153 caught by name, OK"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:262",
+    "line": "ck.p.append(f\"  decode: {name}: the table's entries name {e}, which the engine \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  engine: GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C, so the engine cannot dispatch to it",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:265",
+    "line": "ck.p.append(f\"  decode: {name}: the engine dispatches {at} to {e}, which is not \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: GET_CLOCK_SOURCE: the table's entries name GCLKS, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:269",
+    "line": "ck.p.append(f\"  decode: {name}: the engine \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:275",
+    "line": "ck.p.append(f\"  decode: {name}: the bench saw {at} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:292",
+    "line": "ck.p.append(f\"  decode: {name}: the shortest {at} the engine {how} \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:300",
+    "line": "ck.p.append(f\"  decode: {name}: the engine {did} at cdl \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:319",
+    "line": "ck.p.append(f\"  decode: {name}: {at} dispatched to {pn} sent no frame\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:323",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st}, which is not in the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:328",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st} at the command's \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:331",
+    "line": "ck.p.append(f\"  decode: {name}: {who} answered {st} at cdl {ln}, the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:342",
+    "line": "ck.p.append(f\"  decode: {c['name']}: {where} has no {at}: the sweep never sent it\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:360",
+    "line": "ck.p.append(f\"  decode: {b} {hexranges(ops)} is no table command and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:370",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO the engine never \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:373",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO the engine dispatches \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:379",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO its {e} record \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:383",
+    "line": "ck.p.append(f\"  decode: {c['name']}: inside GET_DYNAMIC_INFO its {e} record \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:399",
+    "line": "ck.p.append(f\"  decode: {who}: the table makes it a GET_DYNAMIC_INFO member and the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:403",
+    "line": "ck.p.append(f\"  decode: {who}: the engine runs a record of it inside GET_DYNAMIC_INFO \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:413",
+    "line": "ck.p.append(f\"  decode: {c['name']}: with no record the engine answers {got}, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: GET_DYNAMIC_INFO: its engine-built answer answered SUCCESS at cdl 12, the table's response is 16 + records",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:426",
+    "line": "ck.p.append(f\"  decode: {c['name']}: the engine runs no {nt['kind']} job\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_CLKS_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_CLOCK_C",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:431",
+    "line": "ck.p.append(f\"  decode: {c['name']}: the {nt['kind']} job answers \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  decode: the engine's PP_UNS_CLKS_C job answers 0x0016 with GCLKS, which is no table command's notification",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:440",
+    "line": "ck.p.append(f\"  decode: {c['name']}: its unsolicited {pn} is cdl {ln}, the \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:450",
+    "line": "ck.p.append(f\"  decode: the engine's {k} job answers {ct} with {pn}, which \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0027 GET_AVB_INFO, column Notif, reads 'event: async triggers' where the table gives '—'",
+      "aecp commands selftest: 153 planted defects, 151 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:471",
+    "line": "ck.p.append(f\"  decode: {where}: {rec['sweep']['timeouts']} trials never ended\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:510",
+    "line": "p.append(f\"  decode: {RECORD} is not what the engine does: {k}: observed \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/record.py:526",
+    "line": "p.append(f\"  decode: {RECORD} was swept from another {path} (sha256 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 150 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:81",
+    "line": "raise GateError(f\"{DOC}: the F06.14 markers are missing; restore them, then \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                       ~~~^^^",
+      "IndexError: tuple index out of range"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:104",
+    "line": "p.append(f\"  F06.14: the header is not {want[0]}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:106",
+    "line": "p.append(f\"  F06.14: {len(have) - 2} rows where the table generates {len(want) - 2}\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: the rows are out of the generated order (run --write)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:110",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} is missing (run --write)\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: 40 rows where the table generates 41",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:112",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} is not in the table\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  F06.14: row 0x0029 GET_COUNTERS is missing (run --write)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:116",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]}, column {col}, reads \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:119",
+    "line": "p.append(f\"  F06.14: row {key[0]} {key[1]} has {len(hrows[key])} cells, \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:124",
+    "line": "p.append(\"  F06.14: the rows are out of the generated order (run --write)\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:132",
+    "line": "raise GateError(f\"{DOC}: section 8.1's table is not parseable\")",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                ^^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'group'"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:142",
+    "line": "p.append(f\"  8.1: {want[op]} ({msg} 0x{op:04X}) is served and section 8.1 \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/doc.py:145",
+    "line": "p.append(f\"  8.1: section 8.1 lists {msg} 0x{op:04X} and the table serves \"",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "  (no finding at all)",
+      "aecp commands selftest: 153 planted defects, 152 caught by name, FAIL"
+    ]
+  },
+  {
+    "site": "scripts/aecp_gate/gate.py:71",
+    "line": "raise GateError(f\"the sweep's output {path} cannot be read: {exc}\") from exc",
+    "selftest_rc": 1,
+    "survivor": false,
+    "tail": [
+      "                                                                  ^^^^",
+      "SyntaxError: invalid syntax"
+    ]
+  }
+]

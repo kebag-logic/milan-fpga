@@ -1,0 +1,6 @@
+# probe accept-size-changed-doc-only
+
+# gate rc 1
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  F06.14: row 0x0017 GET_CLOCK_SOURCE, column Resp. size, reads '36 B (cdl 24)' where the table gives '32 B (cdl 20)'

@@ -1,0 +1,16 @@
+status-code-not-integer python3 (no -O): rc 1: aecp_commands.json: status_codes gives no integer code for SUCCESS, which gen_ucode.py's programs set
+status-code-not-integer python3 -O: rc 1: aecp_commands.json: status_codes gives no integer code for SUCCESS, which gen_ucode.py's programs set
+mvu-message-AAU python3 (no -O): rc 1: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type
+mvu-message-AAU python3 -O: rc 1: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type
+entry-never-placed python3 (no -O): rc 1: aecp_commands.json: GET_CLOCK_SOURCE: entries names SCFGRUN2, and gen_ucode.py placed no E_SCFGRUN2 program
+entry-never-placed python3 -O: rc 1: aecp_commands.json: GET_CLOCK_SOURCE: entries names SCFGRUN2, and gen_ucode.py placed no E_SCFGRUN2 program
+entries-field-missing python3 (no -O): rc 1: KeyError: 'entries'
+entries-field-missing python3 -O: rc 1: KeyError: 'entries'
+entries-not-a-list python3 (no -O): rc 1: aecp_commands.json: GET_CLOCK_SOURCE: entries names G, and gen_ucode.py placed no E_G program
+entries-not-a-list python3 -O: rc 1: aecp_commands.json: GET_CLOCK_SOURCE: entries names G, and gen_ucode.py placed no E_G program
+name-field-missing python3 (no -O): rc 1: KeyError: 'name'
+name-field-missing python3 -O: rc 1: KeyError: 'name'
+mvu-opcode-not-hex python3 (no -O): rc 1: ValueError: invalid literal for int() with base 16: '0xZZZZ'
+mvu-opcode-not-hex python3 -O: rc 1: ValueError: invalid literal for int() with base 16: '0xZZZZ'
+commands-missing python3 (no -O): rc 1: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type
+commands-missing python3 -O: rc 1: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type
