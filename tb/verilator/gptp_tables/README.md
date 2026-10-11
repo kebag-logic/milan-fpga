@@ -61,8 +61,9 @@ FIFO's lane count is read while a beat is offered, because only then does a
 consumer take it. A column with one value must be declared in
 [`one_valued.tsv`](one_valued.tsv) with that value, and a declared column must
 show exactly that value; otherwise its `<table> values: <column>` check fails.
-These are the declared columns. `one_valued.py` writes this table from the
-list, and `make` fails if the table is stale.
+These are the declared columns.
+[`scripts/gen_one_valued_table.py`](../../../scripts/gen_one_valued_table.py)
+writes this table from the list, and `make` fails if the table is stale.
 
 <!-- one-valued-columns:start -->
 | Column | Value | Why this stimulus gives no other | Covered by |

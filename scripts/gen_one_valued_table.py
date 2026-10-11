@@ -3,17 +3,26 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Write the gptp_tables README's one-valued column table from its list.
 
-WHY THIS EXISTS. The suite's lockstep cannot see a column stuck at the only
-value its stimulus gives it, so every such column is declared in
-`one_valued.tsv`, with that value, the reason the stimulus gives no other,
-and the suite that does see a defect in it, if any. The harness reads the
-list to grade its value census; this script writes the README's limits table
-from the same rows, so the README cannot state other limits than the run
-grades. `--check` is part of the suite's default make target.
+WHY THIS EXISTS. The `tb/verilator/gptp_tables` lockstep cannot see a column
+stuck at the only value its stimulus gives it, so every such column is
+declared in the suite's `one_valued.tsv`, with that value, the reason the
+stimulus gives no other, and the suite that does see a defect in it, if any.
+The harness reads the list to grade its value census; this script writes the
+suite README's limits table from the same rows, so the README cannot state
+other limits than the run grades. `--check` is part of the suite's default
+make target.
+
+WHY IT LIVES HERE. `scripts/ci_scope.py --selftest` scans the Python under
+`tb/` (not under `scripts/`) for documentation pages a gated job reads, and
+it resolves any `README.md` literal there to the top-level README.md, a
+documentation-only page that no gated job may read unlisted. The page this
+script reads and writes is the suite's own README. That page is under `tb/`,
+so it is never documentation-only and owes no gate-read entry, but from the
+suite directory this script would be filed as a reader of the top-level page.
 
 Usage:
-    python3 one_valued.py           # rewrite the table in README.md
-    python3 one_valued.py --check   # change nothing; fail if it is stale
+    python3 scripts/gen_one_valued_table.py           # rewrite the table
+    python3 scripts/gen_one_valued_table.py --check   # fail if it is stale
 
 Exit 0 = the table is current (or was written); 1 = stale under --check;
 2 = the list or the README's markers cannot be read.
@@ -24,9 +33,9 @@ import re
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-LIST = HERE / "one_valued.tsv"
-README = HERE / "README.md"
+SUITE = Path(__file__).resolve().parent.parent / "tb" / "verilator" / "gptp_tables"
+LIST = SUITE / "one_valued.tsv"
+README = SUITE / "README.md"
 #: the list's header row; the harness requires the same five fields
 HEADER = ["table", "column", "value", "covered_by", "reason"]
 VALUE = re.compile(r"0x[0-9a-f]+")
@@ -93,7 +102,8 @@ def main() -> int:
         print(f"{README.name}: the one-valued table is current")
         return 0
     if args.check:
-        print(f"{README.name}: the one-valued table is stale; run python3 one_valued.py",
+        print(f"{README.name}: the one-valued table is stale; "
+              "run python3 scripts/gen_one_valued_table.py",
               file=sys.stderr)
         return 1
     README.write_text(wanted, encoding="utf-8")

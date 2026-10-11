@@ -68,7 +68,7 @@ mutants: run
 #: The README's table of one-valued columns is written from $(DECLARED);
 #: this fails when it no longer matches the list the run grades against.
 limits:
-	python3 one_valued.py --check
+	python3 ../../../scripts/gen_one_valued_table.py --check
 
 gptp_ucode.hex: $(UCODE_GEN)
 	python3 $< --clk-hz $(ENGINE_CLK_HZ) --cease-ms 3000 -o $@

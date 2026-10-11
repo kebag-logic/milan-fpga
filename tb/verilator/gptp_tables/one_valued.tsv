@@ -6,7 +6,8 @@
 # each is declared here. The harness reads this list: a column it compared
 # with one value must be declared with that value, and a declared column
 # must show exactly that value, or its "<table> values: <column>" check
-# fails. one_valued.py writes the README's limits table from these rows.
+# fails. scripts/gen_one_valued_table.py writes the README's limits table
+# from these rows.
 # Columns: table, column, value (hex), the suite that sees a defect in the
 # column (none if no suite does), and why this stimulus gives no other value.
 table	column	value	covered_by	reason
