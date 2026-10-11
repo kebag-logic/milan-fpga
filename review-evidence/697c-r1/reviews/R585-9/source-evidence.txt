@@ -1,0 +1,18 @@
+35 of 35 listed ELF hashes match: dev aef7ac66, feed95bb, be607527.
+Manifest SHA256 de8ae063d8046a72b90cf180b5d1dcf129c43400cd7f139a2ea26a897c86ebd0
+Published author receipts; no local image rebuild and no manager source-head bank inferred.
+Published make database/dry-run readings byte-identical: feed95bb and be607527.
+bjob-final.log: rc=0 728 s
+vjob-final.log: rc=0 498 s
+ujob-final.outer: total 2215 s 2026-10-11T19:58:08Z
+docsjob-final.txt: exit=0
+git diff --name-only feed95bb..HEAD
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/test/ctrl_boundary.py
+sw/firmware/ctrl/test/ctrl_build.py
+sw/firmware/ctrl/test/ctrl_pin.py
+
+git diff --name-only aef7ac66..HEAD -- hdl
+
+git diff --name-only feed95bb..HEAD -- *.c *.h *.hex *.bin *.elf *.mem *.rom *.S *.ld configs third_party
+

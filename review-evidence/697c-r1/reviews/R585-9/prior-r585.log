@@ -1,0 +1,8 @@
+mutant census findings: ["sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary)", "sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .__name__, outside the pin proof's vocabulary", "sw/firmware/ctrl/test/ctrl_build.py:305 main names stack_pin, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary))"]
+replacement tree original: (False, 'tsn-c-stack differs from the pinned 1a9f651c: src/adp.c')
+replacement tree mutant accepted: True answer: 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+Traceback (most recent call last):
+  File "$REVIEWS/697c-r585-9-packet/prior-probes/reviews/R585-8/scripts/census_probe.py", line 29, in <module>
+    assert accepted and not findings, "Probe no longer reproduces the census escape"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Probe no longer reproduces the census escape

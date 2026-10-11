@@ -1,0 +1,67 @@
+{"case": "clean", "expected": "accepted", "findings": [], "pass": true}
+{"accepted": false, "case": "the census, a Git command run by the harness's runner (ctrl_build.run)", "detail": "sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary)", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, a program named by a computed name (git.__name__)", "detail": "sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary)", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, a dashed program (git-ls-tree)", "detail": "sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary)", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, an aliased import (from subprocess import run as r)", "detail": "sw/firmware/ctrl/test/ctrl_build.py:260 imports subprocess.run as r, a process-launch facility", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, os.system, in a line added to ctrl_pin.py", "detail": "sw/firmware/ctrl/test/ctrl_pin.py:745 names os.system, a process-launch facility", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, exec of a string", "detail": "sw/firmware/ctrl/test/ctrl_build.py:210 stack_gitlink names exec, neither ctrl_build.py's nor in the pin proof's vocabulary", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, the helper's environment without GIT_NO_REPLACE_OBJECTS", "detail": "the pin proof's Git environment does not set GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object", "expected": "named refusal", "pass": true}
+{"accepted": false, "case": "the census, the helper's environment without GIT_GRAFT_FILE", "detail": "the pin proof's Git environment gives GIT_GRAFT_FILE no value, so Git would read a graft file", "expected": "named refusal", "pass": true}
+{"case": "ctrl_build.py: subprocess import", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports subprocess, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: subprocess alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports subprocess as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: subprocess member alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports subprocess.Popen as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.system alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports os.system as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.system attribute", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:315 names operating.system, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.popen", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names os.popen, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.execvp", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names os.execvp, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.spawnv", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names os.spawnv, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: os.posix_spawn", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names os.posix_spawn, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: pty import alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports pty as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: pty member alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports pty.spawn as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: asyncio module", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports asyncio.subprocess as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: asyncio alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports asyncio.create_subprocess_exec as process, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: asyncio shell attribute", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:315 names a.create_subprocess_shell, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: indirect os", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names shutil.os.system, a process-launch facility"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: eval", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names eval, dynamic code or reflection"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: exec", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names exec, dynamic code or reflection"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: compile", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names compile, dynamic code or reflection"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: dynamic import", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names __import__, dynamic code or reflection"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: importlib", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports importlib as loader, dynamic code"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: reflection", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 names getattr, dynamic code or reflection"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: wildcard", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_build.py:314 imports every name of os, which the census cannot follow"], "line": 314, "pass": true}
+{"case": "ctrl_build.py: qualified eval", "expected": "named refusal", "findings": [], "line": 314, "pass": false}
+{"case": "ctrl_build.py: qualified exec", "expected": "named refusal", "findings": [], "line": 314, "pass": false}
+{"case": "ctrl_build.py: qualified compile", "expected": "named refusal", "findings": [], "line": 314, "pass": false}
+{"case": "ctrl_build.py: qualified importlib", "expected": "named refusal", "findings": [], "line": 314, "pass": false}
+{"case": "ctrl_pin.py: subprocess import", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports subprocess, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: subprocess alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports subprocess as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: subprocess member alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports subprocess.Popen as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.system alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports os.system as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.system attribute", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:746 names operating.system, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.popen", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names os.popen, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.execvp", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names os.execvp, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.spawnv", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names os.spawnv, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: os.posix_spawn", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names os.posix_spawn, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: pty import alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports pty as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: pty member alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports pty.spawn as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: asyncio module", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports asyncio.subprocess as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: asyncio alias", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports asyncio.create_subprocess_exec as process, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: asyncio shell attribute", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:746 names a.create_subprocess_shell, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: indirect os", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names shutil.os.system, a process-launch facility"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: eval", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names eval, dynamic code or reflection"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: exec", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names exec, dynamic code or reflection"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: compile", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names compile, dynamic code or reflection"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: dynamic import", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names __import__, dynamic code or reflection"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: importlib", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports importlib as loader, dynamic code"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: reflection", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 names getattr, dynamic code or reflection"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: wildcard", "expected": "named refusal", "findings": ["sw/firmware/ctrl/test/ctrl_pin.py:745 imports every name of os, which the census cannot follow"], "line": 745, "pass": true}
+{"case": "ctrl_pin.py: qualified eval", "expected": "named refusal", "findings": [], "line": 745, "pass": false}
+{"case": "ctrl_pin.py: qualified exec", "expected": "named refusal", "findings": [], "line": 745, "pass": false}
+{"case": "ctrl_pin.py: qualified compile", "expected": "named refusal", "findings": [], "line": 745, "pass": false}
+{"case": "ctrl_pin.py: qualified importlib", "expected": "named refusal", "findings": [], "line": 745, "pass": false}
+{"case": "dynamic code inside helper: eval('1')", "expected": "refused module-wide", "findings": [], "line": 201, "pass": false}
+{"case": "dynamic code inside helper: exec('pass')", "expected": "refused module-wide", "findings": [], "line": 201, "pass": false}
+{"case": "dynamic code inside helper: compile('pass', '<probe>', 'exec')", "expected": "refused module-wide", "findings": [], "line": 201, "pass": false}
+{"case": "dynamic code inside helper: __import__('os')", "expected": "refused module-wide", "findings": [], "line": 201, "pass": false}
+{"case": "dynamic code inside helper: import importlib", "expected": "refused module-wide", "findings": [], "line": 201, "pass": false}
+RESULT: 66 cases, 53 passed, 13 escaped

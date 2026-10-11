@@ -1,0 +1,8 @@
+Planted code: 
+import inspect
+inspect.builtins.exec('import subprocess; subprocess.run([\'/usr/bin/python3\', \'-c\', \'print("OUTSIDE_HELPER_PROCESS_RAN")\'], check=True)')
+
+Census findings: []
+Execution return code: 0
+OUTSIDE_HELPER_PROCESS_RAN
+REPRODUCED: explicit builtins.exec outside helper accepted and child process ran

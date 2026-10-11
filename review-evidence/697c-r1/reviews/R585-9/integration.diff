@@ -1,0 +1,683 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index b996c2c56..1482983f7 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -241,7 +241,8 @@ jobs:
+   # versions and the compiler and gcov the ratchet is measured with.
+   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+   # build after SDK installation, plus the control mutation campaign. The
+-  # public dependency is fetched at the reviewed gitlink.
++  # ADP, ACMP and MAAP cores are the tsn-c-stack submodule's (#697). Both
++  # public dependencies are fetched at their reviewed gitlinks.
+   # The saved-state and tally mutation campaigns remain additional local gates.
+   firmware-unit:
+     needs: changes
+@@ -251,7 +252,7 @@ jobs:
+     steps:
+       - uses: actions/checkout@v4
+       - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+ 
+       - name: Install GoogleTest and GoogleMock and print the versions
+         run: |
+@@ -292,12 +293,128 @@ jobs:
+           python3 sw/firmware/gtest/fw_coverage.py --selftest
+           python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+ 
++  # #697: the TSN stack's boundary from both sides, over the compiles of
++  # every builder it judges but those that need Verilator: the gate runs each
++  # by its builds, read from its own known set (ctrl_configs.BUILDERS), not
++  # its suites (the suite builders' --build-only builds every binary and image
++  # firmware-unit's suites build, and runs and plants nothing), and the stack's
++  # own gate (its CMake build with gcc and clang) and the image builders,
++  # under one capture of every compiler invocation, with the compiler's own
++  # list of what each source's compile reads (a wrapper on PATH runs the real
++  # compiler unchanged). Each compile is judged by that list: the cores read
++  # only their own files and the C implementation's headers, the stack's
++  # tests nothing of this repository, the firmware (the saved-state store and
++  # both images included) only the stack's public headers; every Makefile
++  # target that builds the stack is pinned; planted and pin controls first.
++  # This job has no Verilator, so the builders that need it are named and
++  # left out (--without verilator): firmware-verilator judges them.
++  firmware-boundary:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 30
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Hold the TSN stack boundary over the firmware builders' compiles
++        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
++
++  # #697: the TSN stack's boundary over the compiles only the builders that
++  # need Verilator make: the mailbox bench, the MAAP differential and the
++  # AECP wire comparison at each reference it pins, each run by its own
++  # commands (ctrl_configs.BUILDERS) under the gate's own capture, with the
++  # controls that need their capture (--only verilator). The firmware
++  # builders are firmware-boundary's, named here and left out.
++  firmware-verilator:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 40
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++
++      - name: Cache the pinned Verilator build
++        id: cache-verilator
++        uses: actions/cache@v4
++        with:
++          path: /opt/verilator
++          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
++
++      - name: Build Verilator from source on cache miss
++        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends \
++            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
++          git clone --depth 1 --branch "$VERILATOR_VERSION" \
++            https://github.com/verilator/verilator.git /tmp/verilator-src
++          cd /tmp/verilator-src
++          autoconf
++          ./configure --prefix=/opt/verilator
++          make -j"$(nproc)"
++          sudo make install
++
++      - name: Put Verilator on PATH and prove the version
++        run: |
++          set -euo pipefail
++          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
++          /opt/verilator/bin/verilator --version
++          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Hold the TSN stack boundary over the Verilator builders' compiles
++        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
++
+   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
+   # deliberate docs-only result; failures and cancellations remain failures.
+   rtl-fast:
+     name: rtl-fast
+     if: ${{ always() && !cancelled() }}
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit]
++    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-boundary, firmware-verilator]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -308,6 +425,8 @@ jobs:
+           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
+           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
++          FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
++          FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
+         run: |
+           set -euo pipefail
+           bad=0
+@@ -316,7 +435,9 @@ jobs:
+             "verilator-lint:$VERILATOR_LINT_RESULT" \
+             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+-            "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
++            "firmware-unit:$FIRMWARE_UNIT_RESULT" \
++            "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
++            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
+             name="${pair%%:*}"
+             result="${pair#*:}"
+             printf '%-24s %s\n' "$name" "$result"
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 67766752e..72b801768 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -158,7 +158,7 @@ jobs:
+     steps:
+       - uses: actions/checkout@v4
+       - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+ 
+       # Record the tree this worker validates beside its evidence, and refuse
+       # to start on any other. The record is not a *.log, so suite_tally.py
+diff --git a/.gitmodules b/.gitmodules
+index b1534950d..32be05aab 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -13,3 +13,6 @@
+ [submodule "third_party/lwSRP"]
+ 	path = third_party/lwSRP
+ 	url = https://github.com/kebag-logic/lwSRP.git
++[submodule "third_party/tsn-c-stack"]
++	path = third_party/tsn-c-stack
++	url = https://github.com/kebag-logic/tsn-c-stack.git
+diff --git a/sw/firmware/ctrl/mbx/mbx_wire.h b/sw/firmware/ctrl/mbx/mbx_wire.h
+index 526aadbb9..6a681b3ca 100644
+--- a/sw/firmware/ctrl/mbx/mbx_wire.h
++++ b/sw/firmware/ctrl/mbx/mbx_wire.h
+@@ -5,8 +5,8 @@
+ //
+ // Two orders meet in a ring and neither depends on the host's own:
+ //
+-//   * a WIRE field inside a frame is big-endian; ../wire/wire.h reads and
+-//     writes it one byte at a time;
++//   * a WIRE field inside a frame is big-endian; wire.h, the TSN stack's
++//     (third_party/tsn-c-stack/include), reads and writes it byte by byte;
+ //   * a RING word carries four frame bytes in little-endian lanes, the
+ //     contract's statement (sw/mailbox/mailbox.yaml): frame byte k sits in
+ //     ring word k/4 at bits [8*(k%4)+7 : 8*(k%4)]. ring_lanes_*() convert.
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index 808693af8..f4c9e80b9 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -11,8 +11,8 @@ from pathlib import Path
+ from subprocess import CompletedProcess
+ 
+ from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+-                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
+-                        run, sources)
++                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, label,
++                        link, run, sources)
+ import fw_rv32
+ 
+ def arm_model(tree: Tree) -> Outcome:
+@@ -28,15 +28,21 @@ def arm_port(tree: Tree) -> Outcome:
+     return execute("port", link(tree, "test_port_loop", objs))
+ 
+ 
++#: The ADP binary's tests: the stack's core cases, then the adapter's, the latency bounds and the backlog.
++ADP_TESTS = ("tsn-c-stack/tests/test_adp.cpp", "test_adp.cpp")
++
++
+ def arm_adp(tree: Tree) -> Outcome:
+     """The ADP core, its adapter and the latency bounds."""
+-    objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
++    objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ADP_TESTS, "adp/tests")
+     return execute("adp", link(tree, "test_adp", objs))
+ 
+ 
+-#: The ACMP binary's tests: the core over fake ports, then the adapter, the
+-#: latency bounds and the composition on the model.
+-ACMP_TESTS = ("test_acmp.cpp", "test_acmp_mbx.cpp")
++#: The ACMP binary's tests: the core over fake ports (the stack's), then the
++#: adapter, the latency bounds and the composition on the model.
++ACMP_TESTS = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp")
++#: Its tally label, which no test file of it names.
++ACMP_LABEL = "ctrl ACMP core and adapter (fake ports and host model)"
+ #: The host tests' build asserts the no-callback rule (#678, acmp.h).
+ REENTRY_ASSERT = ("-DCTRL_REENTRY_ASSERT",)
+ 
+@@ -45,7 +51,7 @@ def arm_acmp(tree: Tree) -> Outcome:
+     """The ACMP core over fake ports, its adapter and the latency bounds on the model."""
+     objs = (compile_c(tree, sources(tree, PORTABLE), "acmp", REENTRY_ASSERT) +
+             compile_c(tree, sources(tree, HOST), "acmp/host", measured=False) +
+-            compile_tests(tree, ACMP_TESTS, "acmp/tests"))
++            compile_tests(tree, ACMP_TESTS, "acmp/tests") + [label(tree, ACMP_LABEL)])
+     return execute("acmp", link(tree, "test_acmp", objs))
+ 
+ 
+@@ -71,7 +77,7 @@ def arm_acmpif2(tree: Tree) -> Outcome:
+         shutil.rmtree(src)
+     shutil.copytree(tree.src, src, ignore=shutil.ignore_patterns("__pycache__"))
+     shutil.copyfile(gen / "mbx_contract.h", src / "mbx" / "mbx_contract.h")
+-    if2 = Tree(src, work / "build", tree.reuse, tree.build)
++    if2 = Tree(src, work / "build", tree.reuse, tree.build, tree.stack)
+     objs = (compile_c(if2, sources(if2, PORTABLE), "fw", REENTRY_ASSERT, measured=False) +
+             compile_c(if2, sources(if2, HOST), "host", measured=False) +
+             compile_tests(if2, IF2_TESTS, "tests"))
+@@ -117,20 +123,28 @@ def arm_acmpnvm(tree: Tree) -> Outcome:
+     return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
+ 
+ 
++#: The MAAP arm's two binaries: the stack's Annex B core cases with the CSR output's, and H-MAAP.
++MAAP_BINARIES = (("test_maap", ("tsn-c-stack/tests/test_maap.cpp", "test_maap.cpp")),
++                 ("test_maap_mbx", ("test_maap_mbx.cpp",)))
++
++
+ def arm_maap(tree: Tree) -> Outcome:
+     """Annex B core, allocation CSR port and H-MAAP on the host mailbox."""
+     objs = firmware(tree, PORTABLE, "maap")
+-    results = [execute("maap", link(tree, name.removesuffix(".cpp"),
+-                                   objs + compile_tests(tree, (name,), "maap/tests")))
+-               for name in ("test_maap.cpp", "test_maap_mbx.cpp")]
++    results = [execute("maap", link(tree, name, objs + compile_tests(tree, tests, "maap/tests")))
++               for name, tests in MAAP_BINARIES]
+     return Outcome("maap", max(r.rc for r in results), "\n".join(r.log for r in results))
+ 
+ 
++#: The tally label of the stack's synchronous-reentry test.
++MAAP_DEBUG_LABEL = "ctrl MAAP debug port contract"
++
++
+ def arm_maap_debug(tree: Tree) -> Outcome:
+     """Debug builds assert on synchronous port reentry; release is measured."""
+-    objs = compile_c(tree, sources(tree, ("maap/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
+-    test = compile_tests(tree, ("test_maap_debug.cpp",), "maap_debug/tests")
+-    return execute("maap_debug", link(tree, "test_maap_debug", objs + test))
++    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
++    test = compile_tests(tree, ("tsn-c-stack/tests/test_maap_debug.cpp",), "maap_debug/tests")
++    return execute("maap_debug", link(tree, "test_maap_debug", objs + test + [label(tree, MAAP_DEBUG_LABEL)]))
+ 
+ 
+ def arm_maap_if2(tree: Tree) -> Outcome:
+@@ -148,6 +162,10 @@ def arm_maap_if2(tree: Tree) -> Outcome:
+     return execute("maap_if2", link(tree, "test_maap_if2", objs + test))
+ 
+ 
++#: The tally labels of the stack's re-entry test in each build mode.
++REENTRY_LABELS = {False: "ADP debug re-entry", True: "ADP release re-entry"}
++
++
+ def reentry(tree: Tree, release: bool) -> Outcome:
+     """The same violating ports against assertions and release refusal."""
+     tag = "reentry_release" if release else "reentry_debug"
+@@ -155,9 +173,9 @@ def reentry(tree: Tree, release: bool) -> Outcome:
+     tests = ("-DADP_TEST_RELEASE",) if release else ()
+     if tree.build.coverage:
+         tests += ("-DADP_TEST_COVERAGE",)
+-    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
+-    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
+-    return execute(tag, link(tree, f"test_{tag}", objs))
++    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/adp.c",)), tag, flags)
++    objs += compile_tests(tree, ("tsn-c-stack/tests/test_adp_reentry.cpp",), f"{tag}/tests", tests)
++    return execute(tag, link(tree, f"test_{tag}", objs + [label(tree, REENTRY_LABELS[release])]))
+ 
+ 
+ def arm_reentry_debug(tree: Tree) -> Outcome:
+@@ -282,7 +300,7 @@ def entity_binary(tree: Tree, config: Path, objs: list[Path]) -> Path:
+ 
+ def arm_entity(tree: Tree) -> Outcome:
+     """Every shipped config's ADPDU fields against the fabric's sources."""
+-    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), "entity")
++    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/adp.c",)), "entity")
+     outcomes = [execute("entity", entity_binary(tree, config, objs))
+                 for config in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
+     return Outcome("entity", max(o.rc for o in outcomes), "\n".join(o.log for o in outcomes))
+diff --git a/sw/firmware/ctrl/test/ctrl_image.py b/sw/firmware/ctrl/test/ctrl_image.py
+index 14b63de96..8a4c14f30 100644
+--- a/sw/firmware/ctrl/test/ctrl_image.py
++++ b/sw/firmware/ctrl/test/ctrl_image.py
+@@ -46,7 +46,10 @@ THE BASE. --base REV measures the firmware of another revision of this
+ repository (git archive of sw/firmware, never a checkout) with this tree's
+ harness and shapes, and prints the delta. A base whose ctrl_app composes no
+ ACMP links the same platform without it, with MAAP through
+-ctrl_app_start_maap() where the base has lane F2's (image_main.c).
++ctrl_app_start_maap() where the base has lane F2's (image_main.c). The ADP,
++ACMP and MAAP cores are the TSN stack's (#697): the base's own copies under
++sw/firmware/ctrl for a revision from before they moved, else the tsn-c-stack
++gitlink the base records, read from the submodule's objects.
+ 
+ Usage:
+     python3 sw/firmware/ctrl/test/ctrl_image.py [--shape NAME ...] [--base REV] [--out DIR]
+@@ -81,7 +84,8 @@ import ctrl_arms  # noqa: E402
+ import fw_rv32  # noqa: E402
+ import nvm_bench  # noqa: E402
+ import nvm_rv32  # noqa: E402
+-from ctrl_build import INCLUDE_DIRS, PORTABLE, RV32_FLAGS, Refusal  # noqa: E402
++from ctrl_build import (INCLUDE_DIRS, PORTABLE, RV32_FLAGS, STACK, STACK_INCLUDE, STACK_PARTS, Refusal,  # noqa: E402
++                        legacy_stack, source, stack_pin)
+ 
+ IMAGE = HERE / "rv32_image"
+ #: The shipping shape (Mark II's 1x1, lane F1's self-test shape) and the
+@@ -149,10 +153,11 @@ def run(argv: list[str], cwd: Path | None = None) -> str:
+     return res.stdout
+ 
+ 
+-def includes(fw: Path, gen: Path) -> list[str]:
+-    """The ctrl tree's include directories, the store's and the shape's generated headers."""
++def includes(fw: Path, gen: Path, stack: Path) -> list[str]:
++    """The ctrl tree's include directories, the stack's public headers, the store's and the shape's generated
++    headers."""
+     nvm = fw / "ctrl_nvm"
+-    return ([f"-I{fw / 'ctrl' / d}" for d in INCLUDE_DIRS] +
++    return ([f"-I{fw / 'ctrl' / d}" for d in INCLUDE_DIRS] + [f"-I{stack / STACK_INCLUDE}"] +
+             [f"-I{gen}", f"-I{nvm}", f"-I{nvm / 'plat'}", f"-I{nvm / 'test/rv32'}"])
+ 
+ 
+@@ -161,11 +166,13 @@ def object_name(src: Path) -> str:
+     return f"{src.parent.name}_{src.stem}.o"
+ 
+ 
+-def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str]) -> list[Path]:
+-    """Every source of the composition, each with its gate's flags; a ctrl source the tree lacks is not compiled."""
++def compile_all(cc: str, fw: Path, gen: Path, work: Path, shape_defs: list[str], stack: Path) -> list[Path]:
++    """Every source of the composition, each with its gate's flags; a ctrl or stack source the tree lacks is not
++    compiled."""
+     runtime_inc = fw_rv32.includes(cc)
+-    inc = includes(fw, gen)
+-    jobs = [(fw / "ctrl" / s, RV32_FLAGS) for s in CTRL_SOURCES if (fw / "ctrl" / s).is_file()]
++    inc = includes(fw, gen, stack)
++    ctrl = [source(fw / "ctrl", stack, s) for s in CTRL_SOURCES]
++    jobs = [(src, RV32_FLAGS) for src in ctrl if src.is_file()]
+     jobs += [(fw / "ctrl_nvm" / s, nvm_rv32.RV32_FLAGS) for s in NVM_SOURCES]
+     # the stand-ins' loops must stay loops, never calls to themselves
+     jobs += [(IMAGE / "image_main.c", RV32_FLAGS),
+@@ -316,7 +323,7 @@ def identity(cc: str) -> str:
+     return f"{run([cc, '--version']).splitlines()[0]}; libgcc.a sha256 {digest} (not linked)"
+ 
+ 
+-def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
++def app_parts(cc: str, fw: Path, gen: Path, work: Path, stack: Path) -> dict[str, int]:
+     """sizeof each part of struct ctrl_app, from a probe object that is never linked."""
+     probe = work / "app_parts.c"
+     probe.write_text('#include "ctrl_app.h"\nstruct ctrl_app size_app;\nstruct ctrl_pool size_pool;\n'
+@@ -324,25 +331,33 @@ def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
+                      "struct acmp_mbx size_acmp;\n#endif\n#ifdef CTRL_MAAP_MBX_H\nstruct maap_mbx size_maap;\n"
+                      "#endif\n", encoding="utf-8")
+     obj = work / "app_parts.o"
+-    run([cc, *RV32_FLAGS, "-fno-common", *fw_rv32.includes(cc), *includes(fw, gen), "-c", str(probe), "-o",
++    run([cc, *RV32_FLAGS, "-fno-common", *fw_rv32.includes(cc), *includes(fw, gen, stack), "-c", str(probe), "-o",
+          str(obj)])
+     return {n.removeprefix("size_"): s for n, (_, s) in symbol_sizes(cc.removesuffix("gcc"), obj).items()}
+ 
+ 
+-def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
+-    """Link the composition at one shape and read its figures."""
+-    config = ROOT / "configs" / f"{shape}.yaml"
++def shape_build(config: Path, work: Path) -> tuple[Path, list[str]]:
++    """What the composition is compiled with at one shape: the store's generated headers (its container and the
++    SoC's header), written into work/gen, and the shape's stream counts from its entity model, the -D flags
++    image_main.c reads. The boundary gate (ctrl_boundary.py) judges the image under the same."""
+     view = ctrl_arms.fabric_view(config)
+-    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
+-    work.mkdir(parents=True, exist_ok=True)
+     try:
+         inputs = nvm_bench.shape_inputs(config, work / "shape")
+     except nvm_bench.Refusal as exc:
+         raise Refusal(str(exc)) from exc
+     gen = work / "gen"
+     nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+-    defs = [f"-DIMAGE_SINKS={image.sinks}u", f"-DIMAGE_SOURCES={image.sources}u"]
+-    objs = compile_all(cc, fw, gen, work, defs)
++    return gen, [f"-DIMAGE_SINKS={view['listener_stream_sinks']}u", f"-DIMAGE_SOURCES={view['talker_stream_sources']}u"]
++
++
++def measure(cc: str, fw: Path, shape: str, work: Path, stack: Path = STACK) -> Image:
++    """Link the composition at one shape and read its figures."""
++    config = ROOT / "configs" / f"{shape}.yaml"
++    view = ctrl_arms.fabric_view(config)
++    image = Image(shape, view["listener_stream_sinks"], view["talker_stream_sources"])
++    work.mkdir(parents=True, exist_ok=True)
++    gen, defs = shape_build(config, work)
++    objs = compile_all(cc, fw, gen, work, defs, stack)
+     tool = cc.removesuffix("gcc")
+     helpers = work / object_name(HELPERS)
+     findings = helper_findings(tool, helpers)
+@@ -360,7 +375,7 @@ def measure(cc: str, fw: Path, shape: str, work: Path) -> Image:
+     image.objects = {n: s for n, (t, s) in symbols.items() if t in "bBdD" and s >= OBJECT_MIN}
+     image.runtime = sum(symbols[n][1] for n in RUNTIME if n in symbols)
+     image.helpers = {n: symbols[n][1] for n in symbol_sizes(tool, helpers) if n in symbols}
+-    image.parts = app_parts(cc, fw, gen, work)
++    image.parts = app_parts(cc, fw, gen, work, stack)
+     return image
+ 
+ 
+@@ -392,14 +407,32 @@ def report(head: Image, base: Image | None) -> list[str]:
+     return lines
+ 
+ 
+-def base_tree(rev: str, into: Path) -> Path:
+-    """sw/firmware of revision `rev`, read from the repository's objects into `into`."""
+-    res = subprocess.run(["git", "-C", str(ROOT), "archive", rev, "sw/firmware"], capture_output=True, check=False)
++def extract(repo: Path, rev: str, paths: tuple[str, ...], into: Path) -> None:
++    """`paths` of revision `rev` of the repository at `repo`, read from its objects into `into`."""
++    res = subprocess.run(["git", "-C", str(repo), "archive", rev, *paths], capture_output=True, check=False)
+     if res.returncode != 0:
+-        raise Refusal(f"git archive {rev}: {res.stderr.decode(errors='replace').strip()}")
++        raise Refusal(f"git archive {rev} in {repo.name}: {res.stderr.decode(errors='replace').strip()}")
+     with tarfile.open(fileobj=io.BytesIO(res.stdout)) as tar:
+         tar.extractall(into, filter="data")
+-    return into / "sw/firmware"
++
++
++def base_tree(rev: str, into: Path) -> tuple[Path, Path]:
++    """sw/firmware of revision `rev`, read from the repository's objects into `into`, and the stack it builds
++    against: the base's own cores in the stack's layout for a revision from before #697, else the stack at the
++    tsn-c-stack gitlink the revision records, read from the submodule's objects."""
++    extract(ROOT, rev, ("sw/firmware",), into)
++    fw = into / "sw/firmware"
++    legacy = legacy_stack(fw / "ctrl", into / "legacy-stack")
++    if legacy is not None:
++        return fw, legacy
++    entry = run(["git", "-C", str(ROOT), "ls-tree", rev, "--", STACK.relative_to(ROOT).as_posix()]).split()
++    if len(entry) != 4 or entry[0] != "160000":
++        raise Refusal(f"{rev} holds neither the cores nor a tsn-c-stack gitlink")
++    top = run(["git", "-C", str(STACK), "rev-parse", "--show-toplevel"]).strip()
++    if Path(top).resolve() != STACK.resolve():
++        raise Refusal(f"{STACK.relative_to(ROOT)} is not its own checkout: initialise the submodule")
++    extract(STACK, entry[2], STACK_PARTS, into / "tsn-c-stack")
++    return fw, into / "tsn-c-stack"
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+@@ -417,10 +450,11 @@ def main(argv: list[str] | None = None) -> int:
+     with tempfile.TemporaryDirectory(prefix="ctrl-image-") as tmp:
+         out = args.out.resolve() if args.out else Path(tmp)
+         try:
+-            base_fw = base_tree(args.base, out / "base-tree") if args.base else None
++            print(f"tsn-c-stack at {stack_pin()}")
++            base_fw, base_stack = base_tree(args.base, out / "base-tree") if args.base else (None, None)
+             for shape in args.shape or SHAPES:
+-                head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape)
+-                base = measure(cc, base_fw, shape, out / "base" / shape) if base_fw else None
++                head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape, STACK)
++                base = measure(cc, base_fw, shape, out / "base" / shape, base_stack) if base_fw else None
+                 print("\n".join(report(head, base)))
+         except (Refusal, ValueError) as exc:
+             print(f"REFUSED: {exc}")
+diff --git a/sw/firmware/ctrl/test/ctrl_srp_image.py b/sw/firmware/ctrl/test/ctrl_srp_image.py
+index 90f3bd652..62dd9c475 100644
+--- a/sw/firmware/ctrl/test/ctrl_srp_image.py
++++ b/sw/firmware/ctrl/test/ctrl_srp_image.py
+@@ -6,6 +6,9 @@ Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
+ Their sizes and hashes are recorded alongside the section and symbol reports.
+ The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
+ The ELF is a size fixture; it has no board reset entry or fabric licence port.
++The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
++tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
++and still holds them.
+ """
+ from __future__ import annotations
+ import argparse
+@@ -15,7 +18,8 @@ import re
+ import struct
+ import sys
+ from pathlib import Path
+-from ctrl_build import CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, Tree, Refusal, run
++from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
++                        source, stack_pin)
+ from srp_arms import prepared, LWSRP_SOURCES
+ from ctrl_arms import lwsrp_pin
+ import fw_gtest
+@@ -30,6 +34,16 @@ def checked(argv: list[str]) -> str:
+     return result.stdout
+ 
+ 
++def source_tree(ctrl: Path, stack: Path, out: Path) -> Tree:
++    """The ctrl tree measured and the stack its cores come from: its own, for a tree from before #697."""
++    legacy=legacy_stack(ctrl,out/"legacy-stack")
++    if legacy is not None and stack != STACK.resolve():
++        raise Refusal("a --ctrl-source from before #697 holds its own cores; it takes no --stack-source")
++    if legacy is None and stack == STACK.resolve():
++        stack_pin()
++    return Tree(ctrl,out,out/"reuse",fw_gtest.Build(jobs=4),legacy or stack)
++
++
+ def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Path]]:
+     """Add the generated AECP model and the existing saved-state owner."""
+     sys.path.insert(0,str(NVM_DIR/"test"))
+@@ -65,6 +79,7 @@ def arguments() -> argparse.Namespace:
+     parser.add_argument("--config",type=Path,required=True)
+     parser.add_argument("--output",type=Path,required=True)
+     parser.add_argument("--ctrl-source",type=Path,default=CTRL)
++    parser.add_argument("--stack-source",type=Path,default=STACK)
+     parser.add_argument("--without-srp",action="store_true")
+     parser.add_argument("--with-aecp",action="store_true")
+     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
+@@ -81,13 +96,13 @@ def main() -> int:
+         cc=fw_rv32.compiler()
+         if cc is None:
+             raise Refusal("the pinned RV32 compiler is required")
+-        tree=Tree(args.ctrl_source.resolve(),out,out/"reuse",fw_gtest.Build(jobs=4))
++        tree=source_tree(args.ctrl_source.resolve(),args.stack_source.resolve(),out)
+         variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
+         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
+                  "-o",str(out/"adp_entity_gen.h")])
+         flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+         inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
+-        sources=[(variant if name.startswith("mbx/") else tree.src)/name for name in PORTABLE]
++        sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
+         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
+         if args.with_aecp:
+             if args.without_srp:
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index f07613c4b..35777dc28 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -2,10 +2,8 @@
+ # exclusions in sw/firmware/gtest/README.md. Written by fw_coverage.py --write, which
+ # refuses to record a drop; read by fw_coverage.py --check, which refuses one.
+ # file  lines covered/total  branches covered/total
+-sw/firmware/ctrl/acmp/acmp.c  lines 742/742  branches 348/348
+ sw/firmware/ctrl/acmp/acmp_mbx.c  lines 73/73  branches 26/26
+ sw/firmware/ctrl/acmp/acmp_nvm.c  lines 38/38  branches 10/10
+-sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+ sw/firmware/ctrl/aecp/aecp.c  lines 357/357  branches 308/308
+ sw/firmware/ctrl/aecp/aecp_commands.c  lines 424/424  branches 362/362
+@@ -18,7 +16,6 @@ sw/firmware/ctrl/app/ctrl_app.c  lines 42/42  branches 40/40
+ sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 107/107  branches 64/64
+ sw/firmware/ctrl/app/ctrl_app_srp.c  lines 82/82  branches 62/62
+ sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
+-sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140
+ sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18
+ sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60
+ sw/firmware/ctrl/mbx/mbx.c  lines 189/189  branches 74/74
+@@ -27,8 +24,11 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 60/60
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+-sw/firmware/ctrl/srp/srp_mbx.c  lines 515/515  branches 478/478
+-sw/firmware/ctrl/wire/wire.h  lines 10/10  branches 2/2
++sw/firmware/ctrl/srp/srp_mbx.c  lines 514/514  branches 478/478
+ sw/firmware/ctrl_nvm/nvm_klj2.c  lines 198/198  branches 106/106
+ sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
++third_party/tsn-c-stack/include/wire.h  lines 10/10  branches 2/2
++third_party/tsn-c-stack/src/acmp.c  lines 742/742  branches 348/348
++third_party/tsn-c-stack/src/adp.c  lines 204/204  branches 95/95
++third_party/tsn-c-stack/src/maap.c  lines 209/209  branches 140/140
+diff --git a/tb/verilator/mbx/Makefile b/tb/verilator/mbx/Makefile
+index 224acfff7..71a6f9e93 100644
+--- a/tb/verilator/mbx/Makefile
++++ b/tb/verilator/mbx/Makefile
+@@ -40,17 +40,28 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
+ # the port layer, the ADP slice, the ACMP module and the app, compiled as C11 exactly as the
+ # target builds them, plus the host model the same scenario also runs on.
+ # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
++# The ADP, ACMP and MAAP cores and the wire layer are the TSN stack's, from the
++# pinned tsn-c-stack submodule (#697), included through its public headers. The
++# shared pin check (stack-pin) is a prerequisite of every target whose recipe
++# compiles against the stack (the firmware library, the co-simulation and
++# run-if2's host model), so whichever target runs alone, a stack off its gitlink
++# or differing from it is refused and never built. ctrl_pin.py finds those
++# targets in make's own dry run and refuses one without it.
+ FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
++STACK_DIR := $(abspath $(ROOT)/third_party/tsn-c-stack)
+ FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
+-            port/shlan_port.c adp/adp.c adp/adp_mbx.c maap/maap.c maap/maap_mbx.c maap/maap_csr.c \
+-            acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c)
+-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
++            port/shlan_port.c adp/adp_mbx.c maap/maap_mbx.c maap/maap_csr.c \
++            acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c) \
++          $(addprefix $(STACK_DIR)/src/,adp.c maap.c acmp.c)
++FW_INC  = $(addprefix -I$(FW_DIR)/,mbx host port loop adp maap acmp app) -I$(STACK_DIR)/include \
++          -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+ # Every header those sources can include, so a header-only change rebuilds them.
+-FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
++FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
++          $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
+ CC     ?= cc
+ AR     ?= ar
+ 
+-.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags clean
++.PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
+ all: run-wb run-axil run-cosim run-if2 mutants-quick
+ 
+ run-wb:
+@@ -63,7 +74,12 @@ run-axil:
+ 	@echo "======================================================================"
+ 	./obj_axil/Vmbx_axil 1
+ 
+-obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
++# Phony, so it runs even when the library is current: a stack changed in a file
++# the library does not depend on is refused all the same.
++stack-pin:
++	python3 -B $(FW_DIR)/test/ctrl_build.py --stack-pin $(STACK_DIR)
++
++obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
+ 	@mkdir -p obj_fw
+ 	rm -f obj_fw/*.o obj_fw/libctrlfw.a
+ 	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
+@@ -72,7 +88,7 @@ obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
+ # Verilator's own build relinks Vmbx_cosim only when one of its objects
+ # changed, and the firmware library is not one of them: the binary goes
+ # whenever the library is newer, so a firmware-only change is never run stale.
+-run-cosim: obj_fw/libctrlfw.a
++run-cosim: obj_fw/libctrlfw.a | stack-pin
+ 	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
+ 	  rm -f obj_cosim/Vmbx_cosim; fi
+ 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
+@@ -96,7 +112,7 @@ CXX ?= c++
+ if2-gen:
+ 	python3 -B $(ROOT)/sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out $(IF2_GEN)
+ 
+-run-if2: if2-gen
++run-if2: if2-gen | stack-pin
+ 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=0 --Mdir $(IF2)/obj_wb $(IF2_RTL) sim_main.cpp -o Vmbx_wb
+ 	$(VERILATOR) $(IF2_VFLAGS) -GHOST_P=1 --Mdir $(IF2)/obj_axil $(IF2_RTL) sim_main.cpp -o Vmbx_axil
+ 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$(IF2_GEN) $(FW_INC) \
