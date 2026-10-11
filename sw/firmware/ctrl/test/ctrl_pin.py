@@ -476,7 +476,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
             ("a stack script edited", lambda: clone.append("scripts/check_boundary.py"), clone.direct,
              edited + "scripts/check_boundary.py"),
             ("a CMake file edited", lambda: clone.append("CMakeLists.txt"), clone.direct, edited + "CMakeLists.txt"),
-            ("a file no gate builds edited", lambda: clone.append("README.md"), clone.direct, edited + "README.md"),
+            ("a file no gate builds edited", lambda: clone.append("LICENSE"), clone.direct, edited + "LICENSE"),
             ("an edit the index hides (assume-unchanged)", clone.hidden, clone.direct, edited + "src/adp.c"),
             ("a header the pinned tree does not hold", lambda: (clone.path / "include/stdint.h").write_text(""),
              clone.direct, edited + "include/stdint.h"),

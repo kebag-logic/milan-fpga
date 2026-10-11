@@ -178,7 +178,7 @@ In a Makefile builder, every target whose recipe builds against the stack has th
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
 30 pin controls follow the boundary controls.
 A clean clone passes the check.
-An edited source, test, script, CMake file or the stack's README is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
+An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
 So it is when a clean filter given through the clone's attributes turns it back into the pinned blob, as `git status` would read it.
 A graft changes only a commit's parents, which the check never reads; the census holds the helper's graft setting.
