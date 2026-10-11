@@ -1,0 +1,74 @@
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=1 path=startup elapsed_ns=1005300 wait_ms=0 service_ns=1005300 accesses=56
+H-SRP if=1 path=JoinTime elapsed_ns=1015300 wait_ms=0 service_ns=1015300 accesses=212
+H-SRP if=1 path=periodic elapsed_ns=1015700 wait_ms=0 service_ns=1015700 accesses=517
+H-SRP if=1 path=MVRP LeaveAll elapsed_ns=1002400 wait_ms=0 service_ns=1002400 accesses=17568
+H-SRP if=1 path=MSRP LeaveAll elapsed_ns=1006800 wait_ms=0 service_ns=1006800 accesses=20450
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (1 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=1 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=228
+H-SRP if=1 path=malformed discard elapsed_ns=1002300 wait_ms=0 service_ns=1002300 accesses=254
+H-SRP if=1 path=Domain to declarations elapsed_ns=200995000 wait_ms=200 service_ns=995000 accesses=436
+H-SRP if=1 path=Talker RX to Listener elapsed_ns=200998700 wait_ms=200 service_ns=998700 accesses=623
+H-SRP if=1 path=unbind to withdrawal elapsed_ns=200999300 wait_ms=200 service_ns=999300 accesses=780
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=666
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=1 path=RX storage recovery elapsed_ns=1983200 wait_ms=0 service_ns=1983200 accesses=262
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+wrote $REVIEWS/711-r596-1-packet/scratch/probe-builds/base-exact/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/711-r596-1-packet/scratch/probe-builds/base-exact/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/711-r596-1-packet/scratch/probe-builds/base-exact/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=2 path=startup elapsed_ns=1010200 wait_ms=0 service_ns=1010200 accesses=106
+H-SRP if=2 path=JoinTime elapsed_ns=1019800 wait_ms=0 service_ns=1019800 accesses=308
+H-SRP if=2 path=periodic elapsed_ns=1020400 wait_ms=0 service_ns=1020400 accesses=696
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=20577
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=21625
+H-SRP if=2 path=MVRP LeaveAll elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=23112
+H-SRP if=2 path=MSRP LeaveAll elapsed_ns=1006900 wait_ms=0 service_ns=1006900 accesses=24087
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (1 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=2 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=324
+H-SRP if=2 path=malformed discard elapsed_ns=1002500 wait_ms=0 service_ns=1002500 accesses=354
+H-SRP if=2 path=Domain to declarations elapsed_ns=200993300 wait_ms=200 service_ns=993300 accesses=573
+H-SRP if=2 path=Talker RX to Listener elapsed_ns=200995400 wait_ms=200 service_ns=995400 accesses=766
+H-SRP if=2 path=unbind to withdrawal elapsed_ns=201003400 wait_ms=200 service_ns=1003400 accesses=969
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=2 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=998
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=2 path=RX storage recovery elapsed_ns=1978500 wait_ms=0 service_ns=1978500 accesses=363
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+latency_arm: PASS

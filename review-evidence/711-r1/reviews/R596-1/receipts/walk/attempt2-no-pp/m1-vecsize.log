@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$REVIEWS/711-r596-1-packet/scripts/latency_arm.py", line 35, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/711-r596-1-packet/scripts/latency_arm.py", line 26, in main
+    o = srp_arms.arm_srp(tree, lwsrp, interfaces, test=suite)
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/m1-vecsize/sw/firmware/ctrl/test/srp_arms.py", line 49, in arm_srp
+    variant, inc = prepared(tree,interfaces,out,config)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/711-r596-1-packet/scratch/probes/m1-vecsize/sw/firmware/ctrl/test/srp_arms.py", line 25, in prepared
+    raise Refusal(f"SRP entity generation failed: {result.stderr}")
+ctrl_build.Refusal: SRP entity generation failed: gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).
+  git submodule update --init protocol-processor
+

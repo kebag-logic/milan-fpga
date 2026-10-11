@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/test/srp_latency.cpp b/sw/firmware/ctrl/test/srp_latency.cpp
+index d193855a3..3be3d58d9 100644
+--- a/sw/firmware/ctrl/test/srp_latency.cpp
++++ b/sw/firmware/ctrl/test/srp_latency.cpp
+@@ -78,7 +78,7 @@ TEST_F(SrpLatency, StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget) {
+                            const unsigned n=wire_be16(f->bytes+off)&8191u;
+                            off+=2+width+(n+2)/3;
+                        }
+-                       off+=2; }
++                       }
+             }
+             ASSERT_TRUE(off+2<=f->len && !f->bytes[off] && !f->bytes[off+1])
+                 <<"walk must end on the MRPDU EndMark";

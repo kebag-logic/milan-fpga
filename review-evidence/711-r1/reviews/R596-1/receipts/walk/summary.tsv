@@ -1,0 +1,10 @@
+head-exact	lwsrp-new	pass	rc=0	MATCH
+base-exact	lwsrp-old	pass	rc=0	MATCH
+e1-oldwalk-assert	lwsrp-new	fail	rc=1	MATCH
+e2-newwalk-base	lwsrp-old	pass	rc=0	MATCH
+e3-oldwalk-assert-base	lwsrp-old	pass	rc=0	MATCH
+e4-pinonly	lwsrp-new	pass	rc=0	MATCH
+m1-vecsize	lwsrp-new	fail	rc=1	MATCH
+m2-noendskip	lwsrp-new	fail	rc=0	MISMATCH
+m3-onevector	lwsrp-new	fail	rc=1	MATCH
+m4-noassert-oldwalk	lwsrp-new	pass	rc=0	MATCH
