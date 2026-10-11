@@ -224,21 +224,45 @@ def fault_cases(body: int) -> list[FaultCase]:
     every window keeps its byte faults, which are always inside it: there
     two faulty reads of one judgement return the same bytes (all 0xFF
     twice), or a faulty read returns the other slot's valid container and it
-    stands, and no rule over the bytes sees either (`expect`). The groups'
-    lists are interleaved, so a planted control meets every group early.
-    `body` is the shape's record-area byte."""
+    stands, and no rule over the bytes sees either (`expect`). R603-4-F1's
+    class meets every sequence of its group besides (`sealed_class`). The
+    groups' lists are interleaved, so a planted control meets every group
+    early. `body` is the shape's record-area byte."""
     lists = []
     for restart in (True, False):
         for older, faulted, manners, seqs in GROUPS:
             for turn, valid in enumerate("ab"):
-                slot = valid if faulted == "valid" else ("b" if valid == "a" else "a")
+                slot = faulted_slot(faulted, valid)
                 bound = BOOT_READ_BOUND - int(restart)
                 cases = (FaultCase(valid, older, seqs[(w + m + turn) % len(seqs)],
                                    fault(manner, slot, skip, count, body), skip, count, restart)
                          for w, (skip, count) in enumerate(windows(bound))
                          for m, manner in enumerate(manners))
-                lists.append([case for case in cases if expect(case).within])
+                group = [case for case in cases if expect(case).within]
+                have = set(group)
+                group += [case for case in sealed_class((older, faulted, manners, seqs), valid, restart, body)
+                          if case not in have]
+                lists.append(group)
     return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
+
+
+def faulted_slot(faulted: str, valid: str) -> str:
+    """The slot a group's fault answers wrongly: the valid one, or the other."""
+    return valid if faulted == "valid" else ("b" if valid == "a" else "a")
+
+
+def sealed_class(group: tuple, valid: str, restart: bool, body: int) -> list[FaultCase]:
+    """R603-4-F1's class at every sequence of its group, not in turn: for
+    each sealed manner, the two-read window the reference model finds to be
+    the first two reads of the faulted slot's judgement, two different
+    refused containers whose CRCs close, so that its clean third read
+    stands."""
+    older, faulted, manners, seqs = group
+    slot = faulted_slot(faulted, valid)
+    bound = BOOT_READ_BOUND - int(restart)
+    return [case for manner in manners if manner in SEALED for seq in seqs for skip in range(bound)
+            for case in (FaultCase(valid, older, seq, fault(manner, slot, skip, 2, body), skip, 2, restart),)
+            if expect(case).judgement["ab".index(slot)] == "ffc"]
 
 
 def fault(manner: str, slot: str, skip: int, count: int, body: int) -> tuple[str, str]:
@@ -258,6 +282,7 @@ class Expect:
     unread: str                 # the slots it leaves UNREAD: "", "A", "B" or "AB"
     unstaged: str               # of those, the ones judged that did not read back as judged
     within: bool                # every slot ends as its bytes say, or UNREAD
+    judgement: tuple[str, str]  # A's and B's judgement reads: "c" returned the slot, "f" did not
 
 
 def expect(case: FaultCase) -> Expect:
@@ -286,11 +311,14 @@ def expect(case: FaultCase) -> Expect:
         return {"--read-fault": ("REFUSED", reads), "--read-sealed": ("REFUSED", reads),
                 "--read-ff": ("BLANK",)}.get(option, clean["BA"["AB".index(slot)]])
 
+    judgement = {"A": "", "B": ""}
+
     def judge(slot: str) -> tuple:
         """The slot's standing verdict, or UNREAD."""
         seen = []
         for _ in range(READ_TRIES):
             got = read(slot)
+            judgement[slot] += "c" if got == clean[slot] else "f"
             if got[0] == "OK" or got in seen:
                 return got
             seen.append(got)
@@ -309,7 +337,8 @@ def expect(case: FaultCase) -> Expect:
             verdict[pick] = staged
     unread = "".join(slot for slot in "AB" if verdict[slot] == ("UNREAD",))
     return Expect(reads, unread, "".join(sorted(unstaged)),
-                  all(verdict[slot] in (clean[slot], ("UNREAD",)) for slot in "AB"))
+                  all(verdict[slot] in (clean[slot], ("UNREAD",)) for slot in "AB"),
+                  (judgement["A"], judgement["B"]))
 
 
 def judged(case: FaultCase, boot: re.Match, unread: int) -> list[str]:

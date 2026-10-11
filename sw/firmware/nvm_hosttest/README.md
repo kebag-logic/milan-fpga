@@ -136,13 +136,17 @@ the harness through boot, idle time and console commands, and compares bytes:
     unchanged. The sequence takes 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF
     in turn with one slot blank, and 0x5A5A5 and 0 with both valid, one per
     case: crossed with every window it would not fit the suite's time.
+    R603-4-F1's class, two sealed faulty reads that open one slot's
+    judgement and then a clean read, meets every sequence of its group
+    besides, both ways round and on both entry paths, for each sealed
+    manner (`read_fault_cases.sealed_class`).
     A reference model of the writer's reads (`read_fault_cases.expect`),
     written once from the rule, gives each case the reads it opens, the
     slots it leaves unread and why. A case it finds outside the rule's
     stated detection limit is not run: two faulty reads of one judgement
     return the same bytes (all `0xFF` twice), or a faulty read returns the
-    other slot's valid container and it stands. That leaves 3,382 of 3,468
-    cases per shape, 1,627 restarts and 1,755 cold boots; every window keeps its
+    other slot's valid container and it stands. That leaves 3,422 of 3,508
+    cases per shape, 1,647 restarts and 1,775 cold boots; every window keeps its
     byte faults, sealed or not, which are always inside the limit. Each case makes a real
     change, lets the debounce commit it and boots again clean. The faulty
     boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its
