@@ -1,0 +1,79 @@
+There are 10 section headers, starting at offset 0x21898:
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 0149dc 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        000149e0 0159e0 006246 00   A  0   0  8
+  [ 3] .data             PROGBITS        10000000 01c000 0001c0 00  WA  0   0  4
+  [ 4] .bss              NOBITS          100001c0 01c1c0 019484 00  WA  0   0 16
+  [ 5] .stack            NOBITS          10019650 01c650 002000 00  WA  0   0 16
+  [ 6] .riscv.attributes RISCV_ATTRIBUTES 00000000 01c1c0 00001c 00      0   0  1
+  [ 7] .symtab           SYMTAB          00000000 01c1dc 003ee0 10      8 806  4
+  [ 8] .strtab           STRTAB          00000000 0200bc 00178d 00      0   0  1
+  [ 9] .shstrtab         STRTAB          00000000 021849 00004d 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+Elf file type is EXEC (Executable file)
+Entry point 0x0
+There are 5 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  RISCV_ATTRIBUT 0x01c1c0 0x00000000 0x00000000 0x0001c 0x00000 R   0x1
+  LOAD           0x001000 0x00000000 0x00000000 0x1ac26 0x1ac26 R E 0x1000
+  LOAD           0x01c000 0x10000000 0x0001ac28 0x001c0 0x19644 RW  0x1000
+  LOAD           0x000650 0x10019650 0x0001adf0 0x00000 0x02000 RW  0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .riscv.attributes 
+   01     .text .rodata 
+   02     .data .bss 
+   03     .stack 
+   04     
+   558: 10016134 13264 OBJECT  LOCAL  DEFAULT    4 nvm_stage
+   818: 10000000     0 NOTYPE  GLOBAL DEFAULT    3 _fdata
+   879: 10019644     0 NOTYPE  GLOBAL DEFAULT    4 _ebss
+   887: 1001b650     0 NOTYPE  GLOBAL DEFAULT    5 _stack_top
+   908: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   938: 000063d8   916 FUNC    GLOBAL DEFAULT    1 main
+   975: 100001c0     0 NOTYPE  GLOBAL DEFAULT    3 _edata
+   988: 0001ac28     0 NOTYPE  GLOBAL DEFAULT  ABS _fdata_rom
+  1000: 100001c0     0 NOTYPE  GLOBAL DEFAULT    4 _fbss
+
+scratch/link4/split-endstation_ax7101_8x8-if2/ctrl_app.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+       0:	1001b117          	auipc	sp,0x1001b
+       4:	65010113          	addi	sp,sp,1616 # 1001b650 <_stack_top>
+       8:	0001b297          	auipc	t0,0x1b
+       c:	c2028293          	addi	t0,t0,-992 # 1ac28 <_fdata_rom>
+      10:	10000317          	auipc	t1,0x10000
+      14:	ff030313          	addi	t1,t1,-16 # 10000000 <image_map_pools>
+      18:	10000397          	auipc	t2,0x10000
+      1c:	1a838393          	addi	t2,t2,424 # 100001c0 <evt_tail>
+      20:	00737c63          	bgeu	t1,t2,38 <_start+0x38>
+      24:	0002ae03          	lw	t3,0(t0)
+      28:	01c32023          	sw	t3,0(t1)
+      2c:	00428293          	addi	t0,t0,4
+      30:	00430313          	addi	t1,t1,4
+      34:	fedff06f          	j	20 <_start+0x20>
+      38:	10000297          	auipc	t0,0x10000
+      3c:	18828293          	addi	t0,t0,392 # 100001c0 <evt_tail>
+      40:	10019317          	auipc	t1,0x10019
+      44:	60430313          	addi	t1,t1,1540 # 10019644 <_ebss>
+      48:	0062f863          	bgeu	t0,t1,58 <_start+0x58>
+      4c:	0002a023          	sw	zero,0(t0)
+      50:	00428293          	addi	t0,t0,4
+      54:	ff5ff06f          	j	48 <_start+0x48>
+      58:	380060ef          	jal	63d8 <main>
+      5c:	0000006f          	j	5c <_start+0x5c>

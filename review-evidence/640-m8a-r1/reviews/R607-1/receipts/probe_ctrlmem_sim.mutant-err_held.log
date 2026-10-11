@@ -1,0 +1,10 @@
+A rom reads: 290 words checked, 0 wrong []
+B rom_hole: 29 addresses past the last bank up to 0xFFFF, 0 not err []
+B ram_hole: 29 addresses past the last bank up to 0xFFFF, 0 not err []
+C sram alias cells: 94 checked, 0 written by a hole write []
+D back-to-back rom: ('err', ('err', 17291155)) want ('err', ('ack', 3254944403))
+D back-to-back sram: ('err', ('err', 0)) want ('err', ('ack', 0))
+E sram bank edges: 10 checked, 0 wrong
+banks rom (65536, 32768, 8192, 4096) sram (65536, 32768, 8192, 4096, 2048)
+PROBE RESULT: FAIL ['D rom', 'D ram']
+err_held rc=1

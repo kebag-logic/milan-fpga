@@ -1,0 +1,10 @@
+A rom reads: 290 words checked, 0 wrong []
+B rom_hole: 29 addresses past the last bank up to 0xFFFF, 20 not err [('0x83ec', ('ack', 17291155)), ('0x89e7', ('ack', 2067)), ('0x8fe2', ('ack', 142683171))]
+B ram_hole: 29 addresses past the last bank up to 0xFFFF, 20 not err [('0x85ec', ('ack', 1515870810)), ('0x8be7', ('ack', 1515870810)), ('0x91e2', ('ack', 1515870810))]
+C sram alias cells: 94 checked, 10 written by a hole write [(1516, ('ack', 1515870810)), (3047, ('ack', 1515870810)), (4578, ('ack', 1515870810))]
+D back-to-back rom: ('err', ('ack', 3254944403)) want ('err', ('ack', 3254944403))
+D back-to-back sram: ('err', ('ack', 0)) want ('err', ('ack', 0))
+E sram bank edges: 10 checked, 0 wrong
+banks rom (65536, 32768, 8192, 4096) sram (65536, 32768, 8192, 4096, 2048)
+PROBE RESULT: FAIL ['B rom_hole', 'B ram_hole', 'C']
+low_minus1 rc=1

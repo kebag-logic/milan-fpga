@@ -1,0 +1,23 @@
+== hd-plant-over rc=1 gw-exists=no
+ctrl_memory.Refusal: allocation over budget: 56.5 RAMB36 (rom 110056 bytes in 110592, sram 120400 bytes in 120832) exceeds the 56-RAMB36 budget
+argv tail: --ctrl-mailbox --ctrl-firmware $PACKET/scratch/plantelf-over2/ctrl_app.elf
+== hd-plant-overlap rc=1 gw-exists=no
+ctrl_memory.Refusal: memory-map overlap: .bss at 0x10000000 lies inside .data [0x10000000, 0x10000038) (addresses)
+argv tail: --ctrl-mailbox --ctrl-firmware $PACKET/scratch/plantelf-overlap2/ctrl_app.elf
+== hd-plant-wrongshape rc=1 gw-exists=no
+ctrl_memory.Refusal: staging buffer: nvm_stage is 3344 bytes; the endstation_ax7101_8x8 shape stages 13264
+argv tail: --ctrl-mailbox --ctrl-firmware $PACKET/scratch/link4/split-endstation_ax7101_1x1_tdm8-if1/ctrl_app.elf
+== hd-pair-nofw rc=2 gw-exists=no
+milan_soc.py: error: --ctrl-mailbox and --ctrl-firmware go together: the split placement's firmware owns the reset entry and sizes its own block RAM (#640 M8a)
+argv tail: --output-dir $PACKET/scratch/exp/hd-pair-nofw/gw --ctrl-mailbox
+== hd-pair-fwonly rc=2 gw-exists=no
+milan_soc.py: error: --ctrl-mailbox and --ctrl-firmware go together: the split placement's firmware owns the reset entry and sizes its own block RAM (#640 M8a)
+argv tail: $PACKET/scratch/exp/hd-pair-fwonly/gw --ctrl-firmware $PACKET/scratch/link4/split-endstation_ax7101_1x1_tdm8-if1/ctrl_app.elf
+== hd-def-ax7101 rc=0
+== dv-def-ax7101 rc=0
+== hd-def-ax8x8 rc=0
+== dv-def-ax8x8 rc=0
+== dv-mbx-ax7101 rc=0
+== dv-mbx-ax8x8 rc=0
+== hd-split-ax7101 rc=0
+== hd-split-ax8x8 rc=0
