@@ -1,0 +1,11 @@
+[FAIL] the unmutated parser does NOT pass (caught) - every mutant result below is meaningless
+[FAIL] mutation 'rx_err read only at eof (the planted control)': a pattern no longer appears exactly once in wire/KL_gptp_rx_parser.sv. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'a first-byte flag lost to the sof clear': a pattern no longer appears exactly once in wire/KL_gptp_rx_parser.sv. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[PASS] mutant caught: the eof byte's own flag ignored - fails all 8 named check(s), first "sync rx_err at every byte: one drop"
+[FAIL] mutation 'every flagged byte counts a drop': a pattern no longer appears exactly once in wire/KL_gptp_rx_parser.sv. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'rx_err ignored on every byte': a pattern no longer appears exactly once in wire/KL_gptp_rx_parser.sv. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[PASS] mutant caught: the refusal outlives its frame - fails all 8 named check(s), first "sync control after the errors: event"
+[FAIL] mutation 'rx_err sampled between bytes': a pattern no longer appears exactly once in wire/KL_gptp_rx_parser.sv. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+
+8 checks: 2 PASS, 6 FAIL
+rc=1

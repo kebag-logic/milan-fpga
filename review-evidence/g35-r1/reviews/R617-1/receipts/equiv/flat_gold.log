@@ -1,0 +1,1383 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Running command `
+    read_verilog -DTIE $REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v $REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v
+    hierarchy -top t_gold; proc; flatten; opt; opt_clean
+    rename t_gold t
+    attrmap -remove src
+    rename -enumerate -pattern n%
+    tee -o $REVIEWS/g35-r617-1-packet/receipts/equiv/flat_gold.stat stat
+    write_verilog -noattr $REVIEWS/g35-r617-1-packet/receipts/equiv/flat_gold.v' --
+
+1. Executing Verilog-2005 frontend: $REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v
+Parsing Verilog input from `$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v' to AST representation.
+Generating RTLIL representation for module `\p_gold'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: $REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v
+Parsing Verilog input from `$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v' to AST representation.
+Generating RTLIL representation for module `\t_gold'.
+Successfully finished Verilog frontend.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \t_gold
+Used module:     \p_gold
+
+3.2. Analyzing design hierarchy..
+Top module:  \t_gold
+Used module:     \p_gold
+Removed 0 unused modules.
+
+4. Executing PROC pass (convert processes to netlists).
+
+4.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:162$99'.
+Found and cleaned up 1 empty switch in `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:112$40'.
+Cleaned up 2 empty switches.
+
+4.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 18 switch rules as full_case in process $proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100 in module p_gold.
+Removed a total of 0 dead cases.
+
+4.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 2 redundant assignments.
+Promoted 10 assignments to connections.
+
+4.4. Executing PROC_INIT pass (extract init attributes).
+
+4.5. Executing PROC_ARST pass (detect async resets in processes).
+
+4.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~53 debug messages>
+
+4.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:442$241'.
+Creating decoders for process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$237'.
+Creating decoders for process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+     1/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$205
+     2/62: $11\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$206
+     3/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$203
+     4/62: $10\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$202
+     5/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$198
+     6/62: $9\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$197
+     7/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$195
+     8/62: $8\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$194
+     9/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$188
+    10/62: $7\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$187
+    11/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$179
+    12/62: $6\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$178
+    13/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$156
+    14/62: $5\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$155
+    15/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp[10:0]$129
+    16/62: $5\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result[10:0]$128
+    17/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$126
+    18/62: $4\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$125
+    19/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp[10:0]$124
+    20/62: $4\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result[10:0]$123
+    21/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$122
+    22/62: $3\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$121
+    23/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp[10:0]$120
+    24/62: $3\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result[10:0]$119
+    25/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$118
+    26/62: $2\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$117
+    27/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp[10:0]$116
+    28/62: $2\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result[10:0]$115
+    29/62: $0\ev_valid_o[0:0]
+    30/62: $0\bank_we_o[0:0]
+    31/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp[4:0]$109
+    32/62: $1\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result[4:0]$108
+    33/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp[10:0]$107
+    34/62: $1\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result[10:0]$106
+    35/62: $0\fin_ok_r[0:0]
+    36/62: $0\fin_r[0:0]
+    37/62: $0\drop_cnt_r[15:0]
+    38/62: $0\pt_self_r[0:0]
+    39/62: $0\pt_seen_r[0:0]
+    40/62: $0\pt_run_r[0:0]
+    41/62: $0\pt_byte_r[2:0]
+    42/62: $0\pt_cnt_r[7:0]
+    43/62: $0\pt_left_r[15:0]
+    44/62: $0\tlv_chain_done_r[0:0]
+    45/62: $0\tlv_left_r[15:0]
+    46/62: $0\tlv_hdr_pos_r[1:0]
+    47/62: $0\tlv_hdr_run_r[0:0]
+    48/62: $0\gm_r[63:0]
+    49/62: $0\steps_r[15:0]
+    50/62: $0\msg_end_r[10:0]
+    51/62: $0\utc_r[15:0]
+    52/62: $0\acc_r[63:0]
+    53/62: $0\flags_r[15:0]
+    54/62: $0\seq_r[15:0]
+    55/62: $0\mtype_r[3:0]
+    56/62: $0\bad_r[0:0]
+    57/62: $0\run_r[0:0]
+    58/62: $0\cnt_r[10:0]
+    59/62: $0\ev_seq_o[15:0]
+    60/62: $0\ev_code_o[7:0]
+    61/62: $0\bank_wdata_o[63:0]
+    62/62: $0\bank_addr_o[4:0]
+Creating decoders for process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:162$99'.
+     1/1: $1\ev_map_w[7:0]
+Creating decoders for process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:112$40'.
+     1/1: $1\min_end_w[10:0]
+
+4.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\p_gold.\_sv2v_0' from process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:442$241'.
+No latch inferred for signal `\p_gold.\sv2v_cast_16$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$7.$result' from process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$237'.
+No latch inferred for signal `\p_gold.\ev_map_w' from process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:162$99'.
+No latch inferred for signal `\p_gold.\min_end_w' from process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:112$40'.
+
+4.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\p_gold.\bank_we_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1642' with positive edge clock.
+Creating register for signal `\p_gold.\bank_addr_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1643' with positive edge clock.
+Creating register for signal `\p_gold.\bank_wdata_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1644' with positive edge clock.
+Creating register for signal `\p_gold.\ev_valid_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1645' with positive edge clock.
+Creating register for signal `\p_gold.\ev_code_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1646' with positive edge clock.
+Creating register for signal `\p_gold.\ev_seq_o' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1647' with positive edge clock.
+Creating register for signal `\p_gold.\cnt_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1648' with positive edge clock.
+Creating register for signal `\p_gold.\run_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1649' with positive edge clock.
+Creating register for signal `\p_gold.\bad_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1650' with positive edge clock.
+Creating register for signal `\p_gold.\mtype_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1651' with positive edge clock.
+Creating register for signal `\p_gold.\seq_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1652' with positive edge clock.
+Creating register for signal `\p_gold.\flags_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1653' with positive edge clock.
+Creating register for signal `\p_gold.\acc_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1654' with positive edge clock.
+Creating register for signal `\p_gold.\utc_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1655' with positive edge clock.
+Creating register for signal `\p_gold.\msg_end_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1656' with positive edge clock.
+Creating register for signal `\p_gold.\steps_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1657' with positive edge clock.
+Creating register for signal `\p_gold.\gm_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1658' with positive edge clock.
+Creating register for signal `\p_gold.\tlv_hdr_run_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1659' with positive edge clock.
+Creating register for signal `\p_gold.\tlv_hdr_pos_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1660' with positive edge clock.
+Creating register for signal `\p_gold.\tlv_left_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1661' with positive edge clock.
+Creating register for signal `\p_gold.\tlv_chain_done_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1662' with positive edge clock.
+Creating register for signal `\p_gold.\pt_left_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1663' with positive edge clock.
+Creating register for signal `\p_gold.\pt_cnt_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1664' with positive edge clock.
+Creating register for signal `\p_gold.\pt_byte_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1665' with positive edge clock.
+Creating register for signal `\p_gold.\pt_run_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1666' with positive edge clock.
+Creating register for signal `\p_gold.\pt_seen_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1667' with positive edge clock.
+Creating register for signal `\p_gold.\pt_self_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1668' with positive edge clock.
+Creating register for signal `\p_gold.\drop_cnt_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1669' with positive edge clock.
+Creating register for signal `\p_gold.\fin_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1670' with positive edge clock.
+Creating register for signal `\p_gold.\fin_ok_r' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1671' with positive edge clock.
+Creating register for signal `\p_gold.\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.$result' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1672' with positive edge clock.
+Creating register for signal `\p_gold.\sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1673' with positive edge clock.
+Creating register for signal `\p_gold.\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.$result' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1674' with positive edge clock.
+Creating register for signal `\p_gold.\sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp' using process `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+  created $dff cell `$procdff$1675' with positive edge clock.
+
+4.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+4.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:442$241'.
+Removing empty process `p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$237'.
+Found and cleaned up 51 empty switches in `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+Removing empty process `p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181$100'.
+Found and cleaned up 1 empty switch in `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:162$99'.
+Removing empty process `p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:162$99'.
+Found and cleaned up 1 empty switch in `\p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:112$40'.
+Removing empty process `p_gold.$proc$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:112$40'.
+Cleaned up 53 empty switches.
+
+4.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module t_gold.
+Optimizing module p_gold.
+<suppressed ~116 debug messages>
+
+5. Executing FLATTEN pass (flatten design).
+Deleting now unused module p_gold.
+<suppressed ~1 debug messages>
+
+6. Executing OPT pass (performing simple optimizations).
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module t_gold.
+<suppressed ~2 debug messages>
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\t_gold'.
+Computing hashes of 700 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+Computing hashes of 646 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+<suppressed ~162 debug messages>
+Removed a total of 54 cells.
+
+6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \t_gold..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $flatten\u.$procmux$830: \u.fin_r -> 1'0
+      Replacing known input bits on port A of cell $flatten\u.$procmux$1454: \u.run_r -> 1'0
+      Replacing known input bits on port A of cell $flatten\u.$procmux$1452: \u.run_r -> 1'1
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $flatten\u.$procmux$250.
+    dead port 2/2 on $mux $flatten\u.$procmux$250.
+    dead port 1/2 on $mux $flatten\u.$procmux$252.
+    dead port 2/2 on $mux $flatten\u.$procmux$252.
+    dead port 1/2 on $mux $flatten\u.$procmux$254.
+    dead port 2/2 on $mux $flatten\u.$procmux$254.
+    dead port 1/2 on $mux $flatten\u.$procmux$256.
+    dead port 2/2 on $mux $flatten\u.$procmux$256.
+    dead port 1/2 on $mux $flatten\u.$procmux$259.
+    dead port 2/2 on $mux $flatten\u.$procmux$259.
+    dead port 1/2 on $mux $flatten\u.$procmux$261.
+    dead port 2/2 on $mux $flatten\u.$procmux$261.
+    dead port 1/2 on $mux $flatten\u.$procmux$263.
+    dead port 2/2 on $mux $flatten\u.$procmux$263.
+    dead port 1/2 on $mux $flatten\u.$procmux$265.
+    dead port 2/2 on $mux $flatten\u.$procmux$265.
+    dead port 1/2 on $mux $flatten\u.$procmux$268.
+    dead port 2/2 on $mux $flatten\u.$procmux$268.
+    dead port 1/2 on $mux $flatten\u.$procmux$270.
+    dead port 2/2 on $mux $flatten\u.$procmux$270.
+    dead port 1/2 on $mux $flatten\u.$procmux$273.
+    dead port 2/2 on $mux $flatten\u.$procmux$273.
+    dead port 1/2 on $mux $flatten\u.$procmux$283.
+    dead port 2/2 on $mux $flatten\u.$procmux$283.
+    dead port 1/2 on $mux $flatten\u.$procmux$285.
+    dead port 2/2 on $mux $flatten\u.$procmux$285.
+    dead port 1/2 on $mux $flatten\u.$procmux$287.
+    dead port 2/2 on $mux $flatten\u.$procmux$287.
+    dead port 1/2 on $mux $flatten\u.$procmux$289.
+    dead port 2/2 on $mux $flatten\u.$procmux$289.
+    dead port 1/2 on $mux $flatten\u.$procmux$292.
+    dead port 2/2 on $mux $flatten\u.$procmux$292.
+    dead port 1/2 on $mux $flatten\u.$procmux$294.
+    dead port 2/2 on $mux $flatten\u.$procmux$294.
+    dead port 1/2 on $mux $flatten\u.$procmux$296.
+    dead port 2/2 on $mux $flatten\u.$procmux$296.
+    dead port 1/2 on $mux $flatten\u.$procmux$298.
+    dead port 2/2 on $mux $flatten\u.$procmux$298.
+    dead port 1/2 on $mux $flatten\u.$procmux$301.
+    dead port 2/2 on $mux $flatten\u.$procmux$301.
+    dead port 1/2 on $mux $flatten\u.$procmux$303.
+    dead port 2/2 on $mux $flatten\u.$procmux$303.
+    dead port 1/2 on $mux $flatten\u.$procmux$306.
+    dead port 2/2 on $mux $flatten\u.$procmux$306.
+    dead port 1/2 on $mux $flatten\u.$procmux$315.
+    dead port 2/2 on $mux $flatten\u.$procmux$315.
+    dead port 1/2 on $mux $flatten\u.$procmux$317.
+    dead port 2/2 on $mux $flatten\u.$procmux$317.
+    dead port 1/2 on $mux $flatten\u.$procmux$319.
+    dead port 2/2 on $mux $flatten\u.$procmux$319.
+    dead port 1/2 on $mux $flatten\u.$procmux$322.
+    dead port 2/2 on $mux $flatten\u.$procmux$322.
+    dead port 1/2 on $mux $flatten\u.$procmux$324.
+    dead port 2/2 on $mux $flatten\u.$procmux$324.
+    dead port 1/2 on $mux $flatten\u.$procmux$326.
+    dead port 2/2 on $mux $flatten\u.$procmux$326.
+    dead port 1/2 on $mux $flatten\u.$procmux$328.
+    dead port 2/2 on $mux $flatten\u.$procmux$328.
+    dead port 1/2 on $mux $flatten\u.$procmux$331.
+    dead port 2/2 on $mux $flatten\u.$procmux$331.
+    dead port 1/2 on $mux $flatten\u.$procmux$333.
+    dead port 2/2 on $mux $flatten\u.$procmux$333.
+    dead port 1/2 on $mux $flatten\u.$procmux$336.
+    dead port 2/2 on $mux $flatten\u.$procmux$336.
+    dead port 1/2 on $mux $flatten\u.$procmux$345.
+    dead port 2/2 on $mux $flatten\u.$procmux$345.
+    dead port 1/2 on $mux $flatten\u.$procmux$347.
+    dead port 2/2 on $mux $flatten\u.$procmux$347.
+    dead port 1/2 on $mux $flatten\u.$procmux$349.
+    dead port 2/2 on $mux $flatten\u.$procmux$349.
+    dead port 1/2 on $mux $flatten\u.$procmux$352.
+    dead port 2/2 on $mux $flatten\u.$procmux$352.
+    dead port 1/2 on $mux $flatten\u.$procmux$354.
+    dead port 2/2 on $mux $flatten\u.$procmux$354.
+    dead port 1/2 on $mux $flatten\u.$procmux$356.
+    dead port 2/2 on $mux $flatten\u.$procmux$356.
+    dead port 1/2 on $mux $flatten\u.$procmux$358.
+    dead port 2/2 on $mux $flatten\u.$procmux$358.
+    dead port 1/2 on $mux $flatten\u.$procmux$361.
+    dead port 2/2 on $mux $flatten\u.$procmux$361.
+    dead port 1/2 on $mux $flatten\u.$procmux$363.
+    dead port 2/2 on $mux $flatten\u.$procmux$363.
+    dead port 1/2 on $mux $flatten\u.$procmux$366.
+    dead port 2/2 on $mux $flatten\u.$procmux$366.
+    dead port 1/2 on $mux $flatten\u.$procmux$374.
+    dead port 2/2 on $mux $flatten\u.$procmux$374.
+    dead port 1/2 on $mux $flatten\u.$procmux$376.
+    dead port 2/2 on $mux $flatten\u.$procmux$376.
+    dead port 1/2 on $mux $flatten\u.$procmux$379.
+    dead port 2/2 on $mux $flatten\u.$procmux$379.
+    dead port 1/2 on $mux $flatten\u.$procmux$381.
+    dead port 2/2 on $mux $flatten\u.$procmux$381.
+    dead port 1/2 on $mux $flatten\u.$procmux$383.
+    dead port 2/2 on $mux $flatten\u.$procmux$383.
+    dead port 1/2 on $mux $flatten\u.$procmux$385.
+    dead port 2/2 on $mux $flatten\u.$procmux$385.
+    dead port 1/2 on $mux $flatten\u.$procmux$388.
+    dead port 2/2 on $mux $flatten\u.$procmux$388.
+    dead port 1/2 on $mux $flatten\u.$procmux$390.
+    dead port 2/2 on $mux $flatten\u.$procmux$390.
+    dead port 1/2 on $mux $flatten\u.$procmux$393.
+    dead port 2/2 on $mux $flatten\u.$procmux$393.
+    dead port 1/2 on $mux $flatten\u.$procmux$401.
+    dead port 2/2 on $mux $flatten\u.$procmux$401.
+    dead port 1/2 on $mux $flatten\u.$procmux$403.
+    dead port 2/2 on $mux $flatten\u.$procmux$403.
+    dead port 1/2 on $mux $flatten\u.$procmux$406.
+    dead port 2/2 on $mux $flatten\u.$procmux$406.
+    dead port 1/2 on $mux $flatten\u.$procmux$408.
+    dead port 2/2 on $mux $flatten\u.$procmux$408.
+    dead port 1/2 on $mux $flatten\u.$procmux$410.
+    dead port 2/2 on $mux $flatten\u.$procmux$410.
+    dead port 1/2 on $mux $flatten\u.$procmux$412.
+    dead port 2/2 on $mux $flatten\u.$procmux$412.
+    dead port 1/2 on $mux $flatten\u.$procmux$415.
+    dead port 2/2 on $mux $flatten\u.$procmux$415.
+    dead port 1/2 on $mux $flatten\u.$procmux$417.
+    dead port 2/2 on $mux $flatten\u.$procmux$417.
+    dead port 1/2 on $mux $flatten\u.$procmux$420.
+    dead port 2/2 on $mux $flatten\u.$procmux$420.
+    dead port 1/2 on $mux $flatten\u.$procmux$427.
+    dead port 2/2 on $mux $flatten\u.$procmux$427.
+    dead port 1/2 on $mux $flatten\u.$procmux$430.
+    dead port 2/2 on $mux $flatten\u.$procmux$430.
+    dead port 1/2 on $mux $flatten\u.$procmux$432.
+    dead port 2/2 on $mux $flatten\u.$procmux$432.
+    dead port 1/2 on $mux $flatten\u.$procmux$434.
+    dead port 2/2 on $mux $flatten\u.$procmux$434.
+    dead port 1/2 on $mux $flatten\u.$procmux$436.
+    dead port 2/2 on $mux $flatten\u.$procmux$436.
+    dead port 1/2 on $mux $flatten\u.$procmux$439.
+    dead port 2/2 on $mux $flatten\u.$procmux$439.
+    dead port 1/2 on $mux $flatten\u.$procmux$441.
+    dead port 2/2 on $mux $flatten\u.$procmux$441.
+    dead port 1/2 on $mux $flatten\u.$procmux$444.
+    dead port 2/2 on $mux $flatten\u.$procmux$444.
+    dead port 1/2 on $mux $flatten\u.$procmux$451.
+    dead port 2/2 on $mux $flatten\u.$procmux$451.
+    dead port 1/2 on $mux $flatten\u.$procmux$454.
+    dead port 2/2 on $mux $flatten\u.$procmux$454.
+    dead port 1/2 on $mux $flatten\u.$procmux$456.
+    dead port 2/2 on $mux $flatten\u.$procmux$456.
+    dead port 1/2 on $mux $flatten\u.$procmux$458.
+    dead port 2/2 on $mux $flatten\u.$procmux$458.
+    dead port 1/2 on $mux $flatten\u.$procmux$460.
+    dead port 2/2 on $mux $flatten\u.$procmux$460.
+    dead port 1/2 on $mux $flatten\u.$procmux$463.
+    dead port 2/2 on $mux $flatten\u.$procmux$463.
+    dead port 1/2 on $mux $flatten\u.$procmux$465.
+    dead port 2/2 on $mux $flatten\u.$procmux$465.
+    dead port 1/2 on $mux $flatten\u.$procmux$468.
+    dead port 2/2 on $mux $flatten\u.$procmux$468.
+    dead port 1/2 on $mux $flatten\u.$procmux$475.
+    dead port 2/2 on $mux $flatten\u.$procmux$475.
+    dead port 1/2 on $mux $flatten\u.$procmux$477.
+    dead port 2/2 on $mux $flatten\u.$procmux$477.
+    dead port 1/2 on $mux $flatten\u.$procmux$479.
+    dead port 2/2 on $mux $flatten\u.$procmux$479.
+    dead port 1/2 on $mux $flatten\u.$procmux$481.
+    dead port 2/2 on $mux $flatten\u.$procmux$481.
+    dead port 1/2 on $mux $flatten\u.$procmux$484.
+    dead port 2/2 on $mux $flatten\u.$procmux$484.
+    dead port 1/2 on $mux $flatten\u.$procmux$486.
+    dead port 2/2 on $mux $flatten\u.$procmux$486.
+    dead port 1/2 on $mux $flatten\u.$procmux$489.
+    dead port 2/2 on $mux $flatten\u.$procmux$489.
+    dead port 1/2 on $mux $flatten\u.$procmux$496.
+    dead port 2/2 on $mux $flatten\u.$procmux$496.
+    dead port 1/2 on $mux $flatten\u.$procmux$498.
+    dead port 2/2 on $mux $flatten\u.$procmux$498.
+    dead port 1/2 on $mux $flatten\u.$procmux$500.
+    dead port 2/2 on $mux $flatten\u.$procmux$500.
+    dead port 1/2 on $mux $flatten\u.$procmux$502.
+    dead port 2/2 on $mux $flatten\u.$procmux$502.
+    dead port 1/2 on $mux $flatten\u.$procmux$505.
+    dead port 2/2 on $mux $flatten\u.$procmux$505.
+    dead port 1/2 on $mux $flatten\u.$procmux$507.
+    dead port 2/2 on $mux $flatten\u.$procmux$507.
+    dead port 1/2 on $mux $flatten\u.$procmux$510.
+    dead port 2/2 on $mux $flatten\u.$procmux$510.
+    dead port 1/2 on $mux $flatten\u.$procmux$516.
+    dead port 2/2 on $mux $flatten\u.$procmux$516.
+    dead port 1/2 on $mux $flatten\u.$procmux$518.
+    dead port 2/2 on $mux $flatten\u.$procmux$518.
+    dead port 1/2 on $mux $flatten\u.$procmux$520.
+    dead port 2/2 on $mux $flatten\u.$procmux$520.
+    dead port 1/2 on $mux $flatten\u.$procmux$523.
+    dead port 2/2 on $mux $flatten\u.$procmux$523.
+    dead port 1/2 on $mux $flatten\u.$procmux$525.
+    dead port 2/2 on $mux $flatten\u.$procmux$525.
+    dead port 1/2 on $mux $flatten\u.$procmux$528.
+    dead port 2/2 on $mux $flatten\u.$procmux$528.
+    dead port 1/2 on $mux $flatten\u.$procmux$534.
+    dead port 2/2 on $mux $flatten\u.$procmux$534.
+    dead port 1/2 on $mux $flatten\u.$procmux$536.
+    dead port 2/2 on $mux $flatten\u.$procmux$536.
+    dead port 1/2 on $mux $flatten\u.$procmux$538.
+    dead port 2/2 on $mux $flatten\u.$procmux$538.
+    dead port 1/2 on $mux $flatten\u.$procmux$541.
+    dead port 2/2 on $mux $flatten\u.$procmux$541.
+    dead port 1/2 on $mux $flatten\u.$procmux$543.
+    dead port 2/2 on $mux $flatten\u.$procmux$543.
+    dead port 1/2 on $mux $flatten\u.$procmux$546.
+    dead port 2/2 on $mux $flatten\u.$procmux$546.
+    dead port 1/2 on $mux $flatten\u.$procmux$551.
+    dead port 2/2 on $mux $flatten\u.$procmux$551.
+    dead port 1/2 on $mux $flatten\u.$procmux$553.
+    dead port 2/2 on $mux $flatten\u.$procmux$553.
+    dead port 1/2 on $mux $flatten\u.$procmux$556.
+    dead port 2/2 on $mux $flatten\u.$procmux$556.
+    dead port 1/2 on $mux $flatten\u.$procmux$558.
+    dead port 2/2 on $mux $flatten\u.$procmux$558.
+    dead port 1/2 on $mux $flatten\u.$procmux$561.
+    dead port 2/2 on $mux $flatten\u.$procmux$561.
+    dead port 1/2 on $mux $flatten\u.$procmux$566.
+    dead port 2/2 on $mux $flatten\u.$procmux$566.
+    dead port 1/2 on $mux $flatten\u.$procmux$568.
+    dead port 2/2 on $mux $flatten\u.$procmux$568.
+    dead port 1/2 on $mux $flatten\u.$procmux$571.
+    dead port 2/2 on $mux $flatten\u.$procmux$571.
+    dead port 1/2 on $mux $flatten\u.$procmux$573.
+    dead port 2/2 on $mux $flatten\u.$procmux$573.
+    dead port 1/2 on $mux $flatten\u.$procmux$576.
+    dead port 2/2 on $mux $flatten\u.$procmux$576.
+    dead port 1/2 on $mux $flatten\u.$procmux$588.
+    dead port 2/2 on $mux $flatten\u.$procmux$588.
+    dead port 1/2 on $mux $flatten\u.$procmux$590.
+    dead port 2/2 on $mux $flatten\u.$procmux$590.
+    dead port 1/2 on $mux $flatten\u.$procmux$593.
+    dead port 2/2 on $mux $flatten\u.$procmux$593.
+    dead port 1/2 on $mux $flatten\u.$procmux$595.
+    dead port 2/2 on $mux $flatten\u.$procmux$595.
+    dead port 1/2 on $mux $flatten\u.$procmux$598.
+    dead port 2/2 on $mux $flatten\u.$procmux$598.
+    dead port 1/2 on $mux $flatten\u.$procmux$610.
+    dead port 2/2 on $mux $flatten\u.$procmux$610.
+    dead port 1/2 on $mux $flatten\u.$procmux$612.
+    dead port 2/2 on $mux $flatten\u.$procmux$612.
+    dead port 1/2 on $mux $flatten\u.$procmux$615.
+    dead port 2/2 on $mux $flatten\u.$procmux$615.
+    dead port 1/2 on $mux $flatten\u.$procmux$617.
+    dead port 2/2 on $mux $flatten\u.$procmux$617.
+    dead port 1/2 on $mux $flatten\u.$procmux$620.
+    dead port 2/2 on $mux $flatten\u.$procmux$620.
+    dead port 1/2 on $mux $flatten\u.$procmux$624.
+    dead port 2/2 on $mux $flatten\u.$procmux$624.
+    dead port 1/2 on $mux $flatten\u.$procmux$627.
+    dead port 2/2 on $mux $flatten\u.$procmux$627.
+    dead port 1/2 on $mux $flatten\u.$procmux$629.
+    dead port 2/2 on $mux $flatten\u.$procmux$629.
+    dead port 1/2 on $mux $flatten\u.$procmux$632.
+    dead port 2/2 on $mux $flatten\u.$procmux$632.
+    dead port 1/2 on $mux $flatten\u.$procmux$636.
+    dead port 2/2 on $mux $flatten\u.$procmux$636.
+    dead port 1/2 on $mux $flatten\u.$procmux$639.
+    dead port 2/2 on $mux $flatten\u.$procmux$639.
+    dead port 1/2 on $mux $flatten\u.$procmux$641.
+    dead port 2/2 on $mux $flatten\u.$procmux$641.
+    dead port 1/2 on $mux $flatten\u.$procmux$644.
+    dead port 2/2 on $mux $flatten\u.$procmux$644.
+    dead port 1/2 on $mux $flatten\u.$procmux$648.
+    dead port 2/2 on $mux $flatten\u.$procmux$648.
+    dead port 1/2 on $mux $flatten\u.$procmux$651.
+    dead port 2/2 on $mux $flatten\u.$procmux$651.
+    dead port 1/2 on $mux $flatten\u.$procmux$653.
+    dead port 2/2 on $mux $flatten\u.$procmux$653.
+    dead port 1/2 on $mux $flatten\u.$procmux$656.
+    dead port 2/2 on $mux $flatten\u.$procmux$656.
+    dead port 1/2 on $mux $flatten\u.$procmux$660.
+    dead port 2/2 on $mux $flatten\u.$procmux$660.
+    dead port 1/2 on $mux $flatten\u.$procmux$663.
+    dead port 2/2 on $mux $flatten\u.$procmux$663.
+    dead port 1/2 on $mux $flatten\u.$procmux$665.
+    dead port 2/2 on $mux $flatten\u.$procmux$665.
+    dead port 1/2 on $mux $flatten\u.$procmux$668.
+    dead port 2/2 on $mux $flatten\u.$procmux$668.
+    dead port 1/2 on $mux $flatten\u.$procmux$672.
+    dead port 2/2 on $mux $flatten\u.$procmux$672.
+    dead port 1/2 on $mux $flatten\u.$procmux$674.
+    dead port 2/2 on $mux $flatten\u.$procmux$674.
+    dead port 1/2 on $mux $flatten\u.$procmux$677.
+    dead port 2/2 on $mux $flatten\u.$procmux$677.
+    dead port 1/2 on $mux $flatten\u.$procmux$681.
+    dead port 2/2 on $mux $flatten\u.$procmux$681.
+    dead port 1/2 on $mux $flatten\u.$procmux$683.
+    dead port 2/2 on $mux $flatten\u.$procmux$683.
+    dead port 1/2 on $mux $flatten\u.$procmux$686.
+    dead port 2/2 on $mux $flatten\u.$procmux$686.
+    dead port 1/2 on $mux $flatten\u.$procmux$690.
+    dead port 2/2 on $mux $flatten\u.$procmux$690.
+    dead port 1/2 on $mux $flatten\u.$procmux$692.
+    dead port 2/2 on $mux $flatten\u.$procmux$692.
+    dead port 1/2 on $mux $flatten\u.$procmux$695.
+    dead port 2/2 on $mux $flatten\u.$procmux$695.
+    dead port 1/2 on $mux $flatten\u.$procmux$699.
+    dead port 2/2 on $mux $flatten\u.$procmux$699.
+    dead port 1/2 on $mux $flatten\u.$procmux$701.
+    dead port 2/2 on $mux $flatten\u.$procmux$701.
+    dead port 1/2 on $mux $flatten\u.$procmux$704.
+    dead port 2/2 on $mux $flatten\u.$procmux$704.
+    dead port 1/2 on $mux $flatten\u.$procmux$707.
+    dead port 2/2 on $mux $flatten\u.$procmux$707.
+    dead port 1/2 on $mux $flatten\u.$procmux$710.
+    dead port 2/2 on $mux $flatten\u.$procmux$710.
+    dead port 1/2 on $mux $flatten\u.$procmux$713.
+    dead port 2/2 on $mux $flatten\u.$procmux$713.
+    dead port 1/2 on $mux $flatten\u.$procmux$716.
+    dead port 2/2 on $mux $flatten\u.$procmux$716.
+    dead port 1/2 on $mux $flatten\u.$procmux$719.
+    dead port 2/2 on $mux $flatten\u.$procmux$719.
+    dead port 1/2 on $mux $flatten\u.$procmux$722.
+    dead port 2/2 on $mux $flatten\u.$procmux$722.
+    dead port 1/2 on $mux $flatten\u.$procmux$725.
+    dead port 2/2 on $mux $flatten\u.$procmux$725.
+    dead port 1/2 on $mux $flatten\u.$procmux$728.
+    dead port 2/2 on $mux $flatten\u.$procmux$728.
+    dead port 1/2 on $mux $flatten\u.$procmux$805.
+    dead port 2/2 on $mux $flatten\u.$procmux$805.
+    dead port 1/2 on $mux $flatten\u.$procmux$808.
+    dead port 2/2 on $mux $flatten\u.$procmux$808.
+    dead port 1/2 on $mux $flatten\u.$procmux$811.
+    dead port 2/2 on $mux $flatten\u.$procmux$811.
+    dead port 1/2 on $mux $flatten\u.$procmux$814.
+    dead port 2/2 on $mux $flatten\u.$procmux$814.
+Removed 324 multiplexer ports.
+<suppressed ~1030 debug messages>
+
+6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \t_gold.
+    New ctrl vector for $pmux cell $flatten\u.$procmux$746: $auto$opt_reduce.cc:135:opt_pmux$1678
+    New ctrl vector for $pmux cell $flatten\u.$procmux$1501: { $flatten\u.$procmux$747_CMP $flatten\u.$procmux$748_CMP $auto$opt_reduce.cc:135:opt_pmux$1680 }
+  Optimizing cells in module \t_gold.
+Performed a total of 2 changes.
+
+6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\t_gold'.
+Computing hashes of 486 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+Computing hashes of 485 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+6.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $flatten\u.$procdff$1671 ($dff) from module t_gold (D = $flatten\u.$procmux$825_Y, Q = \u.fin_ok_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1681 ($sdff) from module t_gold (D = $flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$231_Y, Q = \u.fin_ok_r).
+Adding SRST signal on $flatten\u.$procdff$1670 ($dff) from module t_gold (D = $flatten\u.$procmux$841_Y, Q = \u.fin_r, rval = 1'0).
+Adding SRST signal on $flatten\u.$procdff$1669 ($dff) from module t_gold (D = $flatten\u.$procmux$846_Y, Q = \u.drop_cnt_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1688 ($sdff) from module t_gold (D = $flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$113_Y, Q = \u.drop_cnt_r).
+Adding SRST signal on $flatten\u.$procdff$1668 ($dff) from module t_gold (D = $flatten\u.$procmux$878_Y, Q = \u.pt_self_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1690 ($sdff) from module t_gold (D = $flatten\u.$procmux$876_Y, Q = \u.pt_self_r).
+Adding SRST signal on $flatten\u.$procdff$1667 ($dff) from module t_gold (D = $flatten\u.$procmux$911_Y, Q = \u.pt_seen_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1710 ($sdff) from module t_gold (D = $flatten\u.$procmux$909_Y, Q = \u.pt_seen_r).
+Adding SRST signal on $flatten\u.$procdff$1666 ($dff) from module t_gold (D = $flatten\u.$procmux$949_Y, Q = \u.pt_run_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1730 ($sdff) from module t_gold (D = $flatten\u.$procmux$947_Y, Q = \u.pt_run_r).
+Adding SRST signal on $flatten\u.$procdff$1665 ($dff) from module t_gold (D = $flatten\u.$procmux$988_Y, Q = \u.pt_byte_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$1748 ($sdff) from module t_gold (D = $flatten\u.$procmux$986_Y, Q = \u.pt_byte_r).
+Adding SRST signal on $flatten\u.$procdff$1664 ($dff) from module t_gold (D = $flatten\u.$procmux$1018_Y, Q = \u.pt_cnt_r, rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$1770 ($sdff) from module t_gold (D = $flatten\u.$procmux$1016_Y, Q = \u.pt_cnt_r).
+Adding SRST signal on $flatten\u.$procdff$1663 ($dff) from module t_gold (D = $flatten\u.$procmux$1057_Y, Q = \u.pt_left_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1788 ($sdff) from module t_gold (D = $flatten\u.$procmux$1055_Y, Q = \u.pt_left_r).
+Adding SRST signal on $flatten\u.$procdff$1662 ($dff) from module t_gold (D = $flatten\u.$procmux$1103_Y, Q = \u.tlv_chain_done_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1810 ($sdff) from module t_gold (D = $flatten\u.$procmux$1101_Y, Q = \u.tlv_chain_done_r).
+Adding SRST signal on $flatten\u.$procdff$1661 ($dff) from module t_gold (D = $flatten\u.$procmux$1136_Y, Q = \u.tlv_left_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1820 ($sdff) from module t_gold (D = $flatten\u.$procmux$1134_Y, Q = \u.tlv_left_r).
+Adding SRST signal on $flatten\u.$procdff$1660 ($dff) from module t_gold (D = $flatten\u.$procmux$1175_Y, Q = \u.tlv_hdr_pos_r, rval = 2'00).
+Adding EN signal on $auto$ff.cc:337:slice$1836 ($sdff) from module t_gold (D = $flatten\u.$procmux$1173_Y, Q = \u.tlv_hdr_pos_r).
+Adding SRST signal on $flatten\u.$procdff$1659 ($dff) from module t_gold (D = $flatten\u.$procmux$1223_Y, Q = \u.tlv_hdr_run_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1846 ($sdff) from module t_gold (D = $flatten\u.$procmux$1221_Y, Q = \u.tlv_hdr_run_r).
+Adding SRST signal on $flatten\u.$procdff$1658 ($dff) from module t_gold (D = $flatten\u.$procmux$1243_Y, Q = \u.gm_r, rval = 64'0000000000000000000000000000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1856 ($sdff) from module t_gold (D = $flatten\u.$procmux$1241_Y, Q = \u.gm_r).
+Adding SRST signal on $flatten\u.$procdff$1657 ($dff) from module t_gold (D = $flatten\u.$procmux$1263_Y, Q = \u.steps_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1868 ($sdff) from module t_gold (D = $flatten\u.$procmux$1261_Y, Q = \u.steps_r).
+Adding SRST signal on $flatten\u.$procdff$1656 ($dff) from module t_gold (D = $flatten\u.$procmux$1285_Y, Q = \u.msg_end_r, rval = 11'00000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1880 ($sdff) from module t_gold (D = $flatten\u.$procmux$1283_Y, Q = \u.msg_end_r).
+Adding SRST signal on $flatten\u.$procdff$1655 ($dff) from module t_gold (D = $flatten\u.$procmux$1305_Y, Q = \u.utc_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1888 ($sdff) from module t_gold (D = { \u.acc_r [7:0] \u.rx_data_i }, Q = \u.utc_r).
+Adding SRST signal on $flatten\u.$procdff$1654 ($dff) from module t_gold (D = $flatten\u.$procmux$1317_Y, Q = \u.acc_r, rval = 64'0000000000000000000000000000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1896 ($sdff) from module t_gold (D = $flatten\u.$procmux$1315_Y, Q = \u.acc_r).
+Adding SRST signal on $flatten\u.$procdff$1653 ($dff) from module t_gold (D = $flatten\u.$procmux$1334_Y, Q = \u.flags_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1902 ($sdff) from module t_gold (D = { \u.acc_r [7:0] \u.rx_data_i }, Q = \u.flags_r).
+Adding SRST signal on $flatten\u.$procdff$1652 ($dff) from module t_gold (D = $flatten\u.$procmux$1350_Y, Q = \u.seq_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1908 ($sdff) from module t_gold (D = { \u.acc_r [7:0] \u.rx_data_i }, Q = \u.seq_r).
+Adding SRST signal on $flatten\u.$procdff$1651 ($dff) from module t_gold (D = $flatten\u.$procmux$1374_Y, Q = \u.mtype_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1914 ($sdff) from module t_gold (D = $flatten\u.$procmux$1372_Y, Q = \u.mtype_r).
+Adding SRST signal on $flatten\u.$procdff$1650 ($dff) from module t_gold (D = $flatten\u.$procmux$1445_Y, Q = \u.bad_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1922 ($sdff) from module t_gold (D = $flatten\u.$procmux$1443_Y, Q = \u.bad_r).
+Adding SRST signal on $flatten\u.$procdff$1649 ($dff) from module t_gold (D = $flatten\u.$procmux$1461_Y, Q = \u.run_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1928 ($sdff) from module t_gold (D = $flatten\u.$procmux$1459_Y, Q = \u.run_r).
+Adding SRST signal on $flatten\u.$procdff$1648 ($dff) from module t_gold (D = $flatten\u.$procmux$1473_Y, Q = \u.cnt_r, rval = 11'00000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1930 ($sdff) from module t_gold (D = $flatten\u.$procmux$1471_Y, Q = \u.cnt_r).
+Adding SRST signal on $flatten\u.$procdff$1647 ($dff) from module t_gold (D = $flatten\u.$procmux$1480_Y, Q = \u.ev_seq_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1936 ($sdff) from module t_gold (D = \u.seq_r, Q = \u.ev_seq_o).
+Adding SRST signal on $flatten\u.$procdff$1646 ($dff) from module t_gold (D = $flatten\u.$procmux$1487_Y, Q = \u.ev_code_o, rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$1940 ($sdff) from module t_gold (D = \u.ev_map_w, Q = \u.ev_code_o).
+Adding SRST signal on $flatten\u.$procdff$1645 ($dff) from module t_gold (D = $flatten\u.$procmux$730_Y, Q = \u.ev_valid_o, rval = 1'0).
+Adding SRST signal on $flatten\u.$procdff$1644 ($dff) from module t_gold (D = $flatten\u.$procmux$1554_Y, Q = \u.bank_wdata_o, rval = 64'0000000000000000000000000000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u.$procdff$1643 ($dff) from module t_gold (D = $flatten\u.$procmux$1621_Y, Q = \u.bank_addr_o, rval = 5'00000).
+Adding SRST signal on $flatten\u.$procdff$1642 ($dff) from module t_gold (D = $flatten\u.$procmux$799_Y, Q = \u.bank_we_o, rval = 1'0).
+Setting constant 1-bit at position 0 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 1 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 2 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 3 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 4 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 5 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 6 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 7 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 8 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 9 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 10 on $flatten\u.$procdff$1672 ($dff) from module t_gold.
+Setting constant 1-bit at position 0 on $flatten\u.$procdff$1674 ($dff) from module t_gold.
+Setting constant 1-bit at position 1 on $flatten\u.$procdff$1674 ($dff) from module t_gold.
+Setting constant 1-bit at position 2 on $flatten\u.$procdff$1674 ($dff) from module t_gold.
+Setting constant 1-bit at position 3 on $flatten\u.$procdff$1674 ($dff) from module t_gold.
+Setting constant 1-bit at position 4 on $flatten\u.$procdff$1674 ($dff) from module t_gold.
+
+6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \t_gold..
+Removed 75 unused cells and 843 unused wires.
+<suppressed ~76 debug messages>
+
+6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module t_gold.
+<suppressed ~51 debug messages>
+
+6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \t_gold..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~950 debug messages>
+
+6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \t_gold.
+Performed a total of 0 changes.
+
+6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\t_gold'.
+Computing hashes of 514 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+Computing hashes of 456 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+Computing hashes of 451 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+<suppressed ~189 debug messages>
+Removed a total of 63 cells.
+
+6.13. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $auto$ff.cc:337:slice$1687 ($sdff) from module t_gold (D = $flatten\u.$procmux$834_Y, Q = \u.fin_r, rval = 1'0).
+
+6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \t_gold..
+Removed 3 unused cells and 67 unused wires.
+<suppressed ~4 debug messages>
+
+6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module t_gold.
+
+6.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \t_gold..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~947 debug messages>
+
+6.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \t_gold.
+Performed a total of 0 changes.
+
+6.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\t_gold'.
+Computing hashes of 452 cells of `\t_gold'.
+Finding duplicate cells in `\t_gold'.
+Removed a total of 0 cells.
+
+6.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+6.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \t_gold..
+
+6.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module t_gold.
+
+6.23. Finished fast OPT passes. (There is nothing left to do.)
+
+7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \t_gold..
+Renaming module \t_gold to \t.
+
+8. Executing ATTRMAP pass (move or copy attributes).
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$228: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.202-431.246"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$229: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.123-431.247"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$230: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.97-431.248"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$231: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.19-431.249"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434$232: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434.9-434.29"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439$233: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439.31-439.40"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439$234: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439.22-439.40"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440$235: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440.24-440.46"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440$236: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440.23-440.59"
+Removed attribute on t.$flatten\u.$ternary$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153$97: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153.44-153.73"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153$98: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153.31-153.74"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:217$110: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:217.8-217.33"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$111: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.33-218.58"
+Removed attribute on t.$flatten\u.$ternary$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$112: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.33-218.74"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$113: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.19-218.75"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$43: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.35-144.54"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:254$127: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:254.15-254.28"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259$130: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259.12-259.47"
+Removed attribute on t.$flatten\u.$procmux$589_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:272.23-272.23|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262$131: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262.12-262.34"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$132: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.191-264.217"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$133: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.163-264.189"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$134: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.133-264.161"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$135: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.106-264.131"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$72: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.104-149.144"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$136: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.75-264.104"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$137: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.45-264.73"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$138: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.16-264.43"
+Removed attribute on t.$flatten\u.$reduce_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$139: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.14-264.218"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$50: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.59-146.73"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266$142: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.44-266.64"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266$143: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.12-266.64"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271$144: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271.12-271.34"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$145: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274.34-274.68"
+Removed attribute on t.$flatten\u.$lt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$146: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.13-275.40"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$147: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.46-275.77"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$148: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.12-275.78"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279$149: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279.12-279.33"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:282$150: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:282.21-282.27"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$51: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.34-146.73"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$52: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.79-146.98"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$53: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.33-146.99"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$44: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.34-144.72"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$157: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.79-307.100"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$158: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.55-307.77"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$159: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.35-307.53"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$160: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.13-307.33"
+Removed attribute on t.$flatten\u.$reduce_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$161: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.11-307.101"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308$162: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.12-308.51"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313$163: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.12-313.50"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$55: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.32-146.124"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147$56: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147.56-147.75"
+Removed attribute on t.$flatten\u.$reduce_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319$166: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.11-319.59"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320$167: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.12-320.49"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325$168: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.12-325.49"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147$57: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147.31-147.76"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$170: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.13-332.53"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$171: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.59-332.91"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$172: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.12-332.92"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$58: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.80-148.117"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334$174: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.59-334.84"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334$175: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.12-334.85"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336$176: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.12-336.51"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$59: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.79-148.138"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$60: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.58-148.139"
+Removed attribute on t.$flatten\u.$procmux$730: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.9-221.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.5-230.8"
+Removed attribute on t.$flatten\u.$procmux$737: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.10-222.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.6-226.9"
+Removed attribute on t.$flatten\u.$procmux$739: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.9-221.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.5-230.8"
+Removed attribute on t.$flatten\u.$procmux$741: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.8-219.13|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.4-231.7"
+Removed attribute on t.$flatten\u.$procmux$747_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:297.50-297.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$746: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:297.50-297.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$748_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:290.10-290.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$749_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:285.10-285.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$750_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:280.23-280.23|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$752: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.12-308.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.8-312.11"
+Removed attribute on t.$flatten\u.$procmux$754: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.12-313.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.8-317.11"
+Removed attribute on t.$flatten\u.$procmux$756: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.11-307.101|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.7-318.10"
+Removed attribute on t.$flatten\u.$procmux$758: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.12-320.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.8-324.11"
+Removed attribute on t.$flatten\u.$procmux$760: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.12-325.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.8-329.11"
+Removed attribute on t.$flatten\u.$procmux$762: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.11-319.59|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.7-330.10"
+Removed attribute on t.$flatten\u.$procmux$764: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.12-336.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.8-340.11"
+Removed attribute on t.$flatten\u.$procmux$766: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.11-331.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.7-341.10"
+Removed attribute on t.$flatten\u.$procmux$769: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.12-345.46|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.8-349.11"
+Removed attribute on t.$flatten\u.$procmux$771: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.8-355.11"
+Removed attribute on t.$flatten\u.$procmux$773: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$779: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.15-404.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.11-408.14"
+Removed attribute on t.$flatten\u.$procmux$781: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$783: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$785: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$788: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$790: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$792: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$794: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$797: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$799: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.8-232.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.4-436.7"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345$181: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.12-345.46"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350$182: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356$183: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356.12-356.50"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$61: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.146-148.172"
+Removed attribute on t.$flatten\u.$procmux$834: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:428.10-428.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:428.6-432.9"
+Removed attribute on t.$flatten\u.$procmux$858: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409.15-409.44|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409.11-410.30"
+Removed attribute on t.$flatten\u.$procmux$860: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$862: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$864: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$867: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$869: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$871: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$873: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$876: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$889: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.15-387.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.11-394.29"
+Removed attribute on t.$flatten\u.$procmux$892: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$895: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$898: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$900: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$902: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$904: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$906: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$909: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$921: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.13-416.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.9-424.12"
+Removed attribute on t.$flatten\u.$procmux$923: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$927: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.15-387.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.11-394.29"
+Removed attribute on t.$flatten\u.$procmux$930: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$933: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$936: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$938: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$940: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$942: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$944: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$947: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$960: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$962: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$966: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.15-387.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.11-394.29"
+Removed attribute on t.$flatten\u.$procmux$969: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$972: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$975: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$977: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$979: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$981: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$983: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$986: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1000: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$1002: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$1004: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1007: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1009: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1011: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1013: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1016: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1029: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$1031: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1035: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.15-387.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:387.11-394.29"
+Removed attribute on t.$flatten\u.$procmux$1038: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$1041: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$1044: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1046: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1048: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1050: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1052: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1055: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$223: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.125-431.176"
+Removed attribute on t.$flatten\u.$procmux$1067: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.13-362.53|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.9-367.12"
+Removed attribute on t.$flatten\u.$procmux$1069: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$1073: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.14-418.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.10-423.13"
+Removed attribute on t.$flatten\u.$procmux$1075: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.13-416.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.9-424.12"
+Removed attribute on t.$flatten\u.$procmux$1077: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1084: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$1087: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$1090: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1092: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1094: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1096: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1098: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1101: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1113: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1117: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$1120: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$1123: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1125: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1127: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1129: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1131: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1134: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$62: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.181-148.203"
+Removed attribute on t.$flatten\u.$procmux$1145: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.18-364.57|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.14-367.12"
+Removed attribute on t.$flatten\u.$procmux$1148: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.13-362.53|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.9-367.12"
+Removed attribute on t.$flatten\u.$procmux$1150: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$1154: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.14-418.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.10-423.13"
+Removed attribute on t.$flatten\u.$procmux$1156: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.13-416.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.9-424.12"
+Removed attribute on t.$flatten\u.$procmux$1158: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1162: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1164: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1166: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1168: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1170: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1173: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364$186: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.18-364.57"
+Removed attribute on t.$flatten\u.$procmux$1184: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.18-364.57|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.14-367.12"
+Removed attribute on t.$flatten\u.$procmux$1187: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.13-362.53|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:362.9-367.12"
+Removed attribute on t.$flatten\u.$procmux$1189: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$1193: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.14-418.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:418.10-423.13"
+Removed attribute on t.$flatten\u.$procmux$1195: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.13-416.32|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:416.9-424.12"
+Removed attribute on t.$flatten\u.$procmux$1197: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1202: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:380.15-380.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:380.11-383.34"
+Removed attribute on t.$flatten\u.$procmux$1204: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.19-377.41|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:377.15-395.13"
+Removed attribute on t.$flatten\u.$procmux$1207: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$1210: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1212: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1214: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1216: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1218: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1221: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:371$190: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:371.27-371.47"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$63: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.180-148.226"
+Removed attribute on t.$flatten\u.$procmux$1232: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.8-355.11"
+Removed attribute on t.$flatten\u.$procmux$1234: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1236: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1238: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1241: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$64: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.179-148.240"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$65: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.278-148.301"
+Removed attribute on t.$flatten\u.$procmux$1252: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356.12-356.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356.8-357.36"
+Removed attribute on t.$flatten\u.$procmux$1254: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1256: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1258: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1261: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:399$196: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:399.23-399.41"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$73: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.61-149.145"
+Removed attribute on t.$flatten\u.$procmux$1278: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:272.23-272.23|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1280: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1283: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:401$199: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:401.23-401.40"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:402$200: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:402.23-402.39"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$224: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.181-431.196"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$66: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.246-148.302"
+Removed attribute on t.$flatten\u.$lt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404$204: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.15-404.30"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$207: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406.27-406.61"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$225: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.124-431.196"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409$208: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409.15-409.44"
+Removed attribute on t.$flatten\u.$procmux$1312: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1315: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$67: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.178-148.303"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$68: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.145-148.304"
+Removed attribute on t.$flatten\u.$procmux$1328_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:295.10-295.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411$211: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411.15-411.56"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:413$212: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:413.23-413.38"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$69: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.57-148.305"
+Removed attribute on t.$flatten\u.$procmux$1344_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:296.52-296.52|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$70: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.32-148.306"
+Removed attribute on t.$flatten\u.$procmux$1368_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:260.23-260.23|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1367: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:260.23-260.23|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1369: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1372: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1388: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279.12-279.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279.8-280.23"
+Removed attribute on t.$flatten\u.$procmux$1391_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:277.10-277.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1390: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:277.10-277.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1392: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.12-275.78|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.8-276.23"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$74: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.40-149.146"
+Removed attribute on t.$flatten\u.$procmux$1395: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271.12-271.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271.8-272.23"
+Removed attribute on t.$flatten\u.$procmux$1397_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:269.10-269.10|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1398: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262.12-262.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262.8-263.23"
+Removed attribute on t.$flatten\u.$procmux$1400: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.12-264.219|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.8-265.23"
+Removed attribute on t.$flatten\u.$procmux$1402: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.12-266.64|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.8-267.23"
+Removed attribute on t.$flatten\u.$le$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$45: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.78-144.96"
+Removed attribute on t.$flatten\u.$procmux$1405: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259.12-259.47|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259.8-260.23"
+Removed attribute on t.$flatten\u.$procmux$1407_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.18-257.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$procmux$1409: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.12-332.92|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.8-333.23"
+Removed attribute on t.$flatten\u.$procmux$1411: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.12-334.85|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.8-335.23"
+Removed attribute on t.$flatten\u.$procmux$1413: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.11-331.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.7-341.10"
+Removed attribute on t.$flatten\u.$procmux$1419: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411.15-411.56|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411.11-412.26"
+Removed attribute on t.$flatten\u.$procmux$1421: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$1423: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$1425: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1429: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.14-375.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:375.10-395.13"
+Removed attribute on t.$flatten\u.$procmux$1432: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.13-370.34|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:370.9-396.12"
+Removed attribute on t.$flatten\u.$procmux$1434: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1436: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1438: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1440: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1443: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$42: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130.21-130.81"
+Removed attribute on t.$flatten\u.$procmux$1452: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:428.10-428.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:428.6-432.9"
+Removed attribute on t.$flatten\u.$procmux$1454: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1457: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1459: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434.9-434.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434.5-435.20"
+Removed attribute on t.$flatten\u.$ge$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$217: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.47-431.65"
+Removed attribute on t.$flatten\u.$procmux$1468: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1471: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$218: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.21-431.66"
+Removed attribute on t.$flatten\u.$ge$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$219: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.72-431.90"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$220: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.20-431.91"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$226: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.202-431.212"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$221: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.98-431.117"
+Removed attribute on t.$flatten\u.$procmux$1492: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.10-222.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.6-226.9"
+Removed attribute on t.$flatten\u.$procmux$1494: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.9-221.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.5-230.8"
+Removed attribute on t.$flatten\u.$procmux$1496: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.8-219.13|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.4-231.7"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$76: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.154-149.202"
+Removed attribute on t.$flatten\u.$procmux$1501: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:297.50-297.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$77: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.208-149.226"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$78: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.153-149.227"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$79: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.232-149.253"
+Removed attribute on t.$flatten\u.$procmux$1507: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.12-308.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.8-312.11"
+Removed attribute on t.$flatten\u.$procmux$1509: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.12-313.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.8-317.11"
+Removed attribute on t.$flatten\u.$procmux$1511: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.11-307.101|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.7-318.10"
+Removed attribute on t.$flatten\u.$procmux$1513: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.12-320.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.8-324.11"
+Removed attribute on t.$flatten\u.$procmux$1515: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.12-325.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.8-329.11"
+Removed attribute on t.$flatten\u.$procmux$1517: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.11-319.59|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.7-330.10"
+Removed attribute on t.$flatten\u.$procmux$1519: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.12-336.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.8-340.11"
+Removed attribute on t.$flatten\u.$procmux$1521: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.11-331.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.7-341.10"
+Removed attribute on t.$flatten\u.$procmux$1524: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.12-345.46|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.8-349.11"
+Removed attribute on t.$flatten\u.$procmux$1526: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.8-355.11"
+Removed attribute on t.$flatten\u.$procmux$1528: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$1534: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.15-404.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.11-408.14"
+Removed attribute on t.$flatten\u.$procmux$1536: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$1538: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$1540: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1543: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1545: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1547: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1549: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1552: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1554: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.8-232.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.4-436.7"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$227: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.217-431.245"
+Removed attribute on t.$flatten\u.$procmux$1559: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.10-222.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:222.6-226.9"
+Removed attribute on t.$flatten\u.$procmux$1561: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.9-221.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:221.5-230.8"
+Removed attribute on t.$flatten\u.$procmux$1563: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.8-219.13|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:219.4-231.7"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$80: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.152-149.253"
+Removed attribute on t.$flatten\u.$procmux$1568: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:297.50-297.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:257.6-305.13"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$81: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.39-149.254"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$46: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.33-144.97"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$83: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.260-149.303"
+Removed attribute on t.$flatten\u.$procmux$1574: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.12-308.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.8-312.11"
+Removed attribute on t.$flatten\u.$procmux$1576: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.12-313.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.8-317.11"
+Removed attribute on t.$flatten\u.$procmux$1578: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.11-307.101|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.7-318.10"
+Removed attribute on t.$flatten\u.$procmux$1580: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.12-320.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.8-324.11"
+Removed attribute on t.$flatten\u.$procmux$1582: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.12-325.49|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.8-329.11"
+Removed attribute on t.$flatten\u.$procmux$1584: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.11-319.59|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:319.7-330.10"
+Removed attribute on t.$flatten\u.$procmux$1586: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.12-336.51|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.8-340.11"
+Removed attribute on t.$flatten\u.$procmux$1588: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.11-331.29|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:331.7-341.10"
+Removed attribute on t.$flatten\u.$procmux$1591: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.12-345.46|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.8-349.11"
+Removed attribute on t.$flatten\u.$procmux$1593: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.8-355.11"
+Removed attribute on t.$flatten\u.$procmux$1595: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.12-358.48|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:358.8-368.11"
+Removed attribute on t.$flatten\u.$procmux$1601: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.15-404.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.11-408.14"
+Removed attribute on t.$flatten\u.$procmux$1603: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.14-403.31|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:403.10-414.13"
+Removed attribute on t.$flatten\u.$procmux$1605: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.13-400.21|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:400.9-415.12"
+Removed attribute on t.$flatten\u.$procmux$1607: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.17-398.37|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:398.13-425.11"
+Removed attribute on t.$flatten\u.$procmux$1610: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.12-369.33|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:369.8-425.11"
+Removed attribute on t.$flatten\u.$procmux$1612: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.11-342.30|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:342.7-426.10"
+Removed attribute on t.$flatten\u.$procmux$1614: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.10-306.16|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:306.6-427.9"
+Removed attribute on t.$flatten\u.$procmux$1616: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.14-253.19|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:253.10-433.8"
+Removed attribute on t.$flatten\u.$procmux$1619: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.9-233.17|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:233.5-433.8"
+Removed attribute on t.$flatten\u.$procmux$1621: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.8-232.18|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:232.4-436.7"
+Removed attribute on t.$flatten\u.$procmux$1628_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:172.55-172.55|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:166.3-175.10"
+Removed attribute on t.$flatten\u.$procmux$1627: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:172.55-172.55|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:166.3-175.10"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$84: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.38-149.304"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145$47: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145.58-145.79"
+Removed attribute on t.$flatten\u.$procmux$1631_CMP0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:169.56-169.56|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:166.3-175.10"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$86: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.27-150.60"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$87: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.66-150.84"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$88: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.26-150.85"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145$48: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145.32-145.80"
+Removed attribute on t.$flatten\u.$procmux$1637: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:119.82-119.82|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:116.3-123.10"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$90: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.25-150.110"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151$91: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151.47-151.64"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151$92: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151.29-151.65"
+Removed attribute on t.$flatten\u.$procmux$1639_ANY: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:118.52-118.52|$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:116.3-123.10"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$93: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.49-152.65"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$94: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.27-152.66"
+Removed attribute on t.$auto$ff.cc:337:slice$1949: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1948: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1947: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1944: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1941: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1937: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1931: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1929: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1923: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1915: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1909: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1903: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1897: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1889: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1881: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1869: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1857: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1847: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1837: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1821: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1811: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1789: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1771: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1749: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1731: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1711: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1691: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1689: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1950: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$auto$ff.cc:337:slice$1682: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:181.2-438.5"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$95: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.72-152.89"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$71: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.62-149.98"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$96: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.26-152.90"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$41: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130.22-130.53"
+Removed attribute on t.$flatten\u.$lt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404$204_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:404.15-404.30"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$227_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.217-431.245"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$113_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.19-218.75"
+Removed attribute on t.$flatten\u.$ternary$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$112_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.33-218.74"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218$111_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:218.33-218.58"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:217$110_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:217.8-217.33"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:402$200_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:402.23-402.39"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:401$199_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:401.23-401.40"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$226_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.202-431.212"
+Removed attribute on t.$flatten\u.$sub$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:399$196_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:399.23-399.41"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$225_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.124-431.196"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$224_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.181-431.196"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$223_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.125-431.176"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440$235_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:440.24-440.46"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:371$190_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:371.27-371.47"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$221_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.98-431.117"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$220_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.20-431.91"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364$186_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:364.18-364.57"
+Removed attribute on t.$flatten\u.$ge$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$219_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.72-431.90"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356$183_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:356.12-356.50"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350$182_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:350.12-350.50"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345$181_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:345.12-345.46"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$218_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.21-431.66"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$228_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.202-431.246"
+Removed attribute on t.$flatten\u.$ge$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$217_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.47-431.65"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336$176_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:336.12-336.51"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334$175_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.12-334.85"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334$174_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:334.59-334.84"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$172_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.12-332.92"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$171_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.59-332.91"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332$170_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:332.13-332.53"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$216_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.22-431.41"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325$168_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:325.12-325.49"
+Removed attribute on t.$flatten\u.$ternary$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153$97_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:153.44-153.73"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$95_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.72-152.89"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$94_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.27-152.66"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152$93_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:152.49-152.65"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320$167_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:320.12-320.49"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151$91_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:151.47-151.64"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$88_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.26-150.85"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$87_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.66-150.84"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150$86_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:150.27-150.60"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439$233_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:439.31-439.40"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$83_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.260-149.303"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$81_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.39-149.254"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$80_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.152-149.253"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$79_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.232-149.253"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$78_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.153-149.227"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$77_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.208-149.226"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$76_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.154-149.202"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$74_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.40-149.146"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$73_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.61-149.145"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$72_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.104-149.144"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149$71_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:149.62-149.98"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$69_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.57-148.305"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$68_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.145-148.304"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$67_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.178-148.303"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$66_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.246-148.302"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$65_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.278-148.301"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$64_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.179-148.240"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$63_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.180-148.226"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$62_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.181-148.203"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$61_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.146-148.172"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$60_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.58-148.139"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$59_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.79-148.138"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148$58_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:148.80-148.117"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313$163_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:313.12-313.50"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147$56_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:147.56-147.75"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308$162_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:308.12-308.51"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$53_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.33-146.99"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$52_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.79-146.98"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$51_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.34-146.73"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146$50_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:146.59-146.73"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145$47_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:145.58-145.79"
+Removed attribute on t.$flatten\u.$le$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$45_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.78-144.96"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$44_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.34-144.72"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144$43_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:144.35-144.54"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$160_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.13-307.33"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$41_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130.22-130.53"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$159_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.35-307.53"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$158_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.55-307.77"
+Removed attribute on t.u.sv2v_cast_16$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:130$39.inp: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:127.20-127.23"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307$157_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:307.79-307.100"
+Removed attribute on t.u.sv2v_cast_5$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$38.inp: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:178.19-178.22"
+Removed attribute on t.u.sv2v_cast_11$func$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$16.inp: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:109.20-109.23"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434$232_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:434.9-434.29"
+Removed attribute on t.u.ev_map_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:154.12-154.20"
+Removed attribute on t.u.ann_tlv_len_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:143.14-143.27"
+Removed attribute on t.u.ann_tlv_type_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:142.14-142.28"
+Removed attribute on t.u.ann_pt_left_after_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:141.14-141.33"
+Removed attribute on t.u.ann_head_bad_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:140.7-140.21"
+Removed attribute on t.u.ann_pt_identity_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:139.7-139.24"
+Removed attribute on t.u.ann_pt_byte_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:138.7-138.20"
+Removed attribute on t.u.ann_tlv_chain_done_after_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:137.7-137.33"
+Removed attribute on t.u.ann_tlv_header_bad_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:136.7-136.27"
+Removed attribute on t.u.ann_tlv_value_end_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:135.7-135.26"
+Removed attribute on t.u.ann_tlv_value_byte_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:134.7-134.27"
+Removed attribute on t.u.ann_tlv_header_end_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:133.7-133.27"
+Removed attribute on t.u.ann_tlv_header_byte_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:132.7-132.28"
+Removed attribute on t.u.min_len_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:125.14-125.23"
+Removed attribute on t.u.min_end_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:107.13-107.22"
+Removed attribute on t.u.acc_nxt_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:105.14-105.23"
+Removed attribute on t.u.fin_ok_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:104.6-104.14"
+Removed attribute on t.u.fin_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:103.6-103.11"
+Removed attribute on t.u.runt_drop_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:102.7-102.18"
+Removed attribute on t.u.fin_drop_w: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:101.7-101.17"
+Removed attribute on t.u.drop_cnt_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:100.13-100.23"
+Removed attribute on t.u.pt_self_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:99.6-99.15"
+Removed attribute on t.u.pt_seen_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:98.6-98.15"
+Removed attribute on t.u.pt_run_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:97.6-97.14"
+Removed attribute on t.u.pt_byte_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:96.12-96.21"
+Removed attribute on t.u.pt_cnt_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:95.12-95.20"
+Removed attribute on t.u.pt_left_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:94.13-94.22"
+Removed attribute on t.u.tlv_chain_done_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:93.6-93.22"
+Removed attribute on t.u.tlv_left_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:92.13-92.23"
+Removed attribute on t.u.tlv_hdr_pos_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:91.12-91.25"
+Removed attribute on t.u.tlv_hdr_run_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:90.6-90.19"
+Removed attribute on t.u.gm_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:89.13-89.17"
+Removed attribute on t.u.steps_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:88.13-88.20"
+Removed attribute on t.u.msg_end_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:87.13-87.22"
+Removed attribute on t.u.utc_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:86.13-86.18"
+Removed attribute on t.u.acc_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:85.13-85.18"
+Removed attribute on t.u.flags_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:84.13-84.20"
+Removed attribute on t.u.seq_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:83.13-83.18"
+Removed attribute on t.u.mtype_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:82.12-82.19"
+Removed attribute on t.u.bad_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:81.6-81.11"
+Removed attribute on t.u.run_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:80.6-80.11"
+Removed attribute on t.u.cnt_r: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:79.13-79.18"
+Removed attribute on t.u.drop_cnt_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:38.21-38.31"
+Removed attribute on t.u.ev_seq_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:37.20-37.28"
+Removed attribute on t.u.ev_code_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:36.19-36.28"
+Removed attribute on t.u.ev_valid_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:35.13-35.23"
+Removed attribute on t.u.bank_wdata_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:34.20-34.32"
+Removed attribute on t.u.bank_addr_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:33.19-33.30"
+Removed attribute on t.u.bank_we_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:32.13-32.22"
+Removed attribute on t.u.local_clock_valid_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:31.13-31.32"
+Removed attribute on t.u.local_clock_id_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:30.20-30.36"
+Removed attribute on t.u.rx_err_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:29.13-29.21"
+Removed attribute on t.u.rx_eof_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:28.13-28.21"
+Removed attribute on t.u.rx_sof_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:27.13-27.21"
+Removed attribute on t.u.rx_data_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:26.19-26.28"
+Removed attribute on t.u.rx_valid_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:25.13-25.23"
+Removed attribute on t.u.rst_n: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:24.13-24.18"
+Removed attribute on t.u.clk_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:23.13-23.18"
+Removed attribute on t.u._sv2v_0: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:22.6-22.13"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$229_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.123-431.247"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406$207_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:406.27-406.61"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409$208_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:409.15-409.44"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:254$127_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:254.15-254.28"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$230_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.97-431.248"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259$130_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:259.12-259.47"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262$131_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:262.12-262.34"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$132_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.191-264.217"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$133_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.163-264.189"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$134_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.133-264.161"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$135_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.106-264.131"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$136_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.75-264.104"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$137_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.45-264.73"
+Removed attribute on t.$flatten\u.$eq$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$138_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.16-264.43"
+Removed attribute on t.$flatten\u.$reduce_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264$139_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:264.14-264.218"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431$231_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:431.19-431.249"
+Removed attribute on t.$flatten\u.$logic_not$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266$142_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.44-266.64"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266$143_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:266.12-266.64"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271$144_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:271.12-271.34"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274$145_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:274.34-274.68"
+Removed attribute on t.$flatten\u.$lt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$146_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.13-275.40"
+Removed attribute on t.$flatten\u.$gt$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$147_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.46-275.77"
+Removed attribute on t.$flatten\u.$logic_or$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275$148_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:275.12-275.78"
+Removed attribute on t.$flatten\u.$ne$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279$149_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:279.12-279.33"
+Removed attribute on t.$flatten\u.$logic_and$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411$211_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:411.15-411.56"
+Removed attribute on t.$flatten\u.$add$$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:413$212_Y: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/gold.v:413.23-413.38"
+Removed attribute on t.e: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:7.8-7.9"
+Removed attribute on t.drop_cnt_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:5.41-5.51"
+Removed attribute on t.ev_seq_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:5.17-5.25"
+Removed attribute on t.ev_code_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:4.63-4.72"
+Removed attribute on t.ev_valid_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:4.38-4.48"
+Removed attribute on t.bank_wdata_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:4.17-4.29"
+Removed attribute on t.bank_addr_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:3.61-3.72"
+Removed attribute on t.bank_we_o: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:3.37-3.46"
+Removed attribute on t.local_clock_valid_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:3.9-3.28"
+Removed attribute on t.local_clock_id_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:2.67-2.83"
+Removed attribute on t.rx_err_free: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:2.41-2.52"
+Removed attribute on t.rx_eof_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:2.25-2.33"
+Removed attribute on t.rx_sof_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:2.9-2.17"
+Removed attribute on t.rx_data_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:1.71-1.80"
+Removed attribute on t.rx_valid_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:1.47-1.57"
+Removed attribute on t.rst_n: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:1.34-1.39"
+Removed attribute on t.clk_i: src="$REVIEWS/g35-r617-1-packet/scratch/equiv/wrap_gold.v:1.21-1.26"
+
+9. Printing statistics.
+
+=== t ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      485 wires
+     4067 wire bits
+      485 public wires
+     4067 public wire bits
+       16 ports
+      190 port bits
+      452 cells
+       10   $add
+       40   $eq
+        2   $ge
+        3   $gt
+        1   $le
+       35   $logic_and
+       12   $logic_not
+       12   $logic_or
+        2   $lt
+      230   $mux
+       16   $ne
+        5   $not
+        5   $pmux
+       18   $reduce_and
+       19   $reduce_bool
+        7   $reduce_or
+        1   $scopeinfo
+        5   $sdff
+       25   $sdffe
+        4   $sub
+
+10. Executing Verilog backend.
+
+10.1. Executing BMUXMAP pass.
+
+10.2. Executing DEMUXMAP pass.
+Dumping module `\t'.
+
+End of script. Logfile hash: 65ef270464, time: 0.12s, user: 0.11s, system: 0.01s, MEM: 33.00 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 17% 3x opt_dff (0 sec), 15% 4x opt_clean (0 sec), ...

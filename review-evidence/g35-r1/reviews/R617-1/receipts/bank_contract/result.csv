@@ -1,0 +1,26 @@
+type,length,error_byte,drops,events,writes_before,writes_on,writes_after,total_writes,zero_write_acceptance
+sync,58,-1,0,1,0,0,6,6,PASS
+sync,58,0,1,0,0,0,0,0,PASS
+sync,58,20,1,0,0,0,0,0,PASS
+sync,58,29,1,0,0,1,0,1,FAIL
+sync,58,40,1,0,1,0,0,1,FAIL
+sync,58,57,1,0,5,1,0,6,FAIL
+fu,90,-1,0,1,0,0,7,7,PASS
+fu,90,0,1,0,0,0,0,0,PASS
+fu,90,20,1,0,0,0,0,0,PASS
+fu,90,29,1,0,0,1,0,1,FAIL
+fu,90,40,1,0,1,0,0,1,FAIL
+fu,90,89,1,0,7,0,0,7,FAIL
+pdreq,68,-1,0,1,0,0,4,4,PASS
+pdreq,68,0,1,0,0,0,0,0,PASS
+pdreq,68,20,1,0,0,0,0,0,PASS
+pdreq,68,29,1,0,0,1,0,1,FAIL
+pdreq,68,40,1,0,1,0,0,1,FAIL
+pdreq,68,67,1,0,4,0,0,4,FAIL
+pdresp,68,-1,0,1,0,0,8,8,PASS
+pdresp,68,0,1,0,0,0,0,0,PASS
+pdresp,68,20,1,0,0,0,0,0,PASS
+pdresp,68,29,1,0,0,1,0,1,FAIL
+pdresp,68,40,1,0,1,0,0,1,FAIL
+pdresp,68,67,1,0,7,1,0,8,FAIL
+24 checks: 12 PASS, 12 FAIL
