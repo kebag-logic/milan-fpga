@@ -1,0 +1,13 @@
+GOOD program headers (type, offset, vaddr, paddr, filesz, memsz): [[1, 212, 0, 0, 9000, 9000], [1, 9212, 9000, 9000, 3002, 3002], [1, 12216, 268435456, 12004, 64, 64], [1, 12280, 268435520, 268435520, 0, 40000], [1, 12280, 268475520, 268475520, 0, 8192]]
+GOOD sections (name, vma, lma, size, loaded): [('.text', '0x0', '0x0', 9000, True), ('.rodata', '0x2328', '0x2328', 3002, True), ('.data', '0x10000000', '0x2ee4', 64, True), ('.bss', '0x10000040', '0x10000040', 40000, False), ('.stack', '0x10009c80', '0x10009c80', 8192, False)]
+[ok] control: table moved, unchanged: expected ACCEPTED; rom_words equal GOOD: True
+[ok] reset segment split into two abutting pieces: expected ACCEPTED; rom_words equal GOOD: True
+[ok] abutting pieces listed in reverse order: expected ACCEPTED; rom_words equal GOOD: True
+[XX] 4-byte hole between the pieces inside .text: expected load coverage; rom_words equal GOOD: False
+[ok] pieces overlapping by 32 bytes: expected ACCEPTED; rom_words equal GOOD: True
+[ok] first piece only 2 bytes, rest abutting: expected ACCEPTED; rom_words equal GOOD: True
+[XX] first piece only 2 bytes, nothing after it: expected entry bytes; rom_words equal GOOD: False
+[XX] reset segment's paddr moved up 4: expected entry bytes; REFUSED memory-map overlap / initial bytes: memory-map overlap: .rodata at 0x00002328 lies inside .text [0x00000004, 0x0000232c) (initial bytes)
+[XX] every load segment one byte short: expected load coverage; rom_words equal GOOD: False
+[XX] only the reset segment kept (.data's segment dropped): expected load coverage; REFUSED memory map / loads outside rom: memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises
+probe_segments: 10 cases, 5 unexpected

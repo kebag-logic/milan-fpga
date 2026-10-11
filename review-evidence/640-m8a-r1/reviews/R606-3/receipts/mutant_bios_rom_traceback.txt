@@ -1,0 +1,14 @@
+MUTANT 'BIOS ROM built' (milan_soc.MilanSoC: integrated_rom_size kept), run as soc_child runs it on the
+8x8-stage case's argv, exception not caught, pins-only interpreter, exact head ce10328c:
+
+Traceback (most recent call last):
+  File "$CHECKOUT/sw/litex/milan_soc.py", line 4131, in main
+    soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
+  File "<mutant of milan_soc.MilanSoC>", line 154, in __init__
+  File "$CHECKOUT/sw/litex/milan_soc.py", line 2751, in add_ctrl_memory
+    soc.add_module(name=region.name, module=CtrlMemory(region, banks, words))
+  File "$VENV/site-packages/litex/gen/fhdl/module.py", line 88, in add_module
+    assert not hasattr(self, name)
+AssertionError
+
+(LiteX had already added its BIOS `rom` region 0x00000000 size 0x00020000 before add_ctrl_memory.)

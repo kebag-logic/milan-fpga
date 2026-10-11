@@ -1,0 +1,135 @@
+test_ctrl_memory: the split placement's firmware memory (#640 M8a)
+-- banks
+  [ok  ] 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [])
+  [ok  ] a zero need builds no bank
+  [ok  ] a plan counts a 2 KiB bank as one RAMB18, half a tile
+-- rules
+  [ok  ] the good image is planned
+  [ok  ] the plan's needs are rom to the end of .data's initial bytes, sram to the stack's top (12068, 48256)
+  [ok  ] rom holds .text at the reset address, .rodata after it and .data's initial bytes at their load address
+  [ok  ] a staging buffer of the shape's size is accepted
+  [ok  ] an allocation of exactly 56 RAMB36 is accepted
+  [ok  ] that allocation plans 56.0 RAMB36 (56.0)
+[milan] --ctrl-firmware /tmp/ctrl-memory-0r4g6vdg/image-0-0-40000-268435456-None-None-3344-243.elf: {"rom": {"bytes": 12068, "banks": [8192, 4096], "RAMB36": 3, "RAMB18": 0}, "sram": {"bytes": 48256, "banks": [32768, 16384], "RAMB36": 12, "RAMB18": 0}, "tiles": 15.0, "budget_tiles": 56}
+  [ok  ] add_ctrl_memory builds the image
+  [ok  ] add_ctrl_memory adds rom (rx) and sram (rwx) as CtrlMemory, each the whole 224 KiB ({'rom': (0, 229376, 'rx'), 'sram': (268435456, 229376, 'rwx')})
+  [ok  ] add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS
+  [ok  ] an image entering away from the reset address: refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x00000100, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] an image with no initial bytes at the reset address: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] the reset segment's file bytes emptied, its section kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] the reset section moved to 0x100 in the section table, its segment kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] a CPU resetting away from rom's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000100 with sram at 0x10000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a CPU whose sram is not at sram's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000000 with sram at 0x20000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a file that is not an ELF: refused by 'memory map' rule 'elf class' (memory map: /tmp/ctrl-memory-0r4g6vdg/not-elf.elf is not a little-endian ELF32 file)
+  [ok  ] an empty file: refused by 'memory map' rule 'elf class' (memory map: /tmp/ctrl-memory-0r4g6vdg/empty.elf is not a little-endian ELF32 file)
+  [ok  ] an ELF64 file: refused by 'memory map' rule 'elf class' (memory map: /tmp/ctrl-memory-0r4g6vdg/elf64.elf is not a little-endian ELF32 file)
+  [ok  ] a big-endian ELF32 file: refused by 'memory map' rule 'elf class' (memory map: /tmp/ctrl-memory-0r4g6vdg/big-endian.elf is not a little-endian ELF32 file)
+  [ok  ] an x86 ELF32 file: refused by 'memory map' rule 'elf machine' (memory map: /tmp/ctrl-memory-0r4g6vdg/image-0-0-40000-268435456-None-None-3344-3.elf is not a RISC-V image)
+  [ok  ] an ELF cut inside its header: refused by 'memory map' rule 'elf truncated' (memory map: /tmp/ctrl-memory-0r4g6vdg/cut-40.elf: the ELF header at byte 16 runs past the end of the 40-byte file)
+  [ok  ] an ELF cut to half: refused by 'memory map' rule 'elf truncated' (memory map: /tmp/ctrl-memory-0r4g6vdg/cut-half.elf: the section header 0 at byte 12406 runs past the end of the 6383-byte file)
+  [ok  ] a load segment past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: /tmp/ctrl-memory-0r4g6vdg/segment.elf: the 1048576 initial bytes at byte 212 run past the end of the 12766-byte file)
+  [ok  ] a section name past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: /tmp/ctrl-memory-0r4g6vdg/name.elf: the name at byte 1073754170 runs past the end of the 12766-byte file)
+  [ok  ] a section outside rom and sram: refused by 'memory map' rule 'outside regions' (memory map: .bss [0x40000000, 0x40009c40) is outside rom and sram)
+  [ok  ] initial bytes of .data left in sram, which nothing initialises: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] the reset segment's file bytes cut to its first word, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .text's 9000 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .data's load segment emptied, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .data's 64 initial bytes at 0x00002ee4 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .bss reserved in rom: refused by 'memory map' rule 'nobits in rom' (memory map: .bss reserves rom, which the firmware cannot write)
+  [ok  ] .data linked to run in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory-map overlap' rule 'regions' (memory-map overlap: sram at 0x00020000 lies inside rom [0x00000000, 0x00038000) (regions))
+  [ok  ] PLANTED: a memory-map overlap (.bss over .data): refused by 'memory-map overlap' rule 'addresses' (memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] .data's initial bytes loading over .rodata's: refused by 'memory-map overlap' rule 'initial bytes' (memory-map overlap: .rodata at 0x00002328 lies inside .data [0x00002328, 0x00002368) (initial bytes))
+  [ok  ] PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own): refused by 'allocation over budget' rule 'budget' (allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] an allocation of 56.5 RAMB36, half a tile over: refused by 'allocation over budget' rule 'budget' (allocation over budget: 56.5 RAMB36 (rom 12068 bytes in 12288, sram 219136 bytes in 219136) exceeds the 56-RAMB36 budget)
+  [ok  ] an image with no nvm_stage: refused by 'staging buffer' rule 'stage symbol' (staging buffer: the image has no nvm_stage)
+  [ok  ] PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 3344 bytes; the planted shape stages 13264)
+  [ok  ] PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 13264 bytes; the planted shape stages 3344)
+  [ok  ] regions.ld states both regions at the CPU's origins, each the whole 224 KiB budget
+-- simulation
+  [ok  ] rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+  [ok  ] a write to rom changes nothing
+  [ok  ] rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [])
+  [ok  ] ram answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [])
+  [ok  ] sram keeps each byte lane written at every bank's edges, the other lanes intact
+  [ok  ] a write past the last bank lands in none of the 215 cells it would alias
+  [ok  ] rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('ack', 2671344821)))
+  [ok  ] sram: a read presented on the cycle after an err acks with its own data ((('err', 0), ('ack', 4277994405)))
+-- link
+  [ok  ] the probe enters at the reset address, whose first word is the reset entry's auipc sp
+  [ok  ] .data runs in sram and its initial value 7 loads from rom
+  [ok  ] the stack tops the sram need
+  [ok  ] the probe's rom words are its load image as the toolchain's objcopy -O binary writes it (32 words, 128 bytes)
+  [ok  ] the probe's nvm_stage passes as the shape's stage
+  [ok  ] PLANTED link script: no AT > rom on .data: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+$HOME/br-milan-rv32/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: /tmp/ctrl-memory-0r4g6vdg/-data-in-rom/probe.elf has a LOAD segment with RWX permissions
+  [ok  ] PLANTED link script: .data in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00000070 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED link script: ENTRY(main): refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x0000005c, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] PLANTED linked image: the reset segment's file bytes emptied: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] PLANTED linked image: the reset segment's file bytes cut to its first word: refused by 'memory map' rule 'load coverage' (memory map: .text's 124 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] PLANTED linked image: .data's load segment emptied: refused by 'memory map' rule 'load coverage' (memory map: .data's 4 initial bytes at 0x0000007c are not all in the load segments' file bytes, the only bytes that program rom)
+-- SoC build
+  [ok  ] SoC build: an allocation over budget is refused by rule 'budget' before any Verilog or init file is written (rc 1: allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] SoC build: a memory-map overlap is refused by rule 'addresses' before any Verilog or init file is written (rc 1: memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: staging buffer: nvm_stage is 13264 bytes; the endstation_ax7101_1x1_tdm8 shape stages 3344)
+  [ok  ] SoC build: the reset segment's file bytes emptied is refused by rule 'entry bytes' before any Verilog or init file is written (rc 1: reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] SoC build: --ctrl-mailbox alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 2: )
+  [ok  ] SoC build: --ctrl-firmware alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 2: )
+  [ok  ] the split build exports (rc 0, no error)
+  [ok  ] the split export's memories are the image's banks (['rom_bank0', 'rom_bank1', 'sram_bank0', 'sram_bank1'])
+  [ok  ] the split export holds no BIOS ROM and no BIOS SRAM
+  [ok  ] the rom banks' init files hold the image word for word
+  [ok  ] csr.csv maps rom and sram at the CPU's origins, each 224 KiB (('0x00000000', '229376'), ('0x10000000', '229376'))
+  [ok  ] the Builder is handed no BIOS ROM or SRAM and a rom that holds its contents, so builds no BIOS ({'rom': 0, 'sram': 0, 'initialized': True, 'packages': ['libc', 'libcompiler_rt', 'libbase', 'libfatfs', 'liblitespi', 'liblitedram', 'libliteeth', 'liblitesdcard', 'liblitesata']})
+  [ok  ] the Builder writes the SoC headers once, without the firmware make inputs ([True])
+  [ok  ] the split build adds no shipping firmware
+-- register
+  [ok  ] SPLIT_CONTROL_MEMORY.md section 3 lists the 17 rules of ctrl_memory.RULES in order (17 rows; first difference: None)
+  [ok  ] every rule has a refusal arm (none: [])
+  [ok  ] every rule has a mutant that removes or weakens it (none: [])
+  [ok  ] every mutant targets a rule or a named property (stray: [])
+-- mutants
+  [ok  ] MUTANT 'elf class weakened' (elf class) is caught by the checks arm: an ELF64 file: accepted, expected 'memory map' rule 'elf class'
+  [ok  ] MUTANT 'elf machine off' (elf machine) is caught by the checks arm: an x86 ELF32 file: accepted, expected 'memory map' rule 'elf machine'
+  [ok  ] MUTANT 'truncated fields read' (elf truncated) is caught by the checks arm: an ELF cut inside its header: raised error (unpack_from requires a buffer of at least 52 bytes for unpacking 36 bytes at offset 16 (actual buffer size is 40)), expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'truncated segments read' (elf truncated) is caught by the checks arm: a load segment past the end of the file: accepted, expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'unterminated names read' (elf truncated) is caught by the checks arm: a section name past the end of the file: accepted, expected 'memory map' rule 'elf truncated'
+  [ok  ] MUTANT 'load address read as the run address' (load address) is caught by the checks arm: the good image is planned: raised Refusal (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] MUTANT 'entry address off' (entry address) is caught by the checks arm: an image entering away from the reset address: accepted, expected 'reset entry' rule 'entry address'
+  [ok  ] MUTANT 'entry bytes off' (entry bytes) is caught by the checks arm: the reset section moved to 0x100 in the section table, its segment kept: refused by 'memory-map overlap' rule 'addresses' (memory-map overlap: .rodata at 0x00002328 lies inside .text [0x00000100, 0x00002428) (addresses))
+  [ok  ] MUTANT 'outside regions off' (outside regions) is caught by the checks arm: a section outside rom and sram: accepted, expected 'memory map' rule 'outside regions'
+  [ok  ] MUTANT 'entry bytes read the sections only' (entry bytes) is caught by the checks arm: the reset segment's file bytes emptied, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .text's 9000 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] MUTANT 'loads outside rom off' (loads outside rom) is caught by the checks arm: initial bytes of .data left in sram, which nothing initialises: refused by 'allocation over budget' rule 'budget' (allocation over budget: 65548.5 RAMB36 (rom 268435520 bytes in 268437504, sram 48256 bytes in 49152) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'load coverage off' (load coverage) is caught by the checks arm: the reset segment's file bytes cut to its first word, its section kept: accepted, expected 'memory map' rule 'load coverage'
+  [ok  ] MUTANT 'load coverage reads the first byte only' (load coverage) is caught by the checks arm: the reset segment's file bytes cut to its first word, its section kept: accepted, expected 'memory map' rule 'load coverage'
+  [ok  ] MUTANT 'a segment carries bytes below its start' (load coverage) is caught by the checks arm: the reset segment's file bytes emptied, its section kept: accepted, expected 'reset entry' rule 'entry bytes'
+  [ok  ] MUTANT 'nobits in rom off' (nobits in rom) is caught by the checks arm: .bss reserved in rom: refused by 'memory map' rule 'writable in rom' (memory map: .bss is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] MUTANT 'writable in rom off' (writable in rom) is caught by the checks arm: .data linked to run in rom: accepted, expected 'memory map' rule 'writable in rom'
+  [ok  ] MUTANT 'region overlap off' (regions) is caught by the checks arm: PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory map' rule 'outside regions' (memory map: .data [0x10000000, 0x10000040) is outside rom and sram)
+  [ok  ] MUTANT 'address overlap off' (addresses) is caught by the checks arm: PLANTED: a memory-map overlap (.bss over .data): accepted, expected 'memory-map overlap' rule 'addresses'
+  [ok  ] MUTANT 'load-address overlap off' (initial bytes) is caught by the checks arm: .data's initial bytes loading over .rodata's: accepted, expected 'memory-map overlap' rule 'initial bytes'
+  [ok  ] MUTANT 'budget off' (budget) is caught by the checks arm: PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own): accepted, expected 'allocation over budget' rule 'budget'
+  [ok  ] MUTANT 'budget refuses exactly 56' (budget) is caught by the checks arm: an allocation of exactly 56 RAMB36 is accepted: raised Refusal (allocation over budget: 56 RAMB36 (rom 12068 bytes in 12288, sram 217088 bytes in 217088) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'budget half a tile slack' (budget) is caught by the checks arm: an allocation of 56.5 RAMB36, half a tile over: accepted, expected 'allocation over budget' rule 'budget'
+  [ok  ] MUTANT 'budget 1.5 tiles slack' (budget) is caught by the checks arm: an allocation of 56.5 RAMB36, half a tile over: accepted, expected 'allocation over budget' rule 'budget'
+  [ok  ] MUTANT 'stage symbol off' (stage symbol) is caught by the checks arm: an image with no nvm_stage: raised KeyError ('nvm_stage'), expected 'staging buffer' rule 'stage symbol'
+  [ok  ] MUTANT 'stage size off' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'stage accepts a larger buffer' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'stage accepts a smaller buffer' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): accepted, expected 'staging buffer' rule 'stage size'
+  [ok  ] MUTANT 'banks smallest first' (bank order) is caught by the banks arm: 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [4097, 4581, 5090])
+  [ok  ] MUTANT 'cpu origins off' (cpu origins) is caught by the checks arm: a CPU resetting away from rom's origin: accepted, expected 'reset entry' rule 'cpu origins'
+  [ok  ] MUTANT 'cpu origins read the reset address only' (cpu origins) is caught by the checks arm: a CPU whose sram is not at sram's origin: accepted, expected 'reset entry' rule 'cpu origins'
+  [ok  ] MUTANT 'rom left uninitialised for the Builder' (no BIOS build) is caught by the checks arm: add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS
+  [ok  ] MUTANT 'decode one bit short' (decode width) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'ack'), ('0x8001', 'ack'), ('0x81f1', 'ack')])
+  [ok  ] MUTANT 'hole compares one bit short' (hole width) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'none'), ('0x8001', 'none'), ('0x81f1', 'none')])
+  [ok  ] MUTANT 'hole starts a word late' (hole start) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none')])
+  [ok  ] MUTANT 'hole answers nothing' (hole answer) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none'), ('0x6e01', 'none'), ('0x71fd', 'none')])
+  [ok  ] MUTANT 'err held a second cycle' (err pulse) is caught by the sim arm: rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('err', 4175417604)))
+  [ok  ] MUTANT 'rom banks from the image start' (rom contents) is caught by the sim arm: rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+  [ok  ] MUTANT 'a writable rom' (read-only rom) is caught by the sim arm: a write to rom changes nothing
+  [ok  ] MUTANT 'BIOS ROM built' (no BIOS memory) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: AssertionError: )
+  [ok  ] MUTANT 'BIOS SRAM built' (no BIOS memory) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 1: AssertionError: )
+  [ok  ] MUTANT 'control memory not added' (memory hookup) is caught by the soc arm: SoC build: an allocation over budget is refused by rule 'budget' before any Verilog or init file is written (rc 1: AttributeError: 'MilanSoC' object has no attribute 'ctrl_image')
+  [ok  ] MUTANT 'main() staging check removed' (stage in main) is caught by the soc arm: SoC build: the 8x8 stage in the 1x1 build is refused by rule 'stage size' before any Verilog or init file is written (rc 0: None)
+  [ok  ] MUTANT 'flag pairing off' (pairing) is caught by the soc arm: SoC build: --ctrl-mailbox alone is refused, '--ctrl-mailbox and --ctrl-firmware go together' (rc 1: ValueError: --ctrl-mailbox needs --ctrl-firmware: the split placement runs no BIOS, so its block RAM is sized from the firmware)
+  [ok  ] MUTANT 'shipping firmware linked' (no shipping firmware) is caught by the soc arm: the split build adds no shipping firmware
+test_ctrl_memory: 0 failure(s)
+RESULT: PASS
