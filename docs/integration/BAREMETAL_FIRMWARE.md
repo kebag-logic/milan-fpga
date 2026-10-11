@@ -2030,7 +2030,11 @@ so two different containers whose CRCs both close would compare the same
 ([R603-4-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6107062972)).
 The comparison always tells apart two reads that differ in one or two
 bits or only within 32 consecutive bits, and any other two except with a
-probability of about 2^-32. A slot with no standing verdict is
+probability of about 2^-32. Each of its four terms is pinned by reads that
+differ in that term alone and by a control that removes it
+([R602-5-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6112353068),
+[R603-5-F1](https://github.com/kebag-logic/milan-fpga/pull/715#issuecomment-6112253974)).
+A slot with no standing verdict is
 UNREAD: `VD_LEN` (rule 4), no sequence taken from it, and its bit in the boot
 line's `unread=` field. The newer accepted slot (a wrap-safe signed compare
 of `SEQ`, A on a tie) is read into the stage again, at most three times,
@@ -2180,15 +2184,17 @@ byte, the verdict the firmware prints for every section 6.2 refusal equals
 transaction failures and the heartbeat through a 3 s erase, and the read
 faults of #671 (a header, sequence or record-area byte, the blank or older
 slot's, an entity or record-area byte under a CRC closed over the faulty
-bytes, an all-`0xFF` read, and the other slot's container) over every
+bytes, an all-`0xFF` read, the other slot's container, and two reads that
+differ in one term of the refused-read comparison alone) over every
 window starting at a read the boot opens, one to four reads long or the
 whole boot, with the other slot blank or both valid across the wrap, at the
 sequence boundaries, on the cold boot and on a writer restart without a
 fabric reset (the re-attach path), each followed by a change, its commit
 and a clean reboot, with every case's reads and hold pinned to a reference
-model of the writer's reads; `--self-test` plants nineteen writer defects
-and requires each to be caught, the fourteen #671 ones on the first shape
-and both product shapes by a finding of their own. A partial ownership fixture protects an open record beside an unaligned edge.
+model of the writer's reads; `--self-test` plants twenty-three writer
+defects and requires each to be caught, the eighteen #671 ones on the first
+shape and both product shapes by a finding of their own, four of them one
+term of the comparison removed each. A partial ownership fixture protects an open record beside an unaligned edge.
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the

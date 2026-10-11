@@ -9,7 +9,7 @@ every shipped shape passed and every planted defect reddened.
 - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
 - **[What is graded](#what-is-graded)** -- fourteen checks per shape, all on bytes
-- **[The negative controls](#the-negative-controls)** -- nineteen writer defects planted into a copy, each of which must be caught
+- **[The negative controls](#the-negative-controls)** -- twenty-three writer defects planted into a copy, each of which must be caught
 - **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
@@ -52,7 +52,19 @@ overlay.
   every faulty read is a different container whose CRC closes
   (`--read-sealed SLOT:OFF:SKIP:COUNT[:BASE]`), every byte of the slot read
   as `0xFF` (`--read-ff SLOT:SKIP:COUNT`), or the slot read as the other
-  slot's bytes (`--read-other SLOT:SKIP:COUNT`). Counted from the read the
+  slot's bytes (`--read-other SLOT:SKIP:COUNT`). An `OFF` below zero counts
+  back from the end of the container the slot's length word names: `-1` is
+  the trailer's last byte and `-5` the last byte its CRC covers. Two more
+  faults forge the four bytes before the trailer so that the CRC-32 over
+  every byte before it is a value the fault fixes, and so change one term of
+  the writer's comparison of two refused reads and keep the others:
+  `--read-length SLOT:SKIP:COUNT` grows the length word by four on every
+  faulty read, moves the slot's trailer value to the end that length names
+  and forges the CRC to its complement, so each read is refused `VD_CRC`
+  with another byte count; `--read-verdict SLOT:SKIP:COUNT` XORs the entity,
+  model or record-layout word in turn and closes the CRC on the slot's own
+  trailer, so any three faulty reads in a row are refused `VD_ENT`,
+  `VD_SHAPE` and `VD_REC`. Counted from the read the
   fault is armed at (power-on for one given before `--boot`), the first SKIP
   reads are clean and the next COUNT are faulty. The memory-mapped read
   always returns bytes, so wrong bytes are the only media fault the shipping
@@ -139,15 +151,36 @@ the harness through boot, idle time and console commands, and compares bytes:
     R603-4-F1's class, two sealed faulty reads that open one slot's
     judgement and then a clean read, meets every sequence of its group
     besides, both ways round and on both entry paths, for each sealed
-    manner (`read_fault_cases.sealed_class`).
+    manner (`read_fault_cases.sealed_class`). The writer compares two
+    refused reads by four terms, listed once in
+    `read_fault_cases.COMPARISON`: the verdict, the byte count, the CRC-32
+    over all but the last four bytes (the prefix CRC) and those four bytes
+    (the trailer). Each term has a class of its own
+    (`read_fault_cases.term_class`): two faulty reads that differ from one
+    another in that term alone open the faulted slot's judgement, the window
+    the reference model finds, and its third read is clean. The verdict
+    class is `--read-verdict`, the byte count's `--read-length`, the prefix
+    CRC's the last byte before the trailer (`--read-fault SLOT:-5`) and the
+    trailer's its last byte (`--read-fault SLOT:-1`), so only the term keeps
+    the two reads from agreeing (R602-5-F1, R603-5-F1). Each class runs at
+    every sequence of each group whose faulted slot holds a container (1,
+    0x5A5A5, 0x80000000 and 0xFFFFFFFF with the other slot blank), both ways
+    round and on both entry paths: 32 cases per term. A finding that a
+    refused verdict stood on such a case's faulted slot names the term
+    ("which differ only in their trailer"). The suite
+    fails when the firmware's `nvm_reads_agree` compares by other terms
+    than the list, or when a listed term has no class at one of those
+    places or no control (`read_fault_cases.comparison_findings`, checked
+    against the firmware as shipped).
     A reference model of the writer's reads (`read_fault_cases.expect`),
     written once from the rule, gives each case the reads it opens, the
     slots it leaves unread and why. A case it finds outside the rule's
     stated detection limit is not run: two faulty reads of one judgement
     return the same bytes (all `0xFF` twice), or a faulty read returns the
-    other slot's valid container and it stands. That leaves 3,422 of 3,508
-    cases per shape, 1,647 restarts and 1,775 cold boots; every window keeps its
-    byte faults, sealed or not, which are always inside the limit. Each case makes a real
+    other slot's valid container and it stands. That leaves 3,550 of 3,636
+    cases per shape, 1,711 restarts and 1,839 cold boots, 128 of them the
+    terms' classes; every window keeps its byte faults, sealed or not, which
+    are always inside the limit. Each case makes a real
     change, lets the debounce commit it and boots again clean. The faulty
     boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its
     bit in `unread=`), and offers the newer slot it accepts, and its window
@@ -173,8 +206,8 @@ the harness through boot, idle time and console commands, and compares bytes:
     retire, not the slot, for each cause: an older backend contract, a boot
     load ended with none accepted, a window gone live
     (`--boot-backend contract|over|live`) and four refused window loads. The
-    cases run on `--jobs` threads, every CPU by default, the groups
-    interleaved; the harness is deterministic, so a clean reboot of slots an
+    cases run on `--jobs` threads, every CPU by default, the groups and the
+    terms' classes interleaved; the harness is deterministic, so a clean reboot of slots an
     earlier case already booted is not run again;
 14. a slot whose bytes read cleanly but fail validation (a foreign entity,
     a bad CRC) names no generation: with the other slot blank, no slot is
@@ -194,14 +227,16 @@ harness and requires the suite to redden:
 | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
 | `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
 
-Those five are graded by checks 1 to 12. Fourteen #671 defects are graded
+Those five are graded by checks 1 to 12. Eighteen #671 defects are graded
 by checks 13 and 14. Each is planted into the first shape and into both
 product shapes (`endstation_ax7101_1x1_tdm8`, `endstation_ax7101_8x8`), and
 must be caught on every one by a finding carrying its own words. Check 14
 runs first, and check 13 stops at the first such finding, so a control's
 other findings are not counted; that keeps `--self-test` inside the twenty
 minutes the builder gate gives it. Each group's windows run the whole boot
-first, then the longest. The `r_` and `p_` controls and
+first, then the longest, and the terms' classes run beside the groups. The
+four `r_omit_` controls are generated from `read_fault_cases.COMPARISON`,
+one per term. The `r_` and `p_` controls and
 `restage_fail_not_unread` are the plants of PR #715's reviews, under their
 names:
 
@@ -221,6 +256,15 @@ names:
 | `r_judge_four_tries` | a judgement takes four reads, over the stated three, inside the total bound | "want exactly" |
 | `p_restage_unbounded` | the picked slot's re-stage has no bound, so a fault after its judgement read is read until it ends | "want exactly" |
 | `r_restage_four_tries` | a re-stage takes four reads, over the stated three | "want exactly" |
+| `r_omit_verdict` | the verdict term is removed from the comparison, the other three kept (R602-5-F1, R603-5-F1) | "which differ only in their verdict" |
+| `r_omit_byte_count` | the byte count term is removed from the comparison | "which differ only in their byte count" |
+| `r_omit_prefix_crc` | the prefix CRC term is removed from the comparison | "which differ only in their prefix CRC" |
+| `r_omit_trailer` | the trailer term is removed from the comparison, which looks redundant for a sealed container and is not for a faulted trailer | "which differ only in their trailer" |
+
+The self-test also requires the comparison check to fail, by its own
+words, for each term with its class taken out of the campaign, for each
+term with its control taken out, and for a firmware that compares by one
+term more than the list.
 
 The self-test also invokes the PHY host checks.
 Their IEEE-timed peer catches missing publication, deferred recovery and

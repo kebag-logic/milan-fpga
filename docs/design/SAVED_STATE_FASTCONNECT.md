@@ -125,7 +125,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 | The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
 | The backend's area | **MEASURED**, on the shipping module | section 8.3: 993 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
 | The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 417 checks at 8x8 and 146 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
-| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; nineteen planted writer defects must each redden |
+| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; twenty-three planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Reconciliation pin.** Parent `c0723222` pins processor
@@ -797,6 +797,7 @@ The shipping writer calls two refused reads the same when their verdicts, their 
 a CRC-32 over all of their bytes but the last four, and those last four bytes are all equal.
 A CRC-32 over a whole container and the trailer that closes it is one constant.
 So a digest over every byte would call any two such containers the same, however they differ.
+The shipping writer's host suite gives each of the four terms two reads that differ in it alone, and a control that removes it.
 The picked slot is read again and must pass under the sequence it was picked by.
 The bare-metal store's [Boot section](../../sw/firmware/ctrl_nvm/README.md#boot) states the rule.
 The shipping writer's is in the [firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
