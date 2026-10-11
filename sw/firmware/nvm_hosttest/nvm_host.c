@@ -510,13 +510,16 @@ static void recompose(void)
 	memcpy(shadow, csr, sizeof(csr));
 }
 
+/* Every CSR access and tick settles, so the common case, no store since the
+ * last, is one memcmp and not a word-by-word walk; the walk is unchanged. */
 static void settle(void)
 {
 	unsigned int i;
 
-	for (i = 0; i < CSR_WORDS; ++i)
-		if (csr[i] != shadow[i])
-			on_store(i * 4u, csr[i]);
+	if (memcmp(csr, shadow, sizeof(csr)) != 0)
+		for (i = 0; i < CSR_WORDS; ++i)
+			if (csr[i] != shadow[i])
+				on_store(i * 4u, csr[i]);
 	advance();
 	recompose();
 }
