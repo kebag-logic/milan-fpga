@@ -1,0 +1,22 @@
+### 1. Verilator lint at the head (scripts/lint_hdl.sh flags)
+RESP_BYTES_P=16 rc=1 :: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=16 leaves no payload above the header record
+RESP_BYTES_P=17 rc=0 :: 
+RESP_BYTES_P=20 rc=0 :: 
+RESP_BYTES_P=23 rc=0 :: 
+RESP_BYTES_P=24 rc=0 :: 
+### 2. sv2v + Yosys at the head
+sv2v 0.0.12 RESP_BYTES_P=16 rc=1 :: all.v:10869: ERROR: FATAL: .
+sv2v 0.0.12 RESP_BYTES_P=17 rc=0 :: 
+sv2v 0.0.12 RESP_BYTES_P=24 rc=0 :: 
+sv2v 0.0.13 RESP_BYTES_P=16 rc=1 :: all.v:10925: ERROR: System task `$finish' executed.
+sv2v 0.0.13 RESP_BYTES_P=17 rc=0 :: 
+sv2v 0.0.13 RESP_BYTES_P=24 rc=0 :: 
+### 3. mutant: the guard's condition RESP_BYTES_P <= 16 becomes <= 23 (refuses legal 17..23)
+196:  if (RESP_BYTES_P <= 23) begin : gen_g_size
+GUARD verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=16 leaves no payload above the header record
+ELAB  verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=24: elaborates
+GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: all.v:10869: ERROR: FATAL: .
+ELAB  yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=24: elaborates
+elab guards: 35 checks: 35 PASS, 0 FAIL
+bench rc=0 (0 = the mutant SURVIVED)
+mutant tree, RESP_BYTES_P=17 lint rc=1 :: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=17 leaves no payload above the header record

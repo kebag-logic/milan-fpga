@@ -1,0 +1,32 @@
+== m_error_init.sv P=1 xelab rc=0 :: 
+== m_error_init.sv P=0 xelab rc=0 :: 
+== m_error_mod.sv P=1 xelab rc=1 :: ERROR: [XSIM 43-4462] File $REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv, line 4: $error : probe: P=%0d violates
+== m_error_mod.sv P=0 xelab rc=0 :: 
+== m_fatal_init.sv P=1 xelab rc=0 :: 
+== m_fatal_init.sv P=0 xelab rc=0 :: 
+== m_fatal_mod.sv P=1 xelab rc=1 :: ERROR: [VRFC 10-8279] $fatal : probe: P=1 violates [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:4]
+== m_fatal_mod.sv P=0 xelab rc=0 :: 
+== m_info_init.sv P=1 xelab rc=0 :: 
+== m_info_init.sv P=0 xelab rc=0 :: 
+== m_info_mod.sv P=1 xelab rc=0 :: 
+== m_info_mod.sv P=0 xelab rc=0 :: 
+== m_warning_init.sv P=1 xelab rc=0 :: 
+== m_warning_init.sv P=0 xelab rc=0 :: 
+== m_warning_mod.sv P=1 xelab rc=0 :: WARNING: [VRFC 10-8281] $warning : probe: P=1 violates [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:4]
+== m_warning_mod.sv P=0 xelab rc=0 :: 
+== m_error_init.sv P=1 synth_design rc=1 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+== m_error_init.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+== m_error_mod.sv P=1 synth_design rc=1 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+== m_error_mod.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+== m_fatal_init.sv P=1 synth_design rc=1 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+== m_fatal_init.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+== m_fatal_mod.sv P=1 synth_design rc=1 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+== m_fatal_mod.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+== m_info_init.sv P=1 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+== m_info_init.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+== m_info_mod.sv P=1 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+== m_info_mod.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+== m_warning_init.sv P=1 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+== m_warning_init.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+== m_warning_mod.sv P=1 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]
+== m_warning_mod.sv P=0 synth_design rc=0 :: INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]

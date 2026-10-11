@@ -1,0 +1,745 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Sun Oct 11 06:41:19 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source synth_probe.tcl
+# set_param general.maxThreads 4
+# puts "@@begin m_error_init.sv P=1"
+@@begin m_error_init.sv P=1
+# read_verilog -sv {m_error_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 362367
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2374.910 ; gain = 519.367 ; free physical = 16573 ; free virtual = 67546
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+ERROR: [Synth 8-6058] Synth Error: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:5]
+ERROR: [Synth 8-6156] failed synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 2460.879 ; gain = 605.336 ; free physical = 16523 ; free virtual = 67496
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+6 Infos, 0 Warnings, 0 Critical Warnings and 3 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 2475.723 ; gain = 792.500 ; free physical = 16450 ; free virtual = 67422
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2158.132; main = 1761.544; forked = 396.588
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3508.129; main = 2475.727; forked = 1032.402
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_error_init.sv P=1 rc=$rc"
+@@end m_error_init.sv P=1 rc=1
+# puts "@@begin m_error_init.sv P=0"
+@@begin m_error_init.sv P=0
+# read_verilog -sv {m_error_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2475.758 ; gain = 0.000 ; free physical = 16620 ; free virtual = 67589
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2475.758 ; gain = 0.000 ; free physical = 16640 ; free virtual = 67613
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2484.629 ; gain = 8.871 ; free physical = 16632 ; free virtual = 67605
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2484.629 ; gain = 8.871 ; free physical = 16632 ; free virtual = 67605
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2484.629 ; gain = 0.000 ; free physical = 16632 ; free virtual = 67604
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2547.430 ; gain = 0.000 ; free physical = 16938 ; free virtual = 67911
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2547.465 ; gain = 71.707 ; free physical = 16978 ; free virtual = 67951
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 2547.465 ; gain = 71.742 ; free physical = 16978 ; free virtual = 67951
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2026.561; main = 2026.561; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2547.434; main = 2547.434; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_error_init.sv P=0 rc=$rc"
+@@end m_error_init.sv P=0 rc=0
+# puts "@@begin m_error_mod.sv P=1"
+@@begin m_error_mod.sv P=1
+# read_verilog -sv {m_error_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2555.469 ; gain = 8.004 ; free physical = 16718 ; free virtual = 67698
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+ERROR: [Synth 8-6058] Synth Error: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:4]
+ERROR: [Synth 8-6156] failed synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2555.469 ; gain = 8.004 ; free physical = 16762 ; free virtual = 67740
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+3 Infos, 0 Warnings, 0 Critical Warnings and 3 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2555.469 ; gain = 8.004 ; free physical = 16756 ; free virtual = 67732
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2193.497; main = 1797.075; forked = 396.422
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3587.840; main = 2555.438; forked = 1032.402
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_error_mod.sv P=1 rc=$rc"
+@@end m_error_mod.sv P=1 rc=1
+# puts "@@begin m_error_mod.sv P=0"
+@@begin m_error_mod.sv P=0
+# read_verilog -sv {m_error_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2555.469 ; gain = 0.000 ; free physical = 16714 ; free virtual = 67697
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_error_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2555.469 ; gain = 0.000 ; free physical = 16788 ; free virtual = 67773
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2555.469 ; gain = 0.000 ; free physical = 16783 ; free virtual = 67767
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2555.469 ; gain = 0.000 ; free physical = 16782 ; free virtual = 67767
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2555.469 ; gain = 0.000 ; free physical = 16781 ; free virtual = 67766
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2578.246 ; gain = 0.000 ; free physical = 16619 ; free virtual = 67609
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2578.281 ; gain = 22.812 ; free physical = 16573 ; free virtual = 67562
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2578.281 ; gain = 22.812 ; free physical = 16573 ; free virtual = 67562
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2048.926; main = 2048.926; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2578.250; main = 2578.250; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_error_mod.sv P=0 rc=$rc"
+@@end m_error_mod.sv P=0 rc=0
+# puts "@@begin m_fatal_init.sv P=1"
+@@begin m_fatal_init.sv P=1
+# read_verilog -sv {m_fatal_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16524 ; free virtual = 67526
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+ERROR: [Synth 8-6058] Synth Error: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:5]
+ERROR: [Synth 8-6156] failed synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16617 ; free virtual = 67621
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+3 Infos, 0 Warnings, 0 Critical Warnings and 3 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16565 ; free virtual = 67569
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2213.393; main = 1816.988; forked = 396.404
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3610.652; main = 2578.250; forked = 1032.402
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_fatal_init.sv P=1 rc=$rc"
+@@end m_fatal_init.sv P=1 rc=1
+# puts "@@begin m_fatal_init.sv P=0"
+@@begin m_fatal_init.sv P=0
+# read_verilog -sv {m_fatal_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16834 ; free virtual = 67847
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16846 ; free virtual = 67862
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16874 ; free virtual = 67890
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16874 ; free virtual = 67890
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2578.281 ; gain = 0.000 ; free physical = 16874 ; free virtual = 67890
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2584.184 ; gain = 0.000 ; free physical = 16891 ; free virtual = 67906
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2584.219 ; gain = 5.938 ; free physical = 16849 ; free virtual = 67865
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2584.219 ; gain = 5.938 ; free physical = 16849 ; free virtual = 67865
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2043.205; main = 2043.205; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2584.188; main = 2584.188; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_fatal_init.sv P=0 rc=$rc"
+@@end m_fatal_init.sv P=0 rc=0
+# puts "@@begin m_fatal_mod.sv P=1"
+@@begin m_fatal_mod.sv P=1
+# read_verilog -sv {m_fatal_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 15337 ; free virtual = 66367
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+ERROR: [Synth 8-6058] Synth Error: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:4]
+ERROR: [Synth 8-6156] failed synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 15730 ; free virtual = 66762
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+3 Infos, 0 Warnings, 0 Critical Warnings and 3 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 15792 ; free virtual = 66824
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2212.582; main = 1823.230; forked = 389.352
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3616.590; main = 2584.188; forked = 1032.402
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_fatal_mod.sv P=1 rc=$rc"
+@@end m_fatal_mod.sv P=1 rc=1
+# puts "@@begin m_fatal_mod.sv P=0"
+@@begin m_fatal_mod.sv P=0
+# read_verilog -sv {m_fatal_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 16210 ; free virtual = 67250
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_fatal_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 16198 ; free virtual = 67233
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 16193 ; free virtual = 67228
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 16193 ; free virtual = 67228
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2584.219 ; gain = 0.000 ; free physical = 16193 ; free virtual = 67228
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2587.152 ; gain = 0.000 ; free physical = 16332 ; free virtual = 67362
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2587.188 ; gain = 2.969 ; free physical = 16297 ; free virtual = 67328
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2587.188 ; gain = 2.969 ; free physical = 16312 ; free virtual = 67343
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2069.645; main = 2069.645; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2587.156; main = 2587.156; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_fatal_mod.sv P=0 rc=$rc"
+@@end m_fatal_mod.sv P=0 rc=0
+# puts "@@begin m_info_init.sv P=1"
+@@begin m_info_init.sv P=1
+# read_verilog -sv {m_info_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16488 ; free virtual = 67533
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+INFO: [Synth 8-6059] Synth Info: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16206 ; free virtual = 67244
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16202 ; free virtual = 67240
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16202 ; free virtual = 67240
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16202 ; free virtual = 67240
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16382 ; free virtual = 67421
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16346 ; free virtual = 67385
+10 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16335 ; free virtual = 67374
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2052.857; main = 2052.857; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2587.156; main = 2587.156; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_info_init.sv P=1 rc=$rc"
+@@end m_info_init.sv P=1 rc=0
+# puts "@@begin m_info_init.sv P=0"
+@@begin m_info_init.sv P=0
+# read_verilog -sv {m_info_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 16250 ; free virtual = 67299
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 14347 ; free virtual = 65397
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 14347 ; free virtual = 65397
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 14347 ; free virtual = 65397
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2587.188 ; gain = 0.000 ; free physical = 14330 ; free virtual = 65381
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2590.121 ; gain = 0.000 ; free physical = 15559 ; free virtual = 66586
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2590.156 ; gain = 2.969 ; free physical = 15587 ; free virtual = 66613
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2590.156 ; gain = 2.969 ; free physical = 15589 ; free virtual = 66615
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2070.658; main = 2070.658; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2590.125; main = 2590.125; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_info_init.sv P=0 rc=$rc"
+@@end m_info_init.sv P=0 rc=0
+# puts "@@begin m_info_mod.sv P=1"
+@@begin m_info_mod.sv P=1
+# read_verilog -sv {m_info_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16350 ; free virtual = 67380
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+INFO: [Synth 8-6059] Synth Info: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:4]
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16133 ; free virtual = 67168
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16131 ; free virtual = 67165
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16131 ; free virtual = 67165
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16131 ; free virtual = 67165
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16415 ; free virtual = 67450
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16460 ; free virtual = 67495
+10 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16441 ; free virtual = 67477
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2072.638; main = 2072.638; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2590.125; main = 2590.125; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_info_mod.sv P=1 rc=$rc"
+@@end m_info_mod.sv P=1 rc=0
+# puts "@@begin m_info_mod.sv P=0"
+@@begin m_info_mod.sv P=0
+# read_verilog -sv {m_info_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 15219 ; free virtual = 66260
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_info_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16475 ; free virtual = 67516
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16475 ; free virtual = 67516
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16474 ; free virtual = 67515
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2590.156 ; gain = 0.000 ; free physical = 16446 ; free virtual = 67487
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2593.090 ; gain = 0.000 ; free physical = 16409 ; free virtual = 67451
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2593.125 ; gain = 2.969 ; free physical = 16597 ; free virtual = 67639
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2593.125 ; gain = 2.969 ; free physical = 16583 ; free virtual = 67625
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2074.488; main = 2074.488; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2593.094; main = 2593.094; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_info_mod.sv P=0 rc=$rc"
+@@end m_info_mod.sv P=0 rc=0
+# puts "@@begin m_warning_init.sv P=1"
+@@begin m_warning_init.sv P=1
+# read_verilog -sv {m_warning_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 16411 ; free virtual = 67453
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+WARNING: [Synth 8-6060] Synth Warning: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:5]
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 16308 ; free virtual = 67331
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 16312 ; free virtual = 67331
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 16312 ; free virtual = 67331
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 16311 ; free virtual = 67327
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 17158 ; free virtual = 67634
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 17186 ; free virtual = 67661
+9 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 17185 ; free virtual = 67661
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2068.710; main = 2068.710; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2593.094; main = 2593.094; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_warning_init.sv P=1 rc=$rc"
+@@end m_warning_init.sv P=1 rc=0
+# puts "@@begin m_warning_init.sv P=0"
+@@begin m_warning_init.sv P=0
+# read_verilog -sv {m_warning_init.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 10255 ; free virtual = 60758
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_init.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 10132 ; free virtual = 60636
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 10132 ; free virtual = 60636
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 10137 ; free virtual = 60642
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2593.125 ; gain = 0.000 ; free physical = 10134 ; free virtual = 60638
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2596.059 ; gain = 0.000 ; free physical = 16895 ; free virtual = 67390
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2596.094 ; gain = 2.969 ; free physical = 16684 ; free virtual = 67167
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:08 . Memory (MB): peak = 2596.094 ; gain = 2.969 ; free physical = 16640 ; free virtual = 67122
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2079.131; main = 2079.131; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2596.062; main = 2596.062; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_warning_init.sv P=0 rc=$rc"
+@@end m_warning_init.sv P=0 rc=0
+# puts "@@begin m_warning_mod.sv P=1"
+@@begin m_warning_mod.sv P=1
+# read_verilog -sv {m_warning_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17016 ; free virtual = 67500
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000001 
+WARNING: [Synth 8-6060] Synth Warning: probe: P=1 violates  [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:4]
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17255 ; free virtual = 67739
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17253 ; free virtual = 67737
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17253 ; free virtual = 67737
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17253 ; free virtual = 67737
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17439 ; free virtual = 67923
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17431 ; free virtual = 67915
+9 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17431 ; free virtual = 67915
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2081.168; main = 2081.168; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2596.062; main = 2596.062; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=1}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_warning_mod.sv P=1 rc=$rc"
+@@end m_warning_mod.sv P=1 rc=0
+# puts "@@begin m_warning_mod.sv P=0"
+@@begin m_warning_mod.sv P=0
+# read_verilog -sv {m_warning_mod.sv}
+Command: synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0
+Starting synth_design
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17497 ; free virtual = 67984
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'probe' [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]
+	Parameter P bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'probe' (0#1) [$REVIEWS/pp151-r604-1-packet/scratch/probe/m_warning_mod.sv:1]
+WARNING: [Synth 8-3330] design probe has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17461 ; free virtual = 67949
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17449 ; free virtual = 67937
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17449 ; free virtual = 67937
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17449 ; free virtual = 67937
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 1 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17529 ; free virtual = 68017
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17540 ; free virtual = 68028
+9 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 2596.094 ; gain = 0.000 ; free physical = 17538 ; free virtual = 68027
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2081.686; main = 2081.686; forked = 0.000
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2596.062; main = 2596.062; forked = 0.000
+# set rc [catch {synth_design -rtl -top probe -part xc7a100tfgg484-2 -generic P=0}]
+# catch {close_design}
+# remove_files [get_files]
+# puts "@@end m_warning_mod.sv P=0 rc=$rc"
+@@end m_warning_mod.sv P=0 rc=0
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 11 06:43:13 2026...
