@@ -1,0 +1,30 @@
+GET_AUDIO_MAP response cdl 20: --write rc 0, gate rc 1; Resp. size '32 + 8·N B (cdl 20 + 8·N, N mappings)'; 13 findings
+    decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+    decode: GET_AUDIO_MAP: GAMAPO answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+    rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24 + 8·N, never 20 + 8·N: no path builds the variable part
+GET_AUDIO_MAP response cdl 24: --write rc 0, gate rc 0; Resp. size '36 + 8·N B (cdl 24 + 8·N, N mappings)'; 0 findings
+GET_AUDIO_MAP response cdl 28: --write rc 0, gate rc 1; Resp. size '40 + 8·N B (cdl 28 + 8·N, N mappings)'; 13 findings
+    decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+    decode: GET_AUDIO_MAP: GAMAPO answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 28 + 8·N
+    rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24 + 8·N, never 28 + 8·N: no path builds the variable part
+rc=0

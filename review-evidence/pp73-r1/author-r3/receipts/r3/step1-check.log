@@ -1,0 +1,32 @@
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 29, guide 29, diagram 29, OK
+matrix: OK (94 rows, 0 untested)
+links: 1188 checked, OK
+Traceback (most recent call last):
+  File "$LANES/pp73-command-model/scripts/check_aecp_commands.py", line 142, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$LANES/pp73-command-model/scripts/check_aecp_commands.py", line 119, in main
+    return selftest(args.root)
+  File "$LANES/pp73-command-model/scripts/aecp_gate/selftest.py", line 230, in selftest
+    bad += missed(what, words, in_memory(base, fn))
+                               ~~~~~~~~~^^^^^^^^^^
+  File "$LANES/pp73-command-model/scripts/aecp_gate/selftest.py", line 216, in in_memory
+    return on_copy(base, _mutated)
+  File "$LANES/pp73-command-model/scripts/aecp_gate/selftest.py", line 206, in on_copy
+    return fn(inp)
+  File "$LANES/pp73-command-model/scripts/aecp_gate/selftest.py", line 214, in _mutated
+    fn(inp)
+    ~~^^^^^
+  File "$LANES/pp73-command-model/scripts/aecp_gate/plants.py", line 198, in <lambda>
+    lambda i: aem(i, 0x002D)["AMREM"].update(cdls="20, 36, 52"),
+              ~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'AMREM'
+make: *** [Makefile:49: aecpcmd] Error 1
+make: *** Waiting for unfinished jobs....
+figures selftest: 17 cases, OK
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+ids selftest: 30 cases, OK
+ids: 570 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+wavedrom: 18 blocks checked, OK
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
