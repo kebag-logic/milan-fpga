@@ -44,7 +44,7 @@ WHAT IT GRADES, per shipped shape, all on bytes:
      bytes while the predecessor's change commits byte-identically;
  12. rejected shape/identity startup never heartbeats under console input;
  13. a boot read fault leaves the authority unknown (#671): every fault
-     window starting at a read a clean boot opens, one read long to one past
+     window starting within the boot's read bound, one read long to one past
      the per-loop bound, and the whole boot (`read_fault_cases.fault_cases`,
      on the cold boot and on a writer restart without a fabric reset,
      `writer_restart.py`), over a header, sequence or record-area byte, the

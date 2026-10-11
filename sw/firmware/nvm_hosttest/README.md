@@ -118,11 +118,11 @@ the harness through boot, idle time and console commands, and compares bytes:
     byte). Each group's every manner of fault meets every window, both ways
     round, on a cold boot and on a writer restart without a fabric reset
     (the re-attach path) after a clean cold boot. A window starts at any
-    read a clean boot opens (5 on a cold boot with one slot blank and 4 on a
-    restart; 4 and 3 with both valid) and lasts one to four reads, one past
-    the three a judgement or a re-stage gives a slot, or it lasts the whole
-    boot. One starting later never meets the boot, since the reads before
-    it are clean. The sequence takes 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF
+    read within the complete bound (13 on a cold boot, 12 on a restart)
+    and lasts one to four reads, one past the three a judgement or a
+    re-stage gives a slot, or it lasts the whole boot. Starts after the
+    clean boot would end are included too; they must leave its schedule
+    unchanged. The sequence takes 1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF
     in turn with one slot blank, and 0x5A5A5 and 0 with both valid, one per
     case: crossed with every window it would not fit the suite's time.
     A reference model of the writer's reads (`read_fault_cases.expect`),
@@ -130,8 +130,8 @@ the harness through boot, idle time and console commands, and compares bytes:
     slots it leaves unread and why. A case it finds outside the rule's
     stated detection limit is not run: two faulty reads of one judgement
     return the same bytes (all `0xFF` twice), or a faulty read returns the
-    other slot's valid container and it stands. That leaves 670 of 756
-    cases per shape, 295 restarts and 375 cold boots; every window keeps its
+    other slot's valid container and it stands. That leaves 2,158 of 2,244
+    cases per shape, 1,039 restarts and 1,119 cold boots; every window keeps its
     byte faults, which are always inside the limit. Each case makes a real
     change, lets the debounce commit it and boots again clean. The faulty
     boot's line names each slot as its bytes read, or UNREAD (`VD_LEN`, its

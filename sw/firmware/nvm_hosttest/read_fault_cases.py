@@ -48,8 +48,8 @@ READ_FAULT_MUTATIONS = {
         "on reads that returned different bytes"),
     # R603-1's: the window filled by a fresh read of the slot, as before #671,
     # not from the stage that was judged. The read is one the rule does not
-    # make, after the boot's last; no window starts there, and the exact read
-    # count sees it on every boot that fills the window
+    # make, after the boot's last; the generated windows reach it, and the
+    # exact read count sees it on every boot that fills the window
     "r_fill_from_flash": (
         (("\tif (chosen == NVM_SLOT_NONE)\n\t\tnvm_stage_blank_image();\n"
           "\tfor (i = 0; i < NVM_IMG_LEN; ++i)\n\t\tNVM_IMG[i] = NVM_STG[i];\n",
@@ -185,15 +185,15 @@ class FaultCase:
         return {self.valid.upper(): ("VD_OK", self.seq), self.other.upper(): other}
 
 
-def windows(clean: int) -> tuple[tuple[int, int], ...]:
+def windows(bound: int) -> tuple[tuple[int, int], ...]:
     """Check 13's fault windows, generated, never picked (R602-3-F1,
     R603-3-F1): the window that lasts the whole boot, and every read a boot
-    opens as the first faulty one, times every length from one read to one
+    may open as the first faulty one, times every length from one read to one
     past NVM_READ_TRIES, the most reads one judgement or one re-stage gives a
-    slot, the longest first. `clean` is the reads the boot opens with no
-    fault: the reads before a window are clean, so one starting later never
-    meets the boot, which has ended where a clean one does."""
-    return (WHOLE,) + tuple((skip, count) for count in range(READ_TRIES + 1, 0, -1) for skip in range(clean))
+    slot, the longest first. Enumerate the whole boot or restart bound,
+    including starts a clean boot never reaches; runtime never removes a
+    window from the campaign."""
+    return (WHOLE,) + tuple((skip, count) for count in range(READ_TRIES + 1, 0, -1) for skip in range(bound))
 
 
 def fault_cases(body: int) -> list[FaultCase]:
@@ -213,10 +213,10 @@ def fault_cases(body: int) -> list[FaultCase]:
         for older, faulted, manners, seqs in GROUPS:
             for turn, valid in enumerate("ab"):
                 slot = valid if faulted == "valid" else ("b" if valid == "a" else "a")
-                clean = expect(FaultCase(valid, older, seqs[0], ("--read-fault", f"{slot}:0:0:0"), 0, 0, restart))
+                bound = BOOT_READ_BOUND - int(restart)
                 cases = (FaultCase(valid, older, seqs[(w + m + turn) % len(seqs)],
                                    fault(manner, slot, skip, count, body), skip, count, restart)
-                         for w, (skip, count) in enumerate(windows(clean.reads))
+                         for w, (skip, count) in enumerate(windows(bound))
                          for m, manner in enumerate(manners))
                 lists.append([case for case in cases if expect(case).within])
     return [lst[n] for n in range(max(map(len, lists))) for lst in lists if n < len(lst)]
