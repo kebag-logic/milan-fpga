@@ -1,0 +1,83 @@
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  <packet>/scratch/net012/base/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  <packet>/scratch/net012/base/ucode.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  <packet>/scratch/net012/head/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  <packet>/scratch/net012/head/ucode.hex
+sv2v output diff (base -> head), changed lines only:
+  < 			$error("KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 			$fatal(1, "KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
+  < 			$error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+  > 			$fatal(1, "KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+  < 	initial begin : parameter_checks
+  < 		if (STRM_TIMEOUT_CYC_P == 0)
+  > 	generate
+  > 		if (STRM_TIMEOUT_CYC_P == 0) begin : g_strm_tmo_check
+  < 	end
+  > 		end
+  > 	endgenerate
+  < 			$error("LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)", LINE_BYTES_P);
+  > 			$fatal(1, "LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)", LINE_BYTES_P);
+  < 			$error("a burst exceeds the 9-bit mem_req_beats_o field");
+  > 			$fatal(1, "a burst exceeds the 9-bit mem_req_beats_o field");
+  < 			$error("NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
+  > 			$fatal(1, "NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
+  < 			$error("DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
+  > 			$fatal(1, "DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
+  < 			$error("a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)", FRAME_MAX_C, TX_OVERSIZE_BYTES_P);
+  > 			$fatal(1, "a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)", FRAME_MAX_C, TX_OVERSIZE_BYTES_P);
+  < 			$error("response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)", RESP_BUF_C, ucpu_pkg_RESP_CAP_C);
+  > 			$fatal(1, "response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)", RESP_BUF_C, ucpu_pkg_RESP_CAP_C);
+  < 			$error("DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)", LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+  > 			$fatal(1, "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)", LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+  < 			$error("DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page", LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg_GAMAP_PAGE_MAX_C);
+  > 			$fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page", LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg_GAMAP_PAGE_MAX_C);
+  < 			$error("DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor", LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+  > 			$fatal(1, "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor", LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+  < 			$error("KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1", N_IF_P, N_CTRL_P);
+  > 			$fatal(1, "KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1", N_IF_P, N_CTRL_P);
+  < 			$error("KL_aecp_nvm_writer: a group outgrows its record-id block");
+  > 			$fatal(1, "KL_aecp_nvm_writer: a group outgrows its record-id block");
+  < 			$error("KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 			$fatal(1, "KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
+  < 			$error("KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
+  > 			$fatal(1, "KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
+  < 			$error("KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+  > 			$fatal(1, "KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+  < 			$error("RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
+  > 			$fatal(1, "RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
+  < 			$error("RESP_BYTES_P=%0d leaves no payload above the header record", RESP_BYTES_P);
+  > 			$fatal(1, "RESP_BYTES_P=%0d leaves no payload above the header record", RESP_BYTES_P);
+  < 			$error("a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field", LANES_C);
+  > 			$fatal(1, "a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field", LANES_C);
+  < 			$error("RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)", RESP_D8_CAP_BYTES_P, ucpu_pkg_RESP_CAP_C);
+  > 			$fatal(1, "RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)", RESP_D8_CAP_BYTES_P, ucpu_pkg_RESP_CAP_C);
+  < 			$error("KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647", MEM_TIMEOUT_CYC_P);
+  > 			$fatal(1, "KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647", MEM_TIMEOUT_CYC_P);
+  < 			$error("KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
+  > 			$fatal(1, "KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
+  < 			$error("KL_pp_release_merge: N_SLOTS_P must be positive");
+  > 			$fatal(1, "KL_pp_release_merge: N_SLOTS_P must be positive");
+  < 			$error("DEPTH_P drain cannot fit a standard TX slot");
+  > 			$fatal(1, "DEPTH_P drain cannot fit a standard TX slot");
+  < 			$error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)", N_AVB_IF_P);
+  > 			$fatal(1, "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)", N_AVB_IF_P);
+  < 			$error("F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d", TMR_AW_C, TMR_SLOTS_C);
+  > 			$fatal(1, "F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d", TMR_AW_C, TMR_SLOTS_C);
+  < 			$error("F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d", TMR_MAP_C[63-:32] + N_STREAM_IN_P, TMR_SLOTS_C);
+  > 			$fatal(1, "F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d", TMR_MAP_C[63-:32] + N_STREAM_IN_P, TMR_SLOTS_C);
+  < 			$error("F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 			$fatal(1, "F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d", N_STREAM_IN_P, N_STREAM_OUT_P);
+  < 			$error("F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 			$fatal(1, "F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)", N_STREAM_IN_P, N_STREAM_OUT_P);
+IDENTICAL KL_acmp_nvm_shadow b7248a5ac0a0188e3e47af15f30bff11ffac76d2a1df83ee959e9218dca694ff
+DIFFERS  KL_pp_acmp_listener base a4189838fd3a56e1dd597c7599652e054cf6b9cb3af27f7de406792ec1a879f1 head ad22548afe13f69948fa7f73238d13dd0107025bc1691aa0ff783e642c50c1d9
+DIFFERS  KL_aecp_desc_store base d4908c3bc06906ab424abbb4030d3c3b0b6a1328db2912d053dc81cf31c6157d head c536d23499f4263d60c74668619e1dbf6e70294b3f59b4cc9524bfb6c1485b16
+DIFFERS  KL_aecp_engine base f16753a67f69d48a53a7b7ffac66ec837d7af35bd41dd59b629774d5f05deb62 head da3ce05c87e9a6ee9556fcc3965d4de9d21f7b1aff0f92e7039a8b6fad32a619
+DIFFERS  KL_aecp_notify base dfa277fb0e4b274da4669b8b03367eda8b2aefafb73ed52bdbd0b91fc37a4e02 head 822d8f6a70b754105d2debefa695cf752a69ae2bcf0d0fcbe5fdb4c080951eff
+DIFFERS  KL_aecp_nvm_writer base e7013befdd710e750bc66d91055efa6fde6c3b41ac3d705b81fdc8dadc1b1932 head 8853aa01b025698b1ae398e2591ee872dae309c5e29576967f79e53036b697a9
+DIFFERS  KL_aecp_resp_buf base 1cefedc187ecfaa0e8cbf47a63ea5824a116107cb8948f14c38fbd9a533d5cfd head 24a205d1be82e94b68384deaacfd7bbbfe64a61b599429b70786103c29452aa6
+DIFFERS  KL_aecp_ucpu base d9ec58e94e8fb8efc7d38bf49da330e8c94f3958ea5c19d712fb5a794d4acbba head 2c9ab53667f030bb007737199da112460df14bba2ad21160d1eaf0bd69615a25
+DIFFERS  KL_pp_nvm_port base c621ecbc2384619a608eb0cb2fee984a7397e600669ec1638d3007fafcee4a5c head 62512f112603527516a23b611fdf49a2bad7a6eb93c5586b738802f9ecd7e112
+DIFFERS  KL_pp_originator base c4ee14ae89f3c145d8e226d4833a6088ec3904134de600a1737bba46d0b45a81 head 18e7862cc6cd49096388464d39db6d84b2299eff26a6375a9e655f742bdddfca
+DIFFERS  KL_pp_release_merge base 526fcff1fd2c27c1e6c23a0fada5d005ce80b2ccf10b772cbaddd1ebb2f2da54 head 3db8d161bdb65939ef0a21332a5f4e9eacce8a824df75c8f3f0dff58c199e764
+DIFFERS  KL_srp_encoder base 636ec4f57a00a27b49507047fde78f51d8416d56ed0f4f342fc26b0b6f2a674a head e673523fb5f74b1aca8339ffa53304e20cd42ec76cbe61c4f7a5231d860f7f57
+DIFFERS  protocol_processor_top base 78493bd86a26a2cee4296cb038332437dca69e0900a5e8ea7a2205b151edf395 head 764fc639e00b782b066fa0ff0c8c4ea0823e5b707fda7107de1e75ba522cac1b

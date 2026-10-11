@@ -1,0 +1,30 @@
+rm1-shadow-rstmo-lt2: rc=1 KILLED (expected KILLED) MET; elab guards: 35 checks: 33 PASS, 2 FAIL
+    FAIL: ELAB  verilator KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: %Warning-USERFATAL: hdl/acmp/KL_acmp_nvm_shadow.sv:545:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+    FAIL: ELAB  yosys KL_acmp_nvm_shadow.g_rs_tmo_check RS_TMO_CYC_P=1: rc 1: no output
+    planted: <   if (RS_TMO_CYC_P < 1) begin : g_rs_tmo_check
+    planted: >   if (RS_TMO_CYC_P < 2) begin : g_rs_tmo_check
+rm2-respbuf-size-le23: rc=1 KILLED (expected KILLED) MET; elab guards: 35 checks: 33 PASS, 2 FAIL
+    FAIL: ELAB  verilator KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_resp_buf.sv:197:5: RESP_BYTES_P=17 leaves no payload above the header record
+    FAIL: ELAB  yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=17: rc 1: no output
+    planted: <   if (RESP_BYTES_P <= 16) begin : gen_g_size
+    planted: >   if (RESP_BYTES_P <= 23) begin : gen_g_size
+rm3-listener-base-initial: rc=1 KILLED (expected KILLED) MET; elab guards: 35 checks: 34 PASS, 1 FAIL
+    FAIL: GUARD verilator KL_pp_acmp_listener.g_strm_tmo_check STRM_TIMEOUT_CYC_P=0: not refused as a $fatal of this guard: %Warning-ASCRANGE: hdl/acmp/KL_pp_acmp_listener.sv:312:9: Ascending bi
+    planted: <   if (STRM_TIMEOUT_CYC_P == 0) begin : g_strm_tmo_check
+    planted: >   initial begin : g_strm_tmo_check if (STRM_TIMEOUT_CYC_P == 0)
+rm4-writer-agg-warning-msg-kept: rc=1 KILLED (expected KILLED) MET; elab guards: 35 checks: 33 PASS, 2 FAIL
+    FAIL: GUARD verilator KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/aecp/KL_aecp_nvm_writer.sv:326:5: KL_aecp_nvm_writer: RS
+    FAIL: GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: elaborated; the guard did not stop it
+    planted: <     $fatal(1, "KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+    planted: >     $warning("KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+rm5-encoder-error: rc=1 KILLED (expected KILLED) MET; elab guards: 35 checks: 33 PASS, 2 FAIL
+    FAIL: GUARD verilator KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/srp/KL_srp_encoder.sv:148:5: DEPTH_P drain cannot fit a 
+    FAIL: GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: elaborated; the guard did not stop it
+    planted: <     $fatal(1, "DEPTH_P drain cannot fit a standard TX slot");
+    planted: >     $error("DEPTH_P drain cannot fit a standard TX slot");
+rm6-originator-floor-dropped: rc=0 SURVIVES (expected SURVIVES) MET; elab guards: 35 checks: 35 PASS, 0 FAIL
+    planted: <   if (INFLIGHT_P < 32'd1 || INFLIGHT_P > IFL_N_C) begin : g_inflight_check
+    planted: >   if (1'b0 || INFLIGHT_P > IFL_N_C) begin : g_inflight_check
+rm7-names-zero-dropped: rc=0 SURVIVES (expected SURVIVES) MET; elab guards: 35 checks: 35 PASS, 0 FAIL
+    planted: <   if ((NAME_ENTRIES_P == 0) || (NAME_ENTRIES_P > 1024)) begin : gen_g_names
+    planted: >   if ((1'b0) || (NAME_ENTRIES_P > 1024)) begin : gen_g_names

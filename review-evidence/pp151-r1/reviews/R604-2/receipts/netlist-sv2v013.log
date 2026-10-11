@@ -1,0 +1,175 @@
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  <packet>/scratch/net013/base/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  <packet>/scratch/net013/base/ucode.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  <packet>/scratch/net013/head/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  <packet>/scratch/net013/head/ucode.hex
+sv2v output diff (base -> head), changed lines only:
+  < 			initial $display("Error [elaboration] hdl/acmp/KL_acmp_nvm_shadow.sv:538:5 - KL_acmp_nvm_shadow.g_backoff_check\n msg: ", "KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/acmp/KL_acmp_nvm_shadow.sv:538:5 - KL_acmp_nvm_shadow.g_backoff_check\n msg: ", "KL_acmp_nvm_shadow: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/acmp/KL_acmp_nvm_shadow.sv:545:5 - KL_acmp_nvm_shadow.g_rs_tmo_check\n msg: ", "KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/acmp/KL_acmp_nvm_shadow.sv:545:5 - KL_acmp_nvm_shadow.g_rs_tmo_check\n msg: ", "KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+  > 				$finish(1);
+  > 			end
+  < 	initial begin : parameter_checks
+  < 		if (STRM_TIMEOUT_CYC_P == 0) begin
+  < 			$display("Fatal [%0t] hdl/acmp/KL_pp_acmp_listener.sv:347:7 - KL_pp_acmp_listener.parameter_checks.<unnamed_block>\n msg: ", $time, "STRM_TIMEOUT_CYC_P must be greater than zero");
+  < 			$finish(1);
+  > 	generate
+  > 		if (STRM_TIMEOUT_CYC_P == 0) begin : g_strm_tmo_check
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/acmp/KL_pp_acmp_listener.sv:347:5 - KL_pp_acmp_listener.g_strm_tmo_check\n msg: ", "STRM_TIMEOUT_CYC_P must be greater than zero");
+  > 				$finish(1);
+  > 			end
+  < 	end
+  > 	endgenerate
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_desc_store.sv:263:5 - KL_aecp_desc_store.gen_g_line_align\n msg: ", "LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)", LINE_BYTES_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_desc_store.sv:263:5 - KL_aecp_desc_store.gen_g_line_align\n msg: ", "LINE_BYTES_P=%0d must be a multiple of 8 (64-bit lanes)", LINE_BYTES_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_desc_store.sv:267:5 - KL_aecp_desc_store.gen_g_beats\n msg: ", "a burst exceeds the 9-bit mem_req_beats_o field");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_desc_store.sv:267:5 - KL_aecp_desc_store.gen_g_beats\n msg: ", "a burst exceeds the 9-bit mem_req_beats_o field");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_desc_store.sv:270:5 - KL_aecp_desc_store.gen_g_names\n msg: ", "NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_desc_store.sv:270:5 - KL_aecp_desc_store.gen_g_names\n msg: ", "NAME_ENTRIES_P=%0d must be in 1..1024", NAME_ENTRIES_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_desc_store.sv:273:5 - KL_aecp_desc_store.gen_g_base_align\n msg: ", "DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_desc_store.sv:273:5 - KL_aecp_desc_store.gen_g_base_align\n msg: ", "DESC_BASE_P=%08h must be 8-byte aligned", DESC_BASE_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_engine.sv:944:5 - KL_aecp_engine.gen_g_frame_fit\n msg: ", "a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)", FRAME_MAX_C, TX_OVERSIZE_BYTES_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_engine.sv:944:5 - KL_aecp_engine.gen_g_frame_fit\n msg: ", "a maximum AECP response (%0d B) exceeds the oversize slot (%0d B)", FRAME_MAX_C, TX_OVERSIZE_BYTES_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_engine.sv:949:5 - KL_aecp_engine.gen_g_resp_cap_fit\n msg: ", "response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)", RESP_BUF_C, ucpu_pkg_RESP_CAP_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_engine.sv:949:5 - KL_aecp_engine.gen_g_resp_cap_fit\n msg: ", "response buffer (%0d B) is smaller than GET_DYNAMIC_INFO limit (%0d B)", RESP_BUF_C, ucpu_pkg_RESP_CAP_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_engine.sv:964:5 - KL_aecp_engine.gen_g_line_step\n msg: ", "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)", LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_engine.sv:964:5 - KL_aecp_engine.gen_g_line_step\n msg: ", "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)", LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_engine.sv:968:5 - KL_aecp_engine.gen_g_gamap_page_fit\n msg: ", "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page", LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg_GAMAP_PAGE_MAX_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_engine.sv:968:5 - KL_aecp_engine.gen_g_gamap_page_fit\n msg: ", "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page", LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg_GAMAP_PAGE_MAX_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_engine.sv:972:5 - KL_aecp_engine.gen_g_line_ceiling\n msg: ", "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor", LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_engine.sv:972:5 - KL_aecp_engine.gen_g_line_ceiling\n msg: ", "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor", LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_notify.sv:367:5 - KL_aecp_notify.g_rows_guard\n msg: ", "KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1", N_IF_P, N_CTRL_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_notify.sv:367:5 - KL_aecp_notify.g_rows_guard\n msg: ", "KL_aecp_notify: rows {index, port} need N_IF_P=%0d a power of two and N_CTRL_P=%0d above 1", N_IF_P, N_CTRL_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:315:5 - KL_aecp_nvm_writer.g_shape_check\n msg: ", "KL_aecp_nvm_writer: a group outgrows its record-id block");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:315:5 - KL_aecp_nvm_writer.g_shape_check\n msg: ", "KL_aecp_nvm_writer: a group outgrows its record-id block");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:318:5 - KL_aecp_nvm_writer.g_backoff_check\n msg: ", "KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:318:5 - KL_aecp_nvm_writer.g_backoff_check\n msg: ", "KL_aecp_nvm_writer: RETRY_BACKOFF_CYC_P must be at least 1");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:322:5 - KL_aecp_nvm_writer.g_rs_tmo_check\n msg: ", "KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:322:5 - KL_aecp_nvm_writer.g_rs_tmo_check\n msg: ", "KL_aecp_nvm_writer: RS_TMO_CYC_P must be at least 1");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:326:5 - KL_aecp_nvm_writer.g_rs_agg_check\n msg: ", "KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_nvm_writer.sv:326:5 - KL_aecp_nvm_writer.g_rs_agg_check\n msg: ", "KL_aecp_nvm_writer: RS_AGG_CYC_P must be at least 1");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:194:5 - KL_aecp_resp_buf.gen_g_base_align\n msg: ", "RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:194:5 - KL_aecp_resp_buf.gen_g_base_align\n msg: ", "RESP_BASE_P=%08h must be 8-byte aligned", RESP_BASE_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:197:5 - KL_aecp_resp_buf.gen_g_size\n msg: ", "RESP_BYTES_P=%0d leaves no payload above the header record", RESP_BYTES_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:197:5 - KL_aecp_resp_buf.gen_g_size\n msg: ", "RESP_BYTES_P=%0d leaves no payload above the header record", RESP_BYTES_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:201:5 - KL_aecp_resp_buf.gen_g_beats\n msg: ", "a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field", LANES_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_resp_buf.sv:201:5 - KL_aecp_resp_buf.gen_g_beats\n msg: ", "a read burst of %0d beats exceeds the 9-bit mem_req_beats_o field", LANES_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/aecp/KL_aecp_ucpu.sv:297:5 - KL_aecp_ucpu.gen_g_d8_cap\n msg: ", "RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)", RESP_D8_CAP_BYTES_P, ucpu_pkg_RESP_CAP_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/aecp/KL_aecp_ucpu.sv:297:5 - KL_aecp_ucpu.gen_g_d8_cap\n msg: ", "RESP_D8_CAP_BYTES_P=%0d outside %0d..1024 (the 10-bit cursor)", RESP_D8_CAP_BYTES_P, ucpu_pkg_RESP_CAP_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/packet_engine/KL_pp_nvm_port.sv:189:5 - KL_pp_nvm_port.g_tmo_check\n msg: ", "KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647", MEM_TIMEOUT_CYC_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/packet_engine/KL_pp_nvm_port.sv:189:5 - KL_pp_nvm_port.g_tmo_check\n msg: ", "KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=%0d is outside 1 to 2147483647", MEM_TIMEOUT_CYC_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/packet_engine/KL_pp_originator.sv:149:5 - KL_pp_originator.g_inflight_check\n msg: ", "KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/packet_engine/KL_pp_originator.sv:149:5 - KL_pp_originator.g_inflight_check\n msg: ", "KL_pp_originator: INFLIGHT_P must be 1..16 (owner-tag nibble)");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/packet_engine/KL_pp_release_merge.sv:38:5 - KL_pp_release_merge.g_slot_count_check\n msg: ", "KL_pp_release_merge: N_SLOTS_P must be positive");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/packet_engine/KL_pp_release_merge.sv:38:5 - KL_pp_release_merge.g_slot_count_check\n msg: ", "KL_pp_release_merge: N_SLOTS_P must be positive");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/srp/KL_srp_encoder.sv:148:5 - KL_srp_encoder.g_depth_check\n msg: ", "DEPTH_P drain cannot fit a standard TX slot");
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/srp/KL_srp_encoder.sv:148:5 - KL_srp_encoder.g_depth_check\n msg: ", "DEPTH_P drain cannot fit a standard TX slot");
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/top/protocol_processor_top.sv:876:5 - protocol_processor_top.gen_g_avb_if\n msg: ", "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)", N_AVB_IF_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/top/protocol_processor_top.sv:876:5 - protocol_processor_top.gen_g_avb_if\n msg: ", "F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)", N_AVB_IF_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/top/protocol_processor_top.sv:880:5 - protocol_processor_top.gen_g_tmr_aw\n msg: ", "F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d", TMR_AW_C, TMR_SLOTS_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/top/protocol_processor_top.sv:880:5 - protocol_processor_top.gen_g_tmr_aw\n msg: ", "F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d", TMR_AW_C, TMR_SLOTS_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/top/protocol_processor_top.sv:884:5 - protocol_processor_top.gen_g_tmr_fit\n msg: ", "F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d", TMR_MAP_C[63-:32] + N_STREAM_IN_P, TMR_SLOTS_C);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/top/protocol_processor_top.sv:884:5 - protocol_processor_top.gen_g_tmr_fit\n msg: ", "F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d", TMR_MAP_C[63-:32] + N_STREAM_IN_P, TMR_SLOTS_C);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/top/protocol_processor_top.sv:897:5 - protocol_processor_top.gen_g_tmr_overlap\n msg: ", "F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/top/protocol_processor_top.sv:897:5 - protocol_processor_top.gen_g_tmr_overlap\n msg: ", "F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 				$finish(1);
+  > 			end
+  < 			initial $display("Error [elaboration] hdl/top/protocol_processor_top.sv:911:5 - protocol_processor_top.gen_g_owner_overlap\n msg: ", "F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 			initial begin
+  > 				$display("Fatal [elaboration] hdl/top/protocol_processor_top.sv:911:5 - protocol_processor_top.gen_g_owner_overlap\n msg: ", "F08.4: owner tags OVERLAP at SI=%0d SO=%0d (8-bit expiry bus)", N_STREAM_IN_P, N_STREAM_OUT_P);
+  > 				$finish(1);
+  > 			end
+DIFFERS  KL_acmp_nvm_shadow base b7248a5ac0a0188e3e47af15f30bff11ffac76d2a1df83ee959e9218dca694ff head df1f212870f98d3429fb74cab36fdb94a0c99c49b07155c8d568fa3c221c4c15
+DIFFERS  KL_pp_acmp_listener base 582f5b6ec1d5358accace9a4f9a46bb347678ffc460247991741abe699b4f59e head ac948b21d081c4dec2903d5747c7483354c6d2b0ce55075e8874130f0b9880f0
+DIFFERS  KL_aecp_desc_store base 5139ba610b88f85c850a7b70846cfdaba3b71a4f679a49c5c698673b2076832b head 037a31637b19aa3471e8b23132767c65a45156af7cc56849930788b47b0a6816
+DIFFERS  KL_aecp_engine base 5587d2e672dbc06a34966a0e0a0212e53bcfc3987186a5026b0a07f779532f26 head f3c87a2d11ecbd3dfee25fc16cc6a77e9a7d54230d6118fa7f3307eee3e047d1
+DIFFERS  KL_aecp_notify base 21bb5c84cb5fa1198f8e831443b7fc13b7fb6ec1c64f1bbdaa1d974705d6accf head 6164e4334b21ea46011459bfc401ffac84e6d703da8ed0b9b2fb6328e387735e
+DIFFERS  KL_aecp_nvm_writer base 6f32aadf5f1fe0ed851aade58ed79f2217195016d25fe96d998803d416ec9a9c head e819df834d8ab543efd36bbdec3e0bc6c0aad8c7f602c0396712c0473a904a04
+DIFFERS  KL_aecp_resp_buf base 68e9a6ed1445887d59d6ba036429d7e8e64cb1826f56a918a1426d29e46127be head 75b6f74cd6060ddf7a0f709eb10d369d650af4cab4ec178f8440b18faed9dd68
+DIFFERS  KL_aecp_ucpu base b80104f31309ffe1201f9c56b8d92a01aa990d499dc5e512dbaf7a8427b0df5e head 111655034ccc529d2925273d4dccdaf5a7d9ce19a8dc3b462ea9b2f92f625eb9
+DIFFERS  KL_pp_nvm_port base ad795c8b6c941f38574b05d5cabe7baa9b6e9ebd341c4bae0c5e76bf75ccc018 head c4598602a5c0fcd8c8cb2c48075742c5af0cdaaf29c6c1361618247c1451bdc3
+DIFFERS  KL_pp_originator base f7a2f0fbe1a75958a2c1cb4fcab4eca434e6a32cb3c338242a178e6fce96bbb3 head 195fa2766e2fefe2ab58c5014ea86218b22f72c6f7f6afcd4b843c6152318d5e
+DIFFERS  KL_pp_release_merge base 856babf0530a424ee48c9839847a4228cea86b24bc32ae58be500fdf8630ab2a head 5f51396e9688f6676b1262f161e47b3f037199baeee2b31405f64caba4d1aee7
+DIFFERS  KL_srp_encoder base a9e7bceba48bb2943fea9ad4a9293aba58a3dd3887579e3e3554e8aaaa1ef313 head fce13add4fca64b4e4fa7cb402775c31c182a1da2b0db32e597050c95e39271b
+DIFFERS  protocol_processor_top base 4bfe65b69239b2e46a1a80ee829bc9042d00b7c9abfacf0565dc2fdcc04d27b9 head d75beec3125ee8d5bbf84e5e654bdfb6caed172cbbee995103798005be0f2bc8
