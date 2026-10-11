@@ -1,0 +1,1 @@
+env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin $VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/bin/python3.12 scripts/lint_rtl.py --check

@@ -1,0 +1,17 @@
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.170 MB sources in 19 modules, into 0.901 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 10.465 s (elab=0.060, cvt=0.244, bld=10.058); cpu 0.416 s on 2 threads; allocated 227.969 MB
+stimulus: 32100038 cycles, 89891 mixed and 212 peer frames, 11 pdelay answers
+rx_fifo: 44100 good, 33311 overflow, 12690 bad, lanes 0xff, 256 beats deep
+tx_fifo: 6418 frames, counts 0x114, 10710121 stalled cycles, 28 beats deep
+tx_fifo decode: counts 0x1ff driven, 0 decoded wrong
+ledger: 18685918 compared, heads 0xff, tags 0x2, 3 deep
+results: 7182 compared, heads 0xff, 2 deep, 111 written behind a waiting result
+timer: 32418 compared, slots 0x3f
+plane: flags 0x0, 3606 programs run, 117 tap drops, 934 parser drops, 18 event drops, 0 lost results, 0 barriers
+  [FAIL] timer lockstep: mismatching cycles       got=1742 exp=0
+== gptp_tables: checks: 24   failures: 1 ==
+RESULT: FAIL
+make: *** [Makefile:55: run] Error 1
