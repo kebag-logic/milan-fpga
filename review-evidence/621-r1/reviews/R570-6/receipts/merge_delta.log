@@ -1,0 +1,30 @@
+head parents: 2cf985f3206dd519d80142fd2479afe24c3051f6 cfadd767a7ad47aaee68de655e1066cc000fb8a0 
+merge base: 5603c353137e90c1fa95429f6d00ef7a2298d9ee
+plain merge tree (with conflict markers where conflicted): be5d933340fa93077fa34154bedf8cdc7612e478
+conflicted paths:
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+
+head tree: 04f38ab729f09b4f1185f7f91416995868308ff8
+paths where head differs from the plain merge:
+:100644 100644 efdce1d6f 336df1a2b M	docs/diagrams/PNG_MANIFEST.json
+:100644 100644 ec25760f3 93af02a9c M	docs/diagrams/submodule_boundaries.drawio
+:100644 100644 38fc5affc aa98df27d M	docs/diagrams/submodule_boundaries.png
+generated files, blob per side:
+  docs/diagrams/PNG_MANIFEST.json ours=402a063ac6b3353b0259d34c39b226f900104bb6 dev=ce6f8fabda93a16c7ec319f4fadbcf1af6fb000a head=336df1a2b70e7988f137d79172189b743f04e858
+  docs/diagrams/submodule_boundaries.drawio ours=97c9edac3d1e167ee2befaa85d630f9f1ed76ae9 dev=e1aba6ddec417c2bdc2b6c131c8cbf0a1266208f head=93af02a9c4ebbec7156eeff4a03f199ca6ae8f72
+  docs/diagrams/submodule_boundaries.png ours=38fc5affc4e232ef1872ae6b34f77e6f724a4b78 dev=ef2f837f8362bf875cff11e02a26e643831909a3 head=aa98df27dd531f7b1ea09c8022ad2c5378345f78
+  docs/diagrams/submodule_boundaries.svg ours=e2e447e5f02c3f49bbf5552f2c4f95717975ce18 dev=42c25f2a2627b2a7c90cf500f62881019739ca7c head=42d45a34234224c52698d78e2cfcb2448103e3bf
+  docs/diagrams/timesync_chain.drawio ours=d271813bf2f3ee8d1b3965c9efb3475aab2be001 dev=8d2f08a356e26097cebb5b3e7ceb2fee51966adf head=d271813bf2f3ee8d1b3965c9efb3475aab2be001
+  docs/diagrams/timesync_chain.png ours=0a9ce460b20eb32f9e7363b96622a9f4731b3796 dev=30a184dbf89770e5852abb18c7ce1f855035c684 head=0a9ce460b20eb32f9e7363b96622a9f4731b3796
+  docs/diagrams/timesync_chain.svg ours=ca6649c450c111a1798c6d704334dd8caf7e6b97 dev=d138ce09ac4541709f972ac0431b1eaf9a57119e head=ca6649c450c111a1798c6d704334dd8caf7e6b97
+gitlinks at head:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+PR-owned surfaces changed by the merge (expect none):
+hdl/ differences dev -> head (expect none): 0 lines
+rc=0
