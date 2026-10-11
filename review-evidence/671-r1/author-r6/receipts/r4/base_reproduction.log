@@ -1,0 +1,12 @@
+base firmware e8454e2751d05b02ee8e5a571857589ab358ab86: sha256 a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3
+restart model narrowed by ['nvm_held', 'nvm_read_faults', 'nvm_unread', 'nvm_unstaged']; 15 statics kept
+endstation_ax7101_1x1_tdm8: 1466 findings in 11s; {'want exactly': 572, 'on reads that returned different bytes': 267, 're-attached live': 106, 'neither committed nor refused': 39, 'was lost on the clean reboot': 110, 'did not survive': 101, 'did not hold the writer': 120, 'but holds': 54, 'is not the container it judged': 71, 'another valid container': 3}
+  cases whose committed change was lost on the clean reboot: 110
+    e.g. slot A newer at seq 0x0, the other older, --read-fault a:1686:3:3:8
+    e.g. slot A newer at seq 0x0, the other older, --read-fault a:1686:3:4:8
+    e.g. slot A newer at seq 0x0, the other older, --read-other a:1:3 on a writer restart
+endstation_ax7101_8x8: 1466 findings in 12s; {'want exactly': 572, 'on reads that returned different bytes': 267, 're-attached live': 106, 'neither committed nor refused': 39, 'was lost on the clean reboot': 110, 'did not survive': 101, 'did not hold the writer': 120, 'but holds': 54, 'is not the container it judged': 71, 'another valid container': 3}
+  cases whose committed change was lost on the clean reboot: 110
+    e.g. slot A newer at seq 0x0, the other older, --read-fault a:6646:3:3:8
+    e.g. slot A newer at seq 0x0, the other older, --read-fault a:6646:3:4:8
+    e.g. slot A newer at seq 0x0, the other older, --read-other a:1:3 on a writer restart

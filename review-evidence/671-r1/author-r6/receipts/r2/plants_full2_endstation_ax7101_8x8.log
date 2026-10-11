@@ -1,0 +1,63 @@
+PLANT endstation_ax7101_8x8 restart_at_zero: CAUGHT named=20 total=115 words='was lost on the clean reboot' 14.0s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT     36 x 163 other saved record(s) did not survive the faulty boot's 
+PLANT     26 x a slot no read returned twice did not hold the writer
+PLANT     20 x the change committed after the faulty boot was lost on the c
+PLANT     16 x 1 other saved record(s) did not survive the faulty boot's co
+PLANT      8 x the change was neither committed nor refused: {'hb': 7, 'ack
+PLANT      8 x the clean reboot did not offer a slot: Milan NVM: slot A VD_
+PLANT endstation_ax7101_8x8 unbounded_retry: CAUGHT named=26 total=31 words='over the bound' 14.6s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the boot read the flash 68 times, over the bound of 13
+PLANT     12 x the boot read the flash 66 times, over the bound of 13
+PLANT      9 x the boot read the flash 68 times, over the bound of 13
+PLANT      5 x the boot read the flash 67 times, over the bound of 13
+PLANT      3 x {'hb': 0, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0
+PLANT      1 x {'hb': 13, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 
+PLANT      1 x {'hb': 1, 'acks': 0, 'starts': 0, 'erases': 0, 'programs': 0
+PLANT endstation_ax7101_8x8 generation_from_refused_slot: CAUGHT named=8 total=398 words='generation was taken from a refused slot' 15.0s
+PLANT   first named: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+PLANT    171 x slot B reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT    171 x slot A reads VD_BLANK seq 0xffffffff unread bit 0, but holds
+PLANT     48 x by the slots its boot line accepts the offer is - seq 0x0, y
+PLANT      4 x a generation was taken from a refused slot: the boot line re
+PLANT      4 x a generation was taken from a refused slot: the first commit
+PLANT endstation_ax7101_8x8 verdict_only_agreement: CAUGHT named=24 total=231 words='was lost on the clean reboot' 13.7s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:0:64:8: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+PLANT     48 x 163 other saved record(s) did not survive the faulty boot's 
+PLANT     32 x slot B was taken as VD_CRC on reads that returned different 
+PLANT     30 x slot A was taken as VD_CRC on reads that returned different 
+PLANT     26 x a slot no read returned twice did not hold the writer
+PLANT     24 x the change committed after the faulty boot was lost on the c
+PLANT     18 x slot A was taken as VD_MAGIC on reads that returned differen
+PLANT endstation_ax7101_8x8 r_digest_header_only: CAUGHT named=46 total=116 words='on reads that returned different bytes' 14.7s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:6646:0:3:128: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+PLANT     24 x 163 other saved record(s) did not survive the faulty boot's 
+PLANT     24 x slot B was taken as VD_CRC on reads that returned different 
+PLANT     22 x slot A was taken as VD_CRC on reads that returned different 
+PLANT     16 x a slot no read returned twice did not hold the writer
+PLANT     12 x the change committed after the faulty boot was lost on the c
+PLANT     10 x 1 other saved record(s) did not survive the faulty boot's co
+PLANT endstation_ax7101_8x8 r_fill_from_flash: CAUGHT named=62 total=120 words='is not the container it judged' 15.9s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:0:5:1:8: the window the boot loaded is not the container it judged: it reads VD_MAGIC
+PLANT     62 x the window the boot loaded is not the container it judged: i
+PLANT     28 x the change was neither committed nor refused: {'hb': 7, 'ack
+PLANT     28 x the change committed after the faulty boot was lost on the c
+PLANT      2 x 163 other saved record(s) did not survive the faulty boot's 
+PLANT endstation_ax7101_8x8 r_restage_fail_offers_none: CAUGHT named=8 total=8 words='yet the boot offered' 16.9s
+PLANT   first named: slot A newer at seq 0x5a5a5, the other older, --read-fault a:6646:3:3: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+PLANT      2 x by the slots its boot line accepts the offer is B seq 0x5a5a
+PLANT      2 x by the slots its boot line accepts the offer is B seq 0xffff
+PLANT      2 x by the slots its boot line accepts the offer is A seq 0x5a5a
+PLANT      2 x by the slots its boot line accepts the offer is A seq 0xffff
+PLANT endstation_ax7101_8x8 restage_fail_not_unread: CAUGHT named=24 total=48 words='yet the boot line does not name it unread' 15.6s
+PLANT   first named: slot A valid at seq 0x1, --read-fault a:11:4:3:128: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_LEN)
+PLANT     12 x slot A did not read back as it was judged, yet the boot line
+PLANT     12 x 163 other saved record(s) did not survive the faulty boot's 
+PLANT     12 x slot B did not read back as it was judged, yet the boot line
+PLANT      8 x 1 other saved record(s) did not survive the faulty boot's co
+PLANT      4 x the change committed after the faulty boot was lost on the c
+PLANT endstation_ax7101_8x8 r_restage_any_seq: CAUGHT named=12 total=24 words='another valid container than the one the boot offered' 15.5s
+PLANT   first named: slot A newer at seq 0x5a5a5, the other older, --read-other a:3:1: the window holds another valid container than the one the boot offered (A), at seq 0x5a5a4
+PLANT     12 x the window holds another valid container than the one the bo
+PLANT     12 x 1 other saved record(s) did not survive the faulty boot's co
+rc=0

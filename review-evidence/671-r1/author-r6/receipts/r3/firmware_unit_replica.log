@@ -1,0 +1,20 @@
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/tally_selftest.py
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python scripts/ci_rv32_sdk_selftest.py
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_coverage.py --selftest
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python sw/firmware/gtest/fw_coverage.py --check --jobs 4
+steps: 7  failing: 0
+--- 04 tail
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 9197193e: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 3626f1eaca76cb0ad3e4ea4335fe34e9eb5738f2 is not the pinned 9197193e47a6bb1c45a56d90a18c1784123aba44 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+--- 05 tail
+  rv32 at 100000000 Hz: text=12136 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests
+--- 07 tail
+sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (30 files)

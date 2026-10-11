@@ -1,0 +1,7 @@
+rc=0  <scratch>/venv312/bin/python scripts/ci_scope.py --selftest
+rc=0  $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --version
+rc=0  env PATH=<suite-tools> <scratch>/venv312/bin/python scripts/lint_rtl.py --check --self-test
+rc=0  <scratch>/venv312/bin/python scripts/pp_srcs.py --check --selftest
+rc=0  <scratch>/venv312/bin/behave --no-capture -f plain
+steps: 5  failing: 0
+OTHER-END rc=0

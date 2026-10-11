@@ -1,0 +1,82 @@
+separate receipt: step 1
+separate receipt: step 2
+separate receipt: step 3
+separate receipt: step 4
+separate receipt: step 5
+separate receipt: step 6
+separate receipt: step 7
+separate receipt: step 8
+separate receipt: step 9
+separate receipt: step 10
+separate receipt: step 11
+separate receipt: step 12
+separate receipt: step 13
+separate receipt: step 14
+separate receipt: step 15
+separate receipt: step 16
+separate receipt: step 17
+separate receipt: step 18
+separate receipt: step 19
+separate receipt: step 20
+separate receipt: step 21
+separate receipt: step 22
+separate receipt: step 23
+separate receipt: step 24
+separate receipt: step 25
+separate receipt: step 26
+separate receipt: step 27
+separate receipt: step 28
+separate receipt: step 29
+separate receipt: step 30
+separate receipt: step 31
+separate receipt: step 32
+separate receipt: step 33
+separate receipt: step 34
+separate receipt: step 35
+separate receipt: step 36
+rc=0  <scratch>/venv312/bin/python3 scripts/check_nvm_record_space.py --self-test
+separate receipt: step 38
+separate receipt: step 39
+rc=0  <scratch>/venv312/bin/python3 scripts/check_soc_sources.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_soc_sources.py --selftest
+rc=0  <scratch>/venv312/bin/python3 sw/litex/iob_pack_selftest.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_rtl_source_lists.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_rtl_source_lists.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_naming.py --check
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_naming.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_port_contracts.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_port_contracts.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_fail_fast.py --check
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_fail_fast.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_todo_ownership.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_todo_ownership.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_test_evidence.py --check
+rc=0  <scratch>/venv312/bin/python3 scripts/measure_test_evidence.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_hygiene.py --check
+rc=0  <scratch>/venv312/bin/python3 scripts/check_hygiene.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_sv_idiom.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_sv_idiom.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_cpp_idiom.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_cpp_idiom.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_py_idiom.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_py_idiom.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_sh_idiom.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_sh_idiom.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/ci_events.py --check
+rc=0  <scratch>/venv312/bin/python3 scripts/ci_events.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/check_doc_paths.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_archive.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_archive.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/gen_toc.py --selftest
+rc=0  <scratch>/venv312/bin/python3 scripts/gen_toc.py --verify-anchors
+rc=0  <scratch>/venv312/bin/python3 scripts/gen_toc.py --check
+rc=0  <scratch>/venv312/bin/python3 avdecc/gen_aem_store.py --self-test
+rc=0  <scratch>/venv312/bin/python3 scripts/check_sweep_shape.py --self-test
+rc=0  <scratch>/venv312/bin/python3 scripts/check_deploy_shape.py --self-test
+rc=0  <scratch>/venv312/bin/python3 scripts/check_entity_shape.py --self-test
+rc=0  <scratch>/venv312/bin/python3 scripts/check_wire_accountability.py --self-test
+rc=0  <scratch>/venv312/bin/python3 scripts/docs_check.py
+rc=0  <scratch>/venv312/bin/python3 scripts/check_feature_status.py
+rc=0  git diff --check
+rc=0  git diff --check e8454e2751d05b02ee8e5a571857589ab358ab86 HEAD
+step positions: 81; executed: 43; failing: 0; other positions need separate receipts

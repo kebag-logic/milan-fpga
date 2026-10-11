@@ -1,0 +1,16 @@
+  digest_short endstation_arty_4x4 trailer: slot A valid at seq 0x5a5a5, --read-fault a:4803:1:2:8: the boot read the flash 5 times, want exactly 7
+  digest_short endstation_arty_4x4 trailer: slot A valid at seq 0x5a5a5, --read-fault a:4803:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_arty_4x4 trailer: slot A valid at seq 0x5a5a5, --read-fault a:4803:1:2:8: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY digest_short endstation_arty_4x4 trailer: cases=2400 findings=250 lost=12
+  digest_short endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:3331:1:2:8: the boot read the flash 5 times, want exactly 7
+  digest_short endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:3331:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:3331:1:2:8: 53 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY digest_short endstation_ax7101_1x1_tdm8 trailer: cases=2400 findings=250 lost=12
+  digest_short endstation_ax7101_8x8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:13251:1:2:8: the boot read the flash 5 times, want exactly 7
+  digest_short endstation_ax7101_8x8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:13251:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_ax7101_8x8 trailer: slot A valid at seq 0x5a5a5, --read-fault a:13251:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY digest_short endstation_ax7101_8x8 trailer: cases=2400 findings=250 lost=12
+SUMMARY trailer_in endstation_arty_4x4 trailer: cases=2400 findings=0 lost=0
+SUMMARY trailer_in endstation_ax7101_1x1_tdm8 trailer: cases=2400 findings=0 lost=0
+SUMMARY trailer_in endstation_ax7101_8x8 trailer: cases=2400 findings=0 lost=0
+rc=0 elapsed_s=184

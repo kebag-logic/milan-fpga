@@ -1,0 +1,40 @@
+== endstation_ax7101_1x1_tdm8: container 3336 B at seq 0x5a5a5; record-area byte 1686
+-- clean control
+PROBE slot A 3336 B, slot B blank
+faulty boot: verdict_a=0 seq_a=370085 verdict_b=9 seq_b=0 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=0 seq_a=370085 verdict_b=9 seq_b=0 auth=1 seq=370086 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=370086 auth=1 seq=370086 unread=0 read_faults=0 phase=1 commits_ok=0
+-- entity byte, two sealed reads
+PROBE slot A 3336 B, slot B blank
+PROBE sealed container read 1 of slot A: byte 20 ^ 1, 3336 B
+PROBE sealed container read 2 of slot A: byte 20 ^ 2, 3336 B
+faulty boot: verdict_a=5 seq_a=0 verdict_b=9 seq_b=0 auth=-1 seq=0 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=5 seq_a=0 verdict_b=9 seq_b=0 auth=1 seq=1 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=1 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0
+-- record-area byte, two sealed reads
+PROBE slot A 3336 B, slot B blank
+PROBE sealed container read 1 of slot A: byte 1686 ^ 1, 3336 B
+PROBE sealed container read 2 of slot A: byte 1686 ^ 2, 3336 B
+faulty boot: verdict_a=7 seq_a=0 verdict_b=9 seq_b=0 auth=-1 seq=0 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=7 seq_a=0 verdict_b=9 seq_b=0 auth=1 seq=1 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=1 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0
+== endstation_ax7101_8x8: container 13256 B at seq 0x5a5a5; record-area byte 6646
+-- clean control
+PROBE slot A 13256 B, slot B blank
+faulty boot: verdict_a=0 seq_a=370085 verdict_b=9 seq_b=0 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=0 seq_a=370085 verdict_b=9 seq_b=0 auth=1 seq=370086 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=370086 auth=1 seq=370086 unread=0 read_faults=0 phase=1 commits_ok=0
+-- entity byte, two sealed reads
+PROBE slot A 13256 B, slot B blank
+PROBE sealed container read 1 of slot A: byte 20 ^ 1, 13256 B
+PROBE sealed container read 2 of slot A: byte 20 ^ 2, 13256 B
+faulty boot: verdict_a=5 seq_a=0 verdict_b=9 seq_b=0 auth=-1 seq=0 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=5 seq_a=0 verdict_b=9 seq_b=0 auth=1 seq=1 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=1 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0
+-- record-area byte, two sealed reads
+PROBE slot A 13256 B, slot B blank
+PROBE sealed container read 1 of slot A: byte 6646 ^ 1, 13256 B
+PROBE sealed container read 2 of slot A: byte 6646 ^ 2, 13256 B
+faulty boot: verdict_a=7 seq_a=0 verdict_b=9 seq_b=0 auth=-1 seq=0 unread=0 read_faults=0 phase=1 commits_ok=0
+after commit: verdict_a=7 seq_a=0 verdict_b=9 seq_b=0 auth=1 seq=1 unread=0 read_faults=0 phase=1 commits_ok=1
+clean reboot: verdict_a=0 seq_a=370085 verdict_b=0 seq_b=1 auth=0 seq=370085 unread=0 read_faults=0 phase=1 commits_ok=0

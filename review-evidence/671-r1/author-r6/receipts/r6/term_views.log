@@ -1,0 +1,98 @@
+endstation_arty_4x4 verdict   : 32 of 32 cases hand the judgement two refusals differing in the verdict alone, then VD_OK
+endstation_arty_4x4 byte count: 32 of 32 cases hand the judgement two refusals differing in the byte count alone, then VD_OK
+endstation_arty_4x4 prefix CRC: 32 of 32 cases hand the judgement two refusals differing in the prefix CRC alone, then VD_OK
+endstation_arty_4x4 trailer   : 32 of 32 cases hand the judgement two refusals differing in the trailer alone, then VD_OK
+  e.g. slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=5 bytes=4808 digest=a9a68731 tail=a9a68731
+    PROBE read slot=15597568 vd=6 bytes=4808 digest=a9a68731 tail=a9a68731
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-length a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=4812 digest=565978ce tail=a9a68731
+    PROBE read slot=15597568 vd=4 bytes=4816 digest=565978ce tail=a9a68731
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=4808 digest=a77d0f03 tail=a9a68731
+    PROBE read slot=15597568 vd=4 bytes=4808 digest=d07a3f95 tail=a9a68731
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=4808 digest=a9a68731 tail=a1a68731
+    PROBE read slot=15597568 vd=4 bytes=4808 digest=a9a68731 tail=a0a68731
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=4808 digest=00000000 tail=00000000
+endstation_ax7101_1x1_tdm8 verdict   : 32 of 32 cases hand the judgement two refusals differing in the verdict alone, then VD_OK
+endstation_ax7101_1x1_tdm8 byte count: 32 of 32 cases hand the judgement two refusals differing in the byte count alone, then VD_OK
+endstation_ax7101_1x1_tdm8 prefix CRC: 32 of 32 cases hand the judgement two refusals differing in the prefix CRC alone, then VD_OK
+endstation_ax7101_1x1_tdm8 trailer   : 32 of 32 cases hand the judgement two refusals differing in the trailer alone, then VD_OK
+  e.g. slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=5 bytes=3336 digest=e27cfdc8 tail=e27cfdc8
+    PROBE read slot=15597568 vd=6 bytes=3336 digest=e27cfdc8 tail=e27cfdc8
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-length a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=3340 digest=1d830237 tail=e27cfdc8
+    PROBE read slot=15597568 vd=4 bytes=3344 digest=1d830237 tail=e27cfdc8
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=3336 digest=eca775fa tail=e27cfdc8
+    PROBE read slot=15597568 vd=4 bytes=3336 digest=9ba0456c tail=e27cfdc8
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=3336 digest=e27cfdc8 tail=ea7cfdc8
+    PROBE read slot=15597568 vd=4 bytes=3336 digest=e27cfdc8 tail=eb7cfdc8
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=3336 digest=00000000 tail=00000000
+endstation_ax7101_8x8 verdict   : 32 of 32 cases hand the judgement two refusals differing in the verdict alone, then VD_OK
+endstation_ax7101_8x8 byte count: 32 of 32 cases hand the judgement two refusals differing in the byte count alone, then VD_OK
+endstation_ax7101_8x8 prefix CRC: 32 of 32 cases hand the judgement two refusals differing in the prefix CRC alone, then VD_OK
+endstation_ax7101_8x8 trailer   : 32 of 32 cases hand the judgement two refusals differing in the trailer alone, then VD_OK
+  e.g. slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=5 bytes=13256 digest=668d9a30 tail=668d9a30
+    PROBE read slot=15597568 vd=6 bytes=13256 digest=668d9a30 tail=668d9a30
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-length a:0:2 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=13260 digest=997265cf tail=668d9a30
+    PROBE read slot=15597568 vd=4 bytes=13264 digest=997265cf tail=668d9a30
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=13256 digest=68561202 tail=668d9a30
+    PROBE read slot=15597568 vd=4 bytes=13256 digest=1f512294 tail=668d9a30
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+  e.g. slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart:
+    PROBE read slot=15597568 vd=4 bytes=13256 digest=668d9a30 tail=6e8d9a30
+    PROBE read slot=15597568 vd=4 bytes=13256 digest=668d9a30 tail=6f8d9a30
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15663104 vd=9 bytes=40 digest=19990159 tail=ffffffff
+    PROBE read slot=15597568 vd=0 bytes=13256 digest=00000000 tail=00000000
+term views: OK
+rc=0

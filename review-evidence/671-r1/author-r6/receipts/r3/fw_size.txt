@@ -1,0 +1,29 @@
+# fw_size.sh, product 1x1 build-tree headers (build_ax7101_eto_tdm8dev5603c353); base a73ecc25, round 2 33eaa0c3, round 3 (HEAD 4886f231)
+## riscv32-linux
+a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3  $VALIDATION_STORAGE/671-a592/r3/size/src/base/milan_baremetal.c
+  [     1]  GCC: (Buildroot 2026.05) 14.3.0
+   text	   data	    bss	    dec	    hex	filename
+  15529	    104	     88	  15721	   3d69	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv32-linux/base/software/libmilan_baremetal/milan_baremetal.o
+33eaa0c332f04587c9fddc7129895e3a9edf7a3e76dbf75f9cd43bd1b31955b2  $VALIDATION_STORAGE/671-a592/r3/size/src/r2/milan_baremetal.c
+  [     1]  GCC: (Buildroot 2026.05) 14.3.0
+   text	   data	    bss	    dec	    hex	filename
+  17241	    104	    100	  17445	   4425	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv32-linux/r2/software/libmilan_baremetal/milan_baremetal.o
+5f1748598a46400ae9dfa2e55b9e6b913010d14ffcc6792ec99b67fcf46b1687  $VALIDATION_STORAGE/671-a592/r3/size/src/r3/milan_baremetal.c
+  [     1]  GCC: (Buildroot 2026.05) 14.3.0
+   text	   data	    bss	    dec	    hex	filename
+  17297	    104	    100	  17501	   445d	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv32-linux/r3/software/libmilan_baremetal/milan_baremetal.o
+rc=0
+## riscv64-elf
+a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3  $VALIDATION_STORAGE/671-a592/r3/size/src/base/milan_baremetal.c
+  [     1]  GCC: (Arch Linux Repositories) 16.2.0
+   text	   data	    bss	    dec	    hex	filename
+  15476	    104	     88	  15668	   3d34	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv64-elf/base/software/libmilan_baremetal/milan_baremetal.o
+33eaa0c332f04587c9fddc7129895e3a9edf7a3e76dbf75f9cd43bd1b31955b2  $VALIDATION_STORAGE/671-a592/r3/size/src/r2/milan_baremetal.c
+  [     1]  GCC: (Arch Linux Repositories) 16.2.0
+   text	   data	    bss	    dec	    hex	filename
+  17172	    104	    100	  17376	   43e0	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv64-elf/r2/software/libmilan_baremetal/milan_baremetal.o
+5f1748598a46400ae9dfa2e55b9e6b913010d14ffcc6792ec99b67fcf46b1687  $VALIDATION_STORAGE/671-a592/r3/size/src/r3/milan_baremetal.c
+  [     1]  GCC: (Arch Linux Repositories) 16.2.0
+   text	   data	    bss	    dec	    hex	filename
+  17228	    104	    100	  17432	   4418	$VALIDATION_STORAGE/671-a592/r3/size/out/riscv64-elf/r3/software/libmilan_baremetal/milan_baremetal.o
+rc=0

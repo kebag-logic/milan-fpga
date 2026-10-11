@@ -1,0 +1,40 @@
+body 770: 3550 cases (1711 restarts), 3550 distinct, 128 term-class cases
+  term byte count other blank, faulted valid/newer: 16 cases
+  term byte count other older, faulted older: 8 cases
+  term byte count other older, faulted valid/newer: 8 cases
+  term prefix CRC other blank, faulted valid/newer: 16 cases
+  term prefix CRC other older, faulted older: 8 cases
+  term prefix CRC other older, faulted valid/newer: 8 cases
+  term trailer    other blank, faulted valid/newer: 16 cases
+  term trailer    other older, faulted older: 8 cases
+  term trailer    other older, faulted valid/newer: 8 cases
+  term verdict    other blank, faulted valid/newer: 16 cases
+  term verdict    other older, faulted older: 8 cases
+  term verdict    other older, faulted valid/newer: 8 cases
+  first index per term: {'verdict': 1, 'byte count': 29, 'prefix CRC': 57, 'trailer': 85}
+  e.g. verdict: slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart; judgement ('ffc', 'cc')
+  e.g. byte count: slot A valid at seq 0x1, --read-length a:0:2 on a writer restart; judgement ('ffc', 'cc')
+  e.g. prefix CRC: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart; judgement ('ffc', 'cc')
+  e.g. trailer: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart; judgement ('ffc', 'cc')
+  comparison_findings: none
+body 5010: 3550 cases (1711 restarts), 3550 distinct, 128 term-class cases
+  term byte count other blank, faulted valid/newer: 16 cases
+  term byte count other older, faulted older: 8 cases
+  term byte count other older, faulted valid/newer: 8 cases
+  term prefix CRC other blank, faulted valid/newer: 16 cases
+  term prefix CRC other older, faulted older: 8 cases
+  term prefix CRC other older, faulted valid/newer: 8 cases
+  term trailer    other blank, faulted valid/newer: 16 cases
+  term trailer    other older, faulted older: 8 cases
+  term trailer    other older, faulted valid/newer: 8 cases
+  term verdict    other blank, faulted valid/newer: 16 cases
+  term verdict    other older, faulted older: 8 cases
+  term verdict    other older, faulted valid/newer: 8 cases
+  first index per term: {'verdict': 1, 'byte count': 29, 'prefix CRC': 57, 'trailer': 85}
+  e.g. verdict: slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart; judgement ('ffc', 'cc')
+  e.g. byte count: slot A valid at seq 0x1, --read-length a:0:2 on a writer restart; judgement ('ffc', 'cc')
+  e.g. prefix CRC: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart; judgement ('ffc', 'cc')
+  e.g. trailer: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart; judgement ('ffc', 'cc')
+  comparison_findings: none
+controls: ['r_omit_verdict', 'r_omit_byte_count', 'r_omit_prefix_crc', 'r_omit_trailer']
+rc=0

@@ -1,0 +1,31 @@
+{"shape": "endstation_ax7101_1x1_tdm8", "distinct": true, "verdicts": ["VD_ENT", "VD_ENT"], "whole_crc32": ["0x2144df1c", "0x2144df1c"], "prefix_crc32": ["0xb28933bb", "0xc3856556"]}
+CLEAN CONTROL endstation_ax7101_1x1_tdm8 slot=a: commit acknowledged; change and all saved records survive
+CASE endstation_ax7101_1x1_tdm8 slot=a
+HOST loaded 3336 B from a.bin
+HOST loaded 65536 B from b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x159e50e0, CRC 3e6a6713.
+PROBE distinct foreign read 1 entity-low=0 length=3336
+PROBE distinct foreign read 2 entity-low=3 length=3336
+Milan NVM: slot A VD_OK seq 370085, slot B VD_BLANK seq 0; offered A seq 370085 (VD_OK), 3336 B at 0x15ad40e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=1 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST change 72 B at image offset 3258
+Milan NVM: commit (dirty) seq 370086 -> slot B, 3336 B, capture 1 acknowledged.
+HOST hb=7 acks=1 starts=1 erases=1 programs=14 max_hb_gap_ms=250 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370086 base_ok=1 img_len=3292 losses=0 arms=1 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=1 walks=1 enable_first=0 closed=0 reads=3347 boot_reads=7 restart_reads=0 faulty_reads=2 now_ms=1515
+
+HOST loaded 65536 B from out_a.bin
+HOST loaded 65536 B from out_b.bin
+Milan baremetal: CSR ID=4d494c4e VERSION=00020057, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x04a610e0, CRC 3e6a6713.
+Milan NVM: slot A VD_OK seq 370085, slot B VD_OK seq 370086; offered B seq 370086 (VD_OK), 3336 B at 0x04b500e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+HOST booted
+HOST hb=1 acks=0 starts=0 erases=0 programs=0 max_hb_gap_ms=0 pagewrap=0 backed=1 dirty=0 stale=0 valid=1 verdict=0 blank=0 fail=0 done=1 seq=370086 base_ok=1 img_len=3292 losses=0 arms=0 reloads=1 ld_acc=1 ld_pend=0 rl_ref=0 unres=0 ack_ref=0 arm_ref=0 cap_id=0 walks=1 enable_first=0 closed=0 reads=4 boot_reads=4 restart_reads=0 faulty_reads=0 now_ms=15
+
+{"shape": "endstation_ax7101_1x1_tdm8", "slot": "a", "commit_acks": 1, "held": false, "changed_record_survived": true, "other_records_lost": 0}
+Traceback (most recent call last):
+  File "<scratch>/evidence/R603-4/probe_refusal_digest.py", line 102, in <module>
+    assert lost > 0 if slot == "a" else got != fr.want[1][fr.key]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

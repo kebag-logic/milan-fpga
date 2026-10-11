@@ -1,0 +1,10 @@
+R603-3:none                                  endstation_arty_4x4         findings=   0     8s {}
+R603-3:p_restage_four_tries                  endstation_arty_4x4         findings= 110     9s {'re-attached live': 21, 'want exactly': 68, 'did not hold the writer': 21}
+R603-3:p_restage_unbounded                   endstation_arty_4x4         findings= 158    10s {'re-attached live': 35, 'want exactly': 52, 'did not hold the writer': 35, 'over the bound': 16, 'printed no boot line': 16, 'reloaded the window': 4}
+R603-3:p_judge_no_unread                     endstation_arty_4x4         findings= 353    10s {'does not name it unread': 140, 're-attached live': 65, 'neither committed nor refused': 6, 'was lost on the clean reboot': 20, 'did not survive': 36, 'did not hold the writer': 75, 'did not refuse the console': 1, 'named the slot on the console': 4}
+R603-3:p_held_heartbeats                     endstation_arty_4x4         findings= 227     9s {'persisted something': 226, 'did not refuse the console': 1}
+R603-3:p_seq_from_flash                      endstation_arty_4x4         findings= 774     9s {'want exactly': 613, 'did not hold the writer': 35, 're-attached live': 32, 'held the writer; the bound': 42, 'persisted something': 22, 'on reads that returned different bytes': 11, 'names another cause': 8, 'but holds': 6, 'did not survive': 4, 'another valid container': 1}
+R603-3:p_judge_ignores_second                endstation_arty_4x4         findings=  11     8s {'held the writer; the bound': 8, 'persisted something': 3}
+R603-3:p_hold_only_both                      endstation_arty_4x4         findings= 347     9s {'re-attached live': 106, 'neither committed nor refused': 9, 'was lost on the clean reboot': 31, 'did not survive': 71, 'did not hold the writer': 120, 'did not refuse the console': 1}
+R603-3:p_restage_two_tries                   endstation_arty_4x4         findings= 193     8s {'want exactly': 118, 'held the writer; the bound': 50, 'persisted something': 25}
+respelled:p_console_unnamed@head             endstation_arty_4x4         findings=   1     8s {'did not refuse the console': 1}
