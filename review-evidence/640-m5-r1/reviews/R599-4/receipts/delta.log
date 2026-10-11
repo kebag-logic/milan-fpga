@@ -1,0 +1,20 @@
+PASS automatic merge identity: 0fc0841bebece392d6facb87cd209d2f5e96e565
+PASS repair delta: one line added, one line removed in MARK_II_AREA_PLAN.md
+Common merge base: e8454e2751d05b02ee8e5a571857589ab358ab86
+Overlapping changed paths: ['docs/design/MARK_II_AREA_PLAN.md', 'scripts/measure_test_evidence_readers.py']
+PASS unchanged M5 blob: hdl/common/csr/doc/milan_csr.md
+PASS unchanged M5 blob: hdl/common/csr/milan_csr.sv
+PASS unchanged M5 blob: tb/verilator/csr/Makefile
+PASS unchanged M5 blob: tb/verilator/csr/README.md
+PASS unchanged M5 blob: tb/verilator/csr/gen_lockstep.py
+PASS unchanged M5 blob: tb/verilator/csr/lock_mutants.py
+PASS unchanged M5 blob: tb/verilator/csr/milan_csr_ref.sv
+PASS unchanged M5 blob: tb/verilator/csr/sim_lock.cpp
+PASS frozen oracle byte identity: c3106a1410035f33eef9e634750ffc534be4d04293263bdbfd4ea144dfd523d8
+PASS all cumulative planning rows; final central/conservative/optimistic: [31667, 35867, 27567]
+PASS all nine placement estimates and both headroom columns
+PASS measured substitution: 37957 + 166 + 479 + 182 = 38784
+PASS memory arithmetic; M2 maximum +2 remains an allowance, explicitly unused; M5/M6 add no tiles
+PASS PR body has no closing reference
+PASS PR Composition repair states the correct recomputation
+FINDING: PR Known limitations retains stale 38,436/396 figures

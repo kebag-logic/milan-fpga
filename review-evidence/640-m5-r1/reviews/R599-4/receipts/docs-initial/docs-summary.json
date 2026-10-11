@@ -1,0 +1,54 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6bfeeb132fa0b1ad8a5b957446c66a498e633af7"
+    ],
+    "rc": 2
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  }
+]
