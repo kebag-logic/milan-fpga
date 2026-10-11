@@ -1,0 +1,16 @@
+base | python3 scripts/check-matrix.py | rc=0 | matrix: 115 REQ rows, 17 GAP findings, OK
+base | python3 scripts/gen_matrix.py --check | rc=0 | matrix: OK (94 rows, 0 untested)
+base | python3 scripts/check-ids.py --selftest | rc=0 | ids selftest: 30 cases, OK
+base | python3 scripts/check-ids.py | rc=0 | ids: 563 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+base | python3 scripts/check-links.py | rc=0 | links: 1187 checked, OK
+base | python3 scripts/check-figures.py --selftest | rc=0 | figures selftest: 17 cases, OK
+base | python3 scripts/check-figures.py | rc=0 | figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+base | python3 scripts/check-integrator-params.py | rc=0 | parameters: top 29, guide 29, diagram 29, OK
+head | python3 scripts/check-matrix.py | rc=0 | matrix: 115 REQ rows, 17 GAP findings, OK
+head | python3 scripts/gen_matrix.py --check | rc=0 | matrix: OK (94 rows, 0 untested)
+head | python3 scripts/check-ids.py --selftest | rc=0 | ids selftest: 30 cases, OK
+head | python3 scripts/check-ids.py | rc=0 | ids: 565 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+head | python3 scripts/check-links.py | rc=0 | links: 1187 checked, OK
+head | python3 scripts/check-figures.py --selftest | rc=0 | figures selftest: 17 cases, OK
+head | python3 scripts/check-figures.py | rc=0 | figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+head | python3 scripts/check-integrator-params.py | rc=0 | parameters: top 29, guide 29, diagram 29, OK

@@ -1,0 +1,69 @@
+== baseline static: rc 0
+req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, OK
+
+== S1 tag removed (assignment 1)
+   gate rc 1; expected ['UNCOVERED REQ-AEM-005 (RND)']; named yes
+   REQ TAG FAIL: UNCOVERED REQ-AEM-005 (RND): no tagged RND check and no waiver
+   req-tags: 115 REQ rows: 100 traced, 8 waived, 6 need no check; 224 tags in 17 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S2 unknown REQ (assignment 2)
+   gate rc 1; expected ['UNKNOWN REQ REQ-ADP-099']; named yes
+   REQ TAG FAIL: UNKNOWN REQ REQ-ADP-099 tb/adp_engine/sim_main.cpp:964: no matrix row has that ID
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S3 waiver without GAP (assignment 4)
+   gate rc 1; expected ['WAIVER WITHOUT GAP REQ-AEM-025']; named yes
+   REQ TAG FAIL: WAIVER WITHOUT GAP REQ-AEM-025: the waiver names no GAP
+   req-tags: 115 REQ rows: 101 traced, 7 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S4 row added with no tag (assignment 5)
+   gate rc 1; expected ['UNCOVERED REQ-AEM-027 (DIR)']; named yes
+   REQ TAG FAIL: UNCOVERED REQ-AEM-027 (DIR): no tagged DIR check and no waiver
+   req-tags: 116 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 116 REQ rows, 17 GAP findings, OK
+== S5 RND tag relabelled DIR on RN
+   gate rc 1; expected ['UNCOVERED REQ-AEM-016 (RND)']; named yes
+   REQ TAG FAIL: UNCOVERED REQ-AEM-016 (RND): no tagged RND check and no waiver
+   req-tags: 115 REQ rows: 100 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S6 tag name cut to a bare substring (ST1b -> 'ST1')
+   gate rc 0; expected []; named yes
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, OK
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S6b tag name one character ('1') on ST1b
+   gate rc 0; expected []; named yes
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, OK
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S7 matrix row with its Ver cell dropped
+   gate rc 1; expected ['?']; named yes
+   REQ TAG FAIL: UNKNOWN VER REQ-ADP-002: ''
+   req-tags: 115 REQ rows: 100 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S8 second REQ-ADP-001 row (Ver lint) appended at the end of 00
+   gate rc 1; expected ['?']; named yes
+   REQ TAG FAIL: COV RECORD REQ-ADP-001: Cov reads 'A; traced', the gate finds 'A; no check'
+   REQ TAG FAIL: COVERAGE RECORD no check lint: 09 section 8.10 lacks REQ-ADP-001, lists nothing beyond what the gate finds
+   REQ TAG FAIL: COVERAGE RECORD traced TIM: 09 section 8.10 lacks nothing, lists REQ-ADP-001 beyond what the gate finds
+   req-tags: 115 REQ rows: 100 traced, 8 waived, 7 need no check; 225 tags in 18 files, 3 FAILURES
+   check-matrix rc 1: matrix: 115 REQ rows, 17 GAP findings, 1 FAILURES
+== S9 tag line commented out
+   gate rc 1; expected ['MALFORMED TAG']; named yes
+   REQ TAG FAIL: MALFORMED TAG tb/adp_engine/sim_main.cpp:964: a tag is one statement on its own line, REQ_TAG("REQ-AREA-nnn", "CAT", "check name")
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 224 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S10 waiver naming another row's GAP
+   gate rc 1; expected ["WAIVER NAMES ANOTHER ROW'S GAP REQ-AEM-025"]; named yes
+   REQ TAG FAIL: WAIVER NAMES ANOTHER ROW'S GAP REQ-AEM-025: 'GAP-04', the row's own: GAP-06
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S11 Cov cell state edited
+   gate rc 1; expected ['COV RECORD REQ-ADP-002']; named yes
+   REQ TAG FAIL: COV RECORD REQ-ADP-002: Cov reads 'A; waived GAP-16', the gate finds 'A; traced'
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== S12 Python tag moved to another method
+   gate rc 1; expected ['NAME NOT AT CHECK']; named yes
+   REQ TAG FAIL: NAME NOT AT CHECK tb/desc_store/test_gen_desc_image.py:311: "IdentityTest.test_driven_values_agree" is not in the check it stands above
+   req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 225 tags in 18 files, 1 FAILURES
+   check-matrix rc 0: matrix: 115 REQ rows, 17 GAP findings, OK
+== restored: status ''
