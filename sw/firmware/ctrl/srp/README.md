@@ -72,8 +72,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/doc/integrator.md#L321-L323)
-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/src/include/shish_lan/mrp.h#L288-L290).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
@@ -290,7 +290,7 @@ Higher-version messages and atomic invalid-value rejection have wire cases.
 
 The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
 merged as PR #15 at `9197193e`.
-That public pin includes branch `f4-applicant-notes`.
+The current pin descends from it and includes branch `f4-applicant-notes`.
 `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
 `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
 The `point-to-point-condition`, `pending-point-to-point-condition` and
@@ -340,7 +340,9 @@ The desk callback proves output ordering, not a connected target licence registe
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
-The lwSRP pin is public `main` at `9197193e`.
+The lwSRP pin is public `main` at `08ee86e8`.
+Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
+Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.
 The earlier claim that production needed no adaptation was incorrect.
 Two independent reviews, candidate-merge gates and deployment
