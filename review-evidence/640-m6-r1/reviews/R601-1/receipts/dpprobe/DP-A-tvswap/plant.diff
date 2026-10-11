@@ -1,0 +1,6 @@
+3518,3519c3518,3519
+<       6'd6    : mon_diag_col_w = 4'(MON_TV_C);  // @24  TIMESTAMP_VALID
+<       6'd7    : mon_diag_col_w = 4'(MON_TNV_C); // @28  TIMESTAMP_NOT_VALID
+---
+>       6'd6    : mon_diag_col_w = 4'(MON_TNV_C); // @24  TIMESTAMP_VALID
+>       6'd7    : mon_diag_col_w = 4'(MON_TV_C);  // @28  TIMESTAMP_NOT_VALID

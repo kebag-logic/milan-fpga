@@ -1,0 +1,110 @@
+# plant RX-B-ring2: ring aliased to 2 slots: a waiting bundle overwrites the one in service
+# - '    if (penq_w) pq_ring_r[pq_wp_r] <= new_evt_w;'
+# + "    if (penq_w) pq_ring_r[{1'b0, pq_wp_r[0]}] <= new_evt_w;"
+# - '  assign cur_w = pq_ring_r[cur_idx_r];'
+# + "  assign cur_w = pq_ring_r[{1'b0, cur_idx_r[0]}];"
+# build rc=0
+## shape 1 rc=1
+  [ ok ] [LS] setup: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [ ok ] [GC] every sink answers its own row and column (seeded signatures) got=0 exp=0
+  [ ok ] [LS] GC: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] GC: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  first divergence: last_ts_o at cycle 269
+  [FAIL] [LS] H1: every output identical to the reference in every cycle got=16 exp=0
+  [ ok ] [GC] H1: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [ ok ] [H3] FRAMES_RX adds the interval's 11 frames across the wrap (0xFFFFFFF0 + 11) got=0xfffffffb exp=0xfffffffb
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [LS] H3: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H3: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  first divergence: last_ts_o at cycle 5571
+  [FAIL] [LS] H4: every output identical to the reference in every cycle got=126 exp=0
+  [ ok ] [GC] H4: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 25607, 300000 cycles
+  soak exercised: 13536 accepts, 4095 dirty cycles, 2081 window writes, 2151 window reads, 75 resets, 155808 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: last_tsd_o at cycle 13503
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=210990 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=13905 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 13836 accepts, 4046 dirty cycles, 2116 window writes, 2094 window reads, 66 resets, 164586 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: lctx_rd_data_o at cycle 313600
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=232351 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=15443 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=1: checks: 36   failures: 6 ==
+RESULT: FAIL
+
+## shape 8 rc=1
+  [ ok ] [LS] setup: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [ ok ] [GC] every sink answers its own row and column (seeded signatures) got=0 exp=0
+  [ ok ] [LS] GC: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] GC: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  [ ok ] [LS] H1: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H1: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [ ok ] [H3] FRAMES_RX adds the interval's 11 frames across the wrap (0xFFFFFFF0 + 11) got=0xfffffffb exp=0xfffffffb
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [LS] H3: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H3: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  [ ok ] [LS] H4: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H4: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 25614, 300000 cycles
+  soak exercised: 12165 accepts, 4498 dirty cycles, 1757 window writes, 1643 window reads, 68 resets, 170021 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: last_ts_o at cycle 15957
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=153624 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=14496 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 12455 accepts, 4537 dirty cycles, 1763 window writes, 1638 window reads, 66 resets, 166189 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: lctx_rd_data_o at cycle 313561
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=155419 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=14611 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=8: checks: 36   failures: 4 ==
+RESULT: FAIL
+

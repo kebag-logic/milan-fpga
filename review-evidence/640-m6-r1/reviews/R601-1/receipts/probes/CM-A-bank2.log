@@ -1,0 +1,72 @@
+# plant CM-A-bank2: beat bank aliased to 2 slots (overwrite only when 3+ beats are live)
+# - '    if (enq0_v_w) beat_bank_r[beat_wp_r] <= {cm0_l_w, lb_smp0_w, lb_smp1_w};'
+# + "    if (enq0_v_w) beat_bank_r[{1'b0, beat_wp_r[0]}] <= {cm0_l_w, lb_smp0_w, lb_smp1_w};"
+# - '  wire [71:0]       head_beat_w = beat_bank_r[skid_beat_r[skid_rp_r]];'
+# + "  wire [71:0]       head_beat_w = beat_bank_r[{1'b0, skid_beat_r[skid_rp_r][0]}];"
+# build rc=0
+## shape 1 rc=1
+[ST] the source table resolves every entry class
+  [ ok ] [ST] every walk injected every slot (the case is live)
+  [ ok ] [ST] every channel entry resolves to its own source sample got=0 exp=0
+  [ ok ] [LS] ST: every output identical to the reference in every cycle got=0 exp=0
+[SK] mono wire, two commits per beat
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [ ok ] [SK] mono wire, two commits per beat: every event replayed once, in order got=0 exp=0
+  [ ok ] [SK] mono wire, two commits per beat: no event refused at the skid got=0 exp=0
+  [ ok ] [LS] SK: every output identical to the reference in every cycle got=0 exp=0
+[SK] three-channel wire, stashed and lone channels
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [FAIL] [SK] three-channel wire, stashed and lone channels: every event replayed once, in order got=24 exp=0
+  [ ok ] [SK] three-channel wire, stashed and lone channels: no event refused at the skid got=0 exp=0
+  first divergence: pair_l_o at cycle 6548
+  [FAIL] [LS] SK: every output identical to the reference in every cycle got=624 exp=0
+[SK] eight-channel wire, aligned pairs
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [ ok ] [SK] eight-channel wire, aligned pairs: every event replayed once, in order got=0 exp=0
+  [ ok ] [SK] eight-channel wire, aligned pairs: no event refused at the skid got=0 exp=0
+  [ ok ] [LS] SK: every output identical to the reference in every cycle got=0 exp=0
+[SO] random soak, seed 1604, 400000 cycles
+  soak exercised: 4863 injected pairs, 12742 beats, 1272 ticks, 132 flushes, 29 resets, skip counter 0
+  [ ok ] [SO] the soak injected pairs, sent beats, ticked, flushed and reset (live)
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+[SO] random soak, seed 11400714819323198485, 400000 cycles
+  soak exercised: 4907 injected pairs, 12710 beats, 1311 ticks, 142 flushes, 26 resets, skip counter 187
+  [ ok ] [SO] the soak injected pairs, sent beats, ticked, flushed and reset (live)
+  first divergence: pair_r_o at cycle 457780
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=244 exp=0
+== chmap_capture lockstep 4 slots: checks: 19   failures: 3 ==
+RESULT: FAIL
+
+## shape 8 rc=1
+[ST] the source table resolves every entry class
+  [ ok ] [ST] every walk injected every slot (the case is live)
+  [ ok ] [ST] every channel entry resolves to its own source sample got=0 exp=0
+  [ ok ] [LS] ST: every output identical to the reference in every cycle got=0 exp=0
+[SK] mono wire, two commits per beat
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [ ok ] [SK] mono wire, two commits per beat: every event replayed once, in order got=0 exp=0
+  [ ok ] [SK] mono wire, two commits per beat: no event refused at the skid got=0 exp=0
+  [ ok ] [LS] SK: every output identical to the reference in every cycle got=0 exp=0
+[SK] three-channel wire, stashed and lone channels
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [FAIL] [SK] three-channel wire, stashed and lone channels: every event replayed once, in order got=24 exp=0
+  [ ok ] [SK] three-channel wire, stashed and lone channels: no event refused at the skid got=0 exp=0
+  first divergence: pair_l_o at cycle 45804
+  [FAIL] [LS] SK: every output identical to the reference in every cycle got=624 exp=0
+[SK] eight-channel wire, aligned pairs
+  [ ok ] [SK] the replay ran one walk per event (the case is live)
+  [ ok ] [SK] eight-channel wire, aligned pairs: every event replayed once, in order got=0 exp=0
+  [ ok ] [SK] eight-channel wire, aligned pairs: no event refused at the skid got=0 exp=0
+  [ ok ] [LS] SK: every output identical to the reference in every cycle got=0 exp=0
+[SO] random soak, seed 1632, 400000 cycles
+  soak exercised: 9039 injected pairs, 12760 beats, 361 ticks, 137 flushes, 22 resets, skip counter 225
+  [ ok ] [SO] the soak injected pairs, sent beats, ticked, flushed and reset (live)
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+[SO] random soak, seed 11400714819323198485, 400000 cycles
+  soak exercised: 9299 injected pairs, 12550 beats, 383 ticks, 145 flushes, 24 resets, skip counter 71
+  [ ok ] [SO] the soak injected pairs, sent beats, ticked, flushed and reset (live)
+  first divergence: pair_r_o at cycle 863744
+  [FAIL] [LS] SO: every output identical to the reference in every cycle got=52 exp=0
+== chmap_capture lockstep 32 slots: checks: 19   failures: 3 ==
+RESULT: FAIL
+

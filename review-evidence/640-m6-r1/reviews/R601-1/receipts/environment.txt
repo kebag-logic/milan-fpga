@@ -1,0 +1,10 @@
+# pinned verilator identity
+#!/bin/sh
+exec env VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator "$@"
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+Python 3.14.7
+GNU Make 4.4.1
+# published evidence (review-evidence/640-m6-r1 at 2d62247a)
+81f77af04787e8aba7d577c940e1f06efd05ea24f8c75ef56e3c2af6ae75c0b5  HANDOFF.md
+395478debc98b10e08b7bfa07c334b45a4f0de680b80dd558f42d2077ead2f74  PR-BODY.md

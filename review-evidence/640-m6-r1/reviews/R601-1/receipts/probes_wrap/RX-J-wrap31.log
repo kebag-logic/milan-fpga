@@ -1,0 +1,115 @@
+# plant RX-J-wrap31: wrap: the mirror keeps 31 bits (bit 31 of a near-2^32 value lost)
+# - '        <= ram_wdata_w;\n  end : mirror_wr'
+# + "        <= {1'b0, ram_wdata_w[30:0]};\n  end : mirror_wr"
+# build rc=0
+## shape 1 rc=1
+  [ ok ] [LS] setup: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=10 exp=0
+  first divergence: GET_COUNTERS sink 0 column 0 at cycle 24
+  [ ok ] [LS] GC: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=11 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  first divergence: GET_COUNTERS sink 15 column 0 at cycle 25
+  [ ok ] [LS] H1: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=16 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [FAIL] [H3] FRAMES_RX adds the interval's 11 frames across the wrap (0xFFFFFFF0 + 11) got=0x7ffffffb exp=0xfffffffb
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  first divergence: GET_COUNTERS sink 0 column 0 at cycle 1872
+  [ ok ] [LS] H3: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H3: every GET_COUNTERS read identical to the reference got=329 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  first divergence: GET_COUNTERS sink 0 column 9 at cycle 4386
+  [ ok ] [LS] H4: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H4: every GET_COUNTERS read identical to the reference got=2 exp=0
+[SO] random soak, seed 25607, 300000 cycles
+  soak exercised: 13534 accepts, 4091 dirty cycles, 2094 window writes, 2161 window reads, 77 resets, 157022 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: GET_COUNTERS sink 0 column 2 at cycle 12220
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=23130 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 13815 accepts, 4037 dirty cycles, 2109 window writes, 2105 window reads, 63 resets, 165424 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: GET_COUNTERS sink 0 column 6 at cycle 312276
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=25794 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=1: checks: 36   failures: 8 ==
+RESULT: FAIL
+
+## shape 8 rc=1
+  [ ok ] [LS] setup: every output identical to the reference in every cycle got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=80 exp=0
+  first divergence: GET_COUNTERS sink 15 column 3 at cycle 35
+  [ ok ] [LS] GC: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=107 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  first divergence: GET_COUNTERS sink 1 column 0 at cycle 109
+  [ ok ] [LS] H1: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=1120 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  first divergence: GET_COUNTERS sink 1 column 0 at cycle 1621
+  [ ok ] [LS] H2: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H2: every GET_COUNTERS read identical to the reference got=166 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [FAIL] [H3] FRAMES_RX adds the interval's 11 frames across the wrap (0xFFFFFFF0 + 11) got=0x7ffffffb exp=0xfffffffb
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  first divergence: GET_COUNTERS sink 3 column 7 at cycle 1902
+  [ ok ] [LS] H3: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H3: every GET_COUNTERS read identical to the reference got=1497 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  first divergence: GET_COUNTERS sink 4 column 4 at cycle 4468
+  [ ok ] [LS] H4: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] H4: every GET_COUNTERS read identical to the reference got=4440 exp=0
+[SO] random soak, seed 25614, 300000 cycles
+  soak exercised: 12084 accepts, 4444 dirty cycles, 1765 window writes, 1652 window reads, 60 resets, 168564 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: GET_COUNTERS sink 4 column 0 at cycle 12208
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=20030 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 12394 accepts, 4489 dirty cycles, 1779 window writes, 1627 window reads, 66 resets, 168606 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  first divergence: GET_COUNTERS sink 5 column 7 at cycle 312296
+  [ ok ] [LS] SO: every output identical to the reference in every cycle got=0 exp=0
+  [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=19290 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=8: checks: 36   failures: 9 ==
+RESULT: FAIL
+

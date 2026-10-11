@@ -1,0 +1,30 @@
+RX-A-cap3: CAUGHT rcs=[1, 1] - capacity: a third waiting bundle is admitted (ring overwrites the in-service slot)
+    first failed checks: [1] [FAIL] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=48 exp=46; [1] [FAIL] [LS] H1: every output identical to the reference in every cycle got=3634 exp=0; [1] [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=295 exp=0
+RX-B-ring2: CAUGHT rcs=[1, 1] - ring aliased to 2 slots: a waiting bundle overwrites the one in service
+    first failed checks: [1] [FAIL] [LS] H1: every output identical to the reference in every cycle got=16 exp=0; [1] [FAIL] [LS] H4: every output identical to the reference in every cycle got=126 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=210990 exp=0
+RX-C-popidx: CAUGHT rcs=[1, 1] - queued dispatch serves the second-oldest bundle
+    first failed checks: [1] [FAIL] [LS] H1: every output identical to the reference in every cycle got=725 exp=0; [1] [FAIL] [LS] H4: every output identical to the reference in every cycle got=105 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=1042873 exp=0
+RX-D-mircol: CAUGHT rcs=[1, 1] - mirror write lands one column high
+    first failed checks: [1] [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=10 exp=0; [1] [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=11 exp=0; [1] [FAIL] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=0 exp=46
+RX-E-tvswap: CAUGHT rcs=[1, 1] - GET_COUNTERS TIMESTAMP_VALID column serves the TNV tally
+    first failed checks: [1] [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=124 exp=0; [1] [FAIL] [GC] H2: every GET_COUNTERS read identical to the reference got=20 exp=0; [1] [FAIL] [GC] H3: every GET_COUNTERS read identical to the reference got=208 exp=0
+RX-F-engonly: CAUGHT rcs=[1, 1] - mirror ignores window (non-engine) writes
+    first failed checks: [1] [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=10 exp=0; [1] [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=11 exp=0; [1] [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=16 exp=0
+RX-G-rowstride: CAUGHT rcs=[0, 1] - read row stride 8 instead of 16 (sink aliasing)
+    first failed checks: [8] [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=70 exp=0; [8] [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=94 exp=0; [8] [FAIL] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=0 exp=46
+RX-H-wpnoreset: CAUGHT rcs=[1, 1] - write pointer survives reset
+    first failed checks: [1] [FAIL] [LS] H4: every output identical to the reference in every cycle got=105 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=800674 exp=0; [1] [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=39569 exp=0
+CM-A-bank2: CAUGHT rcs=[1, 1] - beat bank aliased to 2 slots (overwrite only when 3+ beats are live)
+    first failed checks: [1] [FAIL] [SK] three-channel wire, stashed and lone channels: every event replayed once, in order got=24 exp=0; [1] [FAIL] [LS] SK: every output identical to the reference in every cycle got=624 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=244 exp=0
+CM-B-bank3: CAUGHT rcs=[1, 1] - beat bank cycles 3 slots (overwrite only when the skid holds 4 beats)
+    first failed checks: [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=218 exp=0; [8] [FAIL] [LS] SO: every output identical to the reference in every cycle got=52 exp=0
+CM-C-enq1slot: CAUGHT rcs=[1, 1] - second commit of a beat names the next bank slot
+    first failed checks: [1] [FAIL] [SK] mono wire, two commits per beat: every event replayed once, in order got=24 exp=0; [1] [FAIL] [LS] SK: every output identical to the reference in every cycle got=624 exp=0; [1] [FAIL] [SK] three-channel wire, stashed and lone channels: every event replayed once, in order got=24 exp=0
+CM-D-stashsmp1: CAUGHT rcs=[1, 1] - stash-closing commit takes smp1 instead of smp0
+    first failed checks: [1] [FAIL] [SK] three-channel wire, stashed and lone channels: every event replayed once, in order got=24 exp=0; [1] [FAIL] [LS] SK: every output identical to the reference in every cycle got=624 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=4917 exp=0
+CM-E-loopidxh: CAUGHT rcs=[0, 1] - LOOP row ignores the stream index idxh
+    first failed checks: [8] [FAIL] [LS] SO: every output identical to the reference in every cycle got=92472 exp=0; [8] [FAIL] [LS] SO: every output identical to the reference in every cycle got=94278 exp=0
+CM-F-i2sswap: CAUGHT rcs=[1, 1] - I2S L/R rows swapped
+    first failed checks: [1] [FAIL] [ST] every channel entry resolves to its own source sample got=3 exp=0; [1] [FAIL] [LS] ST: every output identical to the reference in every cycle got=85 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=34768 exp=0
+CM-G-tdmbound: CAUGHT rcs=[1, 1] - TDM pair bound off by one (pair N_TDM_PAIRS reads a LOOP row)
+    first failed checks: [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=2295 exp=0; [1] [FAIL] [LS] SO: every output identical to the reference in every cycle got=3512 exp=0; [8] [FAIL] [LS] SO: every output identical to the reference in every cycle got=2580 exp=0

@@ -1,0 +1,16 @@
+== avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv vs e8454e2751d05b02ee8e5a571857589ab358ab86:hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv (name rewritten)
+8c8
+<   File        : KL_avtp_rx_monitor_ctx_ref.sv
+---
+>   File        : KL_avtp_rx_monitor_ctx.sv
+diff rc=1
+== chmap_capture/reference/KL_chan_map_capture_ref.sv vs e8454e2751d05b02ee8e5a571857589ab358ab86:hdl/ieee1722/aaf/KL_chan_map_capture.sv (name rewritten)
+8c8
+<   File        : KL_chan_map_capture_ref.sv
+---
+>   File        : KL_chan_map_capture.sv
+592c592
+<     $error("KL_chan_map_capture_ref: TDM_FRAME_PAIRS_P=%0d must be 1..%0d (N_TDM_P/2). The strobe of a frame's last pair closes it, so that pair must be one the TDM bucket keeps.",
+---
+>     $error("KL_chan_map_capture: TDM_FRAME_PAIRS_P=%0d must be 1..%0d (N_TDM_P/2). The strobe of a frame's last pair closes it, so that pair must be one the TDM bucket keeps.",
+diff rc=1

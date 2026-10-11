@@ -1,0 +1,4 @@
+RX-I-wrapzero: CAUGHT rcs=[1, 1] - wrap: the mirror drops a write of zero (a counter wrapping to 0 keeps 0xFFFFFFFF)
+    first failed checks: [1] [FAIL] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=1526726700 exp=46; [1] [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=846 exp=0; [1] [FAIL] [GC] H2: every GET_COUNTERS read identical to the reference got=208 exp=0
+RX-J-wrap31: CAUGHT rcs=[1, 1] - wrap: the mirror keeps 31 bits (bit 31 of a near-2^32 value lost)
+    first failed checks: [1] [FAIL] [GC] every sink answers its own row and column (seeded signatures) got=10 exp=0; [1] [FAIL] [GC] GC: every GET_COUNTERS read identical to the reference got=11 exp=0; [1] [FAIL] [GC] H1: every GET_COUNTERS read identical to the reference got=16 exp=0
