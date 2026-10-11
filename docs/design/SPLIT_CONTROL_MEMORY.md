@@ -74,6 +74,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory map` | `elf truncated` | A header, table, name or load segment running past the end of the file |
 | `memory map` | `outside regions` | A section outside both regions |
 | `memory map` | `loads outside rom` | Initial bytes loading outside `rom`, the only region the bitstream initialises |
+| `memory map` | `load coverage` | A section with initial bytes that the load segments' file bytes, which program `rom`, do not all carry |
 | `memory map` | `nobits in rom` | A NOBITS section in `rom`, which the firmware cannot write |
 | `memory map` | `writable in rom` | A writable section with initial bytes running in `rom`, which drops its writes |
 | `memory-map overlap` | `regions` | The two regions sharing an address |
@@ -85,6 +86,9 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+`rom`'s contents are the load segments' file bytes and nothing else.
+So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
+`load coverage` requires them to carry every byte of every section with initial bytes.
 `add_ctrl_memory` checks the CPU's origins, then reads and plans the image, which runs every other rule but the two staging rules.
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
@@ -99,7 +103,8 @@ The test drives `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv,
 - a memory-map overlap, `.bss` at `.data`'s address, refused by `addresses`;
 - a staging buffer of another shape, the 8x8 stage in the 1x1 build, refused by `stage size`.
 
-Each is refused before any Verilog is written.
+A fourth case empties the reset segment's file bytes and keeps its section, refused by `entry bytes`.
+Each is refused before any Verilog or init file is written.
 `--ctrl-mailbox` alone and `--ctrl-firmware` alone are each refused.
 The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
 

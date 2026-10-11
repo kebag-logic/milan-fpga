@@ -81,6 +81,8 @@ RULES: dict[str, Rule] = {
     "outside regions": Rule("memory map", "A section outside both regions"),
     "loads outside rom": Rule("memory map", "Initial bytes loading outside `rom`, the only region the bitstream "
                                             "initialises"),
+    "load coverage": Rule("memory map", "A section with initial bytes that the load segments' file bytes, which "
+                                        "program `rom`, do not all carry"),
     "nobits in rom": Rule("memory map", "A NOBITS section in `rom`, which the firmware cannot write"),
     "writable in rom": Rule("memory map", "A writable section with initial bytes running in `rom`, which drops "
                                           "its writes"),
@@ -241,6 +243,15 @@ def read_elf(path: Path) -> Image:
     return Image(entry, tuple(sections), symbols, segments)
 
 
+def _carried(segments: tuple[tuple[int, bytes], ...], start: int, end: int) -> bool:
+    """Whether the load segments' file bytes, which `rom_words` programs, cover [start, end)."""
+    at = start
+    for addr, data in sorted(segments, key=lambda segment: segment[0]):
+        if addr <= at < addr + len(data):
+            at = addr + len(data)
+    return at >= end
+
+
 def _overlap(rule: str, spans: list[tuple[int, int, str]]) -> None:
     """Refuse the first two of `spans` ([start, end) and name) that share an address."""
     spans = sorted(spans)
@@ -258,6 +269,9 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
                       f"CPU's reset address 0x{rom.origin:08x}, the start of {rom.name}")
     if not any(s.loaded and s.vma <= image.entry < s.vma + s.size for s in image.sections):
         raise Refusal("entry bytes", f"no initial bytes at the reset address 0x{image.entry:08x}")
+    if not _carried(image.segments, image.entry, image.entry + 4):
+        raise Refusal("entry bytes", f"no load segment carries the first word at the reset address "
+                      f"0x{image.entry:08x}, so {rom.name} would hold none there")
     for s in image.sections:
         home = next((r for r in (rom, ram) if r.holds(s.vma, s.vma + s.size)), None)
         if home is None:
@@ -266,6 +280,9 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
         if s.loaded and not rom.holds(s.lma, s.lma + s.size):
             raise Refusal("loads outside rom", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
                           f"outside {rom.name}, the only region the bitstream initialises")
+        if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):
+            raise Refusal("load coverage", f"{s.name}'s {s.size} initial bytes at 0x{s.lma:08x} are not all "
+                          f"in the load segments' file bytes, the only bytes that program {rom.name}")
         if not s.loaded and home is rom:
             raise Refusal("nobits in rom", f"{s.name} reserves {rom.name}, which the firmware cannot write")
         if s.writable and home is rom:

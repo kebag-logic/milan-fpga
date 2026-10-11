@@ -13,7 +13,8 @@ block RAM the SoC builds from them. This file grades seven things:
      planned or refused. A good image is accepted and its rom contents are the
      bytes placed at their load addresses. Every rule in `ctrl_memory.RULES`
      has a planted defect that must be refused by that rule, among them a
-     truncated ELF, writable data running in rom and a CPU with other origins.
+     truncated ELF, writable data running in rom, a CPU with other origins and
+     a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
@@ -25,14 +26,17 @@ block RAM the SoC builds from them. This file grades seven things:
   4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe
      linked by `sw/firmware/ctrl/plat/ctrl_split.ld` behind
      `ctrl_split_start.S` enters at the reset address with the reset entry
-     first, loads .data's initial value from rom and is planned. The same
-     script with `.data`'s `AT > rom` removed, with `.data` linked in rom, or
-     entering at `main` is refused by its rule. Without a compiler this arm is
-     a declared skip.
+     first, loads .data's initial value from rom and is planned, and its rom
+     words are the toolchain's own `objcopy -O binary` of it. The same script
+     with `.data`'s `AT > rom` removed, with `.data` linked in rom, or entering
+     at `main` is refused by its rule, and so is the linked image with its
+     reset segment's file bytes emptied or cut to one word, or .data's emptied.
+     Without a compiler this arm is a declared skip.
   5. THE SOC BUILD. milan_soc.py's own main(), on the shipping 1x1 config's
      argv (sw/builder/endstation_builder.py), exporting without Vivado or
-     software: an allocation over budget, a memory-map overlap and the 8x8
-     stage are each refused by its rule before any Verilog is written;
+     software: an allocation over budget, a memory-map overlap, the 8x8 stage
+     and an emptied reset segment are each refused by its rule before any
+     Verilog or init file is written;
      --ctrl-mailbox alone and --ctrl-firmware alone are each refused; and the
      split export holds the image's banks and no BIOS ROM or SRAM, its rom
      banks hold the image, and the Builder is told to build no BIOS and no
@@ -308,6 +312,10 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
     return [
         ("entry address", "an image entering away from the reset address", plan(GOOD._replace(entry=0x100))),
         ("entry bytes", "an image with no initial bytes at the reset address", plan(GOOD._replace(text_at=0x100))),
+        ("entry bytes", "the reset segment's file bytes emptied, its section kept",
+         read(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))),
+        ("entry bytes", "the reset section moved to 0x100 in the section table, its segment kept",
+         read(edited(tmp, "reset-moved", poke(lambda data: shoff(data) + 40 + 12, 0x100)))),
         ("cpu origins", "a CPU resetting away from rom's origin", cpu(0x100, RAM)),
         ("cpu origins", "a CPU whose sram is not at sram's origin", cpu(0, 0x2000_0000)),
         ("elf class", "a file that is not an ELF", read(edited(tmp, "not-elf", splice(0, b"#!sh")))),
@@ -324,6 +332,10 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
         ("outside regions", "a section outside rom and sram", plan(GOOD._replace(bss_at=0x4000_0000))),
         ("loads outside rom", "initial bytes of .data left in sram, which nothing initialises",
          plan(GOOD._replace(data_lma=RAM))),
+        ("load coverage", "the reset segment's file bytes cut to its first word, its section kept",
+         read(edited(tmp, "reset-short", poke(lambda data: 52 + 16, 4)))),
+        ("load coverage", ".data's load segment emptied, its section kept",
+         read(edited(tmp, "data-unloaded", poke(lambda data: 52 + 2 * 32 + 16, 0)))),
         ("nobits in rom", ".bss reserved in rom", plan(GOOD._replace(bss_at=12_100, bss=1_000))),
         ("writable in rom", ".data linked to run in rom", plan(GOOD._replace(data_at=12_100, data_lma=12_100))),
         ("regions", "PLANTED: a memory-map overlap (sram moved into rom)",
@@ -533,6 +545,17 @@ def link(cc: str, tmp: Path, script: str) -> Path:
     return elf_path
 
 
+def filesz_at(data: bytes, address: int) -> int:
+    """Where the file size of the load segment carrying `address` is, read without `read_elf`."""
+    phoff, = struct.unpack_from("<I", data, 28)
+    phentsize, phnum = struct.unpack_from("<HH", data, 42)
+    for at in range(phoff, phoff + phnum * phentsize, phentsize):
+        kind, _, _, paddr, filesz = struct.unpack_from("<5I", data, at)
+        if kind == 1 and paddr <= address < paddr + filesz:
+            return at + 16
+    raise LookupError(f"no load segment carries 0x{address:08x}")
+
+
 def link_arms(problems: list[str], tmp: Path) -> bool:
     """The real link script and reset entry; False when no RV32 compiler is found."""
     cc = fw_rv32.compiler()
@@ -540,7 +563,8 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
         print("  [skip] no RV32 compiler: the link arm did not run")
         return False
     script = (PLAT / "ctrl_split.ld").read_text()
-    probe = ctrl_memory.read_elf(link(cc, tmp, script))
+    linked = link(cc, tmp, script)
+    probe = ctrl_memory.read_elf(linked)
     plan = ctrl_memory.plan(probe)
     sections = {s.name: s for s in probe.sections}
     words = ctrl_memory.rom_words(probe)
@@ -551,6 +575,13 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
           and words[data.lma // 4] == 7, ".data runs in sram and its initial value 7 loads from rom")
     check(problems, sections[".stack"].vma + sections[".stack"].size == RAM + plan.ram_bytes,
           "the stack tops the sram need")
+    binary = tmp / "probe.bin"
+    subprocess.run([str(Path(cc).with_name(Path(cc).name.replace("gcc", "objcopy"))), "-O", "binary",
+                    str(linked), str(binary)], check=True)
+    loaded = binary.read_bytes()
+    check(problems, struct.pack(f"<{len(words)}I", *words) == loaded + bytes(-len(loaded) % 4),
+          f"the probe's rom words are its load image as the toolchain's objcopy -O binary writes it "
+          f"({len(words)} words, {len(loaded)} bytes)")
     ctrl_memory.check_stage(probe, STAGE_1X1, "1x1")
     check(problems, True, "the probe's nvm_stage passes as the shape's stage")
     for plant, edit, rule in (("no AT > rom on .data", ("} > sram AT > rom", "} > sram"), "loads outside rom"),
@@ -560,6 +591,17 @@ def link_arms(problems: list[str], tmp: Path) -> bool:
         broken.mkdir()
         refused(problems, rule, lambda b=broken, e=edit: ctrl_memory.plan(
             ctrl_memory.read_elf(link(cc, b, script.replace(*e)))), f"PLANTED link script: {plant}")
+    raw = linked.read_bytes()
+    for plant, address, size, rule in (("the reset segment's file bytes emptied", probe.entry, 0, "entry bytes"),
+                                       ("the reset segment's file bytes cut to its first word", probe.entry, 4,
+                                        "load coverage"),
+                                       (".data's load segment emptied", data.lma, 0, "load coverage")):
+        broken = bytearray(raw)
+        struct.pack_into("<I", broken, filesz_at(raw, address), size)
+        path = tmp / (re.sub(r"\W+", "-", plant).strip("-") + ".elf")
+        path.write_bytes(bytes(broken))
+        refused(problems, rule, lambda p=path: ctrl_memory.plan(ctrl_memory.read_elf(p)),
+                f"PLANTED linked image: {plant}")
     return True
 
 
@@ -648,7 +690,8 @@ def soc_case(tmp: Path, label: str, extra: list[str], mutation: list[str] | None
                        env=dict(os.environ, PYTHONHASHSEED="0"), stdout=fh, stderr=subprocess.STDOUT, check=False)
     result_path = stem.with_suffix(".result.json")
     result = json.loads(result_path.read_text()) if result_path.exists() else {"rc": None, "error": "no result"}
-    result.update(log=log.read_text(), out=out, verilog=sorted(out.glob("gateware/*.v")))
+    result.update(log=log.read_text(), out=out, verilog=sorted(out.glob("gateware/*.v")),
+                  inits=sorted(out.glob("gateware/*.init")))
     return result
 
 
@@ -691,10 +734,12 @@ def soc_arms(problems: list[str], tmp: Path, mutation: list[str] | None = None) 
     for label, extra, rule in (
             ("an allocation over budget", [*mbx, str(elf(tmp, GOOD._replace(bss=215_000)))], "budget"),
             ("a memory-map overlap", [*mbx, str(elf(tmp, GOOD._replace(bss_at=RAM + 32)))], "addresses"),
-            ("the 8x8 stage in the 1x1 build", [*mbx, str(elf(tmp, GOOD._replace(stage=STAGE_8X8)))], "stage size")):
+            ("the 8x8 stage in the 1x1 build", [*mbx, str(elf(tmp, GOOD._replace(stage=STAGE_8X8)))], "stage size"),
+            ("the reset segment's file bytes emptied",
+             [*mbx, str(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))], "entry bytes")):
         result = soc_case(tmp, label, extra, mutation)
-        check(problems, (result["rc"], result.get("rule"), result["verilog"]) == (1, rule, []),
-              f"SoC build: {label} is refused by rule '{rule}' before any Verilog is written "
+        check(problems, (result["rc"], result.get("rule"), result["verilog"], result["inits"]) == (1, rule, [], []),
+              f"SoC build: {label} is refused by rule '{rule}' before any Verilog or init file is written "
               f"(rc {result['rc']}: {result.get('refusal') or result.get('error')})")
     for label, extra in (("--ctrl-mailbox alone", ["--ctrl-mailbox"]),
                          ("--ctrl-firmware alone", ["--ctrl-firmware", str(good)])):
@@ -759,8 +804,16 @@ MUTANTS = tuple(Mutant(*row) for row in (
     ("entry bytes off", "entry bytes", *_CHECKS, "if not any(s.loaded and s.vma <= image.entry",
      "if False and not any(s.loaded and s.vma <= image.entry", "checks"),
     ("outside regions off", "outside regions", *_CHECKS, "if home is None:", "if False:", "checks"),
+    ("entry bytes read the sections only", "entry bytes", *_CHECKS,
+     "if not _carried(image.segments, image.entry, image.entry + 4):", "if False:", "checks"),
     ("loads outside rom off", "loads outside rom", *_CHECKS,
      "if s.loaded and not rom.holds(s.lma, s.lma + s.size):", "if False:", "checks"),
+    ("load coverage off", "load coverage", *_CHECKS,
+     "if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):", "if False:", "checks"),
+    ("load coverage reads the first byte only", "load coverage", *_CHECKS,
+     "_carried(image.segments, s.lma, s.lma + s.size)", "_carried(image.segments, s.lma, s.lma + 1)", "checks"),
+    ("a segment carries bytes below its start", "load coverage", "ctrl_memory", "_carried",
+     "if addr <= at < addr + len(data):", "if at < addr + len(data):", "checks"),
     ("nobits in rom off", "nobits in rom", *_CHECKS, "if not s.loaded and home is rom:", "if False:", "checks"),
     ("writable in rom off", "writable in rom", *_CHECKS, "if s.writable and home is rom:", "if False:", "checks"),
     ("region overlap off", "regions", *_CHECKS, '_overlap("regions", ', '0 and _overlap("regions", ', "checks"),

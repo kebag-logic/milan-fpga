@@ -700,16 +700,19 @@ planted defect for every rule in `ctrl_memory.RULES` refused by that rule
 (the 56.0 RAMB36 budget accepted and 56.5 refused), the real
 `milan_soc.CtrlMemory` in simulation at the largest image's banks across the
 whole decoded window, and a probe linked by
-[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld). Its SoC arm runs
+[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), whose rom words
+must equal its `objcopy -O binary` image and whose load segments, emptied or cut
+short, are refused by rule. Its SoC arm runs
 `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
 Vivado: the three planted controls (an allocation over budget, a memory-map
-overlap, a staging buffer of another shape) and the two lone flags are
-refused, and the split export holds the image's banks and no BIOS memory.
+overlap, a staging buffer of another shape), an emptied reset segment and the
+two lone flags are refused, and the split export holds the image's banks and no
+BIOS memory.
 That arm refuses LiteX's firmware data packages, which the `elaborate` job does
 not install, so it grades the same in any interpreter.
 It requires the
 [split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
-rule table to equal `ctrl_memory.RULES`. Its forty mutants each rebuild one
+rule table to equal `ctrl_memory.RULES`. Its forty-four mutants each rebuild one
 function or class with a rule or property removed or weakened, and each must
 turn its arm red by name; an arm that fails unmutated grades no mutant. The
 link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
