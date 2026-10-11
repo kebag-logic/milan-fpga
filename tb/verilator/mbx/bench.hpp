@@ -23,6 +23,7 @@
 #include <array>
 #include <cstdint>
 #include <deque>
+#include <type_traits>
 #include <vector>
 
 #include "Vtb_mbx_top.h"
@@ -172,6 +173,32 @@ class Bench {
         }
     }
 
+    //! What the publication block drives into interface `iface`'s datapath,
+    //! read off tb_mbx_top's pub_*_o ports.
+    PubView pub(unsigned iface) const {
+        PubView v;
+        v.da_gate = static_cast<std::uint32_t>(slice(dut_->pub_da_gate_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
+        v.licence = static_cast<std::uint32_t>(slice(dut_->pub_licence_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
+        v.idle_slope_bps = static_cast<std::uint32_t>(
+            slice(dut_->pub_idle_slope_bps_o, MBX_IDLE_SLOPE_BPS_WIDTH * iface, MBX_IDLE_SLOPE_BPS_WIDTH));
+        v.vid = static_cast<std::uint32_t>(slice(dut_->pub_dom_vid_o, MBX_SR_DOMAIN_VID_WIDTH * iface,
+                                                 MBX_SR_DOMAIN_VID_WIDTH));
+        v.priority = static_cast<std::uint32_t>(
+            slice(dut_->pub_dom_prio_o, MBX_SR_DOMAIN_PRIORITY_WIDTH * iface, MBX_SR_DOMAIN_PRIORITY_WIDTH));
+        v.adopted = static_cast<std::uint32_t>(
+            slice(dut_->pub_dom_adopted_o, MBX_SR_DOMAIN_ADOPTED_WIDTH * iface, MBX_SR_DOMAIN_ADOPTED_WIDTH));
+        v.talker_decl = static_cast<std::uint32_t>(
+            slice(dut_->pub_talker_decl_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
+        v.bound = static_cast<std::uint32_t>(slice(dut_->pub_bound_o, MBX_N_PUB_SINKS * iface, MBX_N_PUB_SINKS));
+        v.started = static_cast<std::uint32_t>(slice(dut_->pub_started_o, MBX_N_PUB_SINKS * iface, MBX_N_PUB_SINKS));
+        // the stream_id the datapath takes: pub_sid_o while pub_sid_valid_o is set
+        for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            const bool valid = slice(dut_->pub_sid_valid_o, MBX_N_PUB_SINKS * iface + k, 1u) != 0u;
+            v.sid.push_back(valid ? slice(dut_->pub_sid_o, 64u * (MBX_N_PUB_SINKS * iface + k), 64u) : 0u);
+        }
+        return v;
+    }
+
     Vtb_mbx_top* dut() const { return dut_; }
     bool irq() const { return dut_->irq_o != 0; }
     std::uint64_t cycles() const { return cycles_; }
@@ -207,6 +234,24 @@ class Bench {
     }
 
     bool tx_ready_now() const { return ((tx_pattern_ >> (cycles_ % 8)) & 1u) != 0; }
+
+    //! Bits [lsb +: width] (width at most 64) of a port: a Verilator scalar,
+    //! or a wide signal of 32-bit words, least significant first.
+    template <class Sig>
+    static std::uint64_t slice(const Sig& sig, unsigned lsb, unsigned width) {
+        std::uint64_t v = 0;
+        for (unsigned b = 0; b < width; ++b) {
+            const unsigned at = lsb + b;
+            std::uint64_t bit = 0;
+            if constexpr (std::is_integral_v<Sig>) {
+                bit = (static_cast<std::uint64_t>(sig) >> at) & 1u;
+            } else {
+                bit = (sig[at / 32u] >> (at % 32u)) & 1u;
+            }
+            v |= bit << b;
+        }
+        return v;
+    }
 
     //! Every AXI4-Lite output, as one comparable value.
     std::array<std::uint64_t, 8> axil_outputs() const {

@@ -81,7 +81,10 @@ then open AECP and attach SRP. The bridge restores the combined channel filter
 and interrupts after SRP attaches. Its poll service forwards ACMP bindings,
 START/STOP, persistence and deferred notifications. An UNBIND_RX response must
 be accepted before the corresponding MEDIA_UNLOCKED notification is eligible
-([#653](https://github.com/kebag-logic/milan-fpga/issues/653)).
+([#653](https://github.com/kebag-logic/milan-fpga/issues/653)). START/STOP
+applies through `acmp_set_started`, which writes the sink's started level to
+the mailbox's [publication block](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)
+before it returns; the response leaves on a later pass (#665).
 
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement

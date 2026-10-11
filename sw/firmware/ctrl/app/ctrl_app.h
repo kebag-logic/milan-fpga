@@ -68,8 +68,9 @@ extern "C" {
 	 CTRL_LOOP_RX_PER_PASS * (CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)
 #define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
 // Registration then withdrawal can each stop/re-arm one timer (two accesses).
-// Withdrawal can also read the clock and first-draw seed for discovery delay.
-#define CTRL_APP_SRP_FEEDBACK_MAX (ACMP_MAX_SINKS * 6u)
+// Withdrawal can also read the clock and first-draw seed for discovery delay,
+// and publishes the sink's binding without its stream (one BINDING write).
+#define CTRL_APP_SRP_FEEDBACK_MAX (ACMP_MAX_SINKS * 7u)
 // ACMP's published pass already includes ADP. Each additional module shares
 // the same event-record reads; all four retain their own handler/poll terms.
 #define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX - \

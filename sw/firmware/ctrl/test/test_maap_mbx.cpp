@@ -40,12 +40,21 @@ class MaapHost : public ::testing::Test {
     maap_mbx adapter{};
     std::array<std::uint64_t, MBX_N_IF> macs{};
     std::array<bool, MBX_N_IF> valid{};
+    // the interface's DA_GATE in the publication block when its allocation was reported
+    std::array<std::uint32_t, MBX_N_IF> gate_at_report{};
     std::vector<std::uint64_t> commits;
     // Reference bus: 100 ns per ordered transaction. No measured CPU claim.
     std::uint64_t now_ns = 0;
 
     static void allocation(void* ctx, unsigned interface, std::uint64_t, std::uint16_t, bool good) {
-        static_cast<MaapHost*>(ctx)->valid.at(interface) = good;
+        auto* r = static_cast<MaapHost*>(ctx);
+        r->valid.at(interface) = good;
+        r->gate_at_report.at(interface) = r->gate(interface);
+    }
+    std::uint32_t gate(unsigned interface) const {
+        mbx_model_pub v;
+        mbx_model_pub_view(&model, interface, &v);
+        return v.da_gate;
     }
     static void trace(void* ctx, bool write, std::uint32_t offset, std::uint32_t) {
         auto& r = *static_cast<MaapHost*>(ctx);
@@ -107,6 +116,65 @@ TEST_F(MaapHost, HMaapTimerCommitsAndIntervals) {
         EXPECT_EQ(frame->bytes[17], 16u);
         if (k < 3) { EXPECT_GT(wait, 500u); EXPECT_LT(wait, 600u); }
         else { EXPECT_GT(wait, 30000u); EXPECT_LT(wait, 32000u); }
+    }
+}
+
+// The datapath's talker DA gate (lane F-INT; #665 comment 6088423771): DA_GATE
+// opens every source of the claimed range before the allocation is reported,
+// which a PROBE_TX_RESPONSE then promises, and closes before a loss is.
+TEST_F(MaapHost, DaGateIsPublishedBeforeEachAllocationIsReported) {
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        EXPECT_TRUE(gate(k) == 0u && gate_at_report[k] == 0u && !valid[k])
+            << "DA gate closed while the range is only probed, interface " << k;
+    }
+    acquire();
+    EXPECT_EQ(gate_at_report[0], 0xFFu) << "DA gate opens the eight sources before the allocation is reported";
+    EXPECT_EQ(gate(0), 0xFFu) << "DA gate stays open while the range is held";
+    ASSERT_TRUE(inject(incoming(2, macs[0])));
+    ctrl_loop_service(&loop);
+    ASSERT_FALSE(valid[0]) << "a DEFEND to the own MAC takes the range";
+    EXPECT_EQ(gate_at_report[0], 0u) << "DA gate closes before the loss is reported";
+    EXPECT_EQ(gate(0), 0u) << "DA gate stays closed while the range is probed again";
+    for (unsigned k = 1; k < MBX_N_IF; ++k) {
+        EXPECT_EQ(gate(k), 0u) << "DA gate of another interface is its own";
+    }
+    maap_mbx adapter2{};
+    EXPECT_FALSE(maap_mbx_init(&adapter2, macs.data(), MBX_N_PUB_SOURCES + 1u, 2, allocation, this))
+        << "DA gate: more sources than the publication block has are refused";
+    EXPECT_TRUE(maap_mbx_init(&adapter2, macs.data(), MBX_N_PUB_SOURCES, 2, allocation, this))
+        << "DA gate: as many as it has are taken";
+}
+
+// R583-1-F2 (#665 comment 6092086337): the gate is published on the interface
+// that allocated. Interface 1 (the last) acquires alone: its gate opens
+// before its own report and no other interface's moves. maap_if2 runs this at
+// two interfaces, where a gate written to interface 0 fails it.
+TEST_F(MaapHost, DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport) {
+    const unsigned last = MBX_N_IF - 1u;
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        if (k != last) maap_release(&adapter.ifs[k].core);
+    }
+    for (unsigned n = 0; n < 3; ++n) expiry(last);
+    ASSERT_TRUE(valid[last]) << "interface " << last << " acquires alone";
+    EXPECT_EQ(gate_at_report[last], 0xFFu) << "DA gate of the acquiring interface opens before its own report";
+    EXPECT_EQ(gate(last), 0xFFu) << "DA gate of the acquiring interface stays open while it holds the range";
+    for (unsigned k = 0; k + 1u < MBX_N_IF; ++k) {
+        EXPECT_TRUE(gate(k) == 0u && !valid[k]) << "DA gate of interface " << k << ", which holds no range, stays closed";
+    }
+}
+
+// Every interface acquires: each interface's gate was open before its own
+// report, whichever interface allocated first.
+TEST_F(MaapHost, DaGateOfEveryInterfaceOpensBeforeItsOwnReport) {
+    for (unsigned n = 0; n < 4u * MBX_N_IF; ++n) {
+        for (unsigned k = 0; k < MBX_N_IF; ++k) {
+            if (!valid[k] && model.timers[adapter.ifs[k].slot].armed) expiry(k);
+        }
+    }
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        ASSERT_TRUE(valid[k]) << "interface " << k << " acquires";
+        EXPECT_EQ(gate_at_report[k], 0xFFu) << "DA gate of interface " << k << " opens before its own report";
+        EXPECT_EQ(gate(k), 0xFFu) << "DA gate of interface " << k << " stays open while it holds the range";
     }
 }
 
@@ -366,11 +434,12 @@ TEST_F(MaapHost, CallbackWorkAndEveryOutputCount) {
             loop.sinks[0].fn(loop.sinks[0].ctx, &ev);
             EXPECT_LE(accesses() - before, MAAP_MBX_EVENT_MAX) << "callback work bound";
             if (retry == 2) {
-                EXPECT_EQ(accesses() - before, 48u) << "final probe and ANNOUNCE cost";
+                EXPECT_EQ(accesses() - before, 49u) << "final probe and ANNOUNCE cost, DA_GATE included";
             }
         }
         EXPECT_TRUE(valid[0]) << "every output count acquired";
         EXPECT_EQ(adapter.ifs[0].core.count, count);
+        EXPECT_EQ(gate(0), (1u << count) - 1u) << "DA gate opens each of the count sources";
     }
 }
 
