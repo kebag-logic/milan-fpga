@@ -1,0 +1,19 @@
+s1i1 rom 95032 sram 45520 planned 35.0 mapped 34.0 counts {'RAMB36E1': 33, 'RAMB18E1': 2, 'LUT': 212, 'FF': 32}
+s1i2 rom 96320 sram 56880 planned 38.0 mapped 37.5 counts {'RAMB36E1': 37, 'RAMB18E1': 1, 'LUT': 89, 'FF': 7}
+s8i1 rom 108680 sram 86080 planned 48.5 mapped 47.0 counts {'RAMB36E1': 46, 'RAMB18E1': 2, 'LUT': 307, 'FF': 33}
+s8i2 rom 110056 sram 112208 planned 54.5 mapped 53.0 counts {'RAMB36E1': 52, 'RAMB18E1': 2, 'LUT': 328, 'FF': 40}
+PASS: ledger at measured 53 = 113; at ruled 56 = 116, leaving 5.5; reserve 13.5 untouched
+budget_slack_1p5 => [ok  ] MUTANT 'budget 1.5 tiles slack' (budget) is caught by the checks arm: an allocation of 56.5 RAMB36, half a tile over: accepted, expected 'allocation over budget' rule 'budget'
+budget_ge => [ok  ] MUTANT 'budget refuses exactly 56' (budget) is caught by the checks arm: an allocation of exactly 56 RAMB36 is accepted: raised Refusal (allocation over budget: 56 RAMB36 (rom 12068 bytes in 12288, sram 217088 bytes in 217088) exceeds the 56-RAMB36 budget)
+nobits_in_rom_off => [ok  ] MUTANT 'nobits in rom off' (nobits in rom) is caught by the checks arm: .bss reserved in rom: refused by 'memory map' rule 'writable in rom' (memory map: .bss is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+lma_overlap_off => [ok  ] MUTANT 'load-address overlap off' (initial bytes) is caught by the checks arm: .data's initial bytes loading over .rodata's: accepted, expected 'memory-map overlap' rule 'initial bytes'
+no_bytes_at_entry_off => [ok  ] MUTANT 'entry bytes off' (entry bytes) is caught by the checks arm: an image with no initial bytes at the reset address: accepted, expected 'reset entry' rule 'entry bytes'
+low_minus1 => [ok  ] MUTANT 'decode one bit short' (decode width) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x8000', 'ack'), ('0x8001', 'ack'), ('0x81f1', 'ack')])
+err_held => [ok  ] MUTANT 'err held a second cycle' (err pulse) is caught by the sim arm: rom: a read presented on the cycle after an err acks with its own data ((('err', 0), ('err', 4175417604)))
+lma_identity => [ok  ] MUTANT 'load address read as the run address' (load address) is caught by the checks arm: the good image is planned: raised Refusal (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+regions_overlap_off => [ok  ] MUTANT 'region overlap off' (regions) is caught by the checks arm: PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory map' rule 'outside regions' (memory map: .data [0x10000000, 0x10000040) is outside rom and sram)
+stage_lt => [ok  ] MUTANT 'stage accepts a larger buffer' (stage size) is caught by the checks arm: PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): accepted, expected 'staging buffer' rule 'stage size'
+hole_gt => [ok  ] MUTANT 'hole starts a word late' (hole start) is caught by the sim arm: rom answers err alone at all 47 addresses from word 0x6e00 to the window's top 0xffff (first wrong: [('0x6e00', 'none')])
+rom_init_offset => [ok  ] MUTANT 'rom banks from the image start' (rom contents) is caught by the sim arm: rom reads its image at the first, second and last word of each of 5 banks (64, 32, 8, 4, 2 KiB)
+PASS: all 12 prior mutation semantics observed caught in the exact-head standing suite
+The prior external mutation driver itself was not rerun.
