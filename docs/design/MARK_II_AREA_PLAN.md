@@ -839,7 +839,7 @@ Each lane must debit them before accepting its LUT saving.
 Keeping the BIOS ROM and SRAM would add 18: 142 and 131.
 Both exceed the ceiling, which is why the split builds neither.
 
-**What gives way above 50 firmware tiles:** the remaining wrapper storage.
+**What gives way for the ruled 56-tile firmware allocation:** the remaining wrapper storage.
 These disjoint scopes are outside the six AECP tiles and SRP half-tile:
 
 | Released fabric scope, relative to wrapper | RAMB36 | RAMB18 | Tiles |
@@ -867,8 +867,8 @@ No media buffer, diagnostic function or protocol capacity is pruned.
 If these trades still exceed 121.5, the manager must commission further redesign.
 
 Partial placement retains AECP's six tiles and any still-used wrapper stores.
-With the same 50-tile hold, the pre-release estimate becomes 126.5.
-That is five tiles over the ceiling, before extra fabric-AECP staging.
+At the measured 53 firmware tiles, its pre-release total is `124 + 6 = 130`.
+That is 8.5 tiles over the ceiling, before extra fabric-AECP staging.
 M0s must substitute measured firmware use and actual retained storage.
 A partial route cannot borrow the full split's reclamation credits.
 The all-fabric option needs its own complete memory reconciliation.

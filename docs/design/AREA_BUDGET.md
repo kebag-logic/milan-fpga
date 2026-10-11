@@ -266,7 +266,7 @@ At 56 firmware tiles, the conditional total is 116, leaving 5.5.
 The separate 13.5-tile reserve remains untouched in these estimates.
 Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
 
-Above 50 firmware tiles, the remaining wrapper stores give way first.
+For the ruled 56-tile firmware allocation, the remaining wrapper stores give way first.
 They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
 The plan names their exact [scopes and counts](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): eleven tiles altogether.
 These credits require full removal and debiting every replacement store.
@@ -276,7 +276,8 @@ If more capacity is needed, defer new M6/M7 RAM conversions; reprice every lost 
 Keep existing functionality, capacities and the 10 percent reserve.
 Further unmet demand needs a manager ruling commissioning redesign.
 Partial placement cannot claim retained AECP or wrapper storage as released.
-Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
+With its six retained AECP tiles, the measured 53 gives `124 + 6 = 130`, 8.5 over 121.5.
+That is before additional fabric-AECP staging.
 M0s must replace that over-ceiling estimate with the actual allocation.
 
 Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
