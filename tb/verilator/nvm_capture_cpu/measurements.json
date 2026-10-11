@@ -1,6 +1,6 @@
 {
   "date": "2026-10-11",
-  "base": "cb30a99aafbcc53e2cbef8da4dac5c70da096941",
+  "base": "bd42818d3a73b5c112905e72282d5db6df0ae25c",
   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
   "soc_component_revisions": {
     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
@@ -16,7 +16,7 @@
   "simulator": "Verilator 5.052",
   "network": "disabled; offline dependency resolution",
   "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
-  "product_firmware_sha256": "41000488944bea651733b9708fa0c3a72926ce2308034c51209f2dd95a27b2a2",
+  "product_firmware_sha256": "497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed",
   "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
   "python_hash_seed": "0",
   "phase": "CPU rising edges aligned with sys; audio starts at half-period",
@@ -256,8 +256,8 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-1x1-50-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "840a8e1e37a464a1f375e2ae451447b9f880af735f4a0452f5b9a703959a86d6",
-      "bios_sha256": "a3fb8646730056c8cf1f540c4787f4964a10577e23a0e6cf5d5ffdbc1e03647f",
+      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
+      "bios_sha256": "24622e415c6c8c3dd38d387ca520464fc200770e343628ebcbb0a6c5d806c54e",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
     },
@@ -471,8 +471,8 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-1x1-50-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "72950a0692fd40020f2fdba7f003f695ad611091d185254785d7adb34095e9bc",
-      "bios_sha256": "aec6e8512889e9712181575a003bdd3d4c7b33cd5b7bac44a0647948f1d89665",
+      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
+      "bios_sha256": "5495f32e7e5deaaf44ee7eca4531016ead64407f9e4652ebeaf389e53038ce03",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
     },
@@ -686,8 +686,8 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-50-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "840a8e1e37a464a1f375e2ae451447b9f880af735f4a0452f5b9a703959a86d6",
-      "bios_sha256": "25964c33fc2c1910ae7e2770f3f0e4eedf00673e934a438a0f5afee5d5ddfced",
+      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
+      "bios_sha256": "3ad88d91393896de9e8e958b6bbf4966f8180410ebddba4250d0be115950a44d",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
@@ -901,8 +901,8 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-50-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "72950a0692fd40020f2fdba7f003f695ad611091d185254785d7adb34095e9bc",
-      "bios_sha256": "1d760b225cbd02a3fe0acb5aa40cf20251b0117e1104e22b48b844e0c92717fa",
+      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
+      "bios_sha256": "ca76aae4822a0b8d9f651cbc0a04b0ce52303c9dc7430dd96612dd7b039addbb",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
@@ -914,23 +914,23 @@
       "configured_cpu_hz": 50000000,
       "phase": "aligned rising edges",
       "traffic": "on",
-      "minimum_ms": 10.4195,
-      "maximum_ms": 10.43406,
+      "minimum_ms": 10.41235,
+      "maximum_ms": 10.42973,
       "hold_ms": 50,
       "hold_floor_ms": 49,
-      "margin": 4.696158542312388,
+      "margin": 4.698108196472967,
       "rows": [
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1043406,
+          "sys_cycles": 1041235,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130303,
-          "responses": 91,
-          "reads": 3516
+          "requests": 130031,
+          "responses": 90,
+          "reads": 3510
         },
         {
           "index": 1,
@@ -1024,7 +1024,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130152,
+          "requests": 130153,
           "responses": 90,
           "reads": 3523
         },
@@ -1108,7 +1108,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130122,
+          "requests": 130121,
           "responses": 90,
           "reads": 3510
         }
@@ -1116,8 +1116,8 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-100-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "840a8e1e37a464a1f375e2ae451447b9f880af735f4a0452f5b9a703959a86d6",
-      "bios_sha256": "25964c33fc2c1910ae7e2770f3f0e4eedf00673e934a438a0f5afee5d5ddfced",
+      "instrumented_firmware_sha256": "6464754e9dbde198e2db424e064412bbb22ba31c2110393503d2b2fb7c24efe4",
+      "bios_sha256": "3ad88d91393896de9e8e958b6bbf4966f8180410ebddba4250d0be115950a44d",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     },
@@ -1138,7 +1138,7 @@
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1041566,
+          "sys_cycles": 1041406,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1331,8 +1331,8 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-100-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "72950a0692fd40020f2fdba7f003f695ad611091d185254785d7adb34095e9bc",
-      "bios_sha256": "1d760b225cbd02a3fe0acb5aa40cf20251b0117e1104e22b48b844e0c92717fa",
+      "instrumented_firmware_sha256": "2091128c0b6007dd5d776a79ee3c592817cf8a705b1911104e78574e6d30dede",
+      "bios_sha256": "ca76aae4822a0b8d9f651cbc0a04b0ce52303c9dc7430dd96612dd7b039addbb",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b"
     }
@@ -1353,17 +1353,17 @@
     {
       "shape": "endstation_ax7101_8x8",
       "cpu_hz": 100000000,
-      "maximum_ms": 10.43406,
-      "margin": 4.696158542312388
+      "maximum_ms": 10.42973,
+      "margin": 4.698108196472967
     }
   ],
-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677",
+  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416",
   "processor_pins": {
     "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
     "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
   },
-  "tree": "ff75487ce209dac9429b90d5634b6b5e43711d8e",
+  "tree": "39e2b51cb67bc69bc7914116006d8d4076bf7792",
   "reproduction_environment": {
     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
     "PYTHONHASHSEED": "0",
@@ -1374,6 +1374,6 @@
     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
     "SCRATCH": "external build directory, outside the repository; one per arm"
   },
-  "provenance": "All six arms measure the #671 round-4 firmware: the shipping writer's boot judges each slot on one staged read under a three-read bound and holds the writer when a slot's authority is unknown, the console names the hold only when the writer is held, and a held writer restart says it is held and names whether each unread slot lacked a standing verdict or failed its re-stage; nvm_capture() and the census of #629 are unchanged. Processor pin 2ad2f845. The measured firmware and capture inputs are those of cb30a99a; later test-only commits leave those inputs unchanged. The six arms ran with at most two concurrent builds; independent simulations overlapped. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+  "provenance": "All six arms measure the #671 round-5 firmware: the shipping writer's boot judges each slot on one staged read under a three-read bound, compares two refused reads by their byte count, a CRC-32 over all but their last four bytes and those four bytes, and holds the writer when a slot's authority is unknown; the console names the hold and each unread slot's cause; nvm_capture() and the census of #629 are unchanged. Processor pin 2ad2f845. The measured firmware and capture inputs are those of bd42818d; later test-only commits leave those inputs unchanged. The six arms ran with at most two concurrent builds; independent simulations overlapped. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
 }

@@ -1626,18 +1626,20 @@ derives 3336 bytes at 1x1 and 13256 at 8x8.
 Timing. MEASURED on 2026-10-11 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) requires this remeasurement.
-The console now distinguishes failed judgements from failed re-stages.
-The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) required the previous one.
+The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) requires this remeasurement.
+Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
+The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) required the previous one.
+That change distinguished failed judgements from failed re-stages on the console.
+The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) required the one before.
 That change named a held writer restart on the console.
 The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
 The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
-Measured commit: `cb30a99aafbcc53e2cbef8da4dac5c70da096941`.
-Measured tree: `ff75487ce209dac9429b90d5634b6b5e43711d8e`.
-Firmware SHA-256: `41000488944bea651733b9708fa0c3a72926ce2308034c51209f2dd95a27b2a2`.
+Measured commit: `bd42818d3a73b5c112905e72282d5db6df0ae25c`.
+Measured tree: `39e2b51cb67bc69bc7914116006d8d4076bf7792`.
+Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
@@ -1672,7 +1674,7 @@ The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
 | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.92034 | 12.4989x |
 | 8x8 | 50 / 100, contract | ON | 13.84828 to 13.86328 | 3.5345x |
 | 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
-| 8x8 | 100 / 100, non-contract | ON | 10.41950 to 10.43406 | 4.6962x |
+| 8x8 | 100 / 100, non-contract | ON | 10.41235 to 10.42973 | 4.6981x |
 | 8x8 | 100 / 100, non-contract | OFF | 10.41246 to 10.41566 | 4.7045x |
 
 The full closed-record census is 3,290 bytes / 54 records at 1x1.
@@ -1826,7 +1828,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 10.43406 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 10.42973 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.
