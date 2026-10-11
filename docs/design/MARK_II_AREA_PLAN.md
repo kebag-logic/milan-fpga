@@ -535,7 +535,7 @@ M5 restructures the existing live-status read mux and snapshots.
 **Saving:** 600 LUTs (400-1,000), from the historical 2,907-LUT block
 and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 2,893 fixed plus 211-per-stream OOC model.
 New split-interface logic is charged to L2, not saved again here.
-M5 measured 121 LUTs routed and 127 post-synthesis in its scope ([M5 intermediate measurement](#m5-intermediate-measurement)).
+M5 saved 121 LUTs routed and 127 post-synthesis in its scope ([M5 intermediate measurement](#m5-intermediate-measurement)).
 
 **Risk: medium.** Snapshot coherence and AXI-Lite latency must hold.
 **Verification:** CSR, `tcam_csr`, `milan_dp`, firmware host tests,
@@ -1020,9 +1020,11 @@ Out of context, `milan_csr` alone loses 440 LUTs at 1x1 and 179 at 8x8.
 In a wrapper tying what `milan_datapath` ties, it loses 155 and 199.
 The reproducible saving is about 125 LUTs and 33 flip-flops, below the 600 (400-1,000) estimate.
 What remains is the live read mux over about 3,000 live status bits that the register map fixes.
-[#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 211 LUTs per stream do not reproduce; out of context the block grows about 12 per stream.
+[#649](https://github.com/kebag-logic/milan-fpga/issues/649) measured 211 LUTs per stream inside the datapath synthesis; that scope was not re-measured here.
+Out of context the base block grows about 12 per stream alone and about 62 in the integration proxy (M5: about 49 and 56).
 M5 adds no block RAM, LUTRAM or DSP.
 The cumulative tables keep the planning figure until the week-4 re-measure.
+At M5's measured 121, the partial-central scenario becomes about 38,436, 396 over 38,040, pending the week-4 re-measure (D8).
 The gate record stays unchanged under D7.
 
 ## Lane sequence
