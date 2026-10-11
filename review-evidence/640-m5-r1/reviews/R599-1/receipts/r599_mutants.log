@@ -1,0 +1,7 @@
+[CAUGHT] lock1 rc=1 R1 shadow served under a live claim (shadow_rd_w drops !live_hit); failed: reset-values, decode, lockstep
+[PREDICTED-EQUIVALENT, survived] lock1 rc=0 R2 stage-1 window/read-window gate removed; failed: -
+[CAUGHT] lock1 rc=1 R3 out-of-range SNAP leaves the CNT kinds unchanged; failed: snapshot-freshness, lockstep
+[CAUGHT] lock8 rc=1 R4 extra talker context SNAP does not pre-POISON the CNT kinds; failed: decode, snapshot-coherence, lockstep
+[CAUGHT] lock1 rc=1 R5 CNT kind read off by one word; failed: decode, snapshot-coherence, snapshot-freshness, lockstep
+[CAUGHT] lock8 rc=1 R6 listener burst arm elaborated only above eight listeners; failed: decode, snapshot-coherence, snapshot-freshness, lockstep
+[SURVIVED] lock1 rc=0 R7 shadow output register loads on every cycle, not only on rd_pend; failed: -

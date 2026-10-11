@@ -1,0 +1,12 @@
+== milan_csr read-path lockstep against the e8454e27 block (N=1) ==
+  [info] reset-values: 8248 reads, 100 mismatching cycles, 0 wrong expectations
+  [FAIL] reset-values: cycle 9752 output s_axi_rdata differs from the reference
+  [info] decode: 16456 reads, 476 mismatching cycles, 0 wrong expectations
+  [FAIL] decode: cycle 41749 output s_axi_rdata differs from the reference
+  [info] snapshot-coherence: 49 reads, 0 mismatching cycles, 0 wrong expectations
+  [info] snapshot-freshness: 79 reads, 0 mismatching cycles, 0 wrong expectations
+  [info] lockstep: 28167 reads, 3882 mismatching cycles, 0 wrong expectations
+  [FAIL] lockstep: 4458 mismatching cycles over all phases; cycle 101166 output s_axi_rdata differs from the reference
+  cycles: 340861
+== csr_lock: checks: 5   failures: 3 ==
+RESULT: FAIL
