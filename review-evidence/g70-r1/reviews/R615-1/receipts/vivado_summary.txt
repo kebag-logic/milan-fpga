@@ -1,0 +1,66 @@
+== main (unconstrained, create_clock after synth_design)
+  ucpu: {'Slice LUTs*': '1643', 'LUT as Logic': '1511', 'LUT as Memory': '132', 'Slice Registers': '733', 'Block RAM Tile': '1.5', 'DSPs': '4'}  WNS/TNS/failing/total=('1.941', '0.000', '0', '3165')  clock=('0.000 5.000', '10.000', '100.000')
+  ucpu_ooc.log:3: # Vivado v2026.1 (64-bit)
+  ucpu_ooc.log:29: # synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 \
+  ucpu_ooc.log:31: Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+  ucpu_ooc.log:32: Starting synth_design
+  ucpu_ooc.log:338: Start Technology Mapping
+  ucpu_ooc.log:440: Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+  ucpu_ooc.log:458: synth_design completed successfully
+  ucpu_ooc.log:462: # create_clock -period 10.000 -name clk [get_ports clk_i]
+  engine: {'Slice LUTs*': '4853', 'LUT as Logic': '4387', 'LUT as Memory': '466', 'Slice Registers': '3652', 'Block RAM Tile': '1.5', 'DSPs': '4'}  WNS/TNS/failing/total=('1.773', '0.000', '0', '12254')  clock=('0.000 5.000', '10.000', '100.000')
+  engine_ooc.log:3: # Vivado v2026.1 (64-bit)
+  engine_ooc.log:35: # synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 \
+  engine_ooc.log:37: Command: synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+  engine_ooc.log:38: Starting synth_design
+  engine_ooc.log:409: Start Technology Mapping
+  engine_ooc.log:520: Synthesis finished with 0 errors, 0 critical warnings and 65 warnings.
+  engine_ooc.log:541: synth_design completed successfully
+  engine_ooc.log:545: # create_clock -period 10.000 -name clk [get_ports clk_i]
+== head (constrained, XDC before synth_design)
+  ucpu: {'Slice LUTs*': '1643', 'LUT as Logic': '1511', 'LUT as Memory': '132', 'Slice Registers': '733', 'Block RAM Tile': '1.5', 'DSPs': '4'}  WNS/TNS/failing/total=('1.941', '0.000', '0', '3165')  clock=('0.000 5.000', '10.000', '100.000')
+  ucpu_ooc.log:3: # Vivado v2026.1 (64-bit)
+  ucpu_ooc.log:28: # read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+  ucpu_ooc.log:30: # synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 \
+  ucpu_ooc.log:32: Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+  ucpu_ooc.log:33: Starting synth_design
+  ucpu_ooc.log:84: Parsing XDC File [<packet>/scratch/head/syn/ooc/ooc_clock.xdc]
+  ucpu_ooc.log:372: Start Technology Mapping
+  ucpu_ooc.log:467: Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+  ucpu_ooc.log:476: Parsing XDC File [<packet>/scratch/head/syn/ooc/ooc_clock.xdc]
+  ucpu_ooc.log:487: synth_design completed successfully
+  engine: {'Slice LUTs*': '4852', 'LUT as Logic': '4386', 'LUT as Memory': '466', 'Slice Registers': '3652', 'Block RAM Tile': '1.5', 'DSPs': '4'}  WNS/TNS/failing/total=('1.773', '0.000', '0', '12254')  clock=('0.000 5.000', '10.000', '100.000')
+  engine_ooc.log:3: # Vivado v2026.1 (64-bit)
+  engine_ooc.log:28: # read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+  engine_ooc.log:36: # synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 \
+  engine_ooc.log:38: Command: synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+  engine_ooc.log:39: Starting synth_design
+  engine_ooc.log:116: Parsing XDC File [<packet>/scratch/head/syn/ooc/ooc_clock.xdc]
+  engine_ooc.log:443: Start Technology Mapping
+  engine_ooc.log:543: Synthesis finished with 0 errors, 0 critical warnings and 62 warnings.
+  engine_ooc.log:551: Parsing XDC File [<packet>/scratch/head/syn/ooc/ooc_clock.xdc]
+  engine_ooc.log:566: synth_design completed successfully
+== body ucpu_util.rpt main vs head: IDENTICAL  sha256 main 0904b9edc9d99212 head 0904b9edc9d99212
+== body ucpu_util_hier.rpt main vs head: IDENTICAL  sha256 main 9085835e85edce85 head 9085835e85edce85
+== body ucpu_timing.rpt main vs head: IDENTICAL  sha256 main 1f4c521eb9e653bc head 1f4c521eb9e653bc
+== body engine_util.rpt main vs head: DIFFERENT  sha256 main caea6ccb2a9a2c47 head b8146dbefbf8584c
+== body engine_util_hier.rpt main vs head: DIFFERENT  sha256 main ed9ef18e4a8e5919 head 1167f87b389098c2
+== body engine_timing.rpt main vs head: IDENTICAL  sha256 main 7a55c4a6d80a32a7 head 7a55c4a6d80a32a7
+== hierarchical engine rows differing main vs head
+  main: | Date         : Sun Oct 11 05:34:28 2026
+  head: | Date         : Sun Oct 11 05:32:32 2026
+  main: | KL_gptp_engine     |             (top) |       4853 |       4387 |     466 |    0 | 3652 |      1 |      1 |          4 |
+  head: | KL_gptp_engine     |             (top) |       4852 |       4386 |     466 |    0 | 3652 |      1 |      1 |          4 |
+  main: |   u_ucpu           |      KL_gptp_ucpu |       2601 |       2469 |     132 |    0 |  733 |      1 |      1 |          4 |
+  head: |   u_ucpu           |      KL_gptp_ucpu |       2600 |       2468 |     132 |    0 |  733 |      1 |      1 |          4 |
+== plant USED_IN_SYNTHESIS false (ucpu)
+  ucpu: {'Slice LUTs*': '1643', 'LUT as Logic': '1511', 'LUT as Memory': '132', 'Slice Registers': '733', 'Block RAM Tile': '1.5', 'DSPs': '4'}  WNS/TNS/failing/total=('1.941', '0.000', '0', '3165')  clock=('0.000 5.000', '10.000', '100.000')
+  ucpu_ooc.log:3: # Vivado v2026.1 (64-bit)
+  ucpu_ooc.log:28: # read_xdc $SPEC/syn/ooc/ooc_clock.xdc
+  ucpu_ooc.log:31: # synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 \
+  ucpu_ooc.log:33: Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+  ucpu_ooc.log:34: Starting synth_design
+  ucpu_ooc.log:368: Start Technology Mapping
+  ucpu_ooc.log:463: Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+  ucpu_ooc.log:472: Parsing XDC File [<packet>/scratch/plant-usedinsynth/syn/ooc/ooc_clock.xdc]
+  ucpu_ooc.log:483: synth_design completed successfully
