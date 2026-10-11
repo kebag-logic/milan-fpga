@@ -1,0 +1,13 @@
+Head: 7cc9c492145dd9e7c5c0e1d4695a261ea8025850
+Current pages command: ['rg', '-n', '-i', '-U', '--glob', '*.md', '--glob', '!docs/history/**', '\\bdefaults?[\\s-]+(?:off|disabled)\\b|\\b(?:off|disabled)[\\s-]+by[\\s-]+default\\b', '.']
+Raw search rc: 1
+No current-page matches.
+Planted wording 'GPTP_PLANE_EN_P defaults off.': raw search rc=0; absence check rc=1 (expected failure).
+Planted wording 'Parent integration is default-off.': raw search rc=0; absence check rc=1 (expected failure).
+Planted wording 'The plane is disabled by default.': raw search rc=0; absence check rc=1 (expected failure).
+Planted wording 'The plane defaults\noff.': raw search rc=0; absence check rc=1 (expected failure).
+Historical matches (retained with forward note):
+docs/history/v1/PROJECT_STATUS.md:20:> Integration note (2026-10-11, issue #48): the default-off account below
+docs/history/v1/PROJECT_STATUS.md:35:`milan_datapath` parameter `GPTP_PLANE_EN_P` (RTL default off; the shipping
+
+Current-page absence check: PASS (rc 0).
