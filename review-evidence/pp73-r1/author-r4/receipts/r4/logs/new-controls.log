@@ -1,0 +1,31 @@
+{
+  "positive": [
+    {
+      "program": "TIZ4NS",
+      "explicit_shared": false,
+      "findings": []
+    },
+    {
+      "program": "EAVL",
+      "explicit_shared": true,
+      "findings": []
+    }
+  ],
+  "disabled": [
+    {
+      "check": "membership",
+      "selftest_rc": 1,
+      "named_failure": "echo_entries names no shared program"
+    },
+    {
+      "check": "rom-success",
+      "selftest_rc": 1,
+      "named_failure": "a shared echo cannot exempt ROM SUCCESS"
+    },
+    {
+      "check": "record-success",
+      "selftest_rc": 1,
+      "named_failure": "a shared echo cannot exempt observed SUCCESS"
+    }
+  ]
+}

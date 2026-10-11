@@ -1,0 +1,10 @@
+probe: p2_doc_size_GET_COUNTERS
+expect: rc 1, names row 0x0029 GET_COUNTERS column Resp. size
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  F06.14: row 0x0029 GET_COUNTERS, column Resp. size, reads '164 B (cdl 152)' where the table gives '160 B (cdl 148)'
+--- stderr

@@ -1,0 +1,51 @@
+field	consumer	check	scope
+commands[].command.cdl	scripts/aecp_gate/record.py:283	command floor or echo equality	Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.
+commands[].command.cdl	scripts/aecp_gate/table.py:117	command floor or echo equality	Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.
+commands[].command.floor	scripts/aecp_gate/record.py:283	declared floor	Explicit shorter accepted floor for echo commands.
+commands[].command.per	scripts/aecp_gate/record.py:283	accepted-offset gcd	Exact gcd of accepted offsets for both mapping echo commands.
+commands[].entries	scripts/aecp_gate/record.py:255	dispatch entries	Every dispatched program and first-entry decode floor in the observed population.
+commands[].entries	scripts/aecp_gate/record.py:283	dispatch entries	Every dispatched program and first-entry decode floor in the observed population.
+commands[].gdi	scripts/aecp_gate/record.py:394	GDI membership	Observed GET_DYNAMIC_INFO membership.
+commands[].hazard	scripts/aecp_gate/rtl.py:185	command hazard	Top-level classifier hazard name.
+commands[].lock	scripts/aecp_gate/rom.py:376	lock protection	ROM CHECK_LOCK reachability and scoreboard class membership.
+commands[].lock	scripts/aecp_gate/rtl.py:210	lock protection	ROM CHECK_LOCK reachability and scoreboard class membership.
+commands[].message	scripts/aecp_gate/record.py:341	message dispatch	AEM/MVU dispatch identity, within the observed sweep.
+commands[].message	scripts/aecp_gate/table.py:97	message dispatch	AEM/MVU dispatch identity, within the observed sweep.
+commands[].notify	scripts/aecp_gate/rom.py:376	notification presence	Presence of the notification contract.
+commands[].notify	scripts/aecp_gate/record.py:423	notification presence	Presence of the notification contract.
+commands[].notify.body	scripts/aecp_gate/record.py:423	unsolicited body	Observed unsolicited dispatch and ROM body length.
+commands[].notify.body	scripts/aecp_gate/rom.py:376	unsolicited body	Observed unsolicited dispatch and ROM body length.
+commands[].notify.class	scripts/aecp_gate/rom.py:376	notification class	Enqueued notification class; null means an engine event.
+commands[].notify.class	scripts/aecp_gate/rtl.py:219	notification class	Enqueued notification class; null means an engine event.
+commands[].notify.kind	scripts/aecp_gate/rtl.py:219	notification kind	Notification kind mapping and observed unsolicited job.
+commands[].notify.kind	scripts/aecp_gate/record.py:423	notification kind	Notification kind mapping and observed unsolicited job.
+commands[].opcode	scripts/aecp_gate/rtl.py:155	opcode	Engine constant and observed command_type, within the sweep.
+commands[].opcode	scripts/aecp_gate/record.py:341	opcode	Engine constant and observed command_type, within the sweep.
+commands[].response.cdl	scripts/aecp_gate/rom.py:315	response size	ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).
+commands[].response.cdl	scripts/aecp_gate/record.py:310	response size	ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).
+commands[].response.cdl	scripts/aecp_gate/table.py:117	response size	ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).
+commands[].response.echo	scripts/aecp_gate/record.py:310	echo response	Observed command-length responses and ROM echo rule.
+commands[].response.echo	scripts/aecp_gate/rom.py:315	echo response	Observed command-length responses and ROM echo rule.
+commands[].response.engine	scripts/aecp_gate/record.py:255	engine-built answer	Engine-built aggregate versus dispatched program.
+commands[].response.per	scripts/aecp_gate/rom.py:315	response record step	ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.
+commands[].response.per	scripts/aecp_gate/table.py:117	response record step	ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.
+commands[].response.per	scripts/aecp_gate/record.py:283	response record step	ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.
+commands[].response.stub	scripts/aecp_gate/rom.py:315	failure stub	Fixed failure response length.
+commands[].response.stub	scripts/aecp_gate/record.py:310	failure stub	Fixed failure response length.
+commands[].rtl	scripts/aecp_gate/rtl.py:155	opcode constant	Declared engine constant identity.
+commands[].status	scripts/aecp_gate/rom.py:346	command status set	ROM path statuses and observed answers, conditional on the trusted common_status and engine_status exemptions.
+commands[].status	scripts/aecp_gate/record.py:310	command status set	ROM path statuses and observed answers, conditional on the trusted common_status and engine_status exemptions.
+documented[].gdi	scripts/aecp_gate/record.py:394	unimplemented GDI membership	Optional semantic membership flag for the six unimplemented GDI members.
+documented[].opcode	scripts/aecp_gate/rtl.py:129	unimplemented GDI opcode	Semantic input for the six unimplemented GDI members; other documented rows use opcode as rendering text only.
+documented[].opcode	scripts/aecp_gate/record.py:394	unimplemented GDI opcode	Semantic input for the six unimplemented GDI members; other documented rows use opcode as rendering text only.
+documented[].rtl	scripts/aecp_gate/rtl.py:129	unimplemented GDI constant	Optional semantic constant name for the six unimplemented GDI members.
+echo_entries	scripts/aecp_gate/table.py:169	shared echo membership and non-SUCCESS scope	Each member is shared by commands without a first-entry owner, or listed in shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.
+echo_entries	scripts/aecp_gate/rom.py:315	shared echo membership and non-SUCCESS scope	Each member is shared by commands without a first-entry owner, or listed in shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.
+echo_entries	scripts/aecp_gate/record.py:310	shared echo membership and non-SUCCESS scope	Each member is shared by commands without a first-entry owner, or listed in shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.
+fields	scripts/aecp_gate/fields.py:36	export registry	Sibling registry filename.
+hazard_classes.*	scripts/aecp_gate/rtl.py:185	hazard class code	Hazard code by name.
+schema	scripts/aecp_gate/table.py:182	schema tag	Export schema tag.
+status_codes.*.code	scripts/aecp_gate/table.py:77	IEEE status code	IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.
+status_codes.*.code	scripts/aecp_gate/rtl.py:243	IEEE status code	IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.
+status_codes.*.rtl	scripts/aecp_gate/rtl.py:243	status constant	Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL constant.
+unserved	scripts/aecp_gate/record.py:356	unserved program	Default program for every unserved opcode in the observed population.

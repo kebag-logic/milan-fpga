@@ -1,0 +1,7 @@
+FAIL:  decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 16, the table's command cdl is 20
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 BADARG4: observed {"answers": {"7": "20"}, "cdls": "12-15", "floor": 12}, recorded {"answers": {"7": "20"}, "cdls": "12-19", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS: observed {"answers": {"0": "20", "7": "20"}, "cdls": "16-100", "floor": 16}, recorded {"answers": {"0": "20", "7": "20"}, "cdls": "20-100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 TIZ4NS: observed {"answers": {"11": "20"}, "cdls": "16-100", "floor": 16}, recorded {"answers": {"11": "20"}, "cdls": "20-100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "1a4f787826b62632779909d0ae962620104f597cbf8ea12d85470eb74998b540", recorded "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep trials: observed 585752, recorded 585760 (make -C tb/aecp_cmds record)
+aecp_cmds: 585752 trials swept; 176 checks: 174 PASS, 2 FAIL
