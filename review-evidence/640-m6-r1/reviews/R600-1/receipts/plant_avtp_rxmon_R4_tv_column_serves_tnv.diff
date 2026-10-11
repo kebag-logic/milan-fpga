@@ -1,0 +1,11 @@
+--- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-11 02:37:40.523380834 +0200
++++ KL_avtp_rx_monitor_ctx_R4_tv_column_serves_tnv.sv	2026-10-11 02:40:46.561000000 +0200
+@@ -780,7 +780,7 @@
+   //! columns 10/11 = the tv tallies straight from the flop arrays
+   always_comb begin : diag_read
+     unique case (diag_col_i)
+-      C_TV_C  : diag_q_o = tv_cnt_r [diag_ridx_w];
++      C_TV_C  : diag_q_o = tnv_cnt_r[diag_ridx_w];
+       C_TNV_C : diag_q_o = tnv_cnt_r[diag_ridx_w];
+       default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_ridx_w) * 16
+                                                 + 32'(diag_col_i))];

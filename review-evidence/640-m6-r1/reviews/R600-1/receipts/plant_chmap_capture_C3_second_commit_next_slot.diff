@@ -1,0 +1,11 @@
+--- hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-11 02:37:40.521080611 +0200
++++ KL_chan_map_capture_C3_second_commit_next_slot.sv	2026-10-11 02:40:35.505065810 +0200
+@@ -1063,7 +1063,7 @@
+       end
+       if (enq1_v_w) begin
+         skid_form_r[skid_wp1_w] <= cm1_form_w;
+-        skid_beat_r[skid_wp1_w] <= beat_wp_r;
++        skid_beat_r[skid_wp1_w] <= beat_wp_r + 2'd1;
+         skid_addr_r[skid_wp1_w] <= cm1_addr_w;
+         skid_strm_r[skid_wp1_w] <= lb_tuser_i;
+       end

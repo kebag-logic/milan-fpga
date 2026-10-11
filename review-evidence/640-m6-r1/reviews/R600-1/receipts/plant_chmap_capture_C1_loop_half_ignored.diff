@@ -1,0 +1,12 @@
+--- hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-11 02:37:40.521080611 +0200
++++ KL_chan_map_capture_C1_loop_half_ignored.sv	2026-10-11 02:40:05.016530424 +0200
+@@ -1314,8 +1314,7 @@
+         SRC_LOOP_C: source_row = lbok_f
+                                  ? CANDW_C'(CAND_LOOP_C
+                                             + 2 * (32'(idxh_f) * LB_PPS_C
+-                                                   + 32'(idx_f))
+-                                            + 32'(half_f))
++                                                   + 32'(idx_f)))
+                                  : '0;
+         default   : source_row = '0;
+       endcase

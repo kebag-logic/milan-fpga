@@ -1,0 +1,10 @@
+--- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-11 02:37:40.523380834 +0200
++++ KL_avtp_rx_monitor_ctx_R2_rp_survives_reset.sv	2026-10-11 02:40:18.711478244 +0200
+@@ -794,7 +794,6 @@
+       mst_r       <= M_IDLE_S;
+       pq_cnt_r    <= '0;
+       pq_wp_r     <= '0;
+-      pq_rp_r     <= '0;
+       cur_idx_r   <= '0;
+       for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_s_r[q] <= '0;
+       for (int s2 = 0; s2 < N_LISTENERS_P; s2++) begin

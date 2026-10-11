@@ -1,0 +1,11 @@
+--- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-11 02:37:40.523380834 +0200
++++ KL_avtp_rx_monitor_ctx_R1_cur_idx_off_by_one.sv	2026-10-11 02:40:05.010896957 +0200
+@@ -863,7 +863,7 @@
+         pq_wp_r         <= pq_wp_r + 2'd1;
+       end
+       if (pdisp_new_w || pdisp_w) begin
+-        cur_idx_r <= pdisp_new_w ? pq_wp_r : pq_rp_r;
++        cur_idx_r <= pdisp_new_w ? pq_wp_r : pq_rp_r + 2'd1;
+         pq_rp_r   <= pq_rp_r + 2'd1;
+       end
+       unique case ({penq_w && !pdisp_new_w, pdisp_w})

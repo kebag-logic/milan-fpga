@@ -1,0 +1,11 @@
+--- hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-11 02:37:40.521080611 +0200
++++ KL_chan_map_capture_C4_i2s_rows_swapped.sv	2026-10-11 02:40:50.611084195 +0200
+@@ -1283,7 +1283,7 @@
+   logic [23:0] cand_w [N_CAND_C];
+   always_comb begin : source_table
+     cand_w[0] = 24'd0;
+-    {cand_w[1], cand_w[2]} = i2s_hold_r;
++    {cand_w[2], cand_w[1]} = i2s_hold_r;
+     cand_w[3] = tone_smp_i;
+     for (int p = 0; p < int'(N_TDM_PAIRS_C); p++)
+       {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];

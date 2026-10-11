@@ -1,0 +1,11 @@
+--- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-11 02:37:40.523380834 +0200
++++ KL_avtp_rx_monitor_ctx_R3_mirror_writes_sink0_only.sv	2026-10-11 02:40:32.765000000 +0200
+@@ -773,7 +773,7 @@
+   (* ram_style = "distributed" *)
+   logic [31:0] cnt_mirror_r [N_LISTENERS_P * 16];
+   always_ff @(posedge clk_i) begin : mirror_wr
+-    if (cntw_hit_w)
++    if (cntw_hit_w && ram_waddr_w[AW_C-1:5] == '0)
+       cnt_mirror_r[MIRW_C'(32'(ram_waddr_w[AW_C-1:5]) * 16 + 32'(cntw_col_w))]
+         <= ram_wdata_w;
+   end : mirror_wr

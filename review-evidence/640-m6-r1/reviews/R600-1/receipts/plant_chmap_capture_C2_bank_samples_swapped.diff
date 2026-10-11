@@ -1,0 +1,11 @@
+--- hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-11 02:37:40.521080611 +0200
++++ KL_chan_map_capture_C2_bank_samples_swapped.sv	2026-10-11 02:40:19.675946300 +0200
+@@ -1004,7 +1004,7 @@
+ 
+   //! the beat bank's one write port
+   always_ff @(posedge clk_i) begin : beat_bank_write
+-    if (enq0_v_w) beat_bank_r[beat_wp_r] <= {cm0_l_w, lb_smp0_w, lb_smp1_w};
++    if (enq0_v_w) beat_bank_r[beat_wp_r] <= {cm0_l_w, lb_smp1_w, lb_smp0_w};
+   end : beat_bank_write
+ 
+   //! pop data-return pipeline (registered array read = BRAM-shaped)

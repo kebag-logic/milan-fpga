@@ -1,0 +1,24 @@
+--- hdl/milan/milan_datapath.sv	2026-10-11 02:37:40.532000000 +0200
++++ milan_datapath_P1_tv_tnv_swap.sv	2026-10-11 02:38:19.048000000 +0200
+@@ -3515,8 +3515,8 @@
+       6'd3    : mon_diag_col_w = 4'(MON_SM_C);  // @12  SEQ_NUM_MISMATCH
+       6'd4    : mon_diag_col_w = 4'(MON_MR_C);  // @16  MEDIA_RESET
+       6'd5    : mon_diag_col_w = 4'(MON_TU_C);  // @20  TIMESTAMP_UNCERTAIN
+-      6'd6    : mon_diag_col_w = 4'(MON_TV_C);  // @24  TIMESTAMP_VALID
+-      6'd7    : mon_diag_col_w = 4'(MON_TNV_C); // @28  TIMESTAMP_NOT_VALID
++      6'd6    : mon_diag_col_w = 4'(MON_TNV_C); // @24  TIMESTAMP_VALID
++      6'd7    : mon_diag_col_w = 4'(MON_TV_C);  // @28  TIMESTAMP_NOT_VALID
+       6'd8    : mon_diag_col_w = 4'(MON_UF_C);  // @32  UNSUPPORTED_FORMAT
+       6'd9    : mon_diag_col_w = 4'(MON_LT_C);  // @36  LATE_TIMESTAMP
+       6'd10   : mon_diag_col_w = 4'(MON_ET_C);  // @40  EARLY_TIMESTAMP
+--- hdl/milan/milan_datapath.sv	2026-10-11 02:37:40.532000000 +0200
++++ milan_datapath_P2_reserved_serves_counter.sv	2026-10-11 02:38:28.238000000 +0200
+@@ -3523,7 +3523,7 @@
+       6'd11   : mon_diag_col_w = 4'(MON_FRX_C); // @44  FRAMES_RX
+       default : begin              // counters_valid, @48..@92 reserved,
+         mon_diag_col_w = 4'(MON_ML_C);  // @96.. ENTITY_SPECIFIC
+-        ctr_col_v_w    = 1'b0;
++        ctr_col_v_w    = (ctrq_word_r == 6'd32) ? 1'b0 : 1'b1;
+       end
+     endcase
+   end
