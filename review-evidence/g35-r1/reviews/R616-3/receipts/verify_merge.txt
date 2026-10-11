@@ -1,0 +1,143 @@
+== identity
+526a366bd9aff5cd8d0ad0278217dab22ac921ea
+a70e38804cb16435c089d024c58e8c3fb4d39ff6
+155de13789ac85bab7a14bea0ae86d1c376b490a
+== merge-base (expect 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d)
+5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+== plain merge (merge-tree, conflicts expected)
+df12513097c8400cfa1f3ad2d836a482f62ec21e
+README.md
+docs/MANAGER.md
+
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Auto-merging docs/HDL_DEVELOPER.md
+Auto-merging docs/INTEGRATION.md
+Auto-merging docs/MANAGER.md
+CONFLICT (content): Merge conflict in docs/MANAGER.md
+Auto-merging docs/SOURCE_EVIDENCE.md
+== files differing: plain merge tree vs published head
+M	README.md
+M	docs/MANAGER.md
+== published head vs plain merge (full)
+diff --git a/README.md b/README.md
+index 0310488..ba8f44e 100644
+--- a/README.md
++++ b/README.md
+@@ -48,16 +48,12 @@ Detailed commands appear in the [test guide](docs/TEST_DEVELOPER.md).
+ 
+ ## Known risks
+ 
+-<<<<<<< a70e38804cb16435c089d024c58e8c3fb4d39ff6
+-=======
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) remains in [review](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80): mid-frame receive errors.
+ - [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) remains open: asymmetry, calibration, and live tuning.
+ - [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) still owes physical acceptance against the reference peer.
+ - [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64) and [#488](https://github.com/kebag-logic/milan-fpga/issues/488) still owe physical timestamp calibration.
+ 
+ The [manager guide](docs/MANAGER.md#open-risks) separates donor and product gaps.
+ 
+->>>>>>> 155de13789ac85bab7a14bea0ae86d1c376b490a
+ No certification claim is made.
+ 
+ ## Documentation
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index be31670..2090821 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -99,13 +99,8 @@ The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping
+ 
+ ## Open risks
+ 
+-<<<<<<< a70e38804cb16435c089d024c58e8c3fb4d39ff6
+-- Parent gitlink updates require separate review.
+-- Physical acceptance remains product-specific.
+-=======
+ | Gap | Status | Tracking |
+ |---|---|---|
+-| Mid-frame receive errors | Fix in review; not merged here | [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35), [PR #80](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80) |
+ | Donor asymmetry input, calibration triple, live tuner | Open | [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) |
+ | Physical synchronization, GM recovery, conformance, and fabric publication | Acceptance still owed against the reference peer | [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) |
+ | Physical timestamp calibration and ingress/egress split | Incomplete | [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64), [parent #488](https://github.com/kebag-logic/milan-fpga/issues/488) |
+@@ -119,7 +114,6 @@ Its [timestamp corrections](https://github.com/kebag-logic/milan-fpga/blob/ac2c5
+ Donor #58's live tuner remains outside that product contract.
+ 
+ Parent gitlink updates require separate review.
+->>>>>>> 155de13789ac85bab7a14bea0ae86d1c376b490a
+ 
+ ## Management decisions
+ 
+== parser RTL, parser tests, every hdl/ and tb/ path: pre-merge head vs published head (expect empty)
+== tree ids of hdl tb bench scripts at pre and head
+hdl 6c4a8031776f5a71d804f931efcc5f9fcf6d1041 6c4a8031776f5a71d804f931efcc5f9fcf6d1041
+tb c1017a6250557e0fa84e91b8e096e3523fa3f122 c1017a6250557e0fa84e91b8e096e3523fa3f122
+bench 9014b9234432b70a91aaa45b0db574ad64f3a922 9014b9234432b70a91aaa45b0db574ad64f3a922
+scripts b07c146714a08f69d7c4be39d7bfd673c3a8e6c8 b07c146714a08f69d7c4be39d7bfd673c3a8e6c8
+== published head vs main (the PR's net change)
+ README.md                        |   1 -
+ docs/HDL_DEVELOPER.md            |   2 +
+ docs/INTEGRATION.md              |  24 ++-
+ docs/MANAGER.md                  |   1 -
+ docs/SOURCE_EVIDENCE.md          |  10 +-
+ docs/TEST_DEVELOPER.md           |   5 +
+ hdl/wire/KL_gptp_rx_parser.sv    |  33 +++-
+ tb/verilator/parser/Makefile     |  12 ++
+ tb/verilator/parser/README.md    |   6 +
+ tb/verilator/parser/mutants.py   | 245 ++++++++++++++++++++++++++++
+ tb/verilator/parser/sim_main.cpp | 334 ++++++++++++++++++++++++++++++++++++++-
+ 11 files changed, 656 insertions(+), 17 deletions(-)
+== README.md and docs/MANAGER.md: head vs main
+diff --git a/README.md b/README.md
+index 7651e3c..ba8f44e 100644
+--- a/README.md
++++ b/README.md
+@@ -48,7 +48,6 @@ Detailed commands appear in the [test guide](docs/TEST_DEVELOPER.md).
+ 
+ ## Known risks
+ 
+-- [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35) remains in [review](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80): mid-frame receive errors.
+ - [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) remains open: asymmetry, calibration, and live tuning.
+ - [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) still owes physical acceptance against the reference peer.
+ - [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64) and [#488](https://github.com/kebag-logic/milan-fpga/issues/488) still owe physical timestamp calibration.
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 201b603..2090821 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -101,7 +101,6 @@ The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping
+ 
+ | Gap | Status | Tracking |
+ |---|---|---|
+-| Mid-frame receive errors | Fix in review; not merged here | [Issue #35](https://github.com/Mister-M-alt/FPGA-gPTP/issues/35), [PR #80](https://github.com/Mister-M-alt/FPGA-gPTP/pull/80) |
+ | Donor asymmetry input, calibration triple, live tuner | Open | [Issue #58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58) |
+ | Physical synchronization, GM recovery, conformance, and fabric publication | Acceptance still owed against the reference peer | [Parent #117](https://github.com/kebag-logic/milan-fpga/issues/117) |
+ | Physical timestamp calibration and ingress/egress split | Incomplete | [Parent #64](https://github.com/kebag-logic/milan-fpga/issues/64), [parent #488](https://github.com/kebag-logic/milan-fpga/issues/488) |
+== main-side changes vs pre-merge head equal main vs base on every main-touched path?
+Makefile same-as-main
+README.md DIFFERS-from-main
+docs/HDL_DEVELOPER.md DIFFERS-from-main
+docs/INTEGRATION.md DIFFERS-from-main
+docs/MANAGER.md DIFFERS-from-main
+docs/SOURCE_EVIDENCE.md DIFFERS-from-main
+docs/history/v1/PROJECT_STATUS.md same-as-main
+docs/history/v1/RESOURCE_VALIDATION.md same-as-main
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md same-as-main
+docs/history/v1/prototype/INTEGRATION_GUIDE.md same-as-main
+docs/history/v1/prototype/IP_BLOCKS.md same-as-main
+docs/history/v1/prototype/RESOURCE_VALIDATION.md same-as-main
+syn/ooc/check_ooc_clock.py same-as-main
+syn/ooc/engine_ooc.tcl same-as-main
+syn/ooc/ooc_clock.xdc same-as-main
+syn/ooc/run.sh same-as-main
+syn/ooc/ucpu_ooc.tcl same-as-main
+== branch-touched paths: head vs pre-merge head
+README.md DIFFERS-from-pre
+docs/HDL_DEVELOPER.md DIFFERS-from-pre
+docs/INTEGRATION.md DIFFERS-from-pre
+docs/MANAGER.md DIFFERS-from-pre
+docs/SOURCE_EVIDENCE.md DIFFERS-from-pre
+docs/TEST_DEVELOPER.md same-as-pre
+hdl/wire/KL_gptp_rx_parser.sv same-as-pre
+tb/verilator/parser/Makefile same-as-pre
+tb/verilator/parser/README.md same-as-pre
+tb/verilator/parser/mutants.py same-as-pre
+tb/verilator/parser/sim_main.cpp same-as-pre

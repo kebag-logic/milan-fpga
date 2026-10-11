@@ -1,0 +1,49 @@
+Align the donor README and guides with the parent's default-on gPTP integration (#48) MERGED 155de13789ac85bab7a14bea0ae86d1c376b490a
+[A600]
+
+Align the donor integration guidance with parent `dev` at
+`ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5`.
+
+The parent defaults `GPTP_PLANE_EN_P` on and assigns product time
+synchronization to fabric gPTP. The current donor guides already stated
+default-on, but cited an earlier parent revision and omitted the complete
+ownership and acceptance boundaries.
+
+- Pin the default, fabric ownership, and comparison-path claims to exact
+  parent source lines in the README, integration guide, manager guide, and
+  source-evidence ledger.
+- Document option-off as ownerless verification hardware without a product
+  image: control TX bypasses the plane, PHC controls select the CSR face,
+  publications remain zero, AVTP `tu` stays one, and publication writes are inert.
+- Keep #35 in PR #80 review and #58 open. Preserve parent #117 physical
+  acceptance and parent #64/#488 timestamp-calibration gaps. Distinguish the
+  donor's proposed calibration/tuning work from the parent's fixed corrections.
+- Add a dated forward note to the historical project status without changing
+  its archive date or original default-off account.
+
+Parent evidence: `hdl/milan/milan_datapath.sv:73`,
+`docs/design/GPTP_PLANE.md:6,43-49`,
+`docs/ARCHITECTURE_HW_SW_SPLIT.md:165-175`, and `README.md:167-170`.
+The integration guide also cites the exact TX bypass and PHC selection lines.
+
+Validation at `7cc9c492145dd9e7c5c0e1d4695a261ea8025850`:
+
+| Command or review | Result |
+| --- | --- |
+| `make -j16 docs` | rc 0 |
+| `make -j16 diagrams-check` | rc 0 |
+| `python3 scripts/check_docs.py` | rc 0; 11 current and 17 historical pages |
+| `python3 scripts/check_docs.py --selftest` | rc 0; 10 arms |
+| `python3 scripts/check_source_evidence.py` | rc 0; 20 exact anchors |
+| `python3 scripts/check_source_evidence.py --selftest` | rc 0; 7 arms |
+| `python3 scripts/generate_diagrams.py --check` | rc 0; 9 assets, 3 bound PNGs |
+| `python3 scripts/generate_diagrams.py --selftest` | rc 0; 10 arms |
+| Default-off search across current Markdown | No matches; four planted wording mutants rejected |
+| Parent citation review through git | 31 occurrences, 14 targets; four planted citation mutants rejected |
+| `git diff bd466e60 HEAD --check` | rc 0 |
+
+All four acceptance items are met. The change contains only five Markdown
+files. Physical acceptance remains open under its parent issues.
+
+Closes #48
+
