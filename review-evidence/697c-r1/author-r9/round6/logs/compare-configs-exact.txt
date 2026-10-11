@@ -1,0 +1,8 @@
+configurations 942 948 distinct keys 794 798
+only in first: 0
+only in second: 4
+   ('riscv32-linux-gcc -march=rv32i', '<ROOT>/sw/firmware/ctrl/test/mmio_window.h', '')
+   ('riscv32-linux-gcc -march=rv32i', '<ROOT>/sw/firmware/ctrl/test/mmio_window.h', '-DMMIO_WINDOW_H=')
+   ('gcc -std=c11', '<ROOT>/sw/firmware/ctrl/test/mmio_window.h', '')
+   ('gcc -std=c11', '<ROOT>/sw/firmware/ctrl/test/mmio_window.h', '-DMMIO_WINDOW_H=')
+differ (deps/tested/error): 0

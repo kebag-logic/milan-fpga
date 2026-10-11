@@ -1,0 +1,35 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] boundary control stack source includes the mailbox HAL: host: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+[ok] boundary control stack source includes the register-map contract: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+[ok] boundary control stack source includes the composition: host: the stack's src/maap.c includes sw/firmware/ctrl/acmp/acmp_mbx.h
+[ok] boundary control stack source includes the store's port: host: the stack's src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h
+[ok] boundary control stack source includes the loop through a macro: host: the stack's src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h
+[ok] boundary control stack public header includes the platform's header: host: the stack's src/acmp.c includes sw/firmware/ctrl/port/ctrl_debug.h
+[ok] boundary control stack source includes a header nobody supplies: host: the stack's src/adp.c does not preprocess with the firmware's flags: compilation terminated.
+[ok] boundary control stack source includes an OS header: host: the stack's src/adp.c includes /usr/include/bits/confname.h
+[ok] boundary control firmware reaches a stack example's header: firmware: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+[ok] boundary control firmware header reaches a stack source by a relative path: firmware: maap/maap_mbx.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+[ok] boundary control image source reaches a stack test's header: firmware: test/rv32_image/image_main.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+[ok] boundary control a copy of the stack's wire.h in the firmware: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/wire.h
+[ok] boundary control a copy of the stack's adp.c in the firmware: firmware: ctrl/adp/adp.c has the name of the stack's adp.c
+[ok] boundary control pass: the firmware includes a public header: passes
+[ok] boundary control pass: the stack includes only its own header and the C library: passes
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 34 firmware units and the stack's sources and headers, host and RV32; 0 finding(s), 15 boundary and 4 pin controls, 0 misbehaved
+ctrl_boundary: PASS
