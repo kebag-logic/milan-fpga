@@ -1066,9 +1066,9 @@ module milan_csr #(
   //! LAND in their own registers on rd_pend, and stage 2 (an OR of the two
   //! stage-1 words since lane M5 of #640) loads r_data a cycle later on
   //! rd_pend2 - the deep OR-trees and the AXI output flops no longer have
-  //! to close in one cycle or one placement neighbourhood. One added cycle of CSR read latency; every AXI-Lite
-  //! consumer in this tree waits on rvalid, and no read has a side effect
-  //! keyed to the old timing.
+  //! to close in one cycle or one placement neighbourhood. One added cycle
+  //! of CSR read latency; every AXI-Lite consumer in this tree waits on
+  //! rvalid, and no read has a side effect keyed to the old timing.
   logic         rd_pend2;                //! staged-mux -> r_data stage
   //! Stage-1 words (lane M5 of #640). The live tree, which takes the 0x800
   //! window's word as one more range, lands in live_mux_q and reads 0 where
