@@ -176,6 +176,7 @@ An audit hook cannot be removed, and this one binds all it judges by as it is in
 So no later rebinding of a name changes how it judges an event; what it judges is the events the interpreter raises, as below.
 While the proof runs (a function that decides the pin, in any thread, or the top level of one of the two modules), the hook refuses every process start the interpreter audits but the helper's, and every thread start, since a thread could change a start's arguments after the hook has read them.
 The helper's is the `subprocess` module starting, for the helper's own code, the Git program that `PATH` named when the proof was loaded, with exactly the proof's own environment, each key and value a plain `str`, so that what Git is given is what the hook judged.
+Under a capture it also holds the builders' names that the capture's own audit hook adds to every process a builder starts (`CTRL_CAPTURE_FROM`), which Git does not read.
 The hook refuses `exec`, `compile` and an import of `importlib` while a function that decides the pin runs, and wherever the proof's own code asks for them, the helper's included.
 In the same places it refuses the reaches into its own state: the collector's lists of objects, and a trace or profile function.
 At any time it refuses a replacement of what a function of the proof runs, its code or its defaults.

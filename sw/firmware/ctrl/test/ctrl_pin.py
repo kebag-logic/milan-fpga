@@ -22,8 +22,9 @@ or the top level of one of the proof's modules), the hook refuses every
 process start the interpreter audits but the helper's: the subprocess module
 starting, for the helper's own code, the Git program PATH named when the proof
 was loaded (ctrl_build.GIT), with exactly the proof's own environment
-(ctrl_build.GIT_ENVIRONMENT), each key and value a plain str, so that what
-Git is given is what the hook judged: GIT_NO_REPLACE_OBJECTS=1, a
+(ctrl_build.GIT_ENVIRONMENT; under a capture, also the builders' names its
+audit hook adds, ctrl_build.CAPTURED, which Git does not read), each key and
+value a plain str, so that what Git is given is what the hook judged: GIT_NO_REPLACE_OBJECTS=1, a
 GIT_GRAFT_FILE that cannot exist, no system or global configuration, and
 nothing the proof inherits. It
 refuses every thread start there too, since a thread could change a start's

@@ -226,6 +226,10 @@ RUNS = frozenset({"__code__", "__defaults__", "__kwdefaults__"})
 #: What the audit hook writes on the standard error before each refusal it raises, so a refusal that is caught
 #: and ignored is still read (ctrl_pin.exercised).
 HOOK_REFUSED = "the pin proof's audit hook refused: "
+#: The one variable the helper's environment may hold beyond its own: the builders' names that a capture's audit
+#: hook (ctrl_capture.HOOK), installed first, adds to the environment of every process a builder starts, so that
+#: its children name them. Git does not read it.
+CAPTURED = "CTRL_CAPTURE_FROM"
 
 
 class AuditRefusal(Refusal):
@@ -237,8 +241,10 @@ def environment_judge(own: dict[str, str]) -> Callable[[str, object], str | None
     does, all it judges by (audited makes it when it installs the hook). An environment is the helper's when it is
     a plain dict (on CPython 3.14's fork_exec, the list of its entries, each key once) whose every key and value is
     a plain str, so that what Git is given is what was judged; when it sets GIT_NO_REPLACE_OBJECTS=1 and
-    GIT_GRAFT_FILE to an absolute path under a file; and when it is `own` (GIT_ENVIRONMENT), key for key."""
+    GIT_GRAFT_FILE to an absolute path under a file; and when it is `own` (GIT_ENVIRONMENT), key for key, but for
+    a capture's CAPTURED."""
     want, kind, text, raw, mapping, listed, decode, size = dict(own), type, str, bytes, dict, list, os.fsdecode, len
+    captured = CAPTURED
     stat_of, is_dir, failed = os.stat, stat.S_ISDIR, (OSError, ValueError)
 
     def judged(event: str, env: object) -> str | None:
@@ -269,7 +275,7 @@ def environment_judge(own: dict[str, str]) -> Callable[[str, object], str | None
             return f"has the helper start Git ({event}) with GIT_GRAFT_FILE {graft}, a path that can exist, so Git " \
                    f"would read a graft file"
         for key in [*env, *want]:
-            if env.get(key) != want.get(key):
+            if key != captured and env.get(key) != want.get(key):
                 return f"has the helper start Git ({event}) " + (f"without the pin proof's own {key}={want[key]}"
                                                                  if key in want else
                                                                  f"with {key} in its environment, which the pin "
@@ -284,7 +290,7 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
     578), which binds as it is installed all it judges by (THE HOOK, ctrl_pin.py). While the proof runs (a function
     of DECISION in any thread, or the top level of one of its modules), it refuses every process or thread start
     but the helper's: the subprocess module starting GIT, as a string, for the helper's own code, with exactly the
-    proof's own environment (GIT_ENVIRONMENT, environment_judge). It refuses
+    proof's own environment (GIT_ENVIRONMENT, and a capture's CAPTURED; environment_judge). It refuses
     DYNAMIC_EVENTS and an import of importlib while a function of DECISION runs, or where the proof's own code (from
     its files, or in its namespaces) asks for them, the helper's included; and, at any time, a replacement of what
     a function of the proof runs (RUNS). Each refusal is an AuditRefusal naming the proof's line that asked."""
