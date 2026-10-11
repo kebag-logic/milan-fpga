@@ -471,6 +471,9 @@ static uint64_t nvm_dirty_since;
  * never read back as they were judged (bit 0 A, bit 1 B). Their authority is
  * unknown, so a writer that would go live is HELD until reset instead (#671). */
 static unsigned int nvm_unread;
+/* Of those, the slots that were judged and picked and then did not read back
+ * as judged, so the console names that cause and not a missing verdict. */
+static unsigned int nvm_unstaged;
 /* The writer is HELD (nvm_go_live()): it would have gone live with a slot
  * UNREAD. A boot that retires the writer for another cause may leave a slot
  * unread too, and the console then names that cause, not the slot. */
@@ -1560,12 +1563,20 @@ static int nvm_load_window(uint32_t chosen)
 	return !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_RELOAD_REF);
 }
 
-/* The slots an UNREAD bit set names, for the console. */
-static const char *nvm_unread_name(void)
+/* Each UNREAD slot and why, for the console: no standing verdict in its
+ * judgement's reads, or judged and then not read back as judged in its
+ * re-stage's. */
+static void nvm_print_unread(void)
 {
-	if (nvm_unread == 3u)
-		return "A and B";
-	return (nvm_unread & 1u) ? "A" : "B";
+	unsigned int bit;
+
+	for (bit = 1u; bit <= 2u; bit <<= 1) {
+		if (nvm_unread & bit)
+			printf("%sslot %c %s in %u reads", (bit == 2u && (nvm_unread & 1u)) ? " and " : "",
+			       (bit == 1u) ? 'A' : 'B', (nvm_unstaged & bit) ?
+			       "did not read back as it was judged" : "gave no standing verdict",
+			       NVM_READ_TRIES);
+	}
 }
 
 /*
@@ -1586,8 +1597,9 @@ static void nvm_go_live(void)
 	}
 	nvm_retired = 1;
 	nvm_held = 1;
-	printf("Milan NVM: slot %s gave no standing verdict in %u reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.\n",
-	       nvm_unread_name(), NVM_READ_TRIES);
+	printf("Milan NVM: ");
+	nvm_print_unread();
+	printf("; its authority is unknown, so the writer is HELD until reset and nothing is persisted.\n");
 }
 
 /*
@@ -1656,6 +1668,7 @@ static void nvm_boot(void)
 	 * judged is UNREAD, and the other is offered */
 	while (chosen != NVM_SLOT_NONE &&
 	       !nvm_restage(chosen, (chosen == NVM_SLOT_A) ? seq_a : seq_b)) {
+		nvm_unstaged |= (chosen == NVM_SLOT_A) ? 1u : 2u;
 		nvm_unread |= (chosen == NVM_SLOT_A) ? 1u : 2u;
 		if (chosen == NVM_SLOT_A) {
 			nvm_verdict_a = VD_LEN;
@@ -1979,13 +1992,15 @@ static void milan_nvm_handler(int nb_params, char **params)
 		return;
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "commit")) {
-		if (nvm_held)
-			printf("NVM: refused; slot %s gave no standing verdict at boot, the writer is HELD until reset.\n",
-			       nvm_unread_name());
-		else if (!nvm_ready)
+		if (nvm_held) {
+			printf("NVM: refused; ");
+			nvm_print_unread();
+			printf(" at boot, the writer is HELD until reset.\n");
+		} else if (!nvm_ready) {
 			printf("NVM: the writer is disabled on this build.\n");
-		else
+		} else {
 			nvm_commit("console");
+		}
 		return;
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "wipe")) {

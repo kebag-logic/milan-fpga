@@ -820,7 +820,7 @@ def grade_hold_console(bench: Bench) -> list[str]:
             "--read-fault", "a:0:0:64", "--boot")
     out, s, _ = run(bench, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm",
                     "--idle-ms", "3000")
-    _check(f, "refused; slot A gave no standing verdict at boot" in out and
+    _check(f, "refused; slot A gave no standing verdict in 3 reads at boot" in out and
            "writer HELD" in out and "unread=1." in out and s.get("erases") == 0 and
            s.get("acks") == 0 and s.get("backed") == 0,
            f"the held writer did not refuse the console's commit and report the hold: {s}")
@@ -832,7 +832,7 @@ def grade_hold_console(bench: Bench) -> list[str]:
     for cause, opts, line, state in RETIRE_CAUSES:
         out, s, _ = run(bench, *opts, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm")
         _check(f, "unread=1." in out and line in out and state in out and "writer HELD" not in out
-               and "gave no standing verdict at boot" not in out and HELD_LINE not in out,
+               and "gave no standing verdict" not in out and HELD_LINE not in out,
                f"a writer retired by {cause} with a slot unread named the slot on the console, "
                f"not the retire: {s}")
     return f
