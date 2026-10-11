@@ -1,0 +1,18 @@
+COMMAND ['$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/bin/python3', '-m', 'venv', PosixPath('$REVIEW_SCRATCH/venv')]
+COMMAND [PosixPath('$REVIEW_SCRATCH/venv/bin/python3'), '-m', 'pip', 'install', 'pyyaml', '-r', PosixPath('$SOURCE_CHECKOUT/sw/litex/litex_pins.txt')]
+COMMAND [PosixPath('$REVIEW_SCRATCH/venv/bin/python3'), PosixPath('$SOURCE_CHECKOUT/scripts/ci_litex_env.py')]
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+VexiiRiscv ready at 235753e24f2d960e49a0852205bae1400bf22c19
+COMMAND ['bash', PosixPath('$SOURCE_CHECKOUT/sw/litex/patches/apply.sh')]
+[patches] 0002-liteeth-gmii-tx-clk-invert.patch -> $REVIEW_SCRATCH/venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0007-liteeth-gmii-rx-capture.patch -> $REVIEW_SCRATCH/venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0004-vexiiriscv-baremetal-variant.patch -> $REVIEW_SCRATCH/venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0006-bios-dispatch-hook.patch -> $REVIEW_SCRATCH/venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0005-vexiiriscv-cacheless-litex.patch -> $REVIEW_SCRATCH/venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] series applied (5 patches).
+COMMAND [PosixPath('$REVIEW_SCRATCH/venv/bin/python3'), '-m', 'pip', 'freeze']

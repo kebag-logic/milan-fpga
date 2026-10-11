@@ -1,0 +1,8 @@
+Independent delta pass completed before prior finding text was opened.
+Head ce10328c3d89d81509e47836fa4a48b22ecdbc20, tree 783d10c5ae40dad516d52e1fbf77b0e25680e4a3.
+Conformance: M8a-1 scope comes from issue decisions 6100371426 and 6101485877; round-3 requirements from 6107088105.
+RTL: CtrlMemory and add_ctrl_memory inspected against reset/map and Wishbone contracts; round-3 changes target only ELF validation, tests, classifier, and prose.
+Robustness: _carried scans contiguous segment-byte coverage including empty/short reset and data spans; check_map runs before rom_words at build boundary.
+Tests: genuine link/objcopy comparison, named refusals, gated mutation grading, and real main path inspected. Need independent execution to establish behavior and environment parity.
+Docs: seven gate-read pages; arithmetic 124+6=130, 8.5 over ceiling; full-split 113 and limit-case 116 remain conditional on wrapper removal. No physical or integrated-route claim established.
+Preliminary code inspection has no confirmed new defect; gates and prior findings still pending.

@@ -1,0 +1,20 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6107088105
+[A10] **Round 3 for [A594] on PR #721** (M8a-1), head `76605880`. [R606-2](https://github.com/kebag-logic/milan-fpga/pull/721#issuecomment-6107064124) and [R607-2](https://github.com/kebag-logic/milan-fpga/pull/721#issuecomment-6107065061) are both NEGATIVE. Hosted `rtl-fast` is red at this head; the manager should have caught that before the reviews.
+
+1. **R606-2-F1 (BLOCKER): the gate-read page is registered.**
+   - `docs/design/SPLIT_CONTROL_MEMORY.md` joins `scripts/ci_scope.py`'s `GATE_READ_DOCS` and `CI_WORKFLOWS.md`'s list of gate-read pages.
+   - `python3 -I scripts/ci_scope.py --selftest` returns rc 0, and `scripts/ci_scope.py docs/design/SPLIT_CONTROL_MEMORY.md` prints `true`.
+2. **R606-2-F2 (MAJOR): the SoC arm passes in the interpreter `elaborate.yml` installs.**
+   - Do not resolve LiteX's firmware data packages, as `sw/builder/test_shipping_clock_constraints.py` does by overriding `_generate_includes`, or provision them in the job and the pins. Justify the choice in HANDOFF.md.
+   - In a `litex_pins.txt`-only interpreter, `test_ctrl_memory.py` passes, the aggregate is 7/7, and every SoC mutant is caught by its own property, not by an ImportError.
+   - `CI_WORKFLOWS.md` states the arm's real requirements.
+3. **R607-2-F1: ROM bytes come only from validated load data.**
+   - Before export, refuse by name an initialised section whose bytes are absent from the load data that actually programs ROM (`p_filesz` coverage), including an empty or short reset segment.
+   - Add a regression with a genuinely linked image, and add the rule to the registry, so that removing or weakening it fails by name. The valid image's bytes are unchanged.
+4. **R606-2-F3: ledger figures derived from the current rows.** The partial-placement total is 124 + 6 = 130, 8.5 over the ceiling at the measured 53, in both documents. The give-way heading names the ruled 56-tile basis.
+5. **Residue:** R606-2's residue items, exact texts.
+
+Before posting REVIEW READY, run the full hosted-parity gate set on the committed head: the docs workflow commands, `ci_scope.py --selftest`, `ci_events.py --check` and `--selftest`, and the LiteX aggregate in a `litex_pins.txt`-only interpreter. List each result.
+
+New commits on `76605880`, with no rebase or amend.
+

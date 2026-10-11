@@ -1,0 +1,35 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6100371426
+[A10] **Lane M8a for #640: on-chip control memory for the split placement** (plan L11a; `docs/design/MARK_II_AREA_PLAN.md`, "L11 The SoC side" and "Firmware and block RAM ledger"; D4). Executor [A594], reviewers [R606] (internal) and [R607] (external). Branch `640-m8a` from dev `e8454e27`.
+
+**Scope (plan L11a).**
+- In the split placement build, selected by its existing build switch, replace DDR3 main memory with on-chip block RAM for the control firmware:
+  - reuse the BIOS ROM and SRAM where the ledger credits them;
+  - the firmware allocation fits within 50 RAMB36, including stack, static pools, shape-sized saved-state staging and the descriptor image;
+  - the lane owns the memory-map migration and both placement contracts.
+- **Ruling:** the all-fabric shipping default keeps its memory system unchanged. Milestone 3 is the all-fabric image, and dropping DDR3 from the default is the flip's decision. Its netlist must be unchanged (digest-identical). Report, as measurement only, what the all-fabric image would need to drop DDR3 too.
+- No CPU change. D5's smaller core is lane M8b.
+- M2 (#710) and F-INT (#704) also edit `sw/litex/milan_soc.py`, in the MAC crossings and the mailbox. Keep this lane's edits to the memory map and memory instantiation so that the merge stays mechanical.
+- Target: about 1,000 LUTs (400-1,500) in the split placement, as a routed delta that replaces the plan's packing assumptions.
+
+**Proof.**
+- **Memory fit:** the linked firmware for the shipping 1x1 and the largest supported shape. Report:
+  - actual usable bytes against allocated primitives (RAMB36 and RAMB18, as mapped);
+  - the BIOS ROM and SRAM reuse count confirmed at your checkpoint;
+  - the result against the 224 KB / 50-tile ledger.
+  
+  A shape that does not fit is a STOP with the table.
+- **Service:**
+  - `check_nvm_capture.py` 8x8 at or under 24.5 ms on the new memory;
+  - firmware host tests, `nvm_cosim` and `nvm_capture_cpu`;
+  - the builder and deploy gates;
+  - a LiteX simulation boot of the split image to the control application's ready state.
+- **Planted controls**, each failing by name: an allocation over budget, a memory-map overlap, and a staging buffer sized for the wrong shape.
+- **Route:** the integrated route of the split placement through the M0s recipe, against M0s's split figure:
+  - LUT, FF and RAMB deltas;
+  - every endpoint at or above the WNS floor with no exception;
+  - the all-fabric endpoint unchanged.
+  
+  Vivado runs queue serially under the exclusive lock. The ledger rows are updated with measured values.
+
+The bench boot and persistence checks come after merge. Post TAKEN, then REVIEW READY (or STOP) with the head.
+
