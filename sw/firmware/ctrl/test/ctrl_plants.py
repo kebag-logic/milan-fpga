@@ -39,7 +39,7 @@ class Plant:
     copy. `texts` are builder texts the checkout is read as holding (a path from the gate's directory, and its
     text), never run; `alter` changes the run's capture the control is judged against: "missing", "empty", or
     "drop " and a builder whose invocations it loses. `needs` names the builders whose capture the control
-    needs ("verilator": the run that judges the builders that need Verilator; "" the firmware steps' run): a run
+    needs ("verilator": the run that judges the builders that need Verilator; "" the firmware builders' run): a run
     judges the controls of its scope and names every other one."""
 
     name: str

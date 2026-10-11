@@ -15,10 +15,12 @@ archives that do not exist, so it compiles every object and then stops at its
 link, and it must stop there and nowhere else. The images themselves are
 never this gate's: the capture needs the invocations only.
 
-STANDALONE, when the gate is given no capture: every other builder of
-ctrl_configs.BUILDERS, by its own commands, from the checkout's root, but the
-ones the run leaves out (ctrl_configs.Scope). Each must exit 0: a builder
-that fails may have compiled less than it does.
+STANDALONE, when the gate is given no capture (the hosted firmware-boundary
+and firmware-verilator jobs): every other builder of ctrl_configs.BUILDERS,
+by its own build commands (a suite builder's --build-only: its builds, not
+its suites), from the checkout's root, but the ones the run leaves out
+(ctrl_configs.Scope). Each must exit 0: a builder that fails may have
+compiled less than it does.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
 replayed, control_capture): the stack's own gate's CMake build runs under the

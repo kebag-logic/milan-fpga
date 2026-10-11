@@ -278,45 +278,75 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
-      # #697: each firmware step runs under ctrl_capture.py, which records
-      # every compiler invocation its builders make, with the compiler's own
-      # list of what each source's compile reads (a wrapper on PATH runs the
-      # real compiler unchanged), into one capture the boundary judges.
       - name: Run the control-plane firmware suites and RV32 builds
         run: |
           set -euo pipefail
-          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
-          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
 
       - name: Run the saved-state store suites and its RV32 build
-        run: python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
 
       - name: Hold the firmware coverage ratchet
         run: |
           set -euo pipefail
-          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --selftest
-          python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+          python3 sw/firmware/gtest/fw_coverage.py --selftest
+          python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
 
-      # #697: the TSN stack's boundary from both sides, in exactly the
-      # compiles the capture of the steps above recorded, each judged by the
-      # compiler's own dependency output for that invocation: the cores read
-      # only their own files and the C implementation's headers, the stack's
-      # tests nothing of this repository, the firmware (the saved-state store
-      # and both images included) only the stack's public headers; every
-      # Makefile target that builds the stack is pinned, and the stack's own
-      # gate (its CMake build with gcc and clang) and the image builders run
-      # under the capture here; planted and pin controls first. This job has
-      # no Verilator, so the builders that need it are named and left out
-      # (--without verilator): firmware-verilator judges them.
-      - name: Hold the TSN stack boundary in both directions
-        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture "$RUNNER_TEMP/ctrl-capture" --without verilator
+  # #697: the TSN stack's boundary from both sides, over the compiles of
+  # every builder it judges but those that need Verilator: the gate runs each
+  # by its builds, read from its own known set (ctrl_configs.BUILDERS), not
+  # its suites (the suite builders' --build-only builds every binary and image
+  # firmware-unit's suites build, and runs and plants nothing), and the stack's
+  # own gate (its CMake build with gcc and clang) and the image builders,
+  # under one capture of every compiler invocation, with the compiler's own
+  # list of what each source's compile reads (a wrapper on PATH runs the real
+  # compiler unchanged). Each compile is judged by that list: the cores read
+  # only their own files and the C implementation's headers, the stack's
+  # tests nothing of this repository, the firmware (the saved-state store and
+  # both images included) only the stack's public headers; every Makefile
+  # target that builds the stack is pinned; planted and pin controls first.
+  # This job has no Verilator, so the builders that need it are named and
+  # left out (--without verilator): firmware-verilator judges them.
+  firmware-boundary:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Hold the TSN stack boundary over the firmware builders' compiles
+        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
 
   # #697: the TSN stack's boundary over the compiles only the builders that
   # need Verilator make: the mailbox bench, the MAAP differential and the
   # AECP wire comparison at each reference it pins, each run by its own
   # commands (ctrl_configs.BUILDERS) under the gate's own capture, with the
   # controls that need their capture (--only verilator). The firmware
-  # steps' builders are firmware-unit's, named here and left out.
+  # builders are firmware-boundary's, named here and left out.
   firmware-verilator:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -384,7 +414,7 @@ jobs:
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-verilator]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-boundary, firmware-verilator]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -395,6 +425,7 @@ jobs:
           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
+          FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
           FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
         run: |
           set -euo pipefail
@@ -405,6 +436,7 @@ jobs:
             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
             "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+            "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
             "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"

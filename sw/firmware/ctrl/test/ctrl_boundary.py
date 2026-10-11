@@ -60,15 +60,19 @@ WHERE A FILE LIVES (Places), by its resolved path, in a checkout root judged
 - outside: anything else (a builder's own file, an installed tool's, the
   host's libraries).
 
-THE CAPTURE. The capture is given (--capture, as the hosted firmware-unit job
-makes it around its firmware steps), or, without one, made here by running
-every known builder the run judges (ctrl_configs.BUILDERS) under it. Either
-way the stack's own gate and the image builders run under it here
-(ctrl_runs.py). --without verilator leaves out the builders that need
-Verilator, and --only verilator judges them alone, as the hosted
-firmware-verilator job does; each builder and control left out is named on the
-run. The stack's own gate, its scripts/check_boundary.py (the same rule under
-its own CMake build with gcc and clang, and its objects' symbols), runs as well.
+THE CAPTURE. Without --capture the gate makes it, as the hosted
+firmware-boundary and firmware-verilator jobs do, by running every known
+builder the run judges (ctrl_configs.BUILDERS) under it, each by its builds
+and not its suites: the suite builders by their --build-only, which builds
+every binary and image the suites build and runs and plants nothing. A
+capture given (--capture, made by ctrl_capture.py around any command) is
+judged instead. Either way the stack's own gate and the image builders run
+under it here (ctrl_runs.py). --without verilator leaves out the builders
+that need Verilator, as the hosted firmware-boundary job does, and --only
+verilator judges them alone, as the hosted firmware-verilator job does; each
+builder and control left out is named on the run. The stack's own gate, its
+scripts/check_boundary.py (the same rule under its own CMake build with gcc
+and clang, and its objects' symbols), runs as well.
 
 THE PIN (ctrl_pin.py). Every gate that builds the stack first runs the shared
 pin check (ctrl_build.stack_pin): the submodule must be at its gitlink, and
@@ -89,8 +93,9 @@ arm when no RV32 compiler is found.
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
-    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
 
 Exit 0 = both sides hold; 1 = a finding or a control that misbehaved; 2 =
 refused (no compiler, cmake or clang, the stack's gate could not run, or the
@@ -367,7 +372,7 @@ def controls(work: Path, run: Capture, scope: Scope) -> tuple[int, int]:
     for plant in PLANTS:
         if not scope.judges(plant.needs):
             print(f"  LEFT OUT: boundary control {plant.name}, judged where its builders' capture is (needs "
-                  f"{plant.needs or 'the firmware steps'})")
+                  f"{plant.needs or 'the firmware builders'})")
     target = targets(run, (ROOT,))
     bad = 0
     with ThreadPoolExecutor(max_workers=JOBS, thread_name_prefix="ctrl-boundary-plant") as runner:
@@ -387,10 +392,10 @@ def summary(capture: Capture, scope: Scope, ran: list[str]) -> None:
           f"every known builder held: {', '.join(known)}")
     for b in scope.left_out():
         print(f"  LEFT OUT: {b.path}, which needs {NEEDS[b.needs]}, which this run has none of (--without {b.needs})"
-              if b.needs else f"  LEFT OUT: {b.path}, which the run that holds the firmware steps judges (--only "
+              if b.needs else f"  LEFT OUT: {b.path}, which the run that holds the firmware builders judges (--only "
               f"{scope.only})")
     if scope.only:
-        print("  the builders found by text are cross-checked by the run that holds the firmware steps")
+        print("  the builders found by text are cross-checked by the run that holds the firmware builders")
     nothing = failed(capture)
     if nothing:
         print(f"  {len(nothing)} compile(s) failed, each with its dependency pass, and compiled nothing: "

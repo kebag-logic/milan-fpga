@@ -591,7 +591,7 @@ INHERITED_STEP_ENV = {
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
-    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
@@ -710,8 +710,6 @@ BUILDER_RUNS = {
         "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
     ),
 }
-#: #697: the firmware-unit job's firmware steps run under the capture of their compiler invocations.
-CAPTURE = 'python3 sw/firmware/ctrl/test/ctrl_capture.py --out "$RUNNER_TEMP/ctrl-capture" -- '
 #: #504: reviewed cache inputs and unconditional verification on hits and misses.
 RV32_CACHE_WITH = {
     "path": "~/br-milan-rv32/host",
@@ -1259,6 +1257,9 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
+#: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
+#: run by its builds (ctrl_configs.BUILDERS), not its suites.
+FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
@@ -2376,29 +2377,47 @@ RTL_STEP_LISTS = {
          "with": RV32_CACHE_WITH},
         {"name": "Install and verify the pinned RV32 SDK",
          "run": RV32_INSTALL},
-        # #697: each firmware step under the capture of its compiler invocations the boundary judges.
         {"name": "Run the control-plane firmware suites and RV32 builds",
          "run": (
              'set -euo pipefail',
-             CAPTURE + 'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
-             CAPTURE + 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
-             CAPTURE + 'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
          )},
         {"name": "Hold the firmware coverage ratchet",
          "run": (
              'set -euo pipefail',
-             CAPTURE + 'python3 sw/firmware/gtest/fw_coverage.py --selftest',
-             CAPTURE + 'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+             'python3 sw/firmware/gtest/fw_coverage.py --selftest',
+             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
          )},
-        # #697: the TSN stack's boundary from both sides, judged against that capture, its controls and the
-        # stack's own gate; the job has no Verilator, so the builders needing it are named and left out.
-        {"name": "Hold the TSN stack boundary in both directions",
+    ),
+    # #697: the TSN stack's boundary from both sides over the compiles of every builder it judges but those
+    # that need Verilator, each run by its builds and not its suites under the gate's own capture (the gate
+    # reads them from its own known set, ctrl_configs.BUILDERS), its controls and the stack's own gate; the job
+    # has no Verilator, so the builders needing it are named and left out.
+    (RTL_FAST, FIRMWARE_BOUNDARY_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
          "run": (
-             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture '
-             '"$RUNNER_TEMP/ctrl-capture" --without verilator',
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+         )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Hold the TSN stack boundary over the firmware builders' compiles",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator',
          )},
     ),
     # #697: the same boundary over the compiles only the builders that need Verilator make, each run by its own
@@ -7791,12 +7810,25 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
     return edits
 
 
+#: The fast firmware jobs' steps whose builders must refuse, never skip, a missing RV32 compiler.
+RV32_REQUIRED_STEPS = {
+    FIRMWARE_UNIT_JOB: (
+        ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+        ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"),
+    ),
+    FIRMWARE_BOUNDARY_JOB: (
+        ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
+    ),
+}
+
+
 def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
     for path, jid, count in ((DOCS, "docs-check", 50),
                              (ELABORATE, "elaborate", 20),
-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 10)):
+                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9),
+                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
@@ -7817,10 +7849,7 @@ def _rv32_sdk_arms() -> list[Arm]:
                      "(`Install and verify the pinned RV32 SDK`)"))
         if path == RTL_FAST:
             # Each missing compiler must refuse, never silently skip a build.
-            for script, step_name in (
-                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
-                    ("ctrl_boundary.py", "Hold the TSN stack boundary in both directions"),
-                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
+            for script, step_name in RV32_REQUIRED_STEPS[jid]:
                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
                              _m_step_key_any(path, jid, script, "run",

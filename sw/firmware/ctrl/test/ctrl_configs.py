@@ -8,21 +8,27 @@ builders those are and refuses a capture that does not hold them whole.
 
 THE BUILDERS. BUILDERS is the known set: every builder of the firmware that
 compiles, each with the commands that run it when the gate makes the capture
-itself. A capture judged must hold an invocation of each, unless the run
+itself: its builds, not its suites (a suite builder's --build-only builds
+every binary and image its suites build, and runs and plants nothing). A
+capture judged must hold an invocation of each, unless the run
 leaves it out (Scope): it has none of what that builder needs (--without
 verilator), or it judges only the builders that need it (--only verilator,
-which leaves out the firmware steps' builders, judged by the run that holds
+which leaves out the firmware builders, judged by the run that holds
 them); each one left out is named on every run. The builders are found by
 text as well, as a cross-check that cannot pass on its own: every Python
 module and Makefile of the checkout, tracked or new and not ignored, that
 names the firmware's tree (sw/firmware/ctrl, or its shared builder
 ctrl_build), the gate's own modules excepted, must have compiled in the
 capture, be one of BUILDERS (or run only under one the run leaves out,
-PART_OF), or be listed in OUTSIDE with the reason its compiles, if any, are
-none of the firmware's. Any other refuses the gate by name, and so does a
-compiler a builder runs by a path that is no wrapper.
+PART_OF), be listed in OUTSIDE with the reason its compiles, if any, are
+none of the firmware's, or be listed in SUITES with what it compiles only in
+a suite, which a build-only run does not run (a planted-defect campaign
+compiles planted copies, and the checkout's tests against them, and the
+builds compile every source of the checkout it does). Any other refuses the
+gate by name, and so does a compiler a builder runs by a path that is no
+wrapper.
 A run that judges only the builders that need Verilator leaves that
-cross-check to the run that holds the firmware steps, whose capture holds
+cross-check to the run that holds the firmware builders, whose capture holds
 the builders found by text.
 
 WHAT A CAPTURE MUST HOLD, each refused by name (held): a dependency list of
@@ -75,32 +81,36 @@ COMPILED = ("c", "c++", "assembler")
 @dataclass(frozen=True)
 class Builder:
     """One builder of the firmware that compiles: its file (a script, or a Makefile), from the checkout's root;
-    the commands that run it when the gate makes the capture itself, from the root ({python} the interpreter,
-    {work} a directory of the run's own, {verilator} the Verilator); and what it needs that a run may have none
-    of ("verilator")."""
+    the commands that make its compiles when the gate makes the capture itself, its builds and not its suites,
+    from the root ({python} the interpreter, {work} a directory of the run's own, {verilator} the Verilator); and
+    what it needs that a run may have none of ("verilator")."""
 
     path: str
     runs: tuple[tuple[str, ...], ...]
     needs: str = ""
 
 
-#: The known set: every builder of the firmware that compiles. The hosted firmware-unit job runs the first four
-#: under the capture (rtl-fast.yml); the gate runs the stack's gate and the image builders itself on every run
-#: (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them through the
-#: gate's own capture (--only verilator). Each runs every configuration its own list holds: the bench's default
-#: target, the differential with its self-test, the wire comparison at every reference it pins (--every); the
-#: differential and the comparison keep what they build in the run's directory, where a control replays it.
+#: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
+#: four through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
+#: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
+#: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
+#: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
+#: every run (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them
+#: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
+#: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
+#: (--every); the differential and the comparison keep what they build in the run's directory, where a control
+#: replays it.
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
     Builder("sw/firmware/ctrl/test/test_ctrl_firmware.py",
-            (("{python}", "sw/firmware/ctrl/test/test_ctrl_firmware.py", "--require-rv32", "--self-test", "--jobs",
+            (("{python}", "sw/firmware/ctrl/test/test_ctrl_firmware.py", "--require-rv32", "--build-only", "--jobs",
               "4"),)),
     Builder("sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
-            (("{python}", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "--require-rv32", "--jobs", "4"),)),
+            (("{python}", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "--require-rv32", "--build-only", "--jobs",
+              "4"),)),
     Builder("sw/firmware/gtest/fw_coverage.py",
-            (("{python}", "sw/firmware/gtest/fw_coverage.py", "--selftest"),
-             ("{python}", "sw/firmware/gtest/fw_coverage.py", "--check", "--jobs", "4"))),
+            (("{python}", "sw/firmware/gtest/fw_coverage.py", "--build-only", "--jobs", "4"),)),
     Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
@@ -136,6 +146,22 @@ OUTSIDE = {
                                                    "source",
     "sw/mailbox/gen_mailbox.py": "writes the mailbox contract; it compiles nothing",
     "sw/mailbox/mailbox_emit.py": "writes the mailbox contract's text; it compiles nothing",
+}
+#: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
+#: each with what it compiles there. The builds compile every source of the checkout these compile, against the
+#: checkout's own trees.
+SUITES = {
+    "sw/firmware/ctrl/test/ctrl_mutants.py": "the control campaign (test_ctrl_firmware.py --self-test): copies of "
+                                             "the firmware's tree and the stack's src/ and include/ with a defect "
+                                             "planted, and the checkout's tests and the stack's tests against them",
+    "sw/firmware/ctrl/test/aecp_mutants.py": "the AECP campaign (test_ctrl_firmware.py --self-test): copies of the "
+                                             "firmware's tree with a defect planted, and the checkout's tests "
+                                             "against them",
+    "sw/firmware/ctrl/test/srp_mutants.py": "the SRP campaign (test_ctrl_firmware.py --self-test): copies of the "
+                                            "firmware's tree with a defect planted, and the checkout's tests "
+                                            "against them",
+    "sw/firmware/gtest/fw_coverage_selftest.py": "the coverage reader's planted cases (fw_coverage.py --selftest): "
+                                                 "programs it writes outside the checkout",
 }
 
 
@@ -214,7 +240,7 @@ class Scope:
 def held(capture: Capture, scope: Scope, planted: dict[Path, str] | None = None,
          trees: tuple[Path, ...] = (ROOT,), own: Capture | None = None) -> None:
     """Refuse, by name, a known builder the capture holds no invocation of, a builder found by text that compiled
-    nothing in it and is none of BUILDERS, PART_OF or OUTSIDE, a compiler a builder ran by a path that is no
+    nothing in it and is none of BUILDERS, PART_OF, OUTSIDE or SUITES, a compiler a builder ran by a path that is no
     wrapper, a compiled source the recorder holds no dependency list of, and an invocation whose expansion is none
     or reads a file first that the stack's side does not admit (expanded; `trees` are the checkout roots judged,
     the checkout's and a control's copy of it, which only the control's `own` capture compiles)."""
@@ -224,10 +250,11 @@ def held(capture: Capture, scope: Scope, planted: dict[Path, str] | None = None,
                for b in BUILDERS if b.path not in out and b.path not in capture.builders]
     for path in builder_texts(planted) if not scope.only else ():
         name = rel(path)
-        if name in capture.builders or name in known or name in OUTSIDE or PART_OF.get(name) in out:
+        if name in capture.builders or name in known or name in OUTSIDE or name in SUITES or PART_OF.get(name) in out:
             continue
         reasons.append(f"{name} names the firmware's tree, compiled nothing in the capture, and is neither a known "
-                       "builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE)")
+                       "builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor "
+                       "one that compiles only in a suite (SUITES)")
     for bypass in capture.bypassed:
         reasons.append(f"{', '.join(bypass['from']) or 'a builder'} ran {bypass['bypass']}, a compiler the capture "
                        "does not wrap, so it records none of that compiler's invocations")
