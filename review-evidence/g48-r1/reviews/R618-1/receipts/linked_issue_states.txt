@@ -1,0 +1,10 @@
+donor #13 closed pr=false | Align the README with the implemented parent integration
+donor #35 open pr=false | RX: a mid-frame rx_err_i pulse is ignored and the frame dispatches
+donor #58 open pr=false | delayAsymmetry management input, timestamp-calibration triple, and the live UART tuner from the prototype line
+donor #80 open pr=true | Drop a frame on rx_err_i at any byte, not only the last (#35)
+PR80 head=5b4ce3974f76 merged=false base=main body_mentions35=true
+parent #64 open | Measure and deploy the gPTP ingress/egress timestamp-latency split
+parent #116 closed | gPTP plane default ON: retire ptp4l, phc2sys and the statd mirror
+parent #117 open | gPTP plane silicon validation: one-DUT sync against the reference peer, GM loss and return, conformance
+parent #488 open | [Verification] Instrument-backed measurements: PPS against an external reference, and the PHY-boundary timestamp split and window
+parent #511 closed | [gPTP processor] Decide delayAsymmetry adoption and calibration management ownership
