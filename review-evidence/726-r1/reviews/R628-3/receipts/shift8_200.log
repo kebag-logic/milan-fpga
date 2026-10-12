@@ -1,0 +1,832 @@
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [726] registered recipient                     = 0x0
+  [ok]   [726] registered recipient                     = 0x0
+OUTPUT_CONDITION,0,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,1,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,2,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,3,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,4,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,5,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,6,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,7,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,8,uncertain,5,0,1,0,101,0
+TX_COUNT,0,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,1,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,2,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,3,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,4,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,5,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,6,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,7,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,8,101,101
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x65
+  [ok]   [726 TX] every output emitted                  = 0x1
+shape,type,index,recipient,window,notifications,min_gap_ms,max_gap_ms
+NOTE,5,0,0,998915
+NOTE,5,0,0,1999915
+NOTE,5,0,0,3000915
+NOTE,5,0,0,4001915
+NOTE,5,0,0,5002911
+  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,0,0,0,1,1000.99600,1001.00000
+8,5,0,0,1,1,1000.99600,1001.00000
+8,5,0,0,2,0,1000.99600,1001.00000
+8,5,0,0,3,1,1000.99600,1001.00000
+8,5,0,0,4,1,1000.99600,1001.00000
+NOTE,5,0,1,999696
+NOTE,5,0,1,2000678
+NOTE,5,0,1,3001678
+NOTE,5,0,1,4002678
+NOTE,5,0,1,5003674
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,0,1,0,1,1000.98200,1001.00000
+8,5,0,1,1,0,1000.98200,1001.00000
+8,5,0,1,2,1,1000.98200,1001.00000
+8,5,0,1,3,1,1000.98200,1001.00000
+8,5,0,1,4,1,1000.98200,1001.00000
+NOTE,5,1,0,1000456
+NOTE,5,1,0,2001915
+NOTE,5,1,0,3002915
+NOTE,5,1,0,4003915
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,1,0,0,0,1001.00000,1001.45900
+8,5,1,0,1,1,1001.00000,1001.45900
+8,5,1,0,2,1,1001.00000,1001.45900
+8,5,1,0,3,1,1001.00000,1001.45900
+8,5,1,0,4,1,1001.00000,1001.45900
+NOTE,5,1,1,1001219
+NOTE,5,1,1,2002678
+NOTE,5,1,1,3003678
+NOTE,5,1,1,4004678
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,1,1,0,0,1001.00000,1001.45900
+8,5,1,1,1,1,1001.00000,1001.45900
+8,5,1,1,2,1,1001.00000,1001.45900
+8,5,1,1,3,1,1001.00000,1001.45900
+8,5,1,1,4,1,1001.00000,1001.45900
+NOTE,5,2,0,1001997
+NOTE,5,2,0,2003456
+NOTE,5,2,0,3004919
+NOTE,5,2,0,4005915
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,2,0,0,0,1000.99600,1001.46300
+8,5,2,0,1,1,1000.99600,1001.46300
+8,5,2,0,2,1,1000.99600,1001.46300
+8,5,2,0,3,1,1000.99600,1001.46300
+8,5,2,0,4,1,1000.99600,1001.46300
+NOTE,5,2,1,1002760
+NOTE,5,2,1,2004219
+NOTE,5,2,1,3005678
+NOTE,5,2,1,4006678
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,2,1,0,0,1001.00000,1001.45900
+8,5,2,1,1,1,1001.00000,1001.45900
+8,5,2,1,2,1,1001.00000,1001.45900
+8,5,2,1,3,1,1001.00000,1001.45900
+8,5,2,1,4,1,1001.00000,1001.45900
+NOTE,5,3,0,1003538
+NOTE,5,3,0,2005015
+NOTE,5,3,0,3006456
+NOTE,5,3,0,4007915
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,3,0,0,0,1001.44100,1001.47700
+8,5,3,0,1,1,1001.44100,1001.47700
+8,5,3,0,2,1,1001.44100,1001.47700
+8,5,3,0,3,1,1001.44100,1001.47700
+8,5,3,0,4,1,1001.44100,1001.47700
+NOTE,5,3,1,1004301
+NOTE,5,3,1,2005760
+NOTE,5,3,1,3007219
+NOTE,5,3,1,4008678
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,3,1,0,0,1001.45900,1001.45900
+8,5,3,1,1,1,1001.45900,1001.45900
+8,5,3,1,2,1,1001.45900,1001.45900
+8,5,3,1,3,1,1001.45900,1001.45900
+8,5,3,1,4,1,1001.45900,1001.45900
+NOTE,5,4,0,1005079
+NOTE,5,4,0,2006538
+NOTE,5,4,0,3007997
+NOTE,5,4,0,4009456
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,4,0,0,0,1001.45900,1001.45900
+8,5,4,0,1,1,1001.45900,1001.45900
+8,5,4,0,2,1,1001.45900,1001.45900
+8,5,4,0,3,1,1001.45900,1001.45900
+8,5,4,0,4,1,1001.45900,1001.45900
+NOTE,5,4,1,1005842
+NOTE,5,4,1,2007301
+NOTE,5,4,1,3008760
+NOTE,5,4,1,4010219
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,4,1,0,0,1001.45900,1001.45900
+8,5,4,1,1,1,1001.45900,1001.45900
+8,5,4,1,2,1,1001.45900,1001.45900
+8,5,4,1,3,1,1001.45900,1001.45900
+8,5,4,1,4,1,1001.45900,1001.45900
+NOTE,5,5,0,1006620
+NOTE,5,5,0,2008079
+NOTE,5,5,0,3009538
+NOTE,5,5,0,4010997
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,5,0,0,0,1001.45900,1001.45900
+8,5,5,0,1,1,1001.45900,1001.45900
+8,5,5,0,2,1,1001.45900,1001.45900
+8,5,5,0,3,1,1001.45900,1001.45900
+8,5,5,0,4,1,1001.45900,1001.45900
+NOTE,5,5,1,1007383
+NOTE,5,5,1,2008842
+NOTE,5,5,1,3010301
+NOTE,5,5,1,4011760
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,5,1,0,0,1001.45900,1001.45900
+8,5,5,1,1,1,1001.45900,1001.45900
+8,5,5,1,2,1,1001.45900,1001.45900
+8,5,5,1,3,1,1001.45900,1001.45900
+8,5,5,1,4,1,1001.45900,1001.45900
+NOTE,5,6,0,1008161
+NOTE,5,6,0,2009620
+NOTE,5,6,0,3011079
+NOTE,5,6,0,4012538
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,6,0,0,0,1001.45900,1001.45900
+8,5,6,0,1,1,1001.45900,1001.45900
+8,5,6,0,2,1,1001.45900,1001.45900
+8,5,6,0,3,1,1001.45900,1001.45900
+8,5,6,0,4,1,1001.45900,1001.45900
+NOTE,5,6,1,1008924
+NOTE,5,6,1,2010383
+NOTE,5,6,1,3011842
+NOTE,5,6,1,4013301
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,6,1,0,0,1001.45900,1001.45900
+8,5,6,1,1,1,1001.45900,1001.45900
+8,5,6,1,2,1,1001.45900,1001.45900
+8,5,6,1,3,1,1001.45900,1001.45900
+8,5,6,1,4,1,1001.45900,1001.45900
+NOTE,5,7,0,1009702
+NOTE,5,7,0,2011161
+NOTE,5,7,0,3012620
+NOTE,5,7,0,4014079
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,7,0,0,0,1001.45900,1001.45900
+8,5,7,0,1,1,1001.45900,1001.45900
+8,5,7,0,2,1,1001.45900,1001.45900
+8,5,7,0,3,1,1001.45900,1001.45900
+8,5,7,0,4,1,1001.45900,1001.45900
+NOTE,5,7,1,1010465
+NOTE,5,7,1,2011924
+NOTE,5,7,1,3013383
+NOTE,5,7,1,4014842
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,7,1,0,0,1001.45900,1001.45900
+8,5,7,1,1,1,1001.45900,1001.45900
+8,5,7,1,2,1,1001.45900,1001.45900
+8,5,7,1,3,1,1001.45900,1001.45900
+8,5,7,1,4,1,1001.45900,1001.45900
+NOTE,5,8,0,1011243
+NOTE,5,8,0,2012702
+NOTE,5,8,0,3014161
+NOTE,5,8,0,4015620
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,8,0,0,0,1001.45900,1001.45900
+8,5,8,0,1,1,1001.45900,1001.45900
+8,5,8,0,2,1,1001.45900,1001.45900
+8,5,8,0,3,1,1001.45900,1001.45900
+8,5,8,0,4,1,1001.45900,1001.45900
+NOTE,5,8,1,1012006
+NOTE,5,8,1,2013465
+NOTE,5,8,1,3014924
+NOTE,5,8,1,4016383
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,5,8,1,0,0,1001.45900,1001.45900
+8,5,8,1,1,1,1001.45900,1001.45900
+8,5,8,1,2,1,1001.45900,1001.45900
+8,5,8,1,3,1,1001.45900,1001.45900
+8,5,8,1,4,1,1001.45900,1001.45900
+NOTE,6,0,0,758
+NOTE,6,0,0,1012785
+NOTE,6,0,0,2014244
+NOTE,6,0,0,3015703
+NOTE,6,0,0,4017162
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,0,0,0,1,1001.45900,1012.02700
+8,6,0,0,1,1,1001.45900,1012.02700
+8,6,0,0,2,1,1001.45900,1012.02700
+8,6,0,0,3,1,1001.45900,1012.02700
+8,6,0,0,4,1,1001.45900,1012.02700
+NOTE,6,0,1,1522
+NOTE,6,0,1,1013549
+NOTE,6,0,1,2015008
+NOTE,6,0,1,3016467
+NOTE,6,0,1,4017946
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,0,1,0,1,1001.45900,1012.02700
+8,6,0,1,1,1,1001.45900,1012.02700
+8,6,0,1,2,1,1001.45900,1012.02700
+8,6,0,1,3,1,1001.45900,1012.02700
+8,6,0,1,4,1,1001.45900,1012.02700
+NOTE,6,1,0,2301
+NOTE,6,1,0,1014328
+NOTE,6,1,0,2015787
+NOTE,6,1,0,3017246
+NOTE,6,1,0,4018705
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,1,0,0,1,1001.45900,1012.02700
+8,6,1,0,1,1,1001.45900,1012.02700
+8,6,1,0,2,1,1001.45900,1012.02700
+8,6,1,0,3,1,1001.45900,1012.02700
+8,6,1,0,4,1,1001.45900,1012.02700
+NOTE,6,1,1,3065
+NOTE,6,1,1,1015092
+NOTE,6,1,1,2016551
+NOTE,6,1,1,3018010
+NOTE,6,1,1,4019469
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,1,1,0,1,1001.45900,1012.02700
+8,6,1,1,1,1,1001.45900,1012.02700
+8,6,1,1,2,1,1001.45900,1012.02700
+8,6,1,1,3,1,1001.45900,1012.02700
+8,6,1,1,4,1,1001.45900,1012.02700
+NOTE,6,2,0,3844
+NOTE,6,2,0,1015871
+NOTE,6,2,0,2017330
+NOTE,6,2,0,3018789
+NOTE,6,2,0,4020248
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,2,0,0,1,1001.45900,1012.02700
+8,6,2,0,1,1,1001.45900,1012.02700
+8,6,2,0,2,1,1001.45900,1012.02700
+8,6,2,0,3,1,1001.45900,1012.02700
+8,6,2,0,4,1,1001.45900,1012.02700
+NOTE,6,2,1,4608
+NOTE,6,2,1,1016635
+NOTE,6,2,1,2018094
+NOTE,6,2,1,3019553
+NOTE,6,2,1,4021012
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,2,1,0,1,1001.45900,1012.02700
+8,6,2,1,1,1,1001.45900,1012.02700
+8,6,2,1,2,1,1001.45900,1012.02700
+8,6,2,1,3,1,1001.45900,1012.02700
+8,6,2,1,4,1,1001.45900,1012.02700
+NOTE,6,3,0,5412
+NOTE,6,3,0,1017414
+NOTE,6,3,0,2018916
+NOTE,6,3,0,3020332
+NOTE,6,3,0,4021791
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,3,0,0,1,1001.41600,1012.00200
+8,6,3,0,1,1,1001.41600,1012.00200
+8,6,3,0,2,1,1001.41600,1012.00200
+8,6,3,0,3,1,1001.41600,1012.00200
+8,6,3,0,4,1,1001.41600,1012.00200
+NOTE,6,3,1,6151
+NOTE,6,3,1,1018178
+NOTE,6,3,1,2019680
+NOTE,6,3,1,3021096
+NOTE,6,3,1,4022555
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,3,1,0,1,1001.41600,1012.02700
+8,6,3,1,1,1,1001.41600,1012.02700
+8,6,3,1,2,1,1001.41600,1012.02700
+8,6,3,1,3,1,1001.41600,1012.02700
+8,6,3,1,4,1,1001.41600,1012.02700
+NOTE,6,4,0,6930
+NOTE,6,4,0,1018957
+NOTE,6,4,0,2020459
+NOTE,6,4,0,3021916
+NOTE,6,4,0,4023361
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,4,0,0,1,1001.44500,1012.02700
+8,6,4,0,1,1,1001.44500,1012.02700
+8,6,4,0,2,1,1001.44500,1012.02700
+8,6,4,0,3,1,1001.44500,1012.02700
+8,6,4,0,4,1,1001.44500,1012.02700
+NOTE,6,4,1,7694
+NOTE,6,4,1,1019721
+NOTE,6,4,1,2021223
+NOTE,6,4,1,3022680
+NOTE,6,4,1,4024098
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,4,1,0,1,1001.41800,1012.02700
+8,6,4,1,1,1,1001.41800,1012.02700
+8,6,4,1,2,1,1001.41800,1012.02700
+8,6,4,1,3,1,1001.41800,1012.02700
+8,6,4,1,4,1,1001.41800,1012.02700
+NOTE,6,5,0,8473
+NOTE,6,5,0,1020500
+NOTE,6,5,0,2022002
+NOTE,6,5,0,3023459
+NOTE,6,5,0,4024916
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,5,0,0,1,1001.45700,1012.02700
+8,6,5,0,1,1,1001.45700,1012.02700
+8,6,5,0,2,1,1001.45700,1012.02700
+8,6,5,0,3,1,1001.45700,1012.02700
+8,6,5,0,4,1,1001.45700,1012.02700
+NOTE,6,5,1,9237
+NOTE,6,5,1,1021264
+NOTE,6,5,1,2022766
+NOTE,6,5,1,3024223
+NOTE,6,5,1,4025680
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,5,1,0,1,1001.45700,1012.02700
+8,6,5,1,1,1,1001.45700,1012.02700
+8,6,5,1,2,1,1001.45700,1012.02700
+8,6,5,1,3,1,1001.45700,1012.02700
+8,6,5,1,4,1,1001.45700,1012.02700
+NOTE,6,6,0,10016
+NOTE,6,6,0,1022043
+NOTE,6,6,0,2023545
+NOTE,6,6,0,3025002
+NOTE,6,6,0,4026459
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,6,0,0,1,1001.45700,1012.02700
+8,6,6,0,1,1,1001.45700,1012.02700
+8,6,6,0,2,1,1001.45700,1012.02700
+8,6,6,0,3,1,1001.45700,1012.02700
+8,6,6,0,4,1,1001.45700,1012.02700
+NOTE,6,6,1,10780
+NOTE,6,6,1,1022807
+NOTE,6,6,1,2024309
+NOTE,6,6,1,3025766
+NOTE,6,6,1,4027223
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,6,1,0,1,1001.45700,1012.02700
+8,6,6,1,1,1,1001.45700,1012.02700
+8,6,6,1,2,1,1001.45700,1012.02700
+8,6,6,1,3,1,1001.45700,1012.02700
+8,6,6,1,4,1,1001.45700,1012.02700
+NOTE,6,7,0,11559
+NOTE,6,7,0,1023586
+NOTE,6,7,0,2025088
+NOTE,6,7,0,3026545
+NOTE,6,7,0,4028002
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,7,0,0,1,1001.45700,1012.02700
+8,6,7,0,1,1,1001.45700,1012.02700
+8,6,7,0,2,1,1001.45700,1012.02700
+8,6,7,0,3,1,1001.45700,1012.02700
+8,6,7,0,4,1,1001.45700,1012.02700
+NOTE,6,7,1,12323
+NOTE,6,7,1,1024352
+NOTE,6,7,1,2025852
+NOTE,6,7,1,3027309
+NOTE,6,7,1,4028766
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,7,1,0,1,1001.45700,1012.02900
+8,6,7,1,1,1,1001.45700,1012.02900
+8,6,7,1,2,1,1001.45700,1012.02900
+8,6,7,1,3,1,1001.45700,1012.02900
+8,6,7,1,4,1,1001.45700,1012.02900
+NOTE,6,8,0,13102
+NOTE,6,8,0,1025129
+NOTE,6,8,0,2026631
+NOTE,6,8,0,3028088
+NOTE,6,8,0,4029545
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,8,0,0,1,1001.45700,1012.02700
+8,6,8,0,1,1,1001.45700,1012.02700
+8,6,8,0,2,1,1001.45700,1012.02700
+8,6,8,0,3,1,1001.45700,1012.02700
+8,6,8,0,4,1,1001.45700,1012.02700
+NOTE,6,8,1,13866
+NOTE,6,8,1,1025893
+NOTE,6,8,1,2027395
+NOTE,6,8,1,3028852
+NOTE,6,8,1,4030309
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 CADENCE] every complete steady window notified = 0x1
+  [ok]   [726 RATE] no duplicate in a complete steady window = 0x1
+  [ok]   [726 RATE] minimum spacing                     = 0x1
+  [ok]   [726 CADENCE] gap bounded by measured service  = 0x1
+8,6,8,1,0,1,1001.45700,1012.02700
+8,6,8,1,1,1,1001.45700,1012.02700
+8,6,8,1,2,1,1001.45700,1012.02700
+8,6,8,1,3,1,1001.45700,1012.02700
+8,6,8,1,4,1,1001.45700,1012.02700
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+SERVICE,0,1738
+SERVICE,1,3261
+SERVICE,2,4802
+SERVICE,3,6343
+SERVICE,4,7884
+SERVICE,5,9425
+SERVICE,6,10966
+SERVICE,7,11507
+SERVICE,8,14048
+SERVICE,9,12591
+SERVICE,10,13134
+SERVICE,11,12677
+SERVICE,12,13220
+SERVICE,13,12763
+SERVICE,14,12306
+SERVICE,15,12849
+SERVICE,16,12516
+SERVICE,17,14058
+SERVICE,18,0
+SERVICE,19,0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+TX_RUN,0,0,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,1,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,2,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,3,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,4,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,5,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,6,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,7,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,8,0,8,8
+  [ok]   [726 TX] restart and wrap follow wire          = 0x8
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+TX_RUN,1,0,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,1,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,2,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,3,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,4,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,5,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,6,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,7,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,8,4294967290,2,8
+  [ok]   [726 TX] restart and wrap follow wire          = 0x8
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+--------------------------------------------------------------
+checks: 427   failures: 1
+RESULT: FAIL
+rc=1
