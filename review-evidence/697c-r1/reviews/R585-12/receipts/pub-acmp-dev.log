@@ -1,0 +1,148 @@
+tree <packet>/scratch/clone-dev: 15 pub-acmp plants
+  pub-acmp-after-the-response: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-skipped-at-the-end-of-an-entry: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-talker-for-the-stream: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-stream-held-past-settlement: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-every-sink-every-entry: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-port-unguarded: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-reset-forgets-the-port: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-adapter-drops-the-port: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-started-after-the-response: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-started-after-the-report: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-started-from-bound: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-started-move-skipped: acmp/acmp.c -> sw/firmware/ctrl/acmp/acmp.c fixture x1
+  pub-acmp-adapter-rewrites-the-stream: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-adapter-drops-sid-valid: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-adapter-sid-valid-always: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+[ESCAPED] no defect names the test AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[ESCAPED] no defect names the test AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[ESCAPED] no defect names the test AcmpCore.A1BindFromUnboundRespondsThenProbes
+[ESCAPED] no defect names the test AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[ESCAPED] no defect names the test AcmpCore.A2GetRxStateInEveryState
+[ESCAPED] no defect names the test AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[ESCAPED] no defect names the test AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[ESCAPED] no defect names the test AcmpCore.A3UnbindInEveryState
+[ESCAPED] no defect names the test AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[ESCAPED] no defect names the test AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[ESCAPED] no defect names the test AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[ESCAPED] no defect names the test AcmpCore.A6BindAnotherSourceRestartsTheSink
+[ESCAPED] no defect names the test AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[ESCAPED] no defect names the test AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[ESCAPED] no defect names the test AcmpCore.A7EachGuardTermIsChecked
+[ESCAPED] no defect names the test AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[ESCAPED] no defect names the test AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[ESCAPED] no defect names the test AcmpCore.A8SuccessSettles
+[ESCAPED] no defect names the test AcmpCore.A9FailureWaitsForTheRetry
+[ESCAPED] no defect names the test AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[ESCAPED] no defect names the test AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[ESCAPED] no defect names the test AcmpCore.A12DelaySendsANewProbe
+[ESCAPED] no defect names the test AcmpCore.A13NoTalkerAttributeReprobes
+[ESCAPED] no defect names the test AcmpCore.A14RegisteredSettlesTheReservation
+[ESCAPED] no defect names the test AcmpCore.A15UnregisteredReprobes
+[ESCAPED] no defect names the test AcmpCore.KindChangesOnlyTheSettledView
+[ESCAPED] no defect names the test AcmpCore.A16OneCounterForEveryNewProbe
+[ESCAPED] no defect names the test AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[ESCAPED] no defect names the test AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[ESCAPED] no defect names the test AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[ESCAPED] no defect names the test AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[ESCAPED] no defect names the test AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[ESCAPED] no defect names the test AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[ESCAPED] no defect names the test AcmpCore.A21MalformedFramesAreCounted
+[ESCAPED] no defect names the test AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[ESCAPED] no defect names the test AcmpCore.A19NothingPassesAnOwedFrame
+[ESCAPED] no defect names the test AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[ESCAPED] no defect names the test AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[ESCAPED] no defect names the test AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[ESCAPED] no defect names the test AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[ESCAPED] no defect names the test AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[ESCAPED] no defect names the test AcmpCore.A22DiscoveredStateCells
+[ESCAPED] no defect names the test AcmpCore.A22DepartingAndAging
+[ESCAPED] no defect names the test AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[ESCAPED] no defect names the test AcmpCore.A22OtherAdpFramesAreIgnored
+[ESCAPED] no defect names the test AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[ESCAPED] no defect names the test AcmpCore.A23EveryPortIsGuarded
+[ESCAPED] no defect names the test AcmpCore.A24ARestoredBindingFastConnects
+[ESCAPED] no defect names the test AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[ESCAPED] no defect names the test AcmpCore.A24StartedIsSavedAndReported
+[ESCAPED] no defect names the test AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+[ESCAPED] no defect names the test AcmpCore.A25OnlyTable522ItemsAreReported
+[ESCAPED] no defect names the test AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[ESCAPED] no defect names the test AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[ESCAPED] no defect names the test AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[ESCAPED] no defect names the test AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[ESCAPED] no defect names the test AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[ESCAPED] no defect names the test AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[ESCAPED] no defect names the test AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[ESCAPED] no defect names the test AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+[ESCAPED] no defect names the test AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[ESCAPED] no defect names the test AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[ESCAPED] no defect names the test AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[ESCAPED] no defect names the test AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[ESCAPED] no defect names the test AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 39 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 22 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 22 check(s) failed
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+[ok] mutant pub-acmp-started-after-the-report (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+[ok] mutant pub-acmp-started-from-bound (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+[ok] mutant pub-acmp-started-move-skipped (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a re-bind to the same talker without STREAMING_WAIT publishes once
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+[ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+[ok] mutant pub-acmp-adapter-sid-valid-always (acmp, acmpif2): 18 check(s) failed
+    first: [FAIL] AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream: B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear, interface 0
+mutants: 15 of 15 caught; 100 test(s) named by no defect
+campaign returned escaped=True

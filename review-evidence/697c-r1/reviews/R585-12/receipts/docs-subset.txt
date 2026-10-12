@@ -1,0 +1,16 @@
+docs_check                 rc=0  docs_check: 0 finding(s) across 203 md files + 1266 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em_dash                    rc=2  check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools
+submodule_docs             rc=0  submodule documentation: OK (6 exact gitlinks)
+submodule_docs_selftest    rc=0  submodule documentation selftest: OK (table and diagram controls)
+diagram_check              rc=0  submodule diagram: OK (6 exact gitlinks, decoded PNG)
+diagram_selftest           rc=0  submodule diagram selftest: OK (valid wrong-raster control)
+diagram_pngs               rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+ci_events_check            rc=0  ci_events: OK (1974 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest         rc=0  selftest: PASS (1974 contract items, 2766 arms)
+doc_paths                  rc=0  doc path gate: OK (970 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+doc_style                  rc=0  documentation style: OK (22 current documents)
+toc_check                  rc=2  gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
+toc_anchors                rc=2  gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
+py_idiom                   rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3
+hygiene                    rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3
+doc_map                    rc=0  documentation map: OK (4 roles, 24 valid paths, decoded PNG)

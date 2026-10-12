@@ -1,0 +1,100 @@
+tree <packet>/scratch/clone-head: 15 pub-acmp plants
+  pub-acmp-after-the-response: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-skipped-at-the-end-of-an-entry: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-talker-for-the-stream: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-stream-held-past-settlement: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-every-sink-every-entry: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-port-unguarded: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-reset-forgets-the-port: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-adapter-drops-the-port: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-started-after-the-response: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-started-after-the-report: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-started-from-bound: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-started-move-skipped: tsn-c-stack/src/acmp.c -> third_party/tsn-c-stack/src/acmp.c fixture x1
+  pub-acmp-adapter-rewrites-the-stream: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-adapter-drops-sid-valid: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+  pub-acmp-adapter-sid-valid-always: acmp/acmp_mbx.c -> sw/firmware/ctrl/acmp/acmp_mbx.c fixture x1
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[ESCAPED] no defect names the test AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[ESCAPED] no defect names the test AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ESCAPED] mutant CONTROL-noop-pub-acmp-after-the-response (acmp, acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt on 'A31 the binding is published before the BIND_RX response'; acmp: AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse on "B10 BINDING is written before the BIND_RX response's TX_HEAD commit"
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 51 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+[ESCAPED] mutant CONTROL-noop-pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt on 'A31 a PROBE_TX_RESPONSE that settles publishes the stream'; acmp: AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens on 'A31 acmp_open publishes each restored binding'; acmp: AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse on 'B10 a PROBE_TX_RESPONSE that settles publishes its stream'
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+[ESCAPED] mutant CONTROL-noop-pub-acmp-talker-for-the-stream (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt on 'A31 the stream_id the response carried'
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+[ESCAPED] mutant CONTROL-noop-pub-acmp-stream-held-past-settlement (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath on 'A31 TMR_NO_TK publishes the sink without its stream'
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 26 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ESCAPED] mutant CONTROL-noop-pub-acmp-every-sink-every-entry (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31OnlyAMovedTripleIsPublished on 'A31 a re-bind to the same talker, a registration, a start of a started sink and a discovery move'
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+[ESCAPED] mutant CONTROL-noop-pub-acmp-port-unguarded (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31ACallBackFromThePublishPortIsRefused on 'A31 an UNBIND_RX and a poll from inside the publish port'
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ESCAPED] mutant CONTROL-noop-pub-acmp-reset-forgets-the-port (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens on 'A31 a sink the store resets is published unbound at the next open'
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 22 check(s) failed
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+[ESCAPED] mutant CONTROL-noop-pub-acmp-adapter-drops-the-port (acmp, acmp): 0 check(s) failed, none named acmp: AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse on 'B10 a BIND_RX publishes its sink bound, with no stream'; acmp: AcmpMailbox.B11RestoredBindingsArePublishedAtOpen on 'B11 the restored sink, and only it, is published bound on its interface'
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+[ESCAPED] mutant CONTROL-noop-pub-acmp-started-after-the-response (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised on 'A31 the started move is published before the BIND_RX response'
+[ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+[ESCAPED] mutant CONTROL-noop-pub-acmp-started-after-the-report (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised on 'A31 the stop is published before the notifier hears of it'
+[ok] mutant pub-acmp-started-from-bound (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+[ESCAPED] mutant CONTROL-noop-pub-acmp-started-from-bound (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised on 'A31 a bind with STREAMING_WAIT is published bound and stopped'
+[ok] mutant pub-acmp-started-move-skipped (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a re-bind to the same talker without STREAMING_WAIT publishes once
+[ESCAPED] mutant CONTROL-noop-pub-acmp-started-move-skipped (acmp): 0 check(s) failed, none named acmp: AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised on 'A31 a re-bind to the same talker without STREAMING_WAIT publishes once'
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+[ESCAPED] mutant CONTROL-noop-pub-acmp-adapter-rewrites-the-stream (acmp): 0 check(s) failed, none named acmp: AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream on "B12 a started move is one write to the sink's entry"
+[ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+[ESCAPED] mutant CONTROL-noop-pub-acmp-adapter-drops-sid-valid (acmp): 0 check(s) failed, none named acmp: AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream on 'B12 that write is BINDING, with SID_VALID kept and STARTED moved'
+[ok] mutant pub-acmp-adapter-sid-valid-always (acmp, acmpif2): 18 check(s) failed
+    first: [FAIL] AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream: B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear, interface 0
+[ESCAPED] mutant CONTROL-noop-pub-acmp-adapter-sid-valid-always (acmp, acmpif2): 0 check(s) failed, none named acmp: AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream on 'B13 the re-bound sink carries no stream_id to the datapath'; acmpif2: AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream on 'B13 the re-bound sink carries no stream_id to the datapath'
+mutants: 15 of 30 caught; 37 test(s) named by no defect
+campaign returned escaped=True

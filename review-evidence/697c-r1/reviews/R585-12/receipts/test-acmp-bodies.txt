@@ -1,0 +1,13 @@
+dev tests 69, stack tests 79, dev-not-in-stack 0, same-name-different-body 2
+  BODY-DIFFERS AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+  BODY-DIFFERS AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+  STACK-ONLY AcmpCore.DepartingRetainsBindingAndReprobes
+  STACK-ONLY AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+  STACK-ONLY AcmpCore.DepartingStopsEveryProbingTimer
+  STACK-ONLY AcmpCore.CommandPortBudgets
+  STACK-ONLY AcmpCore.TimerPortBudgets
+  STACK-ONLY AcmpCore.DiscoveryPortBudgets
+  STACK-ONLY AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort
+  STACK-ONLY AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+  STACK-ONLY AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal
+  STACK-ONLY AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop
