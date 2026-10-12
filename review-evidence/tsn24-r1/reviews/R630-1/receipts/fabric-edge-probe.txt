@@ -1,0 +1,13 @@
+645:  d->now_ms_i = t2 + T_DAFRESH + 1;           // window of B4 has lapsed
+stock rc=0
+1342 checks: 1342 PASS, 0 FAIL
+645:  d->now_ms_i = t2 + T_DAFRESH;               // window of B4 has lapsed
+edge15000 rc=0
+1342 checks: 1342 PASS, 0 FAIL
+645:  d->now_ms_i = t2 + T_DAFRESH - 1;           // window of B4 has lapsed
+edge14999 rc=2
+FAIL: D2 freshness lapse: gate strobe missing
+FAIL: D2 declaring_o[3] OBSERVED 1 -> 0
+FAIL: D2 only src3's gate closed, got 0x09
+FAIL: D4 re-declare: gate strobe missing
+1335 checks: 1331 PASS, 4 FAIL

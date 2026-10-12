@@ -1,0 +1,89 @@
+# validate.py --work <work> --jobs 16 --graphs at exact head (local run)
+entity-golden: rc 0
+entity-controls: rc 0
+boundary: rc 0
+needles: rc 0
+assertion-templates: rc 0
+dependencies: rc 0
+comments: rc 0
+conditionals: rc 0
+port-contracts: rc 0
+acmp-cache: rc 0
+registration-controls: rc 0
+license: rc 0
+traceability: rc 0
+test-inventory: rc 0
+coverage-controls: rc 0
+privacy-selftest: rc 0
+privacy: rc 0
+gcc-configure: rc 0
+clang-sanitizers-configure: rc 0
+clang-sanitizers-build: rc 0
+gcc-build: rc 0
+gcc-test: rc 0
+coverage: rc 0
+clang-sanitizers-test: rc 0
+static-analysis: rc 1
+mutation: rc 0
+mutation-controls: rc 0
+graphs: rc 0
+exit: 1
+
+## gcc-test
+1/8 Test #2: acmp_tests .......................   Passed    0.01 sec
+2/8 Test #4: entity_tests .....................   Passed    0.01 sec
+3/8 Test #5: port_tests .......................   Passed    0.00 sec
+4/8 Test #6: adp_release ......................   Passed    0.00 sec
+5/8 Test #1: adp_tests ........................   Passed    0.02 sec
+6/8 Test #3: maap_tests .......................   Passed    0.02 sec
+7/8 Test #7: adp_debug ........................   Passed    0.08 sec
+8/8 Test #8: maap_debug .......................   Passed    0.18 sec
+100% tests passed out of 8
+## clang-sanitizers-test (host clang)
+1/8 Test #4: entity_tests .....................   Passed    0.02 sec
+2/8 Test #5: port_tests .......................   Passed    0.02 sec
+3/8 Test #8: maap_debug .......................   Passed    0.02 sec
+4/8 Test #6: adp_release ......................   Passed    0.03 sec
+5/8 Test #2: acmp_tests .......................   Passed    0.03 sec
+6/8 Test #1: adp_tests ........................   Passed    0.09 sec
+7/8 Test #3: maap_tests .......................   Passed    0.12 sec
+8/8 Test #7: adp_debug ........................   Passed    0.50 sec
+100% tests passed out of 8
+## coverage
+file                                                 lines    branches   after exclusions
+include/wire.h                                    10/10        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       792/792     390/390     lines 100.00 %  branches 100.00 %
+src/adp.c                                        205/207      97/104     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+## mutation summary
+{"CAUGHT": 363, "ESCAPED": 0, "ERROR": 0}
+CAUGHT dafresh-unanswered-clock
+CAUGHT dafresh-inclusive-edge
+CAUGHT dafresh-expiry-equality
+CAUGHT dafresh-ignore-address
+CAUGHT dafresh-no-renewal
+CAUGHT dafresh-listener-needs-probe
+CAUGHT dafresh-absolute-clock
+CAUGHT dafresh-fixed-window
+CAUGHT dafresh-only-success
+CAUGHT dafresh-refused-answer
+CAUGHT dafresh-state-reply-demand
+CAUGHT dafresh-wrong-interface
+CAUGHT dafresh-wrong-source
+CAUGHT dafresh-generated-window
+CAUGHT dafresh-reset-retains-demand
+## traceability / inventory / boundary tails
+requirement records: 31 metadata defects caught
+registration: 8 binaries; 416 instances
+traceability: 45 requirements; 142 test declarations
+registration: 8 binaries; 416 instances
+test sensitivity: 142 declarations, 363 plants
+boundary control heap-pointer: compiles; refused
+boundary control os-symbol: compiles; refused
+boundary: compiler dependencies and object symbols pass
+conditional control: both assembly sides compiled and found in object symbols
+conditionals: 33 files; 58 region sides compiled
+port contracts: 20 meaning-removal controls refused
+port contracts: callbacks, fields, preconditions and counters present
+Generating single mermaid chart
+graphs: 4 rendered

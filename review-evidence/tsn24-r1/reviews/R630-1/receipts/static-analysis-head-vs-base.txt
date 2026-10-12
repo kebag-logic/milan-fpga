@@ -1,0 +1,5 @@
+# static_analysis.py with host clang-tidy version 23.1.1
+head rc: static-analysis: rc 1
+      7 include/acmp.h:355:8: error: Excessive padding in 'struct acmp_sink' 
+base 1ba2735 rc: 1
+      7 include/acmp.h:353:8: error: Excessive padding in 'struct acmp_sink' 
