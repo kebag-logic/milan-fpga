@@ -32,7 +32,11 @@ The existing scheduler retains Milan v1.2 5.4.5.2 Table 5.22 spacing.
 The [corrected cadence ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6132483068)
 replaces the earlier fixed-window criterion with two conditions.
 Notifications for each descriptor and recipient respect that spacing.
-Each consecutive gap is bounded by 1000 ms plus measured service delay.
+The [Round 6 precision](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6134121887)
+fixes the service allowance at 25 ms.
+The 1012.029 ms maximum gap motivated that ceiling, including margin.
+Each consecutive gap must therefore be at most 1025 ms.
+Measurements cannot enlarge this fixed bound.
 The scheduler stamps the latest recipient's completion.
 Service adds delay, so notifications drift across fixed one-second bins.
 An empty fixed bin can therefore occur on correct behavior.
@@ -59,7 +63,8 @@ At least two observations prevent a vacuous gap result.
 The final wait also cannot exceed the refresh bound.
 Frames after measurement ends are excluded from cadence grading.
 Service is measured from dirty eligibility through the final recipient's MAC tail.
-Only that measured service delay is allowed beyond 1000 ms.
+Measured service is descriptive only; the fixed ceiling remains 25 ms.
+Every gap and final wait must satisfy the 1025 ms bound.
 
 | Shape | Inputs / outputs, including CRF | Recipients | Graded consecutive gaps | Minimum gap | Maximum gap | Maximum measured service |
 |---|---|---:|---:|---:|---:|---:|
@@ -137,6 +142,8 @@ They also bound the final wait and reject insufficient observations.
 Every millisecond measurement start through one second preserves both verdicts.
 The minimum gap is 1000 ms; the maximum is 1002 ms.
 The measured stall is 2 ms, with a one-millisecond service polling allowance.
+This deterministic fixture retains its stricter 1003 ms ceiling.
+That also satisfies the fixed 1025 ms contract.
 This tests the observation-port and mailbox contract, not processor instruction timing.
 The mailbox `fixed-grid` plant detects phase-dependent grading.
 No firmware implementation or saved-state capture input changes.
@@ -184,12 +191,20 @@ No submodule source changes during these runs.
 | `crf-reset` | Previous CRF RX total survives bind | `RX_RESET` |
 | `rx-saturation` | AAF pending total saturates at 65,535 | `RX` |
 | `late` | Parent suppresses input change events | `CADENCE` |
+| `egress-stall` | Parent holds eligible control frames for 900 ms | `CADENCE` |
 | `rate` | Parent supplies a timer divisor halved in error | `RATE` |
 | `tx-nodirty` | Output packet event removed under `frames-only` | `OUTPUT_CADENCE` |
 | `fixed-grid` | Superseded fixed-bin grader | `PHASE` |
 | Firmware `fixed-grid` | Fixed-bin mailbox grader | `PHASE` |
 | Firmware `late` | Completion deadline advances by 2000 ms | `CADENCE` |
 | Firmware `rate` | Completion deadline advances by 500 ms | `RATE` |
+
+The standing egress plant runs at both shapes.
+It delays frames before the parent's control transmit arbiter.
+Each run fails `CADENCE` and escapes with that check omitted.
+The unchanged review probes also plant 1600/2000 ms scheduler spacing.
+Those and the reviewer's egress stall must fail `CADENCE`.
+Measured service cannot excuse these planted refresh failures.
 
 The required behavior gate includes the bind-era and receive-law contracts.
 Round 3 adds the unpublished-zero receive snapshot to the standing contract.

@@ -5,7 +5,8 @@
 // image, parser, counters, arbiter, processor and response-memory path are real.
 // Protocol time uses 1000 cycles/ms; the clock parameter remains 50 MHz.
 // Grade every consecutive gap from the first captured notification onward.
-// Service time runs from dirty-and-eligible to the final recipient's MAC tail.
+// Issue #726 ruling 6134121887 fixes refresh at 1000 ms + 25 ms service.
+// Measured dirty-and-eligible to final-recipient service is descriptive only.
     void counter_feed(int s,uint8_t seq) {
         const uint64_t ts=phc_now_ns()+2000000;
         std::vector<uint8_t> f(s<kNstreamsTb ? 86 : 64,0);
@@ -170,8 +171,9 @@
         bool spacing=true;
     };
 
-    CounterGaps counter_gaps(const std::vector<long>& times,long start_cyc,long service_cyc) const {
+    CounterGaps counter_gaps(const std::vector<long>& times,long start_cyc) const {
         constexpr long second_cyc=1000L*kMsCycTb;
+        constexpr long refresh_limit_cyc=1025L*kMsCycTb;
         CounterGaps result;
         long last=-1;
         for(const long at:times) {
@@ -187,18 +189,18 @@
         result.spacing=result.min_cyc>=second_cyc;
         // Two observations prevent silence from satisfying a gap check vacuously.
         // The tail catches a final missing notification after the last full gap.
-        result.refresh=result.count>=2 && result.max_cyc<=second_cyc+service_cyc
-            && result.tail_cyc<=second_cyc+service_cyc;
+        result.refresh=result.count>=2 && result.max_cyc<=refresh_limit_cyc
+            && result.tail_cyc<=refresh_limit_cyc;
         return result;
     }
 
-    void counter_phase_check(const std::vector<long>& times,long service_cyc,int ty,int s,int r) {
+    void counter_phase_check(const std::vector<long>& times,int ty,int s,int r) {
         constexpr long second_cyc=1000L*kMsCycTb;
-        const auto reference=counter_gaps(times,0,service_cyc);
+        const auto reference=counter_gaps(times,0);
         bool stable=true;
         // Exhaust every discrete start through one second, including event edges.
         for(long start_cyc=0;start_cyc<=second_cyc;++start_cyc) {
-            const auto shifted=counter_gaps(times,start_cyc,service_cyc);
+            const auto shifted=counter_gaps(times,start_cyc);
             stable &= shifted.refresh==reference.refresh && shifted.spacing==reference.spacing;
             if(start_cyc==0 || start_cyc==kMsCycTb/5 || start_cyc==3*kMsCycTb/10 ||
                start_cyc==4*kMsCycTb/5 || start_cyc==9*kMsCycTb/10 || start_cyc==second_cyc)
@@ -237,11 +239,11 @@
             const auto times=counter_notification_times(ty,s,r);
             const int slot=(ty==5 ? 0 : kNstreamsTb+1)+s;
             const long service_cyc=counter_state.service_max[slot];
-            const auto gaps=counter_gaps(times,start_cyc,service_cyc);
+            const auto gaps=counter_gaps(times,start_cyc);
             const char* cadence=ty==6 && COUNTERS_FRAMES_ONLY_TB ? "OUTPUT_CADENCE" : "CADENCE";
             counter_check("RATE","minimum consecutive spacing from first notification",gaps.spacing,1);
-            counter_check(cadence,"consecutive gaps and final wait bounded by measured service",gaps.refresh,1);
-            counter_phase_check(times,service_cyc,ty,s,r);
+            counter_check(cadence,"consecutive gaps and final wait at most 1025 ms",gaps.refresh,1);
+            counter_phase_check(times,ty,s,r);
             printf("GAPS,%d,%d,%d,%d,%ld,%u,%.5f,%.5f,%.5f,%.5f\n",kNstreamsTb,ty,s,r,
                    start_cyc,gaps.count,gaps.min_cyc/double(kMsCycTb),gaps.max_cyc/double(kMsCycTb),
                    gaps.tail_cyc/double(kMsCycTb),service_cyc/double(kMsCycTb));

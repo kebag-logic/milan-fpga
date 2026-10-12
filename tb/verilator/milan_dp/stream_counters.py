@@ -26,7 +26,8 @@ DP = "hdl/milan/milan_datapath.sv"
 GROUPS = {"tx-interval": "TX", "rx-interval": "RX", "tx-reset": "TX_RESET",
           "aaf-reset": "RX_RESET", "crf-reset": "RX_RESET",
           "rx-saturation": "RX", "late": "CADENCE", "rate": "RATE",
-          "tx-nodirty": "OUTPUT_CADENCE", "fixed-grid": "PHASE"}
+          "tx-nodirty": "OUTPUT_CADENCE", "fixed-grid": "PHASE",
+          "egress-stall": "CADENCE"}
 
 
 def replace_once(text: str, old: str, new: str) -> str:
@@ -34,6 +35,33 @@ def replace_once(text: str, old: str, new: str) -> str:
     if text.count(old) != 1:
         raise ValueError(f"plant anchor occurred {text.count(old)} times: {old!r}")
     return text.replace(old, new)
+
+
+def stall_egress(text: str) -> str:
+    """Hold parent control frames for 900 ms after a 100 ms quiet period."""
+    text = replace_once(text,
+                        "  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (", """
+  logic [31:0] r726_hold_r, r726_quiet_r; logic r726_busy_r; wire r726_ready_w;
+  always_ff @(posedge axis_clk) begin
+    if (!axis_resetn) begin r726_hold_r <= '0; r726_quiet_r <= '0; r726_busy_r <= 1'b0; end
+    else begin
+      if (pp_tx_tvalid_w && pp_tx_tready_w && pp_tx_tlast_w) r726_quiet_r <= '0;
+      else if (r726_quiet_r != 32'hFFFFFFFF) r726_quiet_r <= r726_quiet_r + 1;
+      if (pp_tx_tvalid_w && !r726_busy_r) begin
+        if (!cfg_crft_en || r726_quiet_r < 32'd100000 || r726_hold_r >= 32'd900000) begin
+          r726_busy_r <= 1'b1; r726_hold_r <= '0; end
+        else r726_hold_r <= r726_hold_r + 1;
+      end
+      if (r726_busy_r && pp_tx_tvalid_w && pp_tx_tready_w && pp_tx_tlast_w) r726_busy_r <= 1'b0;
+    end
+  end
+  assign pp_tx_tready_w = r726_ready_w & r726_busy_r;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (""")
+    text = replace_once(text, """    .s_data_tvalid(pp_tx_tvalid_w), .s_data_tlast (pp_tx_tlast_w),
+    .s_data_tready(pp_tx_tready_w),""", """
+    .s_data_tvalid(pp_tx_tvalid_w & r726_busy_r), .s_data_tlast (pp_tx_tlast_w),
+    .s_data_tready(r726_ready_w),""")
+    return text
 
 
 def plant(variant: str, work: Path, output_condition: str) -> dict[str, str]:
@@ -88,6 +116,8 @@ def plant(variant: str, work: Path, output_condition: str) -> dict[str, str]:
                                 "assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};",
                                 "assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w}"
                                 " & {PP_CTR_SIN_N_C{s_axi_awvalid && s_axi_awaddr == 12'hFFC}};")
+    elif variant == "egress-stall":
+        files[DP] = stall_egress(files[DP])
     elif variant == "rate":
         files[DP] = replace_once(files[DP], ".TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),",
                                 ".TIM_DIV_MS_P   (PP_TIM_DIV_MS_P / 2),")
@@ -112,9 +142,9 @@ def fixture_source(variant: str, work: Path) -> Path:
     if variant != "fixed-grid":
         return HERE / "sim_nxn.cpp"
     header = replace_once((HERE / "stream_counters.hpp").read_text(),
-                          "result.refresh=result.count>=2 && result.max_cyc<=second_cyc+service_cyc\n"
-                          "            && result.tail_cyc<=second_cyc+service_cyc;", """
-        (void)service_cyc;
+                          "result.refresh=result.count>=2 && result.max_cyc<=refresh_limit_cyc\n"
+                          "            && result.tail_cyc<=refresh_limit_cyc;", """
+        (void)refresh_limit_cyc;
         std::array<int,5> bins{};
         for(const long at:times) {
             const long relative=at-start_cyc;

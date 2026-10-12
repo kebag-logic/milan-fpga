@@ -675,9 +675,10 @@ counters-f5:
 	python3 stream_counter_f5.py --shape 8
 
 counters-mutants:
-	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid; do \
+	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid egress-stall; do \
 	  VERILATOR=$(VERILATOR) python3 stream_counters.py --variant $$variant; \
 	done
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --variant egress-stall --shape 8
 	python3 stream_counter_f5.py --variant late
 	python3 stream_counter_f5.py --variant rate
 	python3 stream_counter_f5.py --variant fixed-grid
