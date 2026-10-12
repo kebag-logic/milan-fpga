@@ -1,0 +1,37 @@
+# git 2.56.0 merge-tree --write-tree --name-only 4029dc5d 6d536868
+6e4bfe6fb87ac28314f2348c7c8ddefdbaf4c0c3
+Makefile
+docs/00_MILAN_COMPLIANCE_REVIEW.md
+docs/architecture/09_verification.md
+
+Auto-merging .github/workflows/hdl.yml
+Auto-merging Makefile
+CONFLICT (content): Merge conflict in Makefile
+Auto-merging docs/00_MILAN_COMPLIANCE_REVIEW.md
+CONFLICT (content): Merge conflict in docs/00_MILAN_COMPLIANCE_REVIEW.md
+Auto-merging docs/architecture/09_verification.md
+CONFLICT (content): Merge conflict in docs/architecture/09_verification.md
+# rc=1 (1 = conflicts)
+# merge parents: 4029dc5de2a0a540d6a015c747319fbee7abba2e 6d536868ee2a4762ab307d5ed51ff09c01130942
+# merge base: 2cbed0a987c1e68402658d69459ab7e5aa571adc
+# plain-merge tree vs head tree:
+ Makefile                             |  12 +--
+ docs/00_MILAN_COMPLIANCE_REVIEW.md   |  12 +--
+ docs/architecture/06_aecp_engine.md  |   6 +-
+ docs/architecture/09_verification.md | 193 ++++++++++++++++++-----------------
+ scripts/aecp_gate/field_docs.py      |   2 +-
+ tb/aecp_cmds/Makefile                |   2 +-
+ tb/aecp_cmds/README.md               |   6 ++
+ tb/aecp_cmds/check_observed.py       |  34 ++++++
+ tb/aecp_cmds/decode.json             |  10 +-
+ 9 files changed, 151 insertions(+), 126 deletions(-)
+# production HDL (*.sv) head vs main 6d536868:
+(none above = identical)
+# hdl/ head vs main:
+ hdl/aecp/ucode/aecp_commands.json | 442 +++++++++++++++++++
+ hdl/aecp/ucode/aecp_fields.json   | 874 ++++++++++++++++++++++++++++++++++++++
+ hdl/aecp/ucode/gen_ucode.py       |  96 ++++-
+ 3 files changed, 1401 insertions(+), 11 deletions(-)
+# table+registry head vs 4029dc5d:
+(none above = identical)
+# note: a conflicted merge-tree's tree id carries the conflict-marker labels; plain_merge_vs_head.diff was taken against cbeaa46494386113408c0b7d1485025c96a7df48, the tree written by 'git merge-tree --write-tree 4029dc5de2a0a540d6a015c747319fbee7abba2e 6d536868' (label 6d536868); same conflicts, same three files

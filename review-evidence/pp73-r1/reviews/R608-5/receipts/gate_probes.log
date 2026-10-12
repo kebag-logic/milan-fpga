@@ -1,0 +1,37 @@
+PROBE head-gate rc=0 expect_rc=0 verdict=AS-EXPECTED
+    named: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+regen rc=0
+regen diff (empty = generated sections current):
+PROBE pr-body-field-reference rc=0 expect_rc=0 verdict=AS-EXPECTED
+    named: aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+PROBE reqtags-static rc=0 expect_rc=0 verdict=AS-EXPECTED
+    named: req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 226 tags in 19 files, OK
+PROBE echo-hide rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named:   schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries
+PROBE echo-hide-shared rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named:   rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12, the table's response is 32
+PROBE stale-engine-digest rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named:   decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 4b59126375de): sweep this engine with make -C tb/aecp_cmds record
+PROBE opcode-table-only rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named:   decode: GET_STREAM_INFO: the table's entries name BADARG, which the engine never dispatches AEM 0x004F to (tb/aecp_cmds/decode.json)
+    named:   decode: GET_STREAM_INFO: the table's entries name GSTRI, which the engine never dispatches AEM 0x004F to (tb/aecp_cmds/decode.json)
+    named:   decode: GET_STREAM_INFO: the table's entries name NSUPPE, which the engine never dispatches AEM 0x004F to (tb/aecp_cmds/decode.json)
+PROBE registry-block-hand-edit rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named: AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+    named: 
+    named:   fields: docs/architecture/09_verification.md: registry reference differs (run --write)
+PROBE arch-cell-stale-section rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named: AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+    named: 
+    named:   fields: docs/00_MILAN_COMPLIANCE_REVIEW.md: registry reference differs (run --write)
+PROBE cov-pre-merge-form rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named: REQ TAG FAIL: COV RECORD REQ-VER-002: Cov reads 'A (the tree: P, per Arch)', the gate finds 'A; no check'
+PROBE tag-name-mismatch rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named: REQ TAG FAIL: NAME NOT AT CHECK tb/aecp_cmds/check_observed.py:28: "ObservedCommands.test_other" is not in the check it stands above
+PROBE coverage-row-drop rc=1 expect_rc=1 verdict=AS-EXPECTED
+    named: REQ TAG FAIL: COVERAGE RECORD no check lint: 09 section 8.10 lacks REQ-VER-002, lists nothing beyond what the gate finds
+    evidence: aecp_cmds check_observed.py:28 REQ-VER-002 DIR
+EXEC as recorded: 1 tags in ['aecp_cmds'], 1 evidence lines, 0 problems
+EXEC check_observed.py evidence removed: 1 tags in ['aecp_cmds'], 0 evidence lines, 1 problems
+    DEAD TAG REQ-VER-002 tb/aecp_cmds/check_observed.py:28: "ObservedCommands.test_sweep" never ran in this run
+restored: 0 changes; head 4bee75b2e647507a71ece50359fceb135c334757
