@@ -1,0 +1,60 @@
+== merge provenance (scripted)
+parents of 44416838: c7d0ad63510cf1aaee41ef440675d110ad2730d7 c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+parent of 9b32002c: 44416838b90c40536a2104ab1f2bd4ff02268bec
+merge tree 6bdf8b0dfbeb71dc13051a475b3aede8e7432d41
+merge-base c7d0ad63 c6bd08c6: e8454e2751d05b02ee8e5a571857589ab358ab86
+-- files differing from dev at head:
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/integration/BAREMETAL_FIRMWARE.md
+sw/builder/test_builder.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+sw/firmware/nvm_hosttest/README.md
+sw/firmware/nvm_hosttest/nvm_host.c
+sw/firmware/nvm_hosttest/read_fault_cases.py
+sw/firmware/nvm_hosttest/stubs/generated/mem.h
+sw/firmware/nvm_hosttest/stubs/nvm_host.h
+sw/firmware/nvm_hosttest/test_nvm_firmware.py
+sw/firmware/nvm_hosttest/writer_restart.py
+tb/verilator/nvm_capture_cpu/measurements.json
+tb/verilator/nvm_cosim/README.md
+tb/verilator/nvm_cosim/run_cases.py
+-- branch files e8454e27..c7d0ad63:
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/integration/BAREMETAL_FIRMWARE.md
+sw/builder/test_builder.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+sw/firmware/nvm_hosttest/README.md
+sw/firmware/nvm_hosttest/nvm_host.c
+sw/firmware/nvm_hosttest/read_fault_cases.py
+sw/firmware/nvm_hosttest/stubs/generated/mem.h
+sw/firmware/nvm_hosttest/stubs/nvm_host.h
+sw/firmware/nvm_hosttest/test_nvm_firmware.py
+sw/firmware/nvm_hosttest/writer_restart.py
+tb/verilator/nvm_capture_cpu/measurements.json
+tb/verilator/nvm_cosim/README.md
+tb/verilator/nvm_cosim/run_cases.py
+-- overlap with dev side:
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+sw/builder/test_builder.py
+tb/verilator/nvm_capture_cpu/measurements.json
+-- 44416838..9b32002c:
+M	docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+M	tb/verilator/nvm_capture_cpu/measurements.json
+-- non-branch paths equal dev at head:
+yes
+-- branch paths equal c7d0ad63 at head except:
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+sw/builder/test_builder.py
+tb/verilator/nvm_capture_cpu/measurements.json
+-- test_builder.py merge vs dev (numstat):
+3	1	sw/builder/test_builder.py
+-- test_builder.py merge vs c7d0 equals dev-side diff:
+yes
+-- mode changes vs dev:
+2
+-- the two 'mode' summary lines vs dev are new-file creations, not mode changes:
+ create mode 100644 sw/firmware/nvm_hosttest/read_fault_cases.py
+ create mode 100644 sw/firmware/nvm_hosttest/writer_restart.py
+-- real mode-change lines: 0

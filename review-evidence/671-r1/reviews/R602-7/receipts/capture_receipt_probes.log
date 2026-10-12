@@ -1,0 +1,26 @@
+OK   head receipt at head: rc=0 last='PASS: capture census, clocks, both timing arms and receipt agree'
+OK   round-5 receipt (c7d0ad63) at the head tree: rc=1 last='FAIL: measurement harness changed; refresh measured evidence'
+OK   dev receipt (c6bd08c6) at the head tree: rc=1 last='FAIL: product firmware changed; remeasure the copy'
+OK   8x8/50 OFF row one tick over half the floor: rc=1 last='FAIL: worst measured copy exceeds half the 49 ms hold floor'
+OK   1x1 ON worst row edited by one cycle, summary kept: rc=1 last='FAIL: receipt summary differs from rows: maximum_ms'
+OK   firmware one byte appended: rc=1 last='FAIL: product firmware changed; remeasure the copy'
+rows identical to round-5 receipt: 96/96; sys_cycles identical in every arm: True
+table row present | 1x1 | 50 / 100, contract | ON | 3.96020 to 3.96548 | 12.3566x |
+table row present | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.92034 | 12.4989x |
+table row present | 8x8 | 50 / 100, contract | ON | 13.84828 to 13.86328 | 3.5345x |
+table row present | 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
+table row present | 8x8 | 100 / 100, non-contract | ON | 10.41235 to 10.42973 | 4.6981x |
+table row present | 8x8 | 100 / 100, non-contract | OFF | 10.41246 to 10.41566 | 4.7045x |
+maximum 1x1 50000000 3.96548 ratio 12.3566x margin-to-24.5 20.53452
+maximum 8x8 50000000 13.86328 ratio 3.5345x margin-to-24.5 10.63672
+maximum 8x8 100000000 10.42973 ratio 4.6981x margin-to-24.5 14.07027
+doc line present **The worst 8x8 measurement is 13.86328 ms.**
+doc line present Its floor ratio is 3.5345x.
+doc line present The margin to 24.5 ms is 10.63672 ms.
+doc line present Measured tree: `6bdf8b0dfbeb71dc13051a475b3aede8e7432d41`.
+doc line present Measured commit: `44416838b90c40536a2104ab1f2bd4ff02268bec`.
+doc line present Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
+doc line present gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
+doc line present Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+ALL PROBES OK
+rc=0
