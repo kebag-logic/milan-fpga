@@ -1,0 +1,130 @@
+{
+  "started_utc": "2026-10-12T05:39:23.110438+00:00",
+  "results": [
+    {
+      "name": "docs_check",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 5.874
+    },
+    {
+      "name": "doc_style",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.065
+    },
+    {
+      "name": "doc_paths",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.115
+    },
+    {
+      "name": "feature_status",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "elapsed_s": 1.02
+    },
+    {
+      "name": "toc_check",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 2,
+      "elapsed_s": 0.114
+    },
+    {
+      "name": "toc_anchors",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 2,
+      "elapsed_s": 0.064
+    },
+    {
+      "name": "em_dash",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "c6bd08c6f52632c6d33d834ce842ac3cf63f29cc"
+      ],
+      "rc": 2,
+      "elapsed_s": 0.867
+    },
+    {
+      "name": "module_matrix",
+      "argv": [
+        "/usr/bin/python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "rc": 0,
+      "elapsed_s": 1.267
+    },
+    {
+      "name": "archive",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.416
+    },
+    {
+      "name": "solution_docs",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.114
+    },
+    {
+      "name": "submodule_docs",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.566
+    },
+    {
+      "name": "gptp_docs",
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.214
+    },
+    {
+      "name": "baseline",
+      "argv": [
+        "/usr/bin/python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check-baseline"
+      ],
+      "rc": 0,
+      "elapsed_s": 0.114
+    }
+  ]
+}
