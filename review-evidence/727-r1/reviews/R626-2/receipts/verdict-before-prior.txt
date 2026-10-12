@@ -1,0 +1,8 @@
+Independent verdict fixed before reading prior review findings (R626-1, R627-1):
+[R626] NEGATIVE - exact head 61296ea1fbbb456bd9bc4d7ed93af37d0dfaf6d3
+F1 MINOR Docs, Robustness - new-suite path: the gate's remedy ("refresh it as the module docstring says") cannot cure a missing duration for a suite not yet on dev; the mandatory serial sweep's preflight now refuses to start until the table names every suite, undocumented.
+S1 SUGGESTION Tests - determinism arm is single-process; hash tie-break mutant escapes (aggregate fails closed at run time).
+S2 SUGGESTION Tests - in_checkout() forced False skips every head arm with rc 0.
+RESIDUE: rtl.yml:136 "four hashed workers" (routed by manager to #495; rtl.yml frozen).
+Ledger: Conformance CLEAN, RTL CLEAN, Tests CLEAN, Robustness UNCLEAN (F1), Docs UNCLEAN (F1).
+Mon Oct 12 02:37:00 PM UTC 2026

@@ -1,0 +1,94 @@
+tree-head                    rc=0 expect=0 
+missing-duration-free        rc=1 expect=1 
+                              ESCAPED an inventory suite with no recorded duration is refused
+                              ESCAPED a sharded selection refuses it too
+                              selftest: 2 FAILURE(S)
+stale-check-deleted          rc=1 expect=1 
+                              ESCAPED a recorded duration with no inventory suite is refused
+                              selftest: 1 FAILURE(S)
+zero-duration-allowed        rc=1 expect=1 
+                              ESCAPED a recorded duration of 0 s (aaf) is refused
+                              selftest: 1 FAILURE(S)
+timeout-mirrored-120         rc=1 expect=1 
+                              ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+                              ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4320, 117: 4320, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320
+                              selftest: 2 FAILURE(S)
+headroom-61                  rc=1 expect=1 
+                              ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {114: 4172, 115: 4209, 120: 4392}, expected {114: 4104, 115: 4140, 120: 4320
+                              selftest: 1 FAILURE(S)
+headroom-75                  rc=1 expect=1 
+                              ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {93: 4185, 94: 4230, 120: 5400}, expected {93: 3348, 94: 3384, 120: 4320}
+                              selftest: 1 FAILURE(S)
+bound-plus-one               rc=1 expect=1 
+                              ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4177, 117: 4213, 120: 4321}, expected {116: 4176, 117: 4212, 120: 4320
+                              selftest: 1 FAILURE(S)
+bound-ge                     rc=1 expect=1 
+                              ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+                              selftest: 1 FAILURE(S)
+bound-mean-only              rc=1 expect=1 
+                              ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+                              ESCAPED milan_dp at 4241 s puts it over and is refused
+                              ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+                              selftest: 3 FAILURE(S)
+worker-count-mirrored        rc=1 expect=1 
+                              ESCAPED rtl.yml at 6 workers is refused for the 5-worker overhead table
+                              selftest: 1 FAILURE(S)
+overhead-dropped             rc=1 expect=1 
+                              ESCAPED milan_dp at 4241 s puts it over and is refused
+                              selftest: 1 FAILURE(S)
+pins-dropped                 rc=1 expect=1 
+                              FAIL specialized owners {'tsn_fuzz': 3, 'chmap_capture': 1, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+                              selftest: 1 FAILURE(S)
+pin-moved                    rc=1 expect=1 
+                              FAIL specialized owners {'tsn_fuzz': 0, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+                              selftest: 1 FAILURE(S)
+dedicated-dropped            rc=1 expect=1 
+                              FAIL  2 shard(s): dedicated alone=False balanced owners unchanged=True
+                              FAIL  4 shard(s): dedicated alone=False balanced owners unchanged=True
+                              FAIL  5 shard(s): dedicated alone=False balanced owners unchanged=True
+                              FAIL  7 shard(s): dedicated alone=False balanced owners unchanged=True
+                              FAIL 23 shard(s): dedicated alone=False balanced owners unchanged=True
+                              FAIL head worker 0/5 predicted 4907 s (81.8 min), bound 4320 s
+                              FAIL head worker 1/5 predicted 4903 s (81.7 min), bound 4320 s
+                              FAIL head worker 2/5 predicted 4902 s (81.7 min), bound 4320 s
+                              FAIL head worker 3/5 predicted 4902 s (81.7 min), bound 4320 s
+                              selftest: 9 FAILURE(S)
+measure-from-job-start       rc=1 expect=1 
+                              FAIL log windows {'alpha': 71, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, Tru
+                              selftest: 1 FAILURE(S)
+measure-floor                rc=1 expect=1 
+                              FAIL log windows {'alpha': 10, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, Tru
+                              selftest: 1 FAILURE(S)
+measure-accepts-timeout      rc=1 expect=1 
+                              FAIL log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[False, Tru
+                              selftest: 1 FAILURE(S)
+tie-by-hash                  rc=0 expect=None 
+gptp_plane-plus-500          rc=1 expect=1 
+                              FAIL head worker 0/5 predicted 4333 s (72.2 min), bound 4320 s
+                              FAIL head worker 1/5 predicted 4328 s (72.1 min), bound 4320 s
+                              FAIL head worker 2/5 predicted 4329 s (72.2 min), bound 4320 s
+                              FAIL head worker 3/5 predicted 4327 s (72.1 min), bound 4320 s
+                              selftest: 4 FAILURE(S)
+maap-at-issue-1380           rc=0 expect=0 
+plant-unmeasured-suite-dir   rc=1 expect=1 
+                              FAIL head: zz_unmeasured: inventory suite with no recorded duration in SUITE_SECONDS (refresh it as the module docstring says)
+                              selftest: 1 FAILURE(S)
+remove-suite-dir             rc=1 expect=1 
+                              FAIL head: aes3: SUITE_SECONDS names a suite that is not in the inventory
+                              selftest: 1 FAILURE(S)
+rtl-timeout-116              rc=1 expect=1 
+                              FAIL head worker 0/5 predicted 4204 s (70.1 min), bound 4176 s
+                              FAIL head worker 1/5 predicted 4205 s (70.1 min), bound 4176 s
+                              FAIL head worker 2/5 predicted 4203 s (70.0 min), bound 4176 s
+                              FAIL head worker 3/5 predicted 4205 s (70.1 min), bound 4176 s
+                              selftest: 4 FAILURE(S)
+rtl-timeout-117              rc=0 expect=0 
+rtl-six-workers              rc=1 expect=1 
+                              FAIL head: WORKER_OVERHEAD_SECONDS describes 5 workers; rtl.yml runs 6
+                              selftest: 1 FAILURE(S)
+rtl-missing                  rc=1 expect=1 
+                              FAIL head: [Errno 2] No such file or directory: '$PACKET/scratch/probe/rtl-missing/.github/workflows/rtl.yml'
+                              selftest: 1 FAILURE(S)
+rtl-second-timeout-in-job    rc=1 expect=1 
+                              FAIL head: rtl.yml job `verilator-shards` has 2 timeout-minutes values, not one
+                              selftest: 1 FAILURE(S)
