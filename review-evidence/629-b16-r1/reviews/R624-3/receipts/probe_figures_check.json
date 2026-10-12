@@ -1,0 +1,71 @@
+{
+ "probes": [
+  {
+   "probe": "p1: B0's floor count 169 shown as 170",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1609, \"rows_bad\": 1, \"by_category\": 205, \"uncovered\": 1}",
+    "BAD 1419\t2787\t169\tsummary/b0-2/c-b9-grade.json\td\t\tERROR AssertionError: figure not on the line, or claimed twice",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2787 170 | | 997 Hz, channel 0 | 300 | 0 | 170 | -123.98 (-123.91) | 123.98 | -123.95 (-100.47) | -14.10 dBFS | 0.0000 (0.030) |"
+   ]
+  },
+  {
+   "probe": "p2: an evidence file's SHA-256 changed by one digit",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1609, \"rows_bad\": 1, \"by_category\": 205, \"uncovered\": 1}",
+    "BAD 1057\t2594\tecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6688\tsummary/loop2/acmp-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2594 ecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6689 | | `summary/loop2/acmp-peer-tap.json` (the bind's ACMP exchange) | 8,739 | `ecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6689` |"
+   ]
+  },
+  {
+   "probe": "p3: the index row's LOCKED bracket 2.585 shown as 2.586",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1609, \"rows_bad\": 1, \"by_category\": 205, \"uncovered\": 1}",
+    "BAD 1018\tREADME.md:15\t2.585\tr2/bcrf-poll-trace.tsv\t.3f\t\tERROR AssertionError: figure not on the line, or claimed twice",
+    "UNCOVERED README.md:15 2.586 | | [629_MEDIA_CLOCK_FOLLOWING_BENCH.md](629_MEDIA_CLOCK_FOLLOWING_BENCH.md) | #629 bench acceptance on dev `ec0cc0c1` (lane B6), on dev `bbf704ec`, after PR #634"
+   ]
+  },
+  {
+   "probe": "p4: B0's degraded blocks inside the taps, 23 shown as 24",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1609, \"rows_bad\": 1, \"by_category\": 205, \"uncovered\": 1}",
+    "BAD 375\t2795\t23\tr2/b0-2-receipt.json\td\t\tERROR AssertionError: figure not on the line, or claimed twice",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2795 24 | 0 to 33. Of the 131, 24 lie there, blocks 0 to 18 and 28 to 31. There (c)"
+   ]
+  },
+  {
+   "probe": "p5: the source receipt's 618 changed to 619",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1606, \"rows_bad\": 4, \"by_category\": 205, \"uncovered\": 0}",
+    "BAD 737\t3223\t618\tr2/source-receipt.json\td\t619\tMISMATCH",
+    "BAD 749\t3237\t618\tr2/source-receipt.json\td\t619\tMISMATCH",
+    "BAD 930\t3525\t618\tr2/source-receipt.json\td\t619\tMISMATCH"
+   ]
+  },
+  {
+   "probe": "p6: 'thirteen runs' shown as 'fourteen runs'",
+   "rc": 1,
+   "named": true,
+   "verdict": "PASS",
+   "output": [
+    "{\"lines\": 1312, \"tokens\": 1815, \"rows\": 1610, \"rows_ok\": 1609, \"rows_bad\": 1, \"by_category\": 205, \"uncovered\": 1}",
+    "BAD 384\t2798\tthirteen\tr2/b0-2-receipt.json\tw\t\tERROR AssertionError: figure not on the line, or claimed twice",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2798 fourteen | in fourteen runs, and include the worst block of each tone. No sample comparison"
+   ]
+  }
+ ]
+}
