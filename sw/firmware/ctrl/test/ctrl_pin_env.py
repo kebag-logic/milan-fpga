@@ -143,10 +143,12 @@ def alternate(scene: Scene) -> dict[str, str]:
 
 
 def unstored(scene: Scene) -> None:
-    """The clone's own objects removed: its checkout and its HEAD stay."""
+    """The clone's own objects removed, and the stores its objects/info/alternates names (which a clone of a
+    submodule initialised with --reference inherits), so that it reads none: its checkout and its HEAD stay."""
     for entry in (scene.stack / ".git/objects").iterdir():
         if entry.name != "info":
             (shutil.rmtree if entry.is_dir() else Path.unlink)(entry)
+    (scene.stack / ".git/objects/info/alternates").unlink(missing_ok=True)
 
 
 def swapped(scene: Scene) -> dict[str, str]:
