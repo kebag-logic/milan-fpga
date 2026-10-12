@@ -31,6 +31,8 @@ make clean      # remove every build directory
 | `sim_gptp.cpp`: `obj_gptp/Vcsr_gptp` | `ax7101_8x8` headers; fabric gPTP publication enabled |
 | `sim_main.cpp`: `obj_pps/Vcsr_pps` | `arty_current` headers; PPS enabled with `PPS_WIDTH_CYC` |
 | `sim_main.cpp`: `obj_reset/Vcsr_reset` | Generated `arty_current` fixture; both SRP admission reset bits set |
+| `sim_lock.cpp`: `obj_lock1/Vcsr_lock` | `ax7101_1x1_tdm8` headers; read-path lockstep at the 1x1 shipping parameters |
+| `sim_lock.cpp`: `obj_lock8/Vcsr_lock` | `ax7101_8x8` headers; read-path lockstep at the 8x8 shipping parameters |
 
 `fixtures/reset_bits.yaml` declares the reset overrides.
 `tb/common/gen_declaration_fixture.py` validates them through the real builder.
@@ -79,6 +81,19 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
 * **ACMP bind-restore (0x7A0, E1)**: `sim_main.cpp` stages records.
   It checks held requests, acknowledgements, and busy/done/status readback.
   The harness supplies acknowledgements directly; no live engine runs here.
+* **Read-path lockstep (lane M5 of #640)**: `sim_lock.cpp` runs the block
+  beside `milan_csr_ref.sv`, the block as dev `e8454e27` shipped it.
+  `gen_lockstep.py` checks that copy's SHA-256 and emits the top at build time.
+  Both instances take the same inputs, and every output is compared on every cycle.
+  The leg grades five named checks:
+  `reset-values`, `decode`, `snapshot-coherence`, `snapshot-freshness` and `lockstep`.
+  The coherence and freshness expectations come from the harness, not from the copy.
+  `lockstep` also requires the random traffic to complete reads; their count is printed.
+  `lock_mutants.py` plants seven defects into a copy of the block.
+  Each defect must fail its named check: a wrong decode, a torn snapshot,
+  two stale snapshots, a reset-value drift and two stage-1 claim defects.
+  The generator reads the block's port list and map addresses; no expected value
+  is taken from that text.
 
 The AXI slave uses the combinational-ready, single-outstanding pattern, so a
 compliant master that drops `*VALID` on handshake still commits every transfer.
