@@ -181,23 +181,34 @@ relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
 Verilator runs the default suite inventory on five workers. Four split the
-inventory by a stable hash; the fifth, shard 4/5, runs `milan_dp` alone
-(#444). A worker runs its suites one at a time, so the fifth worker changes
-no suite's deadline. It takes the other suites of the old shard 0/4 off
-`milan_dp`'s path: that shard carried `milan_dp` plus eleven suites and set
-the context's latency at 1745-2514 s, of which the eleven took 492-725 s.
-The hashed owners of every other suite are unchanged. The aggregate
-rejects missing, unexpected, or duplicate suite logs before it trusts the
-combined tally, and requires all five workers. Specialized dependencies are
-installed only by their stable owners: `tsn_fuzz` owns the pinned packet
-generator, and `chmap_capture` owns the Yosys/sv2v netlist leg. The shard
-selector self-test pins those owners and the dedicated worker, and the
-workers' ownership step proves them again at run time; `ci_events.py` pins
-that step's script. It pins the aggregate's tally script and its
-worker-result script the same way, and the Yosys aggregate's two twins. The
-worker-result step is the only step that turns a failed or timed-out worker
-red: a killed suite's partial log still tallies and its SHA record still
-verifies, so on both hosted `milan_dp` timeouts only that step failed.
+inventory by measured hosted time (#727); the fifth, shard 4/5, runs
+`milan_dp` alone (#444). A worker runs its suites one at a time, so the fifth
+worker changes no suite's deadline. It takes the other suites of the old
+shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
+suites and set the context's latency at 1745-2514 s, of which the eleven took
+492-725 s.
+
+`scripts/suite_shards.py` records each default suite's hosted duration and
+each worker's job overhead, measured from one dev run. It places the longest
+suite first, on the worker with the lowest predicted wall clock. Its
+self-test refuses a suite without a duration and a duration without a suite.
+It also refuses any worker predicted above 60% of the job's
+`timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
+gives the refresh procedure. On dev `c6bd08c6` the old hash put worker 1/5 at
+104 minutes, and #696's head reached its 120-minute timeout there.
+
+The aggregate rejects missing, unexpected, or duplicate suite logs before it
+trusts the combined tally, and requires all five workers. Specialized
+dependencies are installed only by their stable owners: `tsn_fuzz` owns the
+pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
+The shard selector pins those owners and the dedicated worker, its self-test
+proves them, and the workers' ownership step proves them again at run time;
+`ci_events.py` pins that step's script. It pins the aggregate's tally script
+and its worker-result script the same way, and the Yosys aggregate's two
+twins. The worker-result step is the only step that turns a failed or
+timed-out worker red: a killed suite's partial log still tallies and its SHA
+record still verifies, so on both hosted `milan_dp` timeouts only that step
+failed.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -309,9 +320,10 @@ driver's positive control and five controls. Hosted run 38048622822 then
 timed out at 4800 s. Dev's own windows before it were already above 60% of
 that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
 to 38067159953. The leg and its five default controls therefore moved to the
-`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
+`milan_dp_gm_steps` suite, which the stable hash then gave worker 3/5, the
 default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
-`suite_shards.py` pins that owner among its five-worker landmarks.
+#727 replaced the hash with the measured-time split, which places the suite
+by its own recorded duration.
 The new suite keeps the 1800 s default budget. The clean leg runs every
 phase once; the controls run without the #621 phase, which holds none of
 their named checks. Its README records the native per-leg times at base,
