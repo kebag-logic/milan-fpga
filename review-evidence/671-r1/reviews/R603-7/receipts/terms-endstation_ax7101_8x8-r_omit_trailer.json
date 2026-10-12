@@ -1,0 +1,624 @@
+[
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 370084, slot B VD_CRC seq 0; offered A seq 370084 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:1:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 370085, slot B VD_CRC seq 0; offered A seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x1, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x1, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)",
+      "slot A valid at seq 0x1, --read-fault a:-1:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x1, --read-fault b:-1:3:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x1, --read-fault b:-1:3:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0x1, --read-fault b:-1:3:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)",
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 370084, slot B VD_CRC seq 0; offered A seq 370084 (VD_OK)",
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x5a5a5, the other older, --read-fault b:-1:2:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 370085, slot B VD_CRC seq 0; offered A seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x5a5a5, the other older, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x5a5a5, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x5a5a5, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:2:2:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_CRC seq 0; offered A seq 4294967295 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x0, the other older, --read-fault b:-1:1:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 0, slot B VD_CRC seq 0; offered A seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x0, the other older, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 0; offered B seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x5a5a5, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x5a5a5, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)",
+      "slot A valid at seq 0x5a5a5, --read-fault a:-1:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:3:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:3:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0x5a5a5, --read-fault b:-1:3:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x0, the other older, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)",
+      "slot A newer at seq 0x0, the other older, --read-fault a:-1:1:2:8: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-fault b:-1:2:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x0, the other older, --read-fault b:-1:2:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_CRC seq 0; offered A seq 4294967295 (VD_OK)",
+      "slot B newer at seq 0x0, the other older, --read-fault b:-1:2:2:8: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-fault b:-1:2:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x0, the other older, --read-fault b:-1:2:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_OK seq 0, slot B VD_CRC seq 0; offered A seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x0, the other older, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 0; offered B seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x80000000, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x80000000, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x80000000, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x80000000, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0x80000000, --read-fault b:-1:2:2:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0x80000000, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x80000000, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)",
+      "slot A valid at seq 0x80000000, --read-fault a:-1:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0x80000000, --read-fault b:-1:3:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x80000000, --read-fault b:-1:3:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0x80000000, --read-fault b:-1:3:2:8: the change committed after the faulty boot was lost on the clean reboot: it restored becfe0f1, want 40414243"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0xffffffff, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0xffffffff, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0xffffffff, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0xffffffff, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot A valid at seq 0xffffffff, --read-fault a:-1:1:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0xffffffff, --read-fault a:-1:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)",
+      "slot A valid at seq 0xffffffff, --read-fault a:-1:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "trailer",
+    "findings": [
+      "slot B valid at seq 0xffffffff, --read-fault b:-1:3:2:8: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0xffffffff, --read-fault b:-1:3:2:8: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)",
+      "slot B valid at seq 0xffffffff, --read-fault b:-1:3:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  }
+]

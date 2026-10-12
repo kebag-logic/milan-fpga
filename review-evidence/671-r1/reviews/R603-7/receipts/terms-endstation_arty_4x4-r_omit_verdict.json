@@ -1,0 +1,624 @@
+[
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x1, --read-verdict b:2:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x1, --read-verdict b:2:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 370084, slot B VD_SHAPE seq 0; offered A seq 370084 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict b:1:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 370085, slot B VD_SHAPE seq 0; offered A seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x1, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x1, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot A valid at seq 0x1, --read-verdict a:1:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x1, --read-verdict b:3:2: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x1, --read-verdict b:3:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0x1, --read-verdict b:3:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)",
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict a:1:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict b:2:2: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict b:2:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 370084, slot B VD_SHAPE seq 0; offered A seq 370084 (VD_OK)",
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict b:2:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict b:2:2: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x5a5a5, the other older, --read-verdict b:2:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 370085, slot B VD_SHAPE seq 0; offered A seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x5a5a5, the other older, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK)"
+    ]
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x5a5a5, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x5a5a5, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x5a5a5, --read-verdict b:2:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x5a5a5, --read-verdict b:2:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0x5a5a5, --read-verdict b:2:2 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_SHAPE seq 0; offered A seq 4294967295 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot A newer at seq 0x0, the other older, --read-verdict b:1:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 0, slot B VD_SHAPE seq 0; offered A seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 5",
+      "slot B newer at seq 0x0, the other older, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 0; offered B seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x5a5a5, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x5a5a5, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot A valid at seq 0x5a5a5, --read-verdict a:1:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x5a5a5, --read-verdict b:3:2: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x5a5a5, --read-verdict b:3:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0x5a5a5, --read-verdict b:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x0, the other older, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)",
+      "slot A newer at seq 0x0, the other older, --read-verdict a:1:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-verdict b:2:2: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x0, the other older, --read-verdict b:2:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 4294967295, slot B VD_SHAPE seq 0; offered A seq 4294967295 (VD_OK)",
+      "slot B newer at seq 0x0, the other older, --read-verdict b:2:2: 1 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A newer at seq 0x0, the other older, --read-verdict b:2:2: the boot read the flash 5 times, want exactly 6",
+      "slot A newer at seq 0x0, the other older, --read-verdict b:2:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_OK seq 0, slot B VD_SHAPE seq 0; offered A seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B newer at seq 0x0, the other older, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 6",
+      "slot B newer at seq 0x0, the other older, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_OK seq 0; offered B seq 0 (VD_OK)"
+    ]
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x80000000, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0x80000000, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x80000000, --read-verdict b:2:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0x80000000, --read-verdict b:2:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0x80000000, --read-verdict b:2:2 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0x80000000, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0x80000000, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot A valid at seq 0x80000000, --read-verdict a:1:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0x80000000, --read-verdict b:3:2: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0x80000000, --read-verdict b:3:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0x80000000, --read-verdict b:3:2: the change committed after the faulty boot was lost on the clean reboot: it restored 22334455, want 40414243"
+    ]
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0xffffffff, --read-verdict a:0:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot A valid at seq 0xffffffff, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0xffffffff, --read-verdict b:2:2 on a writer restart: the writer restart read the flash 4 times, want exactly 6",
+      "slot B valid at seq 0xffffffff, --read-verdict b:2:2 on a writer restart: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot A valid at seq 0xffffffff, --read-verdict a:1:2: the boot read the flash 5 times, want exactly 7",
+      "slot A valid at seq 0xffffffff, --read-verdict a:1:2: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot A valid at seq 0xffffffff, --read-verdict a:1:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "verdict",
+    "findings": [
+      "slot B valid at seq 0xffffffff, --read-verdict b:3:2: the boot read the flash 5 times, want exactly 7",
+      "slot B valid at seq 0xffffffff, --read-verdict b:3:2: slot B was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_BLANK seq 0, slot B VD_SHAPE seq 0; offered - seq 0 (VD_SHAPE)",
+      "slot B valid at seq 0xffffffff, --read-verdict b:3:2: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot"
+    ]
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "byte count",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "prefix CRC",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  },
+  {
+    "term": "trailer",
+    "findings": []
+  }
+]
