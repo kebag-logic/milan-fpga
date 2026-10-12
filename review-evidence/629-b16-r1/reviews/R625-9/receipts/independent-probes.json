@@ -1,0 +1,773 @@
+[
+  {
+    "name": "multiline-code-0",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). `"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm`"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` on the same image: the peer cannot bind its listener t\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-1",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). `  "
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm  `"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm ` on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-2",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). ``"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm``"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` on the same image: the peer cannot bind its listener t\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-3",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). `` `x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm` ``"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm`` on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-4",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). `\t"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm\t`"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm ` on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-5",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). ` x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm `"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` on the same image: the peer cannot bind its listener t\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-6",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). `   x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm   `"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm ` on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-7",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). ``   `x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm`   ``"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` ` on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-8",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). ` &amp;"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm `"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` on the same image: the peer cannot bind its listener t\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "multiline-code-9",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15). ` \\x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm `"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm` on the same image: the peer cannot bind its listener t\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-0",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<PRE class=\"x\">"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm </PRE>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <PRE class=\"x\"> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-1",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<ScRiPt>"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm </sCrIpT>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <ScRiPt> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-2",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<!--\t"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm -->"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <!-- (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-3",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<?x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm ?>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <?x (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-4",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<!DOCTYPE x"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm >"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <!DOCTYPE x (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-5",
+    "edits": [
+      {
+        "line": 17,
+        "text": "<![CDATA["
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm ]]>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <![CDATA[ (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-6",
+    "edits": [
+      {
+        "line": 17,
+        "text": "> <pre>"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm </pre>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm on the same image: the peer cannot bind its listener to\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_inline </pre> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-7",
+    "edits": [
+      {
+        "line": 17,
+        "text": "- <pre>"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm </pre>"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm on the same image: the peer cannot bind its listener to\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_inline </pre> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-8",
+    "edits": [
+      {
+        "line": 17,
+        "text": "~~start"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm end~~"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 strikethrough ~~start (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-9",
+    "edits": [
+      {
+        "line": 17,
+        "text": "![a"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm b](x.png)"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1320, \"digits\": 14954, \"digits_by_row\": 12531, \"digits_by_category\": 2423, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 image ![a (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-10",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[a"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm b](#b16c-attribution)"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm b on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-11",
+    "edits": [
+      {
+        "line": 17,
+        "text": "*a"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm b*"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm b on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "boundary-12",
+    "edits": [
+      {
+        "line": 17,
+        "text": "**a"
+      },
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25 ppm b**"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) | the reference peer's own loopback as the positive reference 7.25 ppm b on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-0",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7.25ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14959, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7.25 (a measurement: only a row can claim it) (no row can claim this spelling) | the reference peer's own loopback as the positive reference 7.25ppm on the same image: the peer cannot bind its listener\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-1",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference -.25 ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14958, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 2, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 -.25 (a measurement: only a row can claim it) (no row can claim this spelling) | the reference peer's own loopback as the positive reference -.25 ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-2",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference 7e2 ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14958, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 2, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7e2 (a measurement: only a row can claim it) (no row can claim this spelling) | the reference peer's own loopback as the positive reference 7e2 ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-3",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7  furlongs"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | peer's own loopback as the positive reference CLOCK_DOMAIN 7 furlongs on the same image: the peer cannot bind its listen\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-4",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7​ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-5",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7&#x20;ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | peer's own loopback as the positive reference CLOCK_DOMAIN 7 ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-6",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN **7**ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-7",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN [7](#b16c-attribution)ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-8",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7![](x.png)ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7ppm on the same image: the peer cannot bind its listener to\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 image ![](x.png) (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-9",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7&#xfeff;furlongs"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7furlongs on the same image: the peer cannot bind its listene\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-10",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN ７furlongs"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 ７ (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN ７furlongs on the same image: the peer cannot bind its listene\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-11",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7⁦ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (an identifier followed by '\\u2066', not on the closed list) | peer's own loopback as the positive reference CLOCK_DOMAIN 7⁦ppm on the same image: the peer cannot bind its listener to\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "number-12",
+    "edits": [
+      {
+        "line": 18,
+        "text": "In lane B16, the operator tried the reference peer's own loopback as the positive reference CLOCK_DOMAIN 7<em></em>ppm"
+      }
+    ],
+    "expected": "refused",
+    "target_line": 18,
+    "rc": 1,
+    "detected_at_line": true,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 7 (a measurement: only a row can claim it) (no row can claim this spelling) | peer's own loopback as the positive reference CLOCK_DOMAIN 7ppm on the same image: the peer cannot bind its listener to\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_inline <em> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_inline </em> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "clean",
+    "edits": [],
+    "expected": "pass",
+    "target_line": 18,
+    "rc": 0,
+    "detected_at_line": false,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14956, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "stderr": "",
+    "meets": true
+  },
+  {
+    "name": "permitted-hard-break",
+    "edits": [
+      {
+        "line": 17,
+        "text": "[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15).  "
+      }
+    ],
+    "expected": "pass",
+    "target_line": 18,
+    "rc": 0,
+    "detected_at_line": false,
+    "rows_written": true,
+    "coverage_written": true,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14956, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "stderr": "",
+    "meets": true
+  }
+]

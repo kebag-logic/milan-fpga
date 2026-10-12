@@ -1,0 +1,94 @@
+{
+ "note": "Lane B16 round 9: R624-5-ROW3200's published probe, R624-5/scripts/probe_row3200.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at cb5ff79f; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_row3200.py",
+ "probe_sha256": "11188752c3a8b4c9607102bc243163cb617edcde41db8a3125eb66cb8f15409d",
+ "page_commit": "cb5ff79f1f69117efba353484851eceb620e5c92",
+ "exit": 0,
+ "reading": {
+  "row3200_insensitive": false,
+  "row3200": [
+   [
+    "671",
+    "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "bcrf 595, baaf 596",
+    "MISMATCH"
+   ],
+   [
+    "672",
+    "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "596",
+    "OK"
+   ]
+  ]
+ },
+ "results": {
+  "rc": 1,
+  "summary": {
+   "lines": 2162,
+   "tokens": 2174,
+   "rows": 1909,
+   "rows_ok": 1898,
+   "rows_bad": 11,
+   "by_category": 1321,
+   "digits": 14956,
+   "digits_by_row": 12531,
+   "digits_by_category": 2425,
+   "digits_uncovered": 0,
+   "uncovered": 0,
+   "uncovered_measurements": 0,
+   "refused_identifiers": 2,
+   "markup": 0
+  },
+  "rows": [
+   {
+    "row": "471",
+    "line": "3008",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "595",
+    "status": "MISMATCH"
+   },
+   {
+    "row": "478",
+    "line": "3008",
+    "shown": "three",
+    "receipt": "summary/bcrf/c-b9-grade.json",
+    "recomputed": "two",
+    "status": "MISMATCH"
+   },
+   {
+    "row": "626",
+    "line": "3174",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "595",
+    "status": "MISMATCH"
+   },
+   {
+    "row": "627",
+    "line": "3174",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "596",
+    "status": "OK"
+   },
+   {
+    "row": "671",
+    "line": "3200",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "recomputed": "bcrf 595, baaf 596",
+    "status": "MISMATCH"
+   },
+   {
+    "row": "672",
+    "line": "3200",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "recomputed": "596",
+    "status": "OK"
+   }
+  ],
+  "row3200_insensitive": false
+ }
+}

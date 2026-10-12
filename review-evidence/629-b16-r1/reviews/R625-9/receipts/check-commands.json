@@ -1,0 +1,68 @@
+[
+  {
+    "name": "figures",
+    "command": "python -I {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/receipts/figures-rows.tsv {output}/receipts/figures-coverage.tsv --repo {repo}",
+    "rc": 0,
+    "seconds": 1.375
+  },
+  {
+    "name": "controls-r3",
+    "command": "python -I {packet}/tools/r3_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r3 {output}/receipts/controls-r3.json",
+    "rc": 0,
+    "seconds": 6.857
+  },
+  {
+    "name": "controls-r4",
+    "command": "python -I {packet}/tools/r4_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r4 {output}/receipts/controls-r4.json",
+    "rc": 1,
+    "seconds": 10.883
+  },
+  {
+    "name": "controls-r5",
+    "command": "python -I {packet}/tools/r5_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r5 {output}/receipts/controls-r5.json",
+    "rc": 1,
+    "seconds": 29.699
+  },
+  {
+    "name": "controls-r6",
+    "command": "python -I {packet}/tools/r6_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r6 {output}/receipts/controls-r6.json",
+    "rc": 1,
+    "seconds": 52.83
+  },
+  {
+    "name": "controls-r7",
+    "command": "python -I {packet}/tools/r7_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r7 {output}/receipts/controls-r7.json",
+    "rc": 1,
+    "seconds": 68.909
+  },
+  {
+    "name": "controls-r8",
+    "command": "python -I {packet}/tools/r8_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r8 {output}/receipts/controls-r8.json",
+    "rc": 0,
+    "seconds": 98.218
+  },
+  {
+    "name": "controls-r9",
+    "command": "python -I {packet}/tools/r9_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {output}/scratch/controls-r9 {output}/receipts/controls-r9.json",
+    "rc": 0,
+    "seconds": 131.801
+  },
+  {
+    "name": "review-probes",
+    "command": "python -I {packet}/tools/r9_probe_reruns.py {repo} {packet} {packet}/tools/review-probes {output}/scratch/review-probes cb5ff79f1f69117efba353484851eceb620e5c92",
+    "rc": 0,
+    "seconds": 227.966
+  },
+  {
+    "name": "docs-check",
+    "command": "python -I {repo}/scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 5.832
+  },
+  {
+    "name": "em-dash",
+    "command": "python -I {repo}/scripts/check_em_dash.py --base c20c85bd",
+    "rc": 0,
+    "seconds": 3.067
+  }
+]
