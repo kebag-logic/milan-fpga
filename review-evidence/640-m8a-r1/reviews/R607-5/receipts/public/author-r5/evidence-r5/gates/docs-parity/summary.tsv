@@ -1,0 +1,83 @@
+1	0	python3 scripts/gen_hdl_reference.py --selftest
+2	0	python3 scripts/gen_hdl_reference.py --output $VALIDATION_STORAGE/640m8a-a594/r5/docs-parity/runner-temp/milan-hdl-reference
+3	0	python3 scripts/docs_check.py
+4	0	python3 scripts/check_em_dash.py --base c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+5	0	python3 scripts/check_doc_style.py
+6	0	python3 scripts/check_doc_style.py --selftest
+7	0	python3 scripts/check_gptp_docs.py
+8	0	python3 scripts/check_gptp_docs.py --selftest
+9	0	python3 docs/DOC_MAP.gen.py --check
+10	0	python3 docs/DOC_MAP.gen.py --selftest
+11	0	python3 docs/diagrams/timesync_chain.gen.py --check
+12	0	python3 docs/diagrams/timesync_chain.gen.py --selftest
+13	0	python3 scripts/check_solution_docs.py
+14	0	python3 scripts/check_solution_docs.py --selftest
+15	0	python3 docs/diagrams/submodule_boundaries.gen.py --check
+16	0	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+17	0	python3 scripts/check_submodule_docs.py
+18	0	python3 scripts/check_submodule_docs.py --selftest
+19	0	python3 scripts/gen_wavedrom.py --selftest
+20	0	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+21	0	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+22	0	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+23	0	python3 scripts/check_diagram_pngs.py
+24	0	python3 scripts/check_diagram_pngs.py --selftest
+25	0	python3 scripts/check_feature_status.py --self-test
+26	0	python3 docs/traceability/gen_module_matrix.py --check
+27	0	python3 scripts/check_gptp_docs.py --with-submodule
+28	0	$VALIDATION_STORAGE/641-a573/make-4.3/make -C gptp-processor docs
+29	0	python3 scripts/measure_control_flow.py --selftest
+30	0	python3 scripts/measure_cohesion.py --selftest
+31	0	sv2v --version
+32	0	python3 scripts/check_baremetal_only.py --check
+33	0	python3 scripts/check_baremetal_only.py --selftest
+34	0	python3 scripts/ci_rv32_sdk_selftest.py
+35	0	python3 scripts/ci_rv32_sdk.py --verify-only --destination $VALIDATION_STORAGE/640m8a-a594/r3/final/fakehome/br-milan-rv32/host
+36	0	python3 sw/builder/test_firmware_compiler.py --selftest
+37	0	python3 sw/builder/test_firmware_compiler.py --absent --audit $VALIDATION_STORAGE/640m8a-a594/r5/docs-parity/runner-temp/rv32-absent.jsonl
+38	0	python3 sw/builder/test_builder.py --require-rv32
+39	0	python3 scripts/check_nvm_record_space.py
+40	0	python3 scripts/check_nvm_record_space.py --self-test
+41	0	python3 scripts/check_nvm_capture.py
+42	0	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+43	0	python3 scripts/check_soc_sources.py
+44	0	python3 scripts/check_soc_sources.py --selftest
+45	0	python3 sw/litex/iob_pack_selftest.py
+46	0	python3 scripts/check_rtl_source_lists.py
+47	0	python3 scripts/check_rtl_source_lists.py --selftest
+48	0	python3 scripts/measure_naming.py --check
+49	0	python3 scripts/measure_naming.py --selftest
+50	0	python3 scripts/check_port_contracts.py
+51	0	python3 scripts/check_port_contracts.py --selftest
+52	0	python3 scripts/measure_fail_fast.py --check
+53	0	python3 scripts/measure_fail_fast.py --selftest
+54	0	python3 scripts/check_todo_ownership.py
+55	0	python3 scripts/check_todo_ownership.py --selftest
+56	0	python3 scripts/measure_test_evidence.py --check
+57	0	python3 scripts/measure_test_evidence.py --selftest
+58	0	python3 scripts/check_hygiene.py --check
+59	0	python3 scripts/check_hygiene.py --selftest
+60	0	python3 scripts/check_sv_idiom.py
+61	0	python3 scripts/check_sv_idiom.py --selftest
+62	0	python3 scripts/check_cpp_idiom.py
+63	0	python3 scripts/check_cpp_idiom.py --selftest
+64	0	python3 scripts/check_py_idiom.py
+65	0	python3 scripts/check_py_idiom.py --selftest
+66	0	python3 scripts/check_sh_idiom.py
+67	0	python3 scripts/check_sh_idiom.py --selftest
+68	0	python3 scripts/ci_events.py --check
+69	0	python3 scripts/ci_events.py --selftest
+70	0	python3 scripts/act_ci.py --selftest
+71	0	python3 scripts/check_doc_paths.py
+72	0	python3 scripts/check_archive.py
+73	0	python3 scripts/check_archive.py --selftest
+74	0	python3 scripts/gen_toc.py --selftest
+75	0	python3 scripts/gen_toc.py --verify-anchors
+76	0	python3 scripts/gen_toc.py --check
+77	0	python3 avdecc/gen_aem_store.py --self-test
+78	0	python3 scripts/check_sweep_shape.py --self-test
+79	0	python3 scripts/check_deploy_shape.py --self-test
+80	0	python3 scripts/check_entity_shape.py --self-test
+81	0	python3 scripts/check_wire_accountability.py --self-test
+82	0	python3 scripts/docs_check.py
+83	0	python3 scripts/check_feature_status.py

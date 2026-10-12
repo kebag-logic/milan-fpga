@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "env",
+    "MILAN_RV32_CC=$PACKET/scratch/sdk/bin/riscv32-linux-gcc",
+    "python3",
+    "$PACKET/scripts/runtime_probe.py",
+    "--picolibc",
+    "$PACKET/scratch/dependencies/pythondata-software-picolibc/pythondata_software_picolibc/data",
+    "--compiler-rt",
+    "$PACKET/scratch/dependencies/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data",
+    "--litex-software",
+    "$PACKET/scratch/dependencies/litex/litex/soc/software",
+    "--output",
+    "$PACKET/scratch/runtime"
+  ],
+  "cwd": "$SOURCE",
+  "started_utc": "2026-10-12T06:47:25.452320+00:00",
+  "elapsed_seconds": 0.9353696109901648,
+  "rc": 0
+}
