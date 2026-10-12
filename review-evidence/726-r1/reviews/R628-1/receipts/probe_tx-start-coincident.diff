@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+index cd27ee190..a20db9c83 100644
+--- a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+@@ -245,7 +245,7 @@ module KL_talker_diag_ctx #(
+           start_r[c]  <= start_r[c] + 32'd1;
+           mreset_r[c] <= '0;
+           tuiv_r[c]   <= '0;
+-          ftx_r[c]    <= {31'd0, ev_f_w[c]};
++          ftx_r[c]    <= '0;
+           //! and the pending flags: a stop->start inside one interval must
+           //! not carry the pre-stop activity into the fresh counters - but
+           //! THIS cycle's event belongs to the stream that just started, so

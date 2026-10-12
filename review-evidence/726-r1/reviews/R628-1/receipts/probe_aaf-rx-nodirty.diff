@@ -1,0 +1,24 @@
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index 3a76db591..6a3da3d1a 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -948,7 +948,7 @@ module KL_avtp_rx_monitor_ctx #(
+             frx_add_r  <= frx_acc_r[iv_s_w];
+             //! Every updated counter marks the descriptor dirty (#726).
+             //! Only the scheduler limits Table 5.22 notifications.
+-            if (iv_seen_r[iv_s_w] != '0)
++            if ((iv_seen_r[iv_s_w] & ~(12'b1 << C_FRX_C)) != '0)
+               dirty_p_o[iv_s_w] <= 1'b1;
+             mst_r      <= M_INC_S;
+           end
+@@ -980,7 +980,9 @@ module KL_avtp_rx_monitor_ctx #(
+             sil_ms_r[ev_s_r]   <= '0;
+             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
+             //! TV/TNV changes also notify, including healthy traffic.
+-            dirty_p_o[ev_s_r] <= 1'b1;
++            if (!cur_w.tv || lock_now_w ||
++                (seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)))
++              dirty_p_o[ev_s_r] <= 1'b1;
+             monst_r <= monst_next_w;
+             //! TV/TNV live in flops (below), NOT in this serial walk: a
+             //! 12th RMW step per accepted PDU delayed the next verdict

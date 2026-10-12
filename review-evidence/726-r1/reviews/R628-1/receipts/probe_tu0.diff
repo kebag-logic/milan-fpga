@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index e95c18c5a..36dae1d53 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3308,7 +3308,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     //! Match the completion strobe to the bit frozen into that PDU. The live
+     //! PHC verdict may change while an AAF frame is draining or while a CRF
+     //! completion event waits behind the AAF event port.
+-    .tu_i        (aaf_frame_p_w ? aaf_frame_tu_w : crft_tu_last_w),
++    .tu_i        (1'b0),
+     .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
+     .rd_idx_i    (ctrq_index_r[3:0]),
+     .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),

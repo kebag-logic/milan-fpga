@@ -1,0 +1,12 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+Traceback (most recent call last):
+  File "$PACKET/scratch/probe-tx-nodirty-tu0/tb/verilator/milan_dp/stream_counters.py", line 174, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/probe-tx-nodirty-tu0/tb/verilator/milan_dp/stream_counters.py", line 167, in main
+    run(args.shape, args.variant, args.work.resolve(), verilator)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/probe-tx-nodirty-tu0/tb/verilator/milan_dp/stream_counters.py", line 155, in run
+    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] gap bounded by measured service  got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] gap bounded by measured service  got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] gap bounded by measured service  got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] every complete steady window notified got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] gap bounded by measured service  got=0x0 exp=0x1']

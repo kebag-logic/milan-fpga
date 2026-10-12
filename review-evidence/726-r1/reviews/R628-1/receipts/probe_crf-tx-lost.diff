@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index e95c18c5a..5fbf43628 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3303,7 +3303,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   ) talker_diag (
+     .clk_i (axis_clk), .rst_n (axis_resetn),
+     .streaming_i (tkd_streaming_w),
+-    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
++    .frame_p_i   (aaf_frame_p_w),
+     .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
+     //! Match the completion strobe to the bit frozen into that PDU. The live
+     //! PHC verdict may change while an AAF frame is draining or while a CRF

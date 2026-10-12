@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+index cd27ee190..afc173971 100644
+--- a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+@@ -207,7 +207,7 @@ module KL_talker_diag_ctx #(
+       //! Count each transmitted PDU; MR/TU fold into interval flags.
+       for (int c = 0; c < N_CTX_P; c++) begin
+         if (ev_f_w[c]) begin
+-          ftx_r[c] <= ftx_r[c] + 32'd1;
++          if (ftx_r[c] != 32'hFFFFFFFF) ftx_r[c] <= ftx_r[c] + 32'd1;
+           dirty_p_o[c] <= 1'b1;
+         end
+       end

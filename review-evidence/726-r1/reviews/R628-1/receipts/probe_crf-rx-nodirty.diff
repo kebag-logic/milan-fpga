@@ -1,0 +1,12 @@
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 53037b3de..d9dc6aa85 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -486,7 +486,6 @@ module KL_crf_rx #(
+       //! of persistent fault).
+       if (w_acc) begin
+         pdu_count_o <= pdu_count_o + 32'd1;
+-        dirty_p_o <= 1'b1;
+       end
+       if (iv_tick_r) begin
+         if (iv_uf_r || w_ev_uf_w)
