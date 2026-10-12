@@ -1,0 +1,24 @@
+21:- **[What holds throughout](#what-holds-throughout)** -- The suites and counts, ATDECC as the only source of state, the second port, the gate's re-record and timing.
+27:- **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
+76:| `route-1x1` | 50,267 | 54,413 | 15,779 | 74 | 27 | 87.5 | 14 | +0.299 / +0.031 |
+317:The [current ledger](#ledger) starts from the committed 50,267 record.
+656:At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+657:[#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it twice, now at 50,013 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
+670:Only M9 re-records acceptance.
+691:| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+696:The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
+707:M2 does not re-record the gate under D7.
+943:| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+969:M6 does not re-record the gate under D7.
+978:| 0 | Recorded baseline | -- | 50,267 | 50,267 | 50,267 |
+1036:Thus: `50,267 - 3,910 - 4,600 - 3,800 = 37,957`.
+1088:| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+1095:The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
+1111:M5 does not re-record the gate under D7.
+1125:| 0, complete | M0 | Adopted processor pin and current three-endpoint record | [#661](https://github.com/kebag-logic/milan-fpga/issues/661), [#682](https://github.com/kebag-logic/milan-fpga/issues/682), [#686](https://github.com/kebag-logic/milan-fpga/issues/686), [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
+1135:| 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
+1172:Compare whole-image resources against the last accepted gate record.
+1176:Intermediate measurements enter this ledger; only M9 re-records acceptance.
+1186:M9 consumes M0s coverage for final qualification and re-recording.
+1206:  M9 re-records at the LUT target with timing met.
+1241:| D7, re-record | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): intermediate measurements enter this ledger | Gate against the last record; M9 re-records at the target |

@@ -1,0 +1,40 @@
+candidate b075a994f6daae3b406bce415a837b7c401712d5 tree 4650fd5d9d5c940bc6788491229dc808cf866962
+parents   aa980479aafd1d72c72015707fa6618b5aa47cb1 c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+lane base (merge-base dev, pr) 09c7231eca343607c97c0d66abebb2553688712c
+fresh merge-tree of dev and pr: 4650fd5d9d5c940bc6788491229dc808cf866962
+
+== per-file patch identity, PR (base..head) against candidate (dev..candidate)
+same  docs/design/AREA_BUDGET.md
+same  docs/design/MAAP_FABRIC.md
+same  docs/design/MARK_II_AREA_PLAN.md
+same  docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+same  docs/findings/README.md
+same  hdl/ieee1722/maap/KL_maap.sv
+same  hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+same  hdl/milan/milan_datapath.sv
+same  sw/firmware/ctrl/maap/README.md
+same  sw/firmware/ctrl/test/maap_differential.py
+same  sw/firmware/ctrl/test/test_maap_differential.cpp
+same  syn/ooc/pp_resource_baseline.json
+same  tb/verilator/maap/Makefile
+same  tb/verilator/maap/integration.mk
+same  tb/verilator/maap/mutants.py
+same  tb/verilator/maap/sim_integration.cpp
+same  tb/verilator/maap/sim_main.cpp
+
+== files changed on both sides since the lane base
+-- docs/design/MARK_II_AREA_PLAN.md
+   dev hunks: -538,0 +539 -1069,0 +1071,38 
+   pr  hunks: -56 +56 -110 +110,4 -118,11 +121,11 -130,4 +133,4 -136,3 +139,3 -143,0 +147 -651,2 +655,2 -691,2 +695,2 -702 +706 -943 +947 -964 +968 
+   dev commits: c20c85bdd 
+
+== dev first-parent merges since the lane base
+c6bd08c6f Merge PR #707: Keep gPTP capability stable across grandmaster phase steps (#621)
+c20c85bdd Merge PR #722: Mark II M5: CSR read path with one stage-1 live word and SNAP kinds applied on read (#640)
+
+== gitlinks at the candidate
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 0	gptp-processor
+160000 2ad2f845dd583f8310075fa2380cb60a04fd091a 0	protocol-processor
+160000 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0	third_party/lwSRP
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
