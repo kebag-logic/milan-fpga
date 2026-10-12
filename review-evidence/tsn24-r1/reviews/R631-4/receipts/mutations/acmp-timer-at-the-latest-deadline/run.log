@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:836: Failure
+Value of: fk.armed[0] && fk.at[0] == a.sinks[0].timer_deadline && fk.armed[1] && fk.at[1] == a.sinks[2].timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A17 each interface's timer is armed at the earliest deadline of its own sinks
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:844: Failure
+Value of: fk.armed[0] && fk.at[0] == a.sinks[1].timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A17 and re-arms at the next deadline
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+
+ 1 FAILED TEST

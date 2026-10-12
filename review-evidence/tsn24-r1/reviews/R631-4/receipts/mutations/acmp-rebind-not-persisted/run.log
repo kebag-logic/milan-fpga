@@ -1,0 +1,99 @@
+Note: Google Test filter = AcmpCore.A6BindAnotherSourceRestartsTheSink
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 1
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 2
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 3
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 4
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 5
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 6
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:525: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A6 the new binding is saved, state 7
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+
+ 1 FAILED TEST

@@ -1,0 +1,40 @@
+Note: Google Test filter = AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp:AcmpCore.A25OnlyTable522ItemsAreReported
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:664: Failure
+Value of: fk.sent.empty() && a.sinks[0].state == ACMP_PRB_W_RETRY && a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT && a.sinks[0].timer == ACMP_TIMER_RETRY && a.sinks[0].timer_deadline == fk.now + spec::TMR_RETRY_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1521: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[  FAILED  ] AcmpCore.A25OnlyTable522ItemsAreReported
+
+ 2 FAILED TESTS

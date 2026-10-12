@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpFresh
+[ RUN      ] AcmpFresh.ConfiguredWindow
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2442: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+the core uses the configured interval without a mirrored constant
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpFresh.ConfiguredWindow (0 ms)
+[----------] 1 test from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpFresh.ConfiguredWindow
+
+ 1 FAILED TEST

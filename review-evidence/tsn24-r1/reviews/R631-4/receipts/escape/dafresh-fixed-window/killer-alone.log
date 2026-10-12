@@ -1,0 +1,89 @@
+Test project $SCRATCH/escape/dafresh-fixed-window/build
+    Start 8: maap_debug
+    Start 7: adp_debug
+1/8 Test #8: maap_debug .......................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+    Start 1: adp_tests
+2/8 Test #7: adp_debug ........................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+    Start 3: maap_tests
+3/8 Test #1: adp_tests ........................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+    Start 2: acmp_tests
+4/8 Test #3: maap_tests .......................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+    Start 6: adp_release
+5/8 Test #2: acmp_tests .......................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpFresh
+[ RUN      ] AcmpFresh.ConfiguredWindow
+$SCRATCH/escape/dafresh-fixed-window/tree/tests/test_acmp.cpp:2442: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+the core uses the configured interval without a mirrored constant
+
+[  FAILED  ] AcmpFresh.ConfiguredWindow (0 ms)
+[----------] 1 test from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpFresh.ConfiguredWindow
+
+ 1 FAILED TEST
+
+    Start 4: entity_tests
+6/8 Test #4: entity_tests .....................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+    Start 5: port_tests
+7/8 Test #6: adp_release ......................***Failed    0.01 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+8/8 Test #5: port_tests .......................***Failed    0.00 sec
+Note: Google Test filter = AcmpFresh.ConfiguredWindow
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+
+
+0% tests passed, 8 tests failed out of 8
+
+Total Test time (real) =   0.02 sec
+
+The following tests FAILED:
+	  1 - adp_tests (Failed)
+	  2 - acmp_tests (Failed)
+	  3 - maap_tests (Failed)
+	  4 - entity_tests (Failed)
+	  5 - port_tests (Failed)
+	  6 - adp_release (Failed)
+	  7 - adp_debug (Failed)
+	  8 - maap_debug (Failed)
+Errors while running CTest

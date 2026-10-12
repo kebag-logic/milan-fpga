@@ -1,0 +1,32 @@
+row	authority	independent assessment	verification
+P01	PORTING:312-313	Valid destination gates both terms; fresh answer survives Listener withdrawal.	NoProbe, ListenerWithoutProbe, InvalidAddress, FreshProbeAfterListenerWithdrawal; all mapped plants caught/escaped.
+P02	PORTING:314	Destination comes from live source state; QueryPorts establishes one source read.	InvalidAddress and QueryPorts; mapped plants caught/escaped.
+P03	PORTING:314-315	No SRP callback is needed to obtain Listener state.	QueryPorts catches the SRP-call plant; physical removal escapes.
+P04	PORTING:315-316	One Listener entry accepts level changes without a new callback.	ListenerWithoutProbe and fresh-probe withdrawal cover both levels.
+P05	PORTING:316-317	Unknown source, out-of-range or wrong valid interface, and callback re-entry are refused; no port calls.	Five independent registered substitutions; each caught/escaped.
+P06	PORTING:318-319	Asking Failed is registration; admission and media permission remain outside this boolean input.	ListenerWithoutProbe sets asking_failed and catches its exclusion; adapter meaning is explicitly limited.
+P07	PORTING:319-320	Last-matching-Listener aggregation is external: the API receives only a boolean.	No core test is sound; withdrawal itself is exercised by P04.
+P08	PORTING:321	Current Stream ID association and timely delivery are adapter duties; source/interface selection remains checked by the core.	No Stream ID exists on this input, so external association cannot be established by a core unit test; P05/R02 cover available fields.
+P09	PORTING:323	Generator supplies 15000 ms in each generated ACMP configuration.	DaFreshRoundTrip and generated-window plant; schema defaults/refusals also execute.
+P10	PORTING:324	Core compares against the configuration field directly.	ConfiguredWindow uses 30000 ms; fixed-window plant caught/escaped.
+P11	PORTING:325	Hand-written interval must fit below the clock half range.	WindowRange accepts 0x7fffffff and tests the boundary.
+P12	PORTING:326	Both 0x80000000 and UINT32_MAX are refused before state changes or callbacks.	WindowRange plus range-bound, wipe and callback plants caught/escaped.
+P13	PORTING:327	Zero closes probe demand even at age zero; Listener still opens the gate.	ZeroWindow; both disabling and Listener-blocking plants caught/escaped.
+P14	PORTING:328-329	Each source stores timestamp, answer presence and Listener level; init clears all independently.	Reset-demand, reset-timestamp, init-Listener and two source-isolation plants caught/escaped.
+P15	PORTING:331-332	Only accepted probe responses for a known source on its configured interface refresh.	Send-delay, deferred-send and wrong-interface assertions; mapped plants caught/escaped.
+P16	PORTING:332-333	SUCCESS and allocation-failure replies establish demand; invalid destination still vetoes declaration.	FailedAllocationAnswer and InvalidAddress; mapped plants caught/escaped.
+P17	PORTING:333-334	Unknown ID, wrong-interface answer and other command replies do not refresh.	OtherRepliesDoNotRefresh exercises all named reply classes, including unknown ID with no time read.
+P18	PORTING:334-335	Refusal and queueing do not start the window; poll acceptance does.	DeferredAnswer refuses initial send and retry, then accepts; plant caught/escaped.
+P19	PORTING:336	The response-acceptance endpoint is a local interpretation of answered.	No executable test for attribution is appropriate; P15/P18 test the endpoint. The table discloses earlier fabric transaction acceptance.
+P20	PORTING:337	Existing talker response construction and command paths remain unchanged.	Unchanged source diff and ACMP-08 tests, two response-field plants caught/escaped. These witnesses do not claim exhaustive wire equivalence.
+P21	PORTING:339-340	Ages 0 and 14999 are fresh; 15000 and 15001 are stale for the generated window.	WithinWindowAndRefresh, WindowEdge and StaleProbe; mapped plants caught/escaped.
+P22	PORTING:340-341	The same half-open rule holds across UINT32 wrap.	ClockWrap and wrapped WindowEdge/StaleProbe; independent fabric edge/wrap checks agree.
+P23	PORTING:341-342	A query samples current clock state when an answer exists, including clock advancement during send.	WithinWindowAndRefresh and QueryPorts; timing, renewal and repeated-read plants caught/escaped.
+P24	PORTING:342-343	Expiry is latched despite a Listener or invalid-address mask and cannot resurrect on a serviced full wrap.	Both masking tests service through 2^32+100 ms with gaps <=1000000000; separate plants caught/escaped.
+P25	PORTING:345-346	Serialized after-event and regular-tick dispatch is supplied by the caller.	No core dispatcher exists; no core scheduling test is appropriate. Re-entry refusal is tested by P26.
+P26	PORTING:346-348	Query uses existing source/time services, refuses callback re-entry and unknown source.	QueryPorts and InputGuardsAndReentry; mapped plants caught/escaped.
+P27	PORTING:348	Query adds no timer or publication callback.	QueryPorts; both extra-callback plants caught/escaped.
+P28	PORTING:348-350	Sub-half-range service is a precondition; a wholly unobserved revolution is not inferable from modulo time.	No claimed guarantee outside the precondition is appropriate; P22/P24 cover serviced wraps.
+P29	PORTING:351-352	Poll false means no owed transport; it does not remove the regular gate-refresh obligation.	DeferredAnswer verifies false after acceptance with a still-fresh query; periodic refresh itself remains a caller duty.
+R01	REQUIREMENTS:50 sentence 1	Per-source valid destination AND (fresh answer OR Listener).	Same predicate witnesses and plants as P01.
+R02	REQUIREMENTS:50 sentence 2	Configured interval, wrapping clock and both source and interface isolation.	ConfiguredWindow, ClockWrap, SourceAndInterfaceIsolation and ListenerInterfaceMismatch; mapped plants caught/escaped.

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$SOURCE/scripts/check_comments.py", line 137, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$SOURCE/scripts/check_comments.py", line 114, in main
+    print('comment lexer: ' + compiler())
+                              ~~~~~~~~^^
+  File "$SOURCE/scripts/compiler_tokens.py", line 13, in compiler
+    result = subprocess.run([binary, '--version'], capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['$CLANG18/bin/clang-18', '--version']' returned non-zero exit status 127.

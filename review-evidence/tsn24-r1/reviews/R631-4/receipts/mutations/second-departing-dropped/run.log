@@ -1,0 +1,45 @@
+Note: Google Test filter = AdpCore.A16SecondShutdownQueuesItsOwn
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:329: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && !a.available_owed && a.state == ADP_STATE_DOWN
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:335: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 1u, 0) && !owed
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:340: Failure
+Value of: fk.sends == 4u && took(3, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A16SecondShutdownQueuesItsOwn
+
+ 1 FAILED TEST

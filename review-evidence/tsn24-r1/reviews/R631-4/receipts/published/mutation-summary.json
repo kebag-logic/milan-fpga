@@ -1,0 +1,3229 @@
+[
+  {
+    "name": "reentry-guard-removed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpReentry.AdvertiseInlineExpiry",
+      "AdpReentry.DelayInlineExpiryOnGmChange"
+    ]
+  },
+  {
+    "name": "reentry-uncounted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpReentry.AdvertiseInlineExpiry"
+    ]
+  },
+  {
+    "name": "reentry-not-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/10",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/11",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/12",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/13",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/14",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/16",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/17",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/20",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/21",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/22",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/23",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/24",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/25",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/26",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/27",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/28",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/29",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/30",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/31",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/32",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/33",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/36",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/37",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/4",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/40",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/41",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/42",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/43",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/44",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/45",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/46",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/47",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/48",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/49",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/5",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/50",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/51",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/52",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/53",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/56",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/57",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/6",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/60",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/61",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/62",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/63",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/64",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/65",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/66",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/67",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/68",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/69",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/7",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/70",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/71",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/72",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/73",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/76",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/77",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/8",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/80",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/81",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/82",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/83",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/84",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/85",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/86",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/87",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/88",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/89",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/9",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/90",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/91",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/92",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/93",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/96",
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/97"
+    ]
+  },
+  {
+    "name": "departing-keeps-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A6toA8DeferredSends",
+      "ExamplePort.DefersExpiryAndRetainsBlockedOutput"
+    ]
+  },
+  {
+    "name": "departing-sends-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A10toA14DepartingIndex"
+    ]
+  },
+  {
+    "name": "available-replaces-owed-departing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A15OwedDepartingAcrossARestart"
+    ]
+  },
+  {
+    "name": "available-passes-owed-departing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A17RoomBackBeforeAPoll"
+    ]
+  },
+  {
+    "name": "second-departing-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A16SecondShutdownQueuesItsOwn"
+    ]
+  },
+  {
+    "name": "second-shutdown-overwrites-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A16SecondShutdownQueuesItsOwn"
+    ]
+  },
+  {
+    "name": "link-loss-drops-owed-departing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A18LinkLossKeepsTheOwedDeparting"
+    ]
+  },
+  {
+    "name": "gm-change-drops-owed-available",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "discover-drops-owed-available",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "stray-expiry-drops-owed-available",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A19IgnoredInputsKeepTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "link-loss-keeps-owed-available",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A20LinkLossDropsTheOwedAvailable"
+    ]
+  },
+  {
+    "name": "departing-queue-unbounded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "coalesced-departing-uncounted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "coalesce-drops-queued-departing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "coalesce-overwrites-oldest-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A21DepartingCapacity"
+    ]
+  },
+  {
+    "name": "own-discover-discarded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A3toA5DiscoverAndDiscard",
+      "AllStates/AdpInputControl.ValidDiscovery/4"
+    ]
+  },
+  {
+    "name": "down-answers-discover",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A3toA5DiscoverAndDiscard"
+    ]
+  },
+  {
+    "name": "link-down-departs",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.LinkLevelsAndDisabledInputs"
+    ]
+  },
+  {
+    "name": "gm-change-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A0toA2Schedule"
+    ]
+  },
+  {
+    "name": "delay-ignores-link-down",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A6toA8DeferredSends"
+    ]
+  },
+  {
+    "name": "shutdown-in-down-departs",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A6toA8DeferredSends"
+    ]
+  },
+  {
+    "name": "advertise-expiry-skips-delay",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A0toA2Schedule"
+    ]
+  },
+  {
+    "name": "advertise-period-wrong",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A0toA2Schedule",
+      "AdpCore.MockedPortOrder"
+    ]
+  },
+  {
+    "name": "link-up-draws-startup-kind",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A0toA2Schedule"
+    ]
+  },
+  {
+    "name": "draw-kinds-merged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A9DrawKinds"
+    ]
+  },
+  {
+    "name": "foreign-discover-answered",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A3toA5DiscoverAndDiscard"
+    ]
+  },
+  {
+    "name": "frame-misses-config-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A0toA2Schedule"
+    ]
+  },
+  {
+    "name": "frame-sources-from-sinks",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.EntityFieldsUseIndependentCounts"
+    ]
+  },
+  {
+    "name": "seed-left-at-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A22GeneratorNeverStuckAtZero"
+    ]
+  },
+  {
+    "name": "enable-not-idempotent",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A23RepeatedEnableOrDisableChangesNothing"
+    ]
+  },
+  {
+    "name": "other-subtype-accepted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded"
+    ]
+  },
+  {
+    "name": "acmp-init-no-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-too-many-sinks",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-too-many-sources",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-sink-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-source-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold"
+    ]
+  },
+  {
+    "name": "acmp-init-reads-the-seed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled"
+    ]
+  },
+  {
+    "name": "acmp-header-no-resp-2s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-header-retry-2s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry"
+    ]
+  },
+  {
+    "name": "acmp-header-no-tk-5s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-header-valid-time-in-seconds",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+    ]
+  },
+  {
+    "name": "acmp-header-listener-unknown-is-2",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+    ]
+  },
+  {
+    "name": "acmp-header-registering-failed-bit",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-header-cdl-84",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-bind-count-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-probe-without-fast-connect",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-probe-before-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-no-resp-2s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-bind-starts-no-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-bind-change-before-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-nothing-persisted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-unbind-not-persisted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-rebind-not-persisted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A6BindAnotherSourceRestartsTheSink"
+    ]
+  },
+  {
+    "name": "acmp-streaming-wait-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-sw-read-from-fast-connect",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-getrx-count-unbound",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-getrx-no-fast-connect",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-getrx-no-registering-failed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-unknown-sink-silent",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId"
+    ]
+  },
+  {
+    "name": "acmp-unbind-echoes-the-talker",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-unbind-keeps-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-unbind-srp-after-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-unbind-keeps-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-unbind-change-before-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A3UnbindInEveryState"
+    ]
+  },
+  {
+    "name": "acmp-not-authorized-is-13",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind"
+    ]
+  },
+  {
+    "name": "acmp-lock-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind"
+    ]
+  },
+  {
+    "name": "acmp-lock-refuses-the-holder",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+    ]
+  },
+  {
+    "name": "acmp-get-rx-state-locked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked"
+    ]
+  },
+  {
+    "name": "acmp-rebind-same-reprobes",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A5RebindTheSameSourceUpdatesAndExits"
+    ]
+  },
+  {
+    "name": "acmp-rebind-same-keeps-the-controller",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A5RebindTheSameSourceUpdatesAndExits"
+    ]
+  },
+  {
+    "name": "acmp-bind-new-keeps-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A6BindAnotherSourceRestartsTheSink"
+    ]
+  },
+  {
+    "name": "acmp-bind-same-talker-is-the-same-source",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding"
+    ]
+  },
+  {
+    "name": "acmp-sequence-id-never-advances",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A12DelaySendsANewProbe",
+      "AcmpCore.A16OneCounterForEveryNewProbe"
+    ]
+  },
+  {
+    "name": "acmp-sequence-id-per-sink",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A16OneCounterForEveryNewProbe"
+    ]
+  },
+  {
+    "name": "acmp-response-keyed-on-the-source",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId"
+    ]
+  },
+  {
+    "name": "acmp-guard-controller-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked"
+    ]
+  },
+  {
+    "name": "acmp-guard-talker-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked"
+    ]
+  },
+  {
+    "name": "acmp-guard-unique-id-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked"
+    ]
+  },
+  {
+    "name": "acmp-guard-sequence-id-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7EachGuardTermIsChecked"
+    ]
+  },
+  {
+    "name": "acmp-guard-reads-the-binding",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding"
+    ]
+  },
+  {
+    "name": "acmp-responses-taken-outside-probing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A7ResponsesOutsideProbingAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-vlan-masked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-1s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-settle-starts-no-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-settle-swaps-stream-fields",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A8SuccessSettles"
+    ]
+  },
+  {
+    "name": "acmp-failure-status-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry"
+    ]
+  },
+  {
+    "name": "acmp-failure-retries-at-200ms",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A9FailureWaitsForTheRetry"
+    ]
+  },
+  {
+    "name": "acmp-duplicate-takes-a-new-sequence-id",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp"
+    ]
+  },
+  {
+    "name": "acmp-second-timeout-keeps-status-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "AcmpCore.A25OnlyTable522ItemsAreReported"
+    ]
+  },
+  {
+    "name": "acmp-no-duplicate",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp"
+    ]
+  },
+  {
+    "name": "acmp-retry-ignores-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A11RetryWaitsForTheTalkerOrDelays"
+    ]
+  },
+  {
+    "name": "acmp-retry-zeroes-the-status",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A11RetryWaitsForTheTalkerOrDelays"
+    ]
+  },
+  {
+    "name": "acmp-delay-resends-the-old-probe",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A12DelaySendsANewProbe"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-keeps-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A13NoTalkerAttributeReprobes"
+    ]
+  },
+  {
+    "name": "acmp-reprobe-ignores-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A13NoTalkerAttributeReprobes",
+      "AcmpCore.A15UnregisteredReprobes"
+    ]
+  },
+  {
+    "name": "acmp-registered-anywhere",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A14RegisteredSettlesTheReservation"
+    ]
+  },
+  {
+    "name": "acmp-registered-keeps-no-tk",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A14RegisteredSettlesTheReservation"
+    ]
+  },
+  {
+    "name": "acmp-registered-kind-dropped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-unregistered-anywhere",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A15UnregisteredReprobes"
+    ]
+  },
+  {
+    "name": "acmp-kind-lost",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+  },
+  {
+    "name": "acmp-kind-any-state",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+  },
+  {
+    "name": "acmp-unregistered-keeps-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A15UnregisteredReprobes"
+    ]
+  },
+  {
+    "name": "acmp-timer-at-the-latest-deadline",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-timer-port-called-every-time",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-timer-never-stopped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-expiry-takes-every-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-expiry-not-consumed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline"
+    ]
+  },
+  {
+    "name": "acmp-zero-delay-waits",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-delay-up-to-4s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A18AZeroDelayProbesInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-seed-at-every-draw",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+    ]
+  },
+  {
+    "name": "acmp-rng-left-at-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+    ]
+  },
+  {
+    "name": "acmp-response-passes-an-owed-frame",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19NothingPassesAnOwedFrame"
+    ]
+  },
+  {
+    "name": "acmp-poll-drains-everything",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits"
+    ]
+  },
+  {
+    "name": "acmp-change-not-held-for-its-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits"
+    ]
+  },
+  {
+    "name": "acmp-full-queue-acts",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs"
+    ]
+  },
+  {
+    "name": "acmp-lost-probe-uncounted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+    ]
+  },
+  {
+    "name": "acmp-first-owed-releases-every-change",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+    ]
+  },
+  {
+    "name": "acmp-poll-newest-first",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19NothingPassesAnOwedFrame"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-reports-asking-failed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-echoes-every-flag",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-any-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-no-destination-mac-check",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-disconnect-always-succeeds",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-unknown-source-answered",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-echoes-the-listener",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-registering-failed-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-state-unheld-mac",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-get-tx-connection-supported",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ]
+  },
+  {
+    "name": "acmp-every-listener-is-this-one",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-every-talker-is-this-one",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A21MessagesNotForThisEntityAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-short-pdu-read",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A21MalformedFramesAreCounted"
+    ]
+  },
+  {
+    "name": "acmp-longer-pdu-refused",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A21MalformedFramesAreCounted"
+    ]
+  },
+  {
+    "name": "acmp-discovery-reads-no-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+    ]
+  },
+  {
+    "name": "acmp-discovery-reads-no-domain",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+    ]
+  },
+  {
+    "name": "acmp-valid-time-in-seconds",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches"
+    ]
+  },
+  {
+    "name": "acmp-discovered-interface-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-restart-on-a-smaller-index-only",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-restart-raises-no-discovered",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-restart-mismatch-keeps-aging",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-refresh-notes-no-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-departing-taken-undiscovered",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DepartingAndAging"
+    ]
+  },
+  {
+    "name": "acmp-departing-interface-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DepartingAndAging"
+    ]
+  },
+  {
+    "name": "acmp-departing-keeps-aging",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DepartingAndAging"
+    ]
+  },
+  {
+    "name": "acmp-no-aging",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DepartingAndAging"
+    ]
+  },
+  {
+    "name": "acmp-discovery-on-every-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-discovery-on-unbound-sinks",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-sampled-for-the-refresh",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStateCells"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-sampled-per-sink",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-reentry-unguarded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-reentry-untrapped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "acmp-send-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "acmp-timer-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-gptp-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-clock-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-seed-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-lock-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-source-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-srp-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-persist-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-changed-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-restore-lands-in-prb-w-resp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-starts-no-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-announced",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-record-flags-swapped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+    ]
+  },
+  {
+    "name": "acmp-record-unique-id-little-endian",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-restore-unique-id-little-endian",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24ARestoredBindingFastConnects"
+    ]
+  },
+  {
+    "name": "acmp-roll-back-keeps-the-bindings",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+    ]
+  },
+  {
+    "name": "acmp-unbound-record-not-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+    ]
+  },
+  {
+    "name": "acmp-started-not-saved",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24StartedIsSavedAndReported"
+    ]
+  },
+  {
+    "name": "acmp-discovery-notifies",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A25OnlyTable522ItemsAreReported"
+    ]
+  },
+  {
+    "name": "acmp-status-not-notified",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A25OnlyTable522ItemsAreReported"
+    ]
+  },
+  {
+    "name": "acmp-probing-status-not-notified",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.DepartingStopsEveryProbingTimer"
+    ]
+  },
+  {
+    "name": "acmp-bind-reads-the-clock-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-get-rx-state-reads-the-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.CommandPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-probe-response-reads-the-clock-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.CommandPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-unbind-reads-the-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.CommandPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-talker-reads-the-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.CommandPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-expiry-reads-the-clock-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.TimerPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-available-reads-the-clock-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.DiscoveryPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-departing-samples-the-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.DiscoveryPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-aging-samples-the-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.DiscoveryPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-discovery-takes-the-first-sink",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface"
+    ]
+  },
+  {
+    "name": "acmp-second-no-resp-samples-the-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.TimerPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-retry-samples-the-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.TimerPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-delay-reads-the-clock-again",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.TimerPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-samples-the-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.TimerPortBudgets"
+    ]
+  },
+  {
+    "name": "acmp-new-bind-never-started",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+    ]
+  },
+  {
+    "name": "acmp-bind-response-always-streaming-wait",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindWithoutStreamingWaitBindsStarted"
+    ]
+  },
+  {
+    "name": "acmp-view-without-registering-failed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed"
+    ]
+  },
+  {
+    "name": "acmp-discovered-probing-stays-passive",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail"
+    ]
+  },
+  {
+    "name": "acmp-grandmaster-read-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail"
+    ]
+  },
+  {
+    "name": "acmp-adp-short-frame-taken",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-ethertype-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-subtype-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-adp-discover-taken",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A22OtherAdpFramesAreIgnored"
+    ]
+  },
+  {
+    "name": "acmp-frames-to-the-own-mac",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-version-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+    ]
+  },
+  {
+    "name": "acmp-adp-version-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+    ]
+  },
+  {
+    "name": "acmp-version-bits-misread",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead"
+    ]
+  },
+  {
+    "name": "acmp-header-version-1",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A1BindFromUnboundRespondsThenProbes"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-timer-runs",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort",
+      "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-never-starts",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-no-resp-2s",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-sequence-unchecked",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-unnamed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-owed-probe-names-the-next-sink",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-probe-timer-before-its-send",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+      "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend"
+    ]
+  },
+  {
+    "name": "acmp-taken-probe-timer-from-the-entry-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend"
+    ]
+  },
+  {
+    "name": "acmp-expiry-due-at-its-first-read",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry"
+    ]
+  },
+  {
+    "name": "acmp-held-timer-expires",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-held-timer-armed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves"
+    ]
+  },
+  {
+    "name": "acmp-lost-probe-held",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered"
+    ]
+  },
+  {
+    "name": "acmp-stop-keeps-the-hold",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+    ]
+  },
+  {
+    "name": "acmp-record-flag-defines-swapped",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+    ]
+  },
+  {
+    "name": "acmp-record-valid-bit-moved",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime"
+    ]
+  },
+  {
+    "name": "acmp-longer-record-applied",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A24UnboundRecordsRefusalsAndRollback"
+    ]
+  },
+  {
+    "name": "acmp-due-unsigned",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+      "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-earliest-unsigned",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-adp-due-unsigned",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-resp-deadline-saturates",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-retry-deadline-saturates",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-tk-deadline-saturates",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-delay-deadline-saturates",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-no-adp-deadline-saturates",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap"
+    ]
+  },
+  {
+    "name": "acmp-admit-never-called",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+    ]
+  },
+  {
+    "name": "acmp-admit-on-every-entry",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+    ]
+  },
+  {
+    "name": "acmp-admit-ignores-another-talker",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+    ]
+  },
+  {
+    "name": "acmp-admit-on-interface-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+    ]
+  },
+  {
+    "name": "acmp-admit-port-unflagged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryPortIsGuarded"
+    ]
+  },
+  {
+    "name": "acmp-reset-forgets-the-admitted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-open-does-nothing",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-open-unguarded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A23EveryEntryRefusesACallFromInsideAPort"
+    ]
+  },
+  {
+    "name": "maap-down-start-keeps-owner",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-initial-send-absent",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-retransmit-count",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-probe-count-not-decremented",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-version",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-length",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-source",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-wire-padding",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-constant-probe_base",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-probe_variation",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-announce_base",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-constant-announce_variation",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-seed-clock-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-zero-seed-sticks",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ConstantsStrictTimersAndSeed"
+    ]
+  },
+  {
+    "name": "maap-biased-random-bucket",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.UniformDrawRejectsIncompleteBucket"
+    ]
+  },
+  {
+    "name": "maap-numeric-mac-priority",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReverseOctetPriority"
+    ]
+  },
+  {
+    "name": "maap-defend-multicast",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-defend-echo-own-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-intersection-too-long",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DefendEchoAndIntersection"
+    ]
+  },
+  {
+    "name": "maap-adjacent-overlaps",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-zero-count-conflicts",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-defend-checks-request",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.DisjointAdjacentZeroAndDefendRange"
+    ]
+  },
+  {
+    "name": "maap-malformed-ethertype",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-subtype",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-version",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-reserved-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-reserved-high",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-short",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-truncated",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-cdl-current",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-source-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-source-group",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-destination",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-malformed-own-probe",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-valid-minimum-refused",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-future-version-refused",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.MalformedAndVersionCompatibility"
+    ]
+  },
+  {
+    "name": "maap-range-end-off-by-one",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitAndPreferredRangeBounds"
+    ]
+  },
+  {
+    "name": "maap-port-up-keeps-claim",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-release-keeps-enable",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReleaseLossAndRetry"
+    ]
+  },
+  {
+    "name": "maap-expiry-forgotten-on-stall",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-allocation-before-commit",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-probe-announce-reordered",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-overflow-uncounted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-poll-unbounded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-release-leaves-output",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.QueueBoundAndWithdrawal"
+    ]
+  },
+  {
+    "name": "maap-reentry-not-counted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReentrantPortsAreCountedAndIgnored"
+    ]
+  },
+  {
+    "name": "maap-debug-no-assert",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapDebug.SynchronousExpiryAsserts"
+    ]
+  },
+  {
+    "name": "maap-stall-unqueued",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry"
+    ]
+  },
+  {
+    "name": "maap-table-b7-0",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/0"
+    ]
+  },
+  {
+    "name": "maap-table-b7-1",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/1"
+    ]
+  },
+  {
+    "name": "maap-table-b7-2",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/2"
+    ]
+  },
+  {
+    "name": "maap-table-b7-3",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/3"
+    ]
+  },
+  {
+    "name": "maap-table-b7-4",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/4"
+    ]
+  },
+  {
+    "name": "maap-table-b7-5",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/5"
+    ]
+  },
+  {
+    "name": "maap-table-b7-6",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/6"
+    ]
+  },
+  {
+    "name": "maap-table-b7-7",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/7"
+    ]
+  },
+  {
+    "name": "maap-table-b7-8",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/8"
+    ]
+  },
+  {
+    "name": "maap-table-b7-9",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/9"
+    ]
+  },
+  {
+    "name": "maap-table-b7-10",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/10"
+    ]
+  },
+  {
+    "name": "maap-table-b7-11",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/11"
+    ]
+  },
+  {
+    "name": "maap-table-b7-12",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/12"
+    ]
+  },
+  {
+    "name": "maap-table-b7-13",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/13"
+    ]
+  },
+  {
+    "name": "maap-table-b7-14",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/14"
+    ]
+  },
+  {
+    "name": "maap-table-b7-15",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/15"
+    ]
+  },
+  {
+    "name": "maap-table-b7-16",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/16"
+    ]
+  },
+  {
+    "name": "maap-table-b7-17",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/17"
+    ]
+  },
+  {
+    "name": "maap-allocation-seam-disconnected",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.InitialAndThreeRetransmissions"
+    ]
+  },
+  {
+    "name": "maap-begin-down-forgets-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.BeginBeforePortOperationalRetainsRange"
+    ]
+  },
+  {
+    "name": "maap-restart-reuses-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.RestartDrawsNewRange"
+    ]
+  },
+  {
+    "name": "maap-reverse-five-octets",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.PriorityAfterTiedOctets"
+    ]
+  },
+  {
+    "name": "maap-compare-mac-lsb-only",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.PriorityAfterTiedOctets"
+    ]
+  },
+  {
+    "name": "maap-generic-initial-handles-conflict",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/0"
+    ]
+  },
+  {
+    "name": "maap-generic-probe-state-defends",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/12"
+    ]
+  },
+  {
+    "name": "maap-generic-probe-defend-uses-priority",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/MaapCell.TableB7/10"
+    ]
+  },
+  {
+    "name": "maap-generic-equal-mac-wins",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.ReverseOctetPriority"
+    ]
+  },
+  {
+    "name": "r2-saved-range-never-consumed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "MaapCore.LinkBounceDrawsAfterSuppliedRange"
+    ]
+  },
+  {
+    "name": "adp-config-entity-id",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-model-id",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-entity-capabilities",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-talker-count",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-talker-capabilities",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-listener-count",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-listener-capabilities",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-grandmaster",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-domain",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-identify-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "adp-config-interface-index",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AdpCore.AdvertisementFieldsMatchCaller"
+    ]
+  },
+  {
+    "name": "acmp-peer-loss-clears-binding",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+      "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+  },
+  {
+    "name": "acmp-peer-loss-stops-discovery",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+      "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+  },
+  {
+    "name": "acmp-publish-after-response",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-missing-finish",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-publish-unchanged-triple",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31OnlyAMovedTripleIsPublished"
+    ]
+  },
+  {
+    "name": "acmp-publish-ignores-started",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+    ]
+  },
+  {
+    "name": "acmp-publish-reset-cache",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-publish-unguarded",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31ACallBackFromThePublishPortIsRefused"
+    ]
+  },
+  {
+    "name": "acmp-publish-stream-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-stream-moved-always",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+    ]
+  },
+  {
+    "name": "acmp-publish-wrong-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath"
+    ]
+  },
+  {
+    "name": "acmp-publish-wrong-sink",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens"
+    ]
+  },
+  {
+    "name": "acmp-publish-wrong-started",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-bound-cache-stale",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-started-cache-stale",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-stream-cache-stale",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+    ]
+  },
+  {
+    "name": "acmp-publish-after-timers",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort"
+    ]
+  },
+  {
+    "name": "acmp-publish-reset-stream-cache",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream"
+    ]
+  },
+  {
+    "name": "acmp-publish-reset-bound-cache",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal"
+    ]
+  },
+  {
+    "name": "acmp-publish-reset-started-cache",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop"
+    ]
+  },
+  {
+    "name": "adp-unsupported-version-accepted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/AdpInputControl.RejectsUnsupportedVersion/0",
+      "AllStates/AdpInputControl.RejectsUnsupportedVersion/1",
+      "AllStates/AdpInputControl.RejectsUnsupportedVersion/2",
+      "AllStates/AdpInputControl.RejectsUnsupportedVersion/3",
+      "AllStates/AdpInputControl.RejectsUnsupportedVersion/4"
+    ]
+  },
+  {
+    "name": "adp-short-frame-accepted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/AdpInputControl.RejectsShortFrame/0",
+      "AllStates/AdpInputControl.RejectsShortFrame/1",
+      "AllStates/AdpInputControl.RejectsShortFrame/2",
+      "AllStates/AdpInputControl.RejectsShortFrame/3",
+      "AllStates/AdpInputControl.RejectsShortFrame/4"
+    ]
+  },
+  {
+    "name": "adp-wrong-control-length-accepted",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AllStates/AdpInputControl.RejectsWrongControlDataLength/0",
+      "AllStates/AdpInputControl.RejectsWrongControlDataLength/1",
+      "AllStates/AdpInputControl.RejectsWrongControlDataLength/2",
+      "AllStates/AdpInputControl.RejectsWrongControlDataLength/3",
+      "AllStates/AdpInputControl.RejectsWrongControlDataLength/4"
+    ]
+  },
+  {
+    "name": "x-zero-never-expires",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ZeroWindow"
+    ]
+  },
+  {
+    "name": "dafresh-half-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WindowRange"
+    ]
+  },
+  {
+    "name": "dafresh-unanswered-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.NoProbe"
+    ]
+  },
+  {
+    "name": "dafresh-expiry-equality",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.StaleProbe"
+    ]
+  },
+  {
+    "name": "dafresh-inclusive-edge",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WindowEdge"
+    ]
+  },
+  {
+    "name": "dafresh-no-renewal",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ]
+  },
+  {
+    "name": "dafresh-listener-needs-probe",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ]
+  },
+  {
+    "name": "dafresh-ignore-address",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InvalidAddress"
+    ]
+  },
+  {
+    "name": "dafresh-absolute-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ClockWrap"
+    ]
+  },
+  {
+    "name": "dafresh-fixed-window",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ConfiguredWindow"
+    ]
+  },
+  {
+    "name": "dafresh-refused-answer",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.DeferredAnswer"
+    ]
+  },
+  {
+    "name": "dafresh-only-success",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ]
+  },
+  {
+    "name": "dafresh-state-reply-demand",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ]
+  },
+  {
+    "name": "dafresh-wrong-source",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ]
+  },
+  {
+    "name": "dafresh-wrong-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "dafresh-reset-retains-demand",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ]
+  },
+  {
+    "name": "dafresh-generated-window",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "EntityYaml.DaFreshRoundTrip"
+    ]
+  },
+  {
+    "name": "g-expiry-skipped-with-listener",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.StaleProbeAfterListenerWrap"
+    ]
+  },
+  {
+    "name": "g-expiry-skipped-invalid-da",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+    ]
+  },
+  {
+    "name": "r630-3-listener-range-only",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ListenerInterfaceMismatch"
+    ]
+  },
+  {
+    "name": "r630-3-withdrawal-clears-probe",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.FreshProbeAfterListenerWithdrawal"
+    ]
+  },
+  {
+    "name": "r630-3-init-keeps-listener",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InitClearsListener"
+    ]
+  },
+  {
+    "name": "r630-3-listener-bound-off-by-one",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "r630-3-declaring-bound-off-by-one",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "r630-3-declaring-no-entry-guard",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "r630-3-listener-no-entry-guard",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "r630-3-listener-writes-source-zero",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ]
+  },
+  {
+    "name": "dafresh-answer-stamped-before-send",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ]
+  },
+  {
+    "name": "dafresh-listener-calls-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ]
+  },
+  {
+    "name": "dafresh-query-calls-timer",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.QueryPorts"
+    ]
+  },
+  {
+    "name": "dafresh-query-calls-publish",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.QueryPorts"
+    ]
+  },
+  {
+    "name": "dafresh-query-calls-srp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.QueryPorts"
+    ]
+  },
+  {
+    "name": "dafresh-query-source-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.QueryPorts"
+    ]
+  },
+  {
+    "name": "dafresh-query-clock-twice",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.QueryPorts"
+    ]
+  },
+  {
+    "name": "dafresh-reset-retains-timestamp",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ]
+  },
+  {
+    "name": "dafresh-incompatible-refresh",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ]
+  },
+  {
+    "name": "dafresh-range-wipes-instance",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WindowRange"
+    ]
+  },
+  {
+    "name": "dafresh-range-calls-clock",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.WindowRange"
+    ]
+  },
+  {
+    "name": "dafresh-listener-rejects-asking-failed",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ]
+  },
+  {
+    "name": "dafresh-zero-blocks-listener",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "AcmpFresh.ZeroWindow"
+    ]
+  },
+  {
+    "name": "entity-wrong-count",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "EntityYaml.AdpRoundTrip"
+    ]
+  },
+  {
+    "name": "entity-swapped-interface",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "EntityYaml.AcmpRoundTrip"
+    ]
+  },
+  {
+    "name": "entity-dropped-field",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failing_tests": [
+      "EntityYaml.MaapRoundTrip"
+    ]
+  }
+]

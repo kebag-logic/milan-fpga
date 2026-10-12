@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A14RegisteredSettlesTheReservation
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:732: Failure
+Value of: a.sinks[0].state == ACMP_SETTLED_RSV_OK && a.sinks[0].timer == ACMP_TIMER_NONE && !fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A14 EVT_TK_REGISTERED: TMR_NO_TK cleared, SETTLED_RSV_OK (5.5.3.5.42)
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation
+
+ 1 FAILED TEST

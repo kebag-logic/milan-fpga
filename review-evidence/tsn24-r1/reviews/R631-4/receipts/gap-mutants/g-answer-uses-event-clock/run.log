@@ -1,0 +1,435 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/gap-mutants/g-answer-uses-event-clock/b
+[  2%] Building C object CMakeFiles/entity_examples.dir/examples/entity_roundtrip.c.o
+[  4%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+[  6%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[  9%] Building C object CMakeFiles/entity_examples.dir/examples/entities/listener/entity_config.c.o
+[ 11%] Building C object CMakeFiles/entity_examples.dir/examples/entities/talker/entity_config.c.o
+[ 13%] Building C object CMakeFiles/entity_examples.dir/examples/entities/duplex/entity_config.c.o
+[ 16%] Building C object CMakeFiles/entity_examples.dir/examples/entities/ax7101/entity_config.c.o
+[ 18%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 20%] Linking C static library libentity_examples.a
+[ 23%] Linking C static library libtsn.a
+[ 23%] Built target entity_examples
+[ 25%] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[ 25%] Built target tsn
+[ 27%] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[ 30%] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[ 32%] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[ 34%] Linking C static library libtsn_debug.a
+[ 37%] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[ 37%] Built target tsn_debug
+[ 39%] Linking C static library libtsn_test.a
+[ 41%] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[ 41%] Built target tsn_test
+[ 44%] Building CXX object CMakeFiles/maap_debug.dir/tests/test_maap_debug.cpp.o
+[ 46%] Building CXX object CMakeFiles/maap_debug.dir/tests/main.cpp.o
+[ 48%] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[ 51%] Linking CXX executable maap_debug
+[ 51%] Built target maap_debug
+[ 53%] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[ 55%] Linking CXX executable adp_debug
+[ 55%] Built target adp_debug
+[ 58%] Building CXX object CMakeFiles/acmp_tests.dir/tests/test_acmp.cpp.o
+[ 60%] Building CXX object CMakeFiles/acmp_tests.dir/tests/main.cpp.o
+[ 62%] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[ 65%] Linking CXX executable acmp_tests
+[ 65%] Built target acmp_tests
+[ 67%] Building CXX object CMakeFiles/maap_tests.dir/tests/test_maap.cpp.o
+[ 69%] Linking CXX executable adp_tests
+[ 69%] Built target adp_tests
+[ 72%] Building CXX object CMakeFiles/entity_tests.dir/tests/test_entity.cpp.o
+[ 74%] Building CXX object CMakeFiles/entity_tests.dir/tests/main.cpp.o
+[ 76%] Building CXX object CMakeFiles/maap_tests.dir/tests/main.cpp.o
+[ 79%] Linking CXX executable entity_tests
+[ 79%] Built target entity_tests
+[ 81%] Building C object CMakeFiles/example_port.dir/examples/adp_port.c.o
+[ 83%] Linking C static library libexample_port.a
+[ 83%] Built target example_port
+[ 86%] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[ 88%] Linking CXX executable maap_tests
+[ 88%] Built target maap_tests
+[ 90%] Building CXX object CMakeFiles/port_tests.dir/tests/test_port.cpp.o
+[ 93%] Building CXX object CMakeFiles/port_tests.dir/tests/main.cpp.o
+[ 95%] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[ 97%] Linking CXX executable port_tests
+[ 97%] Built target port_tests
+[100%] Linking CXX executable adp_release
+[100%] Built target adp_release
+Test project $SCRATCH/gap-mutants/g-answer-uses-event-clock/b
+    Start 1: adp_tests
+    Start 2: acmp_tests
+1/8 Test #2: acmp_tests .......................***Failed    0.00 sec
+[==========] Running 101 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 79 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[       OK ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[       OK ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[       OK ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[       OK ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+[       OK ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[       OK ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[       OK ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId (0 ms)
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+[       OK ] AcmpCore.A3UnbindInEveryState (0 ms)
+[ RUN      ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[       OK ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind (0 ms)
+[ RUN      ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[       OK ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked (0 ms)
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[       OK ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+[       OK ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[ RUN      ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[       OK ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[       OK ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId (0 ms)
+[ RUN      ] AcmpCore.A7EachGuardTermIsChecked
+[       OK ] AcmpCore.A7EachGuardTermIsChecked (0 ms)
+[ RUN      ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[       OK ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[       OK ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A8SuccessSettles
+[       OK ] AcmpCore.A8SuccessSettles (0 ms)
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+[       OK ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[       OK ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[       OK ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+[       OK ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+[       OK ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+[       OK ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+[       OK ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[ RUN      ] AcmpCore.KindChangesOnlyTheSettledView
+[       OK ] AcmpCore.KindChangesOnlyTheSettledView (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+[       OK ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[       OK ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[ RUN      ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[       OK ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[       OK ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw (0 ms)
+[ RUN      ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[       OK ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource (0 ms)
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[       OK ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[ RUN      ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[       OK ] AcmpCore.A21MessagesNotForThisEntityAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A21MalformedFramesAreCounted
+[       OK ] AcmpCore.A21MalformedFramesAreCounted (0 ms)
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[       OK ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[ RUN      ] AcmpCore.A19NothingPassesAnOwedFrame
+[       OK ] AcmpCore.A19NothingPassesAnOwedFrame (0 ms)
+[ RUN      ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[       OK ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs (0 ms)
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[       OK ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[       OK ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[       OK ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[       OK ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStateCells
+[       OK ] AcmpCore.A22DiscoveredStateCells (0 ms)
+[ RUN      ] AcmpCore.A22DepartingAndAging
+[       OK ] AcmpCore.A22DepartingAndAging (0 ms)
+[ RUN      ] AcmpCore.DepartingRetainsBindingAndReprobes
+[       OK ] AcmpCore.DepartingRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+[       OK ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[       OK ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface (0 ms)
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+[       OK ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[       OK ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms)
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+[       OK ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+[       OK ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[       OK ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+[       OK ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[ RUN      ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+[       OK ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+[       OK ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[       OK ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[       OK ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[ RUN      ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[       OK ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval (0 ms)
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[       OK ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[       OK ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[       OK ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[       OK ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker (0 ms)
+[ RUN      ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+[       OK ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[       OK ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[       OK ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.DepartingStopsEveryProbingTimer
+[       OK ] AcmpCore.DepartingStopsEveryProbingTimer (0 ms)
+[ RUN      ] AcmpCore.CommandPortBudgets
+[       OK ] AcmpCore.CommandPortBudgets (0 ms)
+[ RUN      ] AcmpCore.TimerPortBudgets
+[       OK ] AcmpCore.TimerPortBudgets (0 ms)
+[ RUN      ] AcmpCore.DiscoveryPortBudgets
+[       OK ] AcmpCore.DiscoveryPortBudgets (0 ms)
+[ RUN      ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+[       OK ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath
+[       OK ] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath (0 ms)
+[ RUN      ] AcmpCore.A31OnlyAMovedTripleIsPublished
+[       OK ] AcmpCore.A31OnlyAMovedTripleIsPublished (0 ms)
+[ RUN      ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised
+[       OK ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised (0 ms)
+[ RUN      ] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens
+[       OK ] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A31ACallBackFromThePublishPortIsRefused
+[       OK ] AcmpCore.A31ACallBackFromThePublishPortIsRefused (0 ms)
+[ RUN      ] AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort
+[       OK ] AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort (0 ms)
+[ RUN      ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+[       OK ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream (0 ms)
+[ RUN      ] AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal
+[       OK ] AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal (0 ms)
+[ RUN      ] AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop
+[       OK ] AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop (0 ms)
+[----------] 79 tests from AcmpCore (1 ms total)
+
+[----------] 22 tests from AcmpFresh
+[ RUN      ] AcmpFresh.NoProbe
+[       OK ] AcmpFresh.NoProbe (0 ms)
+[ RUN      ] AcmpFresh.StaleProbe
+[       OK ] AcmpFresh.StaleProbe (0 ms)
+[ RUN      ] AcmpFresh.StaleProbeAfterListenerWrap
+[       OK ] AcmpFresh.StaleProbeAfterListenerWrap (0 ms)
+[ RUN      ] AcmpFresh.StaleProbeAfterInvalidAddressWrap
+[       OK ] AcmpFresh.StaleProbeAfterInvalidAddressWrap (0 ms)
+[ RUN      ] AcmpFresh.WindowEdge
+[       OK ] AcmpFresh.WindowEdge (0 ms)
+[ RUN      ] AcmpFresh.WithinWindowAndRefresh
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2354: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+an accepted response opens the freshness window immediately
+
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2356: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+the final millisecond remains fresh from send acceptance
+
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2359: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+another answer renews the complete freshness window
+
+[  FAILED  ] AcmpFresh.WithinWindowAndRefresh (0 ms)
+[ RUN      ] AcmpFresh.ListenerWithoutProbe
+[       OK ] AcmpFresh.ListenerWithoutProbe (0 ms)
+[ RUN      ] AcmpFresh.ListenerInterfaceMismatch
+[       OK ] AcmpFresh.ListenerInterfaceMismatch (0 ms)
+[ RUN      ] AcmpFresh.FreshProbeAfterListenerWithdrawal
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2385: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+a fresh answered probe survives Listener registration and withdrawal
+
+[  FAILED  ] AcmpFresh.FreshProbeAfterListenerWithdrawal (0 ms)
+[ RUN      ] AcmpFresh.InitClearsListener
+[       OK ] AcmpFresh.InitClearsListener (0 ms)
+[ RUN      ] AcmpFresh.QueryPorts
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2406: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 0
+  1u
+    Which is: 1
+each answered declaration query samples the existing clock once
+
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2410: Failure
+Expected equality of these values:
+  fk.calls.size()
+    Which is: 1
+  2u
+    Which is: 2
+declaration queries call only the existing clock and source ports
+
+[  FAILED  ] AcmpFresh.QueryPorts (0 ms)
+[ RUN      ] AcmpFresh.InvalidAddress
+[       OK ] AcmpFresh.InvalidAddress (0 ms)
+[ RUN      ] AcmpFresh.ClockWrap
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2431: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+a pre-wrap answer is fresh before the clock rolls over
+
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2433: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+unsigned elapsed time keeps a probe fresh across clock wrap
+
+[  FAILED  ] AcmpFresh.ClockWrap (0 ms)
+[ RUN      ] AcmpFresh.ConfiguredWindow
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2442: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+the core uses the configured interval without a mirrored constant
+
+[  FAILED  ] AcmpFresh.ConfiguredWindow (0 ms)
+[ RUN      ] AcmpFresh.ZeroWindow
+[       OK ] AcmpFresh.ZeroWindow (0 ms)
+[ RUN      ] AcmpFresh.WindowRange
+[       OK ] AcmpFresh.WindowRange (0 ms)
+[ RUN      ] AcmpFresh.DeferredAnswer
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2487: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+an owed answer starts freshness only after send acceptance
+
+[  FAILED  ] AcmpFresh.DeferredAnswer (0 ms)
+[ RUN      ] AcmpFresh.FailedAllocationAnswer
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2495: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+an answered allocation failure retains demand for later validity
+
+[  FAILED  ] AcmpFresh.FailedAllocationAnswer (0 ms)
+[ RUN      ] AcmpFresh.OtherRepliesDoNotRefresh
+[       OK ] AcmpFresh.OtherRepliesDoNotRefresh (0 ms)
+[ RUN      ] AcmpFresh.SourceAndInterfaceIsolation
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2517: Failure
+Value of: acmp_declaring(&a, 1)
+  Actual: false
+Expected: true
+the probed source declares on its configured interface
+
+[  FAILED  ] AcmpFresh.SourceAndInterfaceIsolation (0 ms)
+[ RUN      ] AcmpFresh.InputGuardsAndReentry
+[       OK ] AcmpFresh.InputGuardsAndReentry (0 ms)
+[ RUN      ] AcmpFresh.ListenerWithdrawalAndReset
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_acmp.cpp:2553: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset (0 ms)
+[----------] 22 tests from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 101 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 92 tests.
+[  FAILED  ] 9 tests, listed below:
+[  FAILED  ] AcmpFresh.WithinWindowAndRefresh
+[  FAILED  ] AcmpFresh.FreshProbeAfterListenerWithdrawal
+[  FAILED  ] AcmpFresh.QueryPorts
+[  FAILED  ] AcmpFresh.ClockWrap
+[  FAILED  ] AcmpFresh.ConfiguredWindow
+[  FAILED  ] AcmpFresh.DeferredAnswer
+[  FAILED  ] AcmpFresh.FailedAllocationAnswer
+[  FAILED  ] AcmpFresh.SourceAndInterfaceIsolation
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset
+
+ 9 FAILED TESTS
+
+    Start 3: maap_tests
+2/8 Test #1: adp_tests ........................   Passed    0.03 sec
+    Start 4: entity_tests
+3/8 Test #4: entity_tests .....................***Failed    0.00 sec
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from EntityYaml
+[ RUN      ] EntityYaml.AdpRoundTrip
+[       OK ] EntityYaml.AdpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.AcmpRoundTrip
+[       OK ] EntityYaml.AcmpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.DaFreshRoundTrip
+$SCRATCH/gap-mutants/g-answer-uses-event-clock/tree/tests/test_entity.cpp:26: Failure
+Expected equality of these values:
+  entity_check_dafresh()
+    Which is: 85
+  0
+generated freshness configuration survives both target round trips
+
+[  FAILED  ] EntityYaml.DaFreshRoundTrip (0 ms)
+[ RUN      ] EntityYaml.MaapRoundTrip
+[       OK ] EntityYaml.MaapRoundTrip (0 ms)
+[----------] 4 tests from EntityYaml (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] EntityYaml.DaFreshRoundTrip
+
+ 1 FAILED TEST
+
+    Start 5: port_tests
+4/8 Test #3: maap_tests .......................   Passed    0.02 sec
+    Start 6: adp_release
+5/8 Test #5: port_tests .......................   Passed    0.00 sec
+    Start 7: adp_debug
+6/8 Test #6: adp_release ......................   Passed    0.00 sec
+    Start 8: maap_debug
+7/8 Test #7: adp_debug ........................   Passed    0.08 sec
+8/8 Test #8: maap_debug .......................   Passed    0.15 sec
+
+75% tests passed, 2 tests failed out of 8
+
+Total Test time (real) =   0.19 sec
+
+The following tests FAILED:
+	  2 - acmp_tests (Failed)
+	  4 - entity_tests (Failed)
+Errors while running CTest

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T20:47:02.007" name="AllTests">
+  <testsuite name="AcmpFresh" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T20:47:02.007">
+    <testcase name="ListenerInterfaceMismatch" file="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp" line="2372" status="run" result="completed" time="0." timestamp="2026-10-12T20:47:02.007" classname="AcmpFresh">
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2373&#x0A;Value of: acmp_listener_registered(&amp;a, 1, 0, true)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;a valid interface belonging to another source is refused&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2373
+Value of: acmp_listener_registered(&a, 1, 0, true)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+a valid interface belonging to another source is refused
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2375&#x0A;Value of: acmp_declaring(&amp;a, 0)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;a Listener on the wrong valid interface cannot open this source&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2375
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+a Listener on the wrong valid interface cannot open this source
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

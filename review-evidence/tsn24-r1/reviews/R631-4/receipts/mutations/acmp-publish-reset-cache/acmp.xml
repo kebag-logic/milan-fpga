@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T20:46:59.661" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T20:46:59.661">
+    <testcase name="A31RestoredBindingsArePublishedWhenTheTransportOpens" file="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp" line="2157" status="run" result="completed" time="0." timestamp="2026-10-12T20:46:59.661" classname="AcmpCore">
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2188&#x0A;Expected equality of these values:&#x0A;  fk.pubs.size()&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;A31 a sink the store resets is published unbound at the next open&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2188
+Expected equality of these values:
+  fk.pubs.size()
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A31 a sink the store resets is published unbound at the next open
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

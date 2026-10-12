@@ -1,0 +1,280 @@
+[
+  {
+    "row": "P01",
+    "scope": "`docs/PORTING.md:312`: Return valid destination AND (fresh answered probe OR registered Listener), including withdrawal while still fresh.",
+    "killers": "`AcmpFresh.NoProbe`, `AcmpFresh.ListenerWithoutProbe`, `AcmpFresh.InvalidAddress`, `AcmpFresh.FreshProbeAfterListenerWithdrawal`",
+    "plants": [
+      "dafresh-unanswered-clock",
+      "dafresh-listener-needs-probe",
+      "dafresh-ignore-address",
+      "r630-3-withdrawal-clears-probe"
+    ]
+  },
+  {
+    "row": "P02",
+    "scope": "`docs/PORTING.md:314`: Read destination validity through the existing source callback.",
+    "killers": "`AcmpFresh.InvalidAddress`, `AcmpFresh.QueryPorts`",
+    "plants": [
+      "dafresh-ignore-address",
+      "dafresh-query-source-twice"
+    ]
+  },
+  {
+    "row": "P03",
+    "scope": "`docs/PORTING.md:314`: Read no SRP state through callbacks.",
+    "killers": "`AcmpFresh.QueryPorts`",
+    "plants": [
+      "dafresh-query-calls-srp"
+    ]
+  },
+  {
+    "row": "P04",
+    "scope": "`docs/PORTING.md:315`: Supply Listener changes through the single Listener input.",
+    "killers": "`AcmpFresh.ListenerWithoutProbe`, `AcmpFresh.FreshProbeAfterListenerWithdrawal`",
+    "plants": [
+      "dafresh-listener-needs-probe",
+      "r630-3-withdrawal-clears-probe"
+    ]
+  },
+  {
+    "row": "P05",
+    "scope": "`docs/PORTING.md:316`: Listener input makes no port calls; refuse unknown sources, mismatched interfaces and re-entry.",
+    "killers": "`AcmpFresh.InputGuardsAndReentry`, `AcmpFresh.ListenerInterfaceMismatch`",
+    "plants": [
+      "dafresh-listener-calls-clock",
+      "r630-3-listener-bound-off-by-one",
+      "dafresh-wrong-interface",
+      "r630-3-listener-range-only",
+      "r630-3-listener-no-entry-guard"
+    ]
+  },
+  {
+    "row": "P06",
+    "scope": "`docs/PORTING.md:318`: Registration includes Asking Failed; it is not admission or a media licence. The boolean input represents any matching attribute; admission and media licensing remain adapter obligations.",
+    "killers": "`AcmpFresh.ListenerWithoutProbe`",
+    "plants": [
+      "dafresh-listener-rejects-asking-failed"
+    ]
+  },
+  {
+    "row": "P07",
+    "scope": "`docs/PORTING.md:319`: Aggregate Listeners outside the core; withdraw only when the last matching registration leaves. No core test: external aggregation is a port obligation; the core receives only one boolean level, with withdrawal behavior covered by P04.",
+    "killers": "Not applicable; reason in scope",
+    "plants": []
+  },
+  {
+    "row": "P08",
+    "scope": "`docs/PORTING.md:321`: Keep the level current for the current Stream ID and configured interface. No core test for platform freshness or Stream ID association: the input has no Stream ID. Valid-interface enforcement and source isolation are tested by P05 and R02.",
+    "killers": "Not applicable; reason in scope",
+    "plants": []
+  },
+  {
+    "row": "P09",
+    "scope": "`docs/PORTING.md:323`: The entity generator supplies 15000 milliseconds.",
+    "killers": "`EntityYaml.DaFreshRoundTrip`",
+    "plants": [
+      "dafresh-generated-window"
+    ]
+  },
+  {
+    "row": "P10",
+    "scope": "`docs/PORTING.md:324`: Read the configured interval directly, with no duplicate constant.",
+    "killers": "`AcmpFresh.ConfiguredWindow`",
+    "plants": [
+      "dafresh-fixed-window"
+    ]
+  },
+  {
+    "row": "P11",
+    "scope": "`docs/PORTING.md:325`: Hand-written configurations supply milliseconds below the clock half range.",
+    "killers": "`AcmpFresh.WindowRange`",
+    "plants": [
+      "dafresh-half-range"
+    ]
+  },
+  {
+    "row": "P12",
+    "scope": "`docs/PORTING.md:326`: Refuse intervals at or above 2^31 without changing the instance or calling ports.",
+    "killers": "`AcmpFresh.WindowRange`",
+    "plants": [
+      "dafresh-half-range",
+      "dafresh-range-wipes-instance",
+      "dafresh-range-calls-clock"
+    ]
+  },
+  {
+    "row": "P13",
+    "scope": "`docs/PORTING.md:327`: Zero disables probe demand but preserves Listener demand.",
+    "killers": "`AcmpFresh.ZeroWindow`",
+    "plants": [
+      "x-zero-never-expires",
+      "dafresh-zero-blocks-listener"
+    ]
+  },
+  {
+    "row": "P14",
+    "scope": "`docs/PORTING.md:328`: Each source owns answer timestamp, answer flag and Listener level; initialization clears all three.",
+    "killers": "`AcmpFresh.ListenerWithdrawalAndReset`, `AcmpFresh.InitClearsListener`, `AcmpFresh.SourceAndInterfaceIsolation`",
+    "plants": [
+      "dafresh-reset-retains-demand",
+      "dafresh-reset-retains-timestamp",
+      "r630-3-init-keeps-listener",
+      "dafresh-wrong-source",
+      "r630-3-listener-writes-source-zero"
+    ]
+  },
+  {
+    "row": "P15",
+    "scope": "`docs/PORTING.md:331`: Start the window after accepting a probe response for a known source on its configured interface.",
+    "killers": "`AcmpFresh.WithinWindowAndRefresh`, `AcmpFresh.DeferredAnswer`, `AcmpFresh.OtherRepliesDoNotRefresh`",
+    "plants": [
+      "dafresh-answer-stamped-before-send",
+      "dafresh-refused-answer",
+      "dafresh-incompatible-refresh"
+    ]
+  },
+  {
+    "row": "P16",
+    "scope": "`docs/PORTING.md:332`: SUCCESS and destination-allocation-failure answers record demand; invalid destination still closes the gate.",
+    "killers": "`AcmpFresh.FailedAllocationAnswer`, `AcmpFresh.InvalidAddress`",
+    "plants": [
+      "dafresh-only-success",
+      "dafresh-ignore-address"
+    ]
+  },
+  {
+    "row": "P17",
+    "scope": "`docs/PORTING.md:333`: Unknown-ID, incompatible-interface and other command replies do not refresh demand.",
+    "killers": "`AcmpFresh.OtherRepliesDoNotRefresh`",
+    "plants": [
+      "dafresh-state-reply-demand",
+      "dafresh-incompatible-refresh"
+    ]
+  },
+  {
+    "row": "P18",
+    "scope": "`docs/PORTING.md:334`: Queued and refused sends count only when poll accepts them.",
+    "killers": "`AcmpFresh.DeferredAnswer`",
+    "plants": [
+      "dafresh-refused-answer"
+    ]
+  },
+  {
+    "row": "P19",
+    "scope": "`docs/PORTING.md:336`: The response-acceptance endpoint is the repository reading of answered. No executable test: authority attribution, with the endpoint behavior tested by P15 and P18. Fabric command acceptance can precede this endpoint under backpressure.",
+    "killers": "Not applicable; reason in scope",
+    "plants": []
+  },
+  {
+    "row": "P20",
+    "scope": "`docs/PORTING.md:337`: Preserve existing response bytes and command handling. Existing ACMP-08 response oracles remain unchanged; these are independent response-field witnesses, not an exhaustive wire equivalence proof.",
+    "killers": "`AcmpCore.A20ProbeTxIsAnsweredFromTheSource`, `AcmpCore.A20DisconnectGetTxStateAndGetTxConnection`",
+    "plants": [
+      "acmp-probe-tx-reports-asking-failed",
+      "acmp-get-tx-state-unheld-mac"
+    ]
+  },
+  {
+    "row": "P21",
+    "scope": "`docs/PORTING.md:339`: Unsigned millisecond ages 0 through 14999 are fresh; 15000 and later are stale.",
+    "killers": "`AcmpFresh.WithinWindowAndRefresh`, `AcmpFresh.WindowEdge`, `AcmpFresh.StaleProbe`",
+    "plants": [
+      "dafresh-no-renewal",
+      "dafresh-inclusive-edge",
+      "dafresh-expiry-equality"
+    ]
+  },
+  {
+    "row": "P22",
+    "scope": "`docs/PORTING.md:340`: The half-open edge applies across counter wrap.",
+    "killers": "`AcmpFresh.ClockWrap`, `AcmpFresh.WindowEdge`, `AcmpFresh.StaleProbe`",
+    "plants": [
+      "dafresh-absolute-clock",
+      "dafresh-inclusive-edge",
+      "dafresh-expiry-equality"
+    ]
+  },
+  {
+    "row": "P23",
+    "scope": "`docs/PORTING.md:341`: Queries use current time, including after transport advances it.",
+    "killers": "`AcmpFresh.WithinWindowAndRefresh`, `AcmpFresh.QueryPorts`",
+    "plants": [
+      "dafresh-answer-stamped-before-send",
+      "dafresh-query-clock-twice",
+      "dafresh-no-renewal"
+    ]
+  },
+  {
+    "row": "P24",
+    "scope": "`docs/PORTING.md:342`: Observed expiry clears the answer even under Listener or invalid-address masking, preventing wrap resurrection.",
+    "killers": "`AcmpFresh.StaleProbe`, `AcmpFresh.StaleProbeAfterListenerWrap`, `AcmpFresh.StaleProbeAfterInvalidAddressWrap`",
+    "plants": [
+      "dafresh-expiry-equality",
+      "g-expiry-skipped-with-listener",
+      "g-expiry-skipped-invalid-da"
+    ]
+  },
+  {
+    "row": "P25",
+    "scope": "`docs/PORTING.md:345`: Query every source in serialized dispatch after events and on regular service ticks. No core test: scheduling and serialization are caller preconditions; callback re-entry refusal is tested by P26. The core owns no dispatcher.",
+    "killers": "Not applicable; reason in scope",
+    "plants": []
+  },
+  {
+    "row": "P26",
+    "scope": "`docs/PORTING.md:346`: Query uses the existing time/source ports, refuses callback re-entry and returns false for unknown sources.",
+    "killers": "`AcmpFresh.QueryPorts`, `AcmpFresh.InputGuardsAndReentry`",
+    "plants": [
+      "dafresh-query-clock-twice",
+      "dafresh-query-source-twice",
+      "r630-3-declaring-no-entry-guard",
+      "r630-3-declaring-bound-off-by-one"
+    ]
+  },
+  {
+    "row": "P27",
+    "scope": "`docs/PORTING.md:348`: Query adds neither a timer nor a publication callback.",
+    "killers": "`AcmpFresh.QueryPorts`",
+    "plants": [
+      "dafresh-query-calls-timer",
+      "dafresh-query-calls-publish"
+    ]
+  },
+  {
+    "row": "P28",
+    "scope": "`docs/PORTING.md:348`: Service stays inside the half-range clock contract; a full unobserved revolution cannot be inferred. No executable guarantee outside this precondition: a modulo-2^32 sample contains no revolution count. P22 and P24 test permitted serviced wraps, including 2^32 + 100 ms.",
+    "killers": "Not applicable; reason in scope",
+    "plants": []
+  },
+  {
+    "row": "P29",
+    "scope": "`docs/PORTING.md:351`: Refresh the platform gate on ticks even when poll reports no owed frames. DeferredAnswer checks poll returns false after acceptance while the query remains true; the regular platform tick itself is a caller obligation.",
+    "killers": "`AcmpFresh.DeferredAnswer`",
+    "plants": [
+      "dafresh-refused-answer"
+    ]
+  },
+  {
+    "row": "R01",
+    "scope": "`docs/REQUIREMENTS.md:50`: ACMP-11 sentence 1: per-source valid destination AND (fresh answered probe OR Listener).",
+    "killers": "`AcmpFresh.NoProbe`, `AcmpFresh.ListenerWithoutProbe`, `AcmpFresh.InvalidAddress`, `AcmpFresh.FreshProbeAfterListenerWithdrawal`",
+    "plants": [
+      "dafresh-unanswered-clock",
+      "dafresh-listener-needs-probe",
+      "dafresh-ignore-address",
+      "r630-3-withdrawal-clears-probe"
+    ]
+  },
+  {
+    "row": "R02",
+    "scope": "`docs/REQUIREMENTS.md:50`: ACMP-11 sentence 2: configured interval, wrapping clock, interface and source isolation.",
+    "killers": "`AcmpFresh.ConfiguredWindow`, `AcmpFresh.ClockWrap`, `AcmpFresh.SourceAndInterfaceIsolation`, `AcmpFresh.ListenerInterfaceMismatch`",
+    "plants": [
+      "dafresh-fixed-window",
+      "dafresh-absolute-clock",
+      "dafresh-wrong-source",
+      "r630-3-listener-writes-source-zero",
+      "r630-3-listener-range-only"
+    ]
+  }
+]

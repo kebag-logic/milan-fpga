@@ -1,0 +1,434 @@
+{
+  "baseline_counts": {
+    "adp_tests": 39,
+    "acmp_tests": 101,
+    "maap_tests": 34,
+    "entity_tests": 4,
+    "port_tests": 1,
+    "adp_release": 122,
+    "adp_debug": 122,
+    "maap_debug": 1
+  },
+  "plants": [
+    {
+      "plant": "dafresh-unanswered-clock",
+      "killer": "AcmpFresh.NoProbe",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-listener-needs-probe",
+      "killer": "AcmpFresh.ListenerWithoutProbe",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-ignore-address",
+      "killer": "AcmpFresh.InvalidAddress",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-withdrawal-clears-probe",
+      "killer": "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-query-source-twice",
+      "killer": "AcmpFresh.QueryPorts",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-query-calls-srp",
+      "killer": "AcmpFresh.QueryPorts",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-listener-calls-clock",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-listener-bound-off-by-one",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-wrong-interface",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-listener-range-only",
+      "killer": "AcmpFresh.ListenerInterfaceMismatch",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-listener-no-entry-guard",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-listener-rejects-asking-failed",
+      "killer": "AcmpFresh.ListenerWithoutProbe",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-generated-window",
+      "killer": "EntityYaml.DaFreshRoundTrip",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-fixed-window",
+      "killer": "AcmpFresh.ConfiguredWindow",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-half-range",
+      "killer": "AcmpFresh.WindowRange",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-range-wipes-instance",
+      "killer": "AcmpFresh.WindowRange",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-range-calls-clock",
+      "killer": "AcmpFresh.WindowRange",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "x-zero-never-expires",
+      "killer": "AcmpFresh.ZeroWindow",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-zero-blocks-listener",
+      "killer": "AcmpFresh.ZeroWindow",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-reset-retains-demand",
+      "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-reset-retains-timestamp",
+      "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-init-keeps-listener",
+      "killer": "AcmpFresh.InitClearsListener",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-wrong-source",
+      "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-listener-writes-source-zero",
+      "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-answer-stamped-before-send",
+      "killer": "AcmpFresh.WithinWindowAndRefresh",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-refused-answer",
+      "killer": "AcmpFresh.DeferredAnswer",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-incompatible-refresh",
+      "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-only-success",
+      "killer": "AcmpFresh.FailedAllocationAnswer",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-state-reply-demand",
+      "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "acmp-probe-tx-reports-asking-failed",
+      "killer": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "acmp-get-tx-state-unheld-mac",
+      "killer": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-no-renewal",
+      "killer": "AcmpFresh.WithinWindowAndRefresh",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-inclusive-edge",
+      "killer": "AcmpFresh.WindowEdge",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-expiry-equality",
+      "killer": "AcmpFresh.StaleProbe",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-absolute-clock",
+      "killer": "AcmpFresh.ClockWrap",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-query-clock-twice",
+      "killer": "AcmpFresh.QueryPorts",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "g-expiry-skipped-with-listener",
+      "killer": "AcmpFresh.StaleProbeAfterListenerWrap",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "g-expiry-skipped-invalid-da",
+      "killer": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-declaring-no-entry-guard",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "r630-3-declaring-bound-off-by-one",
+      "killer": "AcmpFresh.InputGuardsAndReentry",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-query-calls-timer",
+      "killer": "AcmpFresh.QueryPorts",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    },
+    {
+      "plant": "dafresh-query-calls-publish",
+      "killer": "AcmpFresh.QueryPorts",
+      "caught_only_by_named_killer": true,
+      "named_message_seen": true,
+      "physical_removal_escapes": true,
+      "full_completed": 424,
+      "removed_completed": 423,
+      "raw_xml_count": 16
+    }
+  ]
+}

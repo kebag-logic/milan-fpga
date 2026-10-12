@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T20:47:02.894" name="AllTests">
+  <testsuite name="AcmpFresh" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T20:47:02.894">
+    <testcase name="QueryPorts" file="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp" line="2400" status="run" result="completed" time="0." timestamp="2026-10-12T20:47:02.894" classname="AcmpFresh">
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2408&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::SOURCE)&#x0A;    Which is: 2&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;each declaration query samples the live source once&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2408
+Expected equality of these values:
+  fk.count(Call::SOURCE)
+    Which is: 2
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+each declaration query samples the live source once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2410&#x0A;Expected equality of these values:&#x0A;  fk.calls.size()&#x0A;    Which is: 3&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;declaration queries call only the existing clock and source ports&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2410
+Expected equality of these values:
+  fk.calls.size()
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+declaration queries call only the existing clock and source ports
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2408&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::SOURCE)&#x0A;    Which is: 2&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;each declaration query samples the live source once&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2408
+Expected equality of these values:
+  fk.count(Call::SOURCE)
+    Which is: 2
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+each declaration query samples the live source once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2410&#x0A;Expected equality of these values:&#x0A;  fk.calls.size()&#x0A;    Which is: 3&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;declaration queries call only the existing clock and source ports&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2410
+Expected equality of these values:
+  fk.calls.size()
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+declaration queries call only the existing clock and source ports
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

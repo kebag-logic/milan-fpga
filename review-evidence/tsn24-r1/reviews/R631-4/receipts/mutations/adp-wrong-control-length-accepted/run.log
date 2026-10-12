@@ -1,0 +1,150 @@
+Note: Google Test filter = AllStates/AdpInputControl.RejectsWrongControlDataLength/0:AllStates/AdpInputControl.RejectsWrongControlDataLength/1:AllStates/AdpInputControl.RejectsWrongControlDataLength/2:AllStates/AdpInputControl.RejectsWrongControlDataLength/3:AllStates/AdpInputControl.RejectsWrongControlDataLength/4
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0, where GetParam() = 0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1, where GetParam() = 1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2, where GetParam() = 2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3, where GetParam() = 3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Stop()
+
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Start(3969)
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4, where GetParam() = 4 (0 ms)
+[----------] 5 tests from AllStates/AdpInputControl (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4, where GetParam() = 4
+
+ 5 FAILED TESTS

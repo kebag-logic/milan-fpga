@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2227: Failure
+Value of: !fk.pubs[0].bound && fk.pubs[0].stream == 0u && fk.pubs[0].moved
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A31 withdrawal after a store reset reports the settled stream moved
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+
+ 1 FAILED TEST

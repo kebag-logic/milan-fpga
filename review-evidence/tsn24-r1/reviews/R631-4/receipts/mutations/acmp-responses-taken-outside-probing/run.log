@@ -1,0 +1,75 @@
+Note: Google Test filter = AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 0
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 1
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 2
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 5
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 6
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:598: Failure
+Value of: a.sinks[0].state == before.state && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 7
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+
+ 1 FAILED TEST

@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.A24StartedIsSavedAndReported
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1451: Failure
+Value of: a.sinks[0].started && fk.count(Call::PERSIST) == 1u && fk.count(Call::CHANGED) == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A24 the started state is saved (5.3.8.7) and is a Table 5.22 item
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported
+
+ 1 FAILED TEST

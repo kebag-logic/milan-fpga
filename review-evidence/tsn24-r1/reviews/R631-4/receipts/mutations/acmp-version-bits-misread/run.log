@@ -1,0 +1,75 @@
+Note: Google Test filter = AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1542: Failure
+Value of: fk.calls.empty() && a.sinks[0].state == ACMP_UNBOUND && a.rx_malformed == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1549: Failure
+Value of: fk.calls.empty() && a.rx_malformed == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 a talker command of version 1 is not answered
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1556: Failure
+Value of: a.sinks[0].state == ACMP_PRB_W_RESP && fk.calls.empty() && a.rx_malformed == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 the probe's own PROBE_TX_RESPONSE at version 1 is not taken
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1560: Failure
+Value of: !a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1569: Failure
+Value of: a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 an ENTITY_DEPARTING of version 1 departs nothing
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1580: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version 1
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+
+ 1 FAILED TEST

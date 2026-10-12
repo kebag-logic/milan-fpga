@@ -1,0 +1,125 @@
+{
+  "physical_removals": 31,
+  "all_physical_escapes": true,
+  "filtered_dafresh_catches_and_escapes": 29,
+  "zero_mutant_caught": true,
+  "yaml_owner_catch_and_escape": true,
+  "gap_mutants": [
+    {
+      "mutant": "g-refusal-after-memset",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpFresh.WindowRange"
+      ],
+      "failing_count": 1
+    },
+    {
+      "mutant": "g-no-range-refusal",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpFresh.WindowRange"
+      ],
+      "failing_count": 1
+    },
+    {
+      "mutant": "g-zero-refused",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+        "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+        "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+        "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+        "AcmpCore.A12DelaySendsANewProbe",
+        "AcmpCore.A13NoTalkerAttributeReprobes",
+        "AcmpCore.A14RegisteredSettlesTheReservation",
+        "AcmpCore.A15UnregisteredReprobes",
+        "AcmpCore.A16OneCounterForEveryNewProbe",
+        "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+        "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+        "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+      ],
+      "failing_count": 101
+    },
+    {
+      "mutant": "g-expiry-skipped-with-listener",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpFresh.StaleProbeAfterListenerWrap"
+      ],
+      "failing_count": 1
+    },
+    {
+      "mutant": "g-expiry-skipped-invalid-da",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+      ],
+      "failing_count": 1
+    },
+    {
+      "mutant": "g-answer-uses-event-clock",
+      "suite_rc": 8,
+      "result": "CAUGHT",
+      "failing_tests": [
+        "AcmpFresh.ClockWrap",
+        "AcmpFresh.ConfiguredWindow",
+        "AcmpFresh.DeferredAnswer",
+        "AcmpFresh.FailedAllocationAnswer",
+        "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+        "AcmpFresh.ListenerWithdrawalAndReset",
+        "AcmpFresh.QueryPorts",
+        "AcmpFresh.SourceAndInterfaceIsolation",
+        "AcmpFresh.WithinWindowAndRefresh",
+        "EntityYaml.DaFreshRoundTrip"
+      ],
+      "failing_count": 10
+    }
+  ],
+  "r630_3_required_all_caught": {
+    "r630-3-listener-range-only": "AcmpFresh.ListenerInterfaceMismatch",
+    "r630-3-withdrawal-clears-probe": "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+    "r630-3-init-keeps-listener": "AcmpFresh.InitClearsListener"
+  },
+  "r630_3_exploratory_survivors": [
+    "r630-3-drop-send-clock-reread"
+  ],
+  "escape_exploratory_survivors": [
+    "x-no-clock-refresh",
+    "x-signed-age"
+  ],
+  "unchanged_script_identities": [
+    {
+      "file": "scripts/prior/gap_mutants.py",
+      "sha256": "ea672d1776ec7d82a56b0cfa332b7128dddebc75a0e9d7a878f2779e84d3b28e",
+      "git_blob": "f81b8f1aa23bbe266a7d2d131b2ffbbadbaf745d",
+      "source": "review-evidence/tsn24-r1/reviews/R630-2/scripts/gap_mutants.py",
+      "unchanged": true
+    },
+    {
+      "file": "scripts/prior/physical_removal.py",
+      "sha256": "94ee3548584c95dcb0135b0be9676397896340766eb8eb9cd0e3b03a8f11b341",
+      "git_blob": "8b3b3f128afd4fe6b626a640c202df52435bed12",
+      "source": "review-evidence/tsn24-r1/reviews/R630-1/scripts/physical_removal.py",
+      "unchanged": true
+    },
+    {
+      "file": "scripts/prior/escape_probe.py",
+      "sha256": "42a9e67dca97eb0aaee1ad3bbcecd904c3aace1240a6ef44bb018d5782d3aa7e",
+      "git_blob": "bb7879389cd2fed329e9716f89b18b11480417d4",
+      "source": "review-evidence/tsn24-r1/reviews/R630-1/scripts/escape_probe.py",
+      "unchanged": true
+    },
+    {
+      "file": "scripts/prior/full_suite_probe.py",
+      "sha256": "16e45c15ef375c991fc0cfbe4329dcbc515f1e469b2610c8ba164e1cd6c4f9b0",
+      "git_blob": "31045346f26f20e8dbbf8b98685d6fed85797708",
+      "source": "review-evidence/tsn24-r1/reviews/R630-3/full_suite_probe.py",
+      "unchanged": true
+    }
+  ]
+}

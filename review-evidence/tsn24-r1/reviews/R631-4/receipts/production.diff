@@ -1,0 +1,246 @@
+diff --git a/examples/entity_roundtrip.c b/examples/entity_roundtrip.c
+index 9a27d88..afc2d6f 100644
+--- a/examples/entity_roundtrip.c
++++ b/examples/entity_roundtrip.c
+@@ -18,7 +18,7 @@ struct port {
+     unsigned sends, starts, stops, admissions;
+     unsigned last_interface;
+     unsigned admitted[4];
+-    uint32_t delay;
++    uint32_t delay, now;
+     bool room, valid;
+     struct {
+         unsigned calls, interface;
+@@ -113,9 +113,9 @@ static bool locked(void *ctx, uint64_t *controller)
+ 
+ static void source(void *ctx, unsigned index, struct acmp_source_state *out)
+ {
+-    (void)ctx;
+     (void)index;
+     memset(out, 0, sizeof *out);
++    out->dest_mac_valid = ((struct port *)ctx)->valid;
+ }
+ 
+ static void srp(void *ctx, unsigned sink, const struct acmp_stream *stream)
+@@ -217,6 +217,34 @@ int entity_check_acmp(void)
+     return 0;
+ }
+ 
++static uint32_t fresh_clock(void *ctx)
++{
++    return ((struct port *)ctx)->now;
++}
++
++// REQ: ENTITY-01, ACMP-11
++int entity_check_dafresh(void)
++{
++    struct port p = {.room = true, .valid = true};
++    const struct acmp_ports ports = {&p, send_frame, fresh_clock, timer, gptp, clock_ms, admit, publish};
++    const struct acmp_env env = {&p, locked, source, srp, notify, notify};
++    struct acmp core;
++    for (unsigned k = 0; k < sizeof cases / sizeof cases[0]; ++k) {
++        CHECK(cases[k].acmp->da_fresh_ms == 15000u, 80);
++    }
++    CHECK(acmp_init(&core, &talker_acmp, &ports, &env), 81);
++    uint8_t frame[70] = {0};
++    wire_put_be(frame + 12, 0x22f0, 2);
++    frame[14] = 0xfc;
++    wire_put_be(frame + 16, 44, 2);
++    wire_put_be(frame + 34, talker_acmp.entity_id, 8);
++    p.now = 50000u;
++    acmp_rx(&core, 0, frame, sizeof frame);
++    p.now += 1u;
++    CHECK(acmp_declaring(&core, 0), 85);
++    return 0;
++}
++
+ static int check_range(unsigned interface, uint64_t mac, uint16_t count, uint64_t preferred,
+                        unsigned expected_interface, unsigned expected_count, uint64_t expected_base)
+ {
+diff --git a/examples/entity_roundtrip.h b/examples/entity_roundtrip.h
+index f2c5c70..c6953ee 100644
+--- a/examples/entity_roundtrip.h
++++ b/examples/entity_roundtrip.h
+@@ -8,6 +8,7 @@ extern "C" {
+ 
+ int entity_check_adp(void);
+ int entity_check_acmp(void);
++int entity_check_dafresh(void);
+ int entity_check_maap(void);
+ 
+ #ifdef __cplusplus
+diff --git a/include/acmp.h b/include/acmp.h
+index 49ac040..6ff13dd 100644
+--- a/include/acmp.h
++++ b/include/acmp.h
+@@ -290,6 +290,8 @@ struct acmp_sink_view {
+ };
+ 
+ struct acmp_config {
++	// Milan v1.2 4.3.3.1
++	uint32_t da_fresh_ms;
+ 	uint64_t entity_id;
+ 	unsigned n_interfaces;
+ 	uint64_t mac[ACMP_MAX_INTERFACES];
+@@ -399,11 +401,19 @@ struct acmp_owed {
+ 	uint8_t frame[ACMP_FRAME_BYTES];
+ };
+ 
++// REQ: ACMP-11
++struct acmp_source {
++	uint32_t answered_at;
++	bool answered;
++	bool listener_registered;
++};
++
+ struct acmp {
+ 	struct acmp_config cfg;
+ 	const struct acmp_ports *ports;
+ 	const struct acmp_env *env;
+ 	struct acmp_sink sinks[ACMP_MAX_SINKS];
++	struct acmp_source sources[ACMP_MAX_SOURCES];
+ 	uint16_t sequence_id;                   // IEEE 1722.1-2021 8.2.1.15
+ 	uint32_t rng;
+ 	bool seeded;
+@@ -461,6 +471,10 @@ bool acmp_set_started(struct acmp *a, unsigned sink, bool started);
+ 
+ bool acmp_poll(struct acmp *a);
+ 
++// REQ: ACMP-11
++bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered);
++bool acmp_declaring(struct acmp *a, unsigned source);
++
+ 
+ 
+ enum acmp_restore {
+diff --git a/scripts/entity_yaml.py b/scripts/entity_yaml.py
+index 88e8714..3e8b566 100644
+--- a/scripts/entity_yaml.py
++++ b/scripts/entity_yaml.py
+@@ -93,9 +93,14 @@ def mac(value, path):
+ 
+ 
+ def validate(document):
+-    d = mapping(document, ('schema_version', 'identity', 'capabilities', 'interfaces', 'inputs', 'outputs', 'maap'), 'entity')
++    fields = ('schema_version', 'identity', 'capabilities', 'interfaces', 'inputs', 'outputs', 'maap')
++    if isinstance(document, dict) and 'acmp' in document:
++        fields += ('acmp',)
++    d = mapping(document, fields, 'entity')
+     if d['schema_version'] != VERSION:
+         raise Invalid('entity.schema_version: supported version is 1.0.0')
++    acmp = mapping(d.get('acmp', {'da_fresh_ms': 15000}), ('da_fresh_ms',), 'acmp')
++    da_fresh_ms = integer(acmp['da_fresh_ms'], 15000, 15000, 'acmp.da_fresh_ms')
+     identity = mapping(d['identity'], ('entity_id', 'model_id', 'name', 'vendor_name', 'serial_number', 'group_name'), 'identity')
+     for field in ('name', 'vendor_name', 'serial_number', 'group_name'):
+         name(identity[field], 'identity.' + field)
+@@ -154,7 +159,8 @@ def validate(document):
+     if seen != {i for i, count in enumerate(counts) if count}:
+         raise Invalid('maap: exactly one reservation is required per output interface')
+     return dict(identity=identity, entity_id=eid, model_id=model_id, macs=macs, flags=flags,
+-                identify=identify, streams=streams, stream_caps=stream_caps, counts=counts, preferred=preferred)
++                identify=identify, streams=streams, stream_caps=stream_caps, counts=counts, preferred=preferred,
++                da_fresh_ms=da_fresh_ms)
+ 
+ 
+ def cstring(value):
+@@ -224,6 +230,7 @@ extern const struct {prefix}_maap_config {prefix}_maap[{n}];
+         c += '    },\n'
+     c += '};\n\n// Milan v1.2 5.5.3.5.1\n'
+     c += f'const struct acmp_config {prefix}_acmp = {{\n    .entity_id = UINT64_C(0x{d["entity_id"]:016x}),\n    .n_interfaces = {n}u,\n'
++    c += f'    .da_fresh_ms = {d["da_fresh_ms"]}u,\n'
+     c += '    .mac = {' + ', '.join(f'UINT64_C(0x{x:012x})' for x in d['macs']) + '},\n'
+     for direction, role in (('inputs', 'sink'), ('outputs', 'source')):
+         ports = d['streams'][direction]
+diff --git a/src/acmp.c b/src/acmp.c
+index c5072a6..c7c6279 100644
+--- a/src/acmp.c
++++ b/src/acmp.c
+@@ -99,16 +99,6 @@ static bool enter(struct acmp *a)
+ 	return true;
+ }
+ 
+-static bool p_send(struct acmp *a, unsigned interface, const uint8_t *frame)
+-{
+-	a->in_port = true;
+-	bool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);
+-	a->in_port = false;
+-	return ok;
+-}
+-
+-
+-
+ static uint32_t now(struct acmp *a)
+ {
+ 	if (!a->now_read) {
+@@ -120,6 +110,23 @@ static uint32_t now(struct acmp *a)
+ 	return a->now;
+ }
+ 
++static bool p_send(struct acmp *a, unsigned interface, const uint8_t *frame)
++{
++	a->in_port = true;
++	bool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);
++	a->in_port = false;
++	// REQ: ACMP-11
++	if (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&
++	    ((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||
++	     (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {
++		struct acmp_source *s = &a->sources[wire_be16(frame + O_TALKER_UID)];
++		a->now_read = false;
++		s->answered_at = now(a);
++		s->answered = true;
++	}
++	return ok;
++}
++
+ static void p_timer(struct acmp *a, unsigned interface, bool armed, uint32_t deadline_ms)
+ {
+ 	a->in_port = true;
+@@ -1005,7 +1012,7 @@ bool acmp_init(struct acmp *a, const struct acmp_config *cfg, const struct acmp_
+ 	       const struct acmp_env *env)
+ {
+ 	if (cfg->n_interfaces == 0u || cfg->n_interfaces > ACMP_MAX_INTERFACES || cfg->n_sinks > ACMP_MAX_SINKS ||
+-	    cfg->n_sources > ACMP_MAX_SOURCES) {
++	    cfg->n_sources > ACMP_MAX_SOURCES || cfg->da_fresh_ms >= UINT32_C(0x80000000)) {
+ 		return false;
+ 	}
+ 	for (unsigned k = 0; k < cfg->n_sinks; ++k) {
+@@ -1226,6 +1233,38 @@ bool acmp_poll(struct acmp *a)
+ 	return a->owed_count != 0u;
+ }
+ 
++// REQ: ACMP-11
++bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered)
++{
++	if (!enter(a)) {
++		return false;
++	}
++	if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {
++		return false;
++	}
++	a->sources[source].listener_registered = registered;
++	return true;
++}
++
++// REQ: ACMP-11
++bool acmp_declaring(struct acmp *a, unsigned source)
++{
++	if (!enter(a)) {
++		return false;
++	}
++	if (source >= a->cfg.n_sources) {
++		return false;
++	}
++	struct acmp_source *s = &a->sources[source];
++	if (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {
++		s->answered = false;
++	}
++	struct acmp_source_state st;
++	memset(&st, 0, sizeof st);
++	p_source(a, source, &st);
++	return st.dest_mac_valid && (s->answered || s->listener_registered);
++}
++
+ enum acmp_restore acmp_restore_binding(struct acmp *a, unsigned sink, const uint8_t *payload, unsigned len)
+ {
+ 	if (!enter(a)) {

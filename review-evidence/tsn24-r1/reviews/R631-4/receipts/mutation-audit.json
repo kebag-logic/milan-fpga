@@ -1,0 +1,2725 @@
+{
+  "plants": 388,
+  "required_needles_verified": 417,
+  "all_complete": true,
+  "receipt_rows": [
+    {
+      "plant": "reentry-guard-removed",
+      "arms": [
+        "adp_debug",
+        "adp_release"
+      ],
+      "required_needles_verified": 4
+    },
+    {
+      "plant": "reentry-uncounted",
+      "arms": [
+        "adp_release"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "reentry-not-ignored",
+      "arms": [
+        "adp_release"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "departing-keeps-index",
+      "arms": [
+        "adp",
+        "port"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "departing-sends-zero",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "available-replaces-owed-departing",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "available-passes-owed-departing",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "second-departing-dropped",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "second-shutdown-overwrites-index",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "link-loss-drops-owed-departing",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "gm-change-drops-owed-available",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "discover-drops-owed-available",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "stray-expiry-drops-owed-available",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "link-loss-keeps-owed-available",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "departing-queue-unbounded",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "coalesced-departing-uncounted",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "coalesce-drops-queued-departing",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "coalesce-overwrites-oldest-index",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "own-discover-discarded",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "down-answers-discover",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "link-down-departs",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "gm-change-ignored",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "delay-ignores-link-down",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "shutdown-in-down-departs",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "advertise-expiry-skips-delay",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "advertise-period-wrong",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "link-up-draws-startup-kind",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "draw-kinds-merged",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "foreign-discover-answered",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "frame-misses-config-index",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "frame-sources-from-sinks",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "seed-left-at-zero",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "enable-not-idempotent",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "other-subtype-accepted",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-no-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-too-many-sinks",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-too-many-sources",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-sink-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-source-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-init-reads-the-seed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-no-resp-2s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-retry-2s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-no-tk-5s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-valid-time-in-seconds",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-listener-unknown-is-2",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-registering-failed-bit",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-cdl-84",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-count-0",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-without-fast-connect",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-before-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-resp-2s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-starts-no-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-change-before-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-nothing-persisted",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-not-persisted",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-not-persisted",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-streaming-wait-ignored",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-sw-read-from-fast-connect",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-count-unbound",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-no-fast-connect",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-no-registering-failed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unknown-sink-silent",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-echoes-the-talker",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-keeps-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-srp-after-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-keeps-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-change-before-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-not-authorized-is-13",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-lock-ignored",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-lock-refuses-the-holder",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-rx-state-locked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-same-reprobes",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-same-keeps-the-controller",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-new-keeps-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-same-talker-is-the-same-source",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-sequence-id-never-advances",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-sequence-id-per-sink",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-response-keyed-on-the-source",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-guard-controller-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-guard-talker-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-guard-unique-id-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-guard-sequence-id-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-guard-reads-the-binding",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-responses-taken-outside-probing",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-vlan-masked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-1s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-settle-starts-no-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-settle-swaps-stream-fields",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-failure-status-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-failure-retries-at-200ms",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-duplicate-takes-a-new-sequence-id",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-second-timeout-keeps-status-0",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-no-duplicate",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-retry-ignores-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-retry-zeroes-the-status",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-delay-resends-the-old-probe",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-keeps-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-reprobe-ignores-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-registered-anywhere",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-registered-keeps-no-tk",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-registered-kind-dropped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unregistered-anywhere",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-kind-lost",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-kind-any-state",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unregistered-keeps-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-timer-at-the-latest-deadline",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-timer-port-called-every-time",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-timer-never-stopped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-takes-every-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-not-consumed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-zero-delay-waits",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-delay-up-to-4s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-seed-at-every-draw",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-rng-left-at-0",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-response-passes-an-owed-frame",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-poll-drains-everything",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-change-not-held-for-its-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-full-queue-acts",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-lost-probe-uncounted",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-first-owed-releases-every-change",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-poll-newest-first",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-reports-asking-failed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-echoes-every-flag",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-any-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-no-destination-mac-check",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-disconnect-always-succeeds",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unknown-source-answered",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-echoes-the-listener",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-registering-failed-0",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-unheld-mac",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-connection-supported",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-every-listener-is-this-one",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-every-talker-is-this-one",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-short-pdu-read",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-longer-pdu-refused",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-reads-no-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-reads-no-domain",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-valid-time-in-seconds",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovered-interface-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restart-on-a-smaller-index-only",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restart-raises-no-discovered",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restart-mismatch-keeps-aging",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-refresh-notes-no-index",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-departing-taken-undiscovered",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-departing-interface-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-departing-keeps-aging",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-aging",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-on-every-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-on-unbound-sinks",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-for-the-refresh",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-per-sink",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-reentry-unguarded",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-reentry-untrapped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-send-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-timer-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-gptp-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-clock-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-seed-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-lock-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-source-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-srp-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-persist-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-changed-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restore-lands-in-prb-w-resp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restore-starts-no-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restore-announced",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-record-flags-swapped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-record-unique-id-little-endian",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-restore-unique-id-little-endian",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-roll-back-keeps-the-bindings",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbound-record-not-zero",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-started-not-saved",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-notifies",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-status-not-notified",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probing-status-not-notified",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-reads-the-clock-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-get-rx-state-reads-the-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-response-reads-the-clock-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-reads-the-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-talker-reads-the-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-reads-the-clock-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-available-reads-the-clock-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-departing-samples-the-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-aging-samples-the-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-takes-the-first-sink",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-second-no-resp-samples-the-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-retry-samples-the-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-delay-reads-the-clock-again",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-samples-the-grandmaster",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-new-bind-never-started",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-bind-response-always-streaming-wait",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-view-without-registering-failed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-discovered-probing-stays-passive",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-read-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-adp-short-frame-taken",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-adp-ethertype-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-adp-subtype-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-adp-discover-taken",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-frames-to-the-own-mac",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-version-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-adp-version-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-version-bits-misread",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-header-version-1",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-timer-runs",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 3
+    },
+    {
+      "plant": "acmp-owed-probe-never-starts",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-owed-probe-no-resp-2s",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-sequence-unchecked",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-unnamed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-names-the-next-sink",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-probe-timer-before-its-send",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-taken-probe-timer-from-the-entry-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-due-at-its-first-read",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-held-timer-expires",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-held-timer-armed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-lost-probe-held",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-stop-keeps-the-hold",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-record-flag-defines-swapped",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-record-valid-bit-moved",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-longer-record-applied",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-due-unsigned",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-earliest-unsigned",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-adp-due-unsigned",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-resp-deadline-saturates",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-retry-deadline-saturates",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-deadline-saturates",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-delay-deadline-saturates",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-no-adp-deadline-saturates",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-admit-never-called",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-admit-on-every-entry",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-admit-ignores-another-talker",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-admit-on-interface-0",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-admit-port-unflagged",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-reset-forgets-the-admitted",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-open-does-nothing",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-open-unguarded",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-down-start-keeps-owner",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-initial-send-absent",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-retransmit-count",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-probe-count-not-decremented",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-wire-version",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-wire-length",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-wire-source",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-wire-padding",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-constant-probe_base",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-constant-probe_variation",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-constant-announce_base",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-constant-announce_variation",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-seed-clock-ignored",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-zero-seed-sticks",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-biased-random-bucket",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-numeric-mac-priority",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-defend-multicast",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-defend-echo-own-range",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-intersection-too-long",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-adjacent-overlaps",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-zero-count-conflicts",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-defend-checks-request",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-ethertype",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-subtype",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-version",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-reserved-zero",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-reserved-high",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-short",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-truncated",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-current",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-source-zero",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-source-group",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-destination",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-malformed-own-probe",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-valid-minimum-refused",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-future-version-refused",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-range-end-off-by-one",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-port-up-keeps-claim",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-release-keeps-enable",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-expiry-forgotten-on-stall",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-allocation-before-commit",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-probe-announce-reordered",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-overflow-uncounted",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-poll-unbounded",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-release-leaves-output",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-reentry-not-counted",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-debug-no-assert",
+      "arms": [
+        "maap_debug"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-stall-unqueued",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-0",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-1",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-2",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-3",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-4",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-5",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-6",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-7",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-8",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-9",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-10",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-11",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-12",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-13",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-14",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-15",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-16",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-17",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-allocation-seam-disconnected",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-begin-down-forgets-range",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-restart-reuses-range",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-reverse-five-octets",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-compare-mac-lsb-only",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-generic-initial-handles-conflict",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-generic-probe-state-defends",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-generic-probe-defend-uses-priority",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "maap-generic-equal-mac-wins",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r2-saved-range-never-consumed",
+      "arms": [
+        "maap"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-entity-id",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-model-id",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-entity-capabilities",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-talker-count",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-talker-capabilities",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-listener-count",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-listener-capabilities",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-grandmaster",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-domain",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-identify-index",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-config-interface-index",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-peer-loss-clears-binding",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-peer-loss-stops-discovery",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 2
+    },
+    {
+      "plant": "acmp-publish-after-response",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-missing-finish",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-unchanged-triple",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-ignores-started",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-cache",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-unguarded",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-zero",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-moved-always",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-sink",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-started",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-bound-cache-stale",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-started-cache-stale",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-cache-stale",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-after-timers",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-stream-cache",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-bound-cache",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-started-cache",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "adp-unsupported-version-accepted",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 5
+    },
+    {
+      "plant": "adp-short-frame-accepted",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 5
+    },
+    {
+      "plant": "adp-wrong-control-length-accepted",
+      "arms": [
+        "adp"
+      ],
+      "required_needles_verified": 5
+    },
+    {
+      "plant": "x-zero-never-expires",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-half-range",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-unanswered-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-expiry-equality",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-inclusive-edge",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-no-renewal",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-listener-needs-probe",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-ignore-address",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-absolute-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-fixed-window",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-refused-answer",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-only-success",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-state-reply-demand",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-wrong-source",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-wrong-interface",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-reset-retains-demand",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-generated-window",
+      "arms": [
+        "entity"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "g-expiry-skipped-with-listener",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "g-expiry-skipped-invalid-da",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-listener-range-only",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-withdrawal-clears-probe",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-init-keeps-listener",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-listener-bound-off-by-one",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-declaring-bound-off-by-one",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-declaring-no-entry-guard",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-listener-no-entry-guard",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "r630-3-listener-writes-source-zero",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-answer-stamped-before-send",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-listener-calls-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-query-calls-timer",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-query-calls-publish",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-query-calls-srp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-query-source-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-query-clock-twice",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-reset-retains-timestamp",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-incompatible-refresh",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-range-wipes-instance",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-range-calls-clock",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-listener-rejects-asking-failed",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "dafresh-zero-blocks-listener",
+      "arms": [
+        "acmp"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "entity-wrong-count",
+      "arms": [
+        "entity"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "entity-swapped-interface",
+      "arms": [
+        "entity"
+      ],
+      "required_needles_verified": 1
+    },
+    {
+      "plant": "entity-dropped-field",
+      "arms": [
+        "entity"
+      ],
+      "required_needles_verified": 1
+    }
+  ]
+}

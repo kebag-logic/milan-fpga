@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1066: Failure
+Value of: fk.count(Call::CHANGED) == 0u && acmp_change_pending(&a, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A19 but its change is not reported while its response waits (#653)
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1074: Failure
+Value of: fk.count(Call::CHANGED) == 1u && fk.position(Call::CHANGED) > fk.position(Call::SEND) && !acmp_change_pending(&a, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A19 the change is reported once its response has left
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+
+ 1 FAILED TEST

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T20:46:49.332" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T20:46:49.332">
+    <testcase name="A19AProbeWithoutRoomIsLostAndRecovered" file="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp" line="1114" status="run" result="completed" time="0." timestamp="2026-10-12T20:46:49.332" classname="AcmpCore">
+      <failure message="$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1129&#x0A;Value of: fk.sent.size() == 1u &amp;&amp; last().msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; last().seq == a.sinks[0].probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921&#x0A;A19 and it does&#x0A;TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326&#x0A;&#x0A;" type=""><![CDATA[$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:1129
+Value of: fk.sent.size() == 1u && last().msg == spec::MSG_PROBE_TX_COMMAND && last().seq == a.sinks[0].probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A19 and it does
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

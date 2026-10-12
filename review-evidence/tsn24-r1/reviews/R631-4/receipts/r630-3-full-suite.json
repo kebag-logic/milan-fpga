@@ -1,0 +1,1136 @@
+[
+ {
+  "plant": "r630-3-entry-time-stamp",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpCore.CommandPortBudgets",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:1993\nExpected equality of these values:\n  fk.count(Call::NOW)\n    Which is: 2\n  1u\n    Which is: 1\nBIND reads the clock after the accepted probe\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:1996\nExpected equality of these values:\n  fk.count(Call::NOW)\n    Which is: 1\n  0u\n    Which is: 0\nGET_RX_STATE needs no clock\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2002\nExpected equality of these values:\n  fk.count(Call::NOW)\n    Which is: 1\n  0u\n    Which is: 0\nUNBIND needs no clock\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2006\nExpected equality of these values:\n  fk.count(Call::NOW)\n    Which is: 1\n  0u\n    Which is: 0\ntalker response needs no clock\n"
+   },
+   {
+    "test": "AcmpFresh.WithinWindowAndRefresh",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2356\nValue of: acmp_declaring(&a, 0)\n  Actual: false\nExpected: true\nthe final millisecond remains fresh from send acceptance\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2359\nValue of: acmp_declaring(&a, 0)\n  Actual: false\nExpected: true\nanother answer renews the complete freshness window\n"
+   },
+   {
+    "test": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2509\nExpected equality of these values:\n  fk.count(Call::NOW)\n    Which is: 1\n  0u\n    Which is: 0\nunknown source replies do not timestamp probe demand\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpCore.CommandPortBudgets",
+   "AcmpFresh.OtherRepliesDoNotRefresh",
+   "AcmpFresh.WithinWindowAndRefresh"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-listener-range-only",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.ListenerInterfaceMismatch",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2373\nValue of: acmp_listener_registered(&a, 1, 0, true)\n  Actual: true\nExpected: false\na valid interface belonging to another source is refused\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2375\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\na Listener on the wrong valid interface cannot open this source\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.ListenerInterfaceMismatch"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-declaring-bound-off-by-one",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2531\nValue of: fk.calls.empty()\n  Actual: false\nExpected: true\nListener input and invalid queries call no platform service\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-derived-freshness-no-latch",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.StaleProbe",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2296\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nan observed stale probe cannot resurrect on a later wrap\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2296\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nan observed stale probe cannot resurrect on a later wrap\n"
+   },
+   {
+    "test": "AcmpFresh.StaleProbeAfterListenerWrap",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2313\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener withdrawal after a serviced full wrap cannot revive an expired probe\n"
+   },
+   {
+    "test": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2330\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\ndestination recovery after a serviced full wrap cannot revive an expired probe\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.StaleProbe",
+   "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+   "AcmpFresh.StaleProbeAfterListenerWrap"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-withdrawal-clears-probe",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2385\nValue of: acmp_declaring(&a, 0)\n  Actual: false\nExpected: true\na fresh answered probe survives Listener registration and withdrawal\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.FreshProbeAfterListenerWithdrawal"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-listener-no-entry-guard",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2534\nValue of: acmp_listener_registered(&a, 0, 0, true)\n  Actual: true\nExpected: false\nListener input refuses synchronous source callback reentry\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2538\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2539\nExpected equality of these values:\n  a.reentries\n    Which is: 1\n  2u\n    Which is: 2\nboth new entries account for refused callback recursion\n\n$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2540\nExpected equality of these values:\n  reentry_traps\n    Which is: 1\n  2u\n    Which is: 2\nboth new entries invoke the configured reentry hook\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-status-unshifted",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.FailedAllocationAnswer",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2495\nValue of: acmp_declaring(&a, 0)\n  Actual: false\nExpected: true\nan answered allocation failure retains demand for later validity\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.FailedAllocationAnswer"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-listener-writes-source-zero",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.SourceAndInterfaceIsolation",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2519\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener demand does not leak into another source\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.SourceAndInterfaceIsolation"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-declaring-ignores-invalid-only-for-listener",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InvalidAddress",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w0/src/tests/test_acmp.cpp:2422\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\ninvalid destination blocks both fresh and registered demand\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InvalidAddress"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-drop-send-clock-reread",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [],
+  "caught": false,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-listener-bound-off-by-one",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2524\nValue of: acmp_listener_registered(&a, 0, cfg.n_sources, true)\n  Actual: true\nExpected: false\nunknown Listener source is refused without a state write\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-init-keeps-listener",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InitClearsListener",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2395\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\ninitialization clears a Listener that was still registered\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InitClearsListener"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-listener-sticky",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.StaleProbeAfterListenerWrap",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2313\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener withdrawal after a serviced full wrap cannot revive an expired probe\n"
+   },
+   {
+    "test": "AcmpFresh.WindowEdge",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2346\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener withdrawal exposes exact probe expiry immediately\n\n$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2340\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nthe exact fifteen second boundary closes the declaration\n\n$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2346\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener withdrawal exposes exact probe expiry immediately\n"
+   },
+   {
+    "test": "AcmpFresh.ListenerWithoutProbe",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2368\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nwithdrawing the last Listener closes an unprobed source\n"
+   },
+   {
+    "test": "AcmpFresh.ZeroWindow",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2457\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\na zero interval closes again when the Listener withdraws\n"
+   },
+   {
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2538\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\n"
+   },
+   {
+    "test": "AcmpFresh.ListenerWithdrawalAndReset",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2551\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener withdrawal cannot extend an expired freshness window\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InputGuardsAndReentry",
+   "AcmpFresh.ListenerWithdrawalAndReset",
+   "AcmpFresh.ListenerWithoutProbe",
+   "AcmpFresh.StaleProbeAfterListenerWrap",
+   "AcmpFresh.WindowEdge",
+   "AcmpFresh.ZeroWindow"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-declaring-no-entry-guard",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2539\nExpected equality of these values:\n  a.reentries\n    Which is: 1\n  2u\n    Which is: 2\nboth new entries account for refused callback recursion\n\n$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2540\nExpected equality of these values:\n  reentry_traps\n    Which is: 1\n  2u\n    Which is: 2\nboth new entries invoke the configured reentry hook\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-index-by-listener-uid",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.SourceAndInterfaceIsolation",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2516\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\na probe on the second source leaves the first source closed\n\n$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2517\nValue of: acmp_declaring(&a, 1)\n  Actual: false\nExpected: true\nthe probed source declares on its configured interface\n\n$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2519\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nListener demand does not leak into another source\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.SourceAndInterfaceIsolation"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-declaring-reads-source-zero",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "AcmpFresh.SourceAndInterfaceIsolation",
+    "binary": "acmp_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_acmp.cpp:2517\nValue of: acmp_declaring(&a, 1)\n  Actual: false\nExpected: true\nthe probed source declares on its configured interface\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "AcmpFresh.SourceAndInterfaceIsolation"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ },
+ {
+  "plant": "r630-3-ax7101-window",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 424,
+  "failures": [
+   {
+    "test": "EntityYaml.DaFreshRoundTrip",
+    "binary": "entity_tests",
+    "message": "$SCRATCH/r630-3-full-suite/w1/src/tests/test_entity.cpp:26\nExpected equality of these values:\n  entity_check_dafresh()\n    Which is: 80\n  0\ngenerated freshness configuration survives both target round trips\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 101
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": null,
+  "failing_set": [
+   "EntityYaml.DaFreshRoundTrip"
+  ],
+  "caught": true,
+  "only_killer": false,
+  "needle_seen": false
+ }
+]

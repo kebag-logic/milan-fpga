@@ -1,0 +1,75 @@
+Note: Google Test filter = AcmpCore.TimerPortBudgets
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.TimerPortBudgets
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2023: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 3
+  clocks
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+timer clock budget for state PRB_W_DELAY
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2023: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 3
+  clocks
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+timer clock budget for state PRB_W_RESP
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2023: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 2
+  clocks
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+timer clock budget for state PRB_W_RESP2
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2023: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 2
+  clocks
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+timer clock budget for state PRB_W_RETRY
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2023: Failure
+Expected equality of these values:
+  fk.count(Call::NOW)
+    Which is: 2
+  clocks
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+timer clock budget for state SETTLED_NO_RSV
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpCore.TimerPortBudgets (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.TimerPortBudgets
+
+ 1 FAILED TEST

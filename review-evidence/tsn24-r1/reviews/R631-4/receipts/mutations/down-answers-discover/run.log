@@ -1,0 +1,25 @@
+Note: Google Test filter = AdpCore.A3toA5DiscoverAndDiscard
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+$SCRATCH/validation/mutations/baseline/tests/test_adp.cpp:156: Failure
+Value of: fk.starts == starts && a.discarded == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A3toA5DiscoverAndDiscard
+
+ 1 FAILED TEST

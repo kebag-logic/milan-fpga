@@ -1,0 +1,41 @@
+[
+  {
+    "name": "validate",
+    "argv": [
+      "python3",
+      "$SOURCE/scripts/validate.py",
+      "--work",
+      "$SCRATCH/validation",
+      "--jobs",
+      "3"
+    ],
+    "rc": 1,
+    "seconds": 229.47
+  },
+  {
+    "name": "rv32-head",
+    "argv": [
+      "python3",
+      "$SOURCE/scripts/baremetal.py",
+      "--work",
+      "$SCRATCH/rv32-head",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 0.59
+  },
+  {
+    "name": "rv32-base",
+    "argv": [
+      "python3",
+      "$SCRATCH/base/scripts/baremetal.py",
+      "--work",
+      "$SCRATCH/rv32-base",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 0.59
+  }
+]

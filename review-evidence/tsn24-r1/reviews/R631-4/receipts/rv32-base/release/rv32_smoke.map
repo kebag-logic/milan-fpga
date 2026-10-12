@@ -1,0 +1,282 @@
+Archive member included to satisfy reference by file (symbol)
+
+libentity_examples.a(entity_roundtrip.c.obj)
+                              CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj (entity_check_adp)
+libentity_examples.a(entity_config.c.obj)
+                              libentity_examples.a(entity_roundtrip.c.obj) (listener_maap)
+libentity_examples.a(entity_config.c.obj)
+                              libentity_examples.a(entity_roundtrip.c.obj) (talker_maap)
+libentity_examples.a(entity_config.c.obj)
+                              libentity_examples.a(entity_roundtrip.c.obj) (duplex_maap)
+libentity_examples.a(entity_config.c.obj)
+                              libentity_examples.a(entity_roundtrip.c.obj) (ax7101_maap)
+libtsn.a(adp.c.obj)           (--whole-archive)
+libtsn.a(acmp.c.obj)          (--whole-archive)
+libtsn.a(maap.c.obj)          (--whole-archive)
+/usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+                              libtsn.a(maap.c.obj) (__umodsi3)
+
+Merging object attributes
+
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ram              0x80000000         0x08000000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+LOAD CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+LOAD CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+LOAD libentity_examples.a
+LOAD libtsn.a
+LOAD /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a
+
+.text           0x80000000     0x8418
+ *(.text.start)
+ .text.start    0x80000000       0x38 CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+                0x80000000                _start
+ *(.text .text.*)
+ .text          0x80000038      0xffc CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+ .text.startup  0x80001034       0x50 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+                0x80001034                main
+ .text          0x80001084      0x2c0 CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+                0x80001084                memset
+                0x8000117c                memcpy
+                0x800012f4                port_exit
+                0x8000131c                port_assert_failed
+                0x80001330                ctrl_reentry_assert
+ .text          0x80001344        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+ .text          0x80001344      0xe74 libentity_examples.a(entity_roundtrip.c.obj)
+                0x8000173c                entity_check_adp
+                0x80001af8                entity_check_acmp
+                0x8000208c                entity_check_maap
+ .text          0x800021b8        0x0 libentity_examples.a(entity_config.c.obj)
+ .text          0x800021b8        0x0 libentity_examples.a(entity_config.c.obj)
+ .text          0x800021b8        0x0 libentity_examples.a(entity_config.c.obj)
+ .text          0x800021b8        0x0 libentity_examples.a(entity_config.c.obj)
+ .text          0x800021b8      0xd14 libtsn.a(adp.c.obj)
+                0x800021b8                adp_reentry_count
+                0x800021dc                adp_build
+                0x80002598                adp_init
+                0x80002648                adp_set_current_configuration
+                0x80002670                adp_set_enable
+                0x800028a4                adp_link_change
+                0x800029dc                adp_gm_change
+                0x80002ac8                adp_timer_expired
+                0x80002bd8                adp_rx
+                0x80002dc8                adp_poll
+ .text          0x80002ecc     0x4378 libtsn.a(acmp.c.obj)
+                0x80003f5c                acmp_init
+                0x800043f4                acmp_rx
+                0x80005874                acmp_adp_rx
+                0x80005fa8                acmp_timer_expired
+                0x800063ec                acmp_tk_registered
+                0x80006468                acmp_tk_kind_changed
+                0x800064d4                acmp_tk_unregistered
+                0x800065fc                acmp_set_started
+                0x8000668c                acmp_poll
+                0x80006a38                acmp_restore_binding
+                0x80006e00                acmp_restore_rollback
+                0x80007014                acmp_open
+                0x80007044                acmp_binding_latch
+                0x800070dc                acmp_view
+                0x80007220                acmp_change_pending
+ .text          0x80007244     0x1120 libtsn.a(maap.c.obj)
+                0x80007920                maap_init
+                0x80007a24                maap_begin
+                0x80007b98                maap_release
+                0x80007c44                maap_port_operational
+                0x80007d70                maap_rx
+                0x80008298                maap_timer_expired
+                0x8000831c                maap_poll
+ .text          0x80008364       0xb4 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+                0x80008364                __divsi3
+                0x8000836c                __hidden___udivsi3
+                0x8000836c                __udivsi3
+                0x800083b4                __umodsi3
+                0x800083e8                __modsi3
+
+.rodata         0x80008418      0x789
+ *(.rodata .rodata.*)
+ .rodata        0x80008418       0xa0 libentity_examples.a(entity_roundtrip.c.obj)
+ .rodata        0x800084b8      0x1a4 libentity_examples.a(entity_config.c.obj)
+                0x800084b8                listener_maap
+                0x800084d8                listener_acmp
+                0x80008530                listener_adp
+                0x80008558                listener_identity
+ *fill*         0x8000865c        0x4 
+ .rodata        0x80008660      0x1a4 libentity_examples.a(entity_config.c.obj)
+                0x80008660                talker_maap
+                0x80008680                talker_acmp
+                0x800086d8                talker_adp
+                0x80008700                talker_identity
+ *fill*         0x80008804        0x4 
+ .rodata        0x80008808      0x1ec libentity_examples.a(entity_config.c.obj)
+                0x80008808                duplex_maap
+                0x80008848                duplex_acmp
+                0x800088a0                duplex_adp
+                0x800088f0                duplex_identity
+ *fill*         0x800089f4        0x4 
+ .rodata        0x800089f8      0x1a4 libentity_examples.a(entity_config.c.obj)
+                0x800089f8                ax7101_maap
+                0x80008a18                ax7101_acmp
+                0x80008a70                ax7101_adp
+                0x80008a98                ax7101_identity
+ .rodata.str1.4
+                0x80008b9c        0x5 libtsn.a(acmp.c.obj)
+
+.srodata.cst8   0x80008ba8       0x28
+ .srodata.cst8  0x80008ba8       0x28 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+                                 0x18 (size before relaxing)
+ .srodata.cst8  0x80008bd0        0x0 libentity_examples.a(entity_roundtrip.c.obj)
+                                 0x10 (size before relaxing)
+ .srodata.cst8  0x80008bd0        0x0 libtsn.a(maap.c.obj)
+                                  0x8 (size before relaxing)
+
+.rela.dyn       0x80008bd0        0x0
+ .rela.text.start
+                0x80008bd0        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+
+.data           0x80009000        0x0
+                0x80009800                        __global_pointer$ = (. + 0x800)
+ *(.sdata .sdata.* .data .data.*)
+ .data          0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+ .data          0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+ .data          0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+ .data          0x80009000        0x0 libentity_examples.a(entity_roundtrip.c.obj)
+ .data          0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .data          0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .data          0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .data          0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .data          0x80009000        0x0 libtsn.a(adp.c.obj)
+ .data          0x80009000        0x0 libtsn.a(acmp.c.obj)
+ .data          0x80009000        0x0 libtsn.a(maap.c.obj)
+ .data          0x80009000        0x0 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.bss            0x80009000        0x8
+                0x80009000                        . = ALIGN (0x4)
+                0x80009000                        __bss_start = .
+ *(.sbss .sbss.* .bss .bss.* COMMON)
+ .bss           0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+ .bss           0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+ .bss           0x80009000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+ .bss           0x80009000        0x0 libentity_examples.a(entity_roundtrip.c.obj)
+ .bss           0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .bss           0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .bss           0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .bss           0x80009000        0x0 libentity_examples.a(entity_config.c.obj)
+ .bss           0x80009000        0x0 libtsn.a(adp.c.obj)
+ .sbss          0x80009000        0x5 libtsn.a(adp.c.obj)
+ .bss           0x80009005        0x0 libtsn.a(acmp.c.obj)
+ .bss           0x80009005        0x0 libtsn.a(maap.c.obj)
+ .bss           0x80009005        0x0 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+                0x80009008                        . = ALIGN (0x4)
+ *fill*         0x80009005        0x3 
+                0x80009008                        __bss_end = .
+
+.stack          0x80009008    0x10008
+                0x80009010                        . = ALIGN (0x10)
+ *fill*         0x80009008        0x8 
+                0x80019010                        . = (. + 0x10000)
+ *fill*         0x80009010    0x10000 
+                0x80019010                        __stack_top = .
+OUTPUT(rv32_smoke.elf elf32-littleriscv)
+
+.comment        0x00000000       0x26
+ .comment       0x00000000       0x26 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libentity_examples.a(entity_roundtrip.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libentity_examples.a(entity_config.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libentity_examples.a(entity_config.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libentity_examples.a(entity_config.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libentity_examples.a(entity_config.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libtsn.a(adp.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libtsn.a(acmp.c.obj)
+                                 0x27 (size before relaxing)
+ .comment       0x00000026        0x0 libtsn.a(maap.c.obj)
+                                 0x27 (size before relaxing)
+
+.note.GNU-stack
+                0x00000000        0x0
+ .note.GNU-stack
+                0x00000000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+ .note.GNU-stack
+                0x00000000        0x0 CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+ .note.GNU-stack
+                0x00000000        0x0 libentity_examples.a(entity_roundtrip.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libentity_examples.a(entity_config.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libentity_examples.a(entity_config.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libentity_examples.a(entity_config.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libentity_examples.a(entity_config.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libtsn.a(adp.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libtsn.a(acmp.c.obj)
+ .note.GNU-stack
+                0x00000000        0x0 libtsn.a(maap.c.obj)
+
+.riscv.attributes
+                0x00000000       0x1c
+ .riscv.attributes
+                0x00000000       0x1c CMakeFiles/rv32_smoke.dir/examples/rv32/smoke.c.obj
+ .riscv.attributes
+                0x0000001c       0x1c CMakeFiles/rv32_smoke.dir/examples/rv32/runtime.c.obj
+ .riscv.attributes
+                0x00000038       0x1a CMakeFiles/rv32_smoke.dir/examples/rv32/start.S.obj
+ .riscv.attributes
+                0x00000052       0x1c libentity_examples.a(entity_roundtrip.c.obj)
+ .riscv.attributes
+                0x0000006e       0x1c libentity_examples.a(entity_config.c.obj)
+ .riscv.attributes
+                0x0000008a       0x1c libentity_examples.a(entity_config.c.obj)
+ .riscv.attributes
+                0x000000a6       0x1c libentity_examples.a(entity_config.c.obj)
+ .riscv.attributes
+                0x000000c2       0x1c libentity_examples.a(entity_config.c.obj)
+ .riscv.attributes
+                0x000000de       0x1c libtsn.a(adp.c.obj)
+ .riscv.attributes
+                0x000000fa       0x1c libtsn.a(acmp.c.obj)
+ .riscv.attributes
+                0x00000116       0x1c libtsn.a(maap.c.obj)
+ .riscv.attributes
+                0x00000132       0x1a /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_line     0x00000000      0x153
+ .debug_line    0x00000000      0x153 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_line_str
+                0x00000000       0x84
+ .debug_line_str
+                0x00000000       0x84 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_info     0x00000000       0x5f
+ .debug_info    0x00000000       0x5f /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_abbrev   0x00000000       0x28
+ .debug_abbrev  0x00000000       0x28 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_aranges  0x00000000       0x20
+ .debug_aranges
+                0x00000000       0x20 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+
+.debug_str      0x00000000       0xc1
+ .debug_str     0x00000000       0xc1 /usr/lib/gcc/riscv64-elf/16.2.0/rv32i/ilp32/libgcc.a(div.o)
+                                 0xcb (size before relaxing)

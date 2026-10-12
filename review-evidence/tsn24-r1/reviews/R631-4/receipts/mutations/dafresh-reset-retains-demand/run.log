@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpFresh.ListenerWithdrawalAndReset
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpFresh
+[ RUN      ] AcmpFresh.ListenerWithdrawalAndReset
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2555: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+initialization clears previous demand and probe timestamps
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+$SCRATCH/validation/mutations/baseline/tests/test_acmp.cpp:2556: Failure
+Expected equality of these values:
+  a.sources[0].answered_at
+    Which is: 80000
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_0bdabc91f78b109e7921b495616b1921
+initialization clears the saved answer timestamp itself
+TSN_MESSAGE_END_c4c96f6af35045f3dd0d1ed96b8f3326
+
+
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset (0 ms)
+[----------] 1 test from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset
+
+ 1 FAILED TEST
