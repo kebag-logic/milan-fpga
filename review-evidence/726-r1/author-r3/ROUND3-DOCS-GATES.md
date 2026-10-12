@@ -1,0 +1,94 @@
+[A605]
+
+# Round 3 documentation workflow receipts
+
+Head: `e893e4d13d99eb5ba00745f0f5cf74ee847972c2`. All 81 executable gate commands have rc 0.
+The builder ran in the workflow SDK environment on an identical source export.
+The final commit adds six documentation lines; final documentation checks pass.
+The ledger preserves the builder's 19 optional environment-dependent skips.
+Checkout, cache and upload actions are hosting operations, not local gate claims.
+The candidate runner executes only its offline self-test inside a disposable CI job.
+
+| Step | Gate | Command | Result | Receipt |
+|---|---|---|---|---|
+| 2 | Build the validated HDL reference | `python3 scripts/gen_hdl_reference.py --selftest` | rc 0 | `review-round3/docs-00.log` |
+| 2 | Build the validated HDL reference | `python3 scripts/gen_hdl_reference.py --output $SCRATCH/round3/milan-hdl-reference` | rc 0 | `review-round3/docs-01.log` |
+| 8 | Link health, wording, dead-reference and local-info gate | `python3 scripts/docs_check.py` | rc 0 | `review-round3/docs-02.log` |
+| 9 | Added-line em-dash gate | `python3 scripts/check_em_dash.py --base c6bd08c6` | rc 0 | `review-round3/docs-03.log` |
+| 10 | Concise audience documentation gate | `python3 scripts/check_doc_style.py` | rc 0 | `review-round3/docs-04.log` |
+| 10 | Concise audience documentation gate | `python3 scripts/check_doc_style.py --selftest` | rc 0 | `review-round3/docs-05.log` |
+| 10 | Concise audience documentation gate | `python3 scripts/check_gptp_docs.py` | rc 0 | `review-round3/docs-06.log` |
+| 10 | Concise audience documentation gate | `python3 scripts/check_gptp_docs.py --selftest` | rc 0 | `review-round3/docs-07.log` |
+| 11 | Audience diagram no-drift gate | `python3 docs/DOC_MAP.gen.py --check` | rc 0 | `review-round3/docs-08.log` |
+| 11 | Audience diagram no-drift gate | `python3 docs/DOC_MAP.gen.py --selftest` | rc 0 | `review-round3/docs-09.log` |
+| 11 | Audience diagram no-drift gate | `python3 docs/diagrams/timesync_chain.gen.py --check` | rc 0 | `review-round3/docs-10.log` |
+| 11 | Audience diagram no-drift gate | `python3 docs/diagrams/timesync_chain.gen.py --selftest` | rc 0 | `review-round3/docs-11.log` |
+| 12 | Product solution source-fact gate | `python3 scripts/check_solution_docs.py` | rc 0 | `review-round3/docs-12.log` |
+| 12 | Product solution source-fact gate | `python3 scripts/check_solution_docs.py --selftest` | rc 0 | `review-round3/docs-13.log` |
+| 13 | Verified submodule documentation gate | `python3 docs/diagrams/submodule_boundaries.gen.py --check` | rc 0 | `review-round3/docs-14.log` |
+| 13 | Verified submodule documentation gate | `python3 docs/diagrams/submodule_boundaries.gen.py --selftest` | rc 0 | `review-round3/docs-15.log` |
+| 13 | Verified submodule documentation gate | `python3 scripts/check_submodule_docs.py` | rc 0 | `review-round3/docs-16.log` |
+| 13 | Verified submodule documentation gate | `python3 scripts/check_submodule_docs.py --selftest` | rc 0 | `review-round3/docs-17.log` |
+| 14 | HDL timing diagram no-drift gate | `python3 scripts/gen_wavedrom.py --selftest` | rc 0 | `review-round3/docs-18.log` |
+| 14 | HDL timing diagram no-drift gate | `python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check` | rc 0 | `review-round3/docs-19.log` |
+| 14 | HDL timing diagram no-drift gate | `python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check` | rc 0 | `review-round3/docs-20.log` |
+| 14 | HDL timing diagram no-drift gate | `python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check` | rc 0 | `review-round3/docs-21.log` |
+| 15 | Published diagram PNG gate | `python3 scripts/check_diagram_pngs.py` | rc 0 | `review-round3/docs-22.log` |
+| 15 | Published diagram PNG gate | `python3 scripts/check_diagram_pngs.py --selftest` | rc 0 | `review-round3/docs-23.log` |
+| 16 | Milan feature-status consistency gate | `python3 scripts/check_feature_status.py --self-test` | rc 0 | `review-round3/docs-24.log` |
+| 17 | Traceability matrix no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | rc 0 | `review-round3/docs-25.log` |
+| 19 | Imported gPTP documentation gate | `python3 scripts/check_gptp_docs.py --with-submodule` | rc 0 | `review-round3/docs-26.log` |
+| 19 | Imported gPTP documentation gate | `make -C gptp-processor docs` | rc 0 | `review-round3/docs-27.log` |
+| 20 | Code-quality measurement self-tests | `python3 scripts/measure_control_flow.py --selftest` | rc 0 | `review-round3/docs-28.log` |
+| 20 | Code-quality measurement self-tests | `python3 scripts/measure_cohesion.py --selftest` | rc 0 | `review-round3/docs-29.log` |
+| 22 | Bare-metal scope gate | `python3 scripts/check_baremetal_only.py --check` | rc 0 | `review-round3/docs-30.log` |
+| 22 | Bare-metal scope gate | `python3 scripts/check_baremetal_only.py --selftest` | rc 0 | `review-round3/docs-31.log` |
+| 24 | Install and verify the pinned RV32 SDK | `python3 scripts/ci_rv32_sdk_selftest.py` | rc 0 | `review-round3/docs-32.log` |
+| 25 | Compiler-absent firmware controls | `python3 sw/builder/test_firmware_compiler.py --selftest` | rc 0 | `review-round3/docs-33.log` |
+| 25 | Compiler-absent firmware controls | `python3 sw/builder/test_firmware_compiler.py --absent --audit $SCRATCH/round3/rv32-absent.jsonl` | rc 0 | `review-round3/docs-34.log` |
+| 26 | End-station builder gates | `python3 sw/builder/test_builder.py --require-rv32` | rc 0; 19 explicit environment-dependent arms NOT RUN | `review-round3/pinned-builder-all.log` |
+| 27 | NVM record-space gate | `python3 scripts/check_nvm_record_space.py` | rc 0 | `review-round3/docs-36.log` |
+| 27 | NVM record-space gate | `python3 scripts/check_nvm_record_space.py --self-test` | rc 0 | `review-round3/docs-37.log` |
+| 28 | Capture measurement census and clock gate | `python3 scripts/check_nvm_capture.py` | rc 0 | `review-round3/docs-38.log` |
+| 29 | Saved-state writer gate | `python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test` | rc 0 | `review-round3/docs-39.log` |
+| 30 | SoC source-list gate (Vivado would fail 40 min in without this) | `python3 scripts/check_soc_sources.py` | rc 0 | `review-round3/docs-40.log` |
+| 30 | SoC source-list gate (Vivado would fail 40 min in without this) | `python3 scripts/check_soc_sources.py --selftest` | rc 0 | `review-round3/docs-41.log` |
+| 30 | SoC source-list gate (Vivado would fail 40 min in without this) | `python3 sw/litex/iob_pack_selftest.py` | rc 0 | `review-round3/docs-42.log` |
+| 31 | RTL source-list drift gate | `python3 scripts/check_rtl_source_lists.py` | rc 0 | `review-round3/docs-43.log` |
+| 31 | RTL source-list drift gate | `python3 scripts/check_rtl_source_lists.py --selftest` | rc 0 | `review-round3/docs-44.log` |
+| 32 | Boundary-unit naming ratchet | `python3 scripts/measure_naming.py --check` | rc 0 | `review-round3/docs-45.log` |
+| 32 | Boundary-unit naming ratchet | `python3 scripts/measure_naming.py --selftest` | rc 0 | `review-round3/docs-46.log` |
+| 33 | Port contract gate | `python3 scripts/check_port_contracts.py` | rc 0 | `review-round3/docs-47.log` |
+| 33 | Port contract gate | `python3 scripts/check_port_contracts.py --selftest` | rc 0 | `review-round3/docs-48.log` |
+| 34 | Fail-fast ratchet | `python3 scripts/measure_fail_fast.py --check` | rc 0 | `review-round3/docs-49.log` |
+| 34 | Fail-fast ratchet | `python3 scripts/measure_fail_fast.py --selftest` | rc 0 | `review-round3/docs-50.log` |
+| 35 | TODO ownership gate | `python3 scripts/check_todo_ownership.py` | rc 0 | `review-round3/docs-51.log` |
+| 35 | TODO ownership gate | `python3 scripts/check_todo_ownership.py --selftest` | rc 0 | `review-round3/docs-52.log` |
+| 36 | Test-evidence ratchet | `python3 scripts/measure_test_evidence.py --check` | rc 0 | `review-round3/docs-53.log` |
+| 36 | Test-evidence ratchet | `python3 scripts/measure_test_evidence.py --selftest` | rc 0 | `review-round3/docs-54.log` |
+| 37 | Mechanical hygiene ratchet | `python3 scripts/check_hygiene.py --check` | rc 0 | `review-round3/docs-55.log` |
+| 37 | Mechanical hygiene ratchet | `python3 scripts/check_hygiene.py --selftest` | rc 0 | `review-round3/docs-56.log` |
+| 38 | SystemVerilog idiom gate | `python3 scripts/check_sv_idiom.py` | rc 0 | `review-round3/docs-57.log` |
+| 38 | SystemVerilog idiom gate | `python3 scripts/check_sv_idiom.py --selftest` | rc 0 | `review-round3/docs-58.log` |
+| 39 | C and C++ idiom gate | `python3 scripts/check_cpp_idiom.py` | rc 0 | `review-round3/docs-59.log` |
+| 39 | C and C++ idiom gate | `python3 scripts/check_cpp_idiom.py --selftest` | rc 0 | `review-round3/docs-60.log` |
+| 40 | Python idiom gate | `python3 scripts/check_py_idiom.py` | rc 0 | `review-round3/docs-61.log` |
+| 40 | Python idiom gate | `python3 scripts/check_py_idiom.py --selftest` | rc 0 | `review-round3/docs-62.log` |
+| 41 | Shell idiom gate | `python3 scripts/check_sh_idiom.py` | rc 0 | `review-round3/docs-63.log` |
+| 41 | Shell idiom gate | `python3 scripts/check_sh_idiom.py --selftest` | rc 0 | `review-round3/docs-64.log` |
+| 42 | CI event and SHA contract gate | `python3 scripts/ci_events.py --check` | rc 0 | `review-round3/docs-65.log` |
+| 42 | CI event and SHA contract gate | `python3 scripts/ci_events.py --selftest` | rc 0 | `review-round3/docs-66.log` |
+| 43 | Local act runner contract gate | `python3 scripts/act_ci.py --selftest` | rc 0; offline self-test inside disposable CI job | `review-round3/docs-67.log` |
+| 44 | Doc cited-path gate | `python3 scripts/check_doc_paths.py` | rc 0 | `review-round3/docs-68.log` |
+| 45 | Archive integrity gate | `python3 scripts/check_archive.py` | rc 0 | `review-round3/docs-69.log` |
+| 45 | Archive integrity gate | `python3 scripts/check_archive.py --selftest` | rc 0 | `review-round3/docs-70.log` |
+| 46 | Per-page contents gate | `python3 scripts/gen_toc.py --selftest` | rc 0 | `review-round3/docs-71.log` |
+| 46 | Per-page contents gate | `python3 scripts/gen_toc.py --verify-anchors` | rc 0 | `review-round3/docs-72.log` |
+| 46 | Per-page contents gate | `python3 scripts/gen_toc.py --check` | rc 0 | `review-round3/docs-73.log` |
+| 47 | AEM store generator self-test | `python3 avdecc/gen_aem_store.py --self-test` | rc 0 | `review-round3/docs-74.log` |
+| 48 | Sweep/build shape gate | `python3 scripts/check_sweep_shape.py --self-test` | rc 0 | `review-round3/docs-75.log` |
+| 49 | Deploy shape gate | `python3 scripts/check_deploy_shape.py --self-test` | rc 0 | `review-round3/docs-76.log` |
+| 50 | Entity shape gate | `python3 scripts/check_entity_shape.py --self-test` | rc 0 | `review-round3/docs-77.log` |
+| separate job | wire-accountability | `python3 scripts/check_wire_accountability.py --self-test` | rc 0 | `review-round3/head-wire.log` |
+| separate job | docs-check-no-git | `python3 scripts/docs_check.py` | rc 0 | `review-round3/head-no-git.log` |
+| separate job | docs-check-no-git feature status | `python3 scripts/check_feature_status.py` | rc 0 | `review-round3/head-feature-no-git.log` |
