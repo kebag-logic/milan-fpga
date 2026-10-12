@@ -1,0 +1,12 @@
+== check_em_dash.py --base c20c85bd (md venv)
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (six); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== docs_check.py
+docs_check: 0 finding(s) across 203 md files + 1267 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+added lines with an em dash in 8aaa2da7..a8fe548a: 0
