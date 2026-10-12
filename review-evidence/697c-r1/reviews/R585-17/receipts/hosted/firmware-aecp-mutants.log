@@ -1,0 +1,689 @@
+firmware-aecp-mutants	Set up job	﻿2026-10-12T19:29:18.6900883Z Current runner version: '2.337.0'
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6935813Z ##[group]Runner Image Provisioner
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6937066Z Hosted Compute Agent
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6937971Z Version: 20261002.596
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6939184Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6940318Z Build Date: 2026-10-02T22:28:27Z
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6941380Z Worker ID: {c090d78d-b886-4ac2-982b-e6467106fce0}
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6942485Z Region: eastus2
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6943279Z Cloud: Azure
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6944032Z ##[endgroup]
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6946498Z ##[group]Operating System
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6947480Z Ubuntu
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6948520Z 24.04.5
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6949276Z LTS
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6949985Z ##[endgroup]
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6950785Z ##[group]Runner Image
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6951662Z Image: ubuntu-24.04
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6952505Z Version: 20261004.327.1
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6954242Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6956938Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6958930Z ##[endgroup]
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6960754Z ##[group]GITHUB_TOKEN Permissions
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6963266Z Contents: read
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6964136Z Metadata: read
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6964942Z Packages: read
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6965732Z ##[endgroup]
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6968927Z Secret source: Actions
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6970212Z Cache mode: write
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.6971207Z Prepare workflow directory
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.7563455Z Prepare all required actions
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.7628936Z Getting action download info
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:18.9672437Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:19.0901240Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+firmware-aecp-mutants	Set up job	2026-10-12T19:29:19.2777382Z Complete job name: firmware-aecp-mutants
+firmware-aecp-mutants	Run actions/checkout@v4	﻿2026-10-12T19:29:19.3783100Z ##[group]Run actions/checkout@v4
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3784006Z with:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3784478Z   repository: kebag-logic/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3788418Z   token: ***
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3788881Z   ssh-strict: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3789324Z   ssh-user: git
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3789771Z   persist-credentials: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3790265Z   clean: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3790717Z   sparse-checkout-cone-mode: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3791248Z   fetch-depth: 1
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3791690Z   fetch-tags: false
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3792144Z   show-progress: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3792607Z   lfs: false
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3793029Z   submodules: false
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3793479Z   set-safe-directory: true
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3794001Z   allow-unsafe-pr-checkout: false
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3794797Z env:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3795230Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3795730Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.3796190Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4842065Z Syncing repository: kebag-logic/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4844705Z ##[group]Getting Git version info
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4845896Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4847544Z [command]/usr/bin/git version
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4895677Z git version 2.55.0
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4920592Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4936542Z Temporarily overriding HOME='<home-path>/work/_temp/7e512f52-50ae-4935-bcf5-e7048e03f354' before making global git config changes
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4939145Z Adding repository directory to the temporary git global config as a safe directory
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4943370Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.4997384Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5001753Z ##[group]Initializing the repository
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5006485Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5111736Z hint: Using 'master' as the name for the initial branch. This default branch name
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5113373Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5114339Z hint: to use in all of your new repositories, which will suppress this warning,
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5115092Z hint: call:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5115507Z hint:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5116043Z hint: 	git config --global init.defaultBranch <name>
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5116669Z hint:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5117262Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5118381Z hint: 'development'. The just-created branch can be renamed via this command:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5119144Z hint:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5119578Z hint: 	git branch -m <name>
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5120075Z hint:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5120727Z hint: Disable this message with "git config set advice.defaultBranchName false"
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5126393Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5137113Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5189175Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5190482Z ##[group]Disabling automatic garbage collection
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5193425Z [command]/usr/bin/git config --local gc.auto 0
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5232877Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5241977Z ##[group]Setting up auth
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5243176Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5275513Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5655256Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5701138Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5945304Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.5983180Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.6208916Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.6250247Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.6251691Z ##[group]Fetching the repository
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:19.6261788Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +90813a740002294901f22823eb4a70406de0905b:refs/remotes/pull/705/merge
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0968672Z From https://github.com/kebag-logic/milan-fpga
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0970910Z  * [new ref]         90813a740002294901f22823eb4a70406de0905b -> pull/705/merge
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0975361Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0977169Z ##[group]Determining the checkout info
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0979292Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.0985594Z [command]/usr/bin/git sparse-checkout disable
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.1046188Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.1084442Z ##[group]Checking out the ref
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.1097694Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/705/merge
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3010615Z Note: switching to 'refs/remotes/pull/705/merge'.
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3011827Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3012570Z You are in 'detached HEAD' state. You can look around, make experimental
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3014425Z changes and commit them, and you can discard any commits you make in this
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3016058Z state without impacting any branches by switching back to a branch.
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3017021Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3017745Z If you want to create a new branch to retain commits you create, you may
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3019922Z do so (now or later) by using -c with the switch command. Example:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3020793Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3021184Z   git switch -c <new-branch-name>
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3021982Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3022574Z Or undo this operation with:
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3023283Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3023639Z   git switch -
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3024123Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3024876Z Turn off this advice by setting config variable advice.detachedHead to false
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3025978Z 
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3027315Z HEAD is now at 90813a7 Merge 27ee16b52ac49b6b2523dafbf45f3af7ff4bba8c into dc4d06cbfec209cc2ff76806f4b49c51f46639ae
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3032470Z ##[endgroup]
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3071565Z [command]/usr/bin/git log -1 --format=%H
+firmware-aecp-mutants	Run actions/checkout@v4	2026-10-12T19:29:21.3100119Z 90813a740002294901f22823eb4a70406de0905b
+firmware-aecp-mutants	Fetch RTL dependencies	﻿2026-10-12T19:29:21.3379551Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3383782Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack^[[0m
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3645233Z shell: /usr/bin/bash -e {0}
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3646492Z env:
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3647459Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3648820Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3649902Z ##[endgroup]
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.3996351Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.4002037Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.4007087Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.4014867Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.4020252Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.4046513Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:21.7510495Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:22.6938830Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:22.9072703Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:23.6702837Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:24.0002701Z Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:24.0749001Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:24.0876383Z Submodule path 'third_party/lwSRP': checked out '08ee86e812a0eb5e1dc6cd61b494d8baf3491348'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:24.1030486Z Submodule path 'third_party/tsn-c-stack': checked out '405dc68310a18f669049ffc10cc23eef7300dcff'
+firmware-aecp-mutants	Fetch RTL dependencies	2026-10-12T19:29:24.1234099Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	﻿2026-10-12T19:29:24.1375117Z ##[group]Run set -euo pipefail
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1375490Z ^[[36;1mset -euo pipefail^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1375745Z ^[[36;1msudo apt-get update -qq^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1376155Z ^[[36;1msudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1376610Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1376942Z ^[[36;1mdpkg-query -W libgtest-dev libgmock-dev^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1377283Z ^[[36;1mg++ --version | head -n 1^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1377543Z ^[[36;1mgcov --version | head -n 1^[[0m
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1443303Z shell: /usr/bin/bash -e {0}
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1443587Z env:
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1443802Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1444275Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:24.1444506Z ##[endgroup]
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:28.5570907Z Reading package lists...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:28.7460072Z Building dependency tree...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:28.7479586Z Reading state information...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:28.8984335Z The following additional packages will be installed:
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:28.8993424Z   googletest
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3314815Z The following NEW packages will be installed:
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3321692Z   googletest libgmock-dev libgtest-dev
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3497798Z 0 upgraded, 3 newly installed, 0 to remove and 26 not upgraded.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3498790Z Need to get 924 kB of archives.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3501257Z After this operation, 5933 kB of additional disk space will be used.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.3502280Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.4786683Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.6528985Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:29.7952271Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.0572937Z Fetched 924 kB in 0s (2010 kB/s)
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.0797420Z Selecting previously unselected package googletest.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1109914Z (Reading database ... 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1110521Z (Reading database ... 5%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1111162Z (Reading database ... 10%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1139136Z (Reading database ... 15%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1155158Z (Reading database ... 20%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1179200Z (Reading database ... 25%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1179973Z (Reading database ... 30%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1180735Z (Reading database ... 35%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1181445Z (Reading database ... 40%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1182115Z (Reading database ... 45%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1182899Z (Reading database ... 50%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.1192247Z (Reading database ... 55%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.2315834Z (Reading database ... 60%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.4393778Z (Reading database ... 65%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.6307835Z (Reading database ... 70%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.7955002Z (Reading database ... 75%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:30.9754609Z (Reading database ... 80%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.1834903Z (Reading database ... 85%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.3928370Z (Reading database ... 90%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.5451812Z (Reading database ... 95%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.5452675Z (Reading database ... 100%
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.5453280Z (Reading database ... 203191 files and directories currently installed.)
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.5496585Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.5520736Z Unpacking googletest (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6119706Z Selecting previously unselected package libgtest-dev:amd64.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6243614Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6250835Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6552550Z Selecting previously unselected package libgmock-dev:amd64.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6679100Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.6708870Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.7130652Z Setting up googletest (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.7148440Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:31.7167311Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3522993Z 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3523752Z Running kernel seems to be up-to-date.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3524194Z 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3524378Z No services need to be restarted.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3524681Z 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3524809Z No containers need to be restarted.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3525048Z 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3525203Z No user sessions are running outdated binaries.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3525472Z 
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:32.3525716Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:34.3809652Z libgmock-dev:amd64	1.14.0-1
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:34.3810499Z libgtest-dev:amd64	1.14.0-1
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:34.4390110Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-aecp-mutants	Install GoogleTest and GoogleMock and print the versions	2026-10-12T19:29:34.4733452Z gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-aecp-mutants	Cache the pinned RV32 SDK	﻿2026-10-12T19:29:34.5414369Z ##[group]Run actions/cache@v4
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5414663Z with:
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5414866Z   path: ~/br-milan-rv32/host
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5415581Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5416332Z   enableCrossOsArchive: false
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5416582Z   fail-on-cache-miss: false
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5416817Z   lookup-only: false
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5417017Z   save-always: false
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5417205Z env:
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5417382Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5417600Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.5417800Z ##[endgroup]
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.6496208Z (node:2893) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.6497314Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.7209745Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:34.7314451Z (node:2893) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:35.4999606Z Received 153250353 of 153250353 (100.0%), 205.6 MBs/sec
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:35.5001898Z Cache Size: ~146 MB (153250353 B)
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:35.5042746Z [command]/usr/bin/tar -xf <home-path>/work/_temp/eb256c0a-5ca5-4459-b4c2-e09ac1185177/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:36.4608959Z Cache restored successfully
+firmware-aecp-mutants	Cache the pinned RV32 SDK	2026-10-12T19:29:36.4759021Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	﻿2026-10-12T19:29:36.4908071Z ##[group]Run set -euo pipefail
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4908759Z ^[[36;1mset -euo pipefail^[[0m
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4909067Z ^[[36;1mpython3 scripts/ci_rv32_sdk_selftest.py^[[0m
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4909502Z ^[[36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"^[[0m
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4973931Z shell: /usr/bin/bash -e {0}
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4974192Z env:
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4974397Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4974653Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.4974873Z ##[endgroup]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6318909Z test_archive_root (__main__.InstallerTests.test_archive_root)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6443427Z SDK archive verified: /tmp/rv32-installer-test-h2k879cy/wrong-root.tar.xz sha256=7bf6d058b5daaf21c3dc551e7fccd5a91c5aca317ea1c795396683c0d5f6d9c3
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6455349Z An authenticated archive with another root is still not extracted. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6456252Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6507977Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6509570Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6896791Z Explicit offline inputs are checked even beside a valid cache. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.6897782Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7180013Z A cache made by other installer bytes is refused before its tools run. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7180996Z test_download_path (__main__.InstallerTests.test_download_path)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7456845Z The hosted path, with no --archive, installs what the pin names. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7457984Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7588611Z A wrong download is refused before tar reads it or anything runs. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7589755Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7866199Z A compiler whose realpath leaves the prefix is never executed. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.7867072Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8144146Z A receipt carrying an unexpected section is malformed. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8144925Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8241630Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8612546Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8613413Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8614106Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8958795Z Deletion, replacement, mode change and extra files all refuse. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.8959977Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9275350Z JSON of the wrong type cannot pass as provenance. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9276229Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9334452Z An existing directory is not an installed SDK. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9335250Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9618661Z A relocated tree is bound to the prefix where it was measured. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9619288Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9895804Z The installer digest and host are the ones measured here, independently. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:36.9896896Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0181623Z Pointing the selector at another installed tool is cache drift. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0182569Z test_special_file (__main__.InstallerTests.test_special_file)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0466142Z A FIFO planted in the cache is refused before any tool runs. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0467461Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0520363Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0521351Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0799056Z Provenance must be stored in the installation, not another tree. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.0800015Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1077840Z An interrupted receipt write never becomes a usable cache. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1078837Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1347412Z SDK argv: ["/tmp/rv32-installer-test-nann83bt/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1366563Z SDK argv: ["/tmp/rv32-installer-test-nann83bt/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1385966Z SDK argv: ["/tmp/rv32-installer-test-nann83bt/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1405646Z SDK argv: ["/tmp/rv32-installer-test-nann83bt/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1434833Z Even a successful process must prove its relocation result. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1435853Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1490161Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1490849Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1813235Z Every cache input is bound, including the whole digest and prefix. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.1814117Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2081987Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2101388Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2120788Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2140318Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2163307Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2183084Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2202340Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2221736Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2244613Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2263733Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2282954Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2301754Z SDK argv: ["/tmp/rv32-installer-test-mwzjbraw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2330395Z A compiler with the wrong version or target cannot create a receipt. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2331332Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2617332Z SDK argv: ["/tmp/rv32-installer-test-bou3xahz/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2638744Z SDK argv: ["/tmp/rv32-installer-test-bou3xahz/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2661312Z SDK argv: ["/tmp/rv32-installer-test-bou3xahz/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2680834Z SDK argv: ["/tmp/rv32-installer-test-bou3xahz/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2710501Z Cached identification must agree with the program actually invoked. ... ok
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2711345Z 
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2711600Z ----------------------------------------------------------------------
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2712225Z Ran 25 tests in 0.639s
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2712443Z 
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:37.2712560Z OK
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.2973525Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.2994524Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.3010295Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.3025433Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.3054040Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.3060360Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+firmware-aecp-mutants	Install and verify the pinned RV32 SDK	2026-10-12T19:29:38.3063625Z SDK cache hit: verified
+firmware-aecp-mutants	Run the AECP mutation campaign	﻿2026-10-12T19:29:38.3192926Z ##[group]Run python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3193776Z ^[[36;1mpython3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4^[[0m
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3256850Z shell: /usr/bin/bash -e {0}
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3257108Z env:
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3257308Z   VERILATOR_VERSION: v5.050
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3257549Z   YOSYS_VERSION: v0.66
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:38.3257771Z ##[endgroup]
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5138364Z PASS: shard inventory rejects planted missing suite
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5139817Z PASS: shard inventory rejects planted duplicate suite
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5141063Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5141904Z PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5142983Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5144713Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5147370Z tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5150946Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5152150Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5153313Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:29:59.5154270Z [ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:02.1792194Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:02.1793657Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:02.1794977Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:02.1796185Z [ok] nosub-bypasses-input-refusal: Core.S2_NoSubcommandSetOnInputIsNotSupported
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:04.8451887Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:04.8453693Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:04.8455254Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:04.8456906Z [ok] nosub-applies-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:07.5107650Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:07.5109698Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:07.5111436Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:07.5112768Z [ok] nosub-reports-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:10.1441010Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:10.1442338Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:10.1443963Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:10.1445200Z [ok] nosub-notifies-change: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:12.7892974Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:12.7894153Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:12.7895221Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:12.7896115Z [ok] retry-timer-lost: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:15.4492464Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:15.4494623Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:15.4496318Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:15.4498449Z [ok] entity-available-index-static: Core.EntityAvailableIndexUsesTheIngressObservation:App.EntityReadSeesTheRealAdpAdvertisementCount
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:18.2756488Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:18.2758577Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:18.2760290Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:18.2761657Z [ok] hdcp-data-length-echo: Core.NonAemMessageTypesFollowTheirOwnContracts
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:20.9459868Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:20.9461406Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:20.9462587Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:20.9463581Z [ok] cross-instance-guard-removed: Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:23.5682500Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:23.5684522Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:23.5686272Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:23.5687825Z [ok] unavailable-head-blocks-notices: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:26.1846861Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:26.1848804Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:26.1850430Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:26.1852155Z [ok] unavailable-retry-spins: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:28.8116219Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:28.8118051Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:28.8119976Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:28.8121507Z [ok] stream-info-request-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:31.4584724Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:31.4586575Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:31.4588032Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:31.4589174Z [ok] stream-info-flags-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:34.1022174Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:34.1024100Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:34.1025816Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:34.1027300Z [ok] stream-info-noop-refused: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:36.7087276Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:36.7088791Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:36.7089825Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:36.7090588Z [ok] root-configuration-refused: Core.RootDescriptorConfigurationIsIgnored
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:39.3548265Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:39.3549456Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:39.3550642Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:39.3551387Z [ok] identify-refusal-body-lost: Core.UnsupportedAndAcquire
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:41.9949984Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:41.9951529Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:41.9952913Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:41.9953814Z [ok] descriptor-last-byte: Core.EveryDescriptorAndReadFailures
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:44.6139850Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:44.6141836Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:44.6143546Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:44.6145096Z [ok] unknown-body-lost: Core.UnsupportedAndAcquire
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:47.2341522Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:47.2342918Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:47.2343989Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:47.2344715Z [ok] lock-long: Core.LockQueriesAndExpiry
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:49.8545390Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:49.8547398Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:49.8549373Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:49.8551330Z [ok] group-name-offset: Core.GroupNameDoesNotOverwriteFirmwareVersion:Core.NamesAndDescriptorOverlay:Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:52.4694405Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:52.4696140Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:52.4697718Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:52.4698860Z [ok] scalar-refusal-reports-request: Core.ScalarGetSetAndCurrentValueRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:55.0804425Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:55.0805537Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:55.0806657Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:55.0807532Z [ok] default-is-not-override: Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:57.7140262Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:57.7142091Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:57.7143801Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:30:57.7145745Z [ok] restore-forgets-override: Core.RestoreValuesValidateAndRollbackWithoutLiveEvents:Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:00.3506292Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:00.3507497Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:00.3508708Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:00.3509618Z [ok] boot-clip-boundary: Core.RestoreMapWholeSetClipAndDefaults:Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:02.9738705Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:02.9740156Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:02.9741419Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:02.9742472Z [ok] counter-last-word: Core.ObservationsHaveFullWireForms
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:05.6087230Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:05.6089184Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:05.6090764Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:05.6091942Z [ok] path-failure-success: Core.ObservationRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:08.2617296Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:08.2618976Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:08.2620176Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:08.2621015Z [ok] latency-sign-accepted: Core.StreamInfoDirectionFlagsAndLatency
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:10.9485150Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:10.9486363Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:10.9487304Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:10.9488406Z [ok] owed-response-discarded: Core.BackpressureOrdersResponseBeforeNotice
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:13.5946177Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:13.5948477Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:13.5950229Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:13.5951945Z [ok] start-wait-ten-ms: Core.StartIsDeferredAndHasFailureDeadline:Latency.DeferredFailureAndTimerPathsUseTheirDueTime
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:16.2654819Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:16.2655900Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:16.2656999Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:16.2657789Z [ok] dynamic-unknown-status: Core.DynamicInfoWhitelistAndIndependentResults
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:18.8994526Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:18.8996469Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:18.8998816Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:18.9000303Z [ok] registry-no-retry: Core.RegistryCapacityInterfaceKeysAndLiveness
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:21.5515489Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:21.5519467Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:21.5520449Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:21.5521356Z [ok] foreign-lock-ignored: Core.ConfigurationAndLockedSetRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:24.1849276Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:24.1851441Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:24.1853368Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:24.1854720Z [ok] extra-name-accepted: Core.NameRefusalsAndNoOp
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:26.8174536Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:26.8175917Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:26.8176941Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:26.8177724Z [ok] identify-one-accepted: Core.IdentifyCurrentValueAndRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:29.4389819Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:29.4391015Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:29.4392102Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:29.4393129Z [ok] clock-reserved-halfword-omitted: Core.ChangedScalarValuesAndDamagedLists
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:32.0839593Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:32.0840886Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:32.0842028Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:32.0842990Z [ok] dynamic-overflow-kept: Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:34.7129740Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:34.7131512Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:34.7133245Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:34.7134467Z [ok] map-capacity-ignored: Core.MapsAreAtomicAndPaginated
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:37.3494358Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:37.3496173Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:37.3497918Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:37.3499933Z [ok] counter-spacing-short: Core.CounterNoticesCoalesceAndWaitForEligibility:Mailbox.OutputTailStartsCounterSpacingAfterAStall
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:39.9747673Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:39.9749557Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:39.9750854Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:39.9751822Z [ok] unsupported-events-queued: Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:42.6003191Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:42.6005188Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:42.6006996Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:42.6008797Z [ok] static-map-orphan-accepted: Core.StaticMapsPreventOrphaningFormats
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:45.2510614Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:45.2512063Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:45.2513389Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:45.2514363Z [ok] output-owner-crossed: Core.OutputMappingsHaveOneGlobalOwner
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:47.8826504Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:47.8827926Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:47.8829480Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:47.8830625Z [ok] saved-latency-wrong-type: Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:50.5362757Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:50.5364412Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:50.5365862Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:50.5367467Z [ok] empty-map-no-page: Core.MapTopologyFailuresAndEmptyPartitions:Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:53.1757160Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:53.1758542Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:53.1759798Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:53.1760688Z [ok] boot-map-capacity-ignored: Core.BootMapFaultsCannotPartlyReplaceTheSet
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:55.7901473Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:55.7902517Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:55.7903581Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:55.7904304Z [ok] probe-status-matters: Core.ProbeRepliesResetOnlyTheirOwnInterface
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:58.4416328Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:58.4417782Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:58.4419567Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:31:58.4420440Z [ok] framing-version-ignored: Core.FramingRejectsInvalidIdentityAndTruncation
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:01.0762181Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:01.0764116Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:01.0765592Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:01.0766527Z [ok] reentry-uncounted: Core.ReentrantPortsCannotMutateState
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:03.7364057Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:03.7366167Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:03.7368014Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:03.7369350Z [ok] probe-sequence-ignored: Core.ProbeIdentityAndSequenceMustBothMatch
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:06.3882548Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:06.3884388Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:06.3886397Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:06.3888008Z [ok] counter-timer-during-output: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:09.0459085Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:09.0460266Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:09.0461434Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:09.0462380Z [ok] descriptor-configuration-ignored: Core.MetadataConfigurationKeysAndRepeatedOverrides
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:11.6960430Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:11.6961624Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:11.6962859Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:11.6963769Z [ok] map-cluster-channel-ignored: Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:14.3233438Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:14.3235243Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:14.3237381Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:14.3239000Z [ok] no-interface-accepted: Core.InitRefusalsAndClosedService
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:16.9831391Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:16.9833429Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:16.9835108Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:16.9836362Z [ok] system-id-write-lost: Core.MilanVendorCommandsAndRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:19.6342475Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:19.6343629Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:19.6344733Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:19.6345654Z [ok] completion-cookie-ignored: Core.NotificationBackpressureAndLatestCompletion
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:22.2922848Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:22.2924241Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:22.2925480Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:22.2926488Z [ok] stream-interface-bound-ignored: Core.DescriptorAndObservationBoundaryFailures
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:24.9053274Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:24.9055078Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:24.9056800Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:24.9058382Z [ok] nvm-hole-accepted: Nvm.WholeMapFramingAndEmptySetAreDistinct
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:27.5484302Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:27.5485364Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:27.5486317Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:27.5487270Z [ok] nvm-latency-dirty-lost: Nvm.AcceptedStateSurvivesTheRealStorePowerCycle:Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:30.2237574Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:30.2239174Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:30.2240230Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:30.2241109Z [ok] nvm-partial-latch-writes: Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:32.8529382Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:32.8531213Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:32.8532911Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:32.8534625Z [ok] app-start-inverted: App.DeferredStartAndLockUseTheRealAcmpOwner
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:35.4992241Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:35.4994152Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:35.4995692Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:35.4996568Z [ok] app-notice-overtakes-unbind: App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:38.1565052Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:38.1566847Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:38.1568793Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:38.1570244Z [ok] app-write-owner-lost: App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:40.7744680Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:40.7745846Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:40.7746852Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:40.7747626Z [ok] app-failure-flags-lost: App.InputInfoReflectsAcmpSettlementAndFailures
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:43.3949813Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:43.3952198Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:43.3953997Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:43.3955445Z [ok] app-poll-space-short: App.CompositionRefusalsLeaveExistingBindingsIntact
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:46.0485424Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:46.0487137Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:46.0488872Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:46.0489725Z [ok] app-expired-start-applies: App.ExpiredAndMissingStartRequestsCannotApplyLate
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:48.6809043Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:48.6810908Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:48.6812631Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:48.6814015Z [ok] app-unbound-start-refused: App.UnboundStartAndStopAreSuccessfulNoOps
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:51.3136931Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:51.3138884Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:51.3140540Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:51.3142259Z [ok] app-start-skips-publication: App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:53.9275568Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:53.9277255Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:53.9278522Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:53.9279431Z [ok] app-start-response-before-publication: App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:56.5460842Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:56.5462522Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:56.5463939Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:56.5464797Z [ok] mailbox-interface-crossed: Mailbox.EveryInterfaceAndObservationPort
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:59.1567134Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:59.1568412Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:59.1569417Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:32:59.1570202Z [ok] mailbox-stale-tag-accepted: Mailbox.TimerIdentityAndAttachRefusals
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:01.7864093Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:01.7865302Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:01.7866334Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:01.7867298Z [ok] mailbox-full-completions-overwritten: Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:04.4323679Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:04.4325463Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:04.4327061Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:04.4327978Z [ok] latency-response-missing: Latency.EveryCommandAndRefusalUsesOneArrivalBudget
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:21.6491119Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:21.6492377Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:21.6493453Z wrote /tmp/ctrl-fw-id_gutbd/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:21.6494320Z [ok] latency-budget-relaxed: Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:23.8083901Z [ok] image-byte-corrupted: Image.EveryDescriptor
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:24.3352886Z [ok] image-crc-ignored: Image.RejectHeader
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:24.8698037Z [ok] image-type-ignored: Image.RejectDirectory
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:26.8588261Z [ok] debug-guard-silent: AecpDebug.EveryInputRejectsSynchronousPortDelivery
+firmware-aecp-mutants	Run the AECP mutation campaign	2026-10-12T19:33:26.8997111Z test_ctrl_firmware: PASS
+firmware-aecp-mutants	Post Cache the pinned RV32 SDK	﻿2026-10-12T19:33:26.9934441Z Post job cleanup.
+firmware-aecp-mutants	Post Cache the pinned RV32 SDK	2026-10-12T19:33:27.1052073Z Cache hit occurred on the primary key rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9, not saving cache.
+firmware-aecp-mutants	Post Cache the pinned RV32 SDK	2026-10-12T19:33:27.1054908Z (node:12913) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-aecp-mutants	Post Cache the pinned RV32 SDK	2026-10-12T19:33:27.1056391Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-aecp-mutants	Post Run actions/checkout@v4	﻿2026-10-12T19:33:27.1211428Z Post job cleanup.
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2123015Z [command]/usr/bin/git version
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2168004Z git version 2.55.0
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2215088Z Temporarily overriding HOME='<home-path>/work/_temp/1d22d39f-006f-4b63-ac77-fa36301cc038' before making global git config changes
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2216879Z Adding repository directory to the temporary git global config as a safe directory
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2221813Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2264155Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2302078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2609584Z Entering 'gptp-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2670999Z Entering 'protocol-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2746904Z Entering 'third_party/lwSRP'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2804318Z Entering 'third_party/tsn-c-stack'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2848877Z Entering 'third_party/verilog-axis'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2902022Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2935783Z http.https://github.com/.extraheader
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2944730Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.2994715Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3240964Z Entering 'gptp-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3289318Z Entering 'protocol-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3333805Z Entering 'third_party/lwSRP'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3385971Z Entering 'third_party/tsn-c-stack'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3436808Z Entering 'third_party/verilog-axis'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3515547Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3582516Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3826521Z Entering 'gptp-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3852247Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3871899Z Entering 'protocol-processor'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3893940Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3915275Z Entering 'third_party/lwSRP'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3936500Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3955563Z Entering 'third_party/tsn-c-stack'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3975281Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.3993995Z Entering 'third_party/verilog-axis'
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4013734Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4051107Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4091805Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4127247Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4163052Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Post Run actions/checkout@v4	2026-10-12T19:33:27.4198473Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-aecp-mutants	Complete job	﻿2026-10-12T19:33:27.4374690Z Cleaning up orphan processes
+firmware-aecp-mutants	Complete job	2026-10-12T19:33:27.4781187Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

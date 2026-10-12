@@ -1,0 +1,514 @@
+ddbd7fd7787af0f342b597e9f8282fbd3e117b40
+
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+remerge CONFLICT (content): Merge conflict in .github/workflows/rtl-fast.yml
+index 8b46efa80..267ebbb05 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -311,13 +311,9 @@ jobs:
+   # versions and the compiler and gcov the ratchet is measured with.
+   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+   # build after SDK installation, plus the control mutation campaign. The
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+   # ADP, ACMP and MAAP cores are the tsn-c-stack submodule's (#697). Both
+   # public dependencies are fetched at their reviewed gitlinks.
+-=======
+-  # public dependency is fetched at the reviewed gitlink.
+   # Four complete phases run independently (#716); coverage stays unsplit.
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+   # The saved-state and tally mutation campaigns remain additional local gates.
+   firmware-unit:
+     needs: changes
+@@ -368,7 +364,108 @@ jobs:
+           python3 sw/firmware/gtest/fw_coverage.py --selftest
+           python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+ 
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
++  firmware-control-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run the control mutation campaign
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
++
++  firmware-aecp-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run the AECP mutation campaign
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
++
++  firmware-srp-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run both SRP mutation campaigns and pin controls
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
++
+   # #697: the TSN stack's boundary from both sides, over the compiles of
+   # every builder it judges but those that need Verilator: the gate runs each
+   # by its builds, read from its own known set (ctrl_configs.BUILDERS), not
+@@ -393,17 +490,6 @@ jobs:
+       - uses: actions/checkout@v4
+       - name: Fetch RTL dependencies
+         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+-=======
+-  firmware-control-mutants:
+-    needs: changes
+-    if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
+-    timeout-minutes: 45
+-    steps:
+-      - uses: actions/checkout@v4
+-      - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+       - name: Install GoogleTest and GoogleMock and print the versions
+         run: |
+@@ -413,10 +499,6 @@ jobs:
+           python3 -m pip install --quiet pyyaml
+           dpkg-query -W libgtest-dev libgmock-dev
+           g++ --version | head -n 1
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-=======
+-          gcov --version | head -n 1
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+       - name: Cache the pinned RV32 SDK
+         uses: actions/cache@v4
+@@ -429,7 +511,6 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+ 
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+       - name: Hold the TSN stack boundary over the firmware builders' compiles
+         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+ 
+@@ -448,20 +529,6 @@ jobs:
+       - uses: actions/checkout@v4
+       - name: Fetch RTL dependencies
+         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+-=======
+-      - name: Run the control mutation campaign
+-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+-
+-  firmware-aecp-mutants:
+-    needs: changes
+-    if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
+-    timeout-minutes: 45
+-    steps:
+-      - uses: actions/checkout@v4
+-      - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+       - name: Install GoogleTest and GoogleMock and print the versions
+         run: |
+@@ -471,7 +538,6 @@ jobs:
+           python3 -m pip install --quiet pyyaml
+           dpkg-query -W libgtest-dev libgmock-dev
+           g++ --version | head -n 1
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+ 
+       - name: Cache the pinned Verilator build
+         id: cache-verilator
+@@ -501,9 +567,6 @@ jobs:
+           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+           /opt/verilator/bin/verilator --version
+           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+-=======
+-          gcov --version | head -n 1
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+       - name: Cache the pinned RV32 SDK
+         uses: actions/cache@v4
+@@ -516,58 +579,15 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+ 
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+       - name: Hold the TSN stack boundary over the Verilator builders' compiles
+         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+-=======
+-      - name: Run the AECP mutation campaign
+-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+-
+-  firmware-srp-mutants:
+-    needs: changes
+-    if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
+-    timeout-minutes: 45
+-    steps:
+-      - uses: actions/checkout@v4
+-      - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+-
+-      - name: Install GoogleTest and GoogleMock and print the versions
+-        run: |
+-          set -euo pipefail
+-          sudo apt-get update -qq
+-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+-          python3 -m pip install --quiet pyyaml
+-          dpkg-query -W libgtest-dev libgmock-dev
+-          g++ --version | head -n 1
+-          gcov --version | head -n 1
+-
+-      - name: Cache the pinned RV32 SDK
+-        uses: actions/cache@v4
+-        with:
+-          path: ~/br-milan-rv32/host
+-          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+-      - name: Install and verify the pinned RV32 SDK
+-        run: |
+-          set -euo pipefail
+-          python3 scripts/ci_rv32_sdk_selftest.py
+-          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+-
+-      - name: Run both SRP mutation campaigns and pin controls
+-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
+   # deliberate docs-only result; failures and cancellations remain failures.
+   rtl-fast:
+     name: rtl-fast
+     if: ${{ always() && !cancelled() }}
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-boundary, firmware-verilator]
+-=======
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants]
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -579,14 +599,11 @@ jobs:
+           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+           PUBLICATION_CENSUS_RESULT: ${{ needs.publication-census.result }}
+           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-          FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
+-          FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
+-=======
+           FIRMWARE_CONTROL_MUTANTS_RESULT: ${{ needs.firmware-control-mutants.result }}
+           FIRMWARE_AECP_MUTANTS_RESULT: ${{ needs.firmware-aecp-mutants.result }}
+           FIRMWARE_SRP_MUTANTS_RESULT: ${{ needs.firmware-srp-mutants.result }}
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++          FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
++          FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
+         run: |
+           set -euo pipefail
+           bad=0
+@@ -597,14 +614,11 @@ jobs:
+             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+             "publication-census:$PUBLICATION_CENSUS_RESULT" \
+             "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-            "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
+-            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
+-=======
+             "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
+             "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
+-            "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT"; do
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++            "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT" \
++            "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
++            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
+             name="${pair%%:*}"
+             result="${pair#*:}"
+             printf '%-24s %s\n' "$name" "$result"
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+remerge CONFLICT (content): Merge conflict in docs/testing/CI_WORKFLOWS.md
+index fc46f6e1e..d47b5bea2 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -56,16 +56,13 @@ pull-request update and on every push to `dev`. It produces one stable
+   The RV32 self-test plants header, ABI, and runtime-dependency defects.
+   These builds report objects and frames, not linked-image bounds.
+   F4 initializes the public lwSRP submodule at its exact pin.
+-  The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+-  It runs no capture: the TSN stack boundary is `firmware-boundary`'s.
++  Each of the four jobs also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
++  None runs a capture: the TSN stack boundary is `firmware-boundary`'s.
+   The control gate includes lwSRP, SRP and its mutation campaign.
+   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
+   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
+   The job runs the tally listener's planted cases.
+-  Its budget is the job's own 45 minutes, which its suites alone fill past 60%.
+-  On a hosted runner at dev `8b61b709`, this lane's base, the job took 1963 s (job 114029646010), 73% of 2700 s.
+-  On the runner's Ubuntu 24.04 with four CPUs, a replica of its steps at this lane's head took 1986 s.
+-  The control gate took 1686 s of that, its mutation campaigns the most of it.
++  The four jobs' budgets are in the table below (#716).
+ - the TSN stack boundary over the compiles of every builder it judges but
+   those that need Verilator, `firmware-boundary` (#697), when RTL or its
+   tooling changes. The step is
+@@ -128,6 +125,7 @@ It also runs the tally checks and complete coverage ratchet.
+ The normal shard includes the SRP wire comparator self-test.
+ Both SRP interface campaigns retain F-INT's publication mutants.
+ The aggregate also requires the separate `publication-census` job.
++It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
+ All jobs verify the same pinned SDK.
+ Only that authenticated SDK is cached; builds remain fresh.
+ 
+@@ -156,12 +154,8 @@ The generated command census retains each command's conditions.
+ It also pins every worker and its 45-minute timeout.
+ 
+ A change containing only documentation skips the Verilator and Yosys setup
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-jobs, `publication-census`, `firmware-unit`, `firmware-boundary` and `firmware-verilator`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+-=======
+-jobs, `publication-census` and all four firmware jobs.
++jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+ Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+ module reads (#444). A gated module is code under the six roots named below,
+ other than the builder bank that `docs-check` runs whole. A page a gated module
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+remerge CONFLICT (content): Merge conflict in scripts/ci_events.py
+index 74b98ae98..b6eadcac2 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -592,15 +592,10 @@ INHERITED_STEP_ENV = {
+     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
+-=======
+-    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+-                             "FIRMWARE_UNIT_RESULT",
+                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+                              "FIRMWARE_SRP_MUTANTS_RESULT",
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+                              "PUBLICATION_CENSUS_RESULT",
+                              "VERILATOR_LINT_RESULT",
+                              "YOSYS_ELABORATION_RESULT"),
+@@ -1266,20 +1261,17 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
+ OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+ #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
+ FIRMWARE_UNIT_JOB = "firmware-unit"
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-#: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
+-#: run by its builds (ctrl_configs.BUILDERS), not its suites.
+-FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
+-#: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
+-FIRMWARE_VERILATOR_JOB = "firmware-verilator"
+-=======
+ FIRMWARE_JOBS = (FIRMWARE_UNIT_JOB, "firmware-control-mutants",
+                  "firmware-aecp-mutants", "firmware-srp-mutants")
+ FIRMWARE_JOB_IF = "${{ needs.changes.outputs.rtl == 'true' }}"
+ FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
+                         "Run the control mutation campaign", "Run the AECP mutation campaign",
+                         "Run both SRP mutation campaigns and pin controls")
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++#: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
++#: run by its builds (ctrl_configs.BUILDERS), not its suites.
++FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
++#: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
++FIRMWARE_VERILATOR_JOB = "firmware-verilator"
+ #: #665 F-INT: the fast job that runs the mailbox publication census in every
+ #: shape the builder builds, on its own runner (comment 6100024293).
+ CENSUS_JOB = "publication-census"
+@@ -7917,9 +7909,10 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
+ #: The fast firmware jobs' steps whose builders must refuse, never skip, a missing RV32 compiler.
+ RV32_REQUIRED_STEPS = {
+     FIRMWARE_UNIT_JOB: (
+-        ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
++        ("test_ctrl_firmware.py", FIRMWARE_PHASE_STEPS[0]),
+         ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"),
+     ),
++    **{jid: (("test_ctrl_firmware.py", step),) for jid, step in zip(FIRMWARE_JOBS[1:], FIRMWARE_PHASE_STEPS[1:])},
+     FIRMWARE_BOUNDARY_JOB: (
+         ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
+     ),
+@@ -7931,13 +7924,9 @@ def _rv32_sdk_arms() -> list[Arm]:
+     arms = []
+     for path, jid, count in ((DOCS, "docs-check", 50),
+                              (ELABORATE, "elaborate", 20),
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9),
+-                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
+-=======
+                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
+-                               for job in FIRMWARE_JOBS)):
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++                               for job in FIRMWARE_JOBS),
++                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
+         for label, key, value in (
+                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
+                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
+@@ -7958,14 +7947,7 @@ def _rv32_sdk_arms() -> list[Arm]:
+                      "(`Install and verify the pinned RV32 SDK`)"))
+         if path == RTL_FAST:
+             # Each missing compiler must refuse, never silently skip a build.
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+             for script, step_name in RV32_REQUIRED_STEPS[jid]:
+-=======
+-            controls = [("test_ctrl_firmware.py", FIRMWARE_PHASE_STEPS[FIRMWARE_JOBS.index(jid)])]
+-            if jid == FIRMWARE_UNIT_JOB:
+-                controls.append(("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"))
+-            for script, step_name in controls:
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
+                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
+                              _m_step_key_any(path, jid, script, "run",
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index bae1b4682..682c9d01b 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -93,17 +93,15 @@ partitions instead. Each mode covers the entire table across its partitions.
+ --coverage DIR builds the firmware with gcov's instrumentation into DIR and
+ runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
+ 
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+ --build-only builds and links every arm's binaries (with --coverage, the
+ coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
+ The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
+ the boundary needs the compiles, not the tests (#697).
+-=======
++
+ --shard INDEX/4 schedules the complete gate across four jobs: normal suites,
+ control mutants, AECP mutants, and SRP mutants with the pin controls.
+ It requires --self-test and cannot narrow coverage or another partition.
+ Every sharded run proves exhaustive, disjoint dispatch against the live default.
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+ 
+ Usage:
+     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -281,15 +279,12 @@ def main(argv: list[str] | None = None) -> int:
+                     help="with --self-test: plant slice K of N of the defect table")
+     args = ap.parse_args(argv)
+     args.jobs = min(4, max(1, args.jobs))
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+     if args.build_only and args.self_test:
+         ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
+-    fw_gtest.EXECUTION.run = not args.build_only
+-=======
+     if args.shard is not None and (not args.self_test or args.coverage is not None
+                                   or args.mutation_shard is not None or args.slice != (1, 1)):
+         ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
++    fw_gtest.EXECUTION.run = not args.build_only
+     if args.mutation_shard is not None:
+         index, count = args.mutation_shard
+         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+@@ -312,33 +307,7 @@ def main(argv: list[str] | None = None) -> int:
+         except Refusal as exc:
+             print(f"REFUSED: {exc}")
+             return 2
+-<<<<<<< 5b4ea5516 (Merge dev c6bd08c6, regenerating the submodule boundary diagram from both sides' gitlinks)
+-        failed = ctrl_arms.report(outcomes)
+-        if args.self_test and not failed:
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+-            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+-            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
+-            if args.lwsrp is not None:
+-                failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
+-                complete_srp_table = srp_mutants.DEFECTS
+-                try:
+-                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+-                                              if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+-                                                                    "p11-", "srp-bound-", "srp-term-",
+-                                                                    "srp-poll-extra", "srp-send-extra",
+-                                                                    *srp_pub_mutants.ROUND5)))
+-                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
+-                finally:
+-                    srp_mutants.DEFECTS = complete_srp_table
+-                try:
+-                    failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+-                except Refusal as exc:
+-                    print(f"REFUSED: {exc}")
+-                    return 2
+     print(f"test_ctrl_firmware: {verdict(failed)}")
+-=======
+-    print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+->>>>>>> dc4d06cbf (Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716))
+     return 1 if failed else 0
+ 
+ 

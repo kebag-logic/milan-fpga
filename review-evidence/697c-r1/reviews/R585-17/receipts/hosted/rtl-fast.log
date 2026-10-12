@@ -1,0 +1,83 @@
+rtl-fast	Set up job	﻿2026-10-12T19:43:45.0349203Z Current runner version: '2.337.0'
+rtl-fast	Set up job	2026-10-12T19:43:45.0378700Z ##[group]Runner Image Provisioner
+rtl-fast	Set up job	2026-10-12T19:43:45.0379654Z Hosted Compute Agent
+rtl-fast	Set up job	2026-10-12T19:43:45.0380258Z Version: 20261002.596
+rtl-fast	Set up job	2026-10-12T19:43:45.0380922Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+rtl-fast	Set up job	2026-10-12T19:43:45.0381773Z Build Date: 2026-10-02T22:28:27Z
+rtl-fast	Set up job	2026-10-12T19:43:45.0382544Z Worker ID: {ea7bd0f2-e18f-4638-8257-c5dbb6727778}
+rtl-fast	Set up job	2026-10-12T19:43:45.0383387Z Region: westus
+rtl-fast	Set up job	2026-10-12T19:43:45.0383944Z Cloud: Azure
+rtl-fast	Set up job	2026-10-12T19:43:45.0384772Z ##[endgroup]
+rtl-fast	Set up job	2026-10-12T19:43:45.0386474Z ##[group]Operating System
+rtl-fast	Set up job	2026-10-12T19:43:45.0387155Z Ubuntu
+rtl-fast	Set up job	2026-10-12T19:43:45.0387627Z 24.04.5
+rtl-fast	Set up job	2026-10-12T19:43:45.0388084Z LTS
+rtl-fast	Set up job	2026-10-12T19:43:45.0388547Z ##[endgroup]
+rtl-fast	Set up job	2026-10-12T19:43:45.0389095Z ##[group]Runner Image
+rtl-fast	Set up job	2026-10-12T19:43:45.0389686Z Image: ubuntu-24.04
+rtl-fast	Set up job	2026-10-12T19:43:45.0390244Z Version: 20261004.327.1
+rtl-fast	Set up job	2026-10-12T19:43:45.0391755Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+rtl-fast	Set up job	2026-10-12T19:43:45.0394131Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+rtl-fast	Set up job	2026-10-12T19:43:45.0395944Z ##[endgroup]
+rtl-fast	Set up job	2026-10-12T19:43:45.0397394Z ##[group]GITHUB_TOKEN Permissions
+rtl-fast	Set up job	2026-10-12T19:43:45.0399432Z Contents: read
+rtl-fast	Set up job	2026-10-12T19:43:45.0400046Z Metadata: read
+rtl-fast	Set up job	2026-10-12T19:43:45.0400612Z Packages: read
+rtl-fast	Set up job	2026-10-12T19:43:45.0401169Z ##[endgroup]
+rtl-fast	Set up job	2026-10-12T19:43:45.0403628Z Secret source: Actions
+rtl-fast	Set up job	2026-10-12T19:43:45.0404935Z Cache mode: write
+rtl-fast	Set up job	2026-10-12T19:43:45.0405887Z Prepare workflow directory
+rtl-fast	Set up job	2026-10-12T19:43:45.0855786Z Prepare all required actions
+rtl-fast	Set up job	2026-10-12T19:43:45.0932855Z Complete job name: rtl-fast
+rtl-fast	Require every applicable fast gate to pass	﻿2026-10-12T19:43:45.1774975Z ##[group]Run set -euo pipefail
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1776076Z ^[[36;1mset -euo pipefail^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1777082Z ^[[36;1mbad=0^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1777751Z ^[[36;1mfor pair in \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1778616Z ^[[36;1m  "changes:$CHANGES_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1779655Z ^[[36;1m  "verilator-lint:$VERILATOR_LINT_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1780839Z ^[[36;1m  "bdd-conformance:$BDD_CONFORMANCE_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1782131Z ^[[36;1m  "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1783459Z ^[[36;1m  "publication-census:$PUBLICATION_CENSUS_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1784992Z ^[[36;1m  "firmware-unit:$FIRMWARE_UNIT_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1786332Z ^[[36;1m  "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1787911Z ^[[36;1m  "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1789352Z ^[[36;1m  "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1790662Z ^[[36;1m  "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1792150Z ^[[36;1m  "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1793250Z ^[[36;1m  name="${pair%%:*}"^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1794120Z ^[[36;1m  result="${pair#*:}"^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1795432Z ^[[36;1m  printf '%-24s %s\n' "$name" "$result"^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1796529Z ^[[36;1m  case "$result" in^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1797323Z ^[[36;1m    success|skipped) ;;^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1798162Z ^[[36;1m    *) bad=1 ;;^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1798880Z ^[[36;1m  esac^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1799506Z ^[[36;1mdone^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.1800236Z ^[[36;1m[ "$bad" -eq 0 ]^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2709923Z shell: /usr/bin/bash -e {0}
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2711891Z env:
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2712956Z   VERILATOR_VERSION: v5.050
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2714714Z   YOSYS_VERSION: v0.66
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2715980Z   CHANGES_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2717323Z   VERILATOR_LINT_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2718815Z   BDD_CONFORMANCE_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2720273Z   YOSYS_ELABORATION_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2721855Z   PUBLICATION_CENSUS_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2723359Z   FIRMWARE_UNIT_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2725103Z   FIRMWARE_CONTROL_MUTANTS_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2727157Z   FIRMWARE_AECP_MUTANTS_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2728829Z   FIRMWARE_SRP_MUTANTS_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2730390Z   FIRMWARE_BOUNDARY_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2731851Z   FIRMWARE_VERILATOR_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2733352Z ##[endgroup]
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2985004Z changes                  success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2986026Z verilator-lint           success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2986908Z bdd-conformance          success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2987834Z yosys-elaboration        success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2988711Z publication-census       success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2989646Z firmware-unit            success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2990603Z firmware-control-mutants success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2991536Z firmware-aecp-mutants    success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2992520Z firmware-srp-mutants     success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2993422Z firmware-boundary        success
+rtl-fast	Require every applicable fast gate to pass	2026-10-12T19:43:45.2994603Z firmware-verilator       success
+rtl-fast	Complete job	﻿2026-10-12T19:43:45.3159419Z Cleaning up orphan processes

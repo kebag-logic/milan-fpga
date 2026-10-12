@@ -1,0 +1,3 @@
+rc=2 [--build-only --shard 0/4] test_ctrl_firmware.py: error: --shard requires --self-test and excludes --coverage, --mutation-shard and --slice
+rc=2 [--build-only --self-test] test_ctrl_firmware.py: error: --build-only runs no test, so it plants no defect: drop --self-test
+rc=2 [--shard 0/4 --build-only --self-test] test_ctrl_firmware.py: error: --build-only runs no test, so it plants no defect: drop --self-test

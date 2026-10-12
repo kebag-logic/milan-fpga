@@ -1,0 +1,26 @@
+top-level keys equal branch: True dev: True
+bdd-conformance            head==branch True  head==dev True  
+changes                    head==branch True  head==dev True  
+firmware-aecp-mutants      head==branch False head==dev False = dev + tsn-c-stack fetch
+firmware-boundary          head==branch True  head==dev False 
+firmware-control-mutants   head==branch False head==dev False = dev + tsn-c-stack fetch
+firmware-srp-mutants       head==branch False head==dev False = dev + tsn-c-stack fetch
+firmware-unit              head==branch False head==dev False = dev + tsn-c-stack fetch
+firmware-verilator         head==branch True  head==dev False 
+publication-census         head==branch True  head==dev True  
+verilator-lint             head==branch True  head==dev True  
+yosys-elaboration          head==branch True  head==dev True  
+aggregate needs == every other job (union of parents): True [] []
+  aggregate bdd-conformance            env True loop True count 1
+  aggregate changes                    env True loop True count 1
+  aggregate firmware-aecp-mutants      env True loop True count 1
+  aggregate firmware-boundary          env True loop True count 1
+  aggregate firmware-control-mutants   env True loop True count 1
+  aggregate firmware-srp-mutants       env True loop True count 1
+  aggregate firmware-unit              env True loop True count 1
+  aggregate firmware-verilator         env True loop True count 1
+  aggregate publication-census         env True loop True count 1
+  aggregate verilator-lint             env True loop True count 1
+  aggregate yosys-elaboration          env True loop True count 1
+firmware check steps: 9 duplicates: {}
+RESULT: OK

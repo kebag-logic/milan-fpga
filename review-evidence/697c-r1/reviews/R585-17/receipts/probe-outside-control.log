@@ -1,0 +1,23 @@
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+capture: 3050 compiler invocations from 19 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py
+  LEFT OUT: tb/verilator/mbx/Makefile, which needs Verilator, which this run has none of (--without verilator)
+  LEFT OUT: sw/firmware/ctrl/test/maap_differential.py, which needs Verilator, which this run has none of (--without verilator)
+  LEFT OUT: sw/firmware/ctrl/test/aecp_wire.py, which needs Verilator, which this run has none of (--without verilator)
+  1 compile(s) failed, each with its dependency pass, and compiled nothing: sw/firmware/gtest/fw_gtest.py, sw/firmware/gtest/fw_rv32_selftest.py ran riscv32-linux-gcc -march=rv32i -mabi=ilp32 -fno-stack-protector -fstack-usage -Os -std=c11 -Wall -Werror --sysroot=$REVIEWS/697c-r585-17-packet/scratch/tmp-cap1/fw-rv32-z0wgx9w3/sysroot -no ...
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (13 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 2823 compiled sources of 3050 recorded invocations (1622 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s)
+ctrl_boundary: PASS
