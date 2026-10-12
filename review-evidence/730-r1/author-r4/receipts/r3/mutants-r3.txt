@@ -1,0 +1,9 @@
+N22_primary_not_passed_to_stop	KILLED	rc=1	fail_arms=4	FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed be
+N23_primary_ignored_by_stop	KILLED	rc=1	fail_arms=5	FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed be
+N24_cleanup_failure_not_printed	KILLED	rc=1	fail_arms=6	FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed be
+N25_raised_failure_printed_too	KILLED	rc=1	fail_arms=3	FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is 
+N26_only_a_signal_is_kept	KILLED	rc=1	fail_arms=1	FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed be
+N27_a_signal_is_not_kept	KILLED	rc=1	fail_arms=3	FAIL a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is p
+N28_hold_not_printed	KILLED	rc=1	fail_arms=1	FAIL a reader still running when its bounded wait (patched to 0.05 s) expires is held for, not abandoned: the hold is printed and recorded, and the join returns only once
+N29_hold_not_recorded	KILLED	rc=1	fail_arms=1	FAIL a reader still running when its bounded wait (patched to 0.05 s) expires is held for, not abandoned: the hold is printed and recorded, and the join returns only once
+rc3=0
