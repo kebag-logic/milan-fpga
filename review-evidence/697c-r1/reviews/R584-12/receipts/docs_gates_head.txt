@@ -1,0 +1,24 @@
+## python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 203 md files + 1267 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## python3 -B scripts/check_em_dash.py --base c20c85bddd4ec5a054be42b55fc291a3b4c7f7d8
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+## python3 -B scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+## python3 -B scripts/check_py_idiom.py --selftest
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL
+rc=0
+## $VALIDATION_TOOLS/md-venv python -B scripts/check_em_dash.py --base c20c85bd
+check_em_dash: 0 finding(s) over 409 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c20c85bd..HEAD]
+rc=0
+## $VALIDATION_TOOLS/md-venv-40cdefe08ebd python -B scripts/check_em_dash.py --base c20c85bd
+check_em_dash: 0 finding(s) over 409 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c20c85bd..HEAD]
+rc=0

@@ -1,0 +1,23 @@
+## CLI pin check on the lazy_ssh state (src/ tree absent; partial-clone config naming core.sshCommand)
+ran before: 2
+REFUSED: cannot read the pinned tree of $REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/stack: the pinned src/ tree (tree 5c8c189a): fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+fatal: git cat-file 5c8c189a2158818a3881103fee359ea704fedbbd: bad file
+exit 2
+ran after: 4
+$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/recorder -G -o SendEnv=GIT_PROTOCOL example.invalid
+$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/recorder example.invalid git-upload-pack '$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/full'
+$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/recorder -G -o SendEnv=GIT_PROTOCOL example.invalid
+$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/recorder example.invalid git-upload-pack '$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/full'
+core.repositoryformatversion=1
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+core.sshcommand=$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/recorder
+extensions.partialclone=origin
+remote.origin.promisor=true
+remote.origin.url=ssh://example.invalid$REVIEWS/697c-r584-12-packet/scratch/probe-head/lazy_ssh/full
+remote.origin.partialclonefilter=blob:none
+git version 2.56.0
