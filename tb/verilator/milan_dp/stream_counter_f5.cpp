@@ -38,7 +38,8 @@ TEST_F(Mailbox, StreamCounterWindows)
         auto&times=departures[{type,index,recipient}];
         if(cadence){EXPECT_GE(times.size(),5u)<<"[F5 CADENCE] recipient total "<<type<<":"<<index;}
         unsigned bins[5]{};
-        uint32_t min_gap=5000,max_gap=0;
+        uint32_t min_gap=5000;
+        uint32_t max_gap=0;
         for(size_t n=0;n<times.size();++n){
             ASSERT_LT(times[n],5000u);++bins[times[n]/1000];
             if(n){min_gap=std::min(min_gap,times[n]-times[n-1]);

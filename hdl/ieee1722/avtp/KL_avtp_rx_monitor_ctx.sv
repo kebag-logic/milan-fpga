@@ -184,10 +184,11 @@ module KL_avtp_rx_monitor_ctx #(
   output wire [31:0] cnt_ts_valid_o,
   output wire [31:0] cnt_ts_not_valid_o,
   output logic        media_locked_o,    //! stream-0 lock state (level)
-  //! Per-context counter-change pulses (Milan 5.4.5.2 Table 5.22).
+  //! Per-context counter-change pulses, one clk_i cycle per update
+  //! (Milan 5.4.5.2 Table 5.22).
   //! Every changed counter, including healthy TV/TNV and FRAMES_RX,
   //! marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12).
-  //! Coalescing and one-second spacing belong to the notification scheduler.
+  //! Coalescing and spacing of 1 second belong to the notification scheduler.
   output logic [N_LISTENERS_P-1:0] dirty_p_o,
   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
   output logic [3:0]  pdu_accept_idx_o,  //! its stream index

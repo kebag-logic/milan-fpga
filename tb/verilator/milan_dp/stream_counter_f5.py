@@ -18,7 +18,8 @@ from ctrl_build import CTRL, Tree  # noqa: E402
 import fw_gtest  # noqa: E402
 
 
-def main():
+def main() -> int:
+    """Run mailbox windows and, for a plant, require detection then omission escape."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work", type=Path)
     parser.add_argument("--variant", choices=("clean", "late", "rate"), default="clean")

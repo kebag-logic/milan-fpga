@@ -29,13 +29,15 @@ GROUPS = {"tx-interval": "TX", "rx-interval": "RX", "tx-reset": "TX_RESET",
           "tx-nodirty": "OUTPUT_CADENCE"}
 
 
-def replace_once(text, old, new):
+def replace_once(text: str, old: str, new: str) -> str:
+    """Apply one plant only when its source anchor is unique."""
     if text.count(old) != 1:
         raise ValueError(f"plant anchor occurred {text.count(old)} times: {old!r}")
     return text.replace(old, new)
 
 
-def plant(variant, work, output_condition):
+def plant(variant: str, work: Path, output_condition: str) -> dict[str, str]:
+    """Stage isolated source variants; expectations remain in the MAC fixture."""
     files = {rel: (ROOT / rel).read_text() for rel in (TX, RX, AAF, DP)}
     if variant == "before":
         for rel in files:
@@ -105,7 +107,8 @@ def plant(variant, work, output_condition):
     return paths
 
 
-def run(shape, variant, work, verilator, output_condition):
+def run(shape: int, variant: str, work: Path, verilator: str, output_condition: str) -> None:
+    """Build the requested shape and require clean or attributable detection/escape results."""
     work.mkdir(parents=True, exist_ok=True)
     # Preserve the fixture's repository-relative descriptor paths without
     # writing ROM images or object files into the checkout.
@@ -174,7 +177,8 @@ def run(shape, variant, work, verilator, output_condition):
         print(f"{shape}x{shape} {variant} {output_condition} {name}: rc={result.returncode}, failures={len(failures)}")
 
 
-def main():
+def main() -> None:
+    """Select the shape, plant and output condition for a scratch-only run."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work", type=Path)
     parser.add_argument("--shape", type=int, choices=(1, 8), default=1)

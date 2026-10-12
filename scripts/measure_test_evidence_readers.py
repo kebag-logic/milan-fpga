@@ -124,6 +124,11 @@ DUT_READER_DISPOSITIONS = {
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
         "grade isolation and cleanup only; RTL behavior still requires the real suite",
+    "tb/verilator/milan_dp/stream_counters.py":
+        "packet/reset/cadence campaign; stages baseline and named plants in isolated RTL copies, "
+        "requiring named failures and escapes with only the corresponding check group omitted. "
+        "Expected totals come from the MAC packet census and injected traffic; notification "
+        "expectations come from the ruled spacing/window contract, never from RTL text",
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
