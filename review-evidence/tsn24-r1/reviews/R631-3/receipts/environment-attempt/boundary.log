@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$REVIEW_SOURCE/scripts/check_boundary.py", line 140, in <module>
+    selftest(work, args.jobs)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEW_SOURCE/scripts/check_boundary.py", line 124, in selftest
+    errors = inspect(root, work / ('control-' + compiler), compiler, jobs)
+  File "$REVIEW_SOURCE/scripts/check_boundary.py", line 45, in inspect
+    run(['cmake', '-S', str(root), '-B', str(build), '-DTSN_TESTS=OFF',
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_COMPILER=' + compiler], root)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_SOURCE/scripts/check_boundary.py", line 20, in run
+    return subprocess.check_output(command, cwd=cwd, text=True, stderr=subprocess.STDOUT)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cmake', '-S', '$REVIEW_PACKET/scratch/validation/boundary/boundary-e5jmt7t4/controls', '-B', '$REVIEW_PACKET/scratch/validation/boundary/boundary-e5jmt7t4/control-clang', '-DTSN_TESTS=OFF', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_COMPILER=clang']' returned non-zero exit status 1.

@@ -1,0 +1,89 @@
+[==========] Running 39 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 19 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (3 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller
+[       OK ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 19 tests from AdpCore (3 ms total)
+
+[----------] 20 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 20 tests from AllStates/AdpInputControl (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 39 tests from 2 test suites ran. (20 ms total)
+[  PASSED  ] 39 tests.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:04:11.998" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:04:11.998">
+    <testcase name="A27AnOwedProbeStartsItsTimerWhenItLeaves" file="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp" line="1588" status="run" result="completed" time="0." timestamp="2026-10-12T19:04:11.998" classname="AcmpCore">
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:1604&#x0A;Value of: fk.sent.size() == 2u &amp;&amp; read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; !s.timer_held &amp;&amp; s.timer_deadline == t0 + 5u + spec::TMR_NO_RESP_MS &amp;&amp; fk.armed[0] &amp;&amp; fk.at[0] == s.timer_deadline&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:1604
+Value of: fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND && !s.timer_held && s.timer_deadline == t0 + 5u + spec::TMR_NO_RESP_MS && fk.armed[0] && fk.at[0] == s.timer_deadline
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:1614&#x0A;Value of: s.state == ACMP_PRB_W_RESP2 &amp;&amp; fk.sent.size() == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;A27 the duplicate 200 ms after the send&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:1614
+Value of: s.state == ACMP_PRB_W_RESP2 && fk.sent.size() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+A27 the duplicate 200 ms after the send
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

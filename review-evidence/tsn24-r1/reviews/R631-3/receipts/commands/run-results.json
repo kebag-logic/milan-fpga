@@ -1,0 +1,101 @@
+[
+  {
+    "name": "validate",
+    "command": [
+      "python3",
+      "scripts/validate.py",
+      "--work",
+      "$REVIEW_PACKET/scratch/validation",
+      "--jobs",
+      "16"
+    ],
+    "rc": 1,
+    "seconds": 84.52
+  },
+  {
+    "name": "rv32",
+    "command": [
+      "python3",
+      "scripts/baremetal.py",
+      "--work",
+      "$REVIEW_PACKET/scratch/rv32",
+      "--jobs",
+      "16"
+    ],
+    "rc": 0,
+    "seconds": 4.84
+  },
+  {
+    "name": "rv32-base",
+    "command": [
+      "python3",
+      "scripts/baremetal.py",
+      "--work",
+      "$REVIEW_PACKET/scratch/rv32-base",
+      "--jobs",
+      "16"
+    ],
+    "rc": 0,
+    "seconds": 4.38
+  },
+  {
+    "name": "escape",
+    "command": [
+      "python3",
+      "$REVIEW_PACKET/scripts/R630-1/escape_probe.py",
+      "--tree",
+      "$REVIEW_PACKET/scratch/source",
+      "--work",
+      "$REVIEW_PACKET/scratch/escape",
+      "--jobs",
+      "8"
+    ],
+    "rc": 0,
+    "seconds": 119.07
+  },
+  {
+    "name": "physical-original",
+    "command": [
+      "python3",
+      "$REVIEW_PACKET/scripts/R630-1/physical_removal.py",
+      "--tree",
+      "$REVIEW_PACKET/scratch/source",
+      "--work",
+      "$REVIEW_PACKET/scratch/physical-original",
+      "--plants",
+      "x-zero-never-expires,dafresh-half-range,dafresh-unanswered-clock,dafresh-expiry-equality,dafresh-inclusive-edge,dafresh-no-renewal,dafresh-listener-needs-probe,dafresh-ignore-address,dafresh-absolute-clock,dafresh-fixed-window,dafresh-refused-answer,dafresh-only-success,dafresh-state-reply-demand,dafresh-wrong-source,dafresh-wrong-interface,dafresh-reset-retains-demand"
+    ],
+    "rc": 0,
+    "seconds": 92.44
+  },
+  {
+    "name": "gap",
+    "command": [
+      "python3",
+      "$REVIEW_PACKET/scripts/R630-2/gap_mutants.py",
+      "--tree",
+      "$REVIEW_PACKET/scratch/source",
+      "--work",
+      "$REVIEW_PACKET/scratch/gap",
+      "--jobs",
+      "6"
+    ],
+    "rc": 0,
+    "seconds": 55.68
+  },
+  {
+    "name": "physical-gap",
+    "command": [
+      "python3",
+      "$REVIEW_PACKET/scripts/R630-2/physical_removal.py",
+      "--tree",
+      "$REVIEW_PACKET/scratch/source",
+      "--work",
+      "$REVIEW_PACKET/scratch/physical-gap",
+      "--plants",
+      "g-expiry-skipped-with-listener,g-expiry-skipped-invalid-da"
+    ],
+    "rc": 0,
+    "seconds": 50.69
+  }
+]

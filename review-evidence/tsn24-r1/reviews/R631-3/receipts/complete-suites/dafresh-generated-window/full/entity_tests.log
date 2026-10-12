@@ -1,0 +1,27 @@
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from EntityYaml
+[ RUN      ] EntityYaml.AdpRoundTrip
+[       OK ] EntityYaml.AdpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.AcmpRoundTrip
+[       OK ] EntityYaml.AcmpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.DaFreshRoundTrip
+$REVIEW_PACKET/scratch/escape/dafresh-generated-window/tree/tests/test_entity.cpp:26: Failure
+Expected equality of these values:
+  entity_check_dafresh()
+    Which is: 80
+  0
+generated freshness configuration survives both target round trips
+
+[  FAILED  ] EntityYaml.DaFreshRoundTrip (0 ms)
+[ RUN      ] EntityYaml.MaapRoundTrip
+[       OK ] EntityYaml.MaapRoundTrip (0 ms)
+[----------] 4 tests from EntityYaml (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] EntityYaml.DaFreshRoundTrip
+
+ 1 FAILED TEST

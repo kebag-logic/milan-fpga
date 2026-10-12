@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:04:04.161" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:04:04.161">
+    <testcase name="A24OtherEtherTypeOrSubtypeDiscarded" file="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_adp.cpp" line="589" status="run" result="completed" time="0." timestamp="2026-10-12T19:04:04.161" classname="AdpCore">
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_adp.cpp:532&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 1&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;A24 a DISCOVER under another EtherType or subtype is discarded and counted&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_adp.cpp:532
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+A24 a DISCOVER under another EtherType or subtype is discarded and counted
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_adp.cpp:533&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 2&#x0A;  ADP_STATE_WAITING&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;A24 and leaves WAITING alone&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_adp.cpp:533
+Expected equality of these values:
+  a.state
+    Which is: 2
+  ADP_STATE_WAITING
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+A24 and leaves WAITING alone
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

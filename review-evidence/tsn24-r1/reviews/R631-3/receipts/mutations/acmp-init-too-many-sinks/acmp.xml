@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:04:04.243" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:04:04.243">
+    <testcase name="A0InitRefusesWhatTheStaticSizesCannotHold" file="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp" line="209" status="run" result="completed" time="0." timestamp="2026-10-12T19:04:04.243" classname="AcmpCore">
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:226&#x0A;Value of: acmp_init(&amp;b, &amp;bad, &amp;kPorts, &amp;kEnv)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;A0 more sinks than ACMP_MAX_SINKS are refused&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:226
+Value of: acmp_init(&b, &bad, &kPorts, &kEnv)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+A0 more sinks than ACMP_MAX_SINKS are refused
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

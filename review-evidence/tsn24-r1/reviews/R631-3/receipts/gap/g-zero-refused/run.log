@@ -1,0 +1,890 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $REVIEW_PACKET/scratch/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: $REVIEW_PACKET/scratch/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (2.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: $REVIEW_PACKET/scratch/gap/g-zero-refused/b
+[  2%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+[  4%] Building C object CMakeFiles/entity_examples.dir/examples/entity_roundtrip.c.o
+[  6%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[  9%] Building C object CMakeFiles/entity_examples.dir/examples/entities/listener/entity_config.c.o
+[ 11%] Building C object CMakeFiles/entity_examples.dir/examples/entities/talker/entity_config.c.o
+[ 13%] Building C object CMakeFiles/entity_examples.dir/examples/entities/duplex/entity_config.c.o
+[ 16%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 18%] Linking C static library libtsn.a
+[ 20%] Building C object CMakeFiles/entity_examples.dir/examples/entities/ax7101/entity_config.c.o
+[ 20%] Built target tsn
+[ 23%] Linking C static library libentity_examples.a
+[ 25%] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[ 25%] Built target entity_examples
+[ 27%] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[ 30%] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[ 32%] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[ 34%] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[ 37%] Linking C static library libtsn_debug.a
+[ 39%] Linking C static library libtsn_test.a
+[ 39%] Built target tsn_debug
+[ 41%] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[ 41%] Built target tsn_test
+[ 44%] Building CXX object CMakeFiles/maap_debug.dir/tests/test_maap_debug.cpp.o
+[ 46%] Building CXX object CMakeFiles/maap_debug.dir/tests/main.cpp.o
+[ 48%] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[ 51%] Linking CXX executable adp_debug
+[ 53%] Linking CXX executable maap_debug
+[ 53%] Built target maap_debug
+[ 55%] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[ 55%] Built target adp_debug
+[ 58%] Building CXX object CMakeFiles/acmp_tests.dir/tests/test_acmp.cpp.o
+[ 60%] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[ 62%] Linking CXX executable adp_tests
+[ 65%] Building CXX object CMakeFiles/acmp_tests.dir/tests/main.cpp.o
+[ 65%] Built target adp_tests
+[ 67%] Building CXX object CMakeFiles/maap_tests.dir/tests/test_maap.cpp.o
+[ 69%] Linking CXX executable acmp_tests
+[ 72%] Building CXX object CMakeFiles/maap_tests.dir/tests/main.cpp.o
+[ 74%] Linking CXX executable maap_tests
+[ 74%] Built target maap_tests
+[ 76%] Building CXX object CMakeFiles/entity_tests.dir/tests/test_entity.cpp.o
+[ 79%] Building CXX object CMakeFiles/entity_tests.dir/tests/main.cpp.o
+[ 81%] Linking CXX executable entity_tests
+[ 81%] Built target acmp_tests
+[ 83%] Building C object CMakeFiles/example_port.dir/examples/adp_port.c.o
+[ 86%] Linking C static library libexample_port.a
+[ 86%] Built target example_port
+[ 88%] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[ 90%] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[ 93%] Linking CXX executable adp_release
+[ 93%] Built target adp_release
+[ 95%] Building CXX object CMakeFiles/port_tests.dir/tests/test_port.cpp.o
+[ 97%] Building CXX object CMakeFiles/port_tests.dir/tests/main.cpp.o
+[100%] Linking CXX executable port_tests
+[100%] Built target port_tests
+[100%] Built target entity_tests
+Test project $REVIEW_PACKET/scratch/gap/g-zero-refused/b
+    Start 1: adp_tests
+    Start 2: acmp_tests
+1/8 Test #2: acmp_tests .......................***Failed    0.01 sec
+[==========] Running 97 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 79 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId (0 ms)
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A3UnbindInEveryState (0 ms)
+[ RUN      ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind (0 ms)
+[ RUN      ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked (0 ms)
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[ RUN      ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId (0 ms)
+[ RUN      ] AcmpCore.A7EachGuardTermIsChecked
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A7EachGuardTermIsChecked (0 ms)
+[ RUN      ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A8SuccessSettles
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A8SuccessSettles (0 ms)
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[ RUN      ] AcmpCore.KindChangesOnlyTheSettledView
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.KindChangesOnlyTheSettledView (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[ RUN      ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw (0 ms)
+[ RUN      ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource (0 ms)
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[ RUN      ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A21MessagesNotForThisEntityAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A21MalformedFramesAreCounted
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A21MalformedFramesAreCounted (0 ms)
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[ RUN      ] AcmpCore.A19NothingPassesAnOwedFrame
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A19NothingPassesAnOwedFrame (0 ms)
+[ RUN      ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs (0 ms)
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStateCells
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22DiscoveredStateCells (0 ms)
+[ RUN      ] AcmpCore.A22DepartingAndAging
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22DepartingAndAging (0 ms)
+[ RUN      ] AcmpCore.DepartingRetainsBindingAndReprobes
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface (0 ms)
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms)
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[ RUN      ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[ RUN      ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead (0 ms)
+[ RUN      ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[ RUN      ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval (0 ms)
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[ RUN      ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[ RUN      ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker (0 ms)
+[ RUN      ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[ RUN      ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.DepartingStopsEveryProbingTimer
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.DepartingStopsEveryProbingTimer (0 ms)
+[ RUN      ] AcmpCore.CommandPortBudgets
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.CommandPortBudgets (0 ms)
+[ RUN      ] AcmpCore.TimerPortBudgets
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.TimerPortBudgets (0 ms)
+[ RUN      ] AcmpCore.DiscoveryPortBudgets
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.DiscoveryPortBudgets (0 ms)
+[ RUN      ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath (0 ms)
+[ RUN      ] AcmpCore.A31OnlyAMovedTripleIsPublished
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31OnlyAMovedTripleIsPublished (0 ms)
+[ RUN      ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised (0 ms)
+[ RUN      ] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens (0 ms)
+[ RUN      ] AcmpCore.A31ACallBackFromThePublishPortIsRefused
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31ACallBackFromThePublishPortIsRefused (0 ms)
+[ RUN      ] AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort (0 ms)
+[ RUN      ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream (0 ms)
+[ RUN      ] AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal (0 ms)
+[ RUN      ] AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop (0 ms)
+[----------] 79 tests from AcmpCore (1 ms total)
+
+[----------] 18 tests from AcmpFresh
+[ RUN      ] AcmpFresh.NoProbe
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.NoProbe (0 ms)
+[ RUN      ] AcmpFresh.StaleProbe
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.StaleProbe (0 ms)
+[ RUN      ] AcmpFresh.StaleProbeAfterListenerWrap
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.StaleProbeAfterListenerWrap (0 ms)
+[ RUN      ] AcmpFresh.StaleProbeAfterInvalidAddressWrap
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.StaleProbeAfterInvalidAddressWrap (0 ms)
+[ RUN      ] AcmpFresh.WindowEdge
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.WindowEdge (0 ms)
+[ RUN      ] AcmpFresh.WithinWindowAndRefresh
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.WithinWindowAndRefresh (0 ms)
+[ RUN      ] AcmpFresh.ListenerWithoutProbe
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ListenerWithoutProbe (0 ms)
+[ RUN      ] AcmpFresh.InvalidAddress
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.InvalidAddress (0 ms)
+[ RUN      ] AcmpFresh.ClockWrap
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ClockWrap (0 ms)
+[ RUN      ] AcmpFresh.ConfiguredWindow
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ConfiguredWindow (0 ms)
+[ RUN      ] AcmpFresh.ZeroWindow
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ZeroWindow (0 ms)
+[ RUN      ] AcmpFresh.WindowRange
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.WindowRange (0 ms)
+[ RUN      ] AcmpFresh.DeferredAnswer
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.DeferredAnswer (0 ms)
+[ RUN      ] AcmpFresh.FailedAllocationAnswer
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.FailedAllocationAnswer (0 ms)
+[ RUN      ] AcmpFresh.OtherRepliesDoNotRefresh
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.OtherRepliesDoNotRefresh (0 ms)
+[ RUN      ] AcmpFresh.SourceAndInterfaceIsolation
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.SourceAndInterfaceIsolation (0 ms)
+[ RUN      ] AcmpFresh.InputGuardsAndReentry
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.InputGuardsAndReentry (2 ms)
+[ RUN      ] AcmpFresh.ListenerWithdrawalAndReset
+$REVIEW_PACKET/scratch/gap/g-zero-refused/tree/tests/test_acmp.cpp:54: Failure
+Value of: acmp_init(&a, &cfg, &kPorts, &kEnv)
+  Actual: false
+Expected: true
+
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset (0 ms)
+[----------] 18 tests from AcmpFresh (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 97 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 97 tests, listed below:
+[  FAILED  ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[  FAILED  ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[  FAILED  ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[  FAILED  ] AcmpCore.A2GetRxStateInEveryState
+[  FAILED  ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[  FAILED  ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[  FAILED  ] AcmpCore.A3UnbindInEveryState
+[  FAILED  ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[  FAILED  ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[  FAILED  ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[  FAILED  ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+[  FAILED  ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[  FAILED  ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[  FAILED  ] AcmpCore.A7EachGuardTermIsChecked
+[  FAILED  ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[  FAILED  ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[  FAILED  ] AcmpCore.A8SuccessSettles
+[  FAILED  ] AcmpCore.A9FailureWaitsForTheRetry
+[  FAILED  ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[  FAILED  ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[  FAILED  ] AcmpCore.A12DelaySendsANewProbe
+[  FAILED  ] AcmpCore.A13NoTalkerAttributeReprobes
+[  FAILED  ] AcmpCore.A14RegisteredSettlesTheReservation
+[  FAILED  ] AcmpCore.A15UnregisteredReprobes
+[  FAILED  ] AcmpCore.KindChangesOnlyTheSettledView
+[  FAILED  ] AcmpCore.A16OneCounterForEveryNewProbe
+[  FAILED  ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[  FAILED  ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[  FAILED  ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[  FAILED  ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[  FAILED  ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[  FAILED  ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[  FAILED  ] AcmpCore.A21MalformedFramesAreCounted
+[  FAILED  ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[  FAILED  ] AcmpCore.A19NothingPassesAnOwedFrame
+[  FAILED  ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[  FAILED  ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[  FAILED  ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[  FAILED  ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[  FAILED  ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[  FAILED  ] AcmpCore.A22DiscoveredStateCells
+[  FAILED  ] AcmpCore.A22DepartingAndAging
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+[  FAILED  ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[  FAILED  ] AcmpCore.A22OtherAdpFramesAreIgnored
+[  FAILED  ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[  FAILED  ] AcmpCore.A23EveryPortIsGuarded
+[  FAILED  ] AcmpCore.A24ARestoredBindingFastConnects
+[  FAILED  ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported
+[  FAILED  ] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime
+[  FAILED  ] AcmpCore.A25OnlyTable522ItemsAreReported
+[  FAILED  ] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead
+[  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves
+[  FAILED  ] AcmpCore.A27AStalledDuplicateGetsItsWholeInterval
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap
+[  FAILED  ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap
+[  FAILED  ] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+[  FAILED  ] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+[  FAILED  ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend
+[  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend
+[  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+[  FAILED  ] AcmpCore.DepartingStopsEveryProbingTimer
+[  FAILED  ] AcmpCore.CommandPortBudgets
+[  FAILED  ] AcmpCore.TimerPortBudgets
+[  FAILED  ] AcmpCore.DiscoveryPortBudgets
+[  FAILED  ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+[  FAILED  ] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath
+[  FAILED  ] AcmpCore.A31OnlyAMovedTripleIsPublished
+[  FAILED  ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised
+[  FAILED  ] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens
+[  FAILED  ] AcmpCore.A31ACallBackFromThePublishPortIsRefused
+[  FAILED  ] AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort
+[  FAILED  ] AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream
+[  FAILED  ] AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal
+[  FAILED  ] AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop
+[  FAILED  ] AcmpFresh.NoProbe
+[  FAILED  ] AcmpFresh.StaleProbe
+[  FAILED  ] AcmpFresh.StaleProbeAfterListenerWrap
+[  FAILED  ] AcmpFresh.StaleProbeAfterInvalidAddressWrap
+[  FAILED  ] AcmpFresh.WindowEdge
+[  FAILED  ] AcmpFresh.WithinWindowAndRefresh
+[  FAILED  ] AcmpFresh.ListenerWithoutProbe
+[  FAILED  ] AcmpFresh.InvalidAddress
+[  FAILED  ] AcmpFresh.ClockWrap
+[  FAILED  ] AcmpFresh.ConfiguredWindow
+[  FAILED  ] AcmpFresh.ZeroWindow
+[  FAILED  ] AcmpFresh.WindowRange
+[  FAILED  ] AcmpFresh.DeferredAnswer
+[  FAILED  ] AcmpFresh.FailedAllocationAnswer
+[  FAILED  ] AcmpFresh.OtherRepliesDoNotRefresh
+[  FAILED  ] AcmpFresh.SourceAndInterfaceIsolation
+[  FAILED  ] AcmpFresh.InputGuardsAndReentry
+[  FAILED  ] AcmpFresh.ListenerWithdrawalAndReset
+
+97 FAILED TESTS
+
+    Start 3: maap_tests
+2/8 Test #1: adp_tests ........................   Passed    0.06 sec
+    Start 4: entity_tests
+3/8 Test #4: entity_tests .....................   Passed    0.01 sec
+    Start 5: port_tests
+4/8 Test #3: maap_tests .......................   Passed    0.06 sec
+    Start 6: adp_release
+5/8 Test #5: port_tests .......................   Passed    0.01 sec
+    Start 7: adp_debug
+6/8 Test #6: adp_release ......................   Passed    0.01 sec
+    Start 8: maap_debug
+7/8 Test #7: adp_debug ........................   Passed    0.30 sec
+8/8 Test #8: maap_debug .......................   Passed    0.38 sec
+
+88% tests passed, 1 tests failed out of 8
+
+Total Test time (real) =   0.46 sec
+
+The following tests FAILED:
+	  2 - acmp_tests (Failed)
+Errors while running CTest

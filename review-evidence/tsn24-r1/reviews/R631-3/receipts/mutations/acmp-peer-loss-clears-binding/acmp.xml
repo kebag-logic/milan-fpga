@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:04:15.832" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:04:15.832">
+    <testcase name="DepartingRetainsBindingAndReprobes" file="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp" line="1282" status="run" result="completed" time="0." timestamp="2026-10-12T19:04:15.832" classname="AcmpCore">
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:164&#x0A;Value of: retained.bound &amp;&amp; retained.binding.talker_entity_id == kTkA &amp;&amp; retained.binding.talker_unique_id == 1u &amp;&amp; retained.binding.controller_entity_id == kCtl1&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;peer loss retains the binding and its talker, stream and controller&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:164
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:184&#x0A;Value of: view(0).bound &amp;&amp; view(0).state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;rediscovery keeps the sink bound while awaiting the new response&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:184
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+    </testcase>
+    <testcase name="AdpTimeoutRetainsBindingAndReprobes" file="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp" line="1287" status="run" result="completed" time="0." timestamp="2026-10-12T19:04:15.832" classname="AcmpCore">
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:164&#x0A;Value of: retained.bound &amp;&amp; retained.binding.talker_entity_id == kTkA &amp;&amp; retained.binding.talker_unique_id == 1u &amp;&amp; retained.binding.controller_entity_id == kCtl1&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;peer loss retains the binding and its talker, stream and controller&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:164
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+      <failure message="$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:184&#x0A;Value of: view(0).bound &amp;&amp; view(0).state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1&#x0A;rediscovery keeps the sink bound while awaiting the new response&#x0A;TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8&#x0A;&#x0A;" type=""><![CDATA[$REVIEW_PACKET/scratch/validation-sdk/mutations/baseline/tests/test_acmp.cpp:184
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_fbfdd6bb2db207579ff6680ae44c3ed1
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_c66eb43b79139206f0a421776d4e4bf8
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
