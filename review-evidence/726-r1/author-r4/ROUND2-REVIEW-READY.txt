@@ -1,0 +1,17 @@
+[A605] REVIEW READY
+Round 2 commit: 37944f8ac9d1a2212a3a32f36d921434ea0cbdeb
+Branch: 726-stream-counters. Five new local commits; no push.
+
+Changed: F1/F01 updates the bind-era contract to ten counter resets and six retained anomaly flags. F2 grades output cadence with FRAMES_TX alone changing at both shapes, adds the missing-output-event plant, and requires named baseline failure groups. F3 corrects all four suite passages. F4 applies Table 7.157 to the receive-rate law and adds the interval-rate FAIL scenario. The local proposed PR body removes F02's stale sentence; the remote PR was not edited.
+
+Validation: the final-head behavior command `cd tests && python3 -m behave --no-capture -f plain` passes 405 scenarios / 1,971 steps, zero failures or skips. The reviewer's focused reproduction passes; the bench grader passes 78 self-tests. All nine parent plants and two mailbox plants fail by name and escape with their corresponding check omitted. Seventeen bind-era source controls and the receive-rate law control also detect their plants and pass omission controls. Source-list gates, lint, all five documentation gates, capture guard and diff checks return zero.
+
+Measurements: original uncertain runs pass 98 / 427 checks; frames-only runs pass 110 / 481. Each output has clear TU/MR wire bits, zero TU/MR counts, one initial start and no stop during measurement. The output-event plant yields 16 OUTPUT_CADENCE failures and then a 94-check clean escape. All 24 shipping and 108 largest-shape graded descriptor/recipient windows contain one notification. Minimum/maximum gaps remain 1000.996/1001.867 ms and 1000.982/1012.029 ms, within measured service delay. Baseline input windows remain empty; baseline output windows use TU=1. Single-snapshot TV/TNV comparison remains diagnostic because receive publication is coalesced; the measured-window rate grader enforces the packet law.
+
+Production RTL, firmware implementation, configuration and submodule pins are unchanged in Round 2. Recorded image input hashes match: retained routed area 49,427 LUT (+35 versus 49,392), 53,378 FF, 87.5 BRAM; constrained WNS/WHS +0.451/+0.036 ns. No new image or capture measurement was triggered, and no assignment STOP bound arose.
+
+Execution limit: overlapping lint workers briefly exceeded the requested 9 GB target (sampled peak 11,298,734,080 bytes). There were no OOM events or kills, and all commands completed. This miss is recorded in HANDOFF.md.
+
+Remaining: independent re-review, authorized publication and exact-head hosted behavior/aggregate checks, the full merge-candidate bank, startup/max-fanout limits, and merge-turn physical cadence, reference-peer reset comparison and controller display. Historical cross-device interval-comparison helpers were not redesigned by this receive-rate correction. Complete acceptance is not claimed; PR-BODY.md retains Relates to #726. Optional S1/S2 were not taken.
+
+Evidence in the assigned output directory: updated HANDOFF.md and PR-BODY.md; ROUND2-WINDOWS.csv (660 per-descriptor/recipient/window rows); ROUND2-GATES.tsv; ROUND2-SOURCES.tsv; REVIEW-ROUND2-ARTIFACTS.tsv and portable control scripts/receipts. Large artifacts are hash-only. The worktree and initialized submodules are clean; all foreground validation has finished. No bench, push, PR edit, merge, rebase or submodule change was performed.

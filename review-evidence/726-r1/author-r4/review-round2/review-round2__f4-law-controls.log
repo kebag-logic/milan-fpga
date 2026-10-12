@@ -1,0 +1,3 @@
+CLEAN FRAMES_RX 4 packets / 4 s: FAIL under Table 7.157
+DETECTED interval-rate FRAMES_RX: PASS != FAIL: {'counter': 'FRAMES_RX', 'law': 'per-interval', 'clause': 'Milan v1.2 Table 5.6', 'trigger': 'at least one Stream Data AVTPDU', 'delta': 4, 'window_s': 4.0, 'rate_per_s': 1.0, 'implied_interval_s': None, 'reading': 'interval', 'why': 'FRAMES_RX ticks only in intervals during which its condition (at least one Stream Data AVTPDU) held; this rate does not reveal the observation interval'}
+OMIT semantics verdict: PASS (same plant)

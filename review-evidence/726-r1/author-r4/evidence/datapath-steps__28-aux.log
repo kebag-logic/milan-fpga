@@ -1,0 +1,31 @@
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 69.486, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 69.484, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 69.486, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 130.172, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 60.686, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 130.174, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 171.339, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "elapsed_s": 41.165, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 171.339, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 234.037, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "elapsed_s": 62.698, "status": 1}
+[PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 234.038, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 273.155, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "elapsed_s": 39.117, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 273.155, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 329.526, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "elapsed_s": 56.371, "status": 1}
+[PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 329.527, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 365.742, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "elapsed_s": 36.215, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 365.742, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 427.526, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "elapsed_s": 61.784, "status": 1}
+[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 427.529, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 462.454, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "elapsed_s": 34.925, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 462.454, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 538.196, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "elapsed_s": 75.742, "status": 1}
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 538.821, "state": "idle", "idle_s": 0.625}
+
+6 checks: 6 PASS, 0 FAIL
