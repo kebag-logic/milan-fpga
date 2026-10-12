@@ -29,14 +29,12 @@
                   The level is the COMPOSED admission gate (ACMP+lwSRP+MAAP
                   terms), i.e. "is this talker licensed and emitting", not a
                   bare enable bit.
-                * MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are
-                  OBSERVATION-INTERVAL counts ("incremented at the end of
-                  every observation interval during which ..."), interval
-                  <= 1 s, and all three "reset to 0 each time the Talker
-                  starts streaming". FRAMES_TX therefore advances at 1/s
-                  while streaming - NOT at the frame rate; a controller
-                  reading the raw frame total where the clause defines an
-                  interval count reads a number 8000x off.
+                * FRAMES_TX counts every transmitted Stream Data AVTPDU,
+                  wrapping at 32 bits (IEEE 1722.1-2021 Table 7.159).
+                  Issue #726 ruling 6125741685 (2026-10-12) resolves the
+                  ambiguous Table 5.4 observation wording this way.
+                  MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their
+                  observation-interval law. All three reset at each start.
                 * TIMESTAMP_UNCERTAIN qualifies tu BY TRANSMISSION: "the tu
                   bit has been set in any of the TRANSMITTED Stream Data
                   AVTPDUs" - a set tu with no PDU sent counts nothing, which
@@ -66,12 +64,10 @@
                 into seen_*_r would lose it outright: the tick's whole-vector
                 clear is a later nonblocking assignment than the per-bit fold,
                 so it wins, and the strobe is one cycle wide and never comes
-                back. That cost nothing for FRAMES_TX at 8 kPDU/s (the closing
-                interval holds 7999 other frames) but silently dropped SPARSE
-                events - a lone tu-stamped PDU, a single mr toggle - from both
-                intervals. Same rule at a start edge: the three counters zero
-                per Table 5.4, and this cycle's event survives into the fresh
-                interval rather than being erased with them.
+                back. This matters for sparse interval events: a lone
+                tu-stamped PDU or a single mr toggle must survive the boundary. Same rule at a start edge: the three counters reset
+                per Table 5.4. A simultaneous transmitted PDU is the first
+                count of the new run; its MR/TU flags enter the fresh interval.
 
                 The read side is an indexed combinational port: the AECP
                 response builder presents the descriptor_index it is
@@ -86,8 +82,8 @@
 */
 
 //! Per-talker Milan Table 5.4 counters: START/STOP edges of the composed
-//! streaming gate, interval-based MEDIA_RESET / TIMESTAMP_UNCERTAIN /
-//! FRAMES_TX with reset-on-start, indexed combinational read port.
+//! streaming gate, interval-based MEDIA_RESET / TIMESTAMP_UNCERTAIN,
+//! per-AVTPDU FRAMES_TX with reset-on-start, indexed read port.
 
 `default_nettype none
 
@@ -123,12 +119,11 @@ module KL_talker_diag_ctx #(
   output logic [31:0]        rd_ftx_o,
 
   //! one-cycle per-context pulse the cycle a Table 5.4 counter is WRITTEN
-  //! (START/STOP edge or an interval-close increment) - the Milan 5.4.5
+  //! (START/STOP edge, transmitted AVTPDU or interval-close increment) - the Milan 5.4.5
   //! Table 5.22 unsolicited GET_COUNTERS trigger ("sent when one of the
   //! counters is updated"). The 1/s-per-descriptor restriction belongs to
-  //! a notification scheduler, but the current root leaves this pulse
-  //! unconsumed. This port only states the raw fact. A start edge zeroing the three
-  //! interval counters rides the SAME pulse as its START increment.
+  //! the notification scheduler. A start edge resetting the three
+  //! reset-on-start counters also reports its START increment.
   output logic [N_CTX_P-1:0] dirty_p_o
 );
 
@@ -167,9 +162,6 @@ module KL_talker_diag_ctx #(
   logic [31:0] mreset_r [N_CTX_P] /* verilator public_flat_rw */;
   logic [31:0] tuiv_r   [N_CTX_P] /* verilator public_flat_rw */;
   logic [31:0] ftx_r    [N_CTX_P] /* verilator public_flat_rw */;
-  logic [N_CTX_P-1:0] seen_f_r;    //! >=1 PDU transmitted this interval
-  //! FRAMES_TX is a 32-bit wrapping counter. It advances by one for each
-  //! observation interval that contains at least one transmitted frame.
   logic [N_CTX_P-1:0] seen_tu_r;   //! ... with tu set
   logic [N_CTX_P-1:0] seen_mr_r;   //! ... with mr toggled
   logic [N_CTX_P-1:0] strm_q_r;    //! streaming level, for the edge
@@ -205,7 +197,6 @@ module KL_talker_diag_ctx #(
         tuiv_r[c]   <= '0;
         ftx_r[c]    <= '0;
       end
-      seen_f_r  <= '0;
       seen_tu_r <= '0;
       seen_mr_r <= '0;
       strm_q_r  <= '0;
@@ -213,9 +204,13 @@ module KL_talker_diag_ctx #(
       dirty_p_o <= '0;
     end else begin
       dirty_p_o <= '0;
-      //! PDU events fold into the current interval's flags
-      seen_f_r  <= seen_f_r  | ev_f_w;
-      for (int c = 0; c < N_CTX_P; c++)
+      //! Count each transmitted PDU; MR/TU fold into interval flags.
+      for (int c = 0; c < N_CTX_P; c++) begin
+        if (ev_f_w[c]) begin
+          ftx_r[c] <= ftx_r[c] + 32'd1;
+          dirty_p_o[c] <= 1'b1;
+        end
+      end
       seen_tu_r <= seen_tu_r | ev_tu_w;
       seen_mr_r <= seen_mr_r | ev_mr_w;
       //! remember the mr this context just put on the wire
@@ -228,45 +223,33 @@ module KL_talker_diag_ctx #(
       //! nonblocking assignment, and the strobe never returns)
       if (tick_p_r) begin
         for (int c = 0; c < N_CTX_P; c++) begin
-          if (seen_f_r[c]  | ev_f_w[c]) begin
-            //! Table 5.4 interval semantics: +1 PER OBSERVATION INTERVAL
-            //! with frames, never the frame total - the header's "8000x
-            //! off" note was live on silicon 2026-08-06 (the pushed
-            //! counter read 11M raw frames; tkdiag T3 pinned it at desk,
-            //! task #21 round)
-            ftx_r[c]  <= ftx_r[c] + 32'd1;
-          end
           if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
           if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
           //! Table 5.22 triggers whenever any counter is updated. This raw
-          //! source therefore includes FRAMES_TX interval closes as well as
-          //! anomaly counters. Per-controller coalescing and the 1/s limit
+          //! source includes anomaly counters. Per-controller coalescing and the 1/s limit
           //! belong to the notification scheduler, never to this producer.
-          if ((seen_f_r[c]  | ev_f_w[c]) |
-              (seen_tu_r[c] | ev_tu_w[c]) |
+          if ((seen_tu_r[c] | ev_tu_w[c]) |
               (seen_mr_r[c] | ev_mr_w[c]))
             dirty_p_o[c] <= 1'b1;
         end
-        seen_f_r  <= '0;
         seen_tu_r <= '0;
         seen_mr_r <= '0;
       end
 
       //! streaming edges: START/STOP count the SAME level so the clause
       //! invariant (START == STOP or STOP+1) holds structurally; a start
-      //! zeroes the three interval counters per Table 5.4
+      //! resets the three per-run counters per Table 5.4
       strm_q_r <= streaming_i;
       for (int c = 0; c < N_CTX_P; c++) begin
         if (streaming_i[c] && !strm_q_r[c]) begin : g_start
           start_r[c]  <= start_r[c] + 32'd1;
           mreset_r[c] <= '0;
           tuiv_r[c]   <= '0;
-          ftx_r[c]    <= '0;
+          ftx_r[c]    <= {31'd0, ev_f_w[c]};
           //! and the pending flags: a stop->start inside one interval must
           //! not carry the pre-stop activity into the fresh counters - but
           //! THIS cycle's event belongs to the stream that just started, so
           //! it survives the wipe instead of being erased with the history
-          seen_f_r[c]  <= ev_f_w[c];
           seen_tu_r[c] <= ev_tu_w[c];
           seen_mr_r[c] <= ev_mr_w[c];
           dirty_p_o[c] <= 1'b1;

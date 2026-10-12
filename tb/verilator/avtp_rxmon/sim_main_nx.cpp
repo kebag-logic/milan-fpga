@@ -13,7 +13,7 @@
 //   [IV] Milan v1.2 Table 5.6 OBSERVATION-INTERVAL semantics ("incremented
 //        at the end of every observation interval during which ...", <= 1 s)
 //        for SEQ_NUM_MISMATCH / MEDIA_RESET / TIMESTAMP_UNCERTAIN /
-//        UNSUPPORTED_FORMAT / LATE_TIMESTAMP / EARLY_TIMESTAMP / FRAMES_RX:
+//        UNSUPPORTED_FORMAT / LATE_TIMESTAMP / EARLY_TIMESTAMP:
 //        N events inside ONE interval move the counter by exactly 1 (the
 //        per-frame reading is IEEE 1722.1-2021 Table 7-153's, and serving
 //        it read 8000x high at class A), one event in EACH of two intervals
@@ -513,8 +513,7 @@ class NxnRxStackHarness {
         printf("\n[M13] TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (Milan 1.3 5.3.8.10;\n"
                "      1722.1-2021 Table 7-157 per-frame tv tallies, appended\n"
                "      LCTX words 26/27; per-frame BY DEFINITION - the TV+TNV ==\n"
-               "      FRAMES_RX identity belongs to 1722.1's per-frame reading\n"
-               "      and deliberately breaks against Milan interval FRAMES_RX)\n");
+               "      FRAMES_RX matches TV+TNV after its batch commit)\n");
         //! s1 sits freshly rebound from [E1] with ONE tv=1 frame counted
         ck("[M13a] TV follows the [E1] frame", lctx_rd(1, W_TV), 1);
         ck("[M13b] TNV still 0", lctx_rd(1, W_TNV), 0);
@@ -527,7 +526,7 @@ class NxnRxStackHarness {
         { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=2; feed(build_aaf(stim, c)); }
         flush_iv();
         //! 3 accepted frames, 2 observation intervals: the tallies say 3, the
-        //! Milan FRAMES_RX says 2 - torture_campaign.tv_plus_tnv_identity()
+        //! The coalesced FRAMES_RX total follows all accepted packets.
         //! calls exactly this split "milan-interval" (INFO, not a defect)
         ck("[M13e] TV+TNV = accepted frames (3)",
            lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), 3);
@@ -569,7 +568,7 @@ class NxnRxStackHarness {
     }
 
     void frames_rx_coalesces_inside_one_interval(long iv_frx){
-        printf("\n[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)\n");
+        printf("\n[IV1] FRAMES_RX: six PDUs publish a packet total of six\n");
         align_iv();
         for(uint8_t s=9; s<15; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(build_aaf(stim, c)); }
         ck("[IV1a] uncommitted before the tick", lctx_rd(2, W_FRX), iv_frx);
@@ -797,12 +796,7 @@ class NxnRxStackHarness {
     }
 
     void per_context_dirty_vector(){
-        printf("\n[DV] gh #60 F2+F4: per-context dirty vector; TV silent, TNV\n"
-               "     armed. The old port was a stream-0 SCALAR that pulsed on\n"
-               "     EVERY accepted PDU - a healthy stream pushed GET_COUNTERS\n"
-               "     1/s forever off its own TV tally. Option (c): TV joins the\n"
-               "     FRAMES_RX exclusion (task-21 narrowing), TNV stays an\n"
-               "     anomaly, and every context owns its own bit.\n");
+        printf("\n[DV] #726: every changed counter marks its descriptor dirty\n");
         {
             constexpr uint64_t SD1 = 0x020000FFFE070000ULL;
             constexpr uint64_t SD2 = 0x020000FFFE080000ULL;
@@ -824,16 +818,16 @@ class NxnRxStackHarness {
             { AafCfg c; c.sid=SD2; c.seq=q2++; feed(build_aaf(stim, c)); }
             ck("[DV1b] s2's lock pulses bit 2 exactly once", g_dirty[2], 1);
             ck("[DV1b] and no other bit", g_dirty[0]+g_dirty[1]+g_dirty[3], 0);
-            // F4 (c): healthy tv=1 streaming is SILENT - at the accept site
-            // (TV excluded) AND at its FRAMES_RX-only interval commits
+            // #726: healthy TV updates and FRAMES_RX commits both notify.
             zero_dirty();
             for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD1; c.seq=q1++;
                                          feed(build_aaf(stim, c)); }
             for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD2; c.seq=q2++;
                                          feed(build_aaf(stim, c)); }
             flush_iv();
-            ck("[DV2] healthy tv=1 streaming is SILENT on every bit",
-               g_dirty[0]+g_dirty[1]+g_dirty[2]+g_dirty[3], 0);
+            ck("[DV2] healthy traffic marks both descriptors including commits",
+               g_dirty[1] >= 6 && g_dirty[2] >= 6, 1);
+            ck("[DV2] inactive descriptors remain quiet", g_dirty[0]+g_dirty[3], 0);
             // TNV stays armed: an accepted PDU WITHOUT a valid timestamp is an
             // anomaly and pulses at the accept
             zero_dirty();
@@ -843,12 +837,12 @@ class NxnRxStackHarness {
             // an anomaly INTERVAL commit pulses the right bit, at the commit
             zero_dirty();
             { AafCfg c; c.sid=SD1; c.seq=q1++; c.tu=true; feed(build_aaf(stim, c)); }
-            ck("[DV4] no pulse before the interval commit", g_dirty[1], 0);
+            ck("[DV4] TV update pulses before anomaly commit", g_dirty[1], 1);
             flush_iv();
-            ck("[DV4b] the TU interval commit pulses s1's bit", g_dirty[1], 1);
-            ck("[DV4c] s2's healthy interval stays silent", g_dirty[2], 0);
+            ck("[DV4b] the TU interval commit adds a pulse", g_dirty[1], 2);
+            ck("[DV4c] s2's healthy interval also pulses", g_dirty[2], 1);
             // stream 0 - the context the old scalar law served per-accept:
-            // rebind fresh, lock (one event pulse), then healthy silence
+            // Rebind, lock, then prove continuing healthy updates notify.
             dut->bound0_i = 0; cyc(20); dut->bound0_i = 1; cyc(80);
             uint8_t q0 = 0;
             zero_dirty();
@@ -857,8 +851,8 @@ class NxnRxStackHarness {
             zero_dirty();
             for (int k = 0; k < 5; k++){ AafCfg c; c.seq=q0++; feed(build_aaf(stim, c)); }
             flush_iv();
-            ck("[DV5b] healthy s0 tv=1 traffic is SILENT (the flipped law)",
-               g_dirty[0], 0);
+            ck("[DV5b] healthy s0 traffic and frame commit pulse",
+               g_dirty[0] >= 6, 1);
         }
     }
 

@@ -52,7 +52,17 @@ later loop pass. Reentry is asserted in diagnostic builds and counted/refused
 otherwise. One response remains owed through backpressure. Notifications follow
 that response, exclude its requester, and advance each recipient's own sequence.
 Counter notifications are limited per descriptor from the latest recipient's
-completed transmission. Controller probes use a 30-60 s monitor interval,
+completed transmission. Under the [2026-10-12 #726 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685),
+FRAMES_TX/RX snapshots carry per-AVTPDU 32-bit totals.
+TX resets at talker start; RX resets on not-bound to bound and retains unbind totals.
+The observation port supplies those values; the protocol core does not recount packets.
+Every counter update, including healthy traffic, must call `aecp_changed()` with bit 8.
+The [window check](../../../../tb/verilator/milan_dp/stream_counter_f5.py)
+uses this unchanged core and mailbox adapter, two registered recipients,
+and a two-millisecond transmit stall at both descriptor shapes.
+See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.
+Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
+Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
 The guard covers every public protocol and saved-state input.

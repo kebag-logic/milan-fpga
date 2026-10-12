@@ -89,6 +89,7 @@ Publish conflicts before continuing.
 | Run behavior tests | [Behavior tests](../tests/README.md) |
 | Run or extend the firmware's host unit tests | [Firmware GoogleTest harness](../sw/firmware/gtest/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
+| Check stream counters | [Packet and notification measurements](testing/726_STREAM_COUNTERS.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
 | Check the per-clause compliance position | [Compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md) |
 | Review documentation health | [Documentation audit](DOCUMENTATION_AUDIT.md) |

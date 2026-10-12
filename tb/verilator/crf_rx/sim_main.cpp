@@ -99,7 +99,7 @@ struct Model {
     // 8-bit fmt/seq SATURATION violated 5.3.8.10's "wraps back to zero"
     // (a pegged instrument is frozen), and 16 bits wrapped at the
     // 65536 s = 18 h 12 min soak mark
-    uint32_t pdu = 0;                    // FRAMES_RX interval commits
+    uint32_t pdu = 0;                    // FRAMES_RX accepted AVTPDUs
     uint32_t fmt_e = 0;                  // UF interval commits
     uint32_t seq_e = 0;                  // SM interval commits
     uint32_t mr_c = 0;                   // MR interval commits
@@ -130,8 +130,8 @@ struct Model {
 
     void cycle(bool frx_ev, bool uf_ev, bool sm_ev,
                bool mr_ev, bool tu_ev, bool lt_ev, bool et_ev) {
+        if (frx_ev) pdu++;
         if (iv_tick) {
-            if (f_frx || frx_ev) pdu++;
             if (f_uf  || uf_ev)  fmt_e++;  // no peg: 32-bit wrap is the law
             if (f_sm  || sm_ev)  seq_e++;
             if (f_mr  || mr_ev)  mr_c++;
@@ -481,7 +481,7 @@ class CrfRxHarness {
     // observer nominal. 300 PDUs: delta drifts +200/PDU; rate_o must stay 0
     // until the ring fills (256 PDUs) then read +100 ppm exactly:
     // 256 * 200 = 51 200 ns / 512 ms window. Lock on the 8th clean PDU.
-    // FRAMES_RX counts the INTERVALS containing PDUs (replica-pinned per
+    // FRAMES_RX counts accepted PDUs (replica-pinned per
     // PDU), never the 300 frames.
     //-----------------------------------------------------------------------
     void pin_plus_100ppm_trajectory() {
@@ -500,8 +500,8 @@ class CrfRxHarness {
         ck("rate first nonzero on PDU 257 (ring full)", rate_first_pdu, 257);
         ck("rate == +100 ppm exactly (51200 ns/512 ms)",
            static_cast<int32_t>(dut->rate_o), 51200);
-        ck("FRAMES_RX == replica interval count", dut->pdu_count_o, m.pdu);
-        ck("300 PDUs commit as intervals, NOT frames", dut->pdu_count_o < 300, 1);
+        ck("FRAMES_RX == replica packet count", dut->pdu_count_o, m.pdu);
+        ck("[726-RX] 300 AVTPDUs count 300", dut->pdu_count_o, 300);
     }
 
     //-----------------------------------------------------------------------
@@ -628,10 +628,10 @@ class CrfRxHarness {
             ts  += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ptp);
         }
-        ck("burst of 10 accepted: no commit before the tick", dut->pdu_count_o, p0);
+        ck("[726-RX] ten accepted AVTPDUs count immediately", dut->pdu_count_o, p0 + 10);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
-        ck("burst of 10 accepted: FRAMES_RX +1, not +10",
-           dut->pdu_count_o, (p0 + 1));
+        ck("[726-RX] interval close does not recount AVTPDUs",
+           dut->pdu_count_o, (p0 + 10));
 
         // mixed burst in ONE interval: 3 discontinuities (accepted) + 2 format
         // rejects -> SM +1, UF +1, FRX +1 (the accepted PDUs ride the same
@@ -656,8 +656,8 @@ class CrfRxHarness {
         ck("3 discontinuities: SEQ_NUM_MISMATCH +1", dut->seq_err_o,
            (s0 + 1));
         ck("2 rejects: UNSUPPORTED_FORMAT +1", dut->fmt_err_o, (f0 + 1));
-        ck("same interval's accepted PDUs: FRAMES_RX +1", dut->pdu_count_o,
-           (p0 + 1));
+        ck("[726-RX] three accepted AVTPDUs count three", dut->pdu_count_o,
+           (p0 + 3));
     }
 
     //-----------------------------------------------------------------------
@@ -1129,28 +1129,26 @@ class CrfRxHarness {
     //-----------------------------------------------------------------------
     // [dirty] gh #60 F2: the Table 5.22 push-source law. dirty_p_o pulses
     // on lock/unlock events, STREAM_INTERRUPTED events, the SIX anomaly
-    // interval commits and the bind-rise wipe - NEVER on a healthy
-    // FRAMES_RX interval (the task-21 exclusion: a healthy stream closes
-    // an interval every second forever and must not push forever).
+    // interval commits and the bind-rise wipe. #726 also reports healthy
+    // FRAMES_RX changes. The downstream scheduler supplies the rate limit.
     //-----------------------------------------------------------------------
     void pin_dirty_push_source_law() {
         printf("\n[dirty] gh #60 F2 push-source law\n");
 
-        // (a) the lock event pulses once; the healthy intervals after stay
-        // silent even as FRAMES_RX keeps committing
+        // (a) Lock and every healthy received PDU mark the descriptor dirty.
         align_interval();
         g_dirty_cnt = 0;
         for (int n = 0; n < 8; n++) {                 // clean run -> lock
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        ck("[dirty-a1] the lock event pulses dirty once", g_dirty_cnt, 1);
+        ck("[dirty-a1] each received AVTPDU pulses dirty", g_dirty_cnt, 8);
         g_dirty_cnt = 0;
         for (int n = 0; n < 6; n++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
         for (int i = 0; i < 2 * (kIvalCyc + 2); i++) tick();
-        ck("[dirty-a2] healthy FRAMES_RX intervals NEVER pulse",
-           g_dirty_cnt, 0);
+        ck("[dirty-a2] every healthy FRAMES_RX advance pulses",
+           g_dirty_cnt, 6);
 
         // (b) an anomaly interval commit pulses - at the COMMIT, not the PDU
         align_interval();
@@ -1158,9 +1156,9 @@ class CrfRxHarness {
         g_tu = true;
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         g_tu = false;
-        ck("[dirty-b1] no pulse before the interval commit", g_dirty_cnt, 0);
+        ck("[dirty-b1] received AVTPDU pulses before anomaly commit", g_dirty_cnt, 1);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
-        ck("[dirty-b2] the TU interval commit pulses dirty", g_dirty_cnt, 1);
+        ck("[dirty-b2] the TU interval commit adds a pulse", g_dirty_cnt, 2);
 
         // (c) STREAM_INTERRUPTED is per-event: its pulse lands with the PDU,
         // and the gap's SEQ_NUM_MISMATCH commit pulses again at the tick
@@ -1334,10 +1332,10 @@ class CrfRxHarness {
                g_mrtog_cnt, 0);
         }
 
-        // hand the next section a CLEAN slate: this one closes on accepted
-        // PDUs, so an observation interval is still open with its FRAMES_RX
-        // flag raised, and [G1] below preloads counter flops and counts the
-        // commits that follow exactly. The bind-rise wipe clears the flags
+        // Hand the next section a clean slate: this one ends on accepted
+        // PDUs with an observation interval still open. [G1] below preloads
+        // counter flops and counts the commits that follow exactly.
+        // The bind-rise wipe clears the anomaly flags
         // on both sides (the same edge [dirty-e1] used to leave behind).
         dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
         dut->en_i = 1; m.bind_zero();

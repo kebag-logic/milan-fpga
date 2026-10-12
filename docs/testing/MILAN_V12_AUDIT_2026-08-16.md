@@ -215,8 +215,19 @@ updates also produce a per-descriptor dirty pulse, and since 0x0002_0055 the
 root serialises those pulses (AAF Stream Inputs, Stream Outputs, the AVB
 Interface and the Clock Domain) through a lossless round-robin onto the
 processor's counter-change face, whose scheduler pushes `GET_COUNTERS` at most
-once per descriptor per second. The Table 5.22 asynchronous behavior is closed
-for every descriptor the solicited face serves.
+once per descriptor per second.
+
+**2026-10-12 correction, #726:** that maximum-rate check did not prove routine
+refresh. Healthy input TV and FRAMES_RX updates were suppressed at their sources.
+The parent now reports those changes, including the CRF input's per-AVTPDU total.
+All AAF and CRF FRAMES_TX/RX totals count packets with 32-bit wrap.
+TX resets at each talker start; RX resets on not-bound to bound, preserving unbind totals.
+The [counter evidence](726_STREAM_COUNTERS.md) measures every served stream
+at the shipping and largest shapes through the simulated MAC transmit endpoint.
+Milan 5.4.5.2 Table 5.22 spacing stays in the existing scheduler.
+The [window ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6126028604)
+allows only the measured service delay beyond 1000 ms between notifications.
+Physical comparison remains a merge-turn check.
 
 The declared CRF Media Clock Input was a separate mandatory gap at this audit:
 the appended CRF Stream Input at index `N_STREAMS` returned an empty mask, and
