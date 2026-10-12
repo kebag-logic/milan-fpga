@@ -536,6 +536,7 @@ M5 restructures the existing live-status read mux and snapshots.
 **Saving:** 600 LUTs (400-1,000), from the historical 2,907-LUT block
 and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s 2,893 fixed plus 211-per-stream OOC model.
 New split-interface logic is charged to L2, not saved again here.
+M5 saved 121 LUTs routed and 127 post-synthesis in its scope ([M5 intermediate measurement](#m5-intermediate-measurement)).
 
 **Risk: medium.** Snapshot coherence and AXI-Lite latency must hold.
 **Verification:** CSR, `tcam_csr`, `milan_dp`, firmware host tests,
@@ -553,6 +554,7 @@ These datapath functions remain fabric-owned in the split.
 **Verification:** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`,
 `milan_dp`, GET_COUNTERS, wrap/reset and concurrent update cases.
 No M2 table credit overlaps these arrays.
+M6 measured 418 LUTs post-synthesis and no extra tile ([M6 intermediate measurement](#m6-intermediate-measurement)).
 
 ### L10 Fabric gPTP
 
@@ -920,6 +922,52 @@ M3 must preserve that engine for M10 to remove.
 If M3 consumes it, reprice M10 to zero.
 Neither lane receives credit in the default-split total.
 
+### M6 intermediate measurement
+
+[Lane M6](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6098405082) changes two of the four [L9](#l9-media-context-tables) blocks.
+The listener monitor keeps its PDU bundles in one 4-entry LUT-RAM ring.
+The two waiting bundles and the one in service share it.
+GET_COUNTERS reads one counter table by sink and column.
+The column selects inside that LUT-RAM read, not in a word multiplexer.
+Channel-map capture resolves every channel through one flat source table.
+Its commit skid keeps descriptors; a LUT-RAM bank holds each beat once.
+Render set-point already used distributed RAM and is unchanged.
+Talker counters stay in flops: every context updates at the interval tick.
+Values, ordering, latency, resets and capacity are unchanged.
+Lockstep legs compare both blocks with their dev `e8454e27` modules every cycle.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| M6 route at `930340145` | 49,561 | 53,455 | 15,791 | 74 / 27 | +0.141 / +0.018 |
+| Routed delta | -706 | -958 | +12 | 0 / 0 | -0.158 / -0.013 |
+| Post-synthesis delta, same runs | -524 | -957 | - | 0 / 0 | - |
+
+Against the record, the M6 route passes with no failing endpoint.
+Its worst setup path lies in the unchanged protocol processor.
+Only the changed blocks are credited:
+
+| Block | Routed LUT | Post-synthesis LUT | FF |
+|---|---:|---:|---:|
+| Listener monitor | 966 -> 754 | 993 -> 818 | 1,353 -> 691 |
+| Channel-map capture | 1,069 -> 813 | 1,107 -> 864 | 1,360 -> 1,183 |
+| Talker counters, RTL unchanged | 195 -> 161 | 197 -> 165 | 359 -> 359 |
+| Render set-point, RTL unchanged | 383 -> 381 | 399 -> 399 | 137 -> 137 |
+
+Unchanged blocks also moved, by up to hundreds of LUTs.
+The protocol processor lost 358 post-synthesis and 333 routed.
+The gPTP shadow moved about 700 between its own levels.
+That movement is not a reproducible saving.
+
+The reproducible saving is 418 LUTs post-synthesis, 468 routed.
+Out of context, the changed modules save 552 LUTs at 1x1.
+All three lie low in the 600 (400-900) estimate.
+M6 adds no block-RAM tile; both blocks keep theirs.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+The gate record stays unchanged under D7.
+
 ### Cumulative default-image estimates
 
 Each row assumes every preceding row has landed and qualified.
@@ -1023,6 +1071,44 @@ The week-4 ruling names its measured target and revised schedule.
 No additional lever has earned credit in these fallback totals.
 A D8 margin exception alone cannot cure an [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) miss.
 It also needs an explicit ruling; no exception is assumed.
+
+### M5 intermediate measurement
+
+[Lane M5](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6098404907) restructures the [L8](#l8-csr-read-path) read path of [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
+The 0x800 window becomes one range of the live read tree, so stage 1 holds one word.
+Stage 2 becomes an OR of that word and the shadow block RAM's word.
+The window's SNAP count words load raw; a two-bit kind per word applies zero or POISON on read.
+Addresses, widths, reset values, access semantics, snapshot coherence and read latency are unchanged.
+A read-path lockstep against the frozen dev `e8454e27` block checks this at both shipping shapes.
+
+Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrated-measurements) with the gate's flow identity:
+
+| Measurement | LUT | FF | Slices | RAMB36 / RAMB18 | WNS / WHS, ns |
+|---|---:|---:|---:|---:|---|
+| Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+| M5 route at `1abe18eb` | 49,577 | 54,226 | 15,791 | 74 / 27 | +0.097 / +0.036 |
+| Routed delta | -690 | -187 | +12 | 0 / 0 | -0.202 / +0.005 |
+| Post-synthesis delta, same runs | -428 | -181 | - | 0 / 0 | - |
+| `csr` scope, routed | 3,037 -> 2,916 | 2,143 -> 2,110 | - | 0 / 2 both | - |
+| `csr` scope, post-synthesis | 3,130 -> 3,003 | 2,143 -> 2,110 | - | 0 / 2 both | - |
+
+The base route equals the `route-1x1` record in every gated figure.
+Against that record, the M5 route passes with no failing endpoint.
+Its worst setup path lies in the CPU's DMA write bridge, which M5 does not change.
+Paths into and out of `csr` keep at least 1.35 ns setup slack at base and 2.55 ns at M5.
+The movement outside `csr` lies in untouched blocks, mostly the processor wrapper.
+That movement is not a reproducible saving.
+
+Out of context, `milan_csr` alone loses 440 LUTs at 1x1 and 179 at 8x8.
+In a wrapper tying what `milan_datapath` ties, it loses 155 and 199.
+The reproducible saving is about 125 LUTs and 33 flip-flops, below the 600 (400-1,000) estimate.
+What remains is the live read mux over about 3,000 live status bits that the register map fixes.
+[#649](https://github.com/kebag-logic/milan-fpga/issues/649) measured 211 LUTs per stream inside the datapath synthesis; that scope was not re-measured here.
+Out of context the base block grows about 12 per stream alone and about 62 in the integration proxy (M5: about 49 and 56).
+M5 adds no block RAM, LUTRAM or DSP.
+The cumulative tables keep the planning figure until the week-4 re-measure.
+With the measured savings of M2 (34), M5 (121) and M6 (418) in place of their central figures, the partial-central scenario becomes about 38,784, 744 over 38,040, pending the week-4 re-measure (D8).
+The gate record stays unchanged under D7.
 
 ## Lane sequence
 

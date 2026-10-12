@@ -177,13 +177,16 @@ def selftest() -> int:
     # Pin runtime landmarks and the three specialized owners. The workflow
     # installs tsn-gen only for tsn_fuzz's worker and Yosys/sv2v only for
     # chmap_capture's worker, and proves the last worker runs milan_dp alone,
-    # so an assignment-rule change must fail here.
+    # so an assignment-rule change must fail here. milan_dp_gm_steps left
+    # milan_dp's worker for wall clock (#621) and was named for worker 3, the
+    # one with the most headroom; a rule that moves it must fail here too.
     landmarks = {
         "milan_dp": 4,
         "pp_shadow": 1,
         "mmcm_servo": 2,
         "tsn_fuzz": 1,
         "chmap_capture": 3,
+        "milan_dp_gm_steps": 3,
     }
     got = {suite: shard_owner(suite, 5) for suite in landmarks}
     ok = got == landmarks

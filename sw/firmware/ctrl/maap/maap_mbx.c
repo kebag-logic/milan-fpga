@@ -54,6 +54,12 @@ static void range(void *ctx, unsigned interface, uint64_t base, uint16_t count, 
 		}
 	}
 	mbx_filter_set_maap_range(first, last > first ? (uint16_t)(last - first) : 0u);
+	// The datapath's talker DA gate (the publication block), before the
+	// allocation is reported: source s holds address base + s while the range
+	// is valid, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1).
+	// count never exceeds the entity's talker sources, which the publication
+	// block holds (maap_mbx_init).
+	(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);
 	m->allocation(m->allocation_ctx, interface, base, count, valid);
 }
 
@@ -61,7 +67,7 @@ bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t co
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx)
 {
 	memset(m, 0, sizeof *m);
-	if (first_slot > MBX_N_TIMERS - MBX_N_IF || allocation == NULL) {
+	if (first_slot > MBX_N_TIMERS - MBX_N_IF || allocation == NULL || count > MBX_N_PUB_SOURCES) {
 		return false;
 	}
 	m->ports = (struct maap_ports){m, send_frame, arm, cancel, range, clock_ms};

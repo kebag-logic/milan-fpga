@@ -70,6 +70,24 @@ class ModelBench {
         sync_tx();
     }
     bool irq() const { return mbx_model_irq(m_); }
+    PubView pub(unsigned iface) const {
+        mbx_model_pub v;
+        mbx_model_pub_view(m_, iface, &v);
+        PubView out;
+        out.da_gate = v.da_gate;
+        out.licence = v.licence;
+        out.idle_slope_bps = v.idle_slope_bps;
+        out.vid = v.vid;
+        out.priority = v.priority;
+        out.adopted = v.adopted ? 1u : 0u;
+        out.talker_decl = v.talker_decl;
+        for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            out.bound |= (v.bound[k] ? 1u : 0u) << k;
+            out.started |= (v.started[k] ? 1u : 0u) << k;
+            out.sid.push_back(v.sid[k]);
+        }
+        return out;
+    }
 
     std::vector<TxFrame> tx_frames;
     unsigned bus_timeouts = 0;

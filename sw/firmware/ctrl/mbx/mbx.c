@@ -133,6 +133,105 @@ bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound,
 	return true;
 }
 
+// Register `reg` of interface i's publication block, and of its sink k.
+static uint32_t pub_reg(unsigned i, uint32_t reg)
+{
+	return MBX_PUB_BASE + MBX_PUB_STRIDE * i + reg;
+}
+
+static uint32_t pub_sink_reg(unsigned i, unsigned k, uint32_t reg)
+{
+	return pub_reg(i, MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k + reg);
+}
+
+bool mbx_pub_da_gate(unsigned interface, uint32_t open)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),
+			mbx_place(open, MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH));
+	return true;
+}
+
+bool mbx_pub_licence(unsigned interface, uint32_t active)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),
+			mbx_place(active, MBX_LICENCE_ACTIVE_LSB, MBX_LICENCE_ACTIVE_WIDTH));
+	return true;
+}
+
+bool mbx_pub_idle_slope(unsigned interface, uint32_t bps)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_IDLE_SLOPE),
+			mbx_place(bps, MBX_IDLE_SLOPE_BPS_LSB, MBX_IDLE_SLOPE_BPS_WIDTH));
+	return true;
+}
+
+bool mbx_pub_domain(unsigned interface, bool adopted, uint8_t priority, uint16_t vid)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_SR_DOMAIN),
+			mbx_place(vid, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |
+			mbx_place(priority, MBX_SR_DOMAIN_PRIORITY_LSB, MBX_SR_DOMAIN_PRIORITY_WIDTH) |
+			mbx_place(adopted ? 1u : 0u, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH));
+	return true;
+}
+
+bool mbx_pub_talker_decl(unsigned interface, uint32_t declared)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),
+			mbx_place(declared, MBX_TALKER_DECL_DECLARED_LSB, MBX_TALKER_DECL_DECLARED_WIDTH));
+	return true;
+}
+
+// BINDING's BOUND and STARTED, SID_VALID clear.
+static uint32_t binding_of(bool bound, bool started)
+{
+	return mbx_place(bound ? 1u : 0u, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH) |
+	       mbx_place(started ? 1u : 0u, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);
+}
+
+bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id)
+{
+	if (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {
+		return false;
+	}
+	uint32_t binding = binding_of(bound, started);
+	mbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);
+	if (stream_id != 0u) {
+		mbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_SID_LO),
+				mbx_place((uint32_t)stream_id, MBX_SID_LO_SID_LSB, MBX_SID_LO_SID_WIDTH));
+		mbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_SID_HI),
+				mbx_place((uint32_t)(stream_id >> 32), MBX_SID_HI_SID_LSB, MBX_SID_HI_SID_WIDTH));
+		mbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING),
+				binding | mbx_place(1u, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH));
+	}
+	return true;
+}
+
+bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, bool sid_valid)
+{
+	if (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {
+		return false;
+	}
+	mbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING),
+			binding_of(bound, started) |
+			mbx_place(sid_valid ? 1u : 0u, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH));
+	return true;
+}
+
 uint16_t mbx_filter_mismatch(void)
 {
 	return (uint16_t)mbx_field(mbx_hal_read32(MBX_REG_FILTER_MISMATCH), MBX_FILTER_MISMATCH_COUNT_LSB,
