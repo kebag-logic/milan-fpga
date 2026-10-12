@@ -1,0 +1,829 @@
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [726] registered recipient                     = 0x0
+  [ok]   [726] registered recipient                     = 0x0
+OUTPUT_CONDITION,0,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,1,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,2,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,3,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,4,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,5,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,6,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,7,uncertain,5,0,1,0,800,0
+OUTPUT_CONDITION,8,uncertain,5,0,1,0,101,0
+TX_COUNT,0,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,1,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,2,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,3,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,4,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,5,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,6,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,7,800,800
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x320
+  [ok]   [726 TX] every output emitted                  = 0x1
+TX_COUNT,8,101,101
+  [ok]   [726 TX] per-AVTPDU total equals wire          = 0x65
+  [ok]   [726 TX] every output emitted                  = 0x1
+shape,type,index,recipient,window,notifications,min_gap_ms,max_gap_ms
+NOTE,5,0,0,1599115
+NOTE,5,0,0,3200115
+NOTE,5,0,0,4801115
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,0,0,0,0,1
+PHASE,5,0,0,200,0,1
+PHASE,5,0,0,300,0,1
+PHASE,5,0,0,800,0,1
+PHASE,5,0,0,900,0,1
+PHASE,5,0,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,0,0,0,3,1601.00000,1601.00000,198.88500,601.72200
+8,5,0,0,0,0,1601.00000,1601.00000
+8,5,0,0,1,1,1601.00000,1601.00000
+8,5,0,0,2,0,1601.00000,1601.00000
+8,5,0,0,3,1,1601.00000,1601.00000
+8,5,0,0,4,1,1601.00000,1601.00000
+NOTE,5,0,1,1599880
+NOTE,5,0,1,3200878
+NOTE,5,0,1,4801878
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,0,1,0,0,1
+PHASE,5,0,1,200,0,1
+PHASE,5,0,1,300,0,1
+PHASE,5,0,1,800,0,1
+PHASE,5,0,1,900,0,1
+PHASE,5,0,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,0,1,0,3,1600.99800,1601.00000,198.12200,601.72200
+8,5,0,1,0,0,1600.99800,1601.00000
+8,5,0,1,1,1,1600.99800,1601.00000
+8,5,0,1,2,0,1600.99800,1601.00000
+8,5,0,1,3,1,1600.99800,1601.00000
+8,5,0,1,4,1,1600.99800,1601.00000
+NOTE,5,1,0,1600656
+NOTE,5,1,0,3202115
+NOTE,5,1,0,4803115
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,1,0,0,0,1
+PHASE,5,1,0,200,0,1
+PHASE,5,1,0,300,0,1
+PHASE,5,1,0,800,0,1
+PHASE,5,1,0,900,0,1
+PHASE,5,1,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,1,0,0,3,1601.00000,1601.45900,196.88500,603.26100
+8,5,1,0,0,0,1601.00000,1601.45900
+8,5,1,0,1,1,1601.00000,1601.45900
+8,5,1,0,2,0,1601.00000,1601.45900
+8,5,1,0,3,1,1601.00000,1601.45900
+8,5,1,0,4,1,1601.00000,1601.45900
+NOTE,5,1,1,1601419
+NOTE,5,1,1,3202878
+NOTE,5,1,1,4803878
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,1,1,0,0,1
+PHASE,5,1,1,200,0,1
+PHASE,5,1,1,300,0,1
+PHASE,5,1,1,800,0,1
+PHASE,5,1,1,900,0,1
+PHASE,5,1,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,1,1,0,3,1601.00000,1601.45900,196.12200,603.26100
+8,5,1,1,0,0,1601.00000,1601.45900
+8,5,1,1,1,1,1601.00000,1601.45900
+8,5,1,1,2,0,1601.00000,1601.45900
+8,5,1,1,3,1,1601.00000,1601.45900
+8,5,1,1,4,1,1601.00000,1601.45900
+NOTE,5,2,0,1602197
+NOTE,5,2,0,3203656
+NOTE,5,2,0,4805115
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,2,0,0,0,1
+PHASE,5,2,0,200,0,1
+PHASE,5,2,0,300,0,1
+PHASE,5,2,0,800,0,1
+PHASE,5,2,0,900,0,1
+PHASE,5,2,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,2,0,0,3,1601.45900,1601.45900,194.88500,604.80200
+8,5,2,0,0,0,1601.45900,1601.45900
+8,5,2,0,1,1,1601.45900,1601.45900
+8,5,2,0,2,0,1601.45900,1601.45900
+8,5,2,0,3,1,1601.45900,1601.45900
+8,5,2,0,4,1,1601.45900,1601.45900
+NOTE,5,2,1,1602960
+NOTE,5,2,1,3204419
+NOTE,5,2,1,4805878
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,2,1,0,0,1
+PHASE,5,2,1,200,0,1
+PHASE,5,2,1,300,0,1
+PHASE,5,2,1,800,0,1
+PHASE,5,2,1,900,0,1
+PHASE,5,2,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,2,1,0,3,1601.45900,1601.45900,194.12200,604.80200
+8,5,2,1,0,0,1601.45900,1601.45900
+8,5,2,1,1,1,1601.45900,1601.45900
+8,5,2,1,2,0,1601.45900,1601.45900
+8,5,2,1,3,1,1601.45900,1601.45900
+8,5,2,1,4,1,1601.45900,1601.45900
+NOTE,5,3,0,1603738
+NOTE,5,3,0,3205197
+NOTE,5,3,0,4806656
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,3,0,0,0,1
+PHASE,5,3,0,200,0,1
+PHASE,5,3,0,300,0,1
+PHASE,5,3,0,800,0,1
+PHASE,5,3,0,900,0,1
+PHASE,5,3,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,3,0,0,3,1601.45900,1601.45900,193.34400,606.34300
+8,5,3,0,0,0,1601.45900,1601.45900
+8,5,3,0,1,1,1601.45900,1601.45900
+8,5,3,0,2,0,1601.45900,1601.45900
+8,5,3,0,3,1,1601.45900,1601.45900
+8,5,3,0,4,1,1601.45900,1601.45900
+NOTE,5,3,1,1604501
+NOTE,5,3,1,3205960
+NOTE,5,3,1,4807419
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,3,1,0,0,1
+PHASE,5,3,1,200,0,1
+PHASE,5,3,1,300,0,1
+PHASE,5,3,1,800,0,1
+PHASE,5,3,1,900,0,1
+PHASE,5,3,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,3,1,0,3,1601.45900,1601.45900,192.58100,606.34300
+8,5,3,1,0,0,1601.45900,1601.45900
+8,5,3,1,1,1,1601.45900,1601.45900
+8,5,3,1,2,0,1601.45900,1601.45900
+8,5,3,1,3,1,1601.45900,1601.45900
+8,5,3,1,4,1,1601.45900,1601.45900
+NOTE,5,4,0,1605295
+NOTE,5,4,0,3206738
+NOTE,5,4,0,4808197
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,4,0,0,0,1
+PHASE,5,4,0,200,0,1
+PHASE,5,4,0,300,0,1
+PHASE,5,4,0,800,0,1
+PHASE,5,4,0,900,0,1
+PHASE,5,4,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,4,0,0,3,1601.44300,1601.45900,191.80300,607.88400
+8,5,4,0,0,0,1601.44300,1601.45900
+8,5,4,0,1,1,1601.44300,1601.45900
+8,5,4,0,2,0,1601.44300,1601.45900
+8,5,4,0,3,1,1601.44300,1601.45900
+8,5,4,0,4,1,1601.44300,1601.45900
+NOTE,5,4,1,1606042
+NOTE,5,4,1,3207501
+NOTE,5,4,1,4808960
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,4,1,0,0,1
+PHASE,5,4,1,200,0,1
+PHASE,5,4,1,300,0,1
+PHASE,5,4,1,800,0,1
+PHASE,5,4,1,900,0,1
+PHASE,5,4,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,4,1,0,3,1601.45900,1601.45900,191.04000,607.88400
+8,5,4,1,0,0,1601.45900,1601.45900
+8,5,4,1,1,1,1601.45900,1601.45900
+8,5,4,1,2,0,1601.45900,1601.45900
+8,5,4,1,3,1,1601.45900,1601.45900
+8,5,4,1,4,1,1601.45900,1601.45900
+NOTE,5,5,0,1606820
+NOTE,5,5,0,3208279
+NOTE,5,5,0,4809738
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,5,0,0,0,1
+PHASE,5,5,0,200,0,1
+PHASE,5,5,0,300,0,1
+PHASE,5,5,0,800,0,1
+PHASE,5,5,0,900,0,1
+PHASE,5,5,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,5,0,0,3,1601.45900,1601.45900,190.26200,609.42500
+8,5,5,0,0,0,1601.45900,1601.45900
+8,5,5,0,1,1,1601.45900,1601.45900
+8,5,5,0,2,0,1601.45900,1601.45900
+8,5,5,0,3,1,1601.45900,1601.45900
+8,5,5,0,4,1,1601.45900,1601.45900
+NOTE,5,5,1,1607583
+NOTE,5,5,1,3209042
+NOTE,5,5,1,4810501
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,5,1,0,0,1
+PHASE,5,5,1,200,0,1
+PHASE,5,5,1,300,0,1
+PHASE,5,5,1,800,0,1
+PHASE,5,5,1,900,0,1
+PHASE,5,5,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,5,1,0,3,1601.45900,1601.45900,189.49900,609.42500
+8,5,5,1,0,0,1601.45900,1601.45900
+8,5,5,1,1,1,1601.45900,1601.45900
+8,5,5,1,2,0,1601.45900,1601.45900
+8,5,5,1,3,1,1601.45900,1601.45900
+8,5,5,1,4,1,1601.45900,1601.45900
+NOTE,5,6,0,1608361
+NOTE,5,6,0,3209820
+NOTE,5,6,0,4811279
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,6,0,0,0,1
+PHASE,5,6,0,200,0,1
+PHASE,5,6,0,300,0,1
+PHASE,5,6,0,800,0,1
+PHASE,5,6,0,900,0,1
+PHASE,5,6,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,6,0,0,3,1601.45900,1601.45900,188.72100,610.96600
+8,5,6,0,0,0,1601.45900,1601.45900
+8,5,6,0,1,1,1601.45900,1601.45900
+8,5,6,0,2,0,1601.45900,1601.45900
+8,5,6,0,3,1,1601.45900,1601.45900
+8,5,6,0,4,1,1601.45900,1601.45900
+NOTE,5,6,1,1609124
+NOTE,5,6,1,3210583
+NOTE,5,6,1,4812042
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,6,1,0,0,1
+PHASE,5,6,1,200,0,1
+PHASE,5,6,1,300,0,1
+PHASE,5,6,1,800,0,1
+PHASE,5,6,1,900,0,1
+PHASE,5,6,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,6,1,0,3,1601.45900,1601.45900,187.95800,610.96600
+8,5,6,1,0,0,1601.45900,1601.45900
+8,5,6,1,1,1,1601.45900,1601.45900
+8,5,6,1,2,0,1601.45900,1601.45900
+8,5,6,1,3,1,1601.45900,1601.45900
+8,5,6,1,4,1,1601.45900,1601.45900
+NOTE,5,7,0,1609902
+NOTE,5,7,0,3211361
+NOTE,5,7,0,4812820
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,7,0,0,0,1
+PHASE,5,7,0,200,0,1
+PHASE,5,7,0,300,0,1
+PHASE,5,7,0,800,0,1
+PHASE,5,7,0,900,0,1
+PHASE,5,7,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,7,0,0,3,1601.45900,1601.45900,187.18000,611.50700
+8,5,7,0,0,0,1601.45900,1601.45900
+8,5,7,0,1,1,1601.45900,1601.45900
+8,5,7,0,2,0,1601.45900,1601.45900
+8,5,7,0,3,1,1601.45900,1601.45900
+8,5,7,0,4,1,1601.45900,1601.45900
+NOTE,5,7,1,1610665
+NOTE,5,7,1,3212124
+NOTE,5,7,1,4813583
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,7,1,0,0,1
+PHASE,5,7,1,200,0,1
+PHASE,5,7,1,300,0,1
+PHASE,5,7,1,800,0,1
+PHASE,5,7,1,900,0,1
+PHASE,5,7,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,7,1,0,3,1601.45900,1601.45900,186.41700,611.50700
+8,5,7,1,0,0,1601.45900,1601.45900
+8,5,7,1,1,1,1601.45900,1601.45900
+8,5,7,1,2,0,1601.45900,1601.45900
+8,5,7,1,3,1,1601.45900,1601.45900
+8,5,7,1,4,1,1601.45900,1601.45900
+NOTE,5,8,0,1611443
+NOTE,5,8,0,3212902
+NOTE,5,8,0,4814361
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,8,0,0,0,1
+PHASE,5,8,0,200,0,1
+PHASE,5,8,0,300,0,1
+PHASE,5,8,0,800,0,1
+PHASE,5,8,0,900,0,1
+PHASE,5,8,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,8,0,0,3,1601.45900,1601.45900,185.63900,614.04800
+8,5,8,0,0,0,1601.45900,1601.45900
+8,5,8,0,1,1,1601.45900,1601.45900
+8,5,8,0,2,0,1601.45900,1601.45900
+8,5,8,0,3,1,1601.45900,1601.45900
+8,5,8,0,4,1,1601.45900,1601.45900
+NOTE,5,8,1,1612206
+NOTE,5,8,1,3213665
+NOTE,5,8,1,4815124
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,5,8,1,0,0,1
+PHASE,5,8,1,200,0,1
+PHASE,5,8,1,300,0,1
+PHASE,5,8,1,800,0,1
+PHASE,5,8,1,900,0,1
+PHASE,5,8,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,5,8,1,0,3,1601.45900,1601.45900,184.87600,614.04800
+8,5,8,1,0,0,1601.45900,1601.45900
+8,5,8,1,1,1,1601.45900,1601.45900
+8,5,8,1,2,0,1601.45900,1601.45900
+8,5,8,1,3,1,1601.45900,1601.45900
+8,5,8,1,4,1,1601.45900,1601.45900
+NOTE,6,0,0,958
+NOTE,6,0,0,1612985
+NOTE,6,0,0,3214444
+NOTE,6,0,0,4815903
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,0,0,0,0,1
+PHASE,6,0,0,200,0,1
+PHASE,6,0,0,300,0,1
+PHASE,6,0,0,800,0,1
+PHASE,6,0,0,900,0,1
+PHASE,6,0,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,0,0,0,4,1601.45900,1612.02700,184.09700,612.59100
+8,6,0,0,0,1,1601.45900,1612.02700
+8,6,0,0,1,1,1601.45900,1612.02700
+8,6,0,0,2,0,1601.45900,1612.02700
+8,6,0,0,3,1,1601.45900,1612.02700
+8,6,0,0,4,1,1601.45900,1612.02700
+NOTE,6,0,1,1722
+NOTE,6,0,1,1613749
+NOTE,6,0,1,3215208
+NOTE,6,0,1,4816667
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,0,1,0,0,1
+PHASE,6,0,1,200,0,1
+PHASE,6,0,1,300,0,1
+PHASE,6,0,1,800,0,1
+PHASE,6,0,1,900,0,1
+PHASE,6,0,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,0,1,0,4,1601.45900,1612.02700,183.33300,612.59100
+8,6,0,1,0,1,1601.45900,1612.02700
+8,6,0,1,1,1,1601.45900,1612.02700
+8,6,0,1,2,0,1601.45900,1612.02700
+8,6,0,1,3,1,1601.45900,1612.02700
+8,6,0,1,4,1,1601.45900,1612.02700
+NOTE,6,1,0,2501
+NOTE,6,1,0,1614528
+NOTE,6,1,0,3215987
+NOTE,6,1,0,4817446
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,1,0,0,0,1
+PHASE,6,1,0,200,0,1
+PHASE,6,1,0,300,0,1
+PHASE,6,1,0,800,0,1
+PHASE,6,1,0,900,0,1
+PHASE,6,1,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,1,0,0,4,1601.45900,1612.02700,182.55400,613.13400
+8,6,1,0,0,1,1601.45900,1612.02700
+8,6,1,0,1,1,1601.45900,1612.02700
+8,6,1,0,2,0,1601.45900,1612.02700
+8,6,1,0,3,1,1601.45900,1612.02700
+8,6,1,0,4,1,1601.45900,1612.02700
+NOTE,6,1,1,3265
+NOTE,6,1,1,1615292
+NOTE,6,1,1,3216751
+NOTE,6,1,1,4818210
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,1,1,0,0,1
+PHASE,6,1,1,200,0,1
+PHASE,6,1,1,300,0,1
+PHASE,6,1,1,800,0,1
+PHASE,6,1,1,900,0,1
+PHASE,6,1,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,1,1,0,4,1601.45900,1612.02700,181.79000,613.13400
+8,6,1,1,0,1,1601.45900,1612.02700
+8,6,1,1,1,1,1601.45900,1612.02700
+8,6,1,1,2,0,1601.45900,1612.02700
+8,6,1,1,3,1,1601.45900,1612.02700
+8,6,1,1,4,1,1601.45900,1612.02700
+NOTE,6,2,0,4044
+NOTE,6,2,0,1616071
+NOTE,6,2,0,3217530
+NOTE,6,2,0,4818989
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,2,0,0,0,1
+PHASE,6,2,0,200,0,1
+PHASE,6,2,0,300,0,1
+PHASE,6,2,0,800,0,1
+PHASE,6,2,0,900,0,1
+PHASE,6,2,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,2,0,0,4,1601.45900,1612.02700,181.01100,612.67700
+8,6,2,0,0,1,1601.45900,1612.02700
+8,6,2,0,1,1,1601.45900,1612.02700
+8,6,2,0,2,0,1601.45900,1612.02700
+8,6,2,0,3,1,1601.45900,1612.02700
+8,6,2,0,4,1,1601.45900,1612.02700
+NOTE,6,2,1,4808
+NOTE,6,2,1,1616835
+NOTE,6,2,1,3218306
+NOTE,6,2,1,4819753
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,2,1,0,0,1
+PHASE,6,2,1,200,0,1
+PHASE,6,2,1,300,0,1
+PHASE,6,2,1,800,0,1
+PHASE,6,2,1,900,0,1
+PHASE,6,2,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,2,1,0,4,1601.44700,1612.02700,180.24700,612.67700
+8,6,2,1,0,1,1601.44700,1612.02700
+8,6,2,1,1,1,1601.44700,1612.02700
+8,6,2,1,2,0,1601.44700,1612.02700
+8,6,2,1,3,1,1601.44700,1612.02700
+8,6,2,1,4,1,1601.44700,1612.02700
+NOTE,6,3,0,5612
+NOTE,6,3,0,1617614
+NOTE,6,3,0,3219116
+NOTE,6,3,0,4820532
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,3,0,0,0,1
+PHASE,6,3,0,200,0,1
+PHASE,6,3,0,300,0,1
+PHASE,6,3,0,800,0,1
+PHASE,6,3,0,900,0,1
+PHASE,6,3,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,3,0,0,4,1601.41600,1612.00200,179.46800,613.22000
+8,6,3,0,0,1,1601.41600,1612.00200
+8,6,3,0,1,1,1601.41600,1612.00200
+8,6,3,0,2,0,1601.41600,1612.00200
+8,6,3,0,3,1,1601.41600,1612.00200
+8,6,3,0,4,1,1601.41600,1612.00200
+NOTE,6,3,1,6351
+NOTE,6,3,1,1618378
+NOTE,6,3,1,3219880
+NOTE,6,3,1,4821296
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,3,1,0,0,1
+PHASE,6,3,1,200,0,1
+PHASE,6,3,1,300,0,1
+PHASE,6,3,1,800,0,1
+PHASE,6,3,1,900,0,1
+PHASE,6,3,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,3,1,0,4,1601.41600,1612.02700,178.70400,613.22000
+8,6,3,1,0,1,1601.41600,1612.02700
+8,6,3,1,1,1,1601.41600,1612.02700
+8,6,3,1,2,0,1601.41600,1612.02700
+8,6,3,1,3,1,1601.41600,1612.02700
+8,6,3,1,4,1,1601.41600,1612.02700
+NOTE,6,4,0,7130
+NOTE,6,4,0,1619157
+NOTE,6,4,0,3220659
+NOTE,6,4,0,4822116
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,4,0,0,0,1
+PHASE,6,4,0,200,0,1
+PHASE,6,4,0,300,0,1
+PHASE,6,4,0,800,0,1
+PHASE,6,4,0,900,0,1
+PHASE,6,4,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,4,0,0,4,1601.45700,1612.02700,177.88400,612.76300
+8,6,4,0,0,1,1601.45700,1612.02700
+8,6,4,0,1,1,1601.45700,1612.02700
+8,6,4,0,2,0,1601.45700,1612.02700
+8,6,4,0,3,1,1601.45700,1612.02700
+8,6,4,0,4,1,1601.45700,1612.02700
+NOTE,6,4,1,7894
+NOTE,6,4,1,1619921
+NOTE,6,4,1,3221423
+NOTE,6,4,1,4822880
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,4,1,0,0,1
+PHASE,6,4,1,200,0,1
+PHASE,6,4,1,300,0,1
+PHASE,6,4,1,800,0,1
+PHASE,6,4,1,900,0,1
+PHASE,6,4,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,4,1,0,4,1601.45700,1612.02700,177.12000,612.76300
+8,6,4,1,0,1,1601.45700,1612.02700
+8,6,4,1,1,1,1601.45700,1612.02700
+8,6,4,1,2,0,1601.45700,1612.02700
+8,6,4,1,3,1,1601.45700,1612.02700
+8,6,4,1,4,1,1601.45700,1612.02700
+NOTE,6,5,0,8673
+NOTE,6,5,0,1620700
+NOTE,6,5,0,3222202
+NOTE,6,5,0,4823659
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,5,0,0,0,1
+PHASE,6,5,0,200,0,1
+PHASE,6,5,0,300,0,1
+PHASE,6,5,0,800,0,1
+PHASE,6,5,0,900,0,1
+PHASE,6,5,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,5,0,0,4,1601.45700,1612.02700,176.34100,612.30600
+8,6,5,0,0,1,1601.45700,1612.02700
+8,6,5,0,1,1,1601.45700,1612.02700
+8,6,5,0,2,0,1601.45700,1612.02700
+8,6,5,0,3,1,1601.45700,1612.02700
+8,6,5,0,4,1,1601.45700,1612.02700
+NOTE,6,5,1,9437
+NOTE,6,5,1,1621464
+NOTE,6,5,1,3222966
+NOTE,6,5,1,4824423
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,5,1,0,0,1
+PHASE,6,5,1,200,0,1
+PHASE,6,5,1,300,0,1
+PHASE,6,5,1,800,0,1
+PHASE,6,5,1,900,0,1
+PHASE,6,5,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,5,1,0,4,1601.45700,1612.02700,175.57700,612.30600
+8,6,5,1,0,1,1601.45700,1612.02700
+8,6,5,1,1,1,1601.45700,1612.02700
+8,6,5,1,2,0,1601.45700,1612.02700
+8,6,5,1,3,1,1601.45700,1612.02700
+8,6,5,1,4,1,1601.45700,1612.02700
+NOTE,6,6,0,10216
+NOTE,6,6,0,1622243
+NOTE,6,6,0,3223745
+NOTE,6,6,0,4825202
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,6,0,0,0,1
+PHASE,6,6,0,200,0,1
+PHASE,6,6,0,300,0,1
+PHASE,6,6,0,800,0,1
+PHASE,6,6,0,900,0,1
+PHASE,6,6,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,6,0,0,4,1601.45700,1612.02700,174.79800,612.84900
+8,6,6,0,0,1,1601.45700,1612.02700
+8,6,6,0,1,1,1601.45700,1612.02700
+8,6,6,0,2,0,1601.45700,1612.02700
+8,6,6,0,3,1,1601.45700,1612.02700
+8,6,6,0,4,1,1601.45700,1612.02700
+NOTE,6,6,1,10980
+NOTE,6,6,1,1623007
+NOTE,6,6,1,3224509
+NOTE,6,6,1,4825966
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,6,1,0,0,1
+PHASE,6,6,1,200,0,1
+PHASE,6,6,1,300,0,1
+PHASE,6,6,1,800,0,1
+PHASE,6,6,1,900,0,1
+PHASE,6,6,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,6,1,0,4,1601.45700,1612.02700,174.03400,612.84900
+8,6,6,1,0,1,1601.45700,1612.02700
+8,6,6,1,1,1,1601.45700,1612.02700
+8,6,6,1,2,0,1601.45700,1612.02700
+8,6,6,1,3,1,1601.45700,1612.02700
+8,6,6,1,4,1,1601.45700,1612.02700
+NOTE,6,7,0,11759
+NOTE,6,7,0,1623786
+NOTE,6,7,0,3225288
+NOTE,6,7,0,4826745
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,7,0,0,0,1
+PHASE,6,7,0,200,0,1
+PHASE,6,7,0,300,0,1
+PHASE,6,7,0,800,0,1
+PHASE,6,7,0,900,0,1
+PHASE,6,7,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,7,0,0,4,1601.45700,1612.02700,173.25500,612.40500
+8,6,7,0,0,1,1601.45700,1612.02700
+8,6,7,0,1,1,1601.45700,1612.02700
+8,6,7,0,2,0,1601.45700,1612.02700
+8,6,7,0,3,1,1601.45700,1612.02700
+8,6,7,0,4,1,1601.45700,1612.02700
+NOTE,6,7,1,12523
+NOTE,6,7,1,1624563
+NOTE,6,7,1,3226052
+NOTE,6,7,1,4827509
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,7,1,0,0,1
+PHASE,6,7,1,200,0,1
+PHASE,6,7,1,300,0,1
+PHASE,6,7,1,800,0,1
+PHASE,6,7,1,900,0,1
+PHASE,6,7,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,7,1,0,4,1601.45700,1612.04000,172.49100,612.40500
+8,6,7,1,0,1,1601.45700,1612.04000
+8,6,7,1,1,1,1601.45700,1612.04000
+8,6,7,1,2,0,1601.45700,1612.04000
+8,6,7,1,3,1,1601.45700,1612.04000
+8,6,7,1,4,1,1601.45700,1612.04000
+NOTE,6,8,0,13302
+NOTE,6,8,0,1625329
+NOTE,6,8,0,3226831
+NOTE,6,8,0,4828288
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,8,0,0,0,1
+PHASE,6,8,0,200,0,1
+PHASE,6,8,0,300,0,1
+PHASE,6,8,0,800,0,1
+PHASE,6,8,0,900,0,1
+PHASE,6,8,0,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,8,0,0,4,1601.45700,1612.02700,171.71200,612.93500
+8,6,8,0,0,1,1601.45700,1612.02700
+8,6,8,0,1,1,1601.45700,1612.02700
+8,6,8,0,2,0,1601.45700,1612.02700
+8,6,8,0,3,1,1601.45700,1612.02700
+8,6,8,0,4,1,1601.45700,1612.02700
+NOTE,6,8,1,14066
+NOTE,6,8,1,1626093
+NOTE,6,8,1,3227595
+NOTE,6,8,1,4829052
+  [ok]   [726 RATE] minimum consecutive spacing from first notification = 0x1
+PHASE,6,8,1,0,0,1
+PHASE,6,8,1,200,0,1
+PHASE,6,8,1,300,0,1
+PHASE,6,8,1,800,0,1
+PHASE,6,8,1,900,0,1
+PHASE,6,8,1,1000000,0,1
+  [ok]   [726 PHASE] all measurement starts through one second preserve verdict = 0x1
+GAPS,8,6,8,1,0,4,1601.45700,1612.02700,170.94800,612.93500
+8,6,8,1,0,1,1601.45700,1612.02700
+8,6,8,1,1,1,1601.45700,1612.02700
+8,6,8,1,2,0,1601.45700,1612.02700
+8,6,8,1,3,1,1601.45700,1612.02700
+8,6,8,1,4,1,1601.45700,1612.02700
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX] every received PDU counted            = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] unbind preserves total          = 0x1f4
+  [ok]   [726 RX] GET_COUNTERS success                  = 0x0
+  [ok]   [726 RX_RESET] bind starts at zero             = 0x0
+SERVICE,0,601722
+SERVICE,1,603261
+SERVICE,2,604802
+SERVICE,3,606343
+SERVICE,4,607884
+SERVICE,5,609425
+SERVICE,6,610966
+SERVICE,7,611507
+SERVICE,8,614048
+SERVICE,9,612591
+SERVICE,10,613134
+SERVICE,11,612677
+SERVICE,12,613220
+SERVICE,13,612763
+SERVICE,14,612306
+SERVICE,15,612849
+SERVICE,16,612405
+SERVICE,17,612935
+SERVICE,18,0
+SERVICE,19,0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+TX_RUN,0,0,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,1,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,2,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,3,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,4,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,5,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,6,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,7,0,64,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,0,8,0,8,8
+  [ok]   [726 TX] restart and wrap follow wire          = 0x8
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+  [ok]   [726 TX_RESET] talker start resets before first PDU = 0x0
+TX_RUN,1,0,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,1,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,2,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,3,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,4,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,5,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,6,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,7,4294967290,58,64
+  [ok]   [726 TX] restart and wrap follow wire          = 0x40
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+TX_RUN,1,8,4294967290,2,8
+  [ok]   [726 TX] restart and wrap follow wire          = 0x8
+  [ok]   [726 TX] restart/wrap emitted enough           = 0x1
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+  [ok]   [726 RX] batch crosses 65535 without loss      = 0x10001
+--------------------------------------------------------------
+checks: 211   failures: 0
+RESULT: PASS

@@ -1,0 +1,135 @@
+{
+  "head": "e7d604faa0472d505d6459883b382c2b237ad06d",
+  "entry": "1add0cfbcc778c5292a5935631ca7b47c612b990",
+  "changed": [
+    "tb/verilator/avtp_rxmon/sim_main_nx.cpp",
+    "tb/verilator/milan_dp/README.md"
+  ],
+  "assertions_and_stimulus_identical": true,
+  "retained_measurement_inputs": [
+    {
+      "path": "docs/reference/REGISTER_MAP.md",
+      "bytes": "254459",
+      "sha256": "a36fa8bf5ed1b176632075a93f35509c5c5ce6284338a782bebe946e13fc07c4"
+    },
+    {
+      "path": "docs/testing/726_STREAM_COUNTERS.md",
+      "bytes": "12480",
+      "sha256": "2e800d56471a8b0711e993dd72cb9b5bfdd10f94a5efb3bae2ccd2c84a62e8c3"
+    },
+    {
+      "path": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+      "bytes": "26661",
+      "sha256": "e7c26bc508f578377b0d91f13e528139ec8797f77bbe4089426bebd99db0e6bf"
+    },
+    {
+      "path": "scripts/measure_test_evidence_readers.py",
+      "bytes": "15063",
+      "sha256": "b9f2d6579b83515a0af6be90971078f38a6cf07385f87a38a8bbe5a484474db8"
+    },
+    {
+      "path": "sw/firmware/ctrl/aecp/README.md",
+      "bytes": "14078",
+      "sha256": "864bb533e7dbf8e59d13401692d5373e6ed66718e37363adfa24c098dd402c00"
+    },
+    {
+      "path": "tb/verilator/milan_dp/Makefile",
+      "bytes": "38385",
+      "sha256": "806f8853eaae7eb786402ea873849c1a0e6b6292081eea2c5a1c59833dfb3178"
+    },
+    {
+      "path": "tb/verilator/milan_dp/stream_counter_f5.cpp",
+      "bytes": "3946",
+      "sha256": "46516d2e34cb81ca75a8936f36f9abb2c262c3a6092ec47b53143cce4b02586e"
+    },
+    {
+      "path": "tb/verilator/milan_dp/stream_counter_f5.py",
+      "bytes": "4077",
+      "sha256": "2c37b3a2c998f8b81a9c3ec2cef0956ea9b7aacf6f8488253e6d97a13777ec60"
+    },
+    {
+      "path": "tb/verilator/milan_dp/stream_counters.hpp",
+      "bytes": "16392",
+      "sha256": "43e3f9d36f6756c07ed7ee9d4ef969fc29f728ea88cc714575a87e2f72249045"
+    },
+    {
+      "path": "tb/verilator/milan_dp/stream_counters.py",
+      "bytes": "12066",
+      "sha256": "00463a7d5269fc08134621b0f595a7eadf14f3c7ad43ba55562465fd3095874c"
+    }
+  ],
+  "image_inputs": [
+    {
+      "path": "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+      "bytes": 13487,
+      "sha256": "d5fdc05084998fba3f66cafdd2f30ae06551991b970a95fcd6cc76659634dbb4",
+      "measured_bytes": 13485,
+      "measured_sha256": "b358fb87df512faa0ba36e1e6eb950522621d0fbf9c57b7280eed16981eb4293",
+      "byte_identical": false,
+      "code_identical": true
+    },
+    {
+      "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+      "bytes": 56507,
+      "sha256": "66a1796d0a9d7656316e840e989035c6e7845a32926f340f1f7efb1286d1e85b",
+      "measured_bytes": 56472,
+      "measured_sha256": "05a4d14fa7fb46745c3b718d1170ec86e0c0a45085e746cfb78a27c1935ca65b",
+      "byte_identical": false,
+      "code_identical": true
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+      "bytes": 37151,
+      "sha256": "90397cd7ad7ba68d71d8a5e7f5e21c409ccf4f47246eb4a7e8be0facdc875efe",
+      "measured_bytes": 37151,
+      "measured_sha256": "90397cd7ad7ba68d71d8a5e7f5e21c409ccf4f47246eb4a7e8be0facdc875efe",
+      "byte_identical": true,
+      "code_identical": true
+    },
+    {
+      "path": "hdl/milan/milan_datapath.sv",
+      "bytes": 457568,
+      "sha256": "3b0b00a1de14c6106a0fcbfe0c7eb87778fddcb6ad6cdc37c35b9f2140a49a16",
+      "measured_bytes": 457568,
+      "measured_sha256": "3b0b00a1de14c6106a0fcbfe0c7eb87778fddcb6ad6cdc37c35b9f2140a49a16",
+      "byte_identical": true,
+      "code_identical": true
+    },
+    {
+      "path": "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "bytes": 12389,
+      "sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+      "measured_bytes": 12389,
+      "measured_sha256": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+      "byte_identical": true,
+      "code_identical": true
+    }
+  ],
+  "submodules": [
+    {
+      "path": "external",
+      "pin": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "status": "uninitialized; no source gate consumes it"
+    },
+    {
+      "path": "gptp-processor",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+      "status": "clean; checked out at unchanged pin"
+    },
+    {
+      "path": "protocol-processor",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "status": "clean; checked out at unchanged pin"
+    },
+    {
+      "path": "third_party/lwSRP",
+      "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "status": "clean; checked out at unchanged pin"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "status": "clean; checked out at unchanged pin"
+    }
+  ]
+}

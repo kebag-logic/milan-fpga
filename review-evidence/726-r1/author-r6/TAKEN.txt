@@ -1,0 +1,8 @@
+[A605] TAKEN
+Branch: 726-stream-counters
+Head: c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+Executor: [A605]; internal reviewer: [R628]; external reviewer: [R629].
+Authoritative references: issue #726 acceptance; assignment comment 6125784157; maintainer ruling comment 6125741685; IEEE 1722.1-2021 7.4.42.2.5 Tables 7.157/7.159; Milan v1.2 5.3.7.7 and 5.3.8.10.
+Interpreted scope: count every transmitted and received Stream Data AVTPDU on AAF and CRF descriptors, preserve the ruled resets and other counter laws, measure and correct per-descriptor unsolicited notification cadence while retaining the rate limit and interface throttle.
+Validation plan: affected RTL suites and planted controls; source-list gates; firmware unit, coverage, and capture gates if changed; documentation gates; shipping image area and timing if RTL changes.
+Blockers: none identified yet. The assigned branch and base are verified. The public assignment settles scope; the project card still reads Backlog.
