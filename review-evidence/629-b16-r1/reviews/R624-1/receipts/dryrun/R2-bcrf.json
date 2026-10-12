@@ -1,0 +1,58 @@
+{
+ "scenario": "bcrf",
+ "rc": 0,
+ "ops": [
+  [
+   "setclk",
+   "peer",
+   0
+  ],
+  [
+   "bind",
+   "dut",
+   1
+  ],
+  [
+   "bind",
+   "dut",
+   0
+  ],
+  [
+   "setclk",
+   "dut",
+   1
+  ],
+  [
+   "setclk",
+   "dut",
+   0
+  ],
+  [
+   "setclk",
+   "peer",
+   1
+  ],
+  [
+   "unbind",
+   "dut",
+   0
+  ],
+  [
+   "unbind",
+   "dut",
+   1
+  ]
+ ],
+ "checks": {
+  "end state as found (clocks, DUT unbound, peer listeners bound)": true,
+  "order: peer INTERNAL, binds, DUT set; DUT restored, unbinds, peer restored": false,
+  "final read-back equal to found": true,
+  "servo LOCKED event": true,
+  "window marks 0, 1, 2 and after-restore": true,
+  "poll summary present": true,
+  "tone summary present": true,
+  "rc 0": true,
+  "window marks 1 and 2": true
+ },
+ "verdict": "FAIL"
+}

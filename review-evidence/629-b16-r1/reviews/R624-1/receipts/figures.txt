@@ -1,0 +1,217 @@
+===== pts1
+ (a)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.94 thdn -108.7367 snr 108.7369
+    ch1 tone_9973: lvl -14.1353 f 9973.0692 ppm 6.94 thdn -88.869 snr 88.869
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1145034 b235c4321fc2324cab2412692bd5d1b0642b73ea13549c028c1722ba9dfbc68a
+ (b)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.939 thdn -107.1663 snr 107.1664
+    ch1 tone_9973: lvl -14.1353 f 9973.0692 ppm 6.939 thdn -87.2605 snr 87.2605
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1149822 e0b086473164bf58ba304eb7b2d9e435eb412fcf11da8d246524abd18f4bb083
+ (c)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.95 thdn -105.2713 snr 105.2714
+    ch1 tone_9973: lvl -14.1353 f 9973.0693 ppm 6.95 thdn -85.3295 snr 85.3295
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 480000 ff408b45488948294ed1c7bc5ce2ca13725fd0c7613e311d16fbf880f3992dd5
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 90602048, "sha256": "b235c4321fc2324cab2412692bd5d1b0642b73ea13549c028c1722ba9dfbc68a", "stream_id": "<peer-eid>", "port": 3, "frames": 1145034, "seconds": 23.855, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 90981020, "sha256": "e0b086473164bf58ba304eb7b2d9e435eb412fcf11da8d246524abd18f4bb083", "stream_id": "<peer-eid>", "port": 2, "frames": 1149822, "seconds": 23.955, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 15360000, "sha256": "ff408b45488948294ed1c7bc5ce2ca13725fd0c7613e311d16fbf880f3992dd5", "frames": 480000, "seconds": 10.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 10, 'event_free_blocks': 10, 'blocks_at_floor': 7, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': 3.001216780989294}
+   ch0_floor: n 7 med -109.68 worst -103.3 snr 109.68 ppm_med 6.937075 ppm_maxabs 6.9735 lvl -14.14
+   ch0_all: n 10 med -105.27 worst -98.66 snr 105.27 ppm_med 6.950344 ppm_maxabs 6.9735 lvl -14.14
+   ch1_floor: n 7 med -89.83 worst -83.34 snr 89.83 ppm_med 6.937075 ppm_maxabs 6.9735 lvl -14.14
+   ch1_all: n 10 med -85.33 worst -78.67 snr 85.33 ppm_med 6.950345 ppm_maxabs 6.9735 lvl -14.14
+   degraded 3 in runs [(0, 0), (5, 5), (7, 7)]
+ align-a-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1145034
+ align-b-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1149822
+===== pts2
+ (a)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.96 thdn -107.7195 snr 107.7196
+    ch1 tone_9973: lvl -14.1353 f 9973.0694 ppm 6.96 thdn -87.824 snr 87.824
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1149828 f06bfd1ed8f486f765bce404607e88b0fda7c3e33da6d936cfa9840bfebf8b1b
+ (b)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.961 thdn -108.3253 snr 108.3254
+    ch1 tone_9973: lvl -14.1353 f 9973.0694 ppm 6.961 thdn -88.4419 snr 88.4419
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1149822 9c6059d0b7ad9a23fe8176733d087d01b13613d96c0012244f1982a2acbaf75e
+ (c)
+    ch0 tone_997: lvl -14.1353 f 997.0069 ppm 6.96 thdn -109.6999 snr 109.7001
+    ch1 tone_9973: lvl -14.1353 f 9973.0694 ppm 6.96 thdn -89.8748 snr 89.8748
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.49
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 480000 f3447f30211ed37e548e9746bf2c9c9e4795797d1e551dc3afae2204f7f0eb6c
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 90981358, "sha256": "f06bfd1ed8f486f765bce404607e88b0fda7c3e33da6d936cfa9840bfebf8b1b", "stream_id": "<peer-eid>", "port": 3, "frames": 1149828, "seconds": 23.955, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 90980890, "sha256": "9c6059d0b7ad9a23fe8176733d087d01b13613d96c0012244f1982a2acbaf75e", "stream_id": "<peer-eid>", "port": 2, "frames": 1149822, "seconds": 23.955, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 15360000, "sha256": "f3447f30211ed37e548e9746bf2c9c9e4795797d1e551dc3afae2204f7f0eb6c", "frames": 480000, "seconds": 10.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 10, 'event_free_blocks': 10, 'blocks_at_floor': 7, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': 3.0062037732198417}
+   ch0_floor: n 7 med -111.26 worst -107.46 snr 111.26 ppm_med 6.960927 ppm_maxabs 6.9746 lvl -14.14
+   ch0_all: n 10 med -109.7 worst -101.43 snr 109.7 ppm_med 6.959761 ppm_maxabs 6.9796 lvl -14.14
+   ch1_floor: n 7 med -91.51 worst -87.55 snr 91.51 ppm_med 6.960929 ppm_maxabs 6.9746 lvl -14.14
+   ch1_all: n 10 med -89.87 worst -81.46 snr 89.87 ppm_med 6.959761 ppm_maxabs 6.9796 lvl -14.14
+   degraded 3 in runs [(0, 2)]
+ align-a-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1149828
+ align-b-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1149822
+ d: {"frames": 768000, "decoded": 665599, "invalid": 102401, "torn": 0, "first_decoded_frame": 102401, "last_decoded_frame": 767999, "skips": 0, "repeats": 2, "net_step_frames": -4, "events_across_invalid": 0, "sha256": "08bf83e0eb4a50540517142c82ad0f386852384ae66f89fad1dd3824b9fd31e5"} [{"frame": 294287, "step": -2, "kind": "repeat", "frames": 2, "invalid_between": 0, "second": 6.131}, {"frame": 581442, "step": -2, "kind": "repeat", "frames": 2, "invalid_between": 0, "second": 12.113}]
+===== pts3
+ (a)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.93 snr 123.9353
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -122.4747 snr 122.475
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1149834 6cdf04d06b9d92d11a9fd748e0a8d94b394f2a5337f8ce7a1da52d7f962c46c0
+ (b)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.9251 snr 123.9305
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -122.473 snr 122.4732
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1149822 f759569cdeab83ae2491346826a33cb1c8c015289ea80963400794ed52f5aed0
+ (c)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.9703 snr 123.9758
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -123.9706 snr 123.971
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 480000 c99d7fc661f7886da65aa8e7728527699b2ee78d30102baa851ea24163ae2558
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 90981956, "sha256": "6cdf04d06b9d92d11a9fd748e0a8d94b394f2a5337f8ce7a1da52d7f962c46c0", "stream_id": "<peer-eid>", "port": 3, "frames": 1149834, "seconds": 23.955, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 90980912, "sha256": "f759569cdeab83ae2491346826a33cb1c8c015289ea80963400794ed52f5aed0", "stream_id": "<peer-eid>", "port": 2, "frames": 1149822, "seconds": 23.955, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 15360000, "sha256": "c99d7fc661f7886da65aa8e7728527699b2ee78d30102baa851ea24163ae2558", "frames": 480000, "seconds": 10.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 10, 'event_free_blocks': 10, 'blocks_at_floor': 7, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': -2.009556867819613e-05}
+   ch0_floor: n 7 med -123.98 worst -123.96 snr 123.99 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch0_all: n 10 med -123.97 worst -110.32 snr 123.98 ppm_med -0.000000 ppm_maxabs 0.0027 lvl -14.1
+   ch1_floor: n 7 med -123.98 worst -123.97 snr 123.98 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch1_all: n 10 med -123.97 worst -90.5 snr 123.97 ppm_med -0.000000 ppm_maxabs 0.0027 lvl -14.1
+   degraded 3 in runs [(7, 9)]
+ align-a-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1149834
+ align-b-c: SAMPLE-EXACT compared 480000 differ 0 slips [] covered [0, 480000] seq_gaps 0 stream_frames 1149822
+===== b0
+ (a)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -122.5763 snr 122.5799
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -108.0958 snr 108.0958
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1914804 075ff41dfbe12b06673eac87f2b04b78519fbb914fd987e7d6b7af4d3ae42e23
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 153665476, "sha256": "075ff41dfbe12b06673eac87f2b04b78519fbb914fd987e7d6b7af4d3ae42e23", "stream_id": "<peer-eid>", "port": 3, "frames": 1914804, "seconds": 39.892, "verdict": "TONE PRESENT"}
+ d: {"frames": 14688000, "decoded": 14583189, "invalid": 104811, "torn": 0, "first_decoded_frame": 104811, "last_decoded_frame": 14687999, "skips": 0, "repeats": 0, "net_step_frames": 0, "events_across_invalid": 0, "sha256": "b0517ab7e64865159ba8aa319fd9084886812d8ddbf1dedbc95889740c9c41c1"} []
+===== b0-2
+ (a)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.6192 snr 123.6246
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -114.2902 snr 114.2902
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1919610 c0efda0683566f3b1a5299fe1ffa97f970585ce51d6ca218c7d9d825c08bbf23
+ (b)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.6157 snr 123.621
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -114.3319 snr 114.3319
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1919592 59bcfef4cfe31f3326360aa3b861e5a5dc7f26f45f00f94afcbc65dce286209d
+ (c)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.9458 snr 123.9513
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -122.7978 snr 122.7978
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.48
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 14400000 9b7072a2ff202841d81ffb4846697a9ebb9240ed72b66610292b4071f83486c1
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 154050970, "sha256": "c0efda0683566f3b1a5299fe1ffa97f970585ce51d6ca218c7d9d825c08bbf23", "stream_id": "<peer-eid>", "port": 3, "frames": 1919610, "seconds": 39.992, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 154049284, "sha256": "59bcfef4cfe31f3326360aa3b861e5a5dc7f26f45f00f94afcbc65dce286209d", "stream_id": "<peer-eid>", "port": 2, "frames": 1919592, "seconds": 39.992, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 460800000, "sha256": "9b7072a2ff202841d81ffb4846697a9ebb9240ed72b66610292b4071f83486c1", "frames": 14400000, "seconds": 300.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 300, 'event_free_blocks': 300, 'blocks_at_floor': 169, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': 0.000506535650500732}
+   ch0_floor: n 169 med -123.98 worst -123.91 snr 123.98 ppm_med 0.000001 ppm_maxabs 0.0071 lvl -14.1
+   ch0_all: n 300 med -123.95 worst -100.47 snr 123.95 ppm_med 0.000001 ppm_maxabs 0.0299 lvl -14.1
+   ch1_floor: n 169 med -123.95 worst -120.18 snr 123.95 ppm_med 0.000000 ppm_maxabs 0.0071 lvl -14.1
+   ch1_all: n 300 med -122.8 worst -80.48 snr 122.8 ppm_med 0.000000 ppm_maxabs 0.0299 lvl -14.1
+   degraded 131 in runs [(0, 18), (28, 31), (43, 44), (46, 54), (74, 85), (88, 92), (109, 112), (132, 142), (150, 170), (178, 180), (192, 203), (206, 208), (216, 229), (232, 238), (247, 251)]
+ align-a-c: SAMPLE-EXACT compared 1637452 differ 0 slips [] covered [0, 1637452] seq_gaps 0 stream_frames 1919610
+ align-b-c: SAMPLE-EXACT compared 1637980 differ 0 slips [] covered [0, 1637980] seq_gaps 0 stream_frames 1919592
+ d: {"frames": 14688000, "decoded": 14583286, "invalid": 104714, "torn": 0, "first_decoded_frame": 104714, "last_decoded_frame": 14687999, "skips": 0, "repeats": 0, "net_step_frames": 0, "events_across_invalid": 0, "sha256": "52da5d1febaebd5b03617b24f40c52ed381f57a3490ef20c4a2f6ad7a931dc7b"} []
+===== bcrf
+ (a)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.9833 snr 123.9875
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -123.9703 snr 123.9703
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1919598 edad46fe5de09dcace08a19eef8f5ecc5f0e9cab9bf5e506eb3e2f23a6bc97b3
+ (b)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.9855 snr 123.9914
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -123.9722 snr 123.9722
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.49
+    TONE PRESENT {'997': [0], '9973': [1]} 1919574 4e7013347ec9de4e29c61165f92acee4e22104bbf5e7aa1050225d38ba593d09
+ (c)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.9831 snr 123.9879
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -123.9705 snr 123.9705
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.48
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 14400000 b5e30bb576949c077f3ff611c6226d5bf094e7b65ff2e1f033541c3f9ba1c03f
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 154049992, "sha256": "edad46fe5de09dcace08a19eef8f5ecc5f0e9cab9bf5e506eb3e2f23a6bc97b3", "stream_id": "<peer-eid>", "port": 3, "frames": 1919598, "seconds": 39.992, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 154048228, "sha256": "4e7013347ec9de4e29c61165f92acee4e22104bbf5e7aa1050225d38ba593d09", "stream_id": "<peer-eid>", "port": 2, "frames": 1919574, "seconds": 39.991, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 460800000, "sha256": "b5e30bb576949c077f3ff611c6226d5bf094e7b65ff2e1f033541c3f9ba1c03f", "frames": 14400000, "seconds": 300.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 300, 'event_free_blocks': 300, 'blocks_at_floor': 300, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': -6.613901678014785e-08}
+   ch0_floor: n 300 med -123.98 worst -123.93 snr 123.99 ppm_med 0.000001 ppm_maxabs 0.0000 lvl -14.1
+   ch0_all: n 300 med -123.98 worst -123.93 snr 123.99 ppm_med 0.000001 ppm_maxabs 0.0000 lvl -14.1
+   ch1_floor: n 300 med -123.97 worst -123.9 snr 123.97 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch1_all: n 300 med -123.97 worst -123.9 snr 123.97 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   degraded 0 in runs []
+ align-a-c: SAMPLE-EXACT compared 1647859 differ 0 slips [] covered [0, 1647859] seq_gaps 0 stream_frames 1919598
+ align-b-c: SAMPLE-EXACT compared 1646473 differ 0 slips [] covered [0, 1646473] seq_gaps 0 stream_frames 1919574
+ d: {"frames": 14688000, "decoded": 14583391, "invalid": 104609, "torn": 0, "first_decoded_frame": 104609, "last_decoded_frame": 14687999, "skips": 0, "repeats": 0, "net_step_frames": 0, "events_across_invalid": 0, "sha256": "b4f6a999500c5b1b0e1c058afeaf9788410f1b2f29e4a4e684ba19b1c2f50e4d"} []
+===== baaf
+ (a)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.9776 snr 123.9838
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -123.9751 snr 123.9751
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1919598 234a2f0b414dcd0a07e9f2fb9047d417b9d14da77fddc0a0b708e315983ab36d
+ (b)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm 0.0 thdn -123.977 snr 123.9826
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm 0.0 thdn -123.9758 snr 123.9758
+    ch2 min -1 max 0 rms -141.48
+    ch3 min -1 max 0 rms -141.48
+    TONE PRESENT {'997': [0], '9973': [1]} 1919580 5a8dbaad272ad1c6bbd18aa146486ed2a78c27d23270a8e9d243207b9269038b
+ (c)
+    ch0 tone_997: lvl -14.1035 f 997.0 ppm -0.0 thdn -123.9828 snr 123.9884
+    ch1 tone_9973: lvl -14.1035 f 9973.0 ppm -0.0 thdn -123.9739 snr 123.9739
+    ch2 min -1 max 0 rms -141.49
+    ch3 min -1 max 0 rms -141.49
+    ch4 min 0 max 0 rms None
+    ch5 min 0 max 0 rms None
+    ch6 min 0 max 0 rms None
+    ch7 min 0 max 0 rms None
+    TONE PRESENT {'997': [0], '9973': [1]} 14400000 1351272cb679353885983762402caa13ef6e793831463dfc5a2ca242cca3a93e
+ a-peer-tap scalars: {"point": "tap", "file": "tap-peer.pcap", "bytes": 154049168, "sha256": "234a2f0b414dcd0a07e9f2fb9047d417b9d14da77fddc0a0b708e315983ab36d", "stream_id": "<peer-eid>", "port": 3, "frames": 1919598, "seconds": 39.992, "verdict": "TONE PRESENT"}
+ b-dut-tap scalars: {"point": "tap", "file": "tap-dut.pcap", "bytes": 154048154, "sha256": "5a8dbaad272ad1c6bbd18aa146486ed2a78c27d23270a8e9d243207b9269038b", "stream_id": "<peer-eid>", "port": 2, "frames": 1919580, "seconds": 39.991, "verdict": "TONE PRESENT"}
+ c-mcasp scalars: {"point": "mcasp", "file": "mcasp-all.raw", "bytes": 460800000, "sha256": "1351272cb679353885983762402caa13ef6e793831463dfc5a2ca242cca3a93e", "frames": 14400000, "seconds": 300.0, "verdict": "TONE PRESENT"}
+ b9: {'blocks': 300, 'event_free_blocks': 300, 'blocks_at_floor': 300, 'skips': 0, 'repeats': 0, 'inserts': 0, 'glitches': 0, 'silent_frames': 0, 'effective_offset_ppm': 0.0, 'phase_net_frames': -2.761555234595134e-08}
+   ch0_floor: n 300 med -123.98 worst -123.92 snr 123.99 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch0_all: n 300 med -123.98 worst -123.92 snr 123.99 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch1_floor: n 300 med -123.97 worst -123.91 snr 123.97 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   ch1_all: n 300 med -123.97 worst -123.91 snr 123.97 ppm_med -0.000000 ppm_maxabs 0.0000 lvl -14.1
+   degraded 0 in runs []
+ align-a-c: SAMPLE-EXACT compared 1641156 differ 0 slips [] covered [0, 1641156] seq_gaps 0 stream_frames 1919598
+ align-b-c: SAMPLE-EXACT compared 1644390 differ 0 slips [] covered [0, 1644390] seq_gaps 0 stream_frames 1919580
+ d: {"frames": 14688000, "decoded": 14585924, "invalid": 102076, "torn": 0, "first_decoded_frame": 102076, "last_decoded_frame": 14687999, "skips": 0, "repeats": 0, "net_step_frames": 0, "events_across_invalid": 0, "sha256": "1eeaad6845cb2ad30de88ffe5eb211518f12acf14fa6fed9bd14a12cdd9c099c"} []

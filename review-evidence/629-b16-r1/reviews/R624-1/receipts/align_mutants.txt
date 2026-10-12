@@ -1,0 +1,6 @@
+planted M1
+M1 rc=1
+[('exact copy', 'SAMPLE-EXACT', 'PASS'), ('one frame dropped at 200,000 (expected a', 'DIFFERENT', 'PASS'), ('one frame repeated at 250,000 (expected ', 'DIFFERENT', 'PASS'), ('one sample changed by 1 LSB at 300,000', 'DIFFERENT', 'PASS'), ('another stretch, channel 0 negated', 'NO MATCH', 'PASS'), ('one sample changed by +256 LSB at 310,00', 'SAMPLE-EXACT', 'FAIL')]
+planted M2
+M2 rc=1
+[('exact copy', 'SAMPLE-EXACT', 'PASS'), ('one frame dropped at 200,000 (expected a', 'SAMPLE-EXACT', 'FAIL'), ('one frame repeated at 250,000 (expected ', 'SAMPLE-EXACT', 'FAIL'), ('one sample changed by 1 LSB at 300,000', 'DIFFERENT', 'PASS'), ('another stretch, channel 0 negated', 'NO MATCH', 'PASS'), ('one sample changed by +256 LSB at 310,00', 'DIFFERENT', 'PASS')]

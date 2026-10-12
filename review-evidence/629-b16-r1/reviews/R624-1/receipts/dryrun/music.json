@@ -1,0 +1,23 @@
+{
+ "scenario": "music",
+ "rc": 1,
+ "ops": [
+  [
+   "setclk",
+   "peer",
+   0
+  ],
+  [
+   "setclk",
+   "peer",
+   1
+  ]
+ ],
+ "checks": {
+  "end state as found (clocks, DUT unbound, peer listeners bound)": true,
+  "peer set, music found before the binds, peer restored; nothing bound": true,
+  "WAIT reported": true,
+  "final read-back equal to found": true
+ },
+ "verdict": "PASS"
+}
