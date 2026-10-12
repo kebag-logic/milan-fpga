@@ -1,0 +1,42 @@
+[
+  {
+    "name": "gen-control",
+    "path": null,
+    "killer": null
+  },
+  {
+    "name": "gen-range-low",
+    "path": "scripts/entity_yaml.py",
+    "old": "integer(acmp['da_fresh_ms'], 15000, 15000,",
+    "new": "integer(acmp['da_fresh_ms'], 0, 15000,",
+    "killer": "test_dafresh_configuration"
+  },
+  {
+    "name": "gen-range-high",
+    "path": "scripts/entity_yaml.py",
+    "old": "integer(acmp['da_fresh_ms'], 15000, 15000,",
+    "new": "integer(acmp['da_fresh_ms'], 15000, 30000,",
+    "killer": "test_dafresh_configuration"
+  },
+  {
+    "name": "gen-emit-plus-one",
+    "path": "scripts/entity_yaml.py",
+    "old": ".da_fresh_ms = {d[\"da_fresh_ms\"]}u",
+    "new": ".da_fresh_ms = {d[\"da_fresh_ms\"] + 1}u",
+    "killer": "test_dafresh_configuration"
+  },
+  {
+    "name": "gen-acmp-never-allowed",
+    "path": "scripts/entity_yaml.py",
+    "old": "if isinstance(document, dict) and 'acmp' in document:",
+    "new": "if False:",
+    "killer": "test_dafresh_configuration"
+  },
+  {
+    "name": "gen-default-missing",
+    "path": "scripts/entity_yaml.py",
+    "old": "d.get('acmp', {'da_fresh_ms': 15000})",
+    "new": "d.get('acmp', {})",
+    "killer": "test_dafresh_configuration"
+  }
+]

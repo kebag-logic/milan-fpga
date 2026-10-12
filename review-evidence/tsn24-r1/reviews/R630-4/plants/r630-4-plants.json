@@ -1,0 +1,168 @@
+[
+  {
+    "name": "control",
+    "path": null,
+    "killer": null,
+    "why": "unplanted control"
+  },
+  {
+    "name": "r630-4-any-status",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||",
+        "(true ||"
+      ]
+    ],
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "why": "P15/P17: every PROBE_TX_RESPONSE status refreshes"
+  },
+  {
+    "name": "r630-4-unknown-id-counts",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {",
+        "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL || (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_UNKNOWN_ID)) {"
+      ]
+    ],
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "why": "P17: unknown-ID reply refreshes"
+  },
+  {
+    "name": "r630-4-incompatible-counts",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {",
+        "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL || (frame[O_STATUS] >> 3) == ACMP_STATUS_INCOMPATIBLE_REQUEST)) {"
+      ]
+    ],
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "why": "P17: incompatible reply refreshes"
+  },
+  {
+    "name": "r630-4-refused-counts",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "if (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+        "if (frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&"
+      ]
+    ],
+    "killer": "AcmpFresh.DeferredAnswer",
+    "why": "P18: refused send counts"
+  },
+  {
+    "name": "r630-4-own-probe-command-counts",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "if (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+        "if (ok && (frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE || frame[O_MSG] == ACMP_MSG_PROBE_TX_COMMAND) &&"
+      ]
+    ],
+    "killer": null,
+    "why": "P15: an outgoing listener PROBE_TX_COMMAND refreshes the local source with the same index"
+  },
+  {
+    "name": "r630-4-stale-cache",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "\t\ta->now_read = false;\n\t\ts->answered_at = now(a);",
+        "\t\ts->answered_at = now(a);"
+      ]
+    ],
+    "killer": null,
+    "why": "clock-cache reset in p_send removed (expected equivalent)"
+  },
+  {
+    "name": "r630-4-derived-fresh",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "\tif (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {\n\t\ts->answered = false;\n\t}",
+        "\tbool fresh = s->answered && (uint32_t)(now(a) - s->answered_at) < a->cfg.da_fresh_ms;"
+      ],
+      [
+        "return st.dest_mac_valid && (s->answered || s->listener_registered);",
+        "return st.dest_mac_valid && (fresh || s->listener_registered);"
+      ]
+    ],
+    "killer": "AcmpFresh.StaleProbe",
+    "why": "P24: fabric-style derived predicate without clearing (resurrects after wrap)"
+  },
+  {
+    "name": "r630-4-listener-uid-index",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "&a->sources[wire_be16(frame + O_TALKER_UID)]",
+        "&a->sources[wire_be16(frame + O_LISTENER_UID)]"
+      ]
+    ],
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "why": "P14/R02: wrong index field"
+  },
+  {
+    "name": "r630-4-query-skips-source",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "\tp_source(a, source, &st);\n\treturn st.dest_mac_valid",
+        "\tst.dest_mac_valid = true;\n\treturn st.dest_mac_valid"
+      ]
+    ],
+    "killer": "AcmpFresh.InvalidAddress",
+    "why": "P02: destination validity not read"
+  },
+  {
+    "name": "r630-4-listener-ignores-level",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "a->sources[source].listener_registered = registered;",
+        "a->sources[source].listener_registered = a->sources[source].listener_registered || registered;"
+      ]
+    ],
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "why": "P04: withdrawal ignored"
+  },
+  {
+    "name": "r630-4-init-limit-off",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "cfg->da_fresh_ms >= UINT32_C(0x80000000)",
+        "cfg->da_fresh_ms > UINT32_MAX - 1u"
+      ]
+    ],
+    "killer": "AcmpFresh.WindowRange",
+    "why": "P12: limit loosened to UINT32_MAX only"
+  },
+  {
+    "name": "r630-4-expiry-plus-one",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+        "(uint32_t)(now(a) - s->answered_at) > a->cfg.da_fresh_ms"
+      ]
+    ],
+    "killer": "AcmpFresh.WindowEdge",
+    "why": "P21: inclusive edge"
+  },
+  {
+    "name": "r630-4-expiry-minus-one",
+    "path": "src/acmp.c",
+    "edits": [
+      [
+        "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+        "(uint32_t)(now(a) - s->answered_at) + 1u >= a->cfg.da_fresh_ms"
+      ]
+    ],
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "why": "P21: 14999 ms stale"
+  }
+]

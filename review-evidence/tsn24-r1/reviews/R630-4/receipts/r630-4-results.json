@@ -1,0 +1,309 @@
+[
+  {
+    "plant": "control",
+    "killer": null,
+    "full": {
+      "instances": 424,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "ESCAPED"
+  },
+  {
+    "plant": "r630-4-any-status",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.OtherRepliesDoNotRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-unknown-id-counts",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.OtherRepliesDoNotRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-incompatible-counts",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.OtherRepliesDoNotRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-refused-counts",
+    "killer": "AcmpFresh.DeferredAnswer",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.DeferredAnswer"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-own-probe-command-counts",
+    "killer": null,
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpCore.CommandPortBudgets",
+        "AcmpCore.TimerPortBudgets"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "r630-4-stale-cache",
+    "killer": null,
+    "full": {
+      "instances": 424,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "ESCAPED"
+  },
+  {
+    "plant": "r630-4-derived-fresh",
+    "killer": "AcmpFresh.StaleProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.StaleProbe",
+        "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+        "AcmpFresh.StaleProbeAfterListenerWrap"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [
+        "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+        "AcmpFresh.StaleProbeAfterListenerWrap"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": false,
+    "only_killer": false
+  },
+  {
+    "plant": "r630-4-listener-uid-index",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.SourceAndInterfaceIsolation"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-query-skips-source",
+    "killer": "AcmpFresh.InvalidAddress",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry",
+        "AcmpFresh.InvalidAddress",
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry",
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": false,
+    "only_killer": false
+  },
+  {
+    "plant": "r630-4-listener-ignores-level",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry",
+        "AcmpFresh.ListenerWithdrawalAndReset",
+        "AcmpFresh.ListenerWithoutProbe",
+        "AcmpFresh.StaleProbeAfterListenerWrap",
+        "AcmpFresh.WindowEdge",
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry",
+        "AcmpFresh.ListenerWithdrawalAndReset",
+        "AcmpFresh.StaleProbeAfterListenerWrap",
+        "AcmpFresh.WindowEdge",
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": false,
+    "only_killer": false
+  },
+  {
+    "plant": "r630-4-init-limit-off",
+    "killer": "AcmpFresh.WindowRange",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowRange"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-4-expiry-plus-one",
+    "killer": "AcmpFresh.WindowEdge",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowEdge",
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": false,
+    "only_killer": false
+  },
+  {
+    "plant": "r630-4-expiry-minus-one",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ClockWrap",
+        "AcmpFresh.DeferredAnswer",
+        "AcmpFresh.WithinWindowAndRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [
+        "AcmpFresh.ClockWrap",
+        "AcmpFresh.DeferredAnswer"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": false,
+    "only_killer": false
+  }
+]

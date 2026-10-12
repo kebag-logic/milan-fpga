@@ -1,0 +1,937 @@
+[
+  {
+    "plant": "control",
+    "killer": null,
+    "full": {
+      "instances": 424,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "ESCAPED"
+  },
+  {
+    "plant": "dafresh-unanswered-clock",
+    "killer": "AcmpFresh.NoProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.NoProbe"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-listener-needs-probe",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ListenerWithoutProbe"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-ignore-address",
+    "killer": "AcmpFresh.InvalidAddress",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InvalidAddress"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-withdrawal-clears-probe",
+    "killer": "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.FreshProbeAfterListenerWithdrawal"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-query-source-twice",
+    "killer": "AcmpFresh.QueryPorts",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-query-calls-srp",
+    "killer": "AcmpFresh.QueryPorts",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-listener-calls-clock",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-listener-bound-off-by-one",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-wrong-interface",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-listener-range-only",
+    "killer": "AcmpFresh.ListenerInterfaceMismatch",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ListenerInterfaceMismatch"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-listener-no-entry-guard",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-listener-rejects-asking-failed",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ListenerWithoutProbe"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-generated-window",
+    "killer": "EntityYaml.DaFreshRoundTrip",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "EntityYaml.DaFreshRoundTrip"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_entity.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-fixed-window",
+    "killer": "AcmpFresh.ConfiguredWindow",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ConfiguredWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-half-range",
+    "killer": "AcmpFresh.WindowRange",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowRange"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-range-wipes-instance",
+    "killer": "AcmpFresh.WindowRange",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowRange"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-range-calls-clock",
+    "killer": "AcmpFresh.WindowRange",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowRange"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "x-zero-never-expires",
+    "killer": "AcmpFresh.ZeroWindow",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-zero-blocks-listener",
+    "killer": "AcmpFresh.ZeroWindow",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ZeroWindow"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-reset-retains-demand",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ListenerWithdrawalAndReset"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-reset-retains-timestamp",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ListenerWithdrawalAndReset"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-init-keeps-listener",
+    "killer": "AcmpFresh.InitClearsListener",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InitClearsListener"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-wrong-source",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.SourceAndInterfaceIsolation"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-listener-writes-source-zero",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.SourceAndInterfaceIsolation"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-answer-stamped-before-send",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WithinWindowAndRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-refused-answer",
+    "killer": "AcmpFresh.DeferredAnswer",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.DeferredAnswer"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-incompatible-refresh",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.OtherRepliesDoNotRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-only-success",
+    "killer": "AcmpFresh.FailedAllocationAnswer",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.FailedAllocationAnswer"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-state-reply-demand",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.OtherRepliesDoNotRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "acmp-probe-tx-reports-asking-failed",
+    "killer": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "acmp-get-tx-state-unheld-mac",
+    "killer": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-no-renewal",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WithinWindowAndRefresh"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-inclusive-edge",
+    "killer": "AcmpFresh.WindowEdge",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.WindowEdge"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-expiry-equality",
+    "killer": "AcmpFresh.StaleProbe",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.StaleProbe"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-absolute-clock",
+    "killer": "AcmpFresh.ClockWrap",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.ClockWrap"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-query-clock-twice",
+    "killer": "AcmpFresh.QueryPorts",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "g-expiry-skipped-with-listener",
+    "killer": "AcmpFresh.StaleProbeAfterListenerWrap",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.StaleProbeAfterListenerWrap"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "g-expiry-skipped-invalid-da",
+    "killer": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-declaring-no-entry-guard",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "r630-3-declaring-bound-off-by-one",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.InputGuardsAndReentry"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-query-calls-timer",
+    "killer": "AcmpFresh.QueryPorts",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  },
+  {
+    "plant": "dafresh-query-calls-publish",
+    "killer": "AcmpFresh.QueryPorts",
+    "full": {
+      "instances": 424,
+      "failures": [
+        "AcmpFresh.QueryPorts"
+      ],
+      "skipped": [],
+      "missing": []
+    },
+    "result": "CAUGHT",
+    "removed_from": "tests/test_acmp.cpp",
+    "removed": {
+      "instances": 423,
+      "failures": [],
+      "skipped": [],
+      "missing": []
+    },
+    "escapes": true,
+    "only_killer": true
+  }
+]

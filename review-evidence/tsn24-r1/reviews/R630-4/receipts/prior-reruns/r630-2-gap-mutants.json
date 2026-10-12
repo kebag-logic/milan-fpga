@@ -1,0 +1,76 @@
+[
+  {
+    "mutant": "g-refusal-after-memset",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpFresh.WindowRange"
+    ],
+    "failing_count": 1
+  },
+  {
+    "mutant": "g-no-range-refusal",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpFresh.WindowRange"
+    ],
+    "failing_count": 1
+  },
+  {
+    "mutant": "g-zero-refused",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled",
+      "AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold",
+      "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+      "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+      "AcmpCore.A12DelaySendsANewProbe",
+      "AcmpCore.A13NoTalkerAttributeReprobes",
+      "AcmpCore.A14RegisteredSettlesTheReservation",
+      "AcmpCore.A15UnregisteredReprobes",
+      "AcmpCore.A16OneCounterForEveryNewProbe",
+      "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
+      "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
+      "AcmpCore.A18TheSeedIsTakenAtTheFirstDraw"
+    ],
+    "failing_count": 101
+  },
+  {
+    "mutant": "g-expiry-skipped-with-listener",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpFresh.StaleProbeAfterListenerWrap"
+    ],
+    "failing_count": 1
+  },
+  {
+    "mutant": "g-expiry-skipped-invalid-da",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+    ],
+    "failing_count": 1
+  },
+  {
+    "mutant": "g-answer-uses-event-clock",
+    "suite_rc": 8,
+    "result": "CAUGHT",
+    "failing_tests": [
+      "AcmpFresh.ClockWrap",
+      "AcmpFresh.ConfiguredWindow",
+      "AcmpFresh.DeferredAnswer",
+      "AcmpFresh.FailedAllocationAnswer",
+      "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+      "AcmpFresh.ListenerWithdrawalAndReset",
+      "AcmpFresh.QueryPorts",
+      "AcmpFresh.SourceAndInterfaceIsolation",
+      "AcmpFresh.WithinWindowAndRefresh",
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "failing_count": 10
+  }
+]

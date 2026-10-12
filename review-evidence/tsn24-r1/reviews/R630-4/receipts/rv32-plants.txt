@@ -1,0 +1,12 @@
+no-probe-term baremetal rc=1
+  no-probe-term:     raise RuntimeError('command failed: ' + ' '.join(map(str, argv)) + '\n' + result.stdout)
+  no-probe-term: RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel $PACKET/scratch/rv32-plant-no-probe-term/build/debug/rv32_smoke.elf -no-reboot
+  no-probe-term: 
+generated-window baremetal rc=1
+  generated-window:     raise RuntimeError('command failed: ' + ' '.join(map(str, argv)) + '\n' + result.stdout)
+  generated-window: RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel $PACKET/scratch/rv32-plant-generated-window/build/debug/rv32_smoke.elf -no-reboot
+  generated-window: 
+control baremetal rc=0
+  control:     "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds; four generated entity round trips"
+  control:   }
+  control: ]

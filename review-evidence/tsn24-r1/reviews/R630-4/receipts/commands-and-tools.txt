@@ -1,0 +1,41 @@
+# Reviewer command record (paths: $CLONE exact-head clone, $PACKET this packet, $SCRATCH disposable trees)
+toolchain:
+gcc (GCC) 16.2.1 20260810
+clang version 23.1.1
+Ubuntu clang version 18.1.3 (1ubuntu1)
+riscv64-elf-gcc (Arch Linux Repositories) 16.2.0
+QEMU emulator version 11.1.2
+cmake version 4.4.4
+Python 3.14.7
+Cppcheck 2.22.0
+  LLVM version 23.1.1
+GoogleTest/GMock: 1.14.0 pinned prefix
+Verilator 5.050 2026-07-01 rev v5.050
+
+prior reviewer scripts re-run unchanged (sha256 of the published copies):
+42a9e67dca97eb0aaee1ad3bbcecd904c3aace1240a6ef44bb018d5782d3aa7e  R630-1/escape_probe.py
+94ee3548584c95dcb0135b0be9676397896340766eb8eb9cd0e3b03a8f11b341  R630-1/physical_removal.py
+ea672d1776ec7d82a56b0cfa332b7128dddebc75a0e9d7a878f2779e84d3b28e  R630-2/gap_mutants.py
+94ee3548584c95dcb0135b0be9676397896340766eb8eb9cd0e3b03a8f11b341  R630-2/physical_removal.py
+16e45c15ef375c991fc0cfbe4329dcbc515f1e469b2610c8ba164e1cd6c4f9b0  R630-3/full_suite_probe.py
+d64cbb45c34f23184d234a8f9d36b40954d118232f3a3c83a8701fbd2dd5e724  R630-3/plants_gap.json
+16e45c15ef375c991fc0cfbe4329dcbc515f1e469b2610c8ba164e1cd6c4f9b0  author/full_suite_probe.py
+d64cbb45c34f23184d234a8f9d36b40954d118232f3a3c83a8701fbd2dd5e724  author/plants_gap.json
+
+commands:
+python3 scripts/validate.py --work $SCRATCH/validation --jobs 16 --graphs            (in $CLONE; TSN_CLANG = clang 18.1.3)
+python3 scripts/baremetal.py --work $SCRATCH/rv32 --jobs 16                          (in $CLONE)
+python3 scripts/baremetal.py --work $SCRATCH/rv32-base --jobs 16                     (in git archive of 1ba2735)
+python3 scripts/static_analysis.py                                                   (in git archive of 1ba2735, environment control)
+riscv64-elf-objcopy -O binary rv32_smoke.elf X.bin; stat -c %s X.bin                 (loadable bytes, receipts/rv32-sizes.txt)
+python3 -I scripts/probe.py --src $SCRATCH/head-src --work W --plants plants/r630-4-plants.json --jobs 8 --per-build 2 --out receipts/r630-4-results.json
+python3 -I scripts/probe.py --src $SCRATCH/head-src --work W --plants plants/contract-table-plants.json --jobs 8 --per-build 2 --out receipts/contract-table-results.json
+python3 -I scripts/gen_probe.py --src $SCRATCH/head-src --work W --plants plants/gen-plants.json --out receipts/gen-results.json
+python3 -I R630-3/full_suite_probe.py --repo $CLONE --rev f13c9c16c2b300d158f980dd7c7f071dcb84df5b --work W --plants R630-3/plants_gap.json --jobs 4 --control --out receipts/prior-reruns/r630-3-full-suite-probe.json
+python3 -I R630-2/gap_mutants.py --tree $SCRATCH/head-src --work W --jobs 6
+python3 -I R630-1/physical_removal.py --tree $SCRATCH/head-src --work W --plants <all 29 dafresh-*/x-* plants with AcmpFresh killers>
+python3 -I R630-2/physical_removal.py --tree $SCRATCH/head-src --work W --plants g-expiry-skipped-with-listener,g-expiry-skipped-invalid-da
+python3 -I R630-1/escape_probe.py --tree $SCRATCH/head-src --work W --jobs 6
+sh scripts/fabric_edge.sh <protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a> W <pinned simulator 5.050>
+RV32 plants (receipts/rv32-plants.txt): copies of $SCRATCH/head-src with the probe term removed from acmp_declaring, or the talker generated window set to 15001u, then scripts/baremetal.py
+$SCRATCH/head-src = git archive f13c9c16c2b300d158f980dd7c7f071dcb84df5b (tree 591d38854105564a5d632c18e846b0dd60c2f148)
