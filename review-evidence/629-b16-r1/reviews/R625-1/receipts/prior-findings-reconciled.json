@@ -1,0 +1,103 @@
+{
+  "b0_floor_medians_db": [
+    -123.98,
+    -123.95
+  ],
+  "degraded_ranges": [
+    [
+      0,
+      18
+    ],
+    [
+      28,
+      31
+    ],
+    [
+      43,
+      44
+    ],
+    [
+      46,
+      54
+    ],
+    [
+      74,
+      85
+    ],
+    [
+      88,
+      92
+    ],
+    [
+      109,
+      112
+    ],
+    [
+      132,
+      142
+    ],
+    [
+      150,
+      170
+    ],
+    [
+      178,
+      180
+    ],
+    [
+      192,
+      203
+    ],
+    [
+      206,
+      208
+    ],
+    [
+      216,
+      229
+    ],
+    [
+      232,
+      238
+    ],
+    [
+      247,
+      251
+    ]
+  ],
+  "block_45_at_floor": true,
+  "run_events": [
+    {
+      "t": 1791779859.201162,
+      "kind": "bind",
+      "talker": "peer-out-2",
+      "listener": "dut-in-1",
+      "status": 0,
+      "conn_count": 1,
+      "stream_id": "0000000000000000"
+    },
+    {
+      "t": 1791779859.203677,
+      "kind": "bind",
+      "talker": "peer-out-0",
+      "listener": "dut-in-0",
+      "status": 0,
+      "conn_count": 1,
+      "stream_id": "0000000000000000"
+    },
+    {
+      "t": 1791779883.208522,
+      "kind": "captures-started",
+      "started": {
+        "tap": 1791779879.207,
+        "extcap": 1791779881.207,
+        "mcasp": 1791779883.209
+      }
+    }
+  ],
+  "capture_lead_seconds": 2,
+  "b6_criterion": "LOCKED; counted ratio within 0.5 ppm; timed ratio interval includes zero; no listener discontinuities",
+  "b16c_timed_ratio": "NOT RUN",
+  "prior_public_finding_source": "https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119236428",
+  "independent_report_before_reconciliation_sha256": "1cbc4e72d40ee37ee40a3e7314a28d80acfff9f5a067e1e802d9518a34b53076"
+}

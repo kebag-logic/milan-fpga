@@ -1,0 +1,132 @@
+{
+  "B16": {
+    "entries": 46,
+    "equal": 45,
+    "only_difference": {
+      "before": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>000001830017000106030002",
+        "role": "dut",
+        "what": "avb"
+      },
+      "after": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>000001790017000106030002",
+        "role": "dut",
+        "what": "avb"
+      }
+    }
+  },
+  "B16b": {
+    "entries": 46,
+    "equal": 45,
+    "only_difference": {
+      "before": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>0000017f0017000106030002",
+        "role": "dut",
+        "what": "avb"
+      },
+      "after": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>000001820017000106030002",
+        "role": "dut",
+        "what": "avb"
+      }
+    }
+  },
+  "B16c": {
+    "entries": 46,
+    "equal": 45,
+    "only_difference": {
+      "before": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>000001790017000106030002",
+        "role": "dut",
+        "what": "avb"
+      },
+      "after": {
+        "cmd": "GET_AVB_INFO",
+        "status": "SUCCESS",
+        "cdl": 36,
+        "payload": "00090000<gm-id>000001800017000106030002",
+        "role": "dut",
+        "what": "avb"
+      }
+    }
+  },
+  "bcrf": {
+    "clock_pairs": [
+      {
+        "role": "peer",
+        "source": 0,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000000000",
+        "get_payload": "0024000000005868"
+      },
+      {
+        "role": "dut",
+        "source": 1,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000010000",
+        "get_payload": "0024000000010000"
+      },
+      {
+        "role": "dut",
+        "source": 0,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000000000",
+        "get_payload": "0024000000000000"
+      },
+      {
+        "role": "peer",
+        "source": 1,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000010000",
+        "get_payload": "0024000000015868"
+      }
+    ]
+  },
+  "baaf": {
+    "clock_pairs": [
+      {
+        "role": "peer",
+        "source": 0,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000000000",
+        "get_payload": "0024000000005868"
+      },
+      {
+        "role": "dut",
+        "source": 2,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000020000",
+        "get_payload": "0024000000020000"
+      },
+      {
+        "role": "dut",
+        "source": 0,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000000000",
+        "get_payload": "0024000000000000"
+      },
+      {
+        "role": "peer",
+        "source": 1,
+        "set_get_fields_equal": true,
+        "set_payload": "0024000000010000",
+        "get_payload": "0024000000015868"
+      }
+    ]
+  }
+}
