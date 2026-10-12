@@ -588,12 +588,22 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     peak = max(load)
     tight = max((m for m in range(1, timeout + 1) if bound_seconds(m) < peak),
                 default=0)
-    over, _, _ = headroom_problems(suites, with_verilator_timeout(workflow, tight))
-    under, _, _ = headroom_problems(suites,
-                                    with_verilator_timeout(workflow, tight + 1))
+    over, _, over_bound = headroom_problems(
+        suites, with_verilator_timeout(workflow, tight))
+    under, _, under_bound = headroom_problems(
+        suites, with_verilator_timeout(workflow, tight + 1))
     bad += report(f"rtl.yml timeout-minutes {tight} (bound {bound_seconds(tight)}"
                   f" s) is refused for a {peak} s worker", bool(over))
     bad += report(f"and {tight + 1} minutes is not", not under)
+
+    # The 60% itself. Every threshold above comes from bound_seconds, so a
+    # looser percentage or formula moves them all together and they pass.
+    # This one is computed without it: 60% of a minute is 36 s.
+    applied = {timeout: bound, tight: over_bound, tight + 1: under_bound}
+    expected = {minutes: minutes * 36 for minutes in applied}
+    bad += report(f"the bound applied at each timeout-minutes is 36 s a minute "
+                  f"(60%): {dict(sorted(applied.items()))}, expected "
+                  f"{dict(sorted(expected.items()))}", applied == expected)
 
     # Planted heavy durations. The dedicated suite exactly at the bound with
     # its worker's overhead passes and one second more does not; a balanced
