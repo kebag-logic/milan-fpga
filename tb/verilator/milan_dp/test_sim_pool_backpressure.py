@@ -84,30 +84,31 @@ def prepare(case: Scenario, recipe: bool, body: str) -> tuple[list[str], list]:
     if not recipe:
         return [sys.executable, "sim_pool.py", "--jobs=2", *commands], selected
     (case.dir / "Makefile").write_bytes((HERE / "Makefile").read_bytes())
-    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat",
-                 "obj_gmstep/Vmilan_dp_gmstep"):
+    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat"):
         exe = case.dir / path
         exe.parent.mkdir(exist_ok=True)
         exe.write_text("#!/bin/sh\nexit 0\n")
         exe.chmod(0o755)
     (case.dir / "render_mutants.py").write_text(
         "from pathlib import Path\nPath('render-ran').touch()\n")
+    # #621 moved the GM step leg's controls to ../milan_dp_gm_steps; this
+    # stand-in shows a run recipe that runs them here again.
     (case.dir / "gmstep_mutants.py").write_text(
         "from pathlib import Path\nPath('gmstep-controls-ran').touch()\n")
     argv = ["make", "-s", "--no-print-directory", "-f", "Makefile", "run",
             f"CURDIR={HERE}", f"VERILATOR={case.dir}/compiler", "VERILATOR_JOBS=8"]
     # Query expanded prerequisites from the actual recipe, rather than keep
-    # a second generated-input inventory. All three prerequisite legs execute.
+    # a second generated-input inventory. Both prerequisite legs execute.
     # CRFLIC_BUILD also adds a target-specific .SHELLSTATUS assignment.
     # That database row is a variable, not the run prerequisite list.
     database = subprocess.run(["make", "-np", "-C", str(HERE), "run"],
                               env=clean_env(), capture_output=True, text=True, check=True)
     prerequisites = next(line.split()[1:] for line in database.stdout.splitlines()
                          if line.startswith("run:") and ":=" not in line)
+    assert "gmstep" not in prerequisites, f"run depends on the GM step leg: {prerequisites}"
     for name in prerequisites:
-        if name not in ("gptp", "gptp-lat", "gmstep"):
+        if name not in ("gptp", "gptp-lat"):
             argv += ["-o", name]
-    argv += ["-o", "gmstep-build"]
     return argv, selected
 
 
@@ -125,11 +126,10 @@ def check_delivery(case: Scenario, selected: list, body: str, prefix: bytes,
                                 for index, (banner, exe) in enumerate(selected)])
         assert disk == expected, "legacy binary transcript changed"
         suffix = (b"---- #386 render law: the same leg against mutated setpoint stages and datapath ----\n"
-                  b"---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----\n"
                   if recipe else b"")
         assert output == prefix + expected + suffix, "pipe output lost/duplicated/reordered bytes"
         assert (case.dir / "render-ran").exists() == recipe
-        assert (case.dir / "gmstep-controls-ran").exists() == recipe
+        assert not (case.dir / "gmstep-controls-ran").exists(), "run ran the GM step controls"
     else:
         assert (prefix + disk).startswith(output), "partial delivery is not a transcript prefix"
         assert len(output) == len(prefix), "consumer drained before cancellation assertions"

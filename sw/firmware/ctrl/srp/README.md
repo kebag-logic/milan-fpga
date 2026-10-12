@@ -11,6 +11,7 @@ The default fabric build and shipping image are unchanged.
 - **[Composition](#composition)** -- Boot order, allocation and asynchronous ports.
 - **[Protocol commitments](#protocol-commitments)** -- Declarations, timers and output ordering.
 - **[Evidence](#evidence)** -- Host, freestanding, coverage, mutation and timing checks.
+- **[Publication for the split datapath](#publication-for-the-split-datapath)** -- The licence, declarations, slope and Domain written before what promises them.
 - **[Processor comparison](#processor-comparison)** -- Reused stimuli and normative differences.
 - **[Integration still owed](#integration-still-owed)** -- Application wiring and target release evidence.
 
@@ -72,8 +73,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/doc/integrator.md#L321-L323)
-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/9197193e47a6bb1c45a56d90a18c1784123aba44/src/include/shish_lan/mrp.h#L288-L290).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
@@ -270,12 +271,16 @@ Each bound term has a named planted understatement at one and two interfaces.
 The fixed poll envelope separately measures idle link reads, reset increments
 and retained-receive increments: four per interface. Reset and retained receive
 are alternative paths, so their conservative sum is not a simultaneous trace.
+The publication term (lane F-INT) is measured apart, through the same callbacks:
+a reset writes five registers, a Domain adoption three and each licence change
+one, funded as one reset, one adoption and two changes for each of 16 sources
+(`SRP_MBX_PUB_POLL_MAX`, 40 per interface); a LINK event now costs six.
 The transmit observer wraps the real `send_pdu` callback and pads library output
 to the channel maximum. It measures 383 accesses for each of two calls per
 interface, preserving the firmware callback and the mailbox driver.
 A pass drains eight real event records and another drains two maximum RX records.
 Subtracting unrelated published terms checks their funding independently.
-The SRP envelope is 1,596 / 2,366 accesses at IF=1/2.
+The SRP envelope is 1,676 / 2,486 accesses at IF=1/2.
 Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.
@@ -290,7 +295,7 @@ Higher-version messages and atomic invalid-value rejection have wire cases.
 
 The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
 merged as PR #15 at `9197193e`.
-That public pin includes branch `f4-applicant-notes`.
+The current pin descends from it and includes branch `f4-applicant-notes`.
 `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
 `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
 The `point-to-point-condition`, `pending-point-to-point-condition` and
@@ -307,6 +312,36 @@ restarting the origin when space becomes available.
 These are explicit host-envelope assumptions, not measured target execution or
 wire-departure latency. Target scheduling, ingress, egress and arbitration must
 validate those assumptions and the remaining normative margin before release.
+
+## Publication for the split datapath
+
+The adapter writes the class-D state the split placement's datapath reads in
+each interface's publication block of the mailbox (lane F-INT; the
+[design page](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)):
+
+- `LICENCE`: bit s while source s holds its licence, written before each
+  licence change is reported, and cleared before a reset's or destroy's
+  revocations are reported.
+- `IDLE_SLOPE`: the bandwidth admitted for the interface's sources, Ethernet
+  overhead included, written once the sources are declared, before those
+  declarations are sent (participant creation and Domain adoption).
+- `SR_DOMAIN`: the default Domain, not adopted, at participant creation; the
+  adopted one, with ADOPTED set, before the declarations that carry it.
+- `TALKER_DECL`: bit s while source s's Talker Advertise or Talker Failed is
+  declared, written once every source joined, before those declarations are
+  sent (participant creation and Domain adoption), and cleared before a reset
+  or destroy removes the participants holding them. The datapath's CRF talker
+  tags its frames only while its bit is set (802.1Q 35.1.2). Every source is
+  declared from participant creation, as a Talker Failed until MAAP allocates
+  its address; the processor declares a source only once its DA gate opens
+  (the design page's choices).
+
+The tests read the block as the fabric held it at each SRP record's commit, so
+an MRPDU that left before its Domain, slope or declarations were published
+fails a named test, a Domain adoption's included. A named test refuses each
+allocation of a link restart's re-creation in turn, a source's join among
+them, so a creation that fails part way and still shows a declaration fails
+it too.
 
 ## Processor comparison
 
@@ -340,7 +375,9 @@ The desk callback proves output ordering, not a connected target licence registe
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
-The lwSRP pin is public `main` at `9197193e`.
+The lwSRP pin is public `main` at `08ee86e8`.
+Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
+Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.
 The earlier claim that production needed no adaptation was incorrect.
 Two independent reviews, candidate-merge gates and deployment

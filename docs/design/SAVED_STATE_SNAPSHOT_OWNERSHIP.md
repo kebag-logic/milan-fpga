@@ -1634,6 +1634,10 @@ The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/6
 That change named a held writer restart on the console.
 The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
 The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
+In parallel, on dev, the [#621 final ruling](https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382) required a remeasurement of the firmware before #671, at the #629 census.
+That receipt measured commit `034e2e30f225f3fcd755cac8ad01c60dda5b366a`, tree `a5d1a1b02212c04de89292893fcf022b39620848`, firmware SHA-256 `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`, protocol-processor pin `2ad2f845dd583f8310075fa2380cb60a04fd091a` and gPTP-processor pin `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
+The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
+Capture-SoC RTL changes on dev moved the timing figures from the receipt before it; a dev 8x8 configuration change moved only its recorded configuration hash.
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
@@ -1641,6 +1645,7 @@ Measured commit: `bd42818d3a73b5c112905e72282d5db6df0ae25c`.
 Measured tree: `39e2b51cb67bc69bc7914116006d8d4076bf7792`.
 Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+gPTP-processor pin: `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1657,6 +1662,7 @@ The acceptance limit is therefore 24.5 ms, half that floor.
 Its floor ratio is 3.5345x.
 The margin to 24.5 ms is 10.63672 ms.
 The previous receipt measured 13.86328 ms, at the same census.
+The #621 receipt on dev measured 13.86318 ms, a 3.5345x floor ratio and a 10.63682 ms margin, at the same census.
 The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
@@ -1676,6 +1682,17 @@ The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
 | 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
 | 8x8 | 100 / 100, non-contract | ON | 10.41235 to 10.42973 | 4.6981x |
 | 8x8 | 100 / 100, non-contract | OFF | 10.41246 to 10.41566 | 4.7045x |
+
+The #621 receipt on dev, at the same census and clocks:
+
+| Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+|---|---|---|---|---|
+| 1x1 | 50 / 100, contract | ON | 3.96022 to 3.96728 | 12.3510x |
+| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91182 | 12.5261x |
+| 8x8 | 50 / 100, contract | ON | 13.84682 to 13.86318 | 3.5345x |
+| 8x8 | 50 / 100, contract | OFF | 13.68947 to 13.69390 | 3.5782x |
+| 8x8 | 100 / 100, non-contract | ON | 10.41821 to 10.42973 | 4.6981x |
+| 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
 
 The full closed-record census is 3,290 bytes / 54 records at 1x1.
 At 8x8 it is 13,210 bytes / 164 records.
@@ -1719,6 +1736,7 @@ Named controls alter bytes, records and clocks independently.
 A slower OFF fixture must determine the published maximum.
 A planted grader ignoring OFF timing fails that fixture.
 The OFF timing limit checks equality and one extra tick.
+A receipt arm that names a control is still graded against the production bound.
 Both simulation controls also detect missing copying and missing traffic.
 
 Measurements retire the six-instructions-per-byte and fifty-instructions-per-record estimates.
@@ -1824,6 +1842,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    It covers 13,210 bytes and 164 records, including output maps.
    Its ratio to the guaranteed 49 ms floor is 3.5345x.
    The 24.5 ms margin is 10.63672 ms.
+   The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).

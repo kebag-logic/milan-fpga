@@ -227,13 +227,16 @@ Five negative controls join it in the default sweep:
 
 Each fails a named check of the leg.
 
+The `milan_dp_gm_steps` suite runs the leg and these controls.
+They run the leg without its #621 phase.
+
 Disabling render re-base fails its counted-event check.
 
 The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
 
 [#387's correction](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) records that acceptance interpretation.
 
-`make gmstep-mutants` plants the whole inventory.
+`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants the whole inventory.
 
 Five controls restore PHC-only causes on the INTERNAL option-off leg.
 
@@ -269,7 +272,7 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
-| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
 | `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
 | `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
 | `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17). Pending ends at the first PDU at the adopted level (T18) |

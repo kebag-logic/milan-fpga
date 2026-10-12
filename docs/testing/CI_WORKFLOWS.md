@@ -39,6 +39,8 @@ pull-request update and on every push to `dev`. It produces one stable
   layer were each accepted and then broken by a construct they did not model
   ([R0] on PR #240, rounds one to three), so a missing front end is a refusal
   with no flag to soften it;
+- the mailbox publication census, `publication-census` (#665), when RTL or
+  its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   (#665), when RTL or its tooling changes: the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
@@ -59,7 +61,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The job runs the tally listener's planted cases.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs, `publication-census` and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module
@@ -138,6 +140,21 @@ rejected.
 The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
+
+The mailbox publication census runs in a job of its own, `publication-census`
+(`sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"`,
+#665, comment 6100024293), which installs the pinned Yosys from the same
+cache key as `yosys-elaboration` and the same pinned sv2v release. It
+elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
+milan_datapath` prints, in every shape the builder builds (the recipe's, and
+each `configs/*.yaml` with its generated header and the parameters
+`endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
+other than the versions `rtl-fast.yml` pins, and follows every class-D value
+the datapath reads through each netlist. Its self-test elaborates one planted
+copy per defect, then removes each of the census's rules in turn, on every
+core of the runner. The aggregate `rtl-fast` requires the job. The mailbox suite's
+`make census` runs it locally; the suite's default `make` does not, because
+the Verilator worker that owns that suite has no Yosys.
 
 ## Exhaustive validation
 
@@ -281,10 +298,28 @@ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
 That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
 That historical budget left 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
-The five default gmstep controls remain in `run` (#602).
+The five default gmstep controls stayed in `run` (#602) until #621.
 The additional controls stay in the explicit `gmstep-mutants` campaign.
 The hosted shards allow 120 minutes; #673's envelopes appear above.
 If later exact-head margin falls below 10%, split further.
+
+#621 split further. Its small-step phase took the gmstep leg from 48 s to
+253 s of CPU, and `milan_dp` ran that leg seven times: the clean leg, the
+driver's positive control and five controls. Hosted run 38048622822 then
+timed out at 4800 s. Dev's own windows before it were already above 60% of
+that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
+to 38067159953. The leg and its five default controls therefore moved to the
+`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
+default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
+`suite_shards.py` pins that owner among its five-worker landmarks.
+The new suite keeps the 1800 s default budget. The clean leg runs every
+phase once; the controls run without the #621 phase, which holds none of
+their named checks. Its README records the native per-leg times at base,
+at the #621 head and at the split head. Natively the leg and its controls
+were 21.9% of `milan_dp` at base. Removed from the six dev windows above,
+that projects `milan_dp` to 2323 to 2750 s, at most 57.3% of 4800 s. The
+new suite projects to about 909 s, 50.5% of 1800 s. Hosted runs at the
+pushed head confirm or replace both projections.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
