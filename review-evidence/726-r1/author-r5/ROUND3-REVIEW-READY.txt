@@ -1,0 +1,14 @@
+[A605] REVIEW READY
+Commit: e893e4d13d99eb5ba00745f0f5cf74ee847972c2 (local only; not pushed)
+
+Round 3 resolves R628-2-F1/F2 and R629-2-F01, including RS1-RS5. Boundary units, evidence-reader disposition and fixture idioms are corrected without increasing budgets. Cross-device and concurrent-flow grading follow the per-AVTPDU ruling; unpublished zero RX is inconclusive. Both unchanged reviewer probes pass.
+
+Validation: all 81 executable documentation-workflow gate commands return 0 with the pinned dependencies. The builder explicitly records 19 optional environment-dependent arms NOT RUN; these are not claimed as elaboration evidence. Behavior: 406 scenarios / 1,977 steps, zero failures or skips; grader: 80 tests. All nine parent and two mailbox mutation/omission pairs pass. Focused counter units, their mutation campaigns, source inventories, lint, capture guard and diff checks pass.
+
+Measurements: all corrected descriptor/recipient steady windows hold one notification at both shapes; baseline input windows hold zero. Minimum/maximum gaps are 1000.996/1001.867 ms at shipping shape and 1000.982/1012.029 ms at largest shape, each within its measured service bound. The packet retains 660 individual rows. These are finite simulation measurements.
+
+Round 3 changes HDL comments only. Code comparison preserves the prior routed result: 49,427 LUT (+35 against 49,392), 53,378 FF, 87.5 BRAM; constrained WNS/WHS +0.451/+0.036 ns. The interrupted redundant image run supplies no new result. Firmware implementation and submodules are unchanged.
+
+HANDOFF.md and PR-BODY.md now include Round 3, complete command/results, named mutation escapes, measurements, area and artifact hashes. The external disk-full interruption and recovered builder result are recorded. Worktree clean. No push, PR edit, rebase, amend, merge, submodule edit or bench action.
+
+Independent re-review, hosted acceptance after authorized publication, current-dev candidate validation and merge-turn physical/reference-peer/controller checks remain required. Relates to #726; complete acceptance is not claimed.

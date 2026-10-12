@@ -1,0 +1,18 @@
+CLEAN: all era checks pass
+DETECTED iv_uf_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_uf_r
+OMIT era-wipe: PASS iv_uf_r
+DETECTED iv_sm_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_sm_r
+OMIT era-wipe: PASS iv_sm_r
+DETECTED iv_mr_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_mr_r
+OMIT era-wipe: PASS iv_mr_r
+DETECTED iv_tu_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_tu_r
+OMIT era-wipe: PASS iv_tu_r
+DETECTED iv_lt_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_lt_r
+OMIT era-wipe: PASS iv_lt_r
+DETECTED iv_et_r interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_et_r
+OMIT era-wipe: PASS iv_et_r
+DETECTED pdu_count_o these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):   FRAMES_RX (pdu_count_o)
+OMIT era-wipe: PASS pdu_count_o
+DETECTED unbind-wipe the era wipe triggers on `en_i != en_q`. Milan v1.2 5.3.8.10 wipes on the RISING edge only - 'the PAAD-AE does not reset these counters when the Stream Input changes its state from bound to not bound', so an `!en_i` or `en_i != en_q` term destroys the evidence of whatever fault caused the unbind
+OMIT era-edge: PASS unbind-wipe
+8 plants detected; 8 omission controls pass

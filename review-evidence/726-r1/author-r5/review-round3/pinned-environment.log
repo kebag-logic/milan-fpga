@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '$CONTAINER_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc'
+3.12.3 (main, Apr 15 2024, 18:25:56) [Clang 17.0.6 ]
+sv2v v0.0.12
+
