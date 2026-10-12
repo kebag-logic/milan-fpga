@@ -9,8 +9,9 @@ its own bytes instead. Git checks the hash of no object cat-file prints, nor
 of a tree below the one ls-tree is given, so without that check an object
 forged in the store would be read as the pinned one. Each of these controls
 takes a clone of the stack whose objects are all loose in its own store (none
-packed, none in another store), edits a source, and overwrites the loose file
-of one object of the pin with the bytes of another that would hide the edit:
+packed, none in another store), edits a source, and replaces the loose file of
+one object of the pin with one holding the bytes of another that would hide the
+edit (a new file, so no file a hard link shares is written):
 - the pinned src/ tree, with a tree holding the edit (R585-12's F1): refused
   as a forged object, by the tree's place;
 - the pinned commit, with a commit whose tree holds the edit: refused as a
@@ -58,12 +59,14 @@ def loose(scene: Scene) -> None:
 
 
 def forge(scene: Scene, victim: str, source: str) -> None:
-    """Reading the object `victim` gives the object `source`'s bytes: its loose file overwritten with theirs."""
+    """Reading the object `victim` gives the object `source`'s bytes: its loose file replaced by a new one holding
+    theirs, so that no file another store may share through a hard link is written."""
     if victim == source:
         raise Refusal(f"an object-store control would forge {victim[:8]} with itself")
     taken, given = (scene.stack / ".git/objects" / oid[:2] / oid[2:] for oid in (victim, source))
-    taken.chmod(0o644)
-    taken.write_bytes(given.read_bytes())
+    forged = taken.with_name(taken.name + ".forged")
+    forged.write_bytes(given.read_bytes())
+    forged.replace(taken)
 
 
 def forged_tree(scene: Scene) -> None:
