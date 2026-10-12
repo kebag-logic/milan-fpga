@@ -1,0 +1,32 @@
+dev tests 69 stack tests 79
+missing in stack []
+body differs (comments/whitespace stripped) 4 ['AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker', 'AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens', 'AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry', 'AcmpCore.A31ACallBackFromThePublishPortIsRefused']
+stack-only ['AcmpCore.A31SettlementIsPublishedBeforeTheTimerPort', 'AcmpCore.A31StoreResetOfABoundStoppedSinkPublishesItsWithdrawal', 'AcmpCore.A31StoreResetOfASettledSinkPublishesAMovedStream', 'AcmpCore.A31StoreRestoreOfAStoppedRecordPublishesTheStop', 'AcmpCore.AdpTimeoutRetainsBindingAndReprobes', 'AcmpCore.CommandPortBudgets', 'AcmpCore.DepartingRetainsBindingAndReprobes', 'AcmpCore.DepartingStopsEveryProbingTimer', 'AcmpCore.DiscoveryPortBudgets', 'AcmpCore.TimerPortBudgets']
+===== AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker
+--- dev
++++ stack
+@@ -13 +13 @@
+-ASSERT_EQ(v.size(), 1u) << "A29 a re-bind to another talker admits it";
++ASSERT_EQ(v.size(), 1u) << "A29 re-binding emits one admission";
+@@ -25 +25 @@
+-ASSERT_EQ(v.size(), 1u) << "A29 sink 2's talker on interface 1";
++ASSERT_EQ(v.size(), 1u) << "A29 sink 2 emits one admission";
+===== AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens
+--- dev
++++ stack
+@@ -26 +26 @@
+-ASSERT_EQ(v.size(), 1u) << "A29 a sink the store resets is withdrawn at the next open";
++ASSERT_EQ(v.size(), 1u) << "A29 opening after reset emits one withdrawal";
+===== AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry
+--- dev
++++ stack
+@@ -21,4 +20,0 @@
+-int send_at(unsigned n) { return fk.position(Call::SEND, n); }
+-bool published_before_send(unsigned m, unsigned n) {
+-return m < fk.pubs.size() && send_at(n) >= 0 && fk.pubs[m].before <= static_cast<std::size_t>(send_at(n));
+-}
+===== AcmpCore.A31ACallBackFromThePublishPortIsRefused
+--- dev
++++ stack
+@@ -10 +9,0 @@
+-}

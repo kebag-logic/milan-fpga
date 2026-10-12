@@ -1,0 +1,21 @@
+pin 405dc68310a18f669049ffc10cc23eef7300dcff
+## control: the pinned clone, unmodified
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+exit 0
+## control: src/adp.c edited on disk only
+REFUSED: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+exit 2
+## route 1: src/adp.c edited, and the pinned src/ tree's loose object overwritten by a tree holding the edit
+error: hash mismatch 5c8c189a2158818a3881103fee359ea704fedbbd
+fatal: not a tree object
+old src tree 5c8c189a2158818a3881103fee359ea704fedbbd now holds 0 entry for the edited blob
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+exit 0
+git fsck says: error: hash mismatch 5c8c189a2158818a3881103fee359ea704fedbbd
+## route 2: the clone's own .git/config names core.fsmonitor
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+exit 0
+recorder lines: 0
+## route 2, continued: the same clone with src/adp.c edited
+check: REFUSED: tsn-c-stack differs from the pinned 405dc683: src/adp.c (exit 2)
+recorder lines after the check alone: 0; after a later plain 'git status' by the probe: 2

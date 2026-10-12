@@ -1,0 +1,38 @@
+## merge audit: 30744883f79e4afba96e3a3e163fe6f133647c94 = merge of lane c03e9c9c4f71c5ce078cfa6895d55c6fd32a0589 and dev c20c85bddd4ec5a054be42b55fc291a3b4c7f7d8 (base aef7ac66605c4404900ce04cbaaeff88e41bb880)
+parents: c03e9c9c4f71c5ce078cfa6895d55c6fd32a0589 c20c85bddd4ec5a054be42b55fc291a3b4c7f7d8
+## paths that differ between Git's automatic merge (conflict markers included) and the committed merge:
+M	.github/workflows/rtl-fast.yml
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/reference/SUBMODULES.md
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/ci_events.py
+D	sw/firmware/ctrl/acmp/acmp.c
+D	sw/firmware/ctrl/acmp/acmp.h
+D	sw/firmware/ctrl/test/acmp_fake.hpp
+D	sw/firmware/ctrl/test/test_acmp.cpp
+M	tb/verilator/mbx/Makefile
+## automatic-merge conflicts:
+.github/workflows/rtl-fast.yml
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/reference/SUBMODULES.md
+docs/testing/CI_WORKFLOWS.md
+scripts/ci_events.py
+sw/firmware/ctrl/acmp/acmp.c
+sw/firmware/ctrl/acmp/acmp.h
+sw/firmware/ctrl/test/acmp_fake.hpp
+sw/firmware/ctrl/test/test_acmp.cpp
+tb/verilator/mbx/Makefile
+## one-side paths not equal to their side in the merge:
+count 0
+## dev adapter at head equals dev: yes
+## ctrl_mutants.py: merge-side change equals dev's change since base: yes
+## rtl-fast aggregate needs at head:
+487:    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-boundary, firmware-verilator]
+## pin-module files unchanged adb93604..head: yes
+## HDL/SV/syn files in c20c85bd..head: 0

@@ -1,0 +1,20 @@
+[R584] independent verdict and ledger, written before reading any prior review finding on PR #705.
+Exact head 8aaa2da74e3d5ee569fed420debc2b69c6749d44 (tree cb90055f0843f221ceb6fecc20777cb24cea7f5a).
+
+Verdict before prior findings: NEGATIVE.
+
+Findings:
+- F1 MINOR (Robustness, Tests): the shared pin check (ctrl_build.py --stack-pin) ACCEPTS a stack clone whose
+  src/adp.c is edited when the pinned src/ tree's loose object is overwritten by a tree holding the edit
+  (receipts/model_routes_head.txt, route 1: exit 0 "tsn-c-stack at 405dc683", git fsck: hash mismatch). Git's object
+  store is inside the round-12 threat model (issue #697 comment 6114400461, item 2). The README and ctrl_pin.py
+  docstring disclose it as "open, for a decision"; no decision or fix exists at this head and no control holds it.
+- RES-1 RESIDUE (Docs): PR body Status line says "not pushed" for a published head.
+
+Ledger before prior findings:
+| lens | state | covering round | exact head |
+| Conformance | CLEAN | R584-11 | 8aaa2da74e3d5ee569fed420debc2b69c6749d44 |
+| RTL | CLEAN | R584-11 | 8aaa2da74e3d5ee569fed420debc2b69c6749d44 |
+| Robustness | UNCLEAN (F1) | R584-11 | 8aaa2da74e3d5ee569fed420debc2b69c6749d44 |
+| Tests | UNCLEAN (F1) | R584-11 | 8aaa2da74e3d5ee569fed420debc2b69c6749d44 |
+| Docs | CLEAN (RES-1 is residue) | R584-11 | 8aaa2da74e3d5ee569fed420debc2b69c6749d44 |

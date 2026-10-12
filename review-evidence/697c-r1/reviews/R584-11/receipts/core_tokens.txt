@@ -1,0 +1,71 @@
+IDENTICAL tokens=1736/1736 lines=same dev/sw/firmware/ctrl/adp/adp.c head/third_party/tsn-c-stack/src/adp.c
+rc=0
+IDENTICAL tokens=497/497 lines=same dev/sw/firmware/ctrl/adp/adp.h head/third_party/tsn-c-stack/include/adp.h
+rc=0
+IDENTICAL tokens=7849/7849 lines=same dev/sw/firmware/ctrl/acmp/acmp.c head/third_party/tsn-c-stack/src/acmp.c
+rc=0
+IDENTICAL tokens=1175/1175 lines=same dev/sw/firmware/ctrl/acmp/acmp.h head/third_party/tsn-c-stack/include/acmp.h
+rc=0
+IDENTICAL tokens=2064/2064 lines=same dev/sw/firmware/ctrl/maap/maap.c head/third_party/tsn-c-stack/src/maap.c
+rc=0
+IDENTICAL tokens=394/394 lines=same dev/sw/firmware/ctrl/maap/maap.h head/third_party/tsn-c-stack/include/maap.h
+rc=0
+IDENTICAL tokens=202/202 lines=same dev/sw/firmware/ctrl/wire/wire.h head/third_party/tsn-c-stack/include/wire.h
+rc=0
+IDENTICAL tokens=2803/2803 lines=moved dev/sw/firmware/ctrl/test/acmp_fake.hpp head/third_party/tsn-c-stack/tests/acmp_fake.hpp
+rc=1
+## textual diff (non-comment lines)
+### adp/adp.c
+### acmp/acmp.c
+### acmp/acmp.h
+### maap/maap.c
+### wire/wire.h
+dev/sw/firmware/ctrl/adp/adp.c head/third_party/tsn-c-stack/src/adp.c differ: byte 73, line 2
+dev/sw/firmware/ctrl/adp/adp.c → head/third_party/tsn-c-stack/src/adp.c
+   +29 added, -29 removed, ~35 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 //
++   3 // Milan v1.2 Table 5.51
+dev/sw/firmware/ctrl/adp/adp.h head/third_party/tsn-c-stack/include/adp.h differ: byte 73, line 2
+dev/sw/firmware/ctrl/adp/adp.h → head/third_party/tsn-c-stack/include/adp.h
+   +105 added, -105 removed, ~25 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 //
++   3 // Milan v1.2 5.6.3
+dev/sw/firmware/ctrl/acmp/acmp.c head/third_party/tsn-c-stack/src/acmp.c differ: byte 73, line 2
+dev/sw/firmware/ctrl/acmp/acmp.c → head/third_party/tsn-c-stack/src/acmp.c
+   +135 added, -135 removed, ~45 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 //
++   3 // Milan v1.2 Table 5.29
+dev/sw/firmware/ctrl/acmp/acmp.h head/third_party/tsn-c-stack/include/acmp.h differ: byte 73, line 2
+dev/sw/firmware/ctrl/acmp/acmp.h → head/third_party/tsn-c-stack/include/acmp.h
+   +229 added, -229 removed, ~57 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 //
++   3 // Milan v1.2 5.5
+dev/sw/firmware/ctrl/maap/maap.c head/third_party/tsn-c-stack/src/maap.c differ: byte 73, line 2
+dev/sw/firmware/ctrl/maap/maap.c → head/third_party/tsn-c-stack/src/maap.c
+   +9 added, -9 removed, ~7 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 // Annex B state transitions with bounded output storage and deferred service.
++   3 // IEEE 1722-2016 Annex B
+dev/sw/firmware/ctrl/maap/maap.h head/third_party/tsn-c-stack/include/maap.h differ: byte 73, line 2
+dev/sw/firmware/ctrl/maap/maap.h → head/third_party/tsn-c-stack/include/maap.h
+   +19 added, -19 removed, ~4 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 // IEEE 1722-2016 Annex B: one static machine per interface and address range.
++   3 // IEEE 1722-2016 Annex B
+dev/sw/firmware/ctrl/wire/wire.h head/third_party/tsn-c-stack/include/wire.h differ: byte 73, line 2
+dev/sw/firmware/ctrl/wire/wire.h → head/third_party/tsn-c-stack/include/wire.h
+   +15 added, -15 removed, ~1 modified
+
+~   2 // SPDX-License-Identifier: CERN-OHL-W-2.0 → // SPDX-License-Identifier: MIT
+-   3 //
++   3 // IEEE 1722.1-2021 Figure 6-1

@@ -1,0 +1,28 @@
+### python3 scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1974 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 203 md files + 1266 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/check_em_dash.py --base c20c85bddd4ec5a054be42b55fc291a3b4c7f7d8
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+check_em_dash: 0 finding(s) over 401 added line(s) in 12 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c20c85bd..HEAD]
+rc=0
+### python3 scripts/ci_events.py --selftest
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (1974 contract items, 2766 arms)
+rc=0
+### python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
