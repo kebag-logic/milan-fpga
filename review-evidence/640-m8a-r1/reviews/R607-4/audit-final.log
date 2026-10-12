@@ -1,0 +1,40 @@
+Head 8ab2b5399ecc725ff0ad4421c0e64ef03b89d28d tree 9c57147d7f2535836e260540372cac0cae7d7049
+PASS exact automatic merge except marker removal retaining both architecture sentences
+ docs/ARCHITECTURE_HW_SW_SPLIT.md         |   1 +
+ docs/README.md                           |   1 +
+ docs/design/AREA_BUDGET.md               |  47 +-
+ docs/design/MAILBOX_SPLIT.md             |   7 +
+ docs/design/MARK_II_AREA_PLAN.md         |  64 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md      | 201 +++++++
+ docs/litex/LITEX_SOC.md                  |   1 +
+ docs/testing/CI_WORKFLOWS.md             |  19 +-
+ docs/testing/TESTING.md                  |  24 +
+ scripts/check_py_idiom.py                |  14 +-
+ scripts/ci_scope.py                      |   7 +-
+ scripts/run_litex_sims.sh                |   1 +
+ sw/firmware/ctrl/README.md               |   6 +
+ sw/firmware/ctrl/plat/ctrl_split.ld      |  38 ++
+ sw/firmware/ctrl/plat/ctrl_split_start.S |  28 +
+ sw/firmware/ctrl/test/ctrl_srp_image.py  |  39 +-
+ sw/litex/ctrl_memory.py                  | 382 ++++++++++++
+ sw/litex/milan_soc.py                    |  89 ++-
+ sw/litex/test_ctrl_memory.py             | 999 +++++++++++++++++++++++++++++++
+ syn/ooc/ctrl_memory_ooc.py               | 119 ++++
+ 20 files changed, 2017 insertions(+), 70 deletions(-)
+
+PASS unchanged from previous reviewed head: sw/litex/ctrl_memory.py
+PASS unchanged from previous reviewed head: sw/litex/test_ctrl_memory.py
+PASS unchanged from previous reviewed head: sw/firmware/ctrl/plat/ctrl_split.ld
+PASS unchanged from previous reviewed head: sw/firmware/ctrl/plat/ctrl_split_start.S
+PASS unchanged from previous reviewed head: sw/firmware/ctrl/test/ctrl_srp_image.py
+PASS unchanged from previous reviewed head: syn/ooc/ctrl_memory_ooc.py
+PASS tracked blobs, modes and index: r607-4-640-m8a, 1301 blobs
+PASS tracked blobs, modes and index: protocol-processor, 562 blobs
+PASS required submodule gitlink protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a
+PASS tracked blobs, modes and index: gptp-processor, 104 blobs
+PASS required submodule gitlink gptp-processor 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9
+PASS tracked blobs, modes and index: verilog-axis, 214 blobs
+PASS required submodule gitlink third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+PASS tracked blobs, modes and index: lwSRP, 65 blobs
+PASS required submodule gitlink third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+RESULT: PASS
