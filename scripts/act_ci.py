@@ -5532,12 +5532,17 @@ def stop_job_cpu_range_monitor(
     *,
     context: CommandContext,
     seams: ProcessSeams,
+    primary: BaseException | None = None,
 ) -> None:
     """End the event stream's whole process group, then join its reader, before the Docker boundary can unwind.
 
     Each step runs whatever an earlier one raised: a failed containment or
     leader reap still has the reader joined, proven ended, and its pipe
-    closed. The first failure is raised only once all of that is done.
+    closed. Only then is a failure surfaced, and the first one wins. A
+    `primary` already propagating, an interrupt or the body's own failure,
+    is left for the caller to re-raise with its exit status and diagnostic,
+    and every cleanup failure is printed beside it. Without one, the first
+    cleanup failure is raised and each later one printed.
     """
     failures: list[BaseException] = []
     with blocked_cleanup_signals():
@@ -5568,6 +5573,18 @@ def stop_job_cpu_range_monitor(
                 f"the Docker event stream ended before act did (exit {process.returncode}); "
                 "containers created after it stayed on the staging range"
             )
+        for later in failures if primary is not None else failures[1:]:
+            try:
+                print(
+                    f"act-ci: CPU-range monitor cleanup also failed: {type(later).__name__}: {later}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            except Exception:
+                # Diagnostics have no authority to replace the first failure.
+                pass
+    if primary is not None:
+        return
     if failures:
         raise failures[0]
 
@@ -5589,7 +5606,9 @@ def job_cpu_range_monitor(
     own process group. On every exit, even one where that containment raised,
     the group is walked down the containment ladder and the reader is joined
     and proven ended before the caller can reach the Docker boundary's
-    teardown. With no ranges nothing starts. A move is a replica-shape
+    teardown. An interrupt or failure already propagating then propagates
+    unchanged, with a failed cleanup printed beside it (#730). With no ranges
+    nothing starts. A move is a replica-shape
     decision like CONTAINER_CPU_LIMIT: a container left on the staging range
     keeps the same ``nproc``, so the record's problems are printed, never
     turned into a verdict.
@@ -5632,6 +5651,7 @@ def job_cpu_range_monitor(
     ]
     process: subprocess.Popen[str] | None = None
     reader: threading.Thread | None = None
+    primary: BaseException | None = None
     try:
         try:
             with deferred_cleanup_signal_delivery():
@@ -5654,9 +5674,14 @@ def job_cpu_range_monitor(
         )
         start_cleanup_thread_or_refuse(reader, "CPU-range monitor")
         yield record
+    except BaseException as exc:
+        primary = exc
+        raise
     finally:
         if process is not None:
-            stop_job_cpu_range_monitor(process, reader, record, context=context, seams=seams)
+            stop_job_cpu_range_monitor(
+                process, reader, record, context=context, seams=seams, primary=primary
+            )
 
 
 def report_job_cpu_ranges(workflow: str, record: JobCpuRanges) -> None:
@@ -7555,7 +7580,8 @@ class FakeEventStream:
 
     With `after` set, stdout is a HeldEventPipe and runs until the monitor
     contains the stream. A `poll_error` is raised by every poll(). `trail`
-    records, in order, what the stream and the monitor around it did.
+    records, in order, what the stream and the monitor around it did, and
+    `stderr` what the runner printed there while the monitor ran.
     """
 
     def __init__(
@@ -7569,6 +7595,7 @@ class FakeEventStream:
     ) -> None:
         self.contained = threading.Event()
         self.trail = trail if trail is not None else []
+        self.stderr = ""
         self.stdout: io.StringIO | HeldEventPipe = (
             io.StringIO("".join(lines))
             if after is None
@@ -7600,7 +7627,9 @@ def drive_job_cpu_monitor(
     cpuset; a move takes `move_seconds`. Containment ends the stream, then
     raises `reap_failure` if one is given, as a leader that cannot be reaped
     does. The stream's trail gets ``contained``, ``moved`` and, once the
-    monitor has returned or raised, ``monitor exited``.
+    monitor has returned or raised, ``monitor exited``. The monitor runs
+    under the runner's own signal handlers, so an interrupted body's outcome
+    is ``exit <128 + signum>``, and the stream keeps what went to stderr.
     """
     spawns: list[tuple[Sequence[str], dict[str, object]]] = []
     terminations: list[str] = []
@@ -7630,25 +7659,34 @@ def drive_job_cpu_monitor(
             return docker_completed(arguments)
         return docker_completed(arguments, stdout=cpus.get(arguments[-1], "0-3") + "\n")
 
+    def monitored() -> int:
+        """The body inside the monitor, as execute_workflows runs act."""
+        with job_cpu_range_monitor(
+            docker.boundary,
+            ranges,
+            context=docker.context,
+            seams=ProcessSeams(popen=popen, terminate_group=terminate),
+        ) as record:
+            moved.append(record)
+            body()
+        return RC_OK
+
     outcome = "returned"
+    stderr = io.StringIO()
     with mock.patch.multiple(
         sys.modules[__name__], run_docker=run_docker_stand_in, require_tool=fake_host_tool
-    ):
+    ), contextlib.redirect_stderr(stderr):
         try:
-            with job_cpu_range_monitor(
-                docker.boundary,
-                ranges,
-                context=docker.context,
-                seams=ProcessSeams(popen=popen, terminate_group=terminate),
-            ) as record:
-                moved.append(record)
-                body()
-        except (Exception, TerminationRequest) as exc:
+            status = run_with_cleanup_signals(monitored)
+            if status != RC_OK:
+                outcome = f"exit {status}"
+        except Exception as exc:
             outcome = f"raised {exc}"
         order.append("monitor exited")
         for thread in threading.enumerate():
             if thread.name == "act-ci-cpu-range-monitor":
                 thread.join(timeout=10)
+    stream.stderr = stderr.getvalue()
     return spawns, terminations, (moved[0] if moved else None), outcome
 
 
@@ -7658,7 +7696,9 @@ def busy_reader_trail(
     """(trail, record, outcome, stream) of a monitor whose reader is still moving a container when the body ends.
 
     The stream's only line comes once the body has ended, and its move takes
-    a fifth of a second, so the reader is busy for the whole shutdown.
+    a fifth of a second, so the reader is busy for the whole shutdown. A
+    TerminationRequest body failure is delivered as its real signal, for the
+    runner's handler to raise.
     """
     trail: list[str] = []
     body_done = threading.Event()
@@ -7669,6 +7709,8 @@ def busy_reader_trail(
         """End the body at once, then let the stream speak."""
         trail.append("body ended")
         body_done.set()
+        if isinstance(body_failure, TerminationRequest):
+            signal.raise_signal(body_failure.signum)
         if body_failure is not None:
             raise body_failure
 
@@ -7695,16 +7737,17 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
     token = docker.boundary.token
     lines = [docker_event_line("create", "a" * 64, token), docker_event_line("update", "a" * 64, token)]
     stream = FakeEventStream(lines)
-    spawns, terminations, record, outcome = drive_job_cpu_monitor(
-        docker, ("4-7",), stream, lambda: None
-    )
+    with mock.patch.object(time, "time", return_value=1_700_000_000.75):
+        spawns, terminations, record, outcome = drive_job_cpu_monitor(
+            docker, ("4-7",), stream, lambda: None
+        )
     command, kwargs = spawns[0] if spawns else ([], {})
     tail = list(command[list(command).index("events"):]) if "events" in command else []
     check(
         "the monitor streams container events from a second before act, filtered to this "
         "boundary's owner label and the five actions it reads, in a session of its own",
         len(spawns) == 1
-        and tail[:2] == ["events", "--since"]
+        and tail[:3] == ["events", "--since", "1699999999"]
         and tail[3:] == [
             "--format", "{{json .}}", "--filter", "type=container",
             "--filter", f"label={DOCKER_OWNER_LABEL}={token}",
@@ -7774,10 +7817,16 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
     )
     selftest_job_cpu_monitor_busy(tally, docker)
     selftest_job_cpu_monitor_failures(tally, docker)
+    selftest_job_cpu_monitor_shutdown(tally, docker)
 
 
 def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: a reader still moving a container is joined before the monitor exits, however its body ends."""
+    """Arms: a reader still moving a container is joined before the monitor exits, however its body ends.
+
+    The first failure wins: a body failure or an interrupt already
+    propagating keeps its outcome, exit status and diagnostic when the
+    cleanup fails as well, and the cleanup failure is printed beside it.
+    """
     check = tally.check
     busy, busy_record, busy_outcome, busy_stream = busy_reader_trail(docker, None, None)
     check(
@@ -7787,49 +7836,84 @@ def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -
         and joined_before_exit(busy)
         and busy_record is not None
         and busy_record.moved == 1
-        and busy_stream.stdout.closed,
+        and busy_stream.stdout.closed
+        and busy_stream.stderr == "",
     )
     reap = Refusal("cannot reap interrupted host process leader")
+    beside = (
+        "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host "
+        "process leader\n"
+    )
     reaped, reaped_record, reaped_outcome, reaped_stream = busy_reader_trail(docker, None, reap)
     check(
         "a containment whose leader reap fails still has the busy reader joined and the pipe "
-        "closed before the monitor exits, and the reap failure is what it raises",
+        "closed before the monitor exits, and with no earlier failure the reap failure is what "
+        "it raises",
         reaped_outcome == "raised cannot reap interrupted host process leader"
         and joined_before_exit(reaped)
         and reaped_record is not None
         and reaped_record.moved == 1
-        and reaped_stream.stdout.closed,
+        and reaped_stream.stdout.closed
+        and reaped_stream.stderr == "",
     )
-    both, _both_record, both_outcome, _both_stream = busy_reader_trail(
+    both, both_record, both_outcome, both_stream = busy_reader_trail(
         docker, RuntimeError("act boundary failed"), reap
     )
     check(
-        "a body that raises and a reap that fails together still join the busy reader first",
-        both_outcome == "raised cannot reap interrupted host process leader" and joined_before_exit(both),
+        "a body that raises and a reap that fails together still join the busy reader first; "
+        "the body's failure is what the monitor raises, and the reap failure is printed beside it",
+        both_outcome == "raised act boundary failed"
+        and joined_before_exit(both)
+        and both_record is not None
+        and both_record.moved == 1
+        and both_stream.stdout.closed
+        and both_stream.stderr == beside,
     )
-    signalled, _signalled_record, signalled_outcome, _signalled_stream = busy_reader_trail(
+    signalled, _signalled_record, signalled_outcome, signalled_stream = busy_reader_trail(
         docker, TerminationRequest(signal.SIGTERM), None
     )
     check(
         "a body ended by a termination signal still joins the busy reader before the signal "
-        "reaches the Docker boundary",
-        signalled_outcome == "raised SIGTERM" and joined_before_exit(signalled),
+        "reaches the Docker boundary, and the runner exits 143 after cleanup",
+        signalled_outcome == "exit 143"
+        and joined_before_exit(signalled)
+        and signalled_stream.stderr == "act-ci: interrupted by SIGTERM after cleanup\n",
     )
+    for signum in CLEANUP_SIGNALS:
+        name = signal.Signals(signum).name
+        trail, record, outcome, stream = busy_reader_trail(docker, TerminationRequest(signum), reap)
+        check(
+            f"a {name} that ends the body, then a reap that fails, still joins the busy reader "
+            f"first; the runner exits {128 + signum} with its interrupt diagnostic, and the reap "
+            "failure is printed beside it",
+            outcome == f"exit {128 + signum}"
+            and joined_before_exit(trail)
+            and record is not None
+            and record.moved == 1
+            and stream.stdout.closed
+            and stream.stderr == beside + f"act-ci: interrupted by {name} after cleanup\n",
+        )
 
 
 class FlakyJoinReader:
-    """A reader thread whose first join raises, as a failed join would, though the thread runs on."""
+    """A reader thread whose first join raises, as a failed join would, though the thread runs on.
 
-    def __init__(self, thread: threading.Thread) -> None:
+    The thread runs until `release` is set, which only a retried join does,
+    so it is still running after the pause that follows the failed join.
+    """
+
+    def __init__(self, thread: threading.Thread, release: threading.Event) -> None:
         self.thread = thread
         self.ident = thread.ident
-        self.failed = False
+        self.release = release
+        self.joins = 0
 
     def join(self, timeout: float | None = None) -> None:
-        """Raise on the first call; join the thread on every later one."""
-        if not self.failed:
-            self.failed = True
+        """Raise on the first call; release and join the thread on every later one."""
+        self.joins += 1
+        if self.joins == 1:
             raise RuntimeError("join interrupted")
+        self.release.set()
         self.thread.join(timeout)
 
     def is_alive(self) -> bool:
@@ -7837,8 +7921,176 @@ class FlakyJoinReader:
         return self.thread.is_alive()
 
 
+def held_reader(finished: list[str]) -> tuple[threading.Thread, threading.Event]:
+    """A started stand-in reader that runs until its event is set, then appends ``reader ended`` to `finished`.
+
+    The wait is bounded, so a regression that abandons the reader cannot
+    hang the self-test.
+    """
+    release = threading.Event()
+    thread = threading.Thread(
+        target=lambda: (release.wait(10), finished.append("reader ended")), daemon=True
+    )
+    thread.start()
+    return thread, release
+
+
+def stop_with_flaky_join(
+    docker: DockerFixture, terminate: Callable[..., None], primary: BaseException | None
+) -> tuple[str, list[str], list[str], bool]:
+    """(raised, reader trail when it raised or returned, cleanup lines printed, pipe closed) of a stop.
+
+    stop_job_cpu_range_monitor runs with `terminate` as its containment,
+    `primary` as the failure already propagating, and a reader whose first
+    join fails while it runs on.
+    """
+    finished: list[str] = []
+    worker, release = held_reader(finished)
+    stream = FakeEventStream([])
+    record = JobCpuRanges(docker.boundary, ("4-7",), lambda *_args: docker_completed([]),
+                          lambda *_args: docker_completed([]))
+    stderr = io.StringIO()
+    raised = ""
+    try:
+        with contextlib.redirect_stderr(stderr):
+            stop_job_cpu_range_monitor(
+                stream,  # type: ignore[arg-type]
+                FlakyJoinReader(worker, release),  # type: ignore[arg-type]
+                record,
+                context=docker.context,
+                seams=ProcessSeams(terminate_group=terminate),
+                primary=primary,
+            )
+    except RuntimeError as exc:
+        raised = f"{type(exc).__name__}: {exc}"
+    ended = list(finished)
+    release.set()
+    worker.join()
+    printed = [line for line in stderr.getvalue().splitlines() if "cleanup also failed" in line]
+    return raised, ended, printed, stream.stdout.closed
+
+
+class ReleaseOnHold(io.StringIO):
+    """A stderr stand-in that sets `release` once the containment hold has been printed to it."""
+
+    def __init__(self, release: threading.Event) -> None:
+        super().__init__()
+        self.release = release
+
+    def write(self, text: str) -> int:
+        """Keep `text`; release the held reader once the hold line is in."""
+        written = super().write(text)
+        if "containment hold" in self.getvalue():
+            self.release.set()
+        return written
+
+
+class UnreadablePipe:
+    """An event pipe whose read fails, as a reader crash does."""
+
+    def __iter__(self) -> Iterator[str]:
+        """Fail the read."""
+        raise OSError("read failed")
+
+
+def selftest_job_cpu_monitor_shutdown(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: a failed or overlong join still waits for the reader, the first failure wins, and stop runs masked."""
+    check = tally.check
+
+    def contained(*_args: object, **_kwargs: object) -> None:
+        """A containment that succeeds."""
+
+    def reap_fails(*_args: object, **_kwargs: object) -> None:
+        """A containment whose leader reap fails."""
+        raise Refusal("cannot reap interrupted host process leader")
+
+    reap_line = (
+        "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host "
+        "process leader"
+    )
+    join_line = "act-ci: CPU-range monitor cleanup also failed: RuntimeError: join interrupted"
+    raised, ended, printed, closed = stop_with_flaky_join(docker, contained, None)
+    check(
+        "a reader join that fails is retried while the reader still runs after the pause, and "
+        "the join failure is raised only once the reader has ended, with the pipe closed",
+        raised == "RuntimeError: join interrupted"
+        and ended == ["reader ended"]
+        and printed == []
+        and closed,
+    )
+    raised, ended, printed, closed = stop_with_flaky_join(docker, reap_fails, None)
+    check(
+        "with no failure already propagating, a reap failure and then a join failure raise the "
+        "first, the reap's, once the reader has ended, and print the join failure beside it",
+        raised == "Refusal: cannot reap interrupted host process leader"
+        and ended == ["reader ended"]
+        and printed == [join_line]
+        and closed,
+    )
+    raised, ended, printed, closed = stop_with_flaky_join(
+        docker, reap_fails, TerminationRequest(signal.SIGTERM)
+    )
+    check(
+        "with an interrupt already propagating, the same reap and join failures leave it to "
+        "propagate once the reader has ended, and both are printed beside it, in order",
+        raised == "" and ended == ["reader ended"] and printed == [reap_line, join_line] and closed,
+    )
+    finished: list[str] = []
+    worker, release = held_reader(finished)
+    record = JobCpuRanges(docker.boundary, ("4-7",), lambda *_args: docker_completed([]),
+                          lambda *_args: docker_completed([]))
+    hold = ReleaseOnHold(release)
+    with mock.patch.multiple(
+        sys.modules[__name__], DOCKER_COMMAND_TIMEOUT=0.05 - 10
+    ), contextlib.redirect_stderr(hold):
+        held = join_job_cpu_reader(worker, record, 424242)
+    alive_at_return = worker.is_alive()
+    release.set()
+    worker.join()
+    check(
+        "a reader still running when its bounded wait (patched to 0.05 s) expires is held for, "
+        "not abandoned: the hold is printed and recorded, and the join returns only once the "
+        "reader has ended",
+        held is None
+        and not alive_at_return
+        and finished == ["reader ended"]
+        and record.problems == ["the CPU-range monitor survived its bounded shutdown"]
+        and hold.getvalue()
+        == "act-ci: containment hold for the CPU-range monitor's reader (event stream process "
+        "group 424242); Docker teardown is paused until it ends\n",
+    )
+    masks: list[bool] = []
+
+    def masked(*_args: object, **_kwargs: object) -> None:
+        """Record whether the cleanup signals are blocked while containment runs."""
+        masks.append(set(CLEANUP_SIGNALS) <= signal.pthread_sigmask(signal.SIG_BLOCK, []))
+
+    previous = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+    try:
+        stop_job_cpu_range_monitor(
+            FakeEventStream([]),  # type: ignore[arg-type]
+            None,
+            record,
+            context=docker.context,
+            seams=ProcessSeams(terminate_group=masked),
+        )
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+    crashed = JobCpuRanges(docker.boundary, ("4-7",), lambda *_args: docker_completed([]),
+                           lambda *_args: docker_completed([]))
+    unreadable = FakeEventStream([])
+    unreadable.stdout = UnreadablePipe()  # type: ignore[assignment]
+    read_job_cpu_events(unreadable, crashed)  # type: ignore[arg-type]
+    check(
+        "the stream's containment runs with the cleanup signals blocked, and a reader whose read "
+        "fails records the failure as a problem rather than raising it",
+        masks == [True]
+        and crashed.problems == ["the CPU-range monitor stopped reading events: read failed"],
+    )
+
+
 def selftest_job_cpu_monitor_failures(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: the monitor's start failures contain what started, and a failed join still waits for the reader."""
+    """Arms: the monitor's start failures contain what started."""
     check = tally.check
     lines = [docker_event_line("create", "a" * 64, docker.boundary.token)]
 
@@ -7884,29 +8136,6 @@ def selftest_job_cpu_monitor_failures(tally: SelftestTally, docker: DockerFixtur
         and threadless == "cannot start CPU-range monitor"
         and terminations == ["424242"]
         and stream.stdout.closed,
-    )
-    finished: list[str] = []
-    worker = threading.Thread(target=lambda: (time.sleep(0.2), finished.append("reader ended")))
-    worker.start()
-    record = JobCpuRanges(docker.boundary, ("4-7",), lambda *_args: docker_completed([]),
-                          lambda *_args: docker_completed([]))
-    flaky = FakeEventStream(lines)
-    raised = ""
-    try:
-        stop_job_cpu_range_monitor(
-            flaky,  # type: ignore[arg-type]
-            FlakyJoinReader(worker),  # type: ignore[arg-type]
-            record,
-            context=docker.context,
-            seams=ProcessSeams(terminate_group=lambda *_args, **_kwargs: None),
-        )
-    except RuntimeError as exc:
-        raised = f"{exc}; {finished}"
-    worker.join()
-    check(
-        "a reader join that fails is retried until the reader has ended, and the join failure "
-        "is raised only then, with the pipe closed",
-        raised == "join interrupted; ['reader ended']" and flaky.stdout.closed,
     )
 
 
