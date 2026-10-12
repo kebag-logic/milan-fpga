@@ -33,7 +33,10 @@ added a check that recomputes every figure from its receipt; see
 [B16, round 3: figures check](#b16-round-3-figures-check). Its fourth states
 where the packet is published and makes the check claim figures inside links
 and quoted phrases too; see
-[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage). Its
+fifth makes the check account for every digit, and holds a number before its
+unit to be a measurement however it is written; see
+[B16, round 5: every digit](#b16-round-5-every-digit).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -78,7 +81,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
-- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written.
 
 ## Identity and setup
 
@@ -2303,8 +2306,10 @@ lane stopped at step 2. After the manager's ruling it resumed as B16b; see
 [B16b: the resume](#b16b-the-resume). After the second ruling it resumed as
 B16c; see [B16c: the resume](#b16c-the-resume). The second findings round,
 documents only, is in
-[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), and the third
-in [B16, round 3: figures check](#b16-round-3-figures-check).
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), the third
+in [B16, round 3: figures check](#b16-round-3-figures-check), the fourth in
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage), and the
+fifth in [B16, round 5: every digit](#b16-round-5-every-digit).
 
 | Item | Verdict | Evidence |
 |---|---|---|
@@ -3528,13 +3533,15 @@ stored as 122.475 dB, shows as 122.48. Clock times are cut to the last digit
 shown, as a clock shows them: lane B16b's identity gate ended at 06:22:34.993
 and shows as 06:22:34.
 
-The check also reads every number, time, date, hash and number word in that
-text. In round 3 each had to be claimed by a row or fall in a named category:
-descriptor and channel indices, step and list ordinals, tone names, commit
-names, citations, units, and links and quoted phrases as a whole. So a figure
-added without a row failed the check unless it was written inside a link or
-a quoted phrase. Round 4 closed that gap; see
-[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
+The check also read the numbers, times, dates, hashes and number words that
+its token pattern finds in that text. In round 3 each had to be claimed by a
+row or fall in a named category: descriptor and channel indices, step and list
+ordinals, tone names, commit names, citations, units, and links and quoted
+phrases as a whole. So a figure added without a row failed the check unless it
+was written inside a link or a quoted phrase, or in a form the pattern does
+not read. Round 4 closed the first gap and round 5 the second; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage) and
+[B16, round 5: every digit](#b16-round-5-every-digit).
 
 At round 3's head the check passed. All of its rows equalled their receipts,
 and no token was left uncovered. Its output is in the packet:
@@ -3639,17 +3646,21 @@ identifier:
 - the packet's label, `629-b16-a603`;
 - a link's target, the URL or anchor in its parentheses, not its label.
 
-Every other token is claimed by a row that reads a receipt. Round 3's other
-categories are gone. The tone frequencies now read the tone tool and the
-analyser, the block length and the comparison's bit width read the run
-summaries, the decode's smallest step reads its planted control, and the
-lane's limit on a locked action reads the operator's record. The check's
-tokens now also take a full commit name and the number words for tens.
+Every other token the pattern finds is claimed by a row that reads a
+receipt. Round 3's other categories are gone. The tone frequencies now read
+the tone tool and the analyser, the block length and the comparison's bit
+width read the run summaries, the decode's smallest step reads its planted
+control, and the lane's limit on a locked action reads the operator's record.
+The check's tokens now also take a full commit name and the number words for
+tens.
 
-A guard sits under the categories. A token followed by a unit, such as dB,
-dBFS, ppm, %, s, Hz, frames, samples, blocks, polls, bits or LSB, is a
-measurement, and only a row can claim it, whatever category matches. So no
-category, present or added later, can hide a measured figure.
+A guard sat under the categories. A token followed by a unit, such as dB,
+dBFS, ppm, %, s, Hz, frames, samples, blocks, polls, bits or LSB, was a
+measurement, and only a row could claim it, whatever category matched. The
+guard read only tokens, and allowed at most a single space, non-breaking space
+or hyphen before the unit. So a number the pattern does not read, or set
+further from its unit, escaped it; round 5 closes that, see
+[B16, round 5: every digit](#b16-round-5-every-digit).
 
 **Its controls.** `tools/r4_check_controls.py` runs each control on an
 altered copy (`controls/r4-controls.json`, 8 of 8 PASS). The first five are
@@ -3693,3 +3704,127 @@ The round's files in the packet:
 | `tools/r4_check_controls.py` (the check's controls) | 10,379 | `54d2e1df507cb1b8c8b77214942f49cfcbe3a524f4e52b882ae124384e6d4e0f` |
 | `controls/r4-controls.json` (8 of 8 PASS) | 3,116 | `d01b56caf89cf99604dc32ce2d69118618fae457074c7c723eb792ef890b68e5` |
 | `controls/r4-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `a0c9a8ed6f768b70208c1c28e6d37c402444a57b2877b882f175c5db4586ce87` |
+
+### B16, round 5: every digit
+
+The reviews of round 4,
+[R624-4](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6125594896)
+and [R625-4](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6125596576),
+each found a MINOR in the figures check: it passed a measurement written in a
+form its token pattern does not read. Neither alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[round 5 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6125608002),
+operator [A603] changed the check, documents only. Nothing on the bench was
+touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-4-F1: a number written against its unit, such as seconds, dB or milliseconds, and a decimal written with a leading point | Not a token, so never read, and the check passed | A measurement in a spelling no row can claim: the check fails and names it | `controls/r5-controls.json` |
+| R625-4-F1: a leading point after a sign, an exponent, a double space before the unit, and a channel index on a continuation line exempted without its keyword | The same, and the continuation exempt by the start of its line | Each fails the check and is named. A channel index is bound to its keyword across the line break | `controls/r5-controls.json` |
+| R624-4-S1, taken: this section's opening paragraph | Pointed to rounds 2 and 3 | Points to each findings round | - |
+
+**The rule.** The check no longer decides coverage by token. It reads every
+digit in its text, and each must lie in either of these:
+
+- a figure that a row claims and recomputes from its receipt;
+- an identifier that a category binds to its keyword in the same sentence,
+  across a line break inside that sentence.
+
+Any other digit fails the check, named with its line and the text around it,
+in the spelling it was written in: with its sign, a leading point or an
+exponent. The token pattern is unchanged and now only finds the figures a row
+may claim. A number it does not read can never be claimed, so it always fails;
+such a figure is written apart from its unit, as the rest of this page writes
+it. A row's figure must also be the whole number on the page, not part of a
+longer number, such as a figure after a minus sign the pattern does not read.
+
+**A measurement is never an identifier.** A number followed by a unit is a
+measurement, and no category covers its digits: only a row. Between number and
+unit may stand nothing, any run of spaces or line breaks (non-breaking, thin
+and zero-width ones too), a hyphen, emphasis or code marks, a double quote, an
+opening bracket, or an HTML entity, tag or comment. Units are read in either
+case: percent, dB and dBFS, ppm and ppb, seconds and their fractions, minutes,
+hours, Hz, frames, samples, blocks, bytes, bits, LSB, polls, PDUs, packets,
+steps, slips, repeats, skips, discontinuities, entries and reads, with the rest
+of the list in the check. The word zero before a unit counts as a number.
+
+A link's target is an address, not text. Its digits are covered when it
+resolves: an anchor of a heading on this page, or an issue, pull request or
+comment of this repository. An anchor's hyphens stand for its heading's
+spaces and punctuation, so the measurement rule reads the heading where it
+stands, not the anchor.
+
+**The identifiers.** Each category holds its keyword with its identifier:
+
+- commit names, each listed, in code or after the word Dev;
+- clause numbers: IEEE 1722.1 and Milan v1.2 Table 5.4;
+- descriptor, channel, step and round indices after their keyword, and a
+  second index after "and" or "to";
+- a list-item index, where its block is an ordered list and the index is the
+  item's place in it; a line inside a paragraph that starts with a number is
+  text;
+- names from closed lists: the lanes and cases, the reviews and their
+  findings, the operator, McASP0, SHA-256 and CRC32, the DUT's entity name and
+  serial number, the Python command, the manifest's field names, the packet's
+  label, branch and published directories, and this page's markers;
+- a path in code that names a file or directory of the packet, or a raw file
+  the packet lists;
+- a link target that resolves.
+
+**Its controls.** `tools/r5_check_controls.py` runs each control on an
+altered copy (`controls/r5-controls.json`, 22 of 22 PASS). Round 3's and
+round 4's come first, their code unchanged. Each new control adds a
+measurement to the attribution row R625-3 used, as the reviews wrote it,
+unless stated:
+
+- a number glued to s, to dB and to ms;
+- a decimal with a leading point, with and without a sign;
+- a number in exponent form;
+- a descriptor index before ppm, set off by a double space, a non-breaking
+  space or a hyphen;
+- R625-4's continuation, applied where the continuation is, since a table row
+  cannot hold a line break;
+- a Unicode minus before a figure that a row claims, in B16c's grade table;
+- a cited path that names no packet file;
+- an anchor that names no heading;
+- a category planted in a copy of the check that matches every number, with a
+  figure and its unit added: the check still names it a measurement.
+
+Each fails the check and names what it added, in the spelling it was written
+in. Round 3's runner and round 4's, unchanged, pass against the new check
+too: 5 of 5 and 8 of 8 (`controls/r5-rerun-r3-controls.json`,
+`controls/r5-rerun-r4-controls.json`). The new runner against round 4's check
+and page fails every new control that targets a defect of round 4's check
+(`controls/r5-controls-on-r4-check.json`). The descriptor index set off by a
+non-breaking space or a hyphen, and the planted category, pass there: round
+4's guard already read those.
+
+R624-4's `probe_escape_forms.py` and R625-4's `probe_coverage.py`, unchanged,
+detect every form they insert (`r5/r624-4-probe-rerun.json`,
+`r5/r625-4-probe-rerun.json`), and so does R625-3's probe
+(`r5/r625-3-probe-rerun.json`). Further forms, from `tools/r5_self_probes.py`
+(`r5/self-probes.json`), each fail the check and are named: a descriptor index
+set off from its unit by a line break, bold, code, brackets, an HTML entity or
+comment, or a thin, zero-width or escaped space, or with the unit in capitals;
+an identifier glued to a unit or set before a unit; a fullwidth digit, a
+fraction, a superscript and a Unicode minus; a path, an anchor, a link off the
+repository and a page marker that name nothing real; and a line inside a
+paragraph that starts with a number.
+
+With these changes the page passes: every row equals its receipt, and every
+digit lies in a claimed figure or a bound identifier. The output,
+`r5/figures-rows.tsv` and `r5/figures-coverage.tsv`, lists each identifier
+with its category. `tools/r5_figures_build.py` regenerates the check byte for
+byte from `tools/r5_figures_spec.py`. As before, the hashes of the check, its
+spec and its output are in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+<!-- b16-r5-evidence -->
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r5_check_controls.py` (the check's controls) | 16,186 | `bf84a387ebdaae6fee5dc93f9da5b9b06bcb827281ff1c51eac3b7da17a8aa2e` |
+| `controls/r5-controls.json` (22 of 22 PASS) | 8,154 | `c22a199aa34ed8fb4d01fe238bf601d45f519cec484fe3035aee833b179a0188` |
+| `controls/r5-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `4871ef3e84d940d91cc7938ca2ebaf3f904e39b74e21678aa03c602dae7e3560` |
+| `controls/r5-rerun-r4-controls.json` (8 of 8 PASS) | 3,116 | `a79d24b9c9e272960eb1ffe528c5ada294571f5a5a63fbe217e8d2c344e4964d` |
+| `controls/r5-controls-on-r4-check.json` | 8,165 | `2569e99d4283036b2bc38868812721621330b86b8dbfa735e5ad08fad544391b` |
