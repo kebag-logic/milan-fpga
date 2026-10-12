@@ -162,8 +162,19 @@ No submodule source changes during these runs.
 | Firmware `rate` | Completion deadline advances by 500 ms | `RATE` |
 
 The required behavior gate includes the bind-era and receive-law contracts.
-Round 2 passes 405 scenarios, including interval-rate FRAMES_RX rejection.
-The bench grader applies IEEE 1722.1-2021 Table 7.157 to FRAMES_RX.
+Round 3 adds the unpublished-zero receive snapshot to the standing contract.
+Three accepted packets give TV=3, TNV=0 and FRAMES_RX=0 before publication.
+That snapshot is inconclusive; after publication FRAMES_RX=3 passes the identity.
+A measured flowing window still rejects interval-rate FRAMES_RX.
+
+The cross-device helpers apply Tables 7.159/7.157 to both packet totals.
+A per-AVTPDU pair passes; an interval-rate side receives its own finding.
+Concurrent-flow checks apply that law when given the measured shared window.
+The historical helper and assertion identifiers remain compatible with existing callers.
+Their `tx_ticks` and `rx_ticks` fields now mean packet deltas.
+Compare matching traffic within one streaming or binding era.
+The rate band separates supported AAF/CRF traffic from one-per-second regressions.
+Packet comparisons separately allow the documented non-atomic snapshot skew.
 
 ```sh
 cd tests

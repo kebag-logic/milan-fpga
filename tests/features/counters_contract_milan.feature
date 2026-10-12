@@ -194,6 +194,15 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     Then the tv-tnv verdict is INFO
     And the reading in force is "unequal-packet-totals"
 
+  @class:invariant @clause:17221-Table-7-157 @regression
+  Scenario: three accepted packets precede the first receive publication
+    # The receiver-backed startup probe observes these exact snapshots.
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 0
+    Then the tv-tnv verdict is INFO
+    And the reading in force is "unequal-packet-totals"
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 3
+    Then the tv-tnv verdict is PASS
+
   @class:invariant @negative-control
   Scenario: FRAMES_RX above TV plus TNV violates the packet identity
     # Every frame is counted by exactly one of the two tv tallies, so no
