@@ -1,0 +1,64 @@
+1805259 execve("/usr/bin/python3", ["python3", "-B", "sw/firmware/ctrl/test/test_ctrl_"..., "--require-rv32", "--self-test", "--jobs", "4", "--shard", "0/4"], 0x7ffc9de80840 /* 35 vars */) = 0
+1805280 execve("/home/<user>/.local/bin/gcc", ["gcc", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805280 execve("/usr/local/sbin/gcc", ["gcc", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805280 execve("/usr/local/bin/gcc", ["gcc", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805280 execve("/usr/bin/gcc", ["gcc", "--version"], 0x7fd45481db30 /* 35 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805280, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805283 execve("/home/<user>/.local/bin/g++", ["g++", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805283 execve("/usr/local/sbin/g++", ["g++", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805283 execve("/usr/local/bin/g++", ["g++", "--version"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805283 execve("/usr/bin/g++", ["g++", "--version"], 0x7fd45481db30 /* 35 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805283, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805284 execve("/home/<user>/.local/bin/gcov", ["gcov", "--version"], 0x7fd45481da10 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805284 execve("/usr/local/sbin/gcov", ["gcov", "--version"], 0x7fd45481da10 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805284 execve("/usr/local/bin/gcov", ["gcov", "--version"], 0x7fd45481da10 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805284 execve("/usr/bin/gcov", ["gcov", "--version"], 0x7fd45481da10 /* 35 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805284, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805285 execve("/home/<user>/.local/bin/pkg-config", ["pkg-config", "--modversion", "gtest"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805285 execve("/usr/local/sbin/pkg-config", ["pkg-config", "--modversion", "gtest"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805285 execve("/usr/local/bin/pkg-config", ["pkg-config", "--modversion", "gtest"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805285 execve("/usr/bin/pkg-config", ["pkg-config", "--modversion", "gtest"], 0x7fd45481db30 /* 35 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805285, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805287 execve("/home/<user>/.local/bin/pkg-config", ["pkg-config", "--modversion", "gmock"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805287 execve("/usr/local/sbin/pkg-config", ["pkg-config", "--modversion", "gmock"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805287 execve("/usr/local/bin/pkg-config", ["pkg-config", "--modversion", "gmock"], 0x7fd45481db30 /* 35 vars */) = -1 ENOENT (No such file or directory)
+1805287 execve("/usr/bin/pkg-config", ["pkg-config", "--modversion", "gmock"], 0x7fd45481db30 /* 35 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805287, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805288 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c", "config", "--list", "--show-scope", "-z"], 0x7fd454ca6a90 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805288, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805289 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c", "ls-files", "--stage", "--", "third_party/tsn-c-stack"], 0x7fd4555b06f0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805289, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805291 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "rev-parse", "--show-toplevel"], 0x7fd4569315c0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805291, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805292 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "config", "--list", "--show-scope", "-z"], 0x7fd4547dc150 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805292, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805293 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "rev-parse", "HEAD"], 0x7fd4547dc150 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805293, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805294 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "rev-parse", "--show-object-format"], 0x7fd454b4b8d0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805294, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805295 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "commit", "405dc68310a18f669049ffc10cc23eef"...], 0x7fd454b4b8d0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805295, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805296 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "68f17411e26213c2cef4afb80f2ff2cb"...], 0x7fd454b4b8d0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805296, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805298 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "e0cd116c8590b8e6353e242cc911cead"...], 0x7fd45480e940 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805298, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805299 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "5c8c189a2158818a3881103fee359ea7"...], 0x7fd45480f840 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805299, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805302 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "2ed6c2b94e47e70f577ae3400360cf7c"...], 0x7fd45480e1c0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805302, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805306 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "0042e2131f1eed3cf5ca24dd365285d6"...], 0x7fd45480ea90 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805306, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805307 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "414e8a6f06794641a7bfa178dc9a6664"...], 0x7fd45480f660 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805307, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805311 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "ed367db95deffd736651cfd925095109"...], 0x7fd45480f4e0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805311, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805315 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "48eafa71b1ee0445f5a1de421807c73a"...], 0x7fd45480f8a0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805315, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805318 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "7ee752a93be443a42cad9b226c61b5ab"...], 0x7fd45480f870 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805318, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805319 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "0b5c0d507a6e33b2366d570ff6f6945f"...], 0x7fd45480fa50 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805319, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805322 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "1e1ab028ac591a984496452ea4b17e3e"...], 0x7fd45480fbd0 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805322, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+1805323 execve("/usr/bin/git", ["git", "-c", "core.fsmonitor=false", "-C", "$REVIEWS/r584-16-697c"..., "cat-file", "tree", "d987435c7da1e3f62a9c60c71d784fb7"...], 0x7fd45480fb10 /* 5 vars */) = 0
+1805259 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=1805323, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---

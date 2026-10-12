@@ -1,0 +1,45 @@
+== firmware-unit (1367 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4^[[0m
+      1 PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+      1 test_ctrl_firmware: PASS
+      1 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+== firmware-control-mutants (1411 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4^[[0m
+      1 mutants: 506 of 506 caught
+      1 PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+      1 test_ctrl_firmware: PASS
+      1 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+== firmware-aecp-mutants (689 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4^[[0m
+      1 PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+      1 test_ctrl_firmware: PASS
+      1 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+== firmware-srp-mutants (1264 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4^[[0m
+      1 PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+      1 test_ctrl_firmware: PASS
+      1 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+== firmware-boundary (650 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+ctrl_boundary.py --require-rv32 --selftest --without verilator
+ctrl_boundary.py --require-rv32 --selftest --without verilator^[[0m
+test_ctrl_firmware.py --require-rv32: exit 0 (262 s)
+      1 105 boundary, 106 pin and 4 figure controls, 0 misbehaved
+      1 ctrl_boundary: PASS
+      3 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+      2 tsn-c-stack at bc68ad8f3577e8f3dc24c4336e9b80a933df6c79
+== firmware-verilator (686 lines)
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+ctrl_boundary.py --require-rv32 --selftest --only verilator
+ctrl_boundary.py --require-rv32 --selftest --only verilator^[[0m
+      1 6 boundary, 106 pin and 4 figure controls, 0 misbehaved
+      1 ctrl_boundary: PASS
+      3 tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+      2 tsn-c-stack at bc68ad8f3577e8f3dc24c4336e9b80a933df6c79

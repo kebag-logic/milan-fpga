@@ -1,0 +1,41 @@
+M0-pristine                                rc=0 HELD | ci_events: OK (2169 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+M1-control-mutants-fetch-without-tsn       rc=1 HELD | ci_events: 2 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', "${{ needs.changes.outputs.rtl == 'true'
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+M2-aecp-mutants-fetch-without-tsn          rc=1 HELD | ci_events: 2 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', "${{ needs.changes.outputs.rtl == 'true'
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-aecp-mutants` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor th
+M3-srp-mutants-fetch-without-tsn           rc=1 HELD | ci_events: 2 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', "${{ needs.changes.outputs.rtl == 'true'
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor thi
+M4-unit-fetch-without-tsn                  rc=1 HELD | ci_events: 2 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', "${{ needs.changes.outputs.rtl == 'true'
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_part
+M5-boundary-fetch-without-tsn              rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_
+M6-needs-drop-firmware-boundary            rc=1 HELD | ci_events: 4 finding(s) over 2168 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutant
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in "changes:$CHANGES_RESULT" "verilator-lint:$VERILATOR_LINT_RESULT" "bdd-con
+M7-needs-drop-firmware-aecp-mutants        rc=1 HELD | ci_events: 4 finding(s) over 2168 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutant
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in "changes:$CHANGES_RESULT" "verilator-lint:$VERILATOR_LINT_RESULT" "bdd-con
+M8-loop-drop-firmware-verilator            rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in "changes:$CHANGES_RESULT" "verilator-lint:$VERILATOR_LINT_RESULT" "bdd-con
+M9-loop-drop-firmware-srp-mutants          rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in "changes:$CHANGES_RESULT" "verilator-lint:$VERILATOR_LINT_RESULT" "bdd-con
+M10-env-drop-control-mutants               rc=1 HELD | ci_events: 2 finding(s) over 2166 contract item(s)
+M11-unit-without-shard                     rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 7 (`Run the control-plane firmware suites and RV32 builds`) script is not the canonical form: line 3 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+M12-srp-job-runs-shard-2                   rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv
+M13-boundary-without-require-rv32          rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary` step 6 (`Hold the TSN stack boundary over the firmware builders' compiles`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/ctrl_boundary.py --re
+M14-verilator-job-timeout-45               rc=0 ESCAPED | ci_events: OK (2169 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+M15-doc-aecp-budget-row-dropped            rc=1 HELD | ci_events: 1 finding(s) over 2169 contract item(s)
+      FAIL docs/testing/CI_WORKFLOWS.md: firmware budget row must state `| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |`
+M16-doc-skip-list-drops-boundary           rc=0 ESCAPED | ci_events: OK (2169 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+M17-control-mutants-job-removed            rc=1 HELD | ci_events: 4 finding(s) over 2112 contract item(s)
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-aecp-mutants, firmware-srp-mutants, f
+      FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` needs `firmware-control-mutants`, which must exist as a job in this workflow
+RESULT FAIL (2)
+rc=1

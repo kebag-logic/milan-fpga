@@ -1,0 +1,30 @@
+TOP True         head==expected:True
+TOP concurrency  head==expected:True
+TOP env          head==expected:True
+TOP name         head==expected:True
+JOB bdd-conformance              lane:eq dev:eq base:eq timeout=20 needs=None
+JOB changes                      lane:eq dev:eq base:eq timeout=5 needs=None
+JOB firmware-aecp-mutants        dev:eq-modulo-tsn base:n/a timeout=45 needs=changes
+JOB firmware-boundary            lane:eq base:n/a timeout=30 needs=changes
+JOB firmware-control-mutants     dev:eq-modulo-tsn base:n/a timeout=45 needs=changes
+JOB firmware-srp-mutants         dev:eq-modulo-tsn base:n/a timeout=45 needs=changes
+JOB firmware-unit                lane:DIFF dev:eq-modulo-tsn base:diff timeout=45 needs=changes
+JOB firmware-verilator           lane:eq base:n/a timeout=40 needs=changes
+JOB publication-census           lane:eq dev:eq base:eq timeout=45 needs=changes
+JOB rtl-fast                     lane:DIFF dev:DIFF base:diff timeout=5 needs=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary', 'firmware-verilator']
+JOB verilator-lint               lane:eq dev:eq base:eq timeout=30 needs=changes
+JOB yosys-elaboration            lane:eq dev:eq base:eq timeout=30 needs=changes
+FETCH firmware-unit              tsn-c-stack:True
+FETCH firmware-control-mutants   tsn-c-stack:True
+FETCH firmware-aecp-mutants      tsn-c-stack:True
+FETCH firmware-srp-mutants       tsn-c-stack:True
+FETCH firmware-boundary          tsn-c-stack:True
+FETCH firmware-verilator         tsn-c-stack:True
+AGG rtl-fast loop=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary', 'firmware-verilator']
+AGG rtl-fast needs=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary', 'firmware-verilator']
+AGG rtl-fast env=['BDD_CONFORMANCE_RESULT', 'CHANGES_RESULT', 'FIRMWARE_AECP_MUTANTS_RESULT', 'FIRMWARE_BOUNDARY_RESULT', 'FIRMWARE_CONTROL_MUTANTS_RESULT', 'FIRMWARE_SRP_MUTANTS_RESULT', 'FIRMWARE_UNIT_RESULT', 'FIRMWARE_VERILATOR_RESULT', 'PUBLICATION_CENSUS_RESULT', 'VERILATOR_LINT_RESULT', 'YOSYS_ELABORATION_RESULT']
+AGG rtl-fast lane-needs=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-boundary', 'firmware-verilator']
+AGG rtl-fast dev-needs=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants']
+AGG rtl-fast base-needs=['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit']
+AGG rtl-fast firmware jobs missing from needs: []
+BAD 0

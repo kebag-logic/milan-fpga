@@ -1,0 +1,15 @@
+== --shard 0/4 --build-only
+test_ctrl_firmware.py: error: --shard requires --self-test and excludes --coverage, --mutation-shard and --slice
+rc=2
+== --shard 1/4 --self-test --build-only
+test_ctrl_firmware.py: error: --build-only runs no test, so it plants no defect: drop --self-test
+rc=2
+== --build-only --self-test
+test_ctrl_firmware.py: error: --build-only runs no test, so it plants no defect: drop --self-test
+rc=2
+== --shard 3/4 --self-test --coverage x
+test_ctrl_firmware.py: error: --shard requires --self-test and excludes --coverage, --mutation-shard and --slice
+rc=2
+== --shard 4/4 --self-test
+test_ctrl_firmware.py: error: argument --shard: '4/4' is not INDEX/4 with 0 <= INDEX < 4
+rc=2

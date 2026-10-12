@@ -1,0 +1,39 @@
+HEAD docs/diagrams/submodule_boundaries.gen.py                    OUTSIDE   program=True
+HEAD scripts/ci_events.py                                         OUTSIDE   program=True
+HEAD scripts/ci_scope.py                                          OUTSIDE   program=True
+HEAD sw/firmware/ctrl/adp/adp_entity.py                           OUTSIDE   program=True
+HEAD sw/firmware/ctrl/test/aecp_arms.py                           PART_OF   program=True
+HEAD sw/firmware/ctrl/test/aecp_mutants.py                        SUITES    program=True
+HEAD sw/firmware/ctrl/test/aecp_wire.py                           BUILDERS  program=True
+HEAD sw/firmware/ctrl/test/ctrl_arms.py                           -         program=False
+HEAD sw/firmware/ctrl/test/ctrl_build.py                          PART_OF   program=True
+HEAD sw/firmware/ctrl/test/ctrl_image.py                          BUILDERS  program=True
+HEAD sw/firmware/ctrl/test/ctrl_image_runtime.py                  OUTSIDE   program=True
+HEAD sw/firmware/ctrl/test/ctrl_image_selftest.py                 BUILDERS  program=True
+HEAD sw/firmware/ctrl/test/ctrl_mutant.py                         OUTSIDE   program=False
+HEAD sw/firmware/ctrl/test/ctrl_mutants.py                        SUITES    program=False
+HEAD sw/firmware/ctrl/test/ctrl_reuse.py                          OUTSIDE   program=False
+HEAD sw/firmware/ctrl/test/ctrl_srp_image.py                      BUILDERS  program=False
+HEAD sw/firmware/ctrl/test/maap_differential.py                   BUILDERS  program=True
+HEAD sw/firmware/ctrl/test/srp_arms.py                            -         program=False
+HEAD sw/firmware/ctrl/test/srp_mutants.py                         SUITES    program=False
+HEAD sw/firmware/ctrl/test/srp_reuse.py                           OUTSIDE   program=False
+HEAD sw/firmware/ctrl/test/test_ctrl_firmware.py                  BUILDERS  program=True
+HEAD sw/firmware/ctrl/test/test_ctrl_firmware_shards.py           OUTSIDE   program=True
+HEAD sw/firmware/ctrl_nvm/test/nvm_bench.py                       -         program=False
+HEAD sw/firmware/ctrl_nvm/test/nvm_mutants.py                     OUTSIDE   program=False
+HEAD sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py                   BUILDERS  program=True
+HEAD sw/firmware/gtest/fw_coverage.py                             BUILDERS  program=True
+HEAD sw/firmware/gtest/fw_coverage_selftest.py                    SUITES    program=False
+HEAD sw/firmware/gtest/fw_gtest.py                                -         program=False
+HEAD sw/firmware/gtest/fw_rv32_selftest.py                        BUILDERS  program=True
+HEAD sw/mailbox/gen_mailbox.py                                    OUTSIDE   program=True
+HEAD sw/mailbox/mailbox_emit.py                                   OUTSIDE   program=False
+HEAD sw/mailbox/publication_census.py                             OUTSIDE   program=True
+HEAD tb/verilator/mbx/Makefile                                    BUILDERS  program=True
+HEAD tb/verilator/mbx/mutants.py                                  PART_OF   program=True
+HEAD unclassified programs: []
+HEAD shard proof found by text: True classified: proves the control gate's four-job dispatch (#716) with every arm and campaign a stand-in; it compiles nothing
+ENTRY REMOVED unclassified programs: ['sw/firmware/ctrl/test/test_ctrl_firmware_shards.py']
+RESULT PASS
+rc=0
