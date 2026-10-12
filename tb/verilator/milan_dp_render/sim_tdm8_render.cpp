@@ -404,11 +404,12 @@ class TdmRenderHarness {
     int  aud = 0;
     long axis_cycle = 0;
     long half_step = 0;
+    bool tdm_double_rate = false;      //! bounded underrun stimulus
     bool tdm_frozen = false;            //! hold clk_tdm_i static
 
     void half() {
         if (!tdm_frozen) {
-            acc += kAudNum;
+            acc += kAudNum * (tdm_double_rate ? 2 : 1);
             if (acc >= kAudDen) { acc -= kAudDen; aud ^= 1; }
         }
         dut->clk_audio_i = aud;
@@ -1651,6 +1652,7 @@ class TdmRenderHarness {
     void prove_each_slot_sits_at_its_own_position(double bit_axis);
     void prove_the_lane_counters_are_coherent(uint64_t skips_before,
                                               uint64_t unders_before);
+    void prove_serial_underruns_are_counted();
     void prove_the_surplus_is_drop_oldest();
     void prove_a_removal_silences_only_its_own_slots();
     void prove_a_stopped_clock_reset_reopens_one_epoch(
@@ -2364,6 +2366,50 @@ void TdmRenderHarness::prove_each_slot_sits_at_its_own_position(
     check.dec("T7 SLOT POSITION: slot k's MSB sits exactly 32k bit periods "
               "after slot 0's, on every decoded frame",
               static_cast<uint64_t>(slot_pos_faults), 0);
+}
+
+//! #657: a nominal feed never starved the serializer, so T6's repeat
+//! counter assertion was vacuous. For two PDU periods, double only the
+//! physical audio/serial clock while the packet grid feeds the real path.
+//! This forces fresh-frame underruns; pausing AAF instead can repeat samples
+//! upstream while still committing fresh serializer frames.
+void TdmRenderHarness::prove_serial_underruns_are_counted() {
+    build_injection_record(64);
+    feed_on = true;
+    pdu_frac_num = 0;
+    pdu_frac_acc = 0;
+    next_pdu_at = axis_cycle + 64;
+    run_fed(10 * kPduPeriodCycles);
+    decoder_reset();
+    collect = true;
+    tdm_double_rate = true;
+    run_fed(2 * kPduPeriodCycles);
+    tdm_double_rate = false;
+    collect = false;
+    feed_on = false;
+
+    check.that("T6 UNDERRUN: routed slots make the identity check nontrivial",
+               routed_slots() > 0);
+    check.that("T6 UNDERRUN: the faster serial clock decoded whole frames",
+               decoded.size() > 8);
+    const long first = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
+    check.that("T6 UNDERRUN: the first frame is an injected media event",
+               first >= 0);
+    if (first < 0) return;
+    const Grade g = grade_frames(first, "T6 UNDERRUN");
+    check.dec("T6 UNDERRUN: every frame retains its complete sample identity",
+              static_cast<uint64_t>(g.identity_failures), 0);
+    check.dec("T6 UNDERRUN: every slot retains zero padding",
+              static_cast<uint64_t>(g.pad_failures), 0);
+    check.that("T6 UNDERRUN: the faster serial clock forced repeated frames",
+               g.repeats > 0);
+    check.dec("T6 UNDERRUN: every forced repeat is a counted underrun",
+              static_cast<uint64_t>(g.uncounted_repeats), 0);
+    check.dec("T6 UNDERRUN: the faster consumer skipped no source event",
+              static_cast<uint64_t>(g.skipped), 0);
+    std::printf("  [i]    T6 UNDERRUN: %ld frames, %ld forced repeats, %ld "
+                "uncounted repeats, %ld skipped events\n",
+                g.frames, g.repeats, g.uncounted_repeats, g.skipped);
 }
 
 void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
@@ -4399,6 +4445,9 @@ int TdmRenderHarness::run(int argc, char** argv) {
         phase_crf();
         return check.report();
     }
+    //! #657: epoch-only omits SERIAL, so it needs the same boot pull-in
+    //! dwell as crf-only before grading the unchanged #386 recentre law.
+    if (epoch_only) run_fed(kBootPullInCycles);
     if (!epoch_only) phase_serial();
     if (!serial_only) {
         phase_crf();
@@ -4406,8 +4455,12 @@ int TdmRenderHarness::run(int argc, char** argv) {
         if (!epoch_only && with_pullin) phase_pullin({kPullinStandingPhase});
         phase_csr();
         phase_reset();
+        //! The reset recovery leaves a bound stream; BIND ends unbound.
+        if (!epoch_only) prove_serial_underruns_are_counted();
         phase_bind_loss();
     }
+    //! This clock-rate fault follows all CRF/LAW checks and needs a bind.
+    if (serial_only) prove_serial_underruns_are_counted();
     return check.report();
 }
 

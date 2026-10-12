@@ -77,9 +77,7 @@ tdm8render-law-boundary.
 Usage: python3 tdm8_render_mutants.py [--leg-defects | --law-boundary
                                        [--jobs N]]
                                        (run from tb/verilator/milan_dp_render)
-   or: cd tb/verilator/milan_dp_render && make tdm8render-mutants
-       (not make -C: under it the nested builds read make's directory
-       banner into the datapath source list)
+   or: make -C tb/verilator/milan_dp_render tdm8render-mutants
 Exit 0 = every mutant was caught, and every clean control still passes.
 """
 
@@ -195,7 +193,7 @@ MUTATIONS = [
      [("          else unders_b_r <= (&unders_b_r) ? unders_b_r : unders_b_r + 16'd1;",
        "          else unders_b_r <= unders_b_r;")],
      "ship", "--serial-only",
-     "T6 ORDER: every repeat is a counted underrun"),
+     "T6 UNDERRUN: every forced repeat is a counted underrun"),
     ("drop NEWEST: the prefetch keeps the have-next guard", "render",
      [("      if (!ser_flush_r && !ren_r && !fetch_v_r && !rempty_w) ren_r <= 1'b1;",
        "      if (!ser_flush_r && !have_next_r && !ren_r && !fetch_v_r && !rempty_w) ren_r <= 1'b1;")],
@@ -500,7 +498,10 @@ def build(leg: str, overrides: dict[str, str], mdir: Path) -> Path | None:
     and the executable name from LEGS, so a mutant is always built by the same
     recipe the positive control was."""
     target, mdir_var, exe_name, _ = LEGS[leg]
-    cmd = ["make", "-s", "-C", str(HERE), target, f"{mdir_var}={mdir}"]
+    # An outer make -C can leave directory printing enabled in MAKEFLAGS.
+    # Its banners must not enter the nested source-list and flag queries.
+    cmd = ["make", "--no-print-directory", "-s", "-C", str(HERE), target,
+           f"{mdir_var}={mdir}"]
     cmd += [f"{k}={v}" for k, v in overrides.items()]
     out = subprocess.run(cmd, capture_output=True, text=True, check=False)
     exe = mdir / exe_name

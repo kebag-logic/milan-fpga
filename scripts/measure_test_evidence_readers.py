@@ -59,6 +59,15 @@ DUT_READER_DISPOSITIONS = {
         "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
         "requires the named check of the meter, servo or unit leg to fail; no expected "
         "value is read from RTL",
+    "tb/verilator/avtp_rxmon/lockstep_mutants.py":
+        "mutation campaign; it plants one of four counter-context defects (a lost increment, a torn "
+        "read, a wrong stream index, a missed reset) into a copy and requires its named lockstep "
+        "check to fail; expected values come from the frozen reference module and the harness's "
+        "own arithmetic, never from the text",
+    "tb/verilator/chmap_capture/lockstep_mutants.py":
+        "mutation campaign; it plants one of three source-table and skid defects into a copy and "
+        "requires its named lockstep check to fail; expected samples come from the harness's own "
+        "stimulus, never from the text",
     "tb/verilator/capture_coherence/mutants.py":
         "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
         "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
@@ -171,4 +180,9 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/tkdiag/mcr_mutants.py":
         "mutation campaign; it plants one of four restart-engine defects against the #387 "
         "pending-restart merge and its wire boundary into a copy and requires a named failure",
+    "tb/verilator/csr/lock_mutants.py":
+        "mutation campaign; it plants one of seven CSR read-path defects (decode, torn and stale "
+        "snapshot, reset value, stage-1 claim) into a copy and requires the named lockstep check "
+        "to fail; expected values come from the frozen e8454e27 block and the harness, never "
+        "from the text it mutates",
 }
