@@ -1,0 +1,41 @@
+{
+ "note": "Lane B16 round 2: controls of the three reduced-receipt tools, run offline on copies; no bench action",
+ "controls": [
+  {
+   "control": "r2_poll_b16c.py: one byte of B-CRF's raw poll changed",
+   "expect": "exit 2, nothing written",
+   "observed": "exit 2: MISMATCH against the run's record",
+   "verdict": "PASS"
+  },
+  {
+   "control": "r2_poll_b16c.py: one field of B-CRF's published poll-summary changed",
+   "expect": "exit 1, matches_published_summary false",
+   "observed": "exit 1, matches_published_summary false",
+   "verdict": "PASS"
+  },
+  {
+   "control": "r2_poll_b16c.py: B-CRF nominal",
+   "expect": "exit 0, the receipt byte-equal to r2/bcrf-poll-receipt.json",
+   "observed": "exit 0, byte-equal",
+   "verdict": "PASS"
+  },
+  {
+   "control": "r2_poll_b16c.py: SLIP_LB raised by 2 dups from poll 300 on, its record rehashed",
+   "expect": "one step listed between polls 299 and 300, LOCKED at both, in the window; exit 1 (the published summary no longer matches)",
+   "observed": "exit 1; [{\"polls\": [299, 300], \"after_set_s\": [131.069, 131.646], \"after_binds_s\": [143.244, 143.821], \"dups\": [174, 176], \"skips\": [0, 0], \"servo\": [\"LOCKED\", \"LOCKED\"], \"span\": \"window-start..window-end\"}]; window SLIP_LB [174, 176]",
+   "verdict": "PASS"
+  },
+  {
+   "control": "r2_source_b16.py: a copy of a state read with one setting changed and the documented pair's meter set to -30 dBFS, against the original's companion read",
+   "expect": "1 entry differs; that pair leaving at -30.0 dBFS; its setting reads the planted value",
+   "observed": "entries [2262, 2262], both 2262, differ 1; leaving [-30.0, -30.0, -30.0]; settings [-17.5, -18.5]",
+   "verdict": "PASS"
+  },
+  {
+   "control": "r2_b0_receipt.py: (a)'s comparison cut to 1,000,000 recording frames in a copy of the packet",
+   "expect": "whole blocks 0 to 19; 19 degraded inside, 112 beyond",
+   "observed": "whole blocks [0, 19]; inside 19; beyond 112",
+   "verdict": "PASS"
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "scenario": "agentdies",
+ "rc": 1,
+ "ops": [
+  [
+   "setclk",
+   "peer",
+   0
+  ],
+  [
+   "bind",
+   "dut",
+   1
+  ],
+  [
+   "unbind",
+   "dut",
+   1
+  ],
+  [
+   "setclk",
+   "peer",
+   1
+  ]
+ ],
+ "checks": {
+  "end state as found (clocks, DUT unbound, peer listeners bound)": true,
+  "peer set, CRF bind; the agent ends; a new agent unbinds and restores the peer": true,
+  "agent restarted": true,
+  "final read-back equal to found": true,
+  "rc nonzero": true
+ },
+ "verdict": "PASS"
+}
