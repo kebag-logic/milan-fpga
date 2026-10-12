@@ -1,0 +1,3 @@
+FROM localhost/ft665-gcc13:latest
+USER root
+RUN apt-get update -qq && apt-get install -y --no-install-recommends cmake clang && rm -rf /var/lib/apt/lists/*

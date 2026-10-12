@@ -1,0 +1,18 @@
+== aecp_wire.py --every at 5471b0605 (before <stdexcept>), Ubuntu 24.04 GCC 13.3: errors of the if1 wire build
+sw/firmware/ctrl/test/aecp_wire_model.hpp:29:14: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire_model.hpp:80:87: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire_model.hpp:103:50: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire_timers.hpp:22:65: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire_timers.hpp:23:64: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:36:16: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:42:40: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:46:18: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:54:39: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:59:45: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:63:42: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:94:18: error: ‘runtime_error’ is not a member of ‘std’
+sw/firmware/ctrl/test/aecp_wire.cpp:95:62: error: ‘runtime_error’ is not a member of ‘std’
+== at d4184ff60 (with it):
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+wire comparison PASS: 1 ingress paths, 142 observations; [11] oracle controls by ingress
+wire comparison PASS: 2 ingress paths, 294 observations; [11, 11] oracle controls by ingress

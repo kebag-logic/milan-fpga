@@ -1,0 +1,4 @@
+[CAUGHT] control: stack src includes mbx_hal.h unconditionally: ctrl_boundary refused: host: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h; the stack's own gate refused
+[CAUGHT] stack src includes mbx_hal.h under CTRL_REENTRY_ASSERT (a macro the acmp arm defines): ctrl_boundary refused: host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h; the stack's own gate passes
+[CAUGHT] stack src includes ctrl_debug.h under #ifndef NDEBUG (the debug arms' mode): ctrl_boundary refused: host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h; the stack's own gate refused
+[CAUGHT] firmware adapter reaches the stack's tests/acmp_fake.hpp under CTRL_REENTRY_ASSERT (the acmp arm compiles the adapters with it): ctrl_boundary refused: firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes third_party/tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers; the stack's own gate n/a
