@@ -1,0 +1,265 @@
+BUILDER PART 6/6: functions 86 through 103 of 103
+test_image_name_table_matches_descriptors:
+  [gate 28b] arty_current: all 29 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_4x4: all 55 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_8ch: all 87 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_8x8: all 107 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_1x1_tdm8: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] schema_12_declared: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+test_schema_12_keys_reach_the_image:
+  [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 11 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C1935893E1 -> 0x123456C1935893E1: OUI only); 11/11 single-key mutants named alone
+test_schema_12_refusals:
+  [gate 25b] 20 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+test_schema_11_configs_accepted_unchanged:
+  [gate 25c] 5 tracked configs declare 1.2.0 and load, re-declared 1.1.0, to the same argv, model id and image bytes; 2.0.0 refused
+test_milan_base_formats_are_rate_complete:
+  [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+  [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+test_per_row_format_facts_are_per_row:
+test_builder_doc_key_map:
+  [gate 32] 114 loader keys == 114 keys across 65 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1538 endstation_builder.py:1618 endstation_builder.py:1622 endstation_builder.py:1985 endstation_builder.py:1989 endstation_builder.py:3317 endstation_builder.py:3406 endstation_builder.py:3508 endstation_builder.py:3740 endstation_builder.py:3749 endstation_builder.py:3786 endstation_builder.py:3805 endstation_builder.py:3842 endstation_builder.py:4198 endstation_builder.py:4294 endstation_builder.py:4321 endstation_builder.py:4493 endstation_builder.py:4499
+test_boot_policy_follows_the_declaration:
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+  [gate 35 transcript] arty_current: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000006 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] arty_current: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_4x4: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=808b210c 610=001bc549 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_4x4: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_8ch: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=91ccaa9b 610=001bc554 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_8ch: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_8x8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=2467af35 610=001bc557 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000901 750=00000003
+  [gate 35] ax7101_8x8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=935893e1 610=001bc5c1 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000201 750=00000003
+  [gate 35] ax7101_1x1_tdm8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8, crf_output off: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=a1867a88 610=001bc5b9 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] ax7101_1x1_tdm8, crf_output off: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 0: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000006 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 0: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 1: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000006 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 1: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 2: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000006 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 2: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 3: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000006 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 3: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35] 8/8 planted defects refused for the rule each breaks: the literal 3 back in CRFT_CTRL; a derivation that ignores the declaration; the 0x8588 ADP_CAPS write back; the LWSRP_VID write dropped; unconditional spare MAAP address; boot drops live SRP admission enable; boot drops live SRP declaration arm; boot silently enables station filtering
+test_nvm_firmware_shapes:
+disabled-writer endstation_arty_4x4 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_4x4 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_4x4: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_4x4          records= 88 image= 4808 B OK
+disabled-writer endstation_arty_8ch shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_8ch identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_8ch: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_8ch          records=120 image= 7368 B OK
+disabled-writer endstation_arty_current shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_arty_current identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_arty_current: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_arty_current      records= 42 image= 2516 B OK
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_ax7101_1x1_tdm8: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_ax7101_1x1_tdm8   records= 54 image= 3336 B OK
+disabled-writer endstation_ax7101_8x8 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_ax7101_8x8 identity: 18 console cases; hb=0 backed=0 stale=0
+boot-walk endstation_ax7101_8x8: 5 boot paths; each starts one walk before the enable
+dispatch patch link guard: missing marker refused
+endstation_ax7101_8x8        records=164 image=13256 B OK
+  self-test OK: edge_cross             caught by 2 finding(s); first: endstation_arty_4x4: partial ownership: open record changed across unaligned predecessor edge
+  self-test OK: no_ascending_check     caught by 1 finding(s); first: endstation_arty_4x4: parity: duplicate record id: firmware VD_OK, klj2_decode VD_REC
+  self-test OK: no_heartbeat_in_wait   caught by 1 finding(s); first: endstation_arty_4x4: the heartbeat was not serviced through a 3 s erase: {'hb': 2, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 19, 'max_hb_gap_ms': 3016, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4764, 'losses': 1, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 9, 'boot_reads': 5, 'restart_reads': 0, 'faulty_reads': 0, 'now_ms': 3037}
+  self-test OK: verify_skipped         caught by 3 finding(s); first: endstation_arty_4x4: a failed verify was not published as VD_VERIFY unacknowledged: {'hb': 37, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 19, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4764, 'losses': 0, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'walks': 1, 'enable_first': 0, 'closed': 0, 'reads': 7, 'boot_reads': 5, 'restart_reads': 0, 'faulty_reads': 0, 'now_ms': 9057}
+  self-test OK: erased_header_only     caught by 1 finding(s); first: endstation_arty_4x4: parity: erased header, live payload: firmware VD_OK, klj2_decode VD_REC
+  self-test OK: restart_at_zero              endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: restart_at_zero              endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: restart_at_zero              endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: unbounded_retry              endstation_arty_4x4         caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 68 times, over the bound of 12
+  self-test OK: unbounded_retry              endstation_ax7101_1x1_tdm8  caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 68 times, over the bound of 12
+  self-test OK: unbounded_retry              endstation_ax7101_8x8       caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 68 times, over the bound of 12
+  self-test OK: generation_from_refused_slot endstation_arty_4x4         caught by 8 named finding(s); first: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+  self-test OK: generation_from_refused_slot endstation_ax7101_1x1_tdm8  caught by 8 named finding(s); first: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+  self-test OK: generation_from_refused_slot endstation_ax7101_8x8       caught by 8 named finding(s); first: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+  self-test OK: verdict_only_agreement       endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: verdict_only_agreement       endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: verdict_only_agreement       endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+  self-test OK: r_digest_header_only         endstation_arty_4x4         caught by 2 named finding(s); first: slot A newer at seq 0x0, the other older, --read-fault a:2422:0:64:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)
+  self-test OK: r_digest_header_only         endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A newer at seq 0x0, the other older, --read-fault a:1686:0:64:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)
+  self-test OK: r_digest_header_only         endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A newer at seq 0x0, the other older, --read-fault a:6646:0:64:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_OK seq 4294967295; offered B seq 4294967295 (VD_OK)
+  self-test OK: r_digest_with_trailer        endstation_arty_4x4         caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-sealed a:20:0:64:8 on a writer restart: slot A was taken as VD_ENT on reads that returned different bytes: Milan NVM: slot A VD_ENT seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: r_digest_with_trailer        endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-sealed a:20:0:64:8 on a writer restart: slot A was taken as VD_ENT on reads that returned different bytes: Milan NVM: slot A VD_ENT seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: r_digest_with_trailer        endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-sealed a:20:0:64:8 on a writer restart: slot A was taken as VD_ENT on reads that returned different bytes: Milan NVM: slot A VD_ENT seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: r_fill_from_flash            endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:1:2: the boot read the flash 8 times, want exactly 7
+  self-test OK: r_fill_from_flash            endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:1:2: the boot read the flash 8 times, want exactly 7
+  self-test OK: r_fill_from_flash            endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:1:2: the boot read the flash 8 times, want exactly 7
+  self-test OK: r_restage_fail_offers_none   endstation_arty_4x4         caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+  self-test OK: r_restage_fail_offers_none   endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+  self-test OK: r_restage_fail_offers_none   endstation_ax7101_8x8       caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+  self-test OK: restage_fail_not_unread      endstation_arty_4x4         caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: restage_fail_not_unread      endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: restage_fail_not_unread      endstation_ax7101_8x8       caught by 1 named finding(s); first: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+  self-test OK: r_restage_any_seq            endstation_arty_4x4         caught by 1 named finding(s); first: slot A newer at seq 0x0, the other older, --read-other a:2:4: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+  self-test OK: r_restage_any_seq            endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot A newer at seq 0x0, the other older, --read-other a:2:4: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+  self-test OK: r_restage_any_seq            endstation_ax7101_8x8       caught by 1 named finding(s); first: slot A newer at seq 0x0, the other older, --read-other a:2:4: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+  self-test OK: r_reattach_goes_live         endstation_arty_4x4         caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+  self-test OK: r_reattach_goes_live         endstation_ax7101_1x1_tdm8  caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+  self-test OK: r_reattach_goes_live         endstation_ax7101_8x8       caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+  self-test OK: r_judge_four_tries           endstation_arty_4x4         caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5
+  self-test OK: r_judge_four_tries           endstation_ax7101_1x1_tdm8  caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5
+  self-test OK: r_judge_four_tries           endstation_ax7101_8x8       caught by 3 named finding(s); first: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5
+  self-test OK: p_restage_unbounded          endstation_arty_4x4         caught by 1 named finding(s); first: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: p_restage_unbounded          endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: p_restage_unbounded          endstation_ax7101_8x8       caught by 1 named finding(s); first: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: r_restage_four_tries         endstation_arty_4x4         caught by 1 named finding(s); first: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: r_restage_four_tries         endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: r_restage_four_tries         endstation_ax7101_8x8       caught by 1 named finding(s); first: slot A newer at seq 0x0, the other older, --read-fault a:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+  self-test OK: r_omit_verdict               endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=11 up=2 down=1
+PHY_PUBLISH value=3 up=2 down=1
+PHY_PUBLISH value=9 up=2 down=1
+PHY_PUBLISH value=1 up=2 down=1
+PHY_PUBLISH value=0 up=2 down=2
+PHY_PUBLISH value=11 up=3 down=2
+PHY_PUBLISH value=0 up=3 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=11 up=5 down=4
+PHY_OK transfers=78 delay_cycles=319488
+PHY_MUTANT no-publish: caught
+PHY_MUTANT defer-recovery: caught
+PHY_MUTANT late-sample: caught
+PHY_MUTANT ack-ignored: caught
+  self-test OK: r_omit_verdict               endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)
+  self-test OK: r_omit_verdict               endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-verdict a:0:2 on a writer restart: slot A was taken as VD_SHAPE on reads that returned different bytes, which differ only in their verdict: Milan NVM: slot A VD_SHAPE seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_SHAPE)
+  self-test OK: r_omit_byte_count            endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-length a:0:2 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their byte count: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_byte_count            endstation_ax7101_1x1_tdm8  caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-length a:0:2 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their byte count: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_byte_count            endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-length a:0:2 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their byte count: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_prefix_crc            endstation_arty_4x4         caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_prefix_crc            endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot B valid at seq 0x1, --read-fault b:-5:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_prefix_crc            endstation_ax7101_8x8       caught by 2 named finding(s); first: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_trailer               endstation_arty_4x4         caught by 1 named finding(s); first: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_trailer               endstation_ax7101_1x1_tdm8  caught by 1 named finding(s); first: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: r_omit_trailer               endstation_ax7101_8x8       caught by 1 named finding(s); first: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: slot B was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_BLANK seq 0, slot B VD_CRC seq 0; offered - seq 0 (VD_CRC)
+  self-test OK: the comparison check, by its own words: the comparison's verdict has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's byte count has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's prefix CRC has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's trailer has no fault class at 32 place(s), first (False, True, 'a', 1, False)
+  self-test OK: the comparison check, by its own words: the comparison's verdict has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's byte count has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's prefix CRC has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the comparison's trailer has no control that removes it alone
+  self-test OK: the comparison check, by its own words: the firmware compares two refused reads by a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest && a.tail == b.tail && a.seq == b.seq, but the terms listed are a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest && a.tail == b.tail
+disabled-writer endstation_arty_4x4 shape: 18 console cases; FAIL
+disabled-writer endstation_arty_4x4 identity: 18 console cases; FAIL
+disabled-writer mutant: caught in both states
+boot-walk endstation_arty_4x4: 5 boot paths; 8 finding(s)
+  boot-walk self-test OK: shape_path_skips_walk  caught by 8 finding(s); first: boot walk, persistence disabled: walks=0, expected 1
+boot-walk endstation_arty_4x4: 5 boot paths; 2 finding(s)
+  boot-walk self-test OK: wait_on_done_only      caught by 2 finding(s); first: boot walk, cold boot, CLOSED restore: the restore wait ran out its timeout
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+test_gptp_latency_corrections_are_declared_and_carried:
+test_audio_unit_rates_loader_contract:
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_audio_unit_shipping_rates:
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+test_shipping_image_contract:
+  [gate 36b] arty_current: rates 144/3/156, sources 76/3/82 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] ax7101_8x8: rates 144/1/148, sources 76/10/96 accepted
+  [gate 36b] ax7101_1x1_tdm8: rates 144/1/148, sources 76/3/82 accepted
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+test_soc_shipping_image_contract:
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+  [gate 36b] ax7101_8x8: SoC/builder images identical
+  [gate 36b] ax7101_1x1_tdm8: SoC/builder images identical
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+  [gate 36b] SoC image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] SoC image without 0x0024: L1 required-type
+test_shipping_image_contract_presence:
+  [gate 36b] builder image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] builder image without 0x0024: L1 required-type
+test_pp_shadow_audio_unit_rates_match_config:
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+--require-elaboration: every elaboration arm ran
+BUILDER PART 6/6: rc=0, 0 skipped arm(s)
+elapsed=342.61 rc=0

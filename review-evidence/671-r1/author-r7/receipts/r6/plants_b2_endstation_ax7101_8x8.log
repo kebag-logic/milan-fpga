@@ -1,0 +1,13 @@
+restart_at_zero              endstation_ax7101_8x8: named 48 (22 restart / 26 cold) of 555 in 39s; {'re-attached live': 168, 'neither committed nor refused': 15, 'was lost on the clean reboot': 48, 'did not survive': 120, 'did not hold the writer': 188}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+unbounded_retry              endstation_ax7101_8x8: named 56 (28 restart / 28 cold) of 465 in 36s; {'over the bound': 56, 're-attached live': 107, 'did not hold the writer': 123, 'want exactly': 174}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 68 times, over the bound of 12
+generation_from_refused_slot endstation_ax7101_8x8: named 8 (0 restart / 8 cold) of 1757 in 34s; {'but holds': 1614, 'yet the boot offered': 135, 'generation was taken': 8}
+    first: endstation_ax7101_8x8: slot A refused (foreign entity): a generation was taken from a refused slot: the boot line reports Milan NVM: slot A VD_ENT seq 370085, slot B VD_BLANK seq 4294967295; offered - seq 4294967295 (VD_ENT)
+verdict_only_agreement       endstation_ax7101_8x8: named 63 (31 restart / 32 cold) of 1403 in 36s; {'want exactly': 463, 'on reads that returned different bytes': 475, 're-attached live': 107, 'neither committed nor refused': 10, 'was lost on the clean reboot': 63, 'did not survive': 147, 'did not hold the writer': 123, 'which differ only in their': 96}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the change committed after the faulty boot was lost on the clean reboot: it restored None, want 40414243
+r_fill_from_flash            endstation_ax7101_8x8: named 1769 (0 restart / 1769 cold) of 1937 in 35s; {'want exactly': 1769, 'is not the container it judged': 80, 'neither committed nor refused': 32, 'was lost on the clean reboot': 32, 'another valid container': 8, 'did not survive': 16}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-verdict a:1:2: the boot read the flash 8 times, want exactly 7
+r_restage_fail_offers_none   endstation_ax7101_8x8: named 66 (31 restart / 35 cold) of 132 in 29s; {'want exactly': 66, 'yet the boot offered': 66}
+    first: endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: by the slots its boot line accepts the offer is B seq 0x5a5a4, yet the boot offered - seq 0x0: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered - seq 0 (VD_LEN)
+rc=0

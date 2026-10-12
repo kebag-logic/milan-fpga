@@ -1,0 +1,58 @@
+BUILDER PART 2/6: functions 18 through 34 of 103
+test_gptp_plane_reaches_the_instance:
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+test_gptp_plane_instance_gate_bites:
+  [gate 1e mutation] 6/6 owner-carrier cuts rejected
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+test_current_shape_matches_gen_aem_store:
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+test_capability_marks:
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+test_both_policies_valid:
+  [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+  [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+test_sweep_opts_fragments:
+  [gate 9] arty: generated OPTS/L2 byte-match sweep.sh inline table (322 chars)
+  [gate 9] ax7101: generated OPTS/L2 byte-match sweep.sh inline table (470 chars)
+  [gate 9] sh -n clean: sweep.sh + both fragments
+test_gen_aem_store_consumes_overlay:
+  [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (41787 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+  [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+test_resource_determinism:
+  [gate 12] resource estimate + plan deterministic across builds
+test_resource_verdicts:
+  [gate 13] arty_4x4: verdict OVER (worst LUT 84.9%, fits the part, shared-engine rows)
+  [gate 13] ax7101_8x8: verdict OVER (worst LUT 85.4%, fits the part, shared-engine rows)
+  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current verdict OVER (worst LUT 81.7%), no upper-bound rows
+test_milan_723_crf_output_rule:
+  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes rejected without crf_output (error cites 7.2.3); optional at 1 listener, format defaults to 0x041060010000BB80
+test_crf_output_overlay_structure:
+  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] arty_current: no CRF output (deployed shape untouched)
+test_gen_aem_store_crf_output_overlay:
+  [gate 16] all 10 STREAM_INPUT/OUTPUT descriptors are 1722.1-2021 Table 7-8: formats_offset 138, redundant_offset 138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear
+  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM 6601 B structurally valid; STREAM_OUTPUT[4] = CRF (domain 0, flags 0x0003, 0x041060010000BB80), CONFIGURATION count 5, 4 output ports
+  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + 5-in/5-out reference + WB-addr arrays match the directory (CRF flags/formats in the right rows)
+NOT RUN [gate 11]: real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+BUILDER PART 2/6: rc=0, 1 skipped arm(s)
+elapsed=17.03 rc=0

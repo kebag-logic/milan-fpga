@@ -1,0 +1,25 @@
+  no_tail endstation_arty_4x4 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  no_tail endstation_arty_4x4 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_arty_4x4 standing: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY no_tail endstation_arty_4x4 standing: findings=78 lost=4
+  no_tail endstation_ax7101_1x1_tdm8 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  no_tail endstation_ax7101_1x1_tdm8 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_ax7101_1x1_tdm8 standing: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY no_tail endstation_ax7101_1x1_tdm8 standing: findings=78 lost=4
+  no_tail endstation_ax7101_8x8 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  no_tail endstation_ax7101_8x8 standing: slot A valid at seq 0x1, --read-fault a:-1:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their trailer: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_ax7101_8x8 standing: slot B valid at seq 0x1, --read-fault b:-1:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY no_tail endstation_ax7101_8x8 standing: findings=78 lost=4
+  digest_short endstation_arty_4x4 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  digest_short endstation_arty_4x4 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_arty_4x4 standing: slot B valid at seq 0x1, --read-fault b:-5:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY digest_short endstation_arty_4x4 standing: findings=78 lost=4
+  digest_short endstation_ax7101_1x1_tdm8 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  digest_short endstation_ax7101_1x1_tdm8 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_ax7101_1x1_tdm8 standing: slot B valid at seq 0x1, --read-fault b:-5:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY digest_short endstation_ax7101_1x1_tdm8 standing: findings=78 lost=4
+  digest_short endstation_ax7101_8x8 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+  digest_short endstation_ax7101_8x8 standing: slot A valid at seq 0x1, --read-fault a:-5:0:2:8 on a writer restart: slot A was taken as VD_CRC on reads that returned different bytes, which differ only in their prefix CRC: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  digest_short endstation_ax7101_8x8 standing: slot B valid at seq 0x1, --read-fault b:-5:2:2:8 on a writer restart: the writer restart read the flash 4 times, want exactly 6
+SUMMARY digest_short endstation_ax7101_8x8 standing: findings=78 lost=4
+rc=0 elapsed_s=193

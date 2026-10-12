@@ -1,0 +1,13 @@
+restage_fail_not_unread      endstation_ax7101_8x8: named 126 (61 restart / 65 cold) of 334 in 41s; {'does not name it unread': 126, 're-attached live': 61, 'did not hold the writer': 65, 'did not survive': 54, 'was lost on the clean reboot': 18, 'neither committed nor refused': 5}
+    first: endstation_ax7101_8x8: slot A newer at seq 0x5a5a5, the other older, --read-fault a:0:1:4:8 on a writer restart: slot A did not read back as it was judged, yet the boot line does not name it unread: Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370084; offered B seq 370084 (VD_OK)
+r_restage_any_seq            endstation_ax7101_8x8: named 11 (0 restart / 11 cold) of 78 in 42s; {'want exactly': 28, 're-attached live': 7, 'another valid container': 11, 'did not hold the writer': 9, 'did not survive': 11, 'but holds': 6, 'was lost on the clean reboot': 6}
+    first: endstation_ax7101_8x8: slot A newer at seq 0x0, the other older, --read-other a:2:4: the window holds another valid container than the one the boot offered (A), at seq 0xffffffff
+r_reattach_goes_live         endstation_ax7101_8x8: named 168 (168 restart / 0 cold) of 205 in 44s; {'re-attached live': 168, 'neither committed nor refused': 5, 'was lost on the clean reboot': 22, 'did not survive': 5}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the restart left a slot unread, yet the writer re-attached live
+r_judge_four_tries           endstation_ax7101_8x8: named 230 (107 restart / 123 cold) of 333 in 43s; {'want exactly': 230, 'did not hold the writer': 59, 're-attached live': 44}
+    first: endstation_ax7101_8x8: slot A valid at seq 0x1, --read-fault a:0:0:64:8 on a writer restart: the writer restart read the flash 6 times, want exactly 5
+p_restage_unbounded          endstation_ax7101_8x8: named 80 (40 restart / 40 cold) of 228 in 41s; {'re-attached live': 55, 'want exactly': 80, 'did not hold the writer': 55, 'over the bound': 16, 'printed no boot line': 16, 'reloaded the window': 6}
+    first: endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+r_restage_four_tries         endstation_ax7101_8x8: named 96 (46 restart / 50 cold) of 162 in 43s; {'re-attached live': 33, 'want exactly': 96, 'did not hold the writer': 33}
+    first: endstation_ax7101_8x8: slot B newer at seq 0x5a5a5, the other older, --read-fault b:0:2:4:8 on a writer restart: the writer restart read the flash 7 times, want exactly 6
+rc=0 elapsed=254.52 head=44416838b90c40536a2104ab1f2bd4ff02268bec

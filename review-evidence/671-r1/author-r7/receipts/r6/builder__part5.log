@@ -1,0 +1,49 @@
+BUILDER PART 5/6: functions 68 through 84 of 101
+test_tdm_master_binding_gate_bites:
+  [gate 24b] 7/7 binding mutations REJECTED (name mismatch, wrong clock, slave-instead-of-master, unbound pad, unrouted pin, default-on, strict request)
+test_front_end_routing_per_board:
+  [gate 24c] per-board front-end routing: tdm routed {'arty': True, 'ax7101': True}; 3 configs checked at BOTH tdm_bus_wired() states; the refusal runs before the platform is built; o_i2s_mclk_o binds only to i2s_pads[0] (pmoda:4 D13) or tdm_pads
+test_front_end_routing_gate_bites:
+  [gate 24d] 9/9 routing mutations REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, refusal deleted / mis-keyed / late / undefended, a routed header losing its pins, a kind added on one side only, and the argv itself selecting TDM for the Arty in BOTH tree states)
+test_i2s_pair_blend_binding:
+  [gate 24e] 8.3b blend: 6 bindings held; arty_4x4 supplies 5 pairs (I2S at slot 0), AX7101 stays solo
+test_i2s_pair_blend_gate_bites:
+  [gate 24e-b] 6/6 blend-binding mutations REJECTED
+test_firmware_version_derived_from_rtl:
+  [gate 24] firmware_version DERIVED from milan_csr VERSION 0x0002_0060 -> '2.96.0': 3/3 configs derive it and declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs (1722.1 7.2.1 Table 7-2), no entity_model_id moves with it (6.2.2.8 exclusion; arty_current still pinned 0x001BC50AC1000006), firmware_rev 7 -> 2.96.7 with the same id, 4/4 bad declarations refused
+test_d8_role_pools:
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough): 8 routed channels, 123 writable names; 2/2 planted controls turned it red: 16 routed channels; no routed channel
+  [gate 24a] the over-wide (72) D8 loopback pool (747 writable names) is REFUSED at generation by the saved-state NAME capacity, naming both figures, before any write; its own overlay's ROM exceeds the 16-bit AEM store address space (D6 is the owner), and behind a planted capacity it is marked rather than emitted and --write-rtl REFUSES it; 2/2 planted controls turned their check red: capacity 747; the shipped 8x8 overlay
+  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+test_d8_role_pools_reject:
+  [gate 24b] 8/8 contradictory pool configs REFUSED with ConfigError
+test_prune_guard_hop_gate_bites:
+  [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations refused, inert else arm present at the followed site
+test_d10_cluster_names:
+  [gate 24c] every cluster named for its ROLE; renaming leaves entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a pool width moves it; pre-D8 hashes stay explicitly pinned to their current model
+test_d10_cluster_namer_paths:
+  [gate 24d] empty-rx loopback names by offset (and by source when a receive space exists), an unknown role is refused by name, every primary role in PRIMARY_ROLE_ORDER has a namer, and 97 cluster names across 2 configs match the tracked golden name for name
+test_d10_names_reach_the_rom:
+  [gate 24d] role names reach the descriptor bytes; the tracked shape include matches its OWNER (endstation_ax7101_1x1_tdm8) byte for byte (aem_golden.h comparand DELETED with the aecp suite)
+test_gptp_domain_is_one_source:
+  [gate 26] gptp.domain 3 REFUSED with the 802.1AS-2011 8.1 clause; legal domain 0 reaches fabric configuration; CSR readback and protocol output are structural 0 in both shapes; the chain reaches the advertising plane's gptp_domain_i
+test_gptp_dataset_matches_engine_announce:
+  [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockQuality 0xF8FE436A, log intervals -3/0/0; omitted keys fill from the engine; the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+test_pp_window_contract:
+  [gate 27] 5 processor-memory windows are single-sourced
+test_image_identity_is_baked:
+  [gate 28] ax7101_1x1_tdm8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC5C1935893E1, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 2 source(s)/0x4801 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_current: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC50AC1000006, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 1 source(s)/0x4001 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_4x4: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC549808B210C, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 5 source(s)/0x4801 + 5 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] ax7101_8x8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC5572467AF35, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 9 source(s)/0x4801 + 9 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+test_image_name_table_matches_descriptors:
+  [gate 28b] arty_current: all 29 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_4x4: all 55 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_8ch: all 87 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_8x8: all 107 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_1x1_tdm8: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] schema_12_declared: all 39 writable names map byte-exactly to their READ_DESCRIPTOR fields
+--require-elaboration: every elaboration arm ran
+BUILDER PART 5/6: rc=0, 0 skipped arm(s)
+elapsed=5.34 rc=0

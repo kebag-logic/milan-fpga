@@ -1,0 +1,11 @@
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python scripts/ci_scope.py --selftest
+rc=0  $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --version
+rc=0  env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin $VALIDATION_STORAGE/671-a592/venv312/bin/python scripts/lint_rtl.py --check --self-test
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/python scripts/pp_srcs.py --check --selftest
+rc=0  $VALIDATION_STORAGE/671-a592/venv312/bin/behave --no-capture -f plain
+steps: 5  failing: 0
+
+real	0m25.701s
+user	1m21.616s
+sys	0m25.403s
+rc=0

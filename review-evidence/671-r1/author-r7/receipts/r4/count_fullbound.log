@@ -1,0 +1,33 @@
+cases 2158
+  restart=True  older=False valid=a faulted=valid: clean boot 4 reads, full bound 12, 49 windows x 4 manners = 196, run 192
+  restart=True  older=False valid=b faulted=valid: clean boot 4 reads, full bound 12, 49 windows x 4 manners = 196, run 189
+  restart=True  older=False valid=a faulted=other: clean boot 4 reads, full bound 12, 49 windows x 2 manners = 98, run 86
+  restart=True  older=False valid=b faulted=other: clean boot 4 reads, full bound 12, 49 windows x 2 manners = 98, run 93
+  restart=True  older=True  valid=a faulted=valid: clean boot 3 reads, full bound 12, 49 windows x 3 manners = 147, run 144
+  restart=True  older=True  valid=b faulted=valid: clean boot 3 reads, full bound 12, 49 windows x 3 manners = 147, run 139
+  restart=True  older=True  valid=a faulted=other: clean boot 3 reads, full bound 12, 49 windows x 2 manners = 98, run 98
+  restart=True  older=True  valid=b faulted=other: clean boot 3 reads, full bound 12, 49 windows x 2 manners = 98, run 98
+  restart=False older=False valid=a faulted=valid: clean boot 5 reads, full bound 13, 53 windows x 4 manners = 212, run 206
+  restart=False older=False valid=b faulted=valid: clean boot 5 reads, full bound 13, 53 windows x 4 manners = 212, run 205
+  restart=False older=False valid=a faulted=other: clean boot 5 reads, full bound 13, 53 windows x 2 manners = 106, run 92
+  restart=False older=False valid=b faulted=other: clean boot 5 reads, full bound 13, 53 windows x 2 manners = 106, run 100
+  restart=False older=True  valid=a faulted=valid: clean boot 4 reads, full bound 13, 53 windows x 3 manners = 159, run 155
+  restart=False older=True  valid=b faulted=valid: clean boot 4 reads, full bound 13, 53 windows x 3 manners = 159, run 149
+  restart=False older=True  valid=a faulted=other: clean boot 4 reads, full bound 13, 53 windows x 2 manners = 106, run 106
+  restart=False older=True  valid=b faulted=other: clean boot 4 reads, full bound 13, 53 windows x 2 manners = 106, run 106
+every window meets every byte manner; 86 cases beyond the detection limit not run
+  older=False faulted=other manner=--read-other : 167
+  older=False faulted=other manner=magic        : 204
+  older=False faulted=valid manner=--read-ff    : 180
+  older=False faulted=valid manner=body         : 204
+  older=False faulted=valid manner=magic        : 204
+  older=False faulted=valid manner=seq          : 204
+  older=True  faulted=other manner=body         : 204
+  older=True  faulted=other manner=magic        : 204
+  older=True  faulted=valid manner=--read-other : 179
+  older=True  faulted=valid manner=body         : 204
+  older=True  faulted=valid manner=magic        : 204
+  sequences: {'one:0x1': 288, 'one:0x5a5a5': 297, 'one:0x80000000': 292, 'one:0xffffffff': 286, 'both:0x0': 495, 'both:0x5a5a5': 500}
+restart cases 1039, cold 1119
+cases the model holds: 226; with a re-stage that did not read back: 86
+reads distribution: [(3, 392), (4, 862), (5, 608), (6, 218), (7, 76), (8, 2)]

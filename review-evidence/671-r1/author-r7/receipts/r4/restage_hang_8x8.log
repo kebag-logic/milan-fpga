@@ -1,0 +1,15 @@
+model: reads=7 unread='A' unstaged='A' within=True
+== head clean: rc=0 boot_reads=5 reads=5 walks=1 storm=False
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x871780e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+== head fault --read-other a:1:1: rc=0 boot_reads=7 reads=7 walks=1 storm=False
+    Milan NVM: slot A did not read back as it was judged in 3 reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.
+    Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x5f7440e0; walk done=1 fail=0 blank=0 backed=0 closed=0 rolled_back=0 cause=0/0; read faults=3 unread=1.
+== p_restage_unbounded clean: rc=0 boot_reads=5 reads=5 walks=1 storm=False
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0xa62060e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+== p_restage_unbounded fault --read-other a:1:1: rc=0 boot_reads=1001 reads=1001 walks=0 storm=True
+    HOST read storm: 1001 reads through the mapping
+== r_restage_four_tries clean: rc=0 boot_reads=5 reads=5 walks=1 storm=False
+    Milan NVM: slot A VD_BLANK seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x513280e0; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.
+== r_restage_four_tries fault --read-other a:1:1: rc=0 boot_reads=8 reads=8 walks=1 storm=False
+    Milan NVM: slot A did not read back as it was judged in 3 reads; its authority is unknown, so the writer is HELD until reset and nothing is persisted.
+    Milan NVM: slot A VD_LEN seq 0, slot B VD_OK seq 370085; offered B seq 370085 (VD_OK), 13256 B at 0x705260e0; walk done=1 fail=0 blank=0 backed=0 closed=0 rolled_back=0 cause=0/0; read faults=4 unread=1.

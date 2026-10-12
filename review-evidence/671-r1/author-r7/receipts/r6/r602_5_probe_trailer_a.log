@@ -1,0 +1,16 @@
+SUMMARY head endstation_arty_4x4 trailer: cases=2400 findings=0 lost=0
+SUMMARY head endstation_ax7101_1x1_tdm8 trailer: cases=2400 findings=0 lost=0
+SUMMARY head endstation_ax7101_8x8 trailer: cases=2400 findings=0 lost=0
+  no_tail endstation_arty_4x4 trailer: slot A valid at seq 0x1, --read-fault a:4804:1:2:8: the boot read the flash 5 times, want exactly 7
+  no_tail endstation_arty_4x4 trailer: slot A valid at seq 0x1, --read-fault a:4804:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_arty_4x4 trailer: slot A valid at seq 0x1, --read-fault a:4804:1:2:8: 87 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY no_tail endstation_arty_4x4 trailer: cases=2400 findings=500 lost=24
+  no_tail endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x1, --read-fault a:3332:1:2:8: the boot read the flash 5 times, want exactly 7
+  no_tail endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x1, --read-fault a:3332:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_ax7101_1x1_tdm8 trailer: slot A valid at seq 0x1, --read-fault a:3332:1:2:8: 53 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY no_tail endstation_ax7101_1x1_tdm8 trailer: cases=2400 findings=500 lost=24
+  no_tail endstation_ax7101_8x8 trailer: slot A valid at seq 0x1, --read-fault a:13252:1:2:8: the boot read the flash 5 times, want exactly 7
+  no_tail endstation_ax7101_8x8 trailer: slot A valid at seq 0x1, --read-fault a:13252:1:2:8: slot A was taken as VD_CRC on reads that returned different bytes: Milan NVM: slot A VD_CRC seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_CRC)
+  no_tail endstation_ax7101_8x8 trailer: slot A valid at seq 0x1, --read-fault a:13252:1:2:8: 163 other saved record(s) did not survive the faulty boot's commit and the clean reboot
+SUMMARY no_tail endstation_ax7101_8x8 trailer: cases=2400 findings=500 lost=24
+rc=0 elapsed_s=200

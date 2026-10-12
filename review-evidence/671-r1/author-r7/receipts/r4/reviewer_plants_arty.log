@@ -1,0 +1,25 @@
+R602-3:p_cold_goes_live                      endstation_arty_4x4         findings= 218    11s {'did not hold the writer': 120, 'neither committed nor refused': 6, 'was lost on the clean reboot': 17, 'did not survive': 68, 'did not refuse the console': 1}
+R602-3:p_held_heartbeats                     endstation_arty_4x4         findings= 227    11s {'persisted something': 226, 'did not refuse the console': 1}
+R602-3:p_agree_first_only                    endstation_arty_4x4         findings=  11    11s {'held the writer; the bound': 8, 'persisted something': 3}
+R602-3:p_judge_unread_unmarked               endstation_arty_4x4         findings= 353    12s {'does not name it unread': 140, 're-attached live': 65, 'neither committed nor refused': 6, 'was lost on the clean reboot': 20, 'did not survive': 36, 'did not hold the writer': 75, 'did not refuse the console': 1, 'named the slot on the console': 4}
+R602-3:p_judge_keeps_verdict                 endstation_arty_4x4         findings= 140     9s {'on reads that returned different bytes': 132, 'but holds': 8}
+R602-3:p_restage_once                        endstation_arty_4x4         findings= 318     9s {'want exactly': 168, 'held the writer; the bound': 100, 'persisted something': 50}
+R602-3:p_restage_unbounded                   endstation_arty_4x4         findings= 158    10s {'re-attached live': 35, 'want exactly': 52, 'did not hold the writer': 35, 'over the bound': 16, 'printed no boot line': 16, 'reloaded the window': 4}
+R602-3:p_no_restage                          endstation_arty_4x4         findings=1446    10s {'was lost on the clean reboot': 325, 'want exactly': 625, 'did not survive': 143, 'is not the container it judged': 110, 'another valid container': 71, 're-attached live': 41, 'did not hold the writer': 45, 'on reads that returned different bytes': 10, 'but holds': 6}
+R602-3:p_blank_one_read                      endstation_arty_4x4         findings= 427    10s {'want exactly': 292, 'did not hold the writer': 29, 're-attached live': 27, 'held the writer; the bound': 28, 'persisted something': 14, 'on reads that returned different bytes': 13, 'was lost on the clean reboot': 8, 'names another cause': 12, 'did not survive': 4}
+R602-3:p_hold_both_only                      endstation_arty_4x4         findings= 347    11s {'re-attached live': 106, 'neither committed nor refused': 9, 'was lost on the clean reboot': 31, 'did not survive': 71, 'did not hold the writer': 120, 'did not refuse the console': 1}
+R602-3:p_console_unnamed                     anchor occurs [0] times at this head: NOT APPLIED
+R602-3:p_seq_from_flash                      endstation_arty_4x4         findings= 699    10s {'want exactly': 562, 're-attached live': 26, 'but holds': 12, 'was lost on the clean reboot': 6, 'did not hold the writer': 29, 'held the writer; the bound': 35, 'persisted something': 18, 'another valid container': 3, 'on reads that returned different bytes': 5, 'did not survive': 3}
+R602-3:p_reattach_held_no_publish            endstation_arty_4x4         findings=   0     9s {}
+R602-3:head                                  endstation_arty_4x4         findings=   0     8s {}
+R603-3:none                                  endstation_arty_4x4         findings=   0     9s {}
+R603-3:p_restage_four_tries                  endstation_arty_4x4         findings= 110     9s {'re-attached live': 21, 'want exactly': 68, 'did not hold the writer': 21}
+Traceback (most recent call last):
+  File "<home>/milan-fpga-management/2026-09-23/671-a592/scripts/r4/reviewer_plants.py", line 65, in <module>
+    pb = T.replant(bench, work / label / stem, planted)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 916, in replant
+    work.mkdir(parents=True)
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '<scratch>/r4/work/revplants_arty/p_restage_unbounded/endstation_arty_4x4'
