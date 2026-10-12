@@ -1,0 +1,13 @@
+# First pass on Git 2.43.0. named_only and sub_present_only here were over-broad (they also exempted subsection-less extensions.partialclone, core.sshcommand and core.fsmonitor); superseded by the remote-only model in mutant_summary_final.txt. no_stack_allowlist hung (a promisor that is the clone itself recurses on 2.43.0) and was re-run with a 300 s bound.
+named_only                 rc=1 escaped=7 PINS controls=106 misbehaved=7 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+sub_present_only           rc=1 escaped=6 PINS controls=106 misbehaved=6 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+parser_empty_is_none       rc=1 escaped=1 PINS controls=106 misbehaved=1 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+family_empty_is_named      rc=1 escaped=1 PINS controls=106 misbehaved=1 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+no_superproject_check      rc=1 escaped=7 PINS controls=106 misbehaved=7 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+superproject_check_late    rc=1 escaped=5 PINS controls=106 misbehaved=5 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+no_stack_allowlist         rc=1 escaped=1 OSError: [Errno 39] Directory not empty: '<packet>/scratch/mut/copy-g243-no_stack_allowlist.work/pin-clone/.git'
+no_hash_check              rc=1 escaped=2 PINS controls=106 misbehaved=2 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+no_helper_config           rc=0 escaped=0 PINS controls=106 misbehaved=0 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+no_lazy_env                rc=0 escaped=0 PINS controls=106 misbehaved=0 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+no_defence_in_depth        rc=0 escaped=0 PINS controls=106 misbehaved=0 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0
+super_local_only           rc=1 escaped=1 PINS controls=106 misbehaved=1 census=0 figures_stated=0 figure_misbehaved=0/4 git=git version 2.43.0

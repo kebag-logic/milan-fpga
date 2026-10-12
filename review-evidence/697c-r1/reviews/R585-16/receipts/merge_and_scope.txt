@@ -1,0 +1,28 @@
+head 5b4ea551 vs dev c6bd08c6: 72 files
+of which RTL/HDL/tb/Makefile/workflow/syn:
+.github/workflows/rtl-fast.yml
+.github/workflows/rtl.yml
+tb/verilator/mbx/Makefile
+tb/verilator/mbx/README.md
+8aaa2da7..6e88cfb6 (rounds 14-17 lane delta):
+ 6 files changed, 727 insertions(+), 65 deletions(-)
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/test/ctrl_build.py
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_pin.py
+sw/firmware/ctrl/test/ctrl_pin_env.py
+sw/firmware/ctrl/test/ctrl_pin_store.py
+gitlinks at head:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 405dc68310a18f669049ffc10cc23eef7300dcff	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gitlinks at dev c6bd08c6:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+head tree == merge-tree(6e88cfb6, c6bd08c6) except: docs/diagrams/PNG_MANIFEST.json docs/diagrams/submodule_boundaries.drawio docs/diagrams/submodule_boundaries.png 

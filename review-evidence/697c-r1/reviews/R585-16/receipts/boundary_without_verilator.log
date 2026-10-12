@@ -1,0 +1,7 @@
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 2 (103 s)
+REFUSED: sw/firmware/ctrl/test/test_ctrl_firmware.py exited 2 under the capture, so it may have compiled less than it does: toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+REFUSED: <clone>/third_party/lwSRP is not a lwSRP checkout: no src/core/mrp_mad.c, src/core/mrp_pdu.c, src/ports/timer.c, src/modules/mvrp.c

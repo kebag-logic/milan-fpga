@@ -1,0 +1,7 @@
+forged src/ tree clone: <packet>/scratch/stp-g256/forged_src/stack (R584-12 store_probe forged_src state, Git 2.56.0)
+rc=2 :: python3 -B sw/firmware/ctrl/test/ctrl_build.py :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared
+  objects built under output: 0
+rc=2 :: python3 -B sw/firmware/ctrl/test/maap_differential.py :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared
+  objects built under output: 0
+rc=2 :: python3 -B sw/firmware/ctrl/test/aecp_arms.py :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared
+  objects built under output: 0

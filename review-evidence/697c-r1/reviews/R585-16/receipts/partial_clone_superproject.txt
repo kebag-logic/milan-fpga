@@ -1,0 +1,13 @@
+A superproject made by 'git clone --filter=blob:none' (Git 2.56.0): its own configuration
+core.repositoryformatversion=1
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+remote.origin.url=file://<packet>/scratch/pc/o
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+remote.origin.promisor=true
+remote.origin.partialclonefilter=blob:none
+branch.master.remote=origin
+branch.master.merge=refs/heads/master
+ctrl_build.stack_gitlink on it:
+REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.origin.partialclonefilter (local), remote.origin.promisor (local)

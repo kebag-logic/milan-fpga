@@ -1,0 +1,40 @@
+C00 clean sparse superproject (control: expect gitlink not readable, no recorder)
+  RAW   rc=-11 RAN=0 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C01 [remote] promisor = true (no subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C02 [remote] partialCloneFilter = tree:0 (no subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C03 [remote ""] promisor = true (empty subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C04 [remote] promisor (no value: boolean true)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C05 [REMOTE] PROMISOR = TRUE (upper case)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C06 [remote.o] promisor = true (old-style subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.o.promisor (local) RAN=0
+C07 [remote "a.b"] promisor = true (dotted subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.a.b.promisor (local) RAN=0
+C08 [remote "o"] partialclonefilter only (named)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.o.partialclonefilter (local) RAN=0
+C09 extensions.partialClone = o alone (format 1)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local) RAN=0
+C10 [remote] promisor in a file included by includeIf gitdir
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C11 [remote] promisor in the work tree's own configuration
+  RAW   rc=0 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+C12 [remote ""] partialCloneFilter (empty subsection)
+  RAW   rc=-11 RAN=1 
+  PROOF REFUSED third_party/tsn-c-stack is not one stage-0 gitlink RAN=0
+rc=0
