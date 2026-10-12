@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 16299, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 16249, in main
+    return selftest(shipping_root)
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 14537, in selftest
+    docker = selftest_run_directory_stages(tally, pr)
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 14424, in selftest_run_directory_stages
+    selftest_job_cpu_monitor(tally, docker)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 7840, in selftest_job_cpu_monitor
+    selftest_job_cpu_monitor_shutdown(tally, docker)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 8103, in selftest_job_cpu_monitor_shutdown
+    read_job_cpu_events(unreadable, crashed)  # type: ignore[arg-type]
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 5486, in read_job_cpu_events
+    for line in process.stdout or ():
+                ^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/730-r633-4-packet/scratch/mut3/Q30/scripts/act_ci.py", line 8013, in __iter__
+    raise OSError("read failed")
+OSError: read failed

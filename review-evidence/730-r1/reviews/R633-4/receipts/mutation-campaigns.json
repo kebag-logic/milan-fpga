@@ -1,0 +1,30 @@
+[
+  {
+    "name": "mutants-r2-unchanged",
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-4-packet/scripts/mutants_r2.py",
+      "$REVIEWS/730-r633-4-packet",
+      "$REVIEWS/730-r633-4-packet/scratch/pristine",
+      "--jobs",
+      "8"
+    ],
+    "rc": 0,
+    "seconds": 55.729
+  },
+  {
+    "name": "mutants-r3-unchanged",
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-4-packet/scripts/mutants_r3.py",
+      "$REVIEWS/730-r633-4-packet",
+      "$REVIEWS/730-r633-4-packet/scratch/pristine",
+      "--jobs",
+      "8"
+    ],
+    "rc": 0,
+    "seconds": 27.871
+  }
+]

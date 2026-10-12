@@ -1,0 +1,7 @@
+31e53e82a4a1604569ccacba8473f21e70b9cbc0 Make the replay concurrency arm fail unless every order of the selected workflows derives the most of any of them (#730)
+5c6f489ac65f51763a6ccc41f338dde0e5fc90b5 Document that an interrupt or failure already unwinding keeps its exit status through a failed CPU-range monitor cleanup, and the new shutdown pins (#730)
+c915dc3feaa9187eb51a75b52b9ffb54cc425ad0 Keep an interrupt or failure already propagating through a failed CPU-range monitor cleanup, printing the cleanup failure beside it, and make the join retry, hold, precedence and event-window arms able to fail (#730)
+5ba8313a3f036f34aac1a6bfbfcec0e0efd8c646 Document range reservations until destroy, inspect-read placement, the slot-0 refusal and the failure-safe monitor shutdown (#730)
+93215f07707d350c23bff36fb4a61e2b967ec8f5 Keep each act job container's CPU range reserved until its destroy, read by docker inspect; refuse a small host on slot 0; join the monitor's reader on every exit (#730)
+eb5666349fc20ed3b5437a4357ef097c1231e557 Document the per-container CPU ranges of act replays and their derivation (#730)
+7bb36e0946bf5d206c9da005ad5966dc4c8916d1 Give each concurrent act job container its own CPU range, derived from max-parallel and CONCURRENT_JOB_LIMIT (#730)

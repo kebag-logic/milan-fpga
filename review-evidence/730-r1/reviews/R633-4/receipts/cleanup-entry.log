@@ -1,0 +1,134 @@
+{
+  "source_sha256": "a9c135b0c94692590f24e4aca2bc60296a519794ea7814f166232713724facf2",
+  "cases": [
+    {
+      "signal": "SIGINT",
+      "delivery": "body",
+      "line": null,
+      "rc": 130,
+      "boundary_observation": {
+        "contained": true,
+        "reader_alive": false,
+        "pipe_closed": true,
+        "reader_finished": true
+      },
+      "trail": [
+        "body ended",
+        "first signal in body",
+        "contained",
+        "moved",
+        "stream ended",
+        "outer boundary teardown entry"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGINT after cleanup",
+      "invariant": true
+    },
+    {
+      "signal": "SIGINT",
+      "delivery": "cleanup entry",
+      "line": 5682,
+      "rc": 130,
+      "boundary_observation": {
+        "contained": false,
+        "reader_alive": true,
+        "pipe_closed": false,
+        "reader_finished": false
+      },
+      "trail": [
+        "body ended",
+        "first signal at cleanup entry",
+        "outer boundary teardown entry",
+        "moved",
+        "stream ended"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGINT after cleanup",
+      "invariant": false
+    },
+    {
+      "signal": "SIGTERM",
+      "delivery": "body",
+      "line": null,
+      "rc": 143,
+      "boundary_observation": {
+        "contained": true,
+        "reader_alive": false,
+        "pipe_closed": true,
+        "reader_finished": true
+      },
+      "trail": [
+        "body ended",
+        "first signal in body",
+        "contained",
+        "moved",
+        "stream ended",
+        "outer boundary teardown entry"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGTERM after cleanup",
+      "invariant": true
+    },
+    {
+      "signal": "SIGTERM",
+      "delivery": "cleanup entry",
+      "line": 5682,
+      "rc": 143,
+      "boundary_observation": {
+        "contained": false,
+        "reader_alive": true,
+        "pipe_closed": false,
+        "reader_finished": false
+      },
+      "trail": [
+        "body ended",
+        "first signal at cleanup entry",
+        "outer boundary teardown entry",
+        "moved",
+        "stream ended"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGTERM after cleanup",
+      "invariant": false
+    },
+    {
+      "signal": "SIGHUP",
+      "delivery": "body",
+      "line": null,
+      "rc": 129,
+      "boundary_observation": {
+        "contained": true,
+        "reader_alive": false,
+        "pipe_closed": true,
+        "reader_finished": true
+      },
+      "trail": [
+        "body ended",
+        "first signal in body",
+        "contained",
+        "moved",
+        "stream ended",
+        "outer boundary teardown entry"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGHUP after cleanup",
+      "invariant": true
+    },
+    {
+      "signal": "SIGHUP",
+      "delivery": "cleanup entry",
+      "line": 5682,
+      "rc": 129,
+      "boundary_observation": {
+        "contained": false,
+        "reader_alive": true,
+        "pipe_closed": false,
+        "reader_finished": false
+      },
+      "trail": [
+        "body ended",
+        "first signal at cleanup entry",
+        "outer boundary teardown entry",
+        "moved",
+        "stream ended"
+      ],
+      "diagnostic": "act-ci: interrupted by SIGHUP after cleanup",
+      "invariant": false
+    }
+  ]
+}
