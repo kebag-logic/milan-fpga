@@ -161,6 +161,8 @@ OUTSIDE = {
                                                    "source",
     "sw/mailbox/gen_mailbox.py": "writes the mailbox contract; it compiles nothing",
     "sw/mailbox/mailbox_emit.py": "writes the mailbox contract's text; it compiles nothing",
+    "sw/mailbox/publication_census.py": "counts the datapath's reads of the mailbox's publication block in the "
+                                        "netlists sv2v and Yosys elaborate (#665 F-INT); it compiles no C",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
