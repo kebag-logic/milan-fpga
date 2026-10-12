@@ -15,8 +15,7 @@
 //        for SEQ_NUM_MISMATCH / MEDIA_RESET / TIMESTAMP_UNCERTAIN /
 //        UNSUPPORTED_FORMAT / LATE_TIMESTAMP / EARLY_TIMESTAMP:
 //        N events inside ONE interval move the counter by exactly 1 (the
-//        per-frame reading is IEEE 1722.1-2021 Table 7-153's, and serving
-//        it read 8000x high at class A), one event in EACH of two intervals
+//        anomaly law stays unchanged by #726). One event in EACH of two intervals
 //        moves it by 2, and the per-event counters (MEDIA_LOCKED/UNLOCKED,
 //        STREAM_INTERRUPTED - "incremented each time") stay per-event.
 // Scaled clock: CLK_FREQ_HZ_P=100000 -> 1 ms = 100 cyc, the 100 ms silence

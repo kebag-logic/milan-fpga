@@ -497,8 +497,8 @@ Advertise state are sampled on every cycle.
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | FRAMES_TX follows wire AVTPDUs since STREAM_START, allowing one in-flight completion. The next STREAM_START resets it to the new run. |
-| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
-| `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, per-run counter reset or PDU follows. |
+| `[H]` | Matching admitted re-declarations stream and reset the per-run counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
 | `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
 | `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
 | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |

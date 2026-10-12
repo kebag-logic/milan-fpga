@@ -614,14 +614,12 @@ class CrfRxHarness {
     }
 
     //-----------------------------------------------------------------------
-    // Table 5.6 interval semantics, the mutation anchor. A burst of N
-    // events inside ONE aligned observation interval moves the counter by
-    // exactly 1 at the tick ("incremented at the end of every observation
-    // interval during which ..."), never by N (the 1722.1 Table 7-153
-    // per-frame reading — ~500x high at the CRF 500 PDU/s cadence).
+    // Packet and anomaly laws, the mutation anchor. FRAMES_RX counts each
+    // accepted AVTPDU under #726: a burst of ten counts ten immediately.
+    // Table 5.6 anomaly counters still coalesce N events to one interval tick.
     //-----------------------------------------------------------------------
     void pin_interval_burst_semantics() {
-        printf("[crf_rx] Milan Table 5.6 interval semantics (burst -> ONE tick)\n");
+        printf("[crf_rx] #726 packet totals and Milan Table 5.6 anomaly intervals\n");
         align_interval();
         uint32_t p0 = dut->pdu_count_o;
         for (int n = 0; n < 10; n++) {       // 10 PDUs = 50 cycles < kIvalCyc-1
@@ -634,8 +632,7 @@ class CrfRxHarness {
            dut->pdu_count_o, (p0 + 10));
 
         // mixed burst in ONE interval: 3 discontinuities (accepted) + 2 format
-        // rejects -> SM +1, UF +1, FRX +1 (the accepted PDUs ride the same
-        // interval), all committed together at the tick
+        // rejects -> FRX +3 immediately; SM +1 and UF +1 at the interval tick
         align_interval();
         p0 = dut->pdu_count_o;
         uint32_t f0 = dut->fmt_err_o;

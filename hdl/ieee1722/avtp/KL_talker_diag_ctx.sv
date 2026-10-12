@@ -65,7 +65,8 @@
                 clear is a later nonblocking assignment than the per-bit fold,
                 so it wins, and the strobe is one cycle wide and never comes
                 back. This matters for sparse interval events: a lone
-                tu-stamped PDU or a single mr toggle must survive the boundary. Same rule at a start edge: the three counters reset
+                tu-stamped PDU or a single mr toggle survives the boundary.
+                At a start edge, the three counters reset
                 per Table 5.4. A simultaneous transmitted PDU is the first
                 count of the new run; its MR/TU flags enter the fresh interval.
 
