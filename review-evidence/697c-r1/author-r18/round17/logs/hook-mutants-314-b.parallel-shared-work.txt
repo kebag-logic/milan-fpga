@@ -1,0 +1,36 @@
+NOT CAUGHT  H13 a trace function not refused: clean: passes; 0 escaped
+NOT CAUGHT  H14 the proof's files not its code: clean: passes; 0 escaped
+CAUGHT  H15 a refusal not written first: clean: passes; 5 escaped
+    a Git command run by the harness's runner (ctrl_build.run) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:589 to 589 that holds (subprocess.Popen): ['the pin proof did not reach its verdict under its audit hook: exit]
+    a program named by a computed name (git.__name__) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ['the pin proof did not reach its verdict under its audit hook: exit]
+    a dashed program (git-ls-tree) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ['the pin proof did not reach its verdict under its audit hook: exit]
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ['the pin proof did not reach its verdict under its audit hook: exit]
+    a refusal caught and ignored [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 599 that holds (subprocess.Popen): []]
+CAUGHT  H16 no hook installed: clean: passes; 12 escaped
+    a Git command run by the harness's runner (ctrl_build.run) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:589 to 589 that holds (subprocess.Popen): []]
+    a program named by a computed name (git.__name__) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a dashed program (git-ls-tree) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a refusal caught and ignored [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 599 that holds (subprocess.Popen): []]
+    an aliased import (from subprocess import run as r) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 596 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    os.system, in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:1001 to 1002 that holds (os.system): []]
+    exec of a string [no refusal at sw/firmware/ctrl/test/ctrl_build.py:431 to 431 that holds asks for compile: ["the pin proof did not reach its verdict under its audit hook: exit 1]
+    the helper's name rebound by attribute assignment in ctrl_build.py [no refusal at sw/firmware/ctrl/test/ctrl_build.py:423 to 437 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the helper's name rebound by attribute assignment in ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:1001 to 1011 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    os.walk, a name of the proof's vocabulary, rebound to start Git [no refusal at sw/firmware/ctrl/test/ctrl_build.py:423 to 437 that holds (subprocess.Popen): []]
+    inspect.builtins.exec, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:1001 to 1003 that holds asks for compile: []]
+NOT CAUGHT  H17 a module's registration ignored: clean: passes; 0 escaped
+NOT CAUGHT  H18 keys and values not required plain str: clean: passes; 0 escaped
+NOT CAUGHT  H19 the environment not required exactly the proof's own: clean: passes; 0 escaped
+NOT CAUGHT  H20 fork_exec's entries not required each a key given once: clean: passes; 0 escaped
+CAUGHT  H21 the helper inherits the caller's environment (as at aca5e8af): clean: REFUSED sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set; 0 escaped
+CAUGHT  H22 H21, and the environment not required exactly the proof's own: clean: REFUSED the pin proof did not reach its verdict under its audit hook: exit 2: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: credential.https://gist.github.com.helper (global), credential.https://gist.github.com.helper (global), credential.https://github.com.helper (global), credential.https://github.com.helper (global), user.email (global), user.name (global); 5 escaped
+    the pin check under a capture [ithub.com.helper (global), credential.https://github.com.helper (global), credential.https://github.com.helper (global), user.email (global), user.name (global)]
+    a Git command run by the harness's runner (ctrl_build.run) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:589 to 589 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a program named by a computed name (git.__name__) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a dashed program (git-ls-tree) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+NOT CAUGHT  H23 the helper inherits the caller's environment under the proof's own settings, and H19: clean: passes; 0 escaped
+CAUGHT  H24 a capture's builders' names not let through: clean: passes; 1 escaped
+    the pin check under a capture [rmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with CTRL_CAPTURE_FROM in its environment, which the pin proof's own does not set]
+restored True

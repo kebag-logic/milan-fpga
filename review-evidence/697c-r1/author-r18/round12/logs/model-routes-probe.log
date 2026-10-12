@@ -1,0 +1,4 @@
+checkout adb936049165dc82e8832e79329984108eb1480f, gitlink 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+1. forged src/ tree: stack_pin ACCEPTS 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 with src/adp.c edited
+   git fsck exit 11: ['error: d63870e3ad709b91e9dd31c7330099568478d44d: hash-path mismatch, found at: .git/objects/34/150e38bd508022181914bff524f43a4f1cf3a7', 'error: hash mismatch 34150e38bd508022181914bff524f43a4f1cf3a7']
+2. core.fsmonitor in the checkout's .git/config: the check exits 0 (tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92); Git ran the program 2 time(s): ['$VALIDATION_STORAGE/697c-a583/round12/work-probe-c/recorder 2 1791760170053062293']

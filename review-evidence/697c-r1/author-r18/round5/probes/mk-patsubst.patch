@@ -1,0 +1,35 @@
+diff --git a/sw/firmware/ctrl/adp/adp_mbx.c b/sw/firmware/ctrl/adp/adp_mbx.c
+index d594cf180..a62bedc73 100644
+--- a/sw/firmware/ctrl/adp/adp_mbx.c
++++ b/sw/firmware/ctrl/adp/adp_mbx.c
+@@ -4,6 +4,9 @@
+ // adp_mbx.c - the ADP slice's mailbox adapter (see adp_mbx.h).
+ 
+ #include "adp_mbx.h"
++#ifdef CTRL_R5_PROBE
++#include "../../../../third_party/tsn-c-stack/examples/adp_port.h"
++#endif
+ 
+ #include <string.h>
+ 
+diff --git a/tb/verilator/mbx/Makefile b/tb/verilator/mbx/Makefile
+index 71a6f9e93..75b9cb249 100644
+--- a/tb/verilator/mbx/Makefile
++++ b/tb/verilator/mbx/Makefile
+@@ -59,6 +59,7 @@ FW_INC  = $(addprefix -I$(FW_DIR)/,mbx host port loop adp maap acmp app) -I$(STA
+ FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(STACK_DIR)/include/*.h) \
+           $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
+ CC     ?= cc
++R5_MODES := CTRL_R5_PROBE
+ AR     ?= ar
+ 
+ .PHONY: all run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
+@@ -82,7 +83,7 @@ stack-pin:
+ obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
+ 	@mkdir -p obj_fw
+ 	rm -f obj_fw/*.o obj_fw/libctrlfw.a
+-	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
++	cd obj_fw && $(CC) $(patsubst %,-D%,$(R5_MODES)) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
+ 	cd obj_fw && $(AR) crs libctrlfw.a *.o
+ 
+ # Verilator's own build relinks Vmbx_cosim only when one of its objects

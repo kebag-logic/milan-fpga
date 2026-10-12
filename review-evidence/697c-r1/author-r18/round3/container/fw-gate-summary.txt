@@ -1,0 +1,15 @@
+test_ctrl_firmware.py --require-rv32 --self-test --jobs 4, CI-parity container, tree 36699f6c9 (d1b22e804 differs only in ctrl_configs.py and sw/firmware/ctrl/README.md, which the gate does not read)
+2026-10-10T07:58:17Z
+2026-10-10T08:27:47Z
+full log: 310992 bytes, sha256 885357758f0b4ab8f055fa66cca76c82e0d593071c96cf8bd3bfa8b0a727c0ad
+arms: 59 (59 ok)
+control campaign: mutants: 471 of 471 caught; [ok] 471
+AECP campaign: caught 74, escaped 0 (table 74)
+SRP campaign (two interfaces): caught 169, escaped 0 (table 169)
+SRP campaign (one-interface subset): caught 68, escaped 0 (table 169)
+lwSRP pin arms: 2 ok
+verdict: ['test_ctrl_firmware: PASS']
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+mutants: 471 of 471 caught
+test_ctrl_firmware: PASS
+verdict lines: 843, identical in order to round 2b's head log and by name to dev aef7ac66's

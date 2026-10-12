@@ -1,0 +1,9 @@
+  head --shard 0/4: REFUSED (rc 2): REFUSED: tsn-c-stack differs from the pinned 405dc683: include/adp.h
+  head --shard 1/4: REFUSED (rc 2): REFUSED: tsn-c-stack differs from the pinned 405dc683: include/adp.h
+  head --shard 2/4: REFUSED (rc 2): REFUSED: tsn-c-stack differs from the pinned 405dc683: include/adp.h
+  head --shard 3/4: REFUSED (rc 2): REFUSED: tsn-c-stack differs from the pinned 405dc683: include/adp.h
+  plant: no pin check in main --shard 0/4: NOT REFUSED (rc none: still running at 45 s): 
+  plant: no pin check in main --shard 1/4: NOT REFUSED (rc none: still running at 45 s): 
+  plant: no pin check in main --shard 2/4: NOT REFUSED (rc none: still running at 45 s): [ok] hdcp-data-length-echo: Core.NonAemMessageTypesFollowTheirOwnContracts
+  plant: no pin check in main --shard 3/4: NOT REFUSED (rc none: still running at 45 s): [ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+head refused 4 of 4; with the plant refused 0 of 4: CONTROL HOLDS
