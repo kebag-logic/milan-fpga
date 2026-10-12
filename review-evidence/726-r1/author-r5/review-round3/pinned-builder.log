@@ -1,0 +1,28 @@
+test_soc_option_refusals:
+  [654 CPU options] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade platform] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract:
+Traceback (most recent call last):
+  File "$CHECKOUT/sw/builder/test_builder.py", line 29236, in <module>
+    fn()
+  File "$CHECKOUT/sw/builder/test_builder.py", line 28878, in test_rom_clock_contract
+    test_gptp_rom_clock(skip=skip)
+  File "$CHECKOUT/sw/builder/test_clock_contract.py", line 138, in test_gptp_rom_clock
+    result = eb.build(path, directory, write_fragment=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CHECKOUT/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CHECKOUT/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1047, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$CHECKOUT/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
