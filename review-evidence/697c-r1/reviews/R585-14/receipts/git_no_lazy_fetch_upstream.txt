@@ -1,0 +1,32 @@
+v2.43.0 done
+v2.43.4 promisor-remote.c matches=2
+v2.43.4 done
+v2.44.0 done
+v2.44.1 promisor-remote.c matches=2
+v2.44.1 done
+v2.45.0 environment.h matches=1
+v2.45.0 git.c matches=1
+v2.45.0 done
+v2.39.4 promisor-remote.c matches=2
+v2.39.4 done
+v2.42.2 promisor-remote.c matches=2
+v2.42.2 done
+== v2.45.0 environment.c
+208-	if (shallow_file)
+209-		set_alternate_shallow_file(the_repository, shallow_file, 0);
+210-
+211:	if (git_env_bool(NO_LAZY_FETCH_ENVIRONMENT, 0))
+212-		fetch_if_missing = 0;
+213-}
+214-
+== v2.45.0 promisor-remote.c
+== v2.43.4 environment.c
+== v2.43.4 promisor-remote.c
+23-	int i;
+24-	FILE *child_in;
+25-
+26:	/* TODO: This should use NO_LAZY_FETCH_ENVIRONMENT */
+27:	if (git_env_bool("GIT_NO_LAZY_FETCH", 0)) {
+28-		static int warning_shown;
+29-		if (!warning_shown) {
+30-			warning_shown = 1;

@@ -1,0 +1,21 @@
+Q0-clean rc=0 RAN=0 :: tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+  Q1 nested tree: .github/workflows, file: .github/workflows/quality.yml
+Q1-forged-nested-tree rc=2 RAN=0 :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned .github/workflows/ tree (tree d987435c) hashes to 234f681a, not to its id, so nothing under it can be compared
+Q2-forged-root-tree rc=2 RAN=0 :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned root tree (tree 68f17411) hashes to 47d1bb90, not to its id, so nothing under it can be compared
+Q3-forged-tree-via-alternates rc=2 RAN=0 :: REFUSED: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 9469e708, not to its id, so nothing under it can be compared
+Q4-corrupt-loose-tree rc=2 RAN=0 :: fatal: loose object 5c8c189a2158818a3881103fee359ea704fedbbd (stored in .git/objects/5c/8c189a2158818a3881103fee359ea704fedbbd) is corrupt
+Q5-mixed-case-keys rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local), remote.origin.uploadpack (local)
+Q6a-valueless-refused-key rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local)
+Q6b-valueless-allowlisted rc=0 RAN=0 :: tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+Q7a-dotted-subsection-allowlisted rc=0 RAN=0 :: tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+Q7b-subsection-on-flat-key rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.x.filemode (local)
+Q7c-flat-key-of-subsection-family rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: remote.url (local)
+Q8-includeif rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local), includeif.gitdir:/.path (local)
+Q9-broken-config rc=2 RAN=0 :: REFUSED: $REVIEWS/697c-r585-14-packet/scratch/probes243/p/s is not its own checkout: initialise the tsn-c-stack submodule
+Q10-worktree-elsewhere rc=2 RAN=0 :: REFUSED: $REVIEWS/697c-r585-14-packet/scratch/probes243/p/s is not its own checkout: initialise the tsn-c-stack submodule
+Q11-objectformat-extension rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.objectformat (local)
+Q12-promisor-uploadpack-missing-tree rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+Q13-git-direct-with-GIT_NO_LAZY_FETCH rc=128 RAN=1
+Q14-git-direct-without-GIT_NO_LAZY_FETCH rc=128 RAN=2
+Q15-worktreeconfig-extension-alone rc=2 RAN=0 :: REFUSED: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.worktreeconfig (local)
+Q16-gitfile-relocated-genuine rc=0 RAN=0 :: tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
