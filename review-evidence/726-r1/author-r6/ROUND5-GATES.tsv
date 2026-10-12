@@ -1,0 +1,15 @@
+check	command	cwd	rc	seconds	memory_peak_bytes
+cpp	python3 scripts/check_cpp_idiom.py	$REPO	0	1.518	701100032
+docs	python3 scripts/docs_check.py	$REPO	0	4.577	996192256
+em-dash-final	python3 scripts/check_em_dash.py --base c6bd08c6	$REPO	0	3.926	343941120
+em-dash	python3 scripts/check_em_dash.py --base c6bd08c6	$REPO	0	3.624	740544512
+packet-law	python3 -m behave --no-capture -f plain features/counters_contract_milan.feature	$REPO/tests	0	0.415	344412160
+paths	python3 scripts/check_doc_paths.py	$REPO	0	0.115	316289024
+receive	make -j8 -C tb/verilator/avtp_rxmon run	$RECEIVE_TREE	0	68.194	1112285184
+source-pp	python3 scripts/pp_srcs.py --check --selftest	$REPO	0	0.214	686567424
+source-rtl	python3 scripts/check_rtl_source_lists.py	$REPO	0	1.517	1040547840
+source-soc	python3 scripts/check_soc_sources.py	$REPO	0	0.114	357097472
+style	python3 scripts/check_doc_style.py	$REPO	0	0.064	714137600
+toc	python3 scripts/gen_toc.py --check	$REPO	0	5.278	1099186176
+whitespace-final	git diff --check c6bd08c6 HEAD	$REPO	0	0.032	317804544
+whitespace-step1	git diff --check	$REPO	0	0.032	839122944

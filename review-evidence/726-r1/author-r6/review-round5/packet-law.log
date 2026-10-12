@@ -1,0 +1,477 @@
+USING RUNNER: behave.runner:Runner
+Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
+  Background: 
+
+  Scenario: Milan Table 5.6 is exactly ten counters, in the 1722.1 block order
+    Given the counters contract is importable ... passed in 0.000s
+    Then the Milan Stream Input counter set has 10 members ... passed in 0.000s
+    And the Milan Stream Input counter set is ... passed in 0.000s
+      | counter             |
+      | MEDIA_LOCKED        |
+      | MEDIA_UNLOCKED      |
+      | STREAM_INTERRUPTED  |
+      | SEQ_NUM_MISMATCH    |
+      | MEDIA_RESET         |
+      | TIMESTAMP_UNCERTAIN |
+      | UNSUPPORTED_FORMAT  |
+      | LATE_TIMESTAMP      |
+      | EARLY_TIMESTAMP     |
+      | FRAMES_RX           |
+    And the Milan Stream Input mandatory wire mask is 0xF3F ... passed in 0.000s
+
+  Scenario: Milan Table 5.4 is exactly five counters and its mask is 0x01F
+    Given the counters contract is importable ... passed in 0.000s
+    Then the Milan Stream Output counter set has 5 members ... passed in 0.000s
+    And the Milan Stream Output wire mask is 0x01F ... passed in 0.000s
+    And the Milan Stream Output counter set is ... passed in 0.000s
+      | counter             |
+      | STREAM_START        |
+      | STREAM_STOP         |
+      | MEDIA_RESET         |
+      | TIMESTAMP_UNCERTAIN |
+      | FRAMES_TX           |
+
+  Scenario: the 1722.1 Stream Input block adds the two tv tallies, so the mask is 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Then the IEEE Stream Input block has 12 members ... passed in 0.000s
+    And the IEEE Stream Input full wire mask is 0xFFF ... passed in 0.000s
+    And TIMESTAMP_VALID is at block offset 24 ... passed in 0.000s
+    And TIMESTAMP_NOT_VALID is at block offset 28 ... passed in 0.000s
+    And FRAMES_RX is at block offset 44 ... passed in 0.000s
+
+  Scenario: the table's bit number is 31 minus the block slot
+    Given the counters contract is importable ... passed in 0.000s
+    Then the IEEE table bit number for block offset 0 is 31 ... passed in 0.000s
+    And the IEEE table bit number for block offset 44 is 20 ... passed in 0.000s
+    And the IEEE table bit number for block offset 124 is 0 ... passed in 0.000s
+    And a block offset that is not quadlet aligned is refused ... passed in 0.000s
+
+  Scenario: the same numbering is what makes entity_capabilities bit 31 the value 1
+    Given the counters contract is importable ... passed in 0.000s
+    Then the table bit number 31 corresponds to wire mask 0x00000001 ... passed in 0.000s
+    And the table bit number 0 corresponds to wire mask 0x80000000 ... passed in 0.000s
+
+  Scenario: the two Stream Output layouts put the same name at different offsets
+    Given the counters contract is importable ... passed in 0.000s
+    Then in the Milan layout FRAMES_TX is at slot 4 ... passed in 0.000s
+    And in the IEEE layout FRAMES_TX is at slot 7 ... passed in 0.000s
+    And in the Milan layout MEDIA_RESET is at slot 2 ... passed in 0.000s
+    And in the IEEE layout MEDIA_RESET is at slot 3 ... passed in 0.000s
+    And decoding a Milan Stream Output block with the IEEE layout mislabels FRAMES_TX ... passed in 0.000s
+
+  Scenario: a claimed slot the layout cannot name is reported, not dropped
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload for descriptor 5 index 3 claiming mask 0x100F3F ... passed in 0.000s
+    When the contract decodes it as a Stream Input block ... passed in 0.000s
+    Then the decode reports claimed-but-unnamed slot 20 ... passed in 0.000s
+
+  Scenario: an unclaimed counter is ABSENT from the decode, never zero
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload for descriptor 5 index 0 claiming mask 0x001 ... passed in 0.000s
+    When the contract decodes it as a Stream Input block ... passed in 0.000s
+    Then the decode names only MEDIA_LOCKED ... passed in 0.000s
+
+  Scenario: a truncated counters payload is refused rather than half-decoded
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload truncated to 12 octets ... passed in 0.000s
+    Then decoding it raises ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.1 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 4 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.2 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 5 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.3 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 6 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.4 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 3 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario: the lock invariant also says WHICH state the stream is in
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 5 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant reports the stream synchronized ... passed in 0.000s
+    Given MEDIA_LOCKED 4 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant reports the stream not synchronized ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.1 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 3 ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.2 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 2 ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.3 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 1 ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.4 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 1 and STREAM_STOP 3 ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario: TV + TNV == FRAMES_RX holds under the 1722.1 per-frame reading
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 1000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1000 ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    And the reading in force is "1722.1-per-frame" ... passed in 0.000s
+
+  Scenario: one snapshot cannot distinguish coalesced publication from packet loss
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1 ... passed in 0.000s
+    Then the tv-tnv verdict is INFO ... passed in 0.000s
+    And the reading in force is "unequal-packet-totals" ... passed in 0.000s
+
+  Scenario: three accepted packets precede the first receive publication
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 0 ... passed in 0.000s
+    Then the tv-tnv verdict is INFO ... passed in 0.000s
+    And the reading in force is "unequal-packet-totals" ... passed in 0.000s
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 3 ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+
+  Scenario: FRAMES_RX above TV plus TNV violates the packet identity
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 5 TIMESTAMP_NOT_VALID 0 FRAMES_RX 99 ... passed in 0.000s
+    Then the tv-tnv verdict is FAIL ... passed in 0.000s
+
+  Scenario: an all-zero counter block cannot conclude which reading is in force
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 0 TIMESTAMP_NOT_VALID 0 FRAMES_RX 0 ... passed in 0.000s
+    Then the tv-tnv verdict is SKIP ... passed in 0.000s
+    And the tv-tnv skip says the block was reset at the bind ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.1 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 0 ... passed in 0.000s
+    Then the growth verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.2 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 296294 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.3 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 1 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.4 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 12 ... passed in 0.000s
+    Then the growth verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 5100000 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given SEQ_NUM_MISMATCH reads 3 then 4 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.7 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given EARLY_TIMESTAMP reads 9 then 0 ... passed in 0.000s
+    Then the growth verdict is INFO ... passed in 0.000s
+
+  Scenario: a counter the mask never claimed is a SKIP, not a clean growth pass
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT is not claimed by the mask ... passed in 0.000s
+    Then the growth verdict is SKIP ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.1 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 7995.7 per second ... passed in 0.000s
+    Then the rate is consistent with the per-frame reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.2 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 4000.0 per second ... passed in 0.000s
+    Then the rate is consistent with the per-frame reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.3 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 3999.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.4 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 200.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.5 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 1.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.6 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 0.4 per second ... passed in 0.000s
+    Then the rate is consistent with the neither reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.7 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 0.0 per second ... passed in 0.000s
+    Then the rate is consistent with the neither reading ... passed in 0.000s
+
+  Scenario: the legacy rate classifier reports the implied interval
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 200.0 per second ... passed in 0.000s
+    Then the implied observation interval is 0.005 seconds ... passed in 0.000s
+    And the rate is consistent with the interval reading ... passed in 0.000s
+    Given a measured frames rate of 0.4 per second ... passed in 0.000s
+    Then the implied observation interval is 2.5 seconds ... passed in 0.000s
+    And the reading refusal cites the 1 second ceiling ... passed in 0.000s
+
+  Scenario: every Stream Input counter has a stated update law, and there are three
+    Given the counters contract is importable ... passed in 0.000s
+    Then every Stream Input counter has an update law ... passed in 0.000s
+    And the update laws in use are "per-event, per-frame, per-interval" ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.1 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_LOCKED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.2 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_UNLOCKED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.3 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of STREAM_INTERRUPTED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.1 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of SEQ_NUM_MISMATCH is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.2 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_RESET is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.3 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_UNCERTAIN is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.4 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of UNSUPPORTED_FORMAT is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.5 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of LATE_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.6 the six observation-interval anomaly counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of EARLY_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @3.1 the three per-AVTPDU counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of FRAMES_RX is per-frame per IEEE 1722.1-2021 Table 7.157 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @3.2 the three per-AVTPDU counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_VALID is per-frame per IEEE 1722.1-2021 Table 7-157 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @3.3 the three per-AVTPDU counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_NOT_VALID is per-frame per IEEE 1722.1-2021 Table 7-157 ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.1 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for MEDIA_RESET mentions "'mr' bit was toggled" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.2 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for TIMESTAMP_UNCERTAIN mentions "'tu' bit was set" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.3 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for SEQ_NUM_MISMATCH mentions "non-sequential sequence_num" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.4 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for UNSUPPORTED_FORMAT mentions "did not match the current format" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.5 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for LATE_TIMESTAMP mentions "timestamp field that was in the past" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.6 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for EARLY_TIMESTAMP mentions "too far in the future" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.7 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for FRAMES_RX mentions "each Stream Data AVTPDU" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.8 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for TIMESTAMP_VALID mentions "tv bit set" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.9 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for MEDIA_LOCKED mentions "synchronized on the media clock" ... passed in 0.000s
+
+  Scenario: anomaly deltas have a packet-count sanity bound
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 30 in that window ... passed in 0.000s
+    And LATE_TIMESTAMP advanced by 2 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+
+  Scenario: an anomaly delta exceeding the packet delta is caught
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 240060 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is FAIL ... passed in 0.000s
+    And the interval-ceiling offender is TIMESTAMP_UNCERTAIN ... passed in 0.000s
+
+  Scenario: the two tv tallies use their separate packet identity check
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And LATE_TIMESTAMP advanced by 2 in that window ... passed in 0.000s
+    And TIMESTAMP_VALID advanced by 240060 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+
+  Scenario: a window with no frames cannot grade the packet bound
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 0 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 0 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is SKIP ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.1 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 30 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.2 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID advanced by 240060 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.3 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED advanced by 1 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-event ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.1 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID advanced by 30 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.2 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 15 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.3 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 240060 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @3.1 nothing measured is nothing concluded
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT advanced by 0 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is SKIP and the reading is static ... passed in 0.000s
+
+  Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX -- @1.1 the interval-rate packet counter fails the ruling
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 7545 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX -- @2.1 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_UNCERTAIN advanced by 23 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX -- @2.2 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP advanced by 74 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX -- @2.3 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given SEQ_NUM_MISMATCH advanced by 1 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario: more ticks than frames is impossible under every reading
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 900000 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is impossible ... passed in 0.000s
+
+  Scenario: interval-rate FRAMES_RX on a flowing stream is a FAIL
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 4 over 4 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario: every Stream Input and Stream Output index owes an answer, not just index 0
+    Given the counters contract is importable ... passed in 0.000s
+    Then the campaign plan asks for counters on every Stream Input index ... passed in 0.001s
+    And the campaign plan asks for counters on every Stream Output index ... passed in 0.000s
+    And the campaign plan includes the CRF Media Clock indices ... passed in 0.000s
+
+  Scenario: the CRF Media Clock Input is a Stream Input, so it owes the ten too
+    Given the counters contract is importable ... passed in 0.000s
+    Then the CRF Media Clock Input index is in the plan's listener coverage ... passed in 0.000s
+    And the mandatory mask required of it is 0xF3F ... passed in 0.000s
+
+  Scenario: a counter advertised in the mask must be a measurement, never a constant
+    Given the counters contract is importable ... passed in 0.000s
+    Then a counter is either claimed in the mask and measured, or claimed by neither ... passed in 0.000s
+    And the CRF Media Clock Input counters advertised as valid are all backed by a tally ... passed in 0.003s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @1.1 the per-event one among the five that were constant
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of STREAM_INTERRUPTED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-event law to STREAM_INTERRUPTED ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.1 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_RESET is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to MEDIA_RESET ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.2 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_UNCERTAIN is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to TIMESTAMP_UNCERTAIN ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.3 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of LATE_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to LATE_TIMESTAMP ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.4 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of EARLY_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to EARLY_TIMESTAMP ... passed in 0.000s
+
+  Scenario: the bind edge wipes all ten, and the unbind edge wipes none
+    Given the counters contract is importable ... passed in 0.000s
+    Then the CRF Media Clock Input zeroes all ten counters on the bind edge ... passed in 0.001s
+    And the CRF Media Clock Input era wipe fires on the bind edge only ... passed in 0.000s
+    And the CRF Media Clock Input bind edge drops media lock without scoring an unlock ... passed in 0.000s
+
+  Scenario: the per-stream window exposes the ten counters at the block offsets
+    Given the counters contract is importable ... passed in 0.000s
+    Then the register map documents A_STRMW_CNT0..9 as the ten Table 5.6 counters ... passed in 0.000s
+    And the register map warns that the flat views saturate ... passed in 0.002s
+
+1 feature passed, 0 failed, 0 skipped
+88 scenarios passed, 0 failed, 0 skipped
+276 steps passed, 0 failed, 0 skipped
+Took 0min 0.020s
