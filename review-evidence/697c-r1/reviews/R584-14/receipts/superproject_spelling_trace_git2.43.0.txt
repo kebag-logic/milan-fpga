@@ -1,0 +1,34 @@
+== S6-no-subsection-promisor-url-rewrite-ext (superproject .git/config remote/url/protocol sections)
+[remote]
+	promisor = true
+[url "ext::S6-no-subsection-promisor-url-rewrite-ext/extserver"]
+	insteadOf =
+[protocol "ext"]
+	allow = always
+[remote ""]
+	partialclonefilter = blob:none
+-- trace of: git -c core.fsmonitor=false ls-files --stage -- third_party/tsn-c-stack (helper environment + GIT_TRACE=1)
+git.c:463               trace: built-in: git ls-files --stage -- third_party/tsn-c-stack
+run-command.c:659       trace: run_command: git -c fetch.negotiationAlgorithm=noop fetch '' --no-tags --no-write-fetch-head --recurse-submodules=no --filter=blob:none --stdin
+git.c:463               trace: built-in: git fetch '' --no-tags --no-write-fetch-head --recurse-submodules=no --filter=blob:none --stdin
+run-command.c:659       trace: run_command: GIT_DIR=.git git remote-ext '' S6-no-subsection-promisor-url-rewrite-ext/extserver
+git.c:463               trace: built-in: git remote-ext '' S6-no-subsection-promisor-url-rewrite-ext/extserver
+run-command.c:659       trace: run_command: S6-no-subsection-promisor-url-rewrite-ext/extserver
+git.c:463               trace: built-in: git upload-pack S6-no-subsection-promisor-url-rewrite-ext/origin
+warning: filtering not recognized by server, ignoring
+error: Server does not allow request for unadvertised object 36a36d8dbbec842f84fcb65451337cc3e2e9e3dc
+run-command.c:659       trace: run_command: git maintenance run --auto --no-quiet
+git.c:463               trace: built-in: git maintenance run --auto --no-quiet
+error: Could not read 36a36d8dbbec842f84fcb65451337cc3e2e9e3dc
+-- ran: S6-no-subsection-promisor-url-rewrite-ext/extserver 
+== S8-no-subsection-promisor-url-rewrite-file (superproject .git/config remote/url/protocol sections)
+[remote]
+	promisor = true
+[url "S8-no-subsection-promisor-url-rewrite-file/origin"]
+	insteadOf =
+[remote ""]
+	partialclonefilter = blob:none
+-- trace of: git -c core.fsmonitor=false ls-files --stage -- third_party/tsn-c-stack (helper environment + GIT_TRACE=1)
+git.c:463               trace: built-in: git ls-files --stage -- third_party/tsn-c-stack
+405dc68310a18f669049ffc10cc23eef7300dcff 0	third_party/tsn-c-stack
+-- ran: 
