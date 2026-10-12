@@ -1,0 +1,11 @@
+[A605] STOP
+Head: c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+Branch: 726-stream-counters
+
+The assignment's submodule STOP condition applies. The processor scheduler at `protocol-processor/hdl/aecp/KL_aecp_notify.sv:1100` waits 1000 ms from a descriptor's stamp; line 1449 advances that stamp through the round's latest recipient. Adding upstream dirty events cannot change this eligibility policy.
+
+Isolated simulation of the unchanged scheduler, at the configured 50 MHz clock, registered two controllers and continuously signaled every descriptor. A single 2 ms completion delay produced maximum gaps of 1001.99978 ms with two inputs/two outputs and 1002.00042 ms with nine inputs/nine outputs. Both builds and probes completed with rc 0, meaning the defect was reproduced. These are scheduler completion-interface measurements with modeled downstream service, not full AECP wire or physical-link acceptance. Fixed one-second bins each contained one completion per descriptor/recipient, despite the longer maximum gaps.
+
+Source inspection also found the routine refresh suppression in `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:963` and `:1004`, plus `hdl/ieee1722/crf/KL_crf_rx.sv:497`. CRF FRAMES_RX still increments per interval at line 486. TX FRAMES_TX retains the interval increment at `hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:237`.
+
+No repository or submodule files changed; no new commits. `git diff --check` returned 0 and both checkouts are clean. No image build, firmware change, capture, or bench action occurred. HANDOFF.md, PR-BODY.md, per-descriptor measurements, the isolated reproduction source/recipe, and artifact hashes are in the assigned output directory. PR-BODY.md uses Relates to #726. All unperformed acceptance checks, standing mutations, area measurements, and full-path before/after measurements remain explicitly outstanding. A separately authorized processor dependency is required before resuming implementation.

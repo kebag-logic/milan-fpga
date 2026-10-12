@@ -1,0 +1,19 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Mon Oct 12 17:58:49 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $VALIDATION_STORAGE/726-a605/report_route_area.tcl
+# set_param general.maxThreads 1
+# read_checkpoint {$VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_route.dcp}
+Command: read_checkpoint $VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_route.dcp
+read_checkpoint: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1649.152 ; gain = 210.809 ; free physical = 11713 ; free virtual = 61645
+# report_utilization -file {$VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_utilization_route.rpt}
+ERROR: [Common 17-53] User Exception: No open design. Please open an elaborated, synthesized or implemented design before executing this command.
+INFO: [Common 17-206] Exiting Vivado at Mon Oct 12 17:58:58 2026...

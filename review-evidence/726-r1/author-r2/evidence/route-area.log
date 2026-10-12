@@ -1,0 +1,63 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Mon Oct 12 17:59:43 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $VALIDATION_STORAGE/726-a605/report_route_area.tcl
+# set_param general.maxThreads 1
+# open_checkpoint {$VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_route.dcp}
+Command: open_checkpoint $VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 1448.281 ; gain = 7.938 ; free physical = 10161 ; free virtual = 60388
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.27 . Memory (MB): peak = 1953.113 ; gain = 0.000 ; free physical = 11316 ; free virtual = 60789
+INFO: [Netlist 29-17] Analyzing 5875 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.15 ; elapsed = 00:00:00.16 . Memory (MB): peak = 2112.207 ; gain = 0.000 ; free physical = 13048 ; free virtual = 60637
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2755.684 ; gain = 7.828 ; free physical = 11216 ; free virtual = 59104
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2756.684 ; gain = 1.000 ; free physical = 11221 ; free virtual = 59108
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2756.684 ; gain = 0.000 ; free physical = 11222 ; free virtual = 59110
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2833.973 ; gain = 77.289 ; free physical = 11298 ; free virtual = 59235
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2833.973 ; gain = 0.000 ; free physical = 11276 ; free virtual = 59213
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2857.973 ; gain = 24.000 ; free physical = 10638 ; free virtual = 58605
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2857.973 ; gain = 110.117 ; free physical = 10665 ; free virtual = 58636
+Restored from archive | CPU: 2.940000 secs | Memory: 84.659035 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2857.973 ; gain = 110.117 ; free physical = 10692 ; free virtual = 58663
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2887.699 ; gain = 0.000 ; free physical = 11040 ; free virtual = 59023
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1278 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 25 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 687 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 31 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:25 ; elapsed = 00:00:27 . Memory (MB): peak = 2895.734 ; gain = 1460.359 ; free physical = 10851 ; free virtual = 58842
+# report_utilization -file {$VALIDATION_STORAGE/726-a605/image/gateware/alinx_ax7101_utilization_route.rpt}
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Oct 12 18:00:13 2026...

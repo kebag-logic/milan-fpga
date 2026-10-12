@@ -1,0 +1,50 @@
+check	cwd	command	rc	seconds	peak_memory_bytes
+capture-guard	.	python3 scripts/check_nvm_capture.py	0	0.917	1875255296
+f1-behave	tests	python3 -m behave --no-capture -f plain	0	2.069	386813952
+f1-era-controls-final	.	python3 SCRATCH/review-round2/era_controls.py CHECKOUT	0	0.165	0
+f1-era-controls	.	python3 SCRATCH/review-round2/era_controls.py CHECKOUT	0	0.215	0
+f1-review-repro-final	.	python3 SCRATCH/review-round2/reproduce_contract.py CHECKOUT	0	0.465	0
+f1-review-repro	.	python3 SCRATCH/review-round2/reproduce_contract.py CHECKOUT	0	0.465	0
+f2-aaf-reset	.	python3 tb/verilator/milan_dp/stream_counters.py --variant aaf-reset --work SCRATCH/plant-aaf-reset	0	97.259	11298734080
+f2-before-1	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --variant before --work SCRATCH/standing-before-1	0	68.745	2495287296
+f2-before-8	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --variant before --work SCRATCH/standing-before-8	0	88.609	4422832128
+f2-clean-1	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work SCRATCH/standing-clean-1	0	66.203	3392753664
+f2-clean-8	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --work SCRATCH/standing-clean-8	0	87.207	3995344896
+f2-crf-reset	.	python3 tb/verilator/milan_dp/stream_counters.py --variant crf-reset --work SCRATCH/plant-crf-reset	0	94.545	5324623872
+f2-frames-1	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --output-condition frames-only --work SCRATCH/review-round2/frames-1	0	67.402	2959138816
+f2-frames-8	.	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --output-condition frames-only --work SCRATCH/review-round2/frames-8	0	85.388	3392753664
+f2-late	.	python3 tb/verilator/milan_dp/stream_counters.py --variant late --work SCRATCH/plant-late	0	94.547	4480229376
+f2-rate	.	python3 tb/verilator/milan_dp/stream_counters.py --variant rate --work SCRATCH/plant-rate	0	94.296	4620525568
+f2-rx-interval	.	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-interval --work SCRATCH/plant-rx-interval	0	94.107	4427026432
+f2-rx-saturation	.	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-saturation --work SCRATCH/plant-rx-saturation	0	96.997	11253886976
+f2-tx-interval	.	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-interval --work SCRATCH/plant-tx-interval	0	92.336	3992199168
+f2-tx-nodirty	.	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-nodirty --work SCRATCH/review-round2/tx-nodirty	0	97.412	2959138816
+f2-tx-reset	.	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-reset --work SCRATCH/plant-tx-reset	0	95.204	5303623680
+f3-docs	.	python3 scripts/docs_check.py	0	5.326	811356160
+f3-emdash-committed	.	python3 scripts/check_em_dash.py --base c6bd08c6	0	3.474	3335696384
+f3-emdash	.	python3 scripts/check_em_dash.py --base c6bd08c6	0	4.177	791371776
+f3-paths	.	python3 scripts/check_doc_paths.py	0	0.114	0
+f3-style	.	python3 scripts/check_doc_style.py	0	0.114	0
+f3-toc	.	python3 scripts/gen_toc.py --check	0	6.231	818233344
+f4-behave-final	tests	python3 -m behave --no-capture -f plain	0	1.667	5251096576
+f4-behave	tests	python3 -m behave --no-capture -f plain	0	1.668	796299264
+f4-grader-final	.	python3 tb/tools/torture_campaign.py --self-test	0	0.566	5207142400
+f4-grader	.	python3 tb/tools/torture_campaign.py --self-test	0	0.565	784150528
+f4-law-controls-final	.	python3 SCRATCH/review-round2/law_controls.py CHECKOUT	0	0.164	0
+f4-law-controls	.	python3 SCRATCH/review-round2/law_controls.py CHECKOUT	0	0.164	0
+f5-clean-1	.	python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 1 --work SCRATCH/f5-1	0	18.66	5303820288
+f5-clean-8	.	python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 8 --work SCRATCH/f5-8	0	18.402	3507245056
+f5-late	.	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant late --work SCRATCH/f5-late	0	18.252	3552227328
+f5-rate	.	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant rate --work SCRATCH/f5-rate	0	19.906	3635306496
+final-diff	.	git diff --check c6bd08c6 HEAD	0	0.032	0
+final-docs	.	python3 scripts/docs_check.py	0	4.522	3231522816
+final-emdash	.	python3 scripts/check_em_dash.py --base c6bd08c6	0	3.876	3618316288
+final-lint	.	python3 scripts/lint_rtl.py --check	0	7.124	11283472384
+final-paths	.	python3 scripts/check_doc_paths.py	0	0.114	0
+final-style	.	python3 scripts/check_doc_style.py	0	0.064	0
+final-toc	.	python3 scripts/gen_toc.py --check	0	5.323	3238604800
+head-behave	tests	python3 -m behave --no-capture -f plain	0	1.717	3630084096
+source-pp	.	python3 scripts/pp_srcs.py --check --selftest	0	0.265	0
+source-rtl-selftest	.	python3 scripts/check_rtl_source_lists.py --selftest	0	3.171	1886724096
+source-rtl	.	python3 scripts/check_rtl_source_lists.py	0	1.667	1882324992
+source-soc	.	python3 scripts/check_soc_sources.py	0	0.165	0
