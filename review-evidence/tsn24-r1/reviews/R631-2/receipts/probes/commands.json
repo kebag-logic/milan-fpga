@@ -1,0 +1,32 @@
+[
+  {
+    "name": "escape-probe",
+    "argv": [
+      "python3",
+      "${PACKET}/scripts/escape_probe.py",
+      "--tree",
+      "${SCRATCH}/tree",
+      "--work",
+      "${SCRATCH}/escape",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 144.645
+  },
+  {
+    "name": "physical-removal",
+    "argv": [
+      "python3",
+      "${PACKET}/scripts/physical_removal.py",
+      "--tree",
+      "${SCRATCH}/tree",
+      "--work",
+      "${SCRATCH}/physical-0",
+      "--plants",
+      "x-zero-never-expires,dafresh-half-range,dafresh-unanswered-clock,dafresh-expiry-equality,dafresh-inclusive-edge,dafresh-no-renewal,dafresh-listener-needs-probe,dafresh-ignore-address,dafresh-absolute-clock,dafresh-fixed-window,dafresh-refused-answer,dafresh-only-success,dafresh-state-reply-demand,dafresh-wrong-source,dafresh-wrong-interface,dafresh-reset-retains-demand"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 61.799
+  }
+]

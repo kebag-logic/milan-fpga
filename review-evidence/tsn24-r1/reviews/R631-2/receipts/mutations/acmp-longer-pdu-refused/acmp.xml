@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:20.526" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:20.526">
+    <testcase name="A21MalformedFramesAreCounted" file="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp" line="1039" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:20.526" classname="AcmpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1055&#x0A;Expected equality of these values:&#x0A;  a.sinks[0].state&#x0A;    Which is: 0&#x0A;  ACMP_PRB_W_RESP&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1055
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 0
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

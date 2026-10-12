@@ -1,0 +1,13 @@
+[
+  {
+    "name": "rtl-talker",
+    "cwd": "${SCRATCH}/processor/tb/acmp_talker",
+    "argv": [
+      "make",
+      "-j16",
+      "run",
+      "VERILATOR=${RTL_SIMULATOR}",
+      "VFLAGS=--cc --exe --build -j 4 --top-module KL_acmp_talker -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -Wall -Wextra\""
+    ]
+  }
+]

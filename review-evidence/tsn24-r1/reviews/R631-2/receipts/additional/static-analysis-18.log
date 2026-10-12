@@ -1,0 +1,126 @@
+Checking examples/adp_port.c ...
+1/11 files checked 2% done
+Checking examples/entities/ax7101/entity_config.c ...
+Checking examples/entities/ax7101/entity_config.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+2/11 files checked 4% done
+Checking examples/entities/duplex/entity_config.c ...
+Checking examples/entities/duplex/entity_config.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+3/11 files checked 7% done
+Checking examples/entities/listener/entity_config.c ...
+Checking examples/entities/listener/entity_config.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+4/11 files checked 9% done
+Checking examples/entities/talker/entity_config.c ...
+Checking examples/entities/talker/entity_config.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+5/11 files checked 11% done
+Checking examples/entity_roundtrip.c ...
+Checking examples/entity_roundtrip.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+6/11 files checked 23% done
+Checking examples/rv32/runtime.c ...
+7/11 files checked 24% done
+Checking examples/rv32/smoke.c ...
+Checking examples/rv32/smoke.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+8/11 files checked 37% done
+Checking src/acmp.c ...
+Checking src/acmp.c: CTRL_REENTRY_ASSERT=CTRL_REENTRY_ASSERT...
+9/11 files checked 79% done
+Checking src/adp.c ...
+10/11 files checked 90% done
+Checking src/maap.c ...
+11/11 files checked 100% done
+326 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/adp_port.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+261 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/entities/ax7101/entity_config.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 261 warnings (261 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+261 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/entities/duplex/entity_config.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 261 warnings (261 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+261 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/entities/listener/entity_config.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 261 warnings (261 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+261 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/entities/talker/entity_config.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 261 warnings (261 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+326 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/entity_roundtrip.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+326 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/rv32/runtime.c.
+/usr/include/string.h:37:10: error: 'stddef.h' file not found [clang-diagnostic-error]
+   37 | #include <stddef.h>
+      |          ^~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+327 warnings and 1 error generated.
+Error while processing ${SOURCE}/examples/rv32/smoke.c.
+${SOURCE}/examples/rv32/smoke.c:208:25: error: repeated branch body in conditional chain [bugprone-branch-clone,-warnings-as-errors]
+  208 |     if (frame[15] == 7) {
+      |                         ^
+${SOURCE}/examples/rv32/smoke.c:210:6: note: end of the original
+  210 |     } else if (frame[15] == 9) {
+      |      ^
+${SOURCE}/examples/rv32/smoke.c:210:32: note: clone 1 starts here
+  210 |     } else if (frame[15] == 9) {
+      |                                ^
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+1 warning treated as error
+326 warnings and 1 error generated.
+Error while processing ${SOURCE}/src/acmp.c.
+include/acmp.h:149:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+  149 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+328 warnings and 1 error generated.
+Error while processing ${SOURCE}/src/adp.c.
+include/adp.h:69:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+   69 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 328 warnings (328 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).
+326 warnings and 1 error generated.
+Error while processing ${SOURCE}/src/maap.c.
+include/maap.h:9:10: error: 'stdbool.h' file not found [clang-diagnostic-error]
+    9 | #include <stdbool.h>
+      |          ^~~~~~~~~~~
+Suppressed 326 warnings (326 in non-user code).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Found compiler error(s).

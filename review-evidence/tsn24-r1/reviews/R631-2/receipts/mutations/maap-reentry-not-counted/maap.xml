@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:33.991" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:33.991">
+    <testcase name="ReentrantPortsAreCountedAndIgnored" file="${SCRATCH}/validation/mutations/baseline/tests/test_maap.cpp" line="394" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:33.991" classname="MaapCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_maap.cpp:396&#x0A;Expected equality of these values:&#x0A;  r.core.reentries&#x0A;    Which is: 0&#x0A;  6u&#x0A;    Which is: 6&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;all input guards fire&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_maap.cpp:396
+Expected equality of these values:
+  r.core.reentries
+    Which is: 0
+  6u
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+all input guards fire
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

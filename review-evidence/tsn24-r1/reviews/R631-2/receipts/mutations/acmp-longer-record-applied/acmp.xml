@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:27.011" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:27.011">
+    <testcase name="A24UnboundRecordsRefusalsAndRollback" file="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp" line="1416" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:27.011" classname="AcmpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427&#x0A;Expected equality of these values:&#x0A;  acmp_restore_binding(&amp;a, 0, record, len)&#x0A;    Which is: 0&#x0A;  ACMP_RESTORE_REFUSED&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427&#x0A;Expected equality of these values:&#x0A;  acmp_restore_binding(&amp;a, 0, record, len)&#x0A;    Which is: 0&#x0A;  ACMP_RESTORE_REFUSED&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A24 a payload of 276 bytes is refused, the longer ones too, before a byte is read&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A24 a payload of 276 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427&#x0A;Expected equality of these values:&#x0A;  acmp_restore_binding(&amp;a, 0, record, len)&#x0A;    Which is: 0&#x0A;  ACMP_RESTORE_REFUSED&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A24 a payload of 4294967295 bytes is refused, the longer ones too, before a byte is read&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:1427
+Expected equality of these values:
+  acmp_restore_binding(&a, 0, record, len)
+    Which is: 0
+  ACMP_RESTORE_REFUSED
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A24 a payload of 4294967295 bytes is refused, the longer ones too, before a byte is read
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

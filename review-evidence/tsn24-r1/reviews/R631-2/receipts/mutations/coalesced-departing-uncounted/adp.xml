@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.003" timestamp="2026-10-12T18:26:01.695" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.003" timestamp="2026-10-12T18:26:01.695">
+    <testcase name="A21DepartingCapacity" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="581" status="run" result="completed" time="0.003" timestamp="2026-10-12T18:26:01.695" classname="AdpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:442&#x0A;Value of: a.departing_owed == 2u &amp;&amp; a.departing_index == 1u &amp;&amp; a.departing_coalesced == 1u &amp;&amp; !a.available_owed &amp;&amp; a.state == ADP_STATE_DOWN &amp;&amp; fk.sends == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A21 the next SHUTDOWN is coalesced into the queued one and counted; its run&apos;s owed AVAILABLE is dropped&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:442
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 1u && !a.available_owed && a.state == ADP_STATE_DOWN && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:449&#x0A;Value of: a.departing_owed == 2u &amp;&amp; a.departing_index == 1u &amp;&amp; a.departing_coalesced == 100001u &amp;&amp; fk.sends == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A21 and so are 100000 more, each counted, the two owed unchanged&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:449
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 100001u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A21 and so are 100000 more, each counted, the two owed unchanged
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

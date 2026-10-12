@@ -1,0 +1,85 @@
+{
+  "independent_verdict_written_before_prior_findings_read": true,
+  "prior_comment_ids": [
+    6127564342,
+    6127654574
+  ],
+  "submitted_reviews": 0,
+  "inline_reviews": 0,
+  "resolutions": [
+    {
+      "id": "R630-1-F1",
+      "prior_severity": "MAJOR",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": "complete-suites/results.json: 17 complete 418-to-417 physical-removal proofs; corrected PR body"
+    },
+    {
+      "id": "R630-1-F2",
+      "prior_severity": "MINOR",
+      "lenses": [
+        "Tests",
+        "Robustness"
+      ],
+      "status": "RESOLVED",
+      "evidence": "ZeroWindow, WindowRange; x-zero-never-expires and dafresh-half-range caught and single-removal escapes"
+    },
+    {
+      "id": "R630-1-R1",
+      "prior_severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": "docs/PORTING.md:336 exact requested acceptance-point attribution"
+    },
+    {
+      "id": "R631-D01",
+      "prior_severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": "docs/ENTITY_YAML.md:139-149 lists all four plants, as Round 2 ruling requires"
+    },
+    {
+      "id": "R630-1-S1",
+      "prior_severity": "SUGGESTION",
+      "lenses": [
+        "Robustness"
+      ],
+      "status": "RETAINED",
+      "evidence": "p_send source index follows checked response construction; optional explicit bound remains absent"
+    },
+    {
+      "id": "R630-1-S2",
+      "prior_severity": "SUGGESTION",
+      "lenses": [
+        "RTL"
+      ],
+      "status": "RETAINED",
+      "evidence": "RTL transaction commit versus C accepted response timing remains a documented review limit"
+    },
+    {
+      "id": "R630-1-S3",
+      "prior_severity": "SUGGESTION",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "PARTLY RESOLVED; REMAINDER RETAINED",
+      "evidence": "field table added at PORTING.md:246; optional CHANGELOG note not added"
+    },
+    {
+      "id": "R630-1-S4",
+      "prior_severity": "SUGGESTION",
+      "lenses": [
+        "Tests"
+      ],
+      "status": "RESOLVED",
+      "evidence": "examples/entity_roundtrip.c:21,222 uses dedicated now field"
+    }
+  ]
+}

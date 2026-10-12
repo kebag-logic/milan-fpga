@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="5" failures="5" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:40.240" name="AllTests">
+  <testsuite name="AllStates/AdpInputControl" tests="5" failures="5" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:40.240">
+    <testcase name="RejectsWrongControlDataLength/0" value_param="0" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="770" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:40.240" classname="AllStates/AdpInputControl">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727&#x0A;Expected equality of these values:&#x0A;  a-&gt;discarded&#x0A;    Which is: 0&#x0A;  expected.discarded&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery increments discarded exactly once&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a, &amp;expected, sizeof expected)&#x0A;    Which is: -1&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery preserves all other core storage&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+    <testcase name="RejectsWrongControlDataLength/1" value_param="1" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="770" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:40.240" classname="AllStates/AdpInputControl">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727&#x0A;Expected equality of these values:&#x0A;  a-&gt;discarded&#x0A;    Which is: 0&#x0A;  expected.discarded&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery increments discarded exactly once&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a, &amp;expected, sizeof expected)&#x0A;    Which is: -1&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery preserves all other core storage&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+    <testcase name="RejectsWrongControlDataLength/2" value_param="2" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="770" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:40.240" classname="AllStates/AdpInputControl">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727&#x0A;Expected equality of these values:&#x0A;  a-&gt;discarded&#x0A;    Which is: 0&#x0A;  expected.discarded&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery increments discarded exactly once&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a, &amp;expected, sizeof expected)&#x0A;    Which is: -1&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery preserves all other core storage&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+    <testcase name="RejectsWrongControlDataLength/3" value_param="3" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="770" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:40.240" classname="AllStates/AdpInputControl">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727&#x0A;Expected equality of these values:&#x0A;  a-&gt;discarded&#x0A;    Which is: 0&#x0A;  expected.discarded&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery increments discarded exactly once&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a, &amp;expected, sizeof expected)&#x0A;    Which is: -1&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery preserves all other core storage&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+    <testcase name="RejectsWrongControlDataLength/4" value_param="4" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="770" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:40.240" classname="AllStates/AdpInputControl">
+      <failure message="unknown file&#x0A;Uninteresting mock function call - returning directly.&#x0A;    Function call: Stop()&#x0A;" type=""><![CDATA[unknown file
+Uninteresting mock function call - returning directly.
+    Function call: Stop()
+]]></failure>
+      <failure message="unknown file&#x0A;Uninteresting mock function call - returning directly.&#x0A;    Function call: Start(3969)&#x0A;" type=""><![CDATA[unknown file
+Uninteresting mock function call - returning directly.
+    Function call: Start(3969)
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727&#x0A;Expected equality of these values:&#x0A;  a-&gt;discarded&#x0A;    Which is: 0&#x0A;  expected.discarded&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery increments discarded exactly once&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:727
+Expected equality of these values:
+  a->discarded
+    Which is: 0
+  expected.discarded
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a, &amp;expected, sizeof expected)&#x0A;    Which is: -1&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;malformed discovery preserves all other core storage&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:728
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

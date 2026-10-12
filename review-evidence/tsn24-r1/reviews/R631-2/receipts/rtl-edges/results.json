@@ -1,0 +1,17 @@
+{
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "cases": [
+    {
+      "age_ms": 14999,
+      "rc": 2,
+      "expected": "open; deliberately expecting closure is rejected",
+      "verified": true
+    },
+    {
+      "age_ms": 15000,
+      "rc": 0,
+      "expected": "closed",
+      "verified": true
+    }
+  ]
+}

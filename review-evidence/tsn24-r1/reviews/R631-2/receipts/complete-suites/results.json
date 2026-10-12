@@ -1,0 +1,461 @@
+[
+  {
+    "plant": "x-zero-never-expires",
+    "killer": "AcmpFresh.ZeroWindow",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "2e35b72be5e0c13071f4aadc2fd2b642f0a753575e5e02aba649786f711c751f",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-half-range",
+    "killer": "AcmpFresh.WindowRange",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WindowRange"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WindowRange"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "c9ce2a1359ba337aa57965b5ea6172bd7231f8223d943d429853d500fb0bdb9b",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-unanswered-clock",
+    "killer": "AcmpFresh.NoProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.NoProbe"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.NoProbe"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "f1c9fdf015813cb47b38e9742d8cb29154c4d9540314932774fd5886e3c76b44",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-expiry-equality",
+    "killer": "AcmpFresh.StaleProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "1ec3ee5a4fff71b29f14ea7bf1171914d2d0773678552c5016877a587a922676",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-inclusive-edge",
+    "killer": "AcmpFresh.WindowEdge",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "059f24877f1fffd901cc8c2ee52cf6fa8f6ceab54d05eb395589d6313d5343ba",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-no-renewal",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "820bb24e607c81f1d1f6ba3d3e33d654dc80cf296faae51edb4bb737299cdd11",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-listener-needs-probe",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "55653310196983ae4c0317797b98abfc5edd3f5c1df222f7964270a11bef84de",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-ignore-address",
+    "killer": "AcmpFresh.InvalidAddress",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "da93f5aaae639bbfbd5a99fd82c3a5c6340c5055b5000d107db10226fdbbc33a",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-absolute-clock",
+    "killer": "AcmpFresh.ClockWrap",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "2ce57d32bc8b10356fb70bc54536d627b30e6459fc1a2ba1f4982fd6076d6447",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-fixed-window",
+    "killer": "AcmpFresh.ConfiguredWindow",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "2f6a2d01c8000d382c3501d70c42c01c3c9e11cc91e482579945a6b7e0fd6f02",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-refused-answer",
+    "killer": "AcmpFresh.DeferredAnswer",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "ffc6fafb89db0b28f49a6694d6a07e151ebb472f20c4024b483fe0865e188157",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-only-success",
+    "killer": "AcmpFresh.FailedAllocationAnswer",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "23480af277c27d2736b4e72a1497c7cf219078cc39f9978ea70c830f0d355dda",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-state-reply-demand",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "65dbfd6d59c459d550d551ade06289e96c2ede3cce882d8e3fb03eb2806bbd1a",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-wrong-source",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "4e8395a592f3322d6bbea3dd406b07ab97434514ee6a508bc07ecc91f42b58e7",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-wrong-interface",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "6271380504e137390af5c93022d23a1acc331ba86c46f34e3489e42ecbb4ebc6",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-reset-retains-demand",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "full_source_edits": [
+      "src/acmp.c"
+    ],
+    "removed_source_edits": [
+      "src/acmp.c",
+      "tests/test_acmp.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "52a3dcf748a6b8967eecfea319fa1d78c6009bceeffcc88fe83e0edc3412a366",
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-generated-window",
+    "killer": "EntityYaml.DaFreshRoundTrip",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "needle_verified": true,
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "full_source_edits": [
+      "examples/entities/talker/entity_config.c"
+    ],
+    "removed_source_edits": [
+      "examples/entities/talker/entity_config.c",
+      "tests/test_entity.cpp"
+    ],
+    "snapshot_files_checked": 98,
+    "mutant_sha256": "8728036b120baa0d91cba86b7effef2e58be2c9254aebe15e1483311ca7dbbb6",
+    "escapes": true
+  }
+]

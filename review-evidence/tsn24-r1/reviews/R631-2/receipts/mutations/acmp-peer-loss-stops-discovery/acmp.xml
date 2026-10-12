@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:36.740" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:36.740">
+    <testcase name="DepartingRetainsBindingAndReprobes" file="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp" line="1282" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:36.740" classname="AcmpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:174&#x0A;Value of: a.sinks[0].discovered &amp;&amp; a.sinks[0].state == ACMP_PRB_W_DELAY &amp;&amp; a.sinks[0].timer == ACMP_TIMER_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;returning talker remains discoverable and starts a fresh probe delay&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:174
+Value of: a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+returning talker remains discoverable and starts a fresh probe delay
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+    <testcase name="AdpTimeoutRetainsBindingAndReprobes" file="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp" line="1287" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:36.740" classname="AcmpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:174&#x0A;Value of: a.sinks[0].discovered &amp;&amp; a.sinks[0].state == ACMP_PRB_W_DELAY &amp;&amp; a.sinks[0].timer == ACMP_TIMER_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;returning talker remains discoverable and starts a fresh probe delay&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:174
+Value of: a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+returning talker remains discoverable and starts a fresh probe delay
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

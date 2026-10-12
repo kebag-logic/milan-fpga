@@ -1,0 +1,95 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: ${SCRATCH}/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: ${SCRATCH}/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (1.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: ${SCRATCH}/physical-0/dafresh-refused-answer/b
+[  2%] Building C object CMakeFiles/entity_examples.dir/examples/entity_roundtrip.c.o
+[  4%] Building C object CMakeFiles/tsn.dir/src/adp.c.o
+[  6%] Building C object CMakeFiles/entity_examples.dir/examples/entities/listener/entity_config.c.o
+[  9%] Building C object CMakeFiles/tsn.dir/src/acmp.c.o
+[ 11%] Building C object CMakeFiles/entity_examples.dir/examples/entities/talker/entity_config.c.o
+[ 13%] Building C object CMakeFiles/entity_examples.dir/examples/entities/duplex/entity_config.c.o
+[ 16%] Building C object CMakeFiles/tsn.dir/src/maap.c.o
+[ 18%] Building C object CMakeFiles/entity_examples.dir/examples/entities/ax7101/entity_config.c.o
+[ 20%] Linking C static library libtsn.a
+[ 23%] Linking C static library libentity_examples.a
+[ 23%] Built target tsn
+[ 23%] Built target entity_examples
+[ 25%] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[ 27%] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[ 30%] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[ 32%] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[ 34%] Linking C static library libtsn_debug.a
+[ 37%] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[ 37%] Built target tsn_debug
+[ 39%] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[ 41%] Linking C static library libtsn_test.a
+[ 41%] Built target tsn_test
+[ 44%] Building CXX object CMakeFiles/maap_debug.dir/tests/test_maap_debug.cpp.o
+[ 46%] Building CXX object CMakeFiles/maap_debug.dir/tests/main.cpp.o
+[ 48%] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[ 51%] Linking CXX executable maap_debug
+[ 51%] Built target maap_debug
+[ 53%] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[ 55%] Linking CXX executable adp_debug
+[ 55%] Built target adp_debug
+[ 58%] Building CXX object CMakeFiles/acmp_tests.dir/tests/test_acmp.cpp.o
+[ 60%] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[ 62%] Linking CXX executable adp_tests
+[ 62%] Built target adp_tests
+[ 65%] Building CXX object CMakeFiles/maap_tests.dir/tests/test_maap.cpp.o
+[ 67%] Building CXX object CMakeFiles/acmp_tests.dir/tests/main.cpp.o
+[ 69%] Building CXX object CMakeFiles/maap_tests.dir/tests/main.cpp.o
+[ 72%] Linking CXX executable acmp_tests
+[ 72%] Built target acmp_tests
+[ 74%] Building CXX object CMakeFiles/entity_tests.dir/tests/test_entity.cpp.o
+[ 76%] Linking CXX executable maap_tests
+[ 76%] Built target maap_tests
+[ 79%] Building C object CMakeFiles/example_port.dir/examples/adp_port.c.o
+[ 81%] Building CXX object CMakeFiles/entity_tests.dir/tests/main.cpp.o
+[ 83%] Linking C static library libexample_port.a
+[ 83%] Built target example_port
+[ 86%] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[ 88%] Linking CXX executable entity_tests
+[ 90%] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[ 90%] Built target entity_tests
+[ 93%] Building CXX object CMakeFiles/port_tests.dir/tests/test_port.cpp.o
+[ 95%] Building CXX object CMakeFiles/port_tests.dir/tests/main.cpp.o
+[ 97%] Linking CXX executable adp_release
+[ 97%] Built target adp_release
+[100%] Linking CXX executable port_tests
+[100%] Built target port_tests
+Test project ${SCRATCH}/physical-0/dafresh-refused-answer/b
+    Start 1: adp_tests
+    Start 2: acmp_tests
+1/8 Test #2: acmp_tests .......................   Passed    0.00 sec
+    Start 3: maap_tests
+2/8 Test #3: maap_tests .......................   Passed    0.02 sec
+    Start 4: entity_tests
+3/8 Test #1: adp_tests ........................   Passed    0.03 sec
+    Start 5: port_tests
+4/8 Test #4: entity_tests .....................   Passed    0.00 sec
+    Start 6: adp_release
+5/8 Test #5: port_tests .......................   Passed    0.00 sec
+    Start 7: adp_debug
+6/8 Test #6: adp_release ......................   Passed    0.00 sec
+    Start 8: maap_debug
+7/8 Test #7: adp_debug ........................   Passed    0.09 sec
+8/8 Test #8: maap_debug .......................   Passed    0.17 sec
+
+100% tests passed out of 8
+
+Total Test time (real) =   0.21 sec

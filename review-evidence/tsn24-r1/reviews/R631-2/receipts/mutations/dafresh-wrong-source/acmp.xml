@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:41.219" name="AllTests">
+  <testsuite name="AcmpFresh" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:41.219">
+    <testcase name="SourceAndInterfaceIsolation" file="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp" line="2432" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:41.219" classname="AcmpFresh">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2434&#x0A;Value of: acmp_declaring(&amp;a, 0)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;a probe on the second source leaves the first source closed&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2434
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+a probe on the second source leaves the first source closed
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2435&#x0A;Value of: acmp_declaring(&amp;a, 1)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;the probed source declares on its configured interface&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2435
+Value of: acmp_declaring(&a, 1)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+the probed source declares on its configured interface
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2437&#x0A;Value of: acmp_declaring(&amp;a, 0)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;Listener demand does not leak into another source&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_acmp.cpp:2437
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+Listener demand does not leak into another source
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

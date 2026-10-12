@@ -1,0 +1,1838 @@
+{
+  "snapshot_files_verified": 98,
+  "hosted_gates_verified": 28,
+  "hosted_mutations_regraded": 365,
+  "named_assertions_verified": 394,
+  "published_complete_suite_proofs_regraded": 17,
+  "complete_binaries": 8,
+  "complete_tests": 418,
+  "removed_tests": 417,
+  "errors": [],
+  "mutations": [
+    {
+      "plant": "reentry-guard-removed",
+      "xml_files": 2,
+      "named_assertions_verified": 4
+    },
+    {
+      "plant": "reentry-uncounted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "reentry-not-ignored",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "departing-keeps-index",
+      "xml_files": 2,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "departing-sends-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "available-replaces-owed-departing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "available-passes-owed-departing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "second-departing-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "second-shutdown-overwrites-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "link-loss-drops-owed-departing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "gm-change-drops-owed-available",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "discover-drops-owed-available",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "stray-expiry-drops-owed-available",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "link-loss-keeps-owed-available",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "departing-queue-unbounded",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "coalesced-departing-uncounted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "coalesce-drops-queued-departing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "coalesce-overwrites-oldest-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "own-discover-discarded",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "down-answers-discover",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "link-down-departs",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "gm-change-ignored",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "delay-ignores-link-down",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "shutdown-in-down-departs",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "advertise-expiry-skips-delay",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "advertise-period-wrong",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "link-up-draws-startup-kind",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "draw-kinds-merged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "foreign-discover-answered",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "frame-misses-config-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "frame-sources-from-sinks",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "seed-left-at-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "enable-not-idempotent",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "other-subtype-accepted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-no-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-too-many-sinks",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-too-many-sources",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-sink-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-source-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-init-reads-the-seed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-no-resp-2s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-retry-2s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-no-tk-5s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-valid-time-in-seconds",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-listener-unknown-is-2",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-registering-failed-bit",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-cdl-84",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-count-0",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-without-fast-connect",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-before-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-resp-2s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-starts-no-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-change-before-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-nothing-persisted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-not-persisted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-not-persisted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-streaming-wait-ignored",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-sw-read-from-fast-connect",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-count-unbound",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-no-fast-connect",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-getrx-no-registering-failed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unknown-sink-silent",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-echoes-the-talker",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-keeps-srp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-srp-after-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-keeps-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-change-before-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-not-authorized-is-13",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-lock-ignored",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-lock-refuses-the-holder",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-rx-state-locked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-same-reprobes",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-rebind-same-keeps-the-controller",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-new-keeps-srp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-same-talker-is-the-same-source",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-sequence-id-never-advances",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-sequence-id-per-sink",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-response-keyed-on-the-source",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-guard-controller-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-guard-talker-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-guard-unique-id-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-guard-sequence-id-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-guard-reads-the-binding",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-responses-taken-outside-probing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-vlan-masked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-1s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-settle-starts-no-srp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-settle-swaps-stream-fields",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-failure-status-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-failure-retries-at-200ms",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-duplicate-takes-a-new-sequence-id",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-second-timeout-keeps-status-0",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-no-duplicate",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-retry-ignores-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-retry-zeroes-the-status",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-delay-resends-the-old-probe",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-keeps-srp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-reprobe-ignores-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-registered-anywhere",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-registered-keeps-no-tk",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-registered-kind-dropped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unregistered-anywhere",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-kind-lost",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-kind-any-state",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unregistered-keeps-srp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-timer-at-the-latest-deadline",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-timer-port-called-every-time",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-timer-never-stopped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-takes-every-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-not-consumed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-zero-delay-waits",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-delay-up-to-4s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-seed-at-every-draw",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-rng-left-at-0",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-response-passes-an-owed-frame",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-poll-drains-everything",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-change-not-held-for-its-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-full-queue-acts",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-lost-probe-uncounted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-first-owed-releases-every-change",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-poll-newest-first",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-reports-asking-failed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-echoes-every-flag",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-any-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-tx-no-destination-mac-check",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-disconnect-always-succeeds",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unknown-source-answered",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-echoes-the-listener",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-registering-failed-0",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-state-unheld-mac",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-tx-connection-supported",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-every-listener-is-this-one",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-every-talker-is-this-one",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-short-pdu-read",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-longer-pdu-refused",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-reads-no-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-reads-no-domain",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-valid-time-in-seconds",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovered-interface-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restart-on-a-smaller-index-only",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restart-raises-no-discovered",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restart-mismatch-keeps-aging",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-refresh-notes-no-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-departing-taken-undiscovered",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-departing-interface-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-departing-keeps-aging",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-aging",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-on-every-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-on-unbound-sinks",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-for-the-refresh",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-sampled-per-sink",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-reentry-unguarded",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-reentry-untrapped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-send-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-timer-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-gptp-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-clock-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-seed-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-lock-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-source-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-srp-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-persist-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-changed-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restore-lands-in-prb-w-resp",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restore-starts-no-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restore-announced",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-record-flags-swapped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-record-unique-id-little-endian",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-restore-unique-id-little-endian",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-roll-back-keeps-the-bindings",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbound-record-not-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-started-not-saved",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-notifies",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-status-not-notified",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probing-status-not-notified",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-reads-the-clock-twice",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-get-rx-state-reads-the-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-response-reads-the-clock-twice",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-unbind-reads-the-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-talker-reads-the-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-reads-the-clock-twice",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-available-reads-the-clock-twice",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-departing-samples-the-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-aging-samples-the-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovery-takes-the-first-sink",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-second-no-resp-samples-the-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-retry-samples-the-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-delay-reads-the-clock-again",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-samples-the-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-new-bind-never-started",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-bind-response-always-streaming-wait",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-view-without-registering-failed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-discovered-probing-stays-passive",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-grandmaster-read-twice",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-adp-short-frame-taken",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-adp-ethertype-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-adp-subtype-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-adp-discover-taken",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-frames-to-the-own-mac",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-version-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-adp-version-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-version-bits-misread",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-header-version-1",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-timer-runs",
+      "xml_files": 1,
+      "named_assertions_verified": 3
+    },
+    {
+      "plant": "acmp-owed-probe-never-starts",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-owed-probe-no-resp-2s",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-sequence-unchecked",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-unnamed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-owed-probe-names-the-next-sink",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-probe-timer-before-its-send",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-taken-probe-timer-from-the-entry-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-expiry-due-at-its-first-read",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-held-timer-expires",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-held-timer-armed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-lost-probe-held",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-stop-keeps-the-hold",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-record-flag-defines-swapped",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-record-valid-bit-moved",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-longer-record-applied",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-due-unsigned",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-earliest-unsigned",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-adp-due-unsigned",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-resp-deadline-saturates",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-retry-deadline-saturates",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-tk-deadline-saturates",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-delay-deadline-saturates",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-no-adp-deadline-saturates",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-admit-never-called",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-admit-on-every-entry",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-admit-ignores-another-talker",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-admit-on-interface-0",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-admit-port-unflagged",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-reset-forgets-the-admitted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-open-does-nothing",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-open-unguarded",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-down-start-keeps-owner",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-initial-send-absent",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-retransmit-count",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-probe-count-not-decremented",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-wire-version",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-wire-length",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-wire-source",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-wire-padding",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-constant-probe_base",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-constant-probe_variation",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-constant-announce_base",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-constant-announce_variation",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-seed-clock-ignored",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-zero-seed-sticks",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-biased-random-bucket",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-numeric-mac-priority",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-defend-multicast",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-defend-echo-own-range",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-intersection-too-long",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-adjacent-overlaps",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-zero-count-conflicts",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-defend-checks-request",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-ethertype",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-subtype",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-version",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-reserved-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-reserved-high",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-short",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-truncated",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-cdl-current",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-source-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-source-group",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-destination",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-malformed-own-probe",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-valid-minimum-refused",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-future-version-refused",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-range-end-off-by-one",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-port-up-keeps-claim",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-release-keeps-enable",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-expiry-forgotten-on-stall",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-allocation-before-commit",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-probe-announce-reordered",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-overflow-uncounted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-poll-unbounded",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-release-leaves-output",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-reentry-not-counted",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-debug-no-assert",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-stall-unqueued",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-0",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-1",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-2",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-3",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-4",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-5",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-6",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-7",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-8",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-9",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-10",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-11",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-12",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-13",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-14",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-15",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-16",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-table-b7-17",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-allocation-seam-disconnected",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-begin-down-forgets-range",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-restart-reuses-range",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-reverse-five-octets",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-compare-mac-lsb-only",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-generic-initial-handles-conflict",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-generic-probe-state-defends",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-generic-probe-defend-uses-priority",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "maap-generic-equal-mac-wins",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "r2-saved-range-never-consumed",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-entity-id",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-model-id",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-entity-capabilities",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-talker-count",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-talker-capabilities",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-listener-count",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-listener-capabilities",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-grandmaster",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-domain",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-identify-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-config-interface-index",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-peer-loss-clears-binding",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-peer-loss-stops-discovery",
+      "xml_files": 1,
+      "named_assertions_verified": 2
+    },
+    {
+      "plant": "acmp-publish-after-response",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-missing-finish",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-unchanged-triple",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-ignores-started",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-cache",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-unguarded",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-zero",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-moved-always",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-sink",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-wrong-started",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-bound-cache-stale",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-started-cache-stale",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-stream-cache-stale",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-after-timers",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-stream-cache",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-bound-cache",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "acmp-publish-reset-started-cache",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "adp-unsupported-version-accepted",
+      "xml_files": 1,
+      "named_assertions_verified": 5
+    },
+    {
+      "plant": "adp-short-frame-accepted",
+      "xml_files": 1,
+      "named_assertions_verified": 5
+    },
+    {
+      "plant": "adp-wrong-control-length-accepted",
+      "xml_files": 1,
+      "named_assertions_verified": 5
+    },
+    {
+      "plant": "x-zero-never-expires",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-half-range",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-unanswered-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-expiry-equality",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-inclusive-edge",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-no-renewal",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-listener-needs-probe",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-ignore-address",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-absolute-clock",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-fixed-window",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-refused-answer",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-only-success",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-state-reply-demand",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-wrong-source",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-wrong-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-reset-retains-demand",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "dafresh-generated-window",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "entity-wrong-count",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "entity-swapped-interface",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    },
+    {
+      "plant": "entity-dropped-field",
+      "xml_files": 1,
+      "named_assertions_verified": 1
+    }
+  ]
+}

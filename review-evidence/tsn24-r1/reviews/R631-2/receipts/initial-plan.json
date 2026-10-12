@@ -1,0 +1,26 @@
+[
+  {
+    "name": "validation",
+    "cwd": "${SOURCE}",
+    "argv": [
+      "python3",
+      "scripts/validate.py",
+      "--work",
+      "${SCRATCH}/validation",
+      "--jobs",
+      "4"
+    ]
+  },
+  {
+    "name": "rv32",
+    "cwd": "${SOURCE}",
+    "argv": [
+      "python3",
+      "scripts/baremetal.py",
+      "--work",
+      "${SCRATCH}/rv32",
+      "--jobs",
+      "4"
+    ]
+  }
+]

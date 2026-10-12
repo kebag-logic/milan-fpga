@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:26:01.946" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:01.946">
+    <testcase name="A3toA5DiscoverAndDiscard" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="541" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:01.946" classname="AdpCore">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:168&#x0A;Value of: fk.stops == stops + 1u &amp;&amp; a.state == ADP_STATE_DELAY &amp;&amp; a.last_draw == ADP_DRAW_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:168
+Value of: fk.stops == stops + 1u && a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="AllStates/AdpInputControl" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:26:01.946">
+    <testcase name="ValidDiscovery/4" value_param="4" file="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp" line="788" status="run" result="completed" time="0." timestamp="2026-10-12T18:26:01.946" classname="AllStates/AdpInputControl">
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery is never discarded&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery is never discarded
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 3&#x0A;  ADP_STATE_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery enters DELAY from WAITING&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804&#x0A;Expected equality of these values:&#x0A;  fk.starts&#x0A;    Which is: 2&#x0A;  port_before.starts + 1u&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery starts one delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery starts one delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805&#x0A;Expected equality of these values:&#x0A;  fk.stops&#x0A;    Which is: 0&#x0A;  port_before.stops + 1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery stops the advertisement timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806&#x0A;Expected equality of these values:&#x0A;  a.timer&#x0A;    Which is: 2&#x0A;  ADP_TIMER_DELAY&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery selects the delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery selects the delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807&#x0A;Expected equality of these values:&#x0A;  a.draws&#x0A;    Which is: 1&#x0A;  before.draws + 1u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery draws one delay&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery draws one delay
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808&#x0A;Expected equality of these values:&#x0A;  a.last_draw&#x0A;    Which is: 1&#x0A;  ADP_DRAW_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery uses the normal delay range&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery is never discarded&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery is never discarded
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 3&#x0A;  ADP_STATE_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery enters DELAY from WAITING&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804&#x0A;Expected equality of these values:&#x0A;  fk.starts&#x0A;    Which is: 2&#x0A;  port_before.starts + 1u&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery starts one delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery starts one delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805&#x0A;Expected equality of these values:&#x0A;  fk.stops&#x0A;    Which is: 0&#x0A;  port_before.stops + 1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery stops the advertisement timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806&#x0A;Expected equality of these values:&#x0A;  a.timer&#x0A;    Which is: 2&#x0A;  ADP_TIMER_DELAY&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery selects the delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery selects the delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807&#x0A;Expected equality of these values:&#x0A;  a.draws&#x0A;    Which is: 1&#x0A;  before.draws + 1u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery draws one delay&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery draws one delay
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808&#x0A;Expected equality of these values:&#x0A;  a.last_draw&#x0A;    Which is: 1&#x0A;  ADP_DRAW_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery uses the normal delay range&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800&#x0A;Expected equality of these values:&#x0A;  a.discarded&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery is never discarded&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:800
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery is never discarded
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803&#x0A;Expected equality of these values:&#x0A;  a.state&#x0A;    Which is: 3&#x0A;  ADP_STATE_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery enters DELAY from WAITING&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:803
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804&#x0A;Expected equality of these values:&#x0A;  fk.starts&#x0A;    Which is: 2&#x0A;  port_before.starts + 1u&#x0A;    Which is: 3&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery starts one delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:804
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery starts one delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805&#x0A;Expected equality of these values:&#x0A;  fk.stops&#x0A;    Which is: 0&#x0A;  port_before.stops + 1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery stops the advertisement timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:805
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806&#x0A;Expected equality of these values:&#x0A;  a.timer&#x0A;    Which is: 2&#x0A;  ADP_TIMER_DELAY&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery selects the delay timer&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:806
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery selects the delay timer
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807&#x0A;Expected equality of these values:&#x0A;  a.draws&#x0A;    Which is: 1&#x0A;  before.draws + 1u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery draws one delay&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:807
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery draws one delay
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+      <failure message="${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808&#x0A;Expected equality of these values:&#x0A;  a.last_draw&#x0A;    Which is: 1&#x0A;  ADP_DRAW_DELAY&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c&#x0A;valid discovery uses the normal delay range&#x0A;TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420&#x0A;&#x0A;" type=""><![CDATA[${SCRATCH}/validation/mutations/baseline/tests/test_adp.cpp:808
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_7aa1afc29f9369f6e1f112255c4a838c
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_47bc1a2d961f173707991d167d309420
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
