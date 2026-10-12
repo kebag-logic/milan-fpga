@@ -41,11 +41,28 @@ each key naming a recorder (ctrl_pin_env.RECORDER) where it names a program:
 Each ends in the refusal naming exactly the keys it planted, and the recorder
 never runs. A clone holding a key of every family of the allowlist is
 accepted. A clean filter in the clone's own configuration is held by
-ctrl_pin.py's control. The helper also gives Git core.fsmonitor=false, which
-holds the superproject's own configuration: a superproject whose index's
-gitlink is the pin, its configuration naming the recorder as core.fsmonitor,
-is read as the proof reads the checkout's (ctrl_build.stack_gitlink), and
-the recorder never runs.
+ctrl_pin.py's control.
+The superproject's own configuration may not hold the keys
+ctrl_build.SUPERPROJECT_REFUSED names, a promisor remote and its transport
+(extensions.partialClone, remote.<name>.promisor,
+remote.<name>.partialCloneFilter, remote.<name>.uploadpack, core.sshCommand)
+and core.fsmonitor, and the pin check refuses each by its name before it
+reads the gitlink from the superproject's index
+(ctrl_build.superproject_configured); its other keys are not judged. Five
+controls read the gitlink of a superproject whose index records the pin, as
+the proof reads the checkout's (ctrl_build.stack_gitlink):
+- its own configuration naming the recorder as core.fsmonitor;
+- a partial clone whose sparse index lacks the tree that holds the gitlink, as
+  R585-14 probed it: its promisor remote's upload-pack the recorder, which
+  then serves the tree (SERVER), and its remote reached over ssh through
+  core.sshCommand;
+- an included file and its work tree's own configuration, each naming the
+  recorder as core.fsmonitor.
+Each ends in the refusal naming exactly the keys it planted, and the recorder
+never runs. A fifth, the superproject configured as actions/checkout and
+git submodule update --init leave it (its token as http.<url>.extraheader,
+the stack's submodule entries), is read as the pin. The helper also gives Git
+core.fsmonitor=false, defence in depth behind both repositories' checks.
 """
 
 from __future__ import annotations
@@ -54,7 +71,7 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from ctrl_build import STACK_CONFIG, UNLISTED, Refusal, stack_gitlink, stack_pin
+from ctrl_build import STACK_CONFIG, SUPERPROJECT_KEYS, UNLISTED, Refusal, stack_gitlink, stack_pin
 from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer
 
 #: More objects than a fetch of the pin's history brings, so that the fetch unpacks each into a loose object
@@ -62,6 +79,10 @@ from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer
 UNPACK_LIMIT = 1_000_000
 #: The pin check's words for an object of the store that does not hash to its id.
 FORGED = "holds a forged or corrupt object: "
+#: The program a superproject's promisor remote's upload-pack control names: it records that it ran, as the
+#: recorder does (ctrl_pin_env.RECORDER), then serves what it is asked for, so that a Git that fetched through it
+#: would be given the tree the superproject lacks, read the gitlink, and accept.
+SERVER = '#!/bin/sh\necho "$0 $*" >> "$(dirname "$0")/ran"\nexec git-upload-pack "$@"\n'
 
 
 def loose(scene: Scene) -> None:
@@ -130,13 +151,69 @@ def converted(scene: Scene) -> None:
         raise Refusal("the line-ending control's conversion does not turn its edit back into the pinned blob")
 
 
-def monitored_superproject(scene: Scene) -> None:
-    """A superproject whose index's gitlink is the pin, and whose own configuration names the recorder as
-    core.fsmonitor."""
+def superproject(scene: Scene, keys: tuple[tuple[str, str], ...]) -> None:
+    """A superproject whose index's gitlink is the pin, `keys` set in its own configuration."""
     top = scene.own / "superproject"
     answer(scene.own, "init", "--quiet", str(top))
     answer(top, "update-index", "--add", "--cacheinfo", f"160000,{scene.pin},{GITLINK}")
-    answer(top, "config", "core.fsmonitor", scene.recorder())
+    for key, value in keys:
+        answer(top, "config", key, value)
+
+
+def checked_out(scene: Scene) -> None:
+    """A superproject whose gitlink is the pin, its own configuration holding what actions/checkout writes there
+    (the remote, gc.auto, the token as http.<url>.extraheader) and what git submodule update --init writes for
+    the stack (its url, and active)."""
+    superproject(scene, (("remote.origin.url", "https://github.com/kebag-logic/milan-fpga"),
+                         ("remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*"), ("gc.auto", "0"),
+                         ("http.https://github.com/.extraheader", "AUTHORIZATION: basic pin-control"),
+                         (f"submodule.{GITLINK}.url", "https://github.com/kebag-logic/tsn-c-stack.git"),
+                         (f"submodule.{GITLINK}.active", "true")))
+
+
+def superproject_included(scene: Scene) -> None:
+    """A superproject whose gitlink is the pin, its own configuration including (include.path) a file that names
+    the recorder as core.fsmonitor, and its work tree's own configuration (extensions.worktreeConfig) naming it."""
+    (scene.own / "included").write_text(f"[core]\n\tfsmonitor = {scene.recorder()}\n", encoding="utf-8")
+    superproject(scene, (("include.path", str(scene.own / "included")), ("extensions.worktreeConfig", "true")))
+    answer(scene.own / "superproject", "config", "--worktree", "core.fsmonitor", scene.recorder())
+
+
+def sparse_superproject(scene: Scene, keys: Callable[[Path], tuple[tuple[str, str | None], ...]]) -> None:
+    """A superproject whose sparse index holds the gitlink (the pin) under a sparse directory whose tree its own
+    store lacks, as R585-14 probed it: fetched, every object loose, from an origin beside it that holds the tree,
+    made sparse outside another directory, then checked out, then that tree's object removed; then `keys`
+    (given the origin's path) set in its own configuration, a value None naming the recorder. A Git reading the
+    gitlink must fetch the tree first."""
+    origin, top, parent = scene.own / "origin", scene.own / "superproject", GITLINK.rpartition("/")[0]
+    answer(scene.own, "init", "--quiet", str(origin))
+    (origin / "kept").mkdir()
+    (origin / "kept/file").write_text("kept\n", encoding="utf-8")
+    answer(origin, "add", "kept/file")
+    answer(origin, "update-index", "--add", "--cacheinfo", f"160000,{scene.pin},{GITLINK}")
+    answer(origin, "-c", "user.name=pin-control", "-c", "user.email=pin-control@invalid", "commit", "--quiet", "-m",
+           "pin-control")
+    answer(scene.own, "init", "--quiet", str(top))
+    answer(top, "-c", f"fetch.unpackLimit={UNPACK_LIMIT}", "fetch", "--quiet", "--no-tags", str(origin), "HEAD")
+    answer(top, "update-ref", "HEAD", "FETCH_HEAD")
+    answer(top, "sparse-checkout", "set", "--cone", "--sparse-index", "kept")
+    answer(top, "checkout", "--quiet")
+    tree = answer(top, "rev-parse", f"HEAD:{parent}").strip()
+    if f"040000 {tree} 0\t{parent}/" not in answer(top, "ls-files", "--sparse", "--stage").splitlines():
+        raise Refusal("the sparse superproject control's index holds no sparse directory around the gitlink")
+    (top / ".git/objects" / tree[:2] / tree[2:]).unlink()
+    if any((top / ".git/objects/pack").iterdir()):
+        raise Refusal("the sparse superproject control's superproject keeps a pack, so it may still hold the tree")
+    for key, value in keys(origin):
+        answer(top, "config", key, scene.recorder() if value is None else value)
+
+
+def served(scene: Scene) -> str:
+    """The recorder that serves (SERVER), in the control's own directory, its record beside it."""
+    program = scene.own / "server"
+    program.write_text(SERVER, encoding="utf-8")
+    program.chmod(0o755)
+    return str(program)
 
 
 def monitored_stack(scene: Scene) -> None:
@@ -210,6 +287,37 @@ HELPERS = ("core.askPass", "core.pager", "core.editor", "diff.pin-control.textco
            "core.alternateRefsCommand", "uploadpack.packObjectsHook")
 
 
+def refused(*keys: str) -> str:
+    """The pin check's refusal of exactly `keys` of the superproject's own configuration, each with its scope."""
+    return SUPERPROJECT_KEYS + ", ".join(keys)
+
+
+def superproject_controls(gitlink: Callable[[], str]) -> tuple[tuple, ...]:
+    """The controls of the superproject's own configuration (store_arms), each read by `gitlink`: what it is, how
+    the superproject is made, how it is read, and the words its verdict must hold (none: the pin is read)."""
+    return (
+        ("the superproject's own configuration, a program named as core.fsmonitor, its gitlink read",
+         lambda s: superproject(s, (("core.fsmonitor", s.recorder()),)), gitlink, refused("core.fsmonitor (local)")),
+        ("the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its "
+         "tree, a partial clone whose promisor remote's upload-pack is a program that serves it, its gitlink read",
+         lambda s: sparse_superproject(s, lambda origin: (*partial("origin", str(origin)),
+                                                          ("remote.origin.partialCloneFilter", "tree:0"),
+                                                          ("remote.origin.uploadpack", served(s)))), gitlink,
+         refused("extensions.partialclone (local)", "remote.origin.partialclonefilter (local)",
+                 "remote.origin.promisor (local)", "remote.origin.uploadpack (local)")),
+        ("the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its "
+         "tree, a partial clone whose promisor remote is reached over ssh by a program (core.sshCommand), its gitlink "
+         "read",
+         lambda s: sparse_superproject(s, lambda _: (*partial("probe", "ssh://pin-control.invalid/superproject"),
+                                                     ("core.sshCommand", None))), gitlink,
+         refused("core.sshcommand (local)", "extensions.partialclone (local)", "remote.probe.promisor (local)")),
+        ("the superproject's own configuration, an included file (include.path) and its work tree's own "
+         "configuration each naming a program as core.fsmonitor, its gitlink read", superproject_included, gitlink,
+         refused("core.fsmonitor (local)", "core.fsmonitor (worktree)")),
+        ("the superproject's own configuration as actions/checkout and git submodule update --init write it, its "
+         "gitlink read", checked_out, gitlink, ""))
+
+
 def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
     """The pin controls of the object store and of the repositories' own configuration, as ctrl_pin.pin_controls
     runs them (each after a fresh clone of the stack at `stack`, pinned at `pin`): each must end in its verdict,
@@ -264,8 +372,7 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
          checked, edited + EDITED),
         ("the stack's attributes, a source's line endings changed, a conversion they give turning it back into the "
          "pinned blob", converted, checked, edited + EDITED),
-        ("the superproject's own configuration, a program named as core.fsmonitor, its gitlink read",
-         monitored_superproject, gitlink, ""),
+        *superproject_controls(gitlink),
         ("the stack's own configuration, a program named as core.fsmonitor, a source edited", monitored_stack,
          checked, unlisted("core.fsmonitor (local)")),
         ("the stack's own configuration, a key of each family of its allowlist, the pinned clone", allowlisted,

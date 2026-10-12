@@ -63,8 +63,10 @@ configuration guarantee is an allowlist (ctrl_build.STACK_CONFIG): the
 stack's own configuration may hold only the keys Git writes itself for a
 clone and a submodule, and any other is refused by its name before an object
 is read, so none can have Git start a program or fetch from a remote while
-the pin is decided. The helper also gives Git core.fsmonitor=false, for the
-superproject's index, and GIT_NO_LAZY_FETCH=1 (ctrl_build.GIT_ENVIRONMENT);
+the pin is decided. The superproject's may not name a promisor remote, its
+transport or an fsmonitor (ctrl_build.SUPERPROJECT_REFUSED), each refused by
+its name before the gitlink is read; its other keys are not judged. The
+helper's core.fsmonitor=false and GIT_NO_LAZY_FETCH=1 are defence in depth;
 ctrl_pin_store.py holds the controls of the store and the configuration.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
@@ -131,7 +133,7 @@ variable added (GIT_DIR), and with a key or a value that is not a plain str,
 are refused at the helper's line, the variable by its name. The
 inherited-environment controls follow (ctrl_pin_env.py), then those of the
 object store and the repositories' own configuration (ctrl_pin_store.py),
-R585-12's forged src/ tree and R584-12's promisor transports among them. The MAAP
+R585-12's forged src/ tree, R584-12's and R585-14's promisors among them. The MAAP
 differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
