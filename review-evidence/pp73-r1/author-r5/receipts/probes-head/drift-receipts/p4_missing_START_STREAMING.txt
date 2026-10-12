@@ -1,0 +1,19 @@
+probe: p4_missing_START_STREAMING
+expect: rc 1, names OP_START_STRM_C and no command
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: AEM 0x0022 is no table command and the engine dispatches it to STRMBAD, not only NOTIMPL
+  decode: AEM 0x0022 is no table command and the engine dispatches it to STRMNS, not only NOTIMPL
+  decode: AEM 0x0022 is no table command and the engine dispatches it to STRT, not only NOTIMPL
+  decode: the engine's PP_UNS_STRM_C job answers 0x0022 with STRMUNS, which is no table command's notification
+  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_START_STRM_C = 0x0022 and the table has no command for it
+  engine: UPC_STRT_C is claimed by no command, notification body or shared entry of the table
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0022, which no table command carries
+  F06.14: 41 rows where the table generates 40
+  F06.14: row 0x0022 START_STREAMING is not in the table
+  8.1: section 8.1 lists AEM 0x0022 and the table serves no such command
+--- stderr

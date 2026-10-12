@@ -1,0 +1,685 @@
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 29, guide 29, diagram 29, OK
+matrix: OK (94 rows, 0 untested)
+links: 1191 checked, OK
+SELFTEST FAIL: case 1: want [], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmph1itlqt7', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 2: want ['UNCOVERED REQ-AAA-001 (DIR)'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpe9mpohjb', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 3: want ['UNCOVERED REQ-AAA-001 (DIR)', 'UNKNOWN REQ REQ-ZZZ-001 tb/one/sim_main.cpp:2'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp897bu2su', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 4: want ['DEAD TAG REQ-AAA-001 tb/one/sim_main.cpp:2'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp3nfqsr2s', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 5: want ['WAIVER WITHOUT GAP REQ-AAA-003'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpg8rqdaw2', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+wavedrom: 18 blocks checked, OK
+SELFTEST FAIL: case 6: want ['UNCOVERED REQ-AAA-006 (NVM)'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmphlya78wg', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 7: want ['UNCOVERED REQ-AAA-002 (RND)'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpnrrfzpap', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 8: want ['UNCOVERED REQ-AAA-001 (DIR)', 'UNKNOWN CATEGORY FOO tb/one/sim_main.cpp:2'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpk6oqgbel', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 9: want ['NAME NOT AT CHECK tb/one/sim_main.cpp:2'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpch67zvtt', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 10: want ['NAME NOT AT CHECK tb/two/test_two.py:6'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpc993jfeg', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 11: want ['MALFORMED TAG tb/one/sim_main.cpp:2', 'UNCOVERED REQ-AAA-001 (DIR)'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpbqw3slub', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 12: want ['WAIVER WITHOUT REASON REQ-AAA-003'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmphuaum9ch', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 13: want ["WAIVER NAMES ANOTHER ROW'S GAP REQ-AAA-003"], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpw3bz36v2', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 14: want ['WAIVER ON A ROW NEEDING NO CHECK REQ-AAA-004'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmptks5pifo', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 15: want ['STALE WAIVER REQ-AAA-001'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpp34qu7bz', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 1: want [] rc 0, got rc 1
+
+SELFTEST FAIL: case 2: want ['20-a.png: not a figure format'] rc 1, got rc 1
+
+SELFTEST FAIL: case 3: want ['25-c.svg: SVG with no .drawio source'] rc 1, got rc 1
+
+SELFTEST FAIL: case 4: want ['20-a.svg: not well-formed XML'] rc 1, got rc 1
+
+SELFTEST FAIL: case 5: want ['sub/20-a.svg: not a figure format'] rc 1, got rc 1
+
+SELFTEST FAIL: case 6: want ['20-a.svg: carries <image>'] rc 1, got rc 1
+
+SELFTEST FAIL: case 7: want ['20-a.svg: carries <feImage>'] rc 1, got rc 1
+
+SELFTEST FAIL: case 8: want ['20-a.svg: carries <foreignObject>'] rc 1, got rc 1
+
+SELFTEST FAIL: case 9: want ['20-a.svg: root element is svg, not an SVG-namespace <svg>'] rc 1, got rc 1
+
+SELFTEST FAIL: case 10: want ['20-a.svg: root element is {http://www.w3.org/2000/svg}g, not'] rc 1, got rc 1
+
+SELFTEST FAIL: case 11: want ['20-a.svg: no viewBox'] rc 1, got rc 1
+
+SELFTEST FAIL: case 14: want ['20-a.svg: hand-authored figure no Markdown page links'] rc 1, got rc 1
+
+SELFTEST FAIL: case 15: want ['lists 20-a.svg, which is not in'] rc 1, got rc 1
+
+SELFTEST FAIL: case 16: want ['wavedrom/fig-x.svg: WaveDrom render whose'] rc 1, got rc 1
+
+SELFTEST FAIL: case 17: want ['src/01-b.drawio: draw.io source without its export'] rc 1, got rc 1
+
+figures selftest: 17 cases, 15 FAILURES
+make: *** [Makefile:60: figures] Error 1
+make: *** Waiting for unfinished jobs....
+SELFTEST FAIL: case 16: want ['COV RECORD REQ-AAA-005'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpu6ctsxwl', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 17: want ['COVERAGE RECORD traced TIM'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp8kssds9u', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 18: want ['SUITE NOT PASSED two tb/two/test_two.py:6', 'SUITES RUN INCOMPLETE'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpdwn70xvx', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 19: want ['STRAY EVIDENCE two test_two.py:9 REQ-AAA-005 TIM'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp1r9sqiww', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 20: want ['DEAD TAG REQ-AAA-001 tb/one/sim_main.cpp:2', "MALFORMED EVIDENCE 'one sim_main.cpp:2'"], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpe_2ijhab', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 21: want ['SUITE NOT PASSED common tb/common/x.cpp:1', 'TAG OUTSIDE A SUITE tb/common/x.cpp:1'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpe8h8ksoy', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 22: want ['DUPLICATE TAG REQ-AAA-005 tb/two/test_two.py:7'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp3j6n25vb', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 23: want ['UNKNOWN VER REQ-AAA-005'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpzuhuoqob', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 24: want ['DUPLICATE WAIVER REQ-AAA-003'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpmm9u04bh', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 25: want ['UNKNOWN REQ REQ-ZZZ-009'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpygfvihb_', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 1: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 2: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 3: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 4: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 5: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 6: want [] rc 0, got [] rc 1
+
+SELFTEST FAIL: case 7: want ['P-MISSING-1'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 8: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 9: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 11: want ['P-NOT-A-ROW'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 12: want ['T-NOT-A-ROW'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 13: want ['T-NOT-A-ROW'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 14: want ['T-MRP-NOPE'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 15: want ['T-NVM-RS-TYPO'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 16: want ['T-MRP-{...}'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 17: want ['P-RX'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 18: want ['T-MRP-NOPE'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 19: want ['T-BUDGET-AECP-XX'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 20: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 21: want ['T-ADP-DELAY(-...)'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 22: want ['T-NOFAMILY-*'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 23: want ['P-RX-SLOT-2'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 24: want ['P-RX-SLOTS-2'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 25: want ['P-ONE-X'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 26: want ['P-EN-C'] rc 1, got [] rc 1
+
+SELFTEST FAIL: case 27: want ['P-LATER'] rc 1, got [] rc 1
+
+ids selftest: 30 cases, 27 FAILURES
+make: *** [Makefile:55: ids] Error 1
+SELFTEST FAIL: case 26: want ['WAIVER VER REQ-AAA-003'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp80u8gtzk', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 27: want ['NO TABLE <a id="req-waivers"></a>', 'UNCOVERED REQ-AAA-003 (STORM)'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmp7pn0d3gr', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+SELFTEST FAIL: case 28: want ['NO TABLE <a id="req-coverage"></a>'], got [] rc 1
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/pp73-a595/r5/base/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '$VALIDATION_STORAGE/pp73-a595/r5/tmp/tmpb7o16me0', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+
+req-tags selftest: 29 cases, 28 FAILURES
+make: *** [Makefile:46: reqtags] Error 1
+lint: 41 mermaid + 18 wavedrom blocks checked, OK

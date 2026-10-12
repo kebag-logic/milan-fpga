@@ -1,0 +1,232 @@
+group	plant	required failing gate words
+FILE_MUTANTS	R608-3 echo-hide: short EAVL SUCCESS hidden by echo_entries	schema: echo_entries: EAVL; nor listed in shared_entries
+FILE_MUTANTS	an unreadable registry	gate refused; cannot read an input; aecp_fields.json
+FILE_MUTANTS	a registry that is not JSON	gate refused; aecp_fields.json is not JSON
+FILE_MUTANTS	a table that is not JSON	gate refused; hdl/aecp/ucode/aecp_commands.json is not JSON
+FILE_MUTANTS	a decode record that is not JSON	gate refused; tb/aecp_cmds/decode.json is not JSON
+FILE_MUTANTS	an input that cannot be read	gate refused; cannot read an input
+FILE_MUTANTS	a decode record that cannot be read	gate refused; cannot read an input
+FILE_MUTANTS	a swept input that cannot be read	gate refused; cannot read an input
+FILE_MUTANTS	a generator that does not run	gate refused; hdl/aecp/ucode/gen_ucode.py did not generate
+FILE_MUTANTS	a generator of another shape	gate refused; hdl/aecp/ucode/gen_ucode.py defines no occupied
+FILE_MUTANTS	a message type the generator cannot read, in the file (R608-1 p5e)	schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+FILE_MUTANTS	a message type the generator cannot read, in the file (R608-1 p5)	schema: GET_MILAN_INFO: no command with message MVU
+FILE_MUTANTS	an entry the generator never placed, in the file (R608-1 p8)	decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2
+FILE_MUTANTS	a status code row the generator reads, gone from the file	schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes
+FILE_MUTANTS	a status code the generator reads, not an integer in the file	schema: status NO_RESOURCES: code must be an integer
+FILE_MUTANTS	a status code changed in the file only	schema: status NO_RESOURCES is 9 in the table
+FILE_MUTANTS	the MVU row the generator reads, renamed in the file	schema: GET_MILAN_INFO: no command with message MVU
+GENERATOR_MUTANTS	the generator: missing entries	GET_CLOCK_SOURCE: entries needs
+GENERATOR_MUTANTS	the generator: entries is not a list	GET_CLOCK_SOURCE: entries needs
+GENERATOR_MUTANTS	the generator: missing name	AEM 0x0017; name needs
+GENERATOR_MUTANTS	the generator: non-hexadecimal MVU opcode	GET_MILAN_INFO:; opcode
+GENERATOR_MUTANTS	the generator: missing commands	commands: needs a non-empty list; GET_MILAN_INFO
+GENERATOR_MUTANTS	the generator: a command is not an object	commands[0]: needs a command object
+GENERATOR_MUTANTS	the generator: an entry it never placed	GET_CLOCK_SOURCE: entries names SCFGRUN2; placed no E_SCFGRUN2
+GENERATOR_MUTANTS	the generator: a status code row it reads, gone	status_codes gives no integer code for STREAM_IS_RUNNING
+GENERATOR_MUTANTS	the generator: a status code it reads, not an integer	status_codes gives no integer code for BAD_ARGUMENTS
+GENERATOR_MUTANTS	the generator: the MVU row it reads, gone	GET_MILAN_INFO: no command with message MVU
+GENERATOR_MUTANTS	the generator: the MVU opcode it reads, not hexadecimal	GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode
+OBSERVED_MUTANTS	a stale PR field reference	fields: PR body: registry reference differs
+OBSERVED_MUTANTS	an unreadable PR draft	gate refused; fields: PR body: cannot read draft
+OBSERVED_MUTANTS	a fresh sweep that is not the recorded one	decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS
+OBSERVED_MUTANTS	a sweep output that cannot be read	gate refused; the sweep's output; cannot be read
+OBSERVED_MUTANTS	pp_pkg's unsolicited kinds written in another form	gate refused; no PP_UNS_*_C kind parsed
+in-memory	echo_entries is not a list	schema: echo_entries must be a list of program names
+in-memory	echo_entries contains a non-name	schema: echo_entries must be a list of program names
+in-memory	echo_entries names no shared program	schema: echo_entries: ABSENT; nor listed in shared_entries
+in-memory	echo_entries names a private secondary program	schema: echo_entries: RDESCENT; nor listed in shared_entries
+in-memory	echo_entries names an owned first entry used elsewhere	schema: echo_entries: EAVL; first-entry owner
+in-memory	a first-entry echo needs its shared declaration	schema: echo_entries: NSUPPE; nor listed in shared_entries
+in-memory	a shared echo cannot exempt ROM SUCCESS (R608-3 echo-hide)	rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12
+in-memory	a shared echo cannot exempt observed SUCCESS (R608-3 echo-hide)	decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12
+in-memory	a shared echo cannot exempt a symbolic SUCCESS	decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at the command's own length
+in-memory	an opcode renumbered in the table only	engine: GET_SAMPLING_RATE; 0x001E
+in-memory	a size changed in the doc table only	F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size
+in-memory	an OP_*_C changed in the RTL only	engine: GET_SAMPLING_RATE; OP_GET_SAMP_RATE_C = 0x001E
+in-memory	a command missing from the table	OP_GET_AS_PATH_C = 0x0028 and the table has no command
+in-memory	a command missing from the table, as the engine decodes it	decode: AEM 0x0028 is no table command; GASP
+in-memory	an OP_*_C written in another form	OP_GET_AS_PATH_C is not written
+in-memory	a GDI_*_C the table does not document	GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such
+in-memory	a success arm redirected to another program (R608-1 q1, as recorded)	decode: SET_CLOCK_SOURCE: the table's entries name SCLKS
+in-memory	a success arm redirected to another program, the other line	decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS
+in-memory	a decode keyed on another opcode (R608-1 q2, as recorded)	decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS
+in-memory	an entry the engine cannot dispatch to	GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C
+in-memory	an entry the engine never dispatches the command to	decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN
+in-memory	an engine entry no command claims	UPC_NSUPP1_C is claimed by no command
+in-memory	a command cdl off the engine's decode floor	decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20
+in-memory	a decode floor moved in the engine (as recorded)	decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016; is cdl 16
+in-memory	a declared floor dropped from the table	decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024; the table's command cdl is 16
+in-memory	a per-record command accepted between records (as recorded)	decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24
+in-memory	an echo command per reduced to a divisor, with its response	decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+in-memory	an echo command accepting a multiple of the record step	decode: REMOVE_AUDIO_MAPPINGS: command per is 8; gcd; is 16
+in-memory	a response the bench saw at another size (as recorded)	decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24
+in-memory	a response the bench saw at the command's length on a fixed rule (as recorded)	decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length
+in-memory	a status the bench saw outside the set (as recorded)	decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES
+in-memory	a program that sent no frame (as recorded)	decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame
+in-memory	a command answered without a program (as recorded)	decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program
+in-memory	a command the bench saw dropped (as recorded)	decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped
+in-memory	a served command the sweep never sent (as recorded)	decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000
+in-memory	an unserved opcode decoded (as recorded)	decode: AEM 0x0003 is no table command; GCFG
+in-memory	another message type decoded as AEM (as recorded)	decode: AVC 0x0016 is no table command; SCLKS
+in-memory	an engine source changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv; sweep this engine with make -C tb/aecp_cmds record
+in-memory	the bench changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp
+in-memory	the ROM changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated)
+in-memory	a trial that never ended (as recorded)	decode: tb/aecp_cmds/decode.json: 1 trials never ended
+in-memory	a record of another schema	decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0'
+in-memory	a record without its parts	decode: tb/aecp_cmds/decode.json is not a decode record
+in-memory	a GET_DYNAMIC_INFO member the engine refuses (as recorded)	decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member
+in-memory	a GET_DYNAMIC_INFO flag changed in the table	decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO
+in-memory	a GET_DYNAMIC_INFO record length changed (as recorded)	decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes
+in-memory	a GET_DYNAMIC_INFO member that never runs its program (as recorded)	decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG
+in-memory	a GET_DYNAMIC_INFO record dispatched outside the entries (as recorded)	decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS
+in-memory	GET_DYNAMIC_INFO's empty aggregate at another size (as recorded)	decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16
+in-memory	a GET_DYNAMIC_INFO record that voids the aggregate (as recorded)	decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12
+in-memory	GET_DYNAMIC_INFO's response cdl changed in the table	decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12
+in-memory	an unsolicited job carrying another command_type (as recorded)	decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers
+in-memory	an unsolicited job no table command claims (as recorded)	decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG
+in-memory	an unsolicited body changed in the table	decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers
+in-memory	an unsolicited kind the engine does not run	decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job
+in-memory	an unsolicited job at another size (as recorded)	decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24
+in-memory	an unsolicited arm no command claims	decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB
+in-memory	a hazard class changed in the top	classifier: SET_NAME: the table says NAME_WR; 0x0010 STREAM_CFG
+in-memory	a hazard class changed in the table	classifier: GET_COUNTERS: the table says MAP_CFG
+in-memory	a classified opcode no command carries	hz_classify names 0x004B
+in-memory	a hazard code changed in pp_pkg	classifier: hazard class IDENTIFY is 8 in the table and 9
+in-memory	a lock flag changed in the table	rom: SET_CONTROL: the table says lock false
+in-memory	CHECK_LOCK dropped from a program	rom: SET_CLOCK_SOURCE: the table says lock true; never reach CHECK_LOCK
+in-memory	the scoreboard's lock-protected set changed	scoreboard:; hz_is_lockprot
+in-memory	a notification class changed in the table	rom: SET_SAMPLING_RATE: its programs enqueue notification class [5]
+in-memory	a NOTIFY_ENQ class changed in a program	rom: SET_CONTROL: its programs enqueue notification class [2]
+in-memory	the notify block's class map changed	notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C
+in-memory	a status dropped from the table	rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered
+in-memory	a status the programs cannot answer	rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table
+in-memory	a refusal status changed in a program	rom: SET_CONFIGURATION: status NO_RESOURCES is answered
+in-memory	a status code changed in ucpu_pkg	status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9
+in-memory	a response size changed in the table	rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20
+in-memory	a field dropped from a program	rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl
+in-memory	GET_AUDIO_MAP's response cdl 20, F06.14 regenerated	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N; the table's response is 20 + 8·N
+in-memory	GET_AUDIO_MAP's response cdl 28, F06.14 regenerated	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N; the table's response is 28 + 8·N
+in-memory	a header field NOPed in E_GAMAP	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22
+in-memory	a header field NOPed in E_GAVB	rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28
+in-memory	a header field NOPed in E_GASP	rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14
+in-memory	a header field NOPed in E_RDESC	rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy
+in-memory	the record APPEND NOPed in E_GAMAP	rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24; no path builds the variable part
+in-memory	the record APPEND NOPed in E_GAVB	rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32
+in-memory	the record APPEND NOPed in E_GASP	rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16
+in-memory	a per-record response read as a fixed one	rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8·N, the table's response is 16
+in-memory	an echo row's response off its command size	schema: ACQUIRE_ENTITY: an echo response is the command's own size
+in-memory	an echo row's command off its response size	schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size
+in-memory	an unsolicited body of another size	unsolicited body E_STRMUNS is cdl 12
+in-memory	a path into the ROM fill	rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word
+in-memory	section 8.1 missing a served command	8.1: ENTITY_AVAILABLE (AEM 0x0002) is served
+in-memory	a row missing from F06.14	F06.14: row 0x0029 GET_COUNTERS is missing
+in-memory	two commands on one opcode	schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's
+in-memory	a status the table does not define	schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes
+in-memory	a status code off IEEE Table 7-141 (no RTL constant holds it)	schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12
+in-memory	a status code that is not an integer	schema: status NO_RESOURCES: code must be an integer
+in-memory	a common status the table does not define	schema: common_status AEM: status BUSY is not in status_codes
+in-memory	an unserved program that is no shared entry	schema: unserved 'NOTIMPL2' is no shared entry
+in-memory	a table of another schema	schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2'
+in-memory	an empty part of the table	schema: status_codes, hazard_classes or commands is empty
+in-memory	a command without a field	schema: GET_NAME: missing hazard
+in-memory	a command listed twice	schema: GET_NAME is listed twice
+in-memory	a message type that is neither AEM nor MVU	schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+in-memory	the MVU row the generator reads, gone	schema: GET_MILAN_INFO: no command with message MVU
+in-memory	a message type without its common statuses	schema: GET_MILAN_INFO: message 'MVU' has no common_status row
+in-memory	an opcode not written 0xHHHH	schema: GET_NAME: opcode '0x11' is not 0xHHHH
+in-memory	a hazard class the table does not define	schema: GET_NAME: hazard NAME_RD is not in hazard_classes
+in-memory	a flag that is not true or false	schema: GET_NAME: lock, gdi and oversize must be true or false
+in-memory	a size without an integer cdl	schema: GET_NAME: response has no integer cdl
+in-memory	a per-record size without its unit	schema: GET_AS_PATH: response per must be an integer with its unit
+in-memory	a zero echo record step	schema: ADD_AUDIO_MAPPINGS: command per must be
+in-memory	a null echo record step	schema: REMOVE_AUDIO_MAPPINGS: command per must be
+in-memory	a negative record step	schema: GET_AVB_INFO: response per must be
+in-memory	a floor at or above the command cdl	schema: ACQUIRE_ENTITY: command floor must be
+in-memory	an entry listed twice	schema: GET_NAME: entries must be a non-empty list of names without repeats
+in-memory	a notification without its body	schema: SET_NAME: notify must be null or carry class, kind and body
+in-memory	an unserved F06.14 row short of a cell	schema: documented row '0x0003': needs
+in-memory	an unserved F06.14 row without its name (R609-1 S2)	schema: documented row '0x0003': needs
+in-memory	a constant the engine does not declare	engine: GET_NAME: the table names OP_GET_NAMES_C; declares no such constant
+in-memory	a GDI_*_C renumbered in the table	engine: GET_VIDEO_FORMAT: the table says 0x000C; GDI_GET_VIDEO_FMT_C = 0x000B
+in-memory	a GDI_*_C the engine does not declare	engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C
+in-memory	a hazard code pp_pkg adds	classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not
+in-memory	a non-AEM command off the classifier's default	classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default
+in-memory	a class the notify block maps and does not queue	notify:; class 9 (START_STREAMING) is in one only
+in-memory	a class off the notify block's map whose kind another class carries	notify: SET_NAME: class 6 is not in; its kind PP_UNS_NAME_C is another class's
+in-memory	a class the notify block maps and no command enqueues	notify:; maps class 10 to PP_UNS_STRM_C and no table command enqueues it
+in-memory	a ucpu_pkg status the table does not name	status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it
+in-memory	an engine-built status on a program-built response	rom: GET_NAME: engine_status is only for an engine-built response
+in-memory	an entry the generator never placed	rom: ENTITY_AVAILABLE: entry EAVL is no placed program
+in-memory	a status code the table does not know set in a program	rom: SET_CONFIGURATION: a path sets status 13, which the table does not know
+in-memory	a notification body the generator never placed	rom: START_STREAMING: notification body STRMUNS is no placed program
+in-memory	F06.14's header changed	F06.14: the header is not
+in-memory	a row repeated in F06.14	F06.14: 42 rows where the table generates 41
+in-memory	a row in F06.14 the table does not generate	F06.14: row 0x0029 GET_COUNTER is not in the table
+in-memory	an F06.14 row with an extra cell	F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12
+in-memory	F06.14 rows out of order	F06.14: the rows are out of the generated order
+in-memory	section 8.1 listing a command the engine does not serve	8.1: section 8.1 lists AEM 0x0003 and the table serves no such command
+in-memory	a parsed block renamed (a stale pattern)	gate refused; hz_classify; the pattern has gone stale
+in-memory	a parsed block with no end	gate refused; hdl/aecp/KL_aecp_notify.sv emit_pick: no 
+in-memory	the engine's entries written in another form	gate refused; hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing
+in-memory	hz_classify's opcode case written in another form	gate refused; hz_classify's default or its opcode case is not parseable
+in-memory	hz_classify's opcode labels written in another form	gate refused; hz_classify's opcode case parsed nothing
+in-memory	pp_pkg's hazard codes written in another form	gate refused; no PP_HZ_* enum parsed
+in-memory	hz_is_lockprot naming a class without its alias	gate refused; hz_is_lockprot is not parseable
+in-memory	the notify block's queued classes written in another form	gate refused; the command-class map is not parseable
+in-memory	ucpu_pkg's status codes written in another form	gate refused; no ST_*_C parsed
+in-memory	F06.14's end marker gone	gate refused; the F06.14 markers are missing
+in-memory	section 8.1's heading renamed	gate refused; section 8.1's table is not parseable
+registry	an unregistered table field	fields: unknown: table field missing from registry
+registry	an unregistered nested field	fields: commands[].command.extra: table field missing from registry
+registry	a registry entry for no field	fields: absent: registry entry has no such table field
+registry	a duplicate registry entry	fields: commands[].opcode: duplicate registry entry
+registry	a registry which is no list	fields: registry must be a list of field objects
+registry	a registry row which is no object	fields: registry must be a list of field objects
+registry	a registry entry without a path	fields: registry entry needs a path
+registry	an unknown registry status	fields: commands[].opcode: status must be held or held to nothing
+registry	a registry entry without a reason	fields: commands[].opcode: needs a reason
+registry	a held field without a consumer	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field without a check	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field without a probe	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field without named words	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field probe without edits	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field probe without a value	fields: commands[].opcode: held needs consumer, check and a named drift probe
+registry	a held field probe of another field	fields: commands[].opcode: probe must change this table field
+registry	a held field probe of an absent field	fields: commands[].opcode: probe must change this table field
+registry	a missing docstring registry marker	fields:; scripts/check_aecp_commands.py; needs exactly one pair of registry markers
+registry	reversed registry markers	fields:; scripts/check_aecp_commands.py; registry markers are reversed
+registry	missing Arch markers	fields:; docs/00_MILAN_COMPLIANCE_REVIEW.md; needs the AECP Arch markers
+registry	a stale registry reference in scripts/check_aecp_commands.py	fields:; scripts/check_aecp_commands.py; registry reference differs
+registry	a stale registry reference in docs/architecture/09_verification.md	fields:; docs/architecture/09_verification.md; registry reference differs
+registry	a stale registry reference in docs/00_MILAN_COMPLIANCE_REVIEW.md	fields:; docs/00_MILAN_COMPLIANCE_REVIEW.md; registry reference differs
+held-field	commands[].command.cdl	decode: GET_COUNTERS:; command cdl
+held-field	commands[].command.floor	decode: ACQUIRE_ENTITY:; floor is 16
+held-field	commands[].command.per	decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+held-field	commands[].entries	decode: GET_COUNTERS:; entries
+held-field	commands[].gdi	decode:; GET_CONTROL
+held-field	commands[].hazard	classifier: GET_COUNTERS:
+held-field	commands[].lock	rom: SET_NAME:; lock false
+held-field	commands[].message	decode: GET_COUNTERS:
+held-field	commands[].notify	rom: SET_CONFIGURATION:; notification class
+held-field	commands[].notify.body	decode:; SET_CONFIGURATION
+held-field	commands[].notify.class	rom: SET_CONFIGURATION:; notification class
+held-field	commands[].notify.kind	notify: SET_CONFIGURATION:; PP_UNS_NAME_C
+held-field	commands[].opcode	engine: GET_COUNTERS:; opcode
+held-field	commands[].response.cdl	rom: GET_AUDIO_MAP:; response
+held-field	commands[].response.echo	rom: SET_STREAM_INFO:; E_SINFO answers; table's response
+held-field	commands[].response.engine	decode: GET_DYNAMIC_INFO:; without a program
+held-field	commands[].response.per	rom: GET_AVB_INFO:; response
+held-field	commands[].response.stub	rom: READ_DESCRIPTOR:; response
+held-field	commands[].rtl	engine: GET_COUNTERS:; OP_MISSING_C
+held-field	commands[].status	rom: SET_CONFIGURATION:; STREAM_IS_RUNNING
+held-field	documented[].gdi	decode:; GET_DYNAMIC_INFO; 0x000B
+held-field	documented[].opcode	engine: GET_VIDEO_FORMAT:
+held-field	documented[].rtl	engine: GET_VIDEO_FORMAT:; GDI_MISSING_C
+held-field	echo_entries	schema: echo_entries: EAVL; nor listed in shared_entries
+held-field	fields	fields: fields: export
+held-field	hazard_classes.*	classifier: hazard class RO_SNAPSHOT
+held-field	schema	schema:; declares
+held-field	status_codes.*.code	schema: status SUCCESS; 13
+held-field	status_codes.*.rtl	status: SUCCESS; ST_MISSING_C
+held-field	unserved	decode:; is no table command; not only DLKILL

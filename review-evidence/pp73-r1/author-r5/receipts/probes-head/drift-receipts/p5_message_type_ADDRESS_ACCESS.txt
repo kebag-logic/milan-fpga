@@ -1,0 +1,12 @@
+probe: p5_message_type_ADDRESS_ACCESS
+expect: rc 1, schema finding names GET_MILAN_INFO message
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  schema: GET_MILAN_INFO: message 'AA' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AA' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+--- stderr

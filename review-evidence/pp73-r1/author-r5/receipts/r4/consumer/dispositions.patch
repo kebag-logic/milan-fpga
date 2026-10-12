@@ -1,0 +1,28 @@
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index 86bbe6ff9..c1dd86df2 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -18,6 +18,10 @@ A new reader is debt until review classifies it here.
+ """
+ 
+ DUT_READER_DISPOSITIONS = {
++    "protocol-processor/tb/name_state/mutants.py":
++        "mutation campaign; plants name capture, replay and pending defects in isolated copies "
++        "and requires named value assertions to fail in completed runs; name values and record "
++        "ordinals come from an independent fixed inventory, never from RTL text",
+     "tb/verilator/aaf/start_mutants.py":
+         "mutation campaign; plants named defects in isolated RTL and requires named assertion failures; "
+         "expected timestamps and samples are independent of RTL text",
+@@ -86,6 +90,12 @@ DUT_READER_DISPOSITIONS = {
+     "protocol-processor/tb/pp_top/gsi_mutants.py":
+         "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+         "into an isolated copy and requires the named response check to fail",
++    "protocol-processor/tb/aecp_cmds/mutants.py":
++        "mutation campaign; it plants one decode, dispatch, length-floor, GET_DYNAMIC_INFO, "
++        "unsolicited-job or response-field defect from its own table into an isolated copy of "
++        "the engine or the generator, builds and sweeps it, and requires the named decode check "
++        "to fail in a completed run; the expected programs, floors and sizes are the AECP command "
++        "table's (hdl/aecp/ucode/aecp_commands.json), never read from RTL text",
+     "protocol-processor/tb/srp_admission/mutants.py":
+         "mutation campaign; it plants one admission defect into a temporary tree, "
+         "requires the named check to fail, and runs clean controls first",

@@ -1,0 +1,5 @@
+FAIL:  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0007 with GCFG, the table says 0x0006 with GCFG
+FAIL:  decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG, which is no table command's notification
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "c8f8b64e16198043627b5125bef8ff0f4b218a0b9d664fe2f5364ffc70cb6367", recorded "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: unsolicited PP_UNS_CFG_C: observed {"GCFG": ["0x0007:16"]}, recorded {"GCFG": ["0x0006:16"]} (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 176 checks: 173 PASS, 3 FAIL

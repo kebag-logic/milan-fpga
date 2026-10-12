@@ -1,0 +1,8 @@
+FAIL:  decode: GET_MILAN_INFO: the table's entries name MVUINFO, which the engine never dispatches MVU 0x0000 to (the fresh sweep)
+FAIL:  decode: MVU 0x0001 is no table command and the engine dispatches it to MVUINFO, not only NOTIMPL
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode MVU 0x0000 MVUINFO: observed nothing, recorded {"answers": {"0": "32"}, "cdls": "20, 24, 32, 100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode MVU 0x0000 NOTIMPL: observed {"answers": {"1": "echo"}, "cdls": "12, 19-20, 24, 32, 100", "floor": 12}, recorded {"answers": {"1": "echo"}, "cdls": "12-19", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode MVU 0x0001 MVUINFO: observed {"answers": {"0": "32"}, "cdls": "20, 24, 32, 100", "floor": 20}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode MVU 0x0001 NOTIMPL: observed {"answers": {"1": "echo"}, "cdls": "12-19", "floor": 12}, recorded {"answers": {"1": "echo"}, "cdls": "12, 19-20, 24, 32, 100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "f80762e55a63438443216cd2d79deca5f0d5b6e7a581a199f044d5b515e03863", recorded "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 177 checks: 174 PASS, 3 FAIL

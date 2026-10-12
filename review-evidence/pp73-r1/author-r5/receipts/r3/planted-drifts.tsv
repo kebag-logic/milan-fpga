@@ -1,0 +1,221 @@
+group	planted drift	failing gate words
+registry	commands[].command.cdl	decode: GET_COUNTERS:; command cdl
+registry	commands[].command.floor	decode: ACQUIRE_ENTITY:; floor is 16
+registry	commands[].command.per	decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+registry	commands[].entries	decode: GET_COUNTERS:; entries
+registry	commands[].gdi	decode:; GET_CONTROL
+registry	commands[].hazard	classifier: GET_COUNTERS:
+registry	commands[].lock	rom: SET_NAME:; lock false
+registry	commands[].message	decode: GET_COUNTERS:
+registry	commands[].notify	rom: SET_CONFIGURATION:; notification class
+registry	commands[].notify.body	decode:; SET_CONFIGURATION
+registry	commands[].notify.class	rom: SET_CONFIGURATION:; notification class
+registry	commands[].notify.kind	notify: SET_CONFIGURATION:; PP_UNS_NAME_C
+registry	commands[].opcode	engine: GET_COUNTERS:; opcode
+registry	commands[].response.cdl	rom: GET_AUDIO_MAP:; response
+registry	commands[].response.echo	rom: SET_STREAM_INFO:; E_SINFO answers; table's response
+registry	commands[].response.engine	decode: GET_DYNAMIC_INFO:; without a program
+registry	commands[].response.per	rom: GET_AVB_INFO:; response
+registry	commands[].response.stub	rom: READ_DESCRIPTOR:; response
+registry	commands[].rtl	engine: GET_COUNTERS:; OP_MISSING_C
+registry	commands[].status	rom: SET_CONFIGURATION:; STREAM_IS_RUNNING
+registry	documented[].gdi	decode:; GET_DYNAMIC_INFO; 0x000B
+registry	documented[].opcode	engine: GET_VIDEO_FORMAT:
+registry	documented[].rtl	engine: GET_VIDEO_FORMAT:; GDI_MISSING_C
+registry	fields	fields: fields: export
+registry	hazard_classes.*	classifier: hazard class RO_SNAPSHOT
+registry	schema	schema:; declares
+registry	status_codes.*.code	schema: status SUCCESS; 13
+registry	status_codes.*.rtl	status: SUCCESS; ST_MISSING_C
+registry	unserved	decode:; is no table command; not only DLKILL
+plants.MUTANTS	an opcode renumbered in the table only	engine: GET_SAMPLING_RATE; 0x001E
+plants.MUTANTS	a size changed in the doc table only	F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size
+plants.MUTANTS	an OP_*_C changed in the RTL only	engine: GET_SAMPLING_RATE; OP_GET_SAMP_RATE_C = 0x001E
+plants.MUTANTS	a command missing from the table	OP_GET_AS_PATH_C = 0x0028 and the table has no command
+plants.MUTANTS	a command missing from the table, as the engine decodes it	decode: AEM 0x0028 is no table command; GASP
+plants.MUTANTS	an OP_*_C written in another form	OP_GET_AS_PATH_C is not written
+plants.MUTANTS	a GDI_*_C the table does not document	GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such
+plants.MUTANTS	a success arm redirected to another program (R608-1 q1, as recorded)	decode: SET_CLOCK_SOURCE: the table's entries name SCLKS
+plants.MUTANTS	a success arm redirected to another program, the other line	decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS
+plants.MUTANTS	a decode keyed on another opcode (R608-1 q2, as recorded)	decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS
+plants.MUTANTS	an entry the engine cannot dispatch to	GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C
+plants.MUTANTS	an entry the engine never dispatches the command to	decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN
+plants.MUTANTS	an engine entry no command claims	UPC_NSUPP1_C is claimed by no command
+plants.MUTANTS	a command cdl off the engine's decode floor	decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20
+plants.MUTANTS	a decode floor moved in the engine (as recorded)	decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016; is cdl 16
+plants.MUTANTS	a declared floor dropped from the table	decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024; the table's command cdl is 16
+plants.MUTANTS	a per-record command accepted between records (as recorded)	decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24
+plants.MUTANTS	an echo command per reduced to a divisor, with its response	decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+plants.MUTANTS	an echo command accepting a multiple of the record step	decode: REMOVE_AUDIO_MAPPINGS: command per is 8; gcd; is 16
+plants.MUTANTS	a response the bench saw at another size (as recorded)	decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24
+plants.MUTANTS	a response the bench saw at the command's length on a fixed rule (as recorded)	decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length
+plants.MUTANTS	a status the bench saw outside the set (as recorded)	decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES
+plants.MUTANTS	a program that sent no frame (as recorded)	decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame
+plants.MUTANTS	a command answered without a program (as recorded)	decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program
+plants.MUTANTS	a command the bench saw dropped (as recorded)	decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped
+plants.MUTANTS	a served command the sweep never sent (as recorded)	decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000
+plants.MUTANTS	an unserved opcode decoded (as recorded)	decode: AEM 0x0003 is no table command; GCFG
+plants.MUTANTS	another message type decoded as AEM (as recorded)	decode: AVC 0x0016 is no table command; SCLKS
+plants.MUTANTS	an engine source changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv; sweep this engine with make -C tb/aecp_cmds record
+plants.MUTANTS	the bench changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp
+plants.MUTANTS	the ROM changed after the sweep	decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated)
+plants.MUTANTS	a trial that never ended (as recorded)	decode: tb/aecp_cmds/decode.json: 1 trials never ended
+plants.MUTANTS	a record of another schema	decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0'
+plants.MUTANTS	a record without its parts	decode: tb/aecp_cmds/decode.json is not a decode record
+plants.MUTANTS	a GET_DYNAMIC_INFO member the engine refuses (as recorded)	decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member
+plants.MUTANTS	a GET_DYNAMIC_INFO flag changed in the table	decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO
+plants.MUTANTS	a GET_DYNAMIC_INFO record length changed (as recorded)	decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes
+plants.MUTANTS	a GET_DYNAMIC_INFO member that never runs its program (as recorded)	decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG
+plants.MUTANTS	a GET_DYNAMIC_INFO record dispatched outside the entries (as recorded)	decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS
+plants.MUTANTS	GET_DYNAMIC_INFO's empty aggregate at another size (as recorded)	decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16
+plants.MUTANTS	a GET_DYNAMIC_INFO record that voids the aggregate (as recorded)	decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12
+plants.MUTANTS	GET_DYNAMIC_INFO's response cdl changed in the table	decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12
+plants.MUTANTS	an unsolicited job carrying another command_type (as recorded)	decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers
+plants.MUTANTS	an unsolicited job no table command claims (as recorded)	decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG
+plants.MUTANTS	an unsolicited body changed in the table	decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers
+plants.MUTANTS	an unsolicited kind the engine does not run	decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job
+plants.MUTANTS	an unsolicited job at another size (as recorded)	decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24
+plants.MUTANTS	an unsolicited arm no command claims	decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB
+plants.MUTANTS	a hazard class changed in the top	classifier: SET_NAME: the table says NAME_WR; 0x0010 STREAM_CFG
+plants.MUTANTS	a hazard class changed in the table	classifier: GET_COUNTERS: the table says MAP_CFG
+plants.MUTANTS	a classified opcode no command carries	hz_classify names 0x004B
+plants.MUTANTS	a hazard code changed in pp_pkg	classifier: hazard class IDENTIFY is 8 in the table and 9
+plants.MUTANTS	a lock flag changed in the table	rom: SET_CONTROL: the table says lock false
+plants.MUTANTS	CHECK_LOCK dropped from a program	rom: SET_CLOCK_SOURCE: the table says lock true; never reach CHECK_LOCK
+plants.MUTANTS	the scoreboard's lock-protected set changed	scoreboard:; hz_is_lockprot
+plants.MUTANTS	a notification class changed in the table	rom: SET_SAMPLING_RATE: its programs enqueue notification class [5]
+plants.MUTANTS	a NOTIFY_ENQ class changed in a program	rom: SET_CONTROL: its programs enqueue notification class [2]
+plants.MUTANTS	the notify block's class map changed	notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C
+plants.MUTANTS	a status dropped from the table	rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered
+plants.MUTANTS	a status the programs cannot answer	rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table
+plants.MUTANTS	a refusal status changed in a program	rom: SET_CONFIGURATION: status NO_RESOURCES is answered
+plants.MUTANTS	a status code changed in ucpu_pkg	status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9
+plants.MUTANTS	a response size changed in the table	rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20
+plants.MUTANTS	a field dropped from a program	rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl
+plants.MUTANTS	GET_AUDIO_MAP's response cdl 20, F06.14 regenerated	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N; the table's response is 20 + 8·N
+plants.MUTANTS	GET_AUDIO_MAP's response cdl 28, F06.14 regenerated	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N; the table's response is 28 + 8·N
+plants.MUTANTS	a header field NOPed in E_GAMAP	rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22
+plants.MUTANTS	a header field NOPed in E_GAVB	rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28
+plants.MUTANTS	a header field NOPed in E_GASP	rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14
+plants.MUTANTS	a header field NOPed in E_RDESC	rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy
+plants.MUTANTS	the record APPEND NOPed in E_GAMAP	rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24; no path builds the variable part
+plants.MUTANTS	the record APPEND NOPed in E_GAVB	rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32
+plants.MUTANTS	the record APPEND NOPed in E_GASP	rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16
+plants.MUTANTS	a per-record response read as a fixed one	rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8·N, the table's response is 16
+plants.MUTANTS	an echo row's response off its command size	schema: ACQUIRE_ENTITY: an echo response is the command's own size
+plants.MUTANTS	an echo row's command off its response size	schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size
+plants.MUTANTS	an unsolicited body of another size	unsolicited body E_STRMUNS is cdl 12
+plants.MUTANTS	a path into the ROM fill	rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word
+plants.MUTANTS	section 8.1 missing a served command	8.1: ENTITY_AVAILABLE (AEM 0x0002) is served
+plants.MUTANTS	a row missing from F06.14	F06.14: row 0x0029 GET_COUNTERS is missing
+plants.MUTANTS	two commands on one opcode	schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's
+plants.MUTANTS	a status the table does not define	schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes
+plants.MUTANTS	a status code off IEEE Table 7-141 (no RTL constant holds it)	schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12
+plants.MUTANTS	a status code that is not an integer	schema: status NO_RESOURCES: code must be an integer
+plants.MUTANTS	a common status the table does not define	schema: common_status AEM: status BUSY is not in status_codes
+plants.MUTANTS	an unserved program that is no shared entry	schema: unserved 'NOTIMPL2' is no shared entry
+plants.MUTANTS	a table of another schema	schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2'
+plants.MUTANTS	an empty part of the table	schema: status_codes, hazard_classes or commands is empty
+plants.MUTANTS	a command without a field	schema: GET_NAME: missing hazard
+plants.MUTANTS	a command listed twice	schema: GET_NAME is listed twice
+plants.MUTANTS	a message type that is neither AEM nor MVU	schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+plants.MUTANTS	the MVU row the generator reads, gone	schema: GET_MILAN_INFO: no command with message MVU
+plants.MUTANTS	a message type without its common statuses	schema: GET_MILAN_INFO: message 'MVU' has no common_status row
+plants.MUTANTS	an opcode not written 0xHHHH	schema: GET_NAME: opcode '0x11' is not 0xHHHH
+plants.MUTANTS	a hazard class the table does not define	schema: GET_NAME: hazard NAME_RD is not in hazard_classes
+plants.MUTANTS	a flag that is not true or false	schema: GET_NAME: lock, gdi and oversize must be true or false
+plants.MUTANTS	a size without an integer cdl	schema: GET_NAME: response has no integer cdl
+plants.MUTANTS	a per-record size without its unit	schema: GET_AS_PATH: response per must be an integer with its unit
+plants.MUTANTS	a zero echo record step	schema: ADD_AUDIO_MAPPINGS: command per must be
+plants.MUTANTS	a null echo record step	schema: REMOVE_AUDIO_MAPPINGS: command per must be
+plants.MUTANTS	a negative record step	schema: GET_AVB_INFO: response per must be
+plants.MUTANTS	a floor at or above the command cdl	schema: ACQUIRE_ENTITY: command floor must be
+plants.MUTANTS	an entry listed twice	schema: GET_NAME: entries must be a non-empty list of names without repeats
+plants.MUTANTS	a notification without its body	schema: SET_NAME: notify must be null or carry class, kind and body
+plants.MUTANTS	an unserved F06.14 row short of a cell	schema: documented row '0x0003': needs
+plants.MUTANTS	an unserved F06.14 row without its name (R609-1 S2)	schema: documented row '0x0003': needs
+plants.MUTANTS	a constant the engine does not declare	engine: GET_NAME: the table names OP_GET_NAMES_C; declares no such constant
+plants.MUTANTS	a GDI_*_C renumbered in the table	engine: GET_VIDEO_FORMAT: the table says 0x000C; GDI_GET_VIDEO_FMT_C = 0x000B
+plants.MUTANTS	a GDI_*_C the engine does not declare	engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C
+plants.MUTANTS	a hazard code pp_pkg adds	classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not
+plants.MUTANTS	a non-AEM command off the classifier's default	classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default
+plants.MUTANTS	a class the notify block maps and does not queue	notify:; class 9 (START_STREAMING) is in one only
+plants.MUTANTS	a class off the notify block's map whose kind another class carries	notify: SET_NAME: class 6 is not in; its kind PP_UNS_NAME_C is another class's
+plants.MUTANTS	a class the notify block maps and no command enqueues	notify:; maps class 10 to PP_UNS_STRM_C and no table command enqueues it
+plants.MUTANTS	a ucpu_pkg status the table does not name	status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it
+plants.MUTANTS	an engine-built status on a program-built response	rom: GET_NAME: engine_status is only for an engine-built response
+plants.MUTANTS	an entry the generator never placed	rom: ENTITY_AVAILABLE: entry EAVL is no placed program
+plants.MUTANTS	a status code the table does not know set in a program	rom: SET_CONFIGURATION: a path sets status 13, which the table does not know
+plants.MUTANTS	a notification body the generator never placed	rom: START_STREAMING: notification body STRMUNS is no placed program
+plants.MUTANTS	F06.14's header changed	F06.14: the header is not
+plants.MUTANTS	a row repeated in F06.14	F06.14: 42 rows where the table generates 41
+plants.MUTANTS	a row in F06.14 the table does not generate	F06.14: row 0x0029 GET_COUNTER is not in the table
+plants.MUTANTS	an F06.14 row with an extra cell	F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12
+plants.MUTANTS	F06.14 rows out of order	F06.14: the rows are out of the generated order
+plants.MUTANTS	section 8.1 listing a command the engine does not serve	8.1: section 8.1 lists AEM 0x0003 and the table serves no such command
+plants.MUTANTS	a parsed block renamed (a stale pattern)	gate refused; hz_classify; the pattern has gone stale
+plants.MUTANTS	a parsed block with no end	gate refused; hdl/aecp/KL_aecp_notify.sv emit_pick: no 
+plants.MUTANTS	the engine's entries written in another form	gate refused; hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing
+plants.MUTANTS	hz_classify's opcode case written in another form	gate refused; hz_classify's default or its opcode case is not parseable
+plants.MUTANTS	hz_classify's opcode labels written in another form	gate refused; hz_classify's opcode case parsed nothing
+plants.MUTANTS	pp_pkg's hazard codes written in another form	gate refused; no PP_HZ_* enum parsed
+plants.MUTANTS	hz_is_lockprot naming a class without its alias	gate refused; hz_is_lockprot is not parseable
+plants.MUTANTS	the notify block's queued classes written in another form	gate refused; the command-class map is not parseable
+plants.MUTANTS	ucpu_pkg's status codes written in another form	gate refused; no ST_*_C parsed
+plants.MUTANTS	F06.14's end marker gone	gate refused; the F06.14 markers are missing
+plants.MUTANTS	section 8.1's heading renamed	gate refused; section 8.1's table is not parseable
+field_plants.MUTANTS	an unregistered table field	fields: unknown: table field missing from registry
+field_plants.MUTANTS	an unregistered nested field	fields: commands[].command.extra: table field missing from registry
+field_plants.MUTANTS	a registry entry for no field	fields: absent: registry entry has no such table field
+field_plants.MUTANTS	a duplicate registry entry	fields: commands[].opcode: duplicate registry entry
+field_plants.MUTANTS	a registry which is no list	fields: registry must be a list of field objects
+field_plants.MUTANTS	a registry row which is no object	fields: registry must be a list of field objects
+field_plants.MUTANTS	a registry entry without a path	fields: registry entry needs a path
+field_plants.MUTANTS	an unknown registry status	fields: commands[].opcode: status must be held or held to nothing
+field_plants.MUTANTS	a registry entry without a reason	fields: commands[].opcode: needs a reason
+field_plants.MUTANTS	a held field without a consumer	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field without a check	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field without a probe	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field without named words	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field probe without edits	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field probe without a value	fields: commands[].opcode: held needs consumer, check and a named drift probe
+field_plants.MUTANTS	a held field probe of another field	fields: commands[].opcode: probe must change this table field
+field_plants.MUTANTS	a held field probe of an absent field	fields: commands[].opcode: probe must change this table field
+field_plants.MUTANTS	a missing docstring registry marker	fields:; scripts/check_aecp_commands.py; needs exactly one pair of registry markers
+field_plants.MUTANTS	reversed registry markers	fields:; scripts/check_aecp_commands.py; registry markers are reversed
+field_plants.MUTANTS	missing Arch markers	fields:; docs/00_MILAN_COMPLIANCE_REVIEW.md; needs the AECP Arch markers
+field_plants.MUTANTS	a stale registry reference in scripts/check_aecp_commands.py	fields:; scripts/check_aecp_commands.py; registry reference differs
+field_plants.MUTANTS	a stale registry reference in docs/architecture/09_verification.md	fields:; docs/architecture/09_verification.md; registry reference differs
+field_plants.MUTANTS	a stale registry reference in docs/00_MILAN_COMPLIANCE_REVIEW.md	fields:; docs/00_MILAN_COMPLIANCE_REVIEW.md; registry reference differs
+selftest.OBSERVED_MUTANTS	a stale PR field reference	fields: PR body: registry reference differs
+selftest.OBSERVED_MUTANTS	an unreadable PR draft	gate refused; fields: PR body: cannot read draft
+selftest.OBSERVED_MUTANTS	a fresh sweep that is not the recorded one	decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS
+selftest.OBSERVED_MUTANTS	a sweep output that cannot be read	gate refused; the sweep's output; cannot be read
+selftest.OBSERVED_MUTANTS	pp_pkg's unsolicited kinds written in another form	gate refused; no PP_UNS_*_C kind parsed
+selftest.FILE_MUTANTS	an unreadable registry	gate refused; cannot read an input; aecp_fields.json
+selftest.FILE_MUTANTS	a registry that is not JSON	gate refused; aecp_fields.json is not JSON
+selftest.FILE_MUTANTS	a table that is not JSON	gate refused; hdl/aecp/ucode/aecp_commands.json is not JSON
+selftest.FILE_MUTANTS	a decode record that is not JSON	gate refused; tb/aecp_cmds/decode.json is not JSON
+selftest.FILE_MUTANTS	an input that cannot be read	gate refused; cannot read an input
+selftest.FILE_MUTANTS	a decode record that cannot be read	gate refused; cannot read an input
+selftest.FILE_MUTANTS	a swept input that cannot be read	gate refused; cannot read an input
+selftest.FILE_MUTANTS	a generator that does not run	gate refused; hdl/aecp/ucode/gen_ucode.py did not generate
+selftest.FILE_MUTANTS	a generator of another shape	gate refused; hdl/aecp/ucode/gen_ucode.py defines no occupied
+selftest.FILE_MUTANTS	a message type the generator cannot read, in the file (R608-1 p5e)	schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+selftest.FILE_MUTANTS	a message type the generator cannot read, in the file (R608-1 p5)	schema: GET_MILAN_INFO: no command with message MVU
+selftest.FILE_MUTANTS	an entry the generator never placed, in the file (R608-1 p8)	decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2
+selftest.FILE_MUTANTS	a status code row the generator reads, gone from the file	schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes
+selftest.FILE_MUTANTS	a status code the generator reads, not an integer in the file	schema: status NO_RESOURCES: code must be an integer
+selftest.FILE_MUTANTS	a status code changed in the file only	schema: status NO_RESOURCES is 9 in the table
+selftest.FILE_MUTANTS	the MVU row the generator reads, renamed in the file	schema: GET_MILAN_INFO: no command with message MVU
+selftest.GENERATOR_MUTANTS	the generator: missing entries	GET_CLOCK_SOURCE: entries needs
+selftest.GENERATOR_MUTANTS	the generator: entries is not a list	GET_CLOCK_SOURCE: entries needs
+selftest.GENERATOR_MUTANTS	the generator: missing name	AEM 0x0017; name needs
+selftest.GENERATOR_MUTANTS	the generator: non-hexadecimal MVU opcode	GET_MILAN_INFO:; opcode
+selftest.GENERATOR_MUTANTS	the generator: missing commands	commands: needs a non-empty list; GET_MILAN_INFO
+selftest.GENERATOR_MUTANTS	the generator: a command is not an object	commands[0]: needs a command object
+selftest.GENERATOR_MUTANTS	the generator: an entry it never placed	GET_CLOCK_SOURCE: entries names SCFGRUN2; placed no E_SCFGRUN2
+selftest.GENERATOR_MUTANTS	the generator: a status code row it reads, gone	status_codes gives no integer code for STREAM_IS_RUNNING
+selftest.GENERATOR_MUTANTS	the generator: a status code it reads, not an integer	status_codes gives no integer code for BAD_ARGUMENTS
+selftest.GENERATOR_MUTANTS	the generator: the MVU row it reads, gone	GET_MILAN_INFO: no command with message MVU
+selftest.GENERATOR_MUTANTS	the generator: the MVU opcode it reads, not hexadecimal	GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode
