@@ -1,0 +1,490 @@
+# R626-1 mutate.py (sha256 571bd0aabb766efeec0f0274909d181e81ed6f25b609b76a5c9c0c2fffcfc031) at 2c2f3369, with one added line:
+165a166
+>     shutil.copy2(head / "scripts/run_all_suites.sh", root / "scripts/run_all_suites.sh")
+
+=== missing-duration-free: rc=None
+DRIFT: replacement matched 0 times
+=== stale-entry-check-deleted: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  ESCAPED a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== timeout-mirrored-120: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4320, 117: 4320, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 2 FAILURE(S)
+=== worker-count-mirrored-5: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  ESCAPED rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== overhead-dropped: rc=1
+  ok   head worker 0/5 predicted 4110 s (68.5 min), bound 4320 s
+  ok   head worker 1/5 predicted 4112 s (68.5 min), bound 4320 s
+  ok   head worker 2/5 predicted 4113 s (68.5 min), bound 4320 s
+  ok   head worker 3/5 predicted 4111 s (68.5 min), bound 4320 s
+  ok   head worker 4/5 predicted 2797 s (46.6 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 114 (bound 4104 s) is refused for a 4113 s worker
+  [ok]    and 115 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {114: 4104, 115: 4140, 120: 4320}, expected {114: 4104, 115: 4140, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  ESCAPED milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 835 s to 2873 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== bound-ge: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== mean-only: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  ESCAPED milan_dp at 4241 s puts it over and is refused
+  ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 3 FAILURE(S)
+=== headroom-100-percent: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 7200 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 7200 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 7200 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 7200 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 7200 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 70 (bound 4200 s) is refused for a 4205 s worker
+  [ok]    and 71 minutes is not
+  ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {70: 4200, 71: 4260, 120: 7200}, expected {70: 2520, 71: 2556, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 7120 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 7121 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 11984 s to 14022 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== headroom-75-percent: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 5400 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 5400 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 5400 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 5400 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 5400 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 93 (bound 4185 s) is refused for a 4205 s worker
+  [ok]    and 94 minutes is not
+  ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {93: 4185, 94: 4230, 120: 5400}, expected {93: 3348, 94: 3384, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 5320 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 5321 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 4784 s to 6822 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== bound-formula-div10: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 43200 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 43200 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 43200 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 43200 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 43200 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 11 (bound 3960 s) is refused for a 4205 s worker
+  [ok]    and 12 minutes is not
+  ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {11: 3960, 12: 4320, 120: 43200}, expected {11: 396, 12: 432, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 43120 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 43121 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 155984 s to 158022 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== pins-dropped: rc=1
+  ok   head worker 0/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 1/5 predicted 4207 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  FAIL specialized owners {'tsn_fuzz': 3, 'chmap_capture': 1, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4207 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== pin-moved-tsn_fuzz-0: rc=1
+  ok   head worker 0/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 3/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  FAIL specialized owners {'tsn_fuzz': 0, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== dedicated-dropped: rc=1
+  FAIL  2 shard(s): dedicated alone=False balanced owners unchanged=True
+  FAIL  4 shard(s): dedicated alone=False balanced owners unchanged=True
+  FAIL  5 shard(s): dedicated alone=False balanced owners unchanged=True
+  FAIL  7 shard(s): dedicated alone=False balanced owners unchanged=True
+  FAIL 23 shard(s): dedicated alone=False balanced owners unchanged=True
+  FAIL head worker 0/5 predicted 4907 s (81.8 min), bound 4320 s
+  FAIL head worker 1/5 predicted 4903 s (81.7 min), bound 4320 s
+  FAIL head worker 2/5 predicted 4902 s (81.7 min), bound 4320 s
+  FAIL head worker 3/5 predicted 4902 s (81.7 min), bound 4320 s
+  ok   head worker 4/5 predicted 80 s (1.3 min), bound 4320 s
+selftest: 9 FAILURE(S)
+=== head-arms-skipped: rc=1
+  FAIL head: suite_shards.py would skip its head arms with .github/workflows/rtl.yml, tb/verilator, scripts/run_all_suites.sh beside it
+selftest: 1 FAILURE(S)
+=== measure-from-job-start: rc=1
+  FAIL log windows {'alpha': 71, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== measure-round-down: rc=1
+  FAIL log windows {'alpha': 10, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== nondeterministic-tie: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  FAIL the 5 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== table-zero-duration-allowed: rc=1
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  ESCAPED a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: 1 FAILURE(S)
+=== tree-head: rc=0
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: PASS
+=== tree-unmeasured-suite: rc=1
+  FAIL head: zz_new_suite: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follows the module docstring's new-suite steps: record suite_timeout's figure for it as provisional, add a worker if one is then predicted over 60% of timeout-minutes, and replace the figure from the change's own hosted run)
+selftest: 1 FAILURE(S)
+=== tree-removed-suite: rc=1
+  FAIL head: cbs: SUITE_SECONDS names a suite that is not in the inventory
+selftest: 1 FAILURE(S)
+=== tree-gptp_plane+500: rc=1
+  FAIL head worker 0/5 predicted 4333 s (72.2 min), bound 4320 s
+  FAIL head worker 1/5 predicted 4328 s (72.1 min), bound 4320 s
+  FAIL head worker 2/5 predicted 4329 s (72.2 min), bound 4320 s
+  FAIL head worker 3/5 predicted 4327 s (72.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+selftest: 4 FAILURE(S)
+=== tree-timeout-116: rc=1
+  FAIL head worker 0/5 predicted 4204 s (70.1 min), bound 4176 s
+  FAIL head worker 1/5 predicted 4205 s (70.1 min), bound 4176 s
+  FAIL head worker 2/5 predicted 4203 s (70.0 min), bound 4176 s
+  FAIL head worker 3/5 predicted 4205 s (70.1 min), bound 4176 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4176 s
+selftest: 4 FAILURE(S)
+=== tree-timeout-117: rc=0
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4212 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4212 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4212 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4212 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4212 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212}, expected {116: 4176, 117: 4212}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4132 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4133 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 32 s to 2070 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: PASS
+=== tree-six-workers: rc=1
+  FAIL head: WORKER_OVERHEAD_SECONDS describes 5 workers; rtl.yml runs 6
+selftest: 1 FAILURE(S)
+=== tree-missing-rtl.yml: rc=1
+  FAIL head: [Errno 2] No such file or directory: '<scratch>/w-r6261-adapt/tree-missing-rtl.yml/.github/workflows/rtl.yml'
+selftest: 1 FAILURE(S)
+=== tree-timeout-expression: rc=1
+  FAIL head: rtl.yml job `verilator-shards` has 0 timeout-minutes values, not one
+selftest: 1 FAILURE(S)
+=== tree-step-timeout-added: rc=0
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: PASS
+=== tree-maap-1380: rc=0
+  ok   head worker 0/5 predicted 4206 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4207 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4207 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 459 s to 2497 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+selftest: PASS
