@@ -1,0 +1,107 @@
+[
+  {
+    "name": "mutants-r2-unchanged",
+    "rc": 0,
+    "seconds": 52.139,
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-3-packet/scripts/mutants_r2.py",
+      "$REVIEWS/730-r633-3-packet",
+      "$REVIEWS/730-r633-3-packet/scratch/pristine",
+      "--jobs",
+      "10"
+    ]
+  },
+  {
+    "name": "r633-r1-unchanged",
+    "rc": 1,
+    "seconds": 0.365,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-1/probe_cpu_ranges.py",
+      "/work"
+    ]
+  },
+  {
+    "name": "r633-r1-compatible",
+    "rc": 0,
+    "seconds": 0.365,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_cpu_ranges_compat.py",
+      "/work"
+    ]
+  },
+  {
+    "name": "r633-r2-monitor-unchanged",
+    "rc": 0,
+    "seconds": 1.768,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_monitor.py",
+      "/work"
+    ]
+  },
+  {
+    "name": "r633-r2-lifecycle-unchanged",
+    "rc": 0,
+    "seconds": 0.615,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_lifecycle.py",
+      "/work"
+    ]
+  },
+  {
+    "name": "r632-r2-probe-unchanged",
+    "rc": 1,
+    "seconds": 9.093,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_r2.py",
+      "/work",
+      "3000"
+    ]
+  },
+  {
+    "name": "r632-r2-shutdown-unchanged",
+    "rc": 0,
+    "seconds": 3.874,
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-3-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-3-730",
+      "$REVIEWS/730-r633-3-packet",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_shutdown.py",
+      "/work"
+    ]
+  }
+]

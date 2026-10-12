@@ -1,0 +1,23 @@
+source_sha256=5a9f4aa0d5917bc6acaa51ac904bf7c13ce5a7f90620e31a262cdc20796e90bf
+Selected definitions: JobCpuRanges, Refusal, container_cpuset, cpu_range_overlaps, describe_job_cpu_ranges, job_container_width, job_cpu_ranges, join_job_cpu_reader, replay_container_concurrency, slot_cpu_base, stop_job_cpu_range_monitor
+All collaborators inert; no candidate module import or entrypoint.
+PASS shipping workflow derivation: {"docs": 1, "elaborate": 1, "rtl-fast": 1, "rtl-full": 4}
+PASS maximum static disjointness: {"ranges": 320}
+PASS planted overlap detected: ["slot-0-job-0 and planted-overlap share CPU 4", "slot-0-job-0 and planted-overlap share CPU 5", "slot-0-job-0 and planted-overlap share CPU 6", "slot-0-job-0 and planted-overlap share CPU 7"]
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7 --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67 --cpuset-cpus=68-71 --cpuset-cpus=72-75 --cpuset-cpus=76-79
+PASS unreadable max-parallel refused: "${{ inputs.width }}"
+PASS unreadable max-parallel refused: "-1"
+PASS unreadable max-parallel refused: "1.5"
+PASS unreadable max-parallel refused: ["2"]
+PASS unreadable max-parallel refused: "1234567"
+PASS too-wide max-parallel refused: "5"
+PASS four ordinary live containers disjoint: {"held": {"a": 0, "b": 1, "c": 2, "d": 3}, "live_cpu_ranges": {"a": "4-7", "b": "8-11", "c": "12-15", "d": "16-19"}, "problems": [], "summary": "4 job container(s) created: 4 seen on a range of their own by docker inspect, 0 removed before that, 0 never seen on one; at most 4 held a range at once"}
+PASS create/die/destroy reuse disjoint: {"held": {"b": 1, "c": 2, "d": 3, "e": 0}, "live_cpu_ranges": {"b": "8-11", "c": "12-15", "d": "16-19", "e": "4-7"}, "problems": [], "summary": "5 job container(s) created: 5 seen on a range of their own by docker inspect, 0 removed before that, 0 never seen on one; at most 4 held a range at once"}
+PASS foreign and malformed event cannot assign: ["Docker reported container ffffffffffff, which this boundary does not own", "unreadable Docker event line 'not-json'"]
+PASS F1 restart retains exclusive range: {"held": {"a": 0, "b": 1}, "live_cpu_ranges": {"a": "4-7", "b": "8-11"}, "problems": [], "sequence": [["create", "a"], ["update", "a"], ["start", "a"], ["die", "a"], ["create", "b"], ["update", "b"], ["start", "b"], ["start", "a"]], "summary": "2 job container(s) created: 2 seen on a range of their own by docker inspect, 0 removed before that, 0 never seen on one; at most 2 held a range at once"}
+PASS F2 post-accept timeout preserves exclusive range: {"held": {"a": 0, "b": 1}, "live_cpu_ranges": {"a": "4-7", "b": "8-11"}, "problems": ["the move of job container aaaaaaaaaaaa to 4-7 reported job container CPU-range move timed out after server application, but docker inspect shows it there"], "sequence": [["create", "a"], ["update", "a"], ["start", "a"], ["create", "b"], ["update", "b"], ["start", "b"]], "summary": "2 job container(s) created: 2 seen on a range of their own by docker inspect, 0 removed before that, 0 never seen on one; at most 2 held a range at once"}
+PASS F3 insufficient slot-0 CPUs refuse: {"concurrency": 4, "host_cpus": 19, "returned_ranges": null}
+PASS insufficient isolated-slot CPUs refuse: {"host_cpus": 19}
+PASS F4 shutdown refusal still joins reader: {"calls": ["group-absent-but-leader-reap-failed", "joined", "refusal-propagated"], "pipe_closed": true}
+CONTRACT VIOLATIONS=0

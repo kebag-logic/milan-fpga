@@ -1,0 +1,36 @@
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event carries the recorded base oid, so the local replica classifies the same file set hosted does
+  ok   and that is not the validation base, so the payload cannot be mistaken for the commit the trust checks read
+  FAIL the normal validation path prints the resolved base and enters its Docker boundary
+  FAIL the normal validation path leases the selected workflow's act job volumes
+  FAIL dry-run prints the job bound and the bounded container options as one quoted argv word
+Traceback (most recent call last):
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 16279, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 16229, in main
+    return selftest(shipping_root)
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 14503, in selftest
+    selftest_slot_validation_path(tally, resolved, shipping_root)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 14266, in selftest_slot_validation_path
+    rc = run_validation(
+        resolved,
+    ...<2 lines>...
+        launch=LaunchOptions("/trusted/act", True, True, slot),
+    )
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 5835, in run_validation
+    cpu_ranges = job_cpu_ranges(slot.number, concurrency)
+  File "/packet/scratch/r632r1/M02_job_ranges_start_on_staging/scripts/act_ci.py", line 4706, in job_cpu_ranges
+    raise Refusal(f"replay slot {slot}'s CPU ranges overlap: {shared[0]}")
+Refusal: replay slot 2's CPU ranges overlap: staging and job range 0 share CPU 40
