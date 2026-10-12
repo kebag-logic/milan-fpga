@@ -1,0 +1,20 @@
+-The five default gmstep controls remain in `run` (#602).
++The five default gmstep controls stayed in `run` (#602) until #621.
++#621 split further. Its small-step phase took the gmstep leg from 48 s to
++253 s of CPU, and `milan_dp` ran that leg seven times: the clean leg, the
++driver's positive control and five controls. Hosted run 38048622822 then
++timed out at 4800 s. Dev's own windows before it were already above 60% of
++that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
++to 38067159953. The leg and its five default controls therefore moved to the
++`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
++default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
++`suite_shards.py` pins that owner among its five-worker landmarks.
++The new suite keeps the 1800 s default budget. The clean leg runs every
++phase once; the controls run without the #621 phase, which holds none of
++their named checks. Its README records the native per-leg times at base,
++at the #621 head and at the split head. Natively the leg and its controls
++were 21.9% of `milan_dp` at base. Removed from the six dev windows above,
++that projects `milan_dp` to 2323 to 2750 s, at most 57.3% of 4800 s. The
++new suite projects to about 909 s, 50.5% of 1800 s. Hosted runs at the
++pushed head confirm or replace both projections.
++
