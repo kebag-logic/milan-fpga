@@ -20,6 +20,13 @@ SRCS = gptp_plane_wrap.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
 
+.PHONY: all phc-step
+.DEFAULT_GOAL := all
+all: run phc-step
+
+phc-step:
+	python3 phc_step.py --mutants
+
 run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_plane_sim
 	./obj_dir/Vgptp_plane_sim
