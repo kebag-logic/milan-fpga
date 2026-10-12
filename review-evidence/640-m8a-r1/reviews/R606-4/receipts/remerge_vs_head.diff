@@ -1,0 +1,16 @@
+diff --git a/docs/ARCHITECTURE_HW_SW_SPLIT.md b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+index d1efb50df..2c47d3a1b 100644
+--- a/docs/ARCHITECTURE_HW_SW_SPLIT.md
++++ b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+@@ -189,11 +189,8 @@ In the ownerless test form:
+ 
+ F0's `--ctrl-mailbox` switch is default-off.
+ Its datapath inputs remain idle until protocol integration connects them.
+-<<<<<<< ce10328c3d89d81509e47836fa4a48b22ecdbc20
+ It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
+-=======
+ The publication block's outputs remain unread until the placement switch selects them.
+->>>>>>> c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+ F1's flash and state ports await integration with those owners.
+ Access counts and model time do not prove target service latency.
+ F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).
