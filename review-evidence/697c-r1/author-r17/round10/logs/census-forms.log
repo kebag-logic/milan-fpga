@@ -1,0 +1,105 @@
+clean: []
+[REFUSED] import subprocess as sp, used in stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin imports subprocess, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names .run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names sp, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 imports subprocess as sp, a process-launch facility
+    sw/firmware/ctrl/test/ctrl_build.py:261 names sp, which is subprocess
+[REFUSED] __import__ of subprocess:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names __import__, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 names __import__, dynamic code or reflection
+[REFUSED] importlib:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin imports importlib, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names .run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names .import_module, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names importlib, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 imports importlib, dynamic code
+    sw/firmware/ctrl/test/ctrl_build.py:261 names importlib, dynamic code or reflection
+[REFUSED] getattr(os, computed):
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names getattr, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 names getattr, dynamic code or reflection
+[REFUSED] os.popen:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names .read, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.popen, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names os.popen, a process-launch facility
+[REFUSED] os.execvp:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.execvp, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names os.execvp, a process-launch facility
+[REFUSED] os.posix_spawn:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.posix_spawn, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names os.posix_spawn, a process-launch facility
+[REFUSED] os.spawnlp:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.spawnlp, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.P_WAIT, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names os.spawnlp, a process-launch facility
+[REFUSED] pty.spawn:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin imports pty, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names .spawn, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names pty, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 imports pty, a process-launch facility
+    sw/firmware/ctrl/test/ctrl_build.py:257 names pty, which is pty
+[REFUSED] asyncio create_subprocess_exec:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin imports asyncio, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names .create_subprocess_exec, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names asyncio, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 names asyncio.create_subprocess_exec, a process-launch facility
+[REFUSED] from asyncio import create_subprocess_shell:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin imports asyncio.create_subprocess_shell, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names c, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 imports asyncio.create_subprocess_shell as c, a process-launch facility
+    sw/firmware/ctrl/test/ctrl_build.py:257 names c, which is asyncio.create_subprocess_shell
+[REFUSED] fw_gtest.run in stack_pin (another module's runner):
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names fw_gtest.run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names fw_gtest, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:37 imports fw_gtest, outside the pin proof's vocabulary)
+[REFUSED] shutil.os.system outside the proof (legacy_stack):
+    sw/firmware/ctrl/test/ctrl_build.py:288 names shutil.os.system, a process-launch facility
+[REFUSED] sys.modules lookup:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names sys.modules, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names sys, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:27 imports sys, outside the pin proof's vocabulary)
+    sw/firmware/ctrl/test/ctrl_build.py:260 names sys.modules, reflection that reaches an object without naming it
+[REFUSED] a generator's frame globals:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .f_globals, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .gi_frame, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 names (i for i in ()).gi_frame.f_globals, reflection that reaches an object without naming it
+    sw/firmware/ctrl/test/ctrl_build.py:260 names (i for i in ()).gi_frame, reflection that reaches an object without naming it
+[REFUSED] from os import system:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin imports os.system, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:257 stack_pin names system, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 imports os.system, a process-launch facility
+    sw/firmware/ctrl/test/ctrl_build.py:257 names system, which is os.system
+[REFUSED] eval of a string:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names eval, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names eval, dynamic code or reflection
+[REFUSED] compile of a string:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names compile, neither ctrl_build.py's nor in the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:256 names compile, dynamic code or reflection
+[REFUSED] a module constant bound to the runner, used by stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names RUNNER, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:315 the value of RUNNER names fw_gtest.run, outside the pin proof's vocabulary)
+[REFUSED] the helper's name bound again:
+    sw/firmware/ctrl/test/ctrl_build.py:314 binds the helper's name git again
+[REFUSED] a new module function using fw_gtest, called by stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names reader, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:316 reader names object, neither ctrl_build.py's nor in the pin proof's vocabulary)
+[REFUSED] a lambda parameter shadowing run:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names run, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:105 the value of run names fw_gtest.run, outside the pin proof's vocabulary)
+[REFUSED] the runner as a default argument:
+    sw/firmware/ctrl/test/ctrl_build.py:246 stack_pin names fw_gtest.run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:246 stack_pin names fw_gtest, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:37 imports fw_gtest, outside the pin proof's vocabulary)
+[REFUSED] os.environ changed in stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:256 stack_pin names os.environ, outside the pin proof's vocabulary
+[REFUSED] from ctrl_pin import run inside stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin imports ctrl_pin.run, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:261 stack_pin names tool, neither ctrl_build.py's nor in the pin proof's vocabulary
+[REFUSED] subprocess in a ctrl_pin.py function:
+    sw/firmware/ctrl/test/ctrl_pin.py:746 imports subprocess, a process-launch facility
+    sw/firmware/ctrl/test/ctrl_pin.py:747 names subprocess, which is subprocess
+[REFUSED] a star import:
+    sw/firmware/ctrl/test/ctrl_build.py:314 imports every name of os, which the census cannot follow
+[REFUSED] a class method using fw_gtest, used by stack_pin:
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names .read, outside the pin proof's vocabulary
+    sw/firmware/ctrl/test/ctrl_build.py:260 stack_pin names Reader, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:319 Reader names object, neither ctrl_build.py's nor in the pin proof's vocabulary)
+28 of 28 refused at the planted line
+[NOT SEEN, the stated limit] the harness's runner in legacy_stack, which the pin decision does not reach:
+[NOT SEEN, the stated limit] fw_gtest.run in ctrl_pin.py's mirror:

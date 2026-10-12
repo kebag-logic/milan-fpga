@@ -1,0 +1,18 @@
+CAUGHT s1-image-sinks-example (rv32=yes): firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT s2-image-sources-src (rv32=yes): firmware [-DIMAGE_SINKS=9u -DIMAGE_SOURCES=9u]: test/rv32_image/image_main.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+CAUGHT c1-cplusplus-header-example (rv32=yes): firmware c++: maap/maap_mbx.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT c2-cplusplus-header-test-fake (rv32=yes): firmware c++: loop/ctrl_loop.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT d1-two-arg-D-python-list (rv32=yes): host [-DCTRL_R3_SPLIT_LIST]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT d2-two-arg-D-python-call (rv32=yes): host [-DCTRL_R3_SPLIT_CALL]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT d3-two-word-D-makefile (rv32=yes): host [-DCTRL_R3_SPLIT_MK]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT d4-two-word-D-value-makefile (rv32=yes): host [-DCTRL_R3_SPLIT_MKV=1]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+REFUSED f1-makefile-addprefix: the builder sw/firmware/ctrl/test/r3.mk writes '-D,$(MODES))', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+REFUSED f2-makefile-variable: the builder sw/firmware/ctrl/test/r3.mk writes '-D$(MODE)', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+REFUSED f3-python-concat: the builder sw/firmware/ctrl/test/r3_arms.py writes '-D', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+REFUSED f4-python-percent: the builder sw/firmware/ctrl/test/r3_arms.py writes '-D%s', a -D or -U flag the boundary cannot read (it reads a literal flag, or an f-string that computes only the value)
+REFUSED f5-python-bare-then-name: the builder sw/firmware/ctrl/test/r3_arms.py writes -D before a macro it computes: the boundary cannot read it
+REFUSED f6-python-fstring-macro: the builder sw/firmware/ctrl/test/r3_arms.py computes a -D or -U flag's macro: the boundary cannot read it
+CAUGHT g1-cplusplus-and-mode (rv32=yes): firmware c++ [-DCTRL_REENTRY_ASSERT]: port/ctrl_pool.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT g2-cplusplus-and-shape (rv32=yes): firmware c++ [shape=endstation_ax7101_8x8]: aecp/aecp_image.h includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+CAUGHT g3-riscv-only-stack-src (rv32=yes): rv32: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT g4-freestanding-only-fw (rv32=yes): firmware rv32: mbx/mbx.c includes tsn-c-stack/src/adp.c, not one of the stack's public headers

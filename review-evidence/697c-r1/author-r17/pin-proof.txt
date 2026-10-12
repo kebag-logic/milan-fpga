@@ -1,0 +1,48 @@
+# tsn-c-stack pin proof
+# milan-fpga copies at dev 8b61b70902f3ebf118e56967277e2686731081bd against tsn-c-stack commits.
+# Tool: clang raw lexer (clang -cc1 -dump-raw-tokens), comments and whitespace dropped, (kind, spelling, line) compared.
+
+## pin 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+SAME 1736 / 1736 tokens: sw/firmware/ctrl/adp/adp.c vs third_party/tsn-c-stack/src/adp.c
+SAME 497 / 497 tokens: sw/firmware/ctrl/adp/adp.h vs third_party/tsn-c-stack/include/adp.h
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs third_party/tsn-c-stack/src/acmp.c
+SAME 1137 / 1137 tokens: sw/firmware/ctrl/acmp/acmp.h vs third_party/tsn-c-stack/include/acmp.h
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs third_party/tsn-c-stack/src/maap.c
+SAME 394 / 394 tokens: sw/firmware/ctrl/maap/maap.h vs third_party/tsn-c-stack/include/maap.h
+SAME 202 / 202 tokens: sw/firmware/ctrl/wire/wire.h vs third_party/tsn-c-stack/include/wire.h
+rc=0
+
+## next main commit 51870377c5012766a8ea1d9798e3c499ca1060a3
+DIFFERENT 1736 / 1762 tokens: sw/firmware/ctrl/adp/adp.c vs tsn-c-stack/src/adp.c
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs tsn-c-stack/src/acmp.c
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs tsn-c-stack/src/maap.c
+
+## next main commit 98dc9e3076714bebe113982ee18c3c1c496cf3c9
+DIFFERENT 1736 / 1762 tokens: sw/firmware/ctrl/adp/adp.c vs tsn-c-stack/src/adp.c
+SAME 7586 / 7586 tokens: sw/firmware/ctrl/acmp/acmp.c vs tsn-c-stack/src/acmp.c
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs tsn-c-stack/src/maap.c
+
+## Round 13: pin 405dc68310a18f669049ffc10cc23eef7300dcff (tag milan-fpga-697-pin-405dc683)
+# milan-fpga copies at dev c20c85bddd4ec5a054be42b55fc291a3b4c7f7d8 (the seven files are the same bytes at
+# dev 09c7231ec, F-INT's merge) against tsn-c-stack 405dc683. Same tool as above.
+SAME 1736 / 1736 tokens: sw/firmware/ctrl/adp/adp.c vs third_party/tsn-c-stack/src/adp.c
+SAME 497 / 497 tokens: sw/firmware/ctrl/adp/adp.h vs third_party/tsn-c-stack/include/adp.h
+SAME 7849 / 7849 tokens: sw/firmware/ctrl/acmp/acmp.c vs third_party/tsn-c-stack/src/acmp.c
+SAME 1175 / 1175 tokens: sw/firmware/ctrl/acmp/acmp.h vs third_party/tsn-c-stack/include/acmp.h
+SAME 2064 / 2064 tokens: sw/firmware/ctrl/maap/maap.c vs third_party/tsn-c-stack/src/maap.c
+SAME 394 / 394 tokens: sw/firmware/ctrl/maap/maap.h vs third_party/tsn-c-stack/include/maap.h
+SAME 202 / 202 tokens: sw/firmware/ctrl/wire/wire.h vs third_party/tsn-c-stack/include/wire.h
+rc=0
+
+# RV32 objects: each core compiled from each side's flat copy (its headers beside it, the same file names),
+# pinned SDK GCC 14.3.0, ctrl_build.RV32_FLAGS without -fstack-usage plus ctrl_image.IMAGE_FLAGS, the
+# freestanding includes of fw_rv32.includes, once with -DNDEBUG (the images) and once with -UNDEBUG.
+BYTE-EQUAL adp.c  -DNDEBUG sha256 a69f577a692b84bd... 13240 bytes
+BYTE-EQUAL acmp.c -DNDEBUG sha256 317e7037a3fce623... 32524 bytes
+BYTE-EQUAL maap.c -DNDEBUG sha256 0ec9b61b3aa25f3b... 14672 bytes
+BYTE-EQUAL adp.c  -UNDEBUG sha256 76ee790728700ccd... 13248 bytes
+BYTE-EQUAL acmp.c -UNDEBUG sha256 317e7037a3fce623... 32524 bytes
+BYTE-EQUAL maap.c -UNDEBUG sha256 0a6132f0a40fa009... 15016 bytes
+rc=0
+
+# pin-text-diff-405dc683.txt (92,010 bytes): the full textual diff of the seven files, comment and SPDX lines only.

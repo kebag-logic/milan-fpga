@@ -1,0 +1,89 @@
+PASS  clean      clean
+PASS  hook       the audit hook, a Git command run by the harness's runner (ctrl_build.run)
+PASS  hook       the audit hook, a program named by a computed name (git.__name__)
+PASS  hook       the audit hook, a dashed program (git-ls-tree)
+PASS  hook       the audit hook, the Git program by its path, with the helper's environment, by the harness's runner
+PASS  hook       the audit hook, a refusal caught and ignored
+PASS  hook       the audit hook, an aliased import (from subprocess import run as r)
+PASS  hook       the audit hook, os.system, in a line added to ctrl_pin.py
+PASS  hook       the audit hook, exec of a string
+PASS  hook       the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py
+PASS  hook       the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py
+PASS  hook       the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git
+PASS  hook       the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py
+PASS  hook       the audit hook, inspect.builtins.eval
+PASS  hook       the audit hook, inspect.builtins.compile
+PASS  hook       the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple)
+PASS  hook       the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string
+PASS  hook       the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py
+PASS  hook       the audit hook, pkgutil.importlib.import_module
+PASS  hook       the audit hook, exec of a string inside the helper
+PASS  hook       the audit hook, eval inside the helper
+PASS  hook       the audit hook, compile inside the helper
+PASS  hook       the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string
+PASS  hook       the audit hook, a thread started, in lines added to ctrl_pin.py
+PASS  hook       the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py
+PASS  hook       the audit hook, the collector's list of objects, in lines added to ctrl_pin.py
+PASS  hook       the audit hook, a trace function, in a line added to ctrl_pin.py
+PASS  hook       the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py
+PASS  hook       the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS
+PASS  hook       the audit hook, the helper's environment without GIT_GRAFT_FILE
+PASS  hook       the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py
+PASS  lint only  ctrl_build.py: subprocess import
+PASS  lint only  ctrl_build.py: subprocess alias
+PASS  lint only  ctrl_build.py: subprocess member alias
+PASS  lint only  ctrl_build.py: os.system alias
+PASS  hook       ctrl_build.py: os.system attribute
+PASS  hook       ctrl_build.py: os.popen
+PASS  hook       ctrl_build.py: os.execvp
+PASS  hook       ctrl_build.py: os.spawnv
+PASS  hook       ctrl_build.py: os.posix_spawn
+PASS  lint only  ctrl_build.py: pty import alias
+PASS  lint only  ctrl_build.py: pty member alias
+PASS  lint only  ctrl_build.py: asyncio module
+PASS  lint only  ctrl_build.py: asyncio alias
+PASS  lint only  ctrl_build.py: asyncio shell attribute
+PASS  hook       ctrl_build.py: indirect os
+PASS  hook       ctrl_build.py: eval
+PASS  hook       ctrl_build.py: exec
+PASS  hook       ctrl_build.py: compile
+PASS  lint only  ctrl_build.py: dynamic import
+PASS  lint only  ctrl_build.py: importlib
+PASS  hook       ctrl_build.py: reflection
+PASS  lint only  ctrl_build.py: wildcard
+PASS  hook       ctrl_build.py: qualified eval
+PASS  hook       ctrl_build.py: qualified exec
+PASS  hook       ctrl_build.py: qualified compile
+PASS  lint only  ctrl_build.py: qualified importlib
+PASS  lint only  ctrl_pin.py: subprocess import
+PASS  lint only  ctrl_pin.py: subprocess alias
+PASS  lint only  ctrl_pin.py: subprocess member alias
+PASS  lint only  ctrl_pin.py: os.system alias
+PASS  hook       ctrl_pin.py: os.system attribute
+PASS  hook       ctrl_pin.py: os.popen
+PASS  hook       ctrl_pin.py: os.execvp
+PASS  hook       ctrl_pin.py: os.spawnv
+PASS  hook       ctrl_pin.py: os.posix_spawn
+PASS  lint only  ctrl_pin.py: pty import alias
+PASS  lint only  ctrl_pin.py: pty member alias
+PASS  lint only  ctrl_pin.py: asyncio module
+PASS  lint only  ctrl_pin.py: asyncio alias
+PASS  lint only  ctrl_pin.py: asyncio shell attribute
+PASS  hook       ctrl_pin.py: indirect os
+PASS  hook       ctrl_pin.py: eval
+PASS  hook       ctrl_pin.py: exec
+PASS  hook       ctrl_pin.py: compile
+PASS  lint only  ctrl_pin.py: dynamic import
+PASS  lint only  ctrl_pin.py: importlib
+PASS  hook       ctrl_pin.py: reflection
+PASS  lint only  ctrl_pin.py: wildcard
+PASS  hook       ctrl_pin.py: qualified eval
+PASS  hook       ctrl_pin.py: qualified exec
+PASS  hook       ctrl_pin.py: qualified compile
+PASS  lint only  ctrl_pin.py: qualified importlib
+PASS  hook       dynamic code inside helper: eval('1')
+PASS  hook       dynamic code inside helper: exec('pass')
+PASS  hook       dynamic code inside helper: compile('pass', '<probe>', 'exec')
+PASS  lint only  dynamic code inside helper: __import__('os')
+PASS  lint only  dynamic code inside helper: import importlib
+{'clean': 1, 'hook': 59, 'lint only': 28}
