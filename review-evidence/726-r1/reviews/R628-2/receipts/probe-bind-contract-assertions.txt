@@ -1,0 +1,20 @@
+== drop-frames-rx-wipe
+ASSERT FAILED: these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):
+  FRAMES_RX (pdu_count_o)
+
+== drop-seq-err-wipe
+ASSERT FAILED: these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):
+  SEQ_NUM_MISMATCH (seq_err_o)
+
+== drop-uf-flag-wipe
+ASSERT FAILED: interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_uf_r
+
+
+== wipe-on-any-edge
+ASSERT FAILED: the era wipe triggers on `en_i != en_q`. Milan v1.2 5.3.8.10 wipes on the RISING edge only - 'the PAAD-AE does not reset these counters when the Stream Input changes its state from bound to not bound', so 
+
+
+== drop-lock-drop
+ASSERT FAILED: the bind edge zeroes MEDIA_LOCKED/MEDIA_UNLOCKED but leaves locked_o set: Table 5.6 reads the zeroed pair as 'not synchronized on the media clock', which contradicts a sink that still claims lock
+
+
