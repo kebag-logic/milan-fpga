@@ -1,0 +1,20 @@
+# cmd: python3 $REVIEWS/716-r620-2-packet/scripts/layout_pin_probes.py $REVIEWS/r620-2-716 941e15593ef3dbf561bd8ed75aaf680f5d146a41 $REVIEWS/716-r620-2-packet/scratch/pins $REVIEWS/716-r620-2-packet/receipts/layout_pin_probes.json
+# head: 941e15593ef3dbf561bd8ed75aaf680f5d146a41
+# python: Python 3.12.3
+control-no-edit {'applied': True, 'rc': 0, 'caught': False} 
+aggregate-needs-drops-srp-mutants {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmwa
+aggregate-loop-drops-srp-mutants {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in "changes:$CHANGES_RESULT" "verilat
+aggregate-needs-drops-publication-census {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmwa
+srp-job-deleted-entirely {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: firmware job `firmware-srp-mutants` timeout must remain 45 minutes
+srp-job-runs-shard-2 {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl
+unit-job-runs-unsharded-default {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 7 (`Run the control-plane firmware suites and RV32 builds`) script is not the canonical form: line 3 must be 'python3 sw/firmware/ctrl/t
+srp-job-condition-false {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` `if` must be exactly `${{ needs.changes.outputs.rtl == 'true' }}` (found `${{ false }}`)
+srp-job-drops-needs-changes {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` must carry no `if` (found "${{ needs.changes.outputs.rtl == 'true' }}"): it decides whether the job runs at all
+srp-job-timeout-60 {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: firmware job `firmware-srp-mutants` timeout must remain 45 minutes
+srp-job-caches-build-output {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 4 (`Cache the pinned RV32 SDK`) `with` must be exactly {'path': '~/br-milan-rv32/host', 'key': "rv32-sdk-v1-${{ runner.os }}-${{ 
+srp-job-drops-sdk-verify {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 5 (`Install and verify the pinned RV32 SDK`) script is not the canonical form: line 2 must be 'python3 scripts/ci_rv32_sdk_selfte
+srp-job-drops-require-rv32 {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --self-test --jobs 4', "${{ needs.changes.outputs.rtl =
+srp-job-drops-lwsrp-fetch {'applied': True, 'rc': 1, 'caught': True}   FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor', "${{ needs.changes
+policy-row-aecp-budget-changed {'applied': True, 'rc': 1, 'caught': True}   FAIL docs/testing/CI_WORKFLOWS.md: firmware budget row must state `| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |`
+ALL CAUGHT
+# rc=0 wall=6.582865911

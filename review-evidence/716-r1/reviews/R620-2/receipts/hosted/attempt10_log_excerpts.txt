@@ -1,0 +1,59 @@
+firmware-unit 2026-10-12T03:38:12.6715532Z PASS: explicit absent compiler is refused without fallback
+firmware-unit 2026-10-12T03:38:12.6716413Z PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+firmware-unit 2026-10-12T03:38:12.6717133Z PASS: caught hosted headers restored
+firmware-unit 2026-10-12T03:38:12.6717581Z PASS: caught freestanding disabled
+firmware-unit 2026-10-12T03:38:12.6718238Z PASS: caught RV64 object
+firmware-unit 2026-10-12T03:38:12.6718751Z PASS: caught hard-float object
+firmware-unit 2026-10-12T03:38:12.6719193Z PASS: caught compressed ISA object
+firmware-unit 2026-10-12T03:38:12.6719640Z PASS: caught multiply ISA object
+firmware-unit 2026-10-12T03:38:12.6720487Z PASS: caught malformed object and dynamic stack report
+firmware-unit 2026-10-12T03:38:12.6720994Z PASS: ctrl rejects malloc
+firmware-unit 2026-10-12T03:38:12.6721412Z PASS: ctrl rejects __unexpected_service
+firmware-unit 2026-10-12T03:38:12.6722051Z PASS: ctrl rejects __unexpected_service despite a same-name static definition
+firmware-unit 2026-10-12T03:38:12.6722687Z PASS: ctrl_nvm rejects malloc
+firmware-unit 2026-10-12T03:38:12.6723106Z PASS: ctrl_nvm rejects __unexpected_service
+firmware-unit 2026-10-12T03:38:12.6723763Z PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+firmware-unit 2026-10-12T03:38:12.6724505Z PASS: ctrl_nvm rejects restored stack-protector dependency
+firmware-unit 2026-10-12T03:43:06.3945732Z PASS: shard inventory rejects planted missing suite
+firmware-unit 2026-10-12T03:43:06.3946462Z PASS: shard inventory rejects planted duplicate suite
+firmware-unit 2026-10-12T03:43:06.3947105Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-unit 2026-10-12T03:43:06.3948181Z PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+firmware-unit 2026-10-12T03:43:06.3949137Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-unit 2026-10-12T03:43:06.4142163Z [ok] arm srpcmp
+firmware-unit 2026-10-12T03:43:06.8516443Z test_ctrl_firmware: PASS
+firmware-control-mutants 2026-10-12T03:38:58.4414579Z PASS: shard inventory rejects planted missing suite
+firmware-control-mutants 2026-10-12T03:38:58.4415294Z PASS: shard inventory rejects planted duplicate suite
+firmware-control-mutants 2026-10-12T03:38:58.4416023Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-control-mutants 2026-10-12T03:38:58.4416648Z PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+firmware-control-mutants 2026-10-12T03:38:58.4417565Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-control-mutants 2026-10-12T03:52:40.4491217Z mutants: 506 of 506 caught
+firmware-control-mutants 2026-10-12T03:52:40.4491462Z test_ctrl_firmware: PASS
+firmware-srp-mutants 2026-10-12T03:37:57.4703977Z PASS: shard inventory rejects planted missing suite
+firmware-srp-mutants 2026-10-12T03:37:57.4704396Z PASS: shard inventory rejects planted duplicate suite
+firmware-srp-mutants 2026-10-12T03:37:57.4704750Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-srp-mutants 2026-10-12T03:37:57.4705342Z PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+firmware-srp-mutants 2026-10-12T03:37:57.4705835Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-srp-mutants 2026-10-12T03:42:55.0424142Z [ok] pub-declared-skipped: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+firmware-srp-mutants 2026-10-12T03:42:56.2141359Z [ok] pub-declared-in-the-licence: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+firmware-srp-mutants 2026-10-12T03:42:57.3753083Z [ok] pub-declared-wrong-bit: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+firmware-srp-mutants 2026-10-12T03:42:58.5768300Z [ok] pub-declared-after-the-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+firmware-srp-mutants 2026-10-12T03:42:59.7263723Z [ok] pub-declared-kept-at-reset: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+firmware-srp-mutants 2026-10-12T03:43:00.8836398Z [ok] pub-declared-withdrawn-after-the-new-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+firmware-srp-mutants 2026-10-12T03:43:02.0357018Z [ok] pub-declared-kept-at-destroy: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB destroy withdraws every declaration from the datapath
+firmware-srp-mutants 2026-10-12T03:43:03.1700766Z [ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+firmware-srp-mutants 2026-10-12T03:43:04.3138785Z [ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+firmware-srp-mutants 2026-10-12T03:43:05.4832204Z [ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+firmware-srp-mutants 2026-10-12T03:43:06.6405985Z [ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+firmware-srp-mutants 2026-10-12T03:43:07.7929666Z [ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+firmware-srp-mutants 2026-10-12T03:45:26.5025811Z [ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+firmware-srp-mutants 2026-10-12T03:45:27.5766079Z [ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+firmware-srp-mutants 2026-10-12T03:45:28.6495810Z [ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+firmware-srp-mutants 2026-10-12T03:45:29.7520261Z [ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+firmware-srp-mutants 2026-10-12T03:45:30.8508242Z [ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+firmware-srp-mutants 2026-10-12T03:45:30.9577392Z test_ctrl_firmware: PASS
+firmware-aecp-mutants 2026-10-12T03:38:06.6373547Z PASS: shard inventory rejects planted missing suite
+firmware-aecp-mutants 2026-10-12T03:38:06.6374151Z PASS: shard inventory rejects planted duplicate suite
+firmware-aecp-mutants 2026-10-12T03:38:06.6374939Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-aecp-mutants 2026-10-12T03:38:06.6375837Z PASS: 916 live invocations in exactly one shard; shard sizes [60, 507, 77, 272]
+firmware-aecp-mutants 2026-10-12T03:38:06.6376854Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-aecp-mutants 2026-10-12T03:41:33.8578783Z test_ctrl_firmware: PASS

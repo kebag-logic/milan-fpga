@@ -1,0 +1,685 @@
+{
+ "result": {
+  "before_lines": 21,
+  "after_lines": 63,
+  "missing": [],
+  "added": [],
+  "shard_commands": [
+   [
+    "firmware-unit",
+    "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4"
+   ],
+   [
+    "firmware-control-mutants",
+    "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4"
+   ],
+   [
+    "firmware-aecp-mutants",
+    "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4"
+   ],
+   [
+    "firmware-srp-mutants",
+    "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4"
+   ]
+  ],
+  "timeouts": {
+   "firmware-unit": 45,
+   "firmware-control-mutants": 45,
+   "firmware-aecp-mutants": 45,
+   "firmware-srp-mutants": 45
+  },
+  "needs_changes": {
+   "firmware-unit": "changes",
+   "firmware-control-mutants": "changes",
+   "firmware-aecp-mutants": "changes",
+   "firmware-srp-mutants": "changes"
+  },
+  "job_if": {
+   "firmware-unit": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "firmware-control-mutants": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "firmware-aecp-mutants": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "firmware-srp-mutants": "${{ needs.changes.outputs.rtl == 'true' }}"
+  },
+  "aggregate_needs": [
+   "changes",
+   "verilator-lint",
+   "bdd-conformance",
+   "yosys-elaboration",
+   "publication-census",
+   "firmware-unit",
+   "firmware-control-mutants",
+   "firmware-aecp-mutants",
+   "firmware-srp-mutants"
+  ],
+  "aggregate_loop_names": [
+   "changes",
+   "verilator-lint",
+   "bdd-conformance",
+   "yosys-elaboration",
+   "publication-census",
+   "firmware-unit",
+   "firmware-control-mutants",
+   "firmware-aecp-mutants",
+   "firmware-srp-mutants"
+  ],
+  "aggregate_env": [
+   "BDD_CONFORMANCE_RESULT",
+   "CHANGES_RESULT",
+   "FIRMWARE_AECP_MUTANTS_RESULT",
+   "FIRMWARE_CONTROL_MUTANTS_RESULT",
+   "FIRMWARE_SRP_MUTANTS_RESULT",
+   "FIRMWARE_UNIT_RESULT",
+   "PUBLICATION_CENSUS_RESULT",
+   "VERILATOR_LINT_RESULT",
+   "YOSYS_ELABORATION_RESULT"
+  ],
+  "publication_census_job_identical_to_dev": true,
+  "caches": {
+   "firmware-unit": [
+    "~/br-milan-rv32/host"
+   ],
+   "firmware-control-mutants": [
+    "~/br-milan-rv32/host"
+   ],
+   "firmware-aecp-mutants": [
+    "~/br-milan-rv32/host"
+   ],
+   "firmware-srp-mutants": [
+    "~/br-milan-rv32/host"
+   ]
+  },
+  "ok": true
+ },
+ "before": [
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "actions/checkout@v4",
+   "step_if": "None",
+   "command": "uses:actions/checkout@v4{}"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Fetch RTL dependencies",
+   "step_if": "None",
+   "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get update -qq"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "dpkg-query -W libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "g++ --version | head -n 1"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "gcov --version | head -n 1"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Prove the tally reads a failing and a crashing test as failures",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/tally_selftest.py"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Cache the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "uses:actions/cache@v4{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk_selftest.py"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\""
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the saved-state store suites and its RV32 build",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs \"$(nproc)\""
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_coverage.py --selftest"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\""
+  }
+ ],
+ "after": [
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "actions/checkout@v4",
+   "step_if": "None",
+   "command": "uses:actions/checkout@v4{}"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Fetch RTL dependencies",
+   "step_if": "None",
+   "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get update -qq"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "dpkg-query -W libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "g++ --version | head -n 1"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "gcov --version | head -n 1"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Prove the tally reads a failing and a crashing test as failures",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/tally_selftest.py"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Cache the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "uses:actions/cache@v4{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk_selftest.py"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\""
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control-plane firmware suites and RV32 builds",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the saved-state store suites and its RV32 build",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs \"$(nproc)\""
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_coverage.py --selftest"
+  },
+  {
+   "job": "firmware-unit",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Hold the firmware coverage ratchet",
+   "step_if": "None",
+   "command": "python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\""
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "actions/checkout@v4",
+   "step_if": "None",
+   "command": "uses:actions/checkout@v4{}"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Fetch RTL dependencies",
+   "step_if": "None",
+   "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get update -qq"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "dpkg-query -W libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "g++ --version | head -n 1"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "gcov --version | head -n 1"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Cache the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "uses:actions/cache@v4{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk_selftest.py"
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\""
+  },
+  {
+   "job": "firmware-control-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the control mutation campaign",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "actions/checkout@v4",
+   "step_if": "None",
+   "command": "uses:actions/checkout@v4{}"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Fetch RTL dependencies",
+   "step_if": "None",
+   "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get update -qq"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "dpkg-query -W libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "g++ --version | head -n 1"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "gcov --version | head -n 1"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Cache the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "uses:actions/cache@v4{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk_selftest.py"
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\""
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run the AECP mutation campaign",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "actions/checkout@v4",
+   "step_if": "None",
+   "command": "uses:actions/checkout@v4{}"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Fetch RTL dependencies",
+   "step_if": "None",
+   "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get update -qq"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "dpkg-query -W libgtest-dev libgmock-dev"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "g++ --version | head -n 1"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install GoogleTest and GoogleMock and print the versions",
+   "step_if": "None",
+   "command": "gcov --version | head -n 1"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Cache the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "uses:actions/cache@v4{\"key\": \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\", \"path\": \"~/br-milan-rv32/host\"}"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "set -euo pipefail"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk_selftest.py"
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Install and verify the pinned RV32 SDK",
+   "step_if": "None",
+   "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\""
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "job_if": "${{ needs.changes.outputs.rtl == 'true' }}",
+   "step": "Run both SRP mutation campaigns and pin controls",
+   "step_if": "None",
+   "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4"
+  }
+ ]
+}

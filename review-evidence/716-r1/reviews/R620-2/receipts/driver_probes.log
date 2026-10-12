@@ -1,0 +1,11 @@
+# cmd: python3 $REVIEWS/716-r620-2-packet/scripts/driver_probes.py $REVIEWS/r620-2-716 941e15593ef3dbf561bd8ed75aaf680f5d146a41 $REVIEWS/716-r620-2-packet/scratch/devdriver/test_ctrl_firmware.py $REVIEWS/716-r620-2-packet/scratch/drv $REVIEWS/716-r620-2-packet/receipts/driver_probes.json
+# head: 941e15593ef3dbf561bd8ed75aaf680f5d146a41
+# python: Python 3.12.3
+control-no-edit 0 0 True PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+srpcmp-also-in-srp-phase 1 1 True AssertionError: default inventory has duplicate identities
+srp-phase-dropped-from-shards 1 1 True AssertionError
+control-phase-also-in-aecp-shard 1 1 True AssertionError
+future-suite-added 0 1 True PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+srpcmp-removed-everywhere 0 1 True PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+round5-dropped-from-if1 0 1 True PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+# rc=0 wall=3.467981226

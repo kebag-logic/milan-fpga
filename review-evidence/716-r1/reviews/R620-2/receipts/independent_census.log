@@ -1,0 +1,95 @@
+# cmd: python3 -I $REVIEWS/716-r620-2-packet/scripts/independent_census.py $REVIEWS/r620-2-716 09c7231eca343607c97c0d66abebb2553688712c 941e15593ef3dbf561bd8ed75aaf680f5d146a41 $REVIEWS/716-r620-2-packet/receipts/independent_census.json
+# head: 941e15593ef3dbf561bd8ed75aaf680f5d146a41
+# python: Python 3.12.3
+{
+ "before_lines": 21,
+ "after_lines": 63,
+ "missing": [],
+ "added": [],
+ "shard_commands": [
+  [
+   "firmware-unit",
+   "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4"
+  ],
+  [
+   "firmware-control-mutants",
+   "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4"
+  ],
+  [
+   "firmware-aecp-mutants",
+   "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4"
+  ],
+  [
+   "firmware-srp-mutants",
+   "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4"
+  ]
+ ],
+ "timeouts": {
+  "firmware-unit": 45,
+  "firmware-control-mutants": 45,
+  "firmware-aecp-mutants": 45,
+  "firmware-srp-mutants": 45
+ },
+ "needs_changes": {
+  "firmware-unit": "changes",
+  "firmware-control-mutants": "changes",
+  "firmware-aecp-mutants": "changes",
+  "firmware-srp-mutants": "changes"
+ },
+ "job_if": {
+  "firmware-unit": "${{ needs.changes.outputs.rtl == 'true' }}",
+  "firmware-control-mutants": "${{ needs.changes.outputs.rtl == 'true' }}",
+  "firmware-aecp-mutants": "${{ needs.changes.outputs.rtl == 'true' }}",
+  "firmware-srp-mutants": "${{ needs.changes.outputs.rtl == 'true' }}"
+ },
+ "aggregate_needs": [
+  "changes",
+  "verilator-lint",
+  "bdd-conformance",
+  "yosys-elaboration",
+  "publication-census",
+  "firmware-unit",
+  "firmware-control-mutants",
+  "firmware-aecp-mutants",
+  "firmware-srp-mutants"
+ ],
+ "aggregate_loop_names": [
+  "changes",
+  "verilator-lint",
+  "bdd-conformance",
+  "yosys-elaboration",
+  "publication-census",
+  "firmware-unit",
+  "firmware-control-mutants",
+  "firmware-aecp-mutants",
+  "firmware-srp-mutants"
+ ],
+ "aggregate_env": [
+  "BDD_CONFORMANCE_RESULT",
+  "CHANGES_RESULT",
+  "FIRMWARE_AECP_MUTANTS_RESULT",
+  "FIRMWARE_CONTROL_MUTANTS_RESULT",
+  "FIRMWARE_SRP_MUTANTS_RESULT",
+  "FIRMWARE_UNIT_RESULT",
+  "PUBLICATION_CENSUS_RESULT",
+  "VERILATOR_LINT_RESULT",
+  "YOSYS_ELABORATION_RESULT"
+ ],
+ "publication_census_job_identical_to_dev": true,
+ "caches": {
+  "firmware-unit": [
+   "~/br-milan-rv32/host"
+  ],
+  "firmware-control-mutants": [
+   "~/br-milan-rv32/host"
+  ],
+  "firmware-aecp-mutants": [
+   "~/br-milan-rv32/host"
+  ],
+  "firmware-srp-mutants": [
+   "~/br-milan-rv32/host"
+  ]
+ },
+ "ok": true
+}
+# rc=0 wall=.099220358

@@ -1,0 +1,33 @@
+# cmd: python3 $REVIEWS/716-r620-2-packet/scripts/dev_vs_head_dispatch.py $REVIEWS/r620-2-716/sw/firmware/ctrl/test $REVIEWS/716-r620-2-packet/scratch/devdriver/test_ctrl_firmware.py $REVIEWS/716-r620-2-packet/receipts/dev_vs_head_dispatch.json
+# head: 941e15593ef3dbf561bd8ed75aaf680f5d146a41
+# python: Python 3.12.3
+{
+ "dev_default": 914,
+ "head_default": 914,
+ "shard_sizes": [
+  60,
+  506,
+  76,
+  272
+ ],
+ "dev_eq_head_default_ordered": true,
+ "dev_eq_concat_ordered": true,
+ "unique_identities": true,
+ "srpcmp_in_shards": [
+  0
+ ],
+ "round5_prefixes": [
+  "pub-declared-as-each-source-joins",
+  "pub-declared-before-the-joins",
+  "pub-declared-dropped-at-adoption",
+  "pub-declared-skipped-at-adoption",
+  "pub-declared-withdrawn-after-the-adoption"
+ ],
+ "round5_if1": 5,
+ "round5_if2": 5,
+ "pin_arms_in_shards": [
+  3
+ ],
+ "ok": true
+}
+# rc=0 wall=.111781657

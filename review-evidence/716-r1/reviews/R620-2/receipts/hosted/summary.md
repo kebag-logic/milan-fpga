@@ -1,0 +1,14 @@
+| attempt | head | conclusion | firmware-unit | firmware-control-mutants | firmware-srp-mutants | firmware-aecp-mutants | publication-census | rtl-fast |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 941e1559 | success | success 695 s | success 611 s | success 524 s | success 187 s | success 1037 s | success 2 s |
+| 2 | 941e1559 | success | success 697 s | success 899 s | success 625 s | success 244 s | success 1065 s | success 4 s |
+| 3 | 941e1559 | success | success 677 s | success 895 s | success 697 s | success 256 s | success 1051 s | success 3 s |
+| 4 | 941e1559 | success | success 426 s | success 894 s | success 715 s | success 241 s | success 696 s | success 3 s |
+| 5 | 941e1559 | success | success 551 s | success 814 s | success 575 s | success 254 s | success 1124 s | success 3 s |
+| 6 | 941e1559 | success | success 675 s | success 897 s | success 638 s | success 210 s | success 849 s | success 3 s |
+| 7 | 941e1559 | success | success 683 s | success 588 s | success 712 s | success 176 s | success 1063 s | success 3 s |
+| 8 | 941e1559 | success | success 672 s | success 625 s | success 494 s | success 220 s | success 826 s | success 4 s |
+| 9 | 941e1559 | success | success 691 s | success 916 s | success 482 s | success 223 s | success 1104 s | success 4 s |
+| 10 | 941e1559 | success | success 705 s | success 916 s | success 486 s | success 250 s | success 862 s | success 2 s |
+
+slowest: firmware-unit 705 s (26.1 % of 2700 s), firmware-control-mutants 916 s (33.9 % of 2700 s), firmware-srp-mutants 715 s (26.5 % of 2700 s), firmware-aecp-mutants 256 s (9.5 % of 2700 s)

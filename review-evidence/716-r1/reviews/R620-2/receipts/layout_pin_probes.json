@@ -1,0 +1,147 @@
+{
+ "ok": true,
+ "probes": {
+  "control-no-edit": {
+   "applied": true,
+   "rc": 0,
+   "first_findings": [],
+   "caught": false
+  },
+  "aggregate-needs-drops-srp-mutants": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants; missing: firmware-srp-mutants: a fast job outside the aggregate's `needs` can fail with the required context still green, and a dropped entry silently removes that job's result from the verdict",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step env must be exactly CHANGES_RESULT, VERILATOR_LINT_RESULT, BDD_CONFORMANCE_RESULT, YOSYS_ELABORATION_RESULT, PUBLICATION_CENSUS_RESULT, FIRMWARE_UNIT_RESULT, FIRMWARE_CONTROL_MUTANTS_RESULT, FIRMWARE_AECP_MUTANTS_RESULT; surplus: FIRMWARE_SRP_MUTANTS_RESULT (a GH_HOST or GH_CONFIG_DIR redirects gh away from this repository)",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"publication-census:$PUBLICATION_CENSUS_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\"; do' (found 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"publication-census:$PUBLICATION_CENSUS_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do'); 12 line(s) expected, 12 found; this script is the whole required fast verdict, so a widened `case` or a dropped pair turns a named failure into a pass",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` reads the `needs.firmware-srp-mutants` context and must list `firmware-srp-mutants` in its `needs` (found ['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants']): outside `needs` the expression is the empty string, so a `.result` or `.outputs` guard built on it is quietly false and the step or job it guards skips"
+   ],
+   "caught": true
+  },
+  "aggregate-loop-drops-srp-mutants": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"publication-census:$PUBLICATION_CENSUS_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do' (found 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"publication-census:$PUBLICATION_CENSUS_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\"; do'); 12 line(s) expected, 12 found; this script is the whole required fast verdict, so a widened `case` or a dropped pair turns a named failure into a pass",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "aggregate-needs-drops-publication-census": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` must need every other job of this workflow, changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants; missing: publication-census: a fast job outside the aggregate's `needs` can fail with the required context still green, and a dropped entry silently removes that job's result from the verdict",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step env must be exactly CHANGES_RESULT, VERILATOR_LINT_RESULT, BDD_CONFORMANCE_RESULT, YOSYS_ELABORATION_RESULT, FIRMWARE_UNIT_RESULT, FIRMWARE_CONTROL_MUTANTS_RESULT, FIRMWARE_AECP_MUTANTS_RESULT, FIRMWARE_SRP_MUTANTS_RESULT; surplus: PUBLICATION_CENSUS_RESULT (a GH_HOST or GH_CONFIG_DIR redirects gh away from this repository)",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` verdict step script is not the canonical form derived from the aggregate's `needs`: line 3 must be 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do' (found 'for pair in \"changes:$CHANGES_RESULT\" \"verilator-lint:$VERILATOR_LINT_RESULT\" \"bdd-conformance:$BDD_CONFORMANCE_RESULT\" \"yosys-elaboration:$YOSYS_ELABORATION_RESULT\" \"publication-census:$PUBLICATION_CENSUS_RESULT\" \"firmware-unit:$FIRMWARE_UNIT_RESULT\" \"firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT\" \"firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT\" \"firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT\"; do'); 12 line(s) expected, 12 found; this script is the whole required fast verdict, so a widened `case` or a dropped pair turns a named failure into a pass",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` reads the `needs.publication-census` context and must list `publication-census` in its `needs` (found ['changes', 'verilator-lint', 'bdd-conformance', 'yosys-elaboration', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants']): outside `needs` the expression is the empty string, so a `.result` or `.outputs` guard built on it is quietly false and the step or job it guards skips"
+   ],
+   "caught": true
+  },
+  "srp-job-deleted-entirely": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: firmware job `firmware-srp-mutants` timeout must remain 45 minutes",
+    "  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` step 1 (`Require every applicable fast gate to pass`) env must be exactly BDD_CONFORMANCE_RESULT, CHANGES_RESULT, FIRMWARE_AECP_MUTANTS_RESULT, FIRMWARE_CONTROL_MUTANTS_RESULT, FIRMWARE_SRP_MUTANTS_RESULT, FIRMWARE_UNIT_RESULT, PUBLICATION_CENSUS_RESULT, VERILATOR_LINT_RESULT, YOSYS_ELABORATION_RESULT; missing: FIRMWARE_SRP_MUTANTS_RESULT",
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` must exist in this file, because a step list is recorded for it (found changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, rtl-fast): a job id respelt here leaves the recorded list pinning nothing and the live job pinned by nothing",
+    "ci_events: 3 finding(s) over 1955 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-runs-shard-2": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4'); 1 line(s) expected, 1 found",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "unit-job-runs-unsharded-default": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-unit` step 7 (`Run the control-plane firmware suites and RV32 builds`) script is not the canonical form: line 3 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4'); 3 line(s) expected, 3 found",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-condition-false": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` `if` must be exactly `${{ needs.changes.outputs.rtl == 'true' }}` (found `${{ false }}`)",
+    "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('dpkg-query -W libgtest-dev libgmock-dev', '${{ false }}', 'success()'), ('g++ --version | head -n 1', '${{ false }}', 'success()'), ('gcov --version | head -n 1', '${{ false }}', 'success()'), ('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP', '${{ false }}', 'success()'), ('python3 -m pip install --quiet pyyaml', '${{ false }}', 'success()'), ('python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"', '${{ false }}', 'success()'), ('python3 scripts/ci_rv32_sdk_selftest.py', '${{ false }}', 'success()'), ('python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4', '${{ false }}', 'success()'), ('set -euo pipefail', '${{ false }}', 'success()'), ('sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev', '${{ false }}', 'success()'), ('sudo apt-get update -qq', '${{ false }}', 'success()')]",
+    "ci_events: 2 finding(s) over 2014 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-drops-needs-changes": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` must carry no `if` (found \"${{ needs.changes.outputs.rtl == 'true' }}\"): it decides whether the job runs at all",
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` reads the `needs.changes` context and must list `changes` in its `needs` (found []): outside `needs` the expression is the empty string, so a `.result` or `.outputs` guard built on it is quietly false and the step or job it guards skips",
+    "ci_events: 2 finding(s) over 2015 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-timeout-60": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: firmware job `firmware-srp-mutants` timeout must remain 45 minutes",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-caches-build-output": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 4 (`Cache the pinned RV32 SDK`) `with` must be exactly {'path': '~/br-milan-rv32/host', 'key': \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\"} (found {'path': '~/br-milan-rv32/host\\n/tmp/ctrl-fw-build\\n', 'key': \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\"}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-drops-sdk-verify": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 5 (`Install and verify the pinned RV32 SDK`) script is not the canonical form: line 2 must be 'python3 scripts/ci_rv32_sdk_selftest.py' (found 'python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"'); 3 line(s) expected, 2 found",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-drops-require-rv32": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --self-test --jobs 4', \"${{ needs.changes.outputs.rtl == 'true' }}\", 'success()')]",
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 6 (`Run both SRP mutation campaigns and pin controls`) script is not the canonical form: line 1 must be 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4' (found 'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --self-test --jobs 4 --shard 3/4'); 1 line(s) expected, 1 found",
+    "ci_events: 2 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "srp-job-drops-lwsrp-fetch": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL .github/workflows/rtl-fast.yml: firmware command census differs: missing=[], added=[('git submodule update --init third_party/verilog-axis protocol-processor gptp-processor', \"${{ needs.changes.outputs.rtl == 'true' }}\", 'success()')]",
+    "  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` step 2 (`Fetch RTL dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP' (found 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor'); 1 line(s) expected, 1 found",
+    "ci_events: 2 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  },
+  "policy-row-aecp-budget-changed": {
+   "applied": true,
+   "rc": 1,
+   "first_findings": [
+    "  FAIL docs/testing/CI_WORKFLOWS.md: firmware budget row must state `| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |`",
+    "ci_events: 1 finding(s) over 2016 contract item(s)"
+   ],
+   "caught": true
+  }
+ }
+}

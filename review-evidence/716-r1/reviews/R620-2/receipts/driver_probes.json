@@ -1,0 +1,61 @@
+{
+ "ok": true,
+ "probes": {
+  "control-no-edit": {
+   "shard_selftest_rc": 0,
+   "dev_compare_rc": 0,
+   "shard_selftest_tail": [
+    "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+   ],
+   "as_expected": true
+  },
+  "srpcmp-also-in-srp-phase": {
+   "shard_selftest_rc": 1,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "AssertionError: default inventory has duplicate identities"
+   ],
+   "as_expected": true
+  },
+  "srp-phase-dropped-from-shards": {
+   "shard_selftest_rc": 1,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "AssertionError"
+   ],
+   "as_expected": true
+  },
+  "control-phase-also-in-aecp-shard": {
+   "shard_selftest_rc": 1,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "AssertionError"
+   ],
+   "as_expected": true
+  },
+  "future-suite-added": {
+   "shard_selftest_rc": 0,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+   ],
+   "as_expected": true
+  },
+  "srpcmp-removed-everywhere": {
+   "shard_selftest_rc": 0,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+   ],
+   "as_expected": true
+  },
+  "round5-dropped-from-if1": {
+   "shard_selftest_rc": 0,
+   "dev_compare_rc": 1,
+   "shard_selftest_tail": [
+    "PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations"
+   ],
+   "as_expected": true
+  }
+ }
+}
