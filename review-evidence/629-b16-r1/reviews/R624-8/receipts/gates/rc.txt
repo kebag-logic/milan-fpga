@@ -1,0 +1,14 @@
+baremetal rc=2
+baremetal_st rc=2
+ci_scope rc=0
+diffcheck_base rc=0
+diffcheck rc=0
+doc_paths rc=0
+docs_check rc=0
+doc_style rc=0
+em_dash rc=0
+feature_st rc=0
+toc_anchors rc=0
+toc_check rc=0
+bm--check and bm--selftest: system python3 (pyyaml present); the parser env lacks pyyaml (rc 2, see baremetal*.log)
+bm--check rc=0 (system python3); bm--selftest rc=0 (system python3)

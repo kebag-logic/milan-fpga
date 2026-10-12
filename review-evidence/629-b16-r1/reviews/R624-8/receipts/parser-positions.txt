@@ -1,0 +1,84 @@
+# cmark-gfm 2025.10.22 (pinned) node positions, check_b16_figures.py's extensions and options (tools/dump_tree.py)
+## input t2.md:
+  | a$
+  | $
+  | <!-- x -->$
+  | $
+  | b$
+  | $
+  | <div>$
+  | c 7 dB$
+## tree:
+document 1:1-8:6 ''
+  paragraph 1:1-1:1 ''
+    text 1:1-1:1 'a'
+  html_block 3:1-2:0 '<!-- x -->\n'
+  paragraph 5:1-5:1 ''
+    text 5:1-5:1 'b'
+  html_block 7:1-8:6 '<div>\nc 7 dB\n'
+## input t4.md:
+  | a$
+  | <pre>$
+  | ## Dev 5603c353 THD+N -90 dB$
+  | more 9 ppm$
+  | </pre>$
+  | $
+  | b$
+  | $
+  | <!--$
+  | c 7 dB$
+  | -->$
+  | $
+  | d$
+## tree:
+document 1:1-13:1 ''
+  paragraph 1:1-1:1 ''
+    text 1:1-1:1 'a'
+  html_block 2:1-4:10 '<pre>\n## Dev 5603c353 THD+N -90 dB\nmore 9 ppm\n</pre>\n'
+  paragraph 7:1-7:1 ''
+    text 7:1-7:1 'b'
+  html_block 9:1-10:6 '<!--\nc 7 dB\n-->\n'
+  paragraph 13:1-13:1 ''
+    text 13:1-13:1 'd'
+## input t5.md:
+  | p$
+  | <pre>$
+  | L2 x</pre>$
+  | L3 y$
+  | $
+  | <pre>$
+  | M2$
+  | M3</pre>$
+## tree:
+document 1:1-8:8 ''
+  paragraph 1:1-1:1 ''
+    text 1:1-1:1 'p'
+  html_block 2:1-2:5 '<pre>\nL2 x</pre>\n'
+  paragraph 4:1-4:4 ''
+    text 4:1-4:4 'L3 y'
+  html_block 6:1-7:2 '<pre>\nM2\nM3</pre>\n'
+## input t6.md:
+  | p$
+  | $
+  | ```$
+  | x 7 dB$
+  | ```$
+  | $
+  |     ind$
+  |     ind2$
+  | $
+  | <?$
+  | q$
+  | ?>$
+  | $
+  | <!X$
+  | w$
+  | >$
+## tree:
+document 1:1-16:1 ''
+  paragraph 1:1-1:1 ''
+    text 1:1-1:1 'p'
+  code_block 3:1-5:3 'x 7 dB\n'
+  code_block 7:5-9:0 'ind\nind2\n'
+  html_block 10:1-11:1 '<?\nq\n?>\n'
+  html_block 14:1-15:1 '<!X\nw\n>\n'

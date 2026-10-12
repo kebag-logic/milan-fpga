@@ -1,0 +1,24 @@
+# Author round 8 tools re-run by R624-8 on a copy of author-r8 (evidence commit b0134c63), page at b522bb92
+build rc=0
+ctl rc=0
+self rc=0
+evr rc=0
+r8_figures_build.py: rebuilt check BYTE-EQUAL to tools/check_b16_figures.py
+r8_check_controls.py: controls/r8-controls.json BYTE-EQUAL (73 of 73 PASS)
+r8_self_probes.py: r8/self-probes.json BYTE-EQUAL (138 met: 108 detected, 30 stated passes)
+r8_evidence_receipt.py (fa974c3f, 295ba9d7): r8/evidence-receipt.json BYTE-EQUAL
+r8_probe_reruns.py rc=0
+  r624-4-probe-rerun.json BYTE-EQUAL
+  r624-5-escapes-probe-rerun.json BYTE-EQUAL
+  r624-5-row3200-probe-rerun.json BYTE-EQUAL
+  r624-6-escapes-probe-rerun.json BYTE-EQUAL
+  r624-6-row3200-polls-probe-rerun.json BYTE-EQUAL
+  r624-7-escapes-probe-rerun.json BYTE-EQUAL
+  r624-7-invisible-probe-rerun.json BYTE-EQUAL
+  r625-3-probe-rerun.json BYTE-EQUAL
+  r625-4-probe-rerun.json BYTE-EQUAL
+  r625-5-comment-probe-rerun.json BYTE-EQUAL
+  r625-6-followers-probe-rerun.json BYTE-EQUAL
+  r625-6-rendered-probe-rerun.json BYTE-EQUAL
+  r625-7-markup-probe-rerun.json BYTE-EQUAL
+direct runs of the round 7 probes, unchanged: probe_r624_7_markdown_escapes.py rc=0, probe_r624_7_invisible.py rc=0, probe_markup.py rc=0
