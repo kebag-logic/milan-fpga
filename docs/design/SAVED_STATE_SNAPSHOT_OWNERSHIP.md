@@ -1623,10 +1623,13 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-11 in the
+Timing. MEASURED on 2026-10-12 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) requires this remeasurement.
+The [#671 round-7 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6125761347) requires this remeasurement, at the merge of dev `c6bd08c6` into #671.
+That merge joins the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
+The #621 receipt on dev binds the earlier firmware, and the #671 round-5 receipt the earlier harness.
+The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) required the previous one on #671.
 Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
 The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) required the previous one.
 That change distinguished failed judgements from failed re-stages on the console.
@@ -1641,11 +1644,11 @@ Capture-SoC RTL changes on dev moved the timing figures from the receipt before 
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
-Measured commit: `bd42818d3a73b5c112905e72282d5db6df0ae25c`.
-Measured tree: `39e2b51cb67bc69bc7914116006d8d4076bf7792`.
+Measured commit: `44416838b90c40536a2104ab1f2bd4ff02268bec`.
+Measured tree: `6bdf8b0dfbeb71dc13051a475b3aede8e7432d41`.
 Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
-gPTP-processor pin: `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d`.
+gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1661,7 +1664,8 @@ The acceptance limit is therefore 24.5 ms, half that floor.
 **The worst 8x8 measurement is 13.86328 ms.**
 Its floor ratio is 3.5345x.
 The margin to 24.5 ms is 10.63672 ms.
-The previous receipt measured 13.86328 ms, at the same census.
+The previous #671 receipt measured 13.86328 ms, and so did the one before it, at the same census.
+All 96 captures repeat the previous #671 receipt's system-cycle counts.
 The #621 receipt on dev measured 13.86318 ms, a 3.5345x floor ratio and a 10.63682 ms margin, at the same census.
 The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
@@ -1842,6 +1846,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    It covers 13,210 bytes and 164 records, including output maps.
    Its ratio to the guaranteed 49 ms floor is 3.5345x.
    The 24.5 ms margin is 10.63672 ms.
+   The previous #671 receipt measured 13.86328 ms, with a 10.63672 ms margin.
    The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
