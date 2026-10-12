@@ -98,6 +98,7 @@ SIM_DIR="$ROOT/sw/litex"
 #: a red run, and docs/testing/TESTING.md section 2 names the rule.
 INVENTORY=(
   test_cpu_memory_port_cdc
+  test_ctrl_memory
   test_gmii_rx_capture
   test_gptp_tx_timestamp
   test_pp_boot_bus_freeze
