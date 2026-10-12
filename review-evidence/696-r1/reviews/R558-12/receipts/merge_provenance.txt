@@ -1,0 +1,32 @@
+$ git merge-tree --write-tree aa980479a c6bd08c6f
+4650fd5d9d5c940bc6788491229dc808cf866962
+rc=0
+b075a994 tree: 4650fd5d9d5c940bc6788491229dc808cf866962
+b075a994 parents: aa980479aafd1d72c72015707fa6618b5aa47cb1 c6bd08c6f52632c6d33d834ce842ac3cf63f29cc 
+26e2748f parent: b075a994f6daae3b406bce415a837b7c401712d5
+
+$ git diff --stat b075a994f 26e2748f4
+ docs/design/MARK_II_AREA_PLAN.md | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+$ git diff --stat c6bd08c6f 26e2748f4 (PR delta over live dev)
+ docs/design/AREA_BUDGET.md                       |  49 +-
+ docs/design/MAAP_FABRIC.md                       | 171 ++++--
+ docs/design/MARK_II_AREA_PLAN.md                 |  64 +-
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md     | 154 ++++-
+ docs/findings/README.md                          |   2 +-
+ hdl/ieee1722/maap/KL_maap.sv                     | 184 ++++--
+ hdl/ieee1722/maap/doc/KL_maap/KL_maap.md         |   8 +-
+ hdl/milan/milan_datapath.sv                      |   6 +-
+ sw/firmware/ctrl/maap/README.md                  |   5 +-
+ sw/firmware/ctrl/test/maap_differential.py       |  20 +-
+ sw/firmware/ctrl/test/test_maap_differential.cpp |  10 +-
+ syn/ooc/pp_resource_baseline.json                | 114 ++--
+ tb/verilator/maap/Makefile                       |  23 +-
+ tb/verilator/maap/integration.mk                 |  36 ++
+ tb/verilator/maap/mutants.py                     | 138 ++++-
+ tb/verilator/maap/sim_integration.cpp            | 191 ++++++
+ tb/verilator/maap/sim_main.cpp                   | 717 ++++++++++++++++++++++-
+ 17 files changed, 1622 insertions(+), 270 deletions(-)
+patch-id c6bd08c6..26e2748f (excluding plan): b93344d5ea632809bd57f21b098f811c6e7f7023
+patch-id 09c7231e..aa980479 (excluding plan): b93344d5ea632809bd57f21b098f811c6e7f7023
