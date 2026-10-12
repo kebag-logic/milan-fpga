@@ -1,0 +1,304 @@
+{
+ "rows": 34,
+ "circular": [],
+ "all": [
+  {
+   "line": "2458",
+   "shown": "0",
+   "key": "rx(FIND_P, r'nothing\\. Its counters stayed (\\d+) and its digital output read exact zero')",
+   "match_lines": [
+    2111
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "2698",
+   "shown": "630",
+   "key": "rx(FIND_P, r'^(\\d+) s, untouched, from (\\d+) s after the last bind or clock-source set')",
+   "match_lines": [
+    842
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "2702",
+   "shown": "20",
+   "key": "rx(FIND_P, r'^(\\d+) s, untouched, from (\\d+) s after the last bind or clock-source set', group=2)",
+   "match_lines": [
+    842
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3195",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3201",
+   "shown": "0.5",
+   "key": "re.search(r'within ([\\d.]+) ppm', b6_rule()).group(1)",
+   "match_lines": [
+    823,
+    1009,
+    1049,
+    1679,
+    3201
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3203",
+   "shown": "0",
+   "key": "re.search(r'has (\\d+) listener discontinuities', b6_rule()).group(1)",
+   "match_lines": [
+    824
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3196",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3205",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3224",
+   "shown": "2.0",
+   "key": "rx(FIND_P, r'The listener ring slipped one frame ([\\d.]+) to ([\\d.]+) s after the servo first read LOCKED')",
+   "match_lines": [
+    1328
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3224",
+   "shown": "3.0",
+   "key": "rx(FIND_P, r'The listener ring slipped one frame ([\\d.]+) to ([\\d.]+) s after the servo first read LOCKED', group=2)",
+   "match_lines": [
+    1328
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3321",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3334",
+   "shown": "630",
+   "key": "rx(FIND_P, r'^(\\d+) s, untouched, from (\\d+) s after the last bind or clock-source set')",
+   "match_lines": [
+    842
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3415",
+   "shown": "-123.98",
+   "key": "was(r'\\| (-[\\d.]+) dB on both tones, `pts3` and `b0-2` \\|')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "0",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 1)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "18",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 2)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "28",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 3)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "31",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 4)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "43",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 5)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3416",
+   "shown": "54",
+   "key": "was(r'runs of blocks: (\\d+) to (\\d+), (\\d+) to (\\d+), (\\d+) to (\\d+) and later runs', 6)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3417",
+   "shown": "06:38:03",
+   "key": "was(r'McASP0 300 s from ([\\d:]+) while playing the loop')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3417",
+   "shown": "24",
+   "key": "was(r'It starts (\\d+) s after the last bind')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3418",
+   "shown": "06:28:25",
+   "key": "was(r'\\| As `pts1`, from ([\\d:]+)\\. McASP0 also plays')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3419",
+   "shown": "Three",
+   "key": "was(r'the tone path\\. All (\\w+) are met here\\.').capitalize()",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3419",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3420",
+   "shown": "131",
+   "key": "was(r'There its talker stream already held (\\d+) blocks off the floor')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3422",
+   "shown": "Four",
+   "key": "was(r'1,255 both hold, (\\w+) differ').capitalize()",
+   "match_lines": [
+    2776
+   ],
+   "all_inside_covered": true,
+   "git_receipt": true
+  },
+  {
+   "line": "3424",
+   "shown": "2.66",
+   "key": "was(r'- B-CRF: one step, ([\\d.]+) s after the set;')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3424",
+   "shown": "2.65",
+   "key": "was(r'- B-AAF: two steps, ([\\d.]+) s and ([\\d.]+) s after the set\\.')",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3424",
+   "shown": "5.68",
+   "key": "was(r'- B-AAF: two steps, ([\\d.]+) s and ([\\d.]+) s after the set\\.', 2)",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "3580",
+   "shown": "0",
+   "key": "rx(FIND_P, r'nothing\\. Its counters stayed (\\d+) and its digital output read exact zero')",
+   "match_lines": [
+    2111
+   ],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3592",
+   "shown": "Six",
+   "key": "sum(1 for x in ('plus one change', 'one PDU', 'one step earlier', 'one request', 'the two lanes', 'one route') if x in load('git:35e332b6:docs/findings/629_MEDI",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": true
+  },
+  {
+   "line": "84",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "README.md:15",
+   "shown": "four",
+   "key": "len(re.split(r', and |, ', b6_rule()))",
+   "match_lines": [],
+   "all_inside_covered": false,
+   "git_receipt": false
+  },
+  {
+   "line": "3593",
+   "shown": "one",
+   "key": "re.search('\\\\b(one) route', load('git:35e332b6:docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md')).group(1)",
+   "match_lines": [
+    3593
+   ],
+   "all_inside_covered": true,
+   "git_receipt": true
+  }
+ ]
+}

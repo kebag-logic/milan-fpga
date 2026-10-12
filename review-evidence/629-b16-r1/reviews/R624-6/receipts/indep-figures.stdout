@@ -1,0 +1,46 @@
+OK  bcrf lock bracket (trace start of last ACQUIRE poll; run record s_hi) | ('2.585', 3.161) | L 3174 | 2.585 to 3.161 s
+OK  bcrf window LOCKED | (596, 596) | L 3174 | LOCKED at 596 of 596
+OK  bcrf trim | ('-6.125', '-6') | L 3174 | -6.000 to -6.125 ppm
+OK  baaf lock bracket (trace start of last ACQUIRE poll; run record s_hi) | ('6.602', 7.18) | L 3175 | 6.602 to 7.180 s
+OK  baaf window LOCKED | (596, 596) | L 3175 | LOCKED at 596 of 596
+OK  baaf trim | ('-6.125', '-6') | L 3175 | -6.000 to -6.125 ppm
+OK  bcrf busy | (580, 16) | L 3184 | 580 and 16 of the window's
+OK  baaf busy | (584, 12) | L 3185 | 584 and 12 in B-AAF
+OK  bcrf crf rate | ('10.60', '10.65') | L 3174 | CRF sink +10.60 to +10.65 ppm
+OK  baaf aaf rate | ('10.60', '10.63') | L 3175 | AAF meter +10.60 to +10.63 ppm
+OK  baaf crf rate | ('10.59', '10.65') | L 3175 | +10.59 to +10.65 ppm
+OK  baaf aafm | ['0x1e0007'] | L 3175 | `0x001e0007`
+OK  terms LOCKED | (596, 596) | L 3200 | LOCKED at 596 of 596 window polls
+OK  slip_lb ends | (162, 188) | L 3209 | counted 162 dups
+OK  slip_lb end | 188 | L 3210 | 188 at its end
+OK  bcrf ch0 grade | | 300 | -123.98 (-123.93) | 123.99 | -123.98 (-123.93) | | L 3134 | | 300 | -123.98 (-123.93) | 123.99 | -123.98 (-123.93) |
+OK  bcrf ch1 grade | | 300 | -123.97 (-123.90) | 123.97 | -123.97 (-123.90) | | L 3135 | | 300 | -123.97 (-123.90) | 123.97 | -123.97 (-123.90) |
+OK  bcrf events | 0 | L 3134 | | 300 | 0 |
+OK  baaf ch0 grade | | 300 | -123.98 (-123.92) | 123.99 | -123.98 (-123.92) | | L 3136 | | 300 | -123.98 (-123.92) | 123.99 | -123.98 (-123.92) |
+OK  baaf ch1 grade | | 300 | -123.97 (-123.91) | 123.97 | -123.97 (-123.91) | | L 3137 | | 300 | -123.97 (-123.91) | 123.97 | -123.97 (-123.91) |
+OK  baaf events | 0 | L 3136 | | 300 | 0 |
+OK  b0-2 ch0 grade | | 169 | -123.98 (-123.91) | 123.98 | -123.95 (-100.47) | | L 3138 | | 169 | -123.98 (-123.91) | 123.98 | -123.95 (-100.47) |
+OK  b0-2 ch1 grade | | 169 | -123.95 (-120.18) | 123.95 | -122.80 (-80.48) | | L 3139 | | 169 | -123.95 (-120.18) | 123.95 | -122.80 (-80.48) |
+OK  b0-2 events | 0 | L 3138 | | 300 | 0 |
+OK  b0 degraded count | 131 | L 2826 | The other 131 blocks
+OK  b0 first runs | [(0, 18), (28, 31), (43, 44), (46, 54)] | L 2827 | 0 to 18,
+OK  b0 runs 3-4 | [(43, 44), (46, 54)] | L 2828 | 28 to 31, 43 to 44, 46 to 54
+OK  b0 inside | 23 | L 2830 | Of the 131, 23 lie there
+OK  b0 beyond | (108, 13) | L 2832 | The other 108 lie beyond
+OK  b0 worst inside | (7, -100.61017878658022, 7, -80.62935781921077) | L 2842 | down to -100.61 dB and -80.63 dB (block 7)
+OK  b0 worst beyond | (224, 224) | L 2842 | (block 224)
+OK  b0 beyond run span | (43, 251) | L 2832 | blocks 43 to 251
+OK  b0 beyond nruns | 13 | L 2833 | in thirteen runs
+OK  b16b total vs a | 3077452 | L 2848 | 3,077,452 against (a)
+OK  b16b total vs b | 3077980 | L 2848 | 3,077,980 against (b)
+OK  b16c total vs a | 3289015 | L 3250 | 3,289,015 against (a)
+OK  b16c total vs b | 3290863 | L 3250 | 3,290,863 against (b)
+OK  bcrf align | (1647859, 1646473) | L 3149 | over 1,646,473 recorded frames, 34.3 s
+OK  bcrf align a | 1647859 | L 3149 | over 1,647,859 frames, 34.3 s
+OK  baaf align | (1641156, 1644390) | L 3150 | over 1,644,390 recorded frames, 34.3 s
+OK  baaf align a | 1641156 | L 3150 | over 1,641,156 frames, 34.2 s
+OK  bcrf d decoded | 14583391 | L 3157 | | 14,583,391 | 0 | 0 | 0 | 0 |
+OK  baaf d decoded | 14585924 | L 3158 | | 14,585,924 | 0 | 0 | 0 | 0 |
+OK  bcrf clock-source sets and final | [[["peer-internal", "peer", 0, "SUCCESS", 0], ["bcrf", "dut", 1, "SUCCESS", 1], ["restore", "dut", 0, "SUCCESS", 0], ["r | L 3086 | events.jsonl
+OK  baaf clock-source sets and final | [[["peer-internal", "peer", 0, "SUCCESS", 0], ["baaf", "dut", 2, "SUCCESS", 2], ["restore", "dut", 0, "SUCCESS", 0], ["r | L 3086 | events.jsonl
+bad 0

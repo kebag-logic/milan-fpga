@@ -1,0 +1,21 @@
+# The first block ran each gate under the system interpreter, which lacks the pinned Markdown renderer: gen_toc.py and check_em_dash.py refuse to judge there (rc 2, 'the pinned Markdown renderer is not installed'). They are not results.
+# The second block is the result: the same Markdown gates in the pinned environment (cmarkgfm 2025.10.22, html5lib 1.1, CPython 3.14.7).
+docs_check rc=0
+doc_style rc=0
+toc_check rc=2
+toc_anchors rc=2
+em_dash rc=2
+em_dash_e845 rc=2
+doc_paths rc=0
+ci_scope rc=0
+baremetal_check rc=0
+feature_status rc=0
+diff_check rc=0
+# re-run with the pinned Markdown venv (cmarkgfm 2025.10.22, html5lib 1.1, CPython 3.14.7)
+toc_check_pinned rc=0
+toc_anchors_pinned rc=0
+em_dash_pinned rc=0
+em_dash_e845_pinned rc=0
+docs_check_pinned rc=0
+doc_style_pinned rc=0
+doc_paths_pinned rc=0

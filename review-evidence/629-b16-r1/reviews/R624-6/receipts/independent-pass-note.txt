@@ -1,0 +1,11 @@
+R624-6 independent pass, written before any prior review finding or probe was read.
+Head e91a62ee266e182a804ca1f45a0f18f715096563.
+- figures check at head: rc 0, 1,790 rows OK, 13,849 digits, 0 uncovered; outputs byte-equal to r6/.
+- row keys: 0 literal keys, 0 builtin-only keys (audit_row_keys.py).
+- own recomputation of headline figures from receipts: 0 mismatches (indep-figures.json).
+- hash rows: page 84 packet rows + 40 raw rows OK; PR body 37 OK, 3 are earlier rounds' check versions, each equal to its author-rN copy.
+- evidence commits b84584e4, b83e5d76, a73ce5c4, b616e7ea and their manifests as the page states.
+- documentation gates rc 0 with the pinned renderer.
+- controls: r6 39/39, r5 22/22, r4 8/8, r3 5/5 on head, byte-equal; r6 runner on round 5's check byte-equal (17 new FAIL, 22 PASS).
+- own escape probes (32): every natural measurement spelling detected; passing forms are identifier + "of"/"and"/possessive + bare unit, colon, full stop, two-cell table, hundred-in-words detected, single-item list starting at 7 (renders as a list marker).
+Interim: no BLOCKER/MAJOR/MINOR found in the independent pass.

@@ -1,0 +1,459 @@
+[
+ {
+  "probe": "of-unit",
+  "expect": "fail",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": false,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "and-unit",
+  "expect": "fail",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": false,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "possessive-unit",
+  "expect": "fail",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": false,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "br-tag",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7<br>ppm. | | The network, (a) to (b) | None | 0 sequence gap",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7<br>ppm. | | The network, (a) to (b) | None | 0 sequence gap"
+ },
+ {
+  "probe": "sup-tag",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7<sup>ppm</sup>. | | The network, (a) to (b) | None | 0 seque",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7<sup>ppm</sup>. | | The network, (a) to (b) | None | 0 seque"
+ },
+ {
+  "probe": "entity-digit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "hex-entity-digit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "word-joiner",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on"
+ },
+ {
+  "probe": "bom-joiner",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on"
+ },
+ {
+  "probe": "narrow-nbsp",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "ideographic-space",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "fullwidth-unit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ｐｐｍ', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ｐｐｍ. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ｐｐｍ', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 ｐｐｍ. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "arabic-indic-digit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 ٧ (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN ٧ ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t٧\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 ٧ (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN ٧ ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "math-bold-digit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 𝟕 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 𝟕 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t𝟕\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 𝟕 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 𝟕 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "range-to-unitword",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'to 8', not on the closed list) | Hz); every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 to 8 parts per million. | | The network, (a) to (b) | None",
+   "UNCOVERED page.md:3244 8 (a measurement: only a row can claim it) | every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 to 8 parts per million. | | The network, (a) to (b) | None | 0 s",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "UNCOVERED page.md:3244 8 (a measurement: only a row can claim it) | every worst block is -123.93 dB. Drift on CLOCK_DOMAIN 7 to 8 parts per million. | | The network, (a) to (b) | None | 0 s"
+ },
+ {
+  "probe": "lane-glued",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 16 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by '7', not on the closed list) | (997/9,973 Hz); every worst block is -123.93 dB. Drift of B16 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps",
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 97/9,973 Hz); every worst block is -123.93 dB. Drift of B16 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 97/9,973 Hz); every worst block is -123.93 dB. Drift of B16 7ppm. | | The network, (a) to (b) | None | 0 sequence gaps on"
+ },
+ {
+  "probe": "issue-number-unit",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 645 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list) | (997/9,973 Hz); every worst block is -123.93 dB. Drift of #645 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t645\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 645 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list) | (997/9,973 Hz); every worst block is -123.93 dB. Drift of #645 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "uncited-issue",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (no row can claim this spelling) | B-AAF (997/9,973 Hz); every worst block is -123.93 dB. See #7. | | The network, (a) to (b) | None | 0 sequence gaps on ei",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (no row can claim this spelling) | B-AAF (997/9,973 Hz); every worst block is -123.93 dB. See #7. | | The network, (a) to (b) | None | 0 sequence gaps on ei"
+ },
+ {
+  "probe": "step-index-ms",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ms', not on the closed list) | 97/9,973 Hz); every worst block is -123.93 dB. Lock at step 7 ms. | | The network, (a) to (b) | None | 0 sequence gaps on",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ms', not on the closed list) | 97/9,973 Hz); every worst block is -123.93 dB. Lock at step 7 ms. | | The network, (a) to (b) | None | 0 sequence gaps on"
+ },
+ {
+  "probe": "mcasp-index",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 7/9,973 Hz); every worst block is -123.93 dB. Drift of McASP7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3244\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 7/9,973 Hz); every worst block is -123.93 dB. Drift of McASP7 ppm. | | The network, (a) to (b) | None | 0 sequence gaps o"
+ },
+ {
+  "probe": "table-cell-colon",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "full-stop",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "fenced-code",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3994 7 (a measurement: only a row can claim it) | ```text 7 ppm ```",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3994\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3994 7 (a measurement: only a row can claim it) | ```text 7 ppm ```"
+ },
+ {
+  "probe": "html-block",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3994 7 (a measurement: only a row can claim it) | <div> 7 ppm </div>",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3994\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3994 7 (a measurement: only a row can claim it) | <div> 7 ppm </div>"
+ },
+ {
+  "probe": "image-alt",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | ![7 ppm](#b16-limits)",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3993\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | ![7 ppm](#b16-limits)"
+ },
+ {
+  "probe": "abbr-title-attr",
+  "expect": "any",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | <abbr title=\"7 ppm\">drift</abbr>",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3993\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | <abbr title=\"7 ppm\">drift</abbr>"
+ },
+ {
+  "probe": "link-ref-title",
+  "expect": "any",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | [d]: #b16-limits \"7 ppm\"",
+   "UNCOVERED page.md:3993 16 (no row can claim this spelling) | [d]: #b16-limits \"7 ppm\"",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "UNCOVERED page.md:3993 16 (no row can claim this spelling) | [d]: #b16-limits \"7 ppm\""
+ },
+ {
+  "probe": "table-two-cells",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1733, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "heading-measure",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | #### Drift 7 ppm",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3993\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | #### Drift 7 ppm"
+ },
+ {
+  "probe": "blockquote",
+  "expect": "fail",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | > 7 ppm",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3993\t7\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3993 7 (a measurement: only a row can claim it) | > 7 ppm"
+ },
+ {
+  "probe": "list-item-7",
+  "expect": "fail",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": false,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1731, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "words-hundred",
+  "expect": "any",
+  "rc": 1,
+  "detected": true,
+  "meets_expectation": true,
+  "named": [
+   "UNCOVERED page.md:3993 hundred (a measurement: only a row can claim it) | A drift of a hundred ppm.",
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number",
+   "page.md:3993\thundred\tUNCOVERED"
+  ],
+  "summary": "UNCOVERED page.md:3993 hundred (a measurement: only a row can claim it) | A drift of a hundred ppm."
+ },
+ {
+  "probe": "or-so-unit",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "or-more-unit",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "and-a-half-unit",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "to-some-unit",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ },
+ {
+  "probe": "channel-or-so-dB",
+  "expect": "any",
+  "rc": 0,
+  "detected": false,
+  "meets_expectation": true,
+  "named": [
+   "# check_b16_figures.py coverage: line, identifier, category (every identifier that covers a digit or a token no row claims), then each UNCOVERED number"
+  ],
+  "summary": "{\"lines\": 1728, \"tokens\": 1981, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1187, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2405, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}"
+ }
+]
