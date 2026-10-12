@@ -1,0 +1,150 @@
+Note: Google Test filter = AllStates/AdpInputControl.RejectsShortFrame/0:AllStates/AdpInputControl.RejectsShortFrame/1:AllStates/AdpInputControl.RejectsShortFrame/2:AllStates/AdpInputControl.RejectsShortFrame/3:AllStates/AdpInputControl.RejectsShortFrame/4
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 26
+  expected.discarded
+    Which is: 27
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/0, where GetParam() = 0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 26
+  expected.discarded
+    Which is: 27
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/1, where GetParam() = 1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 26
+  expected.discarded
+    Which is: 27
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/2, where GetParam() = 2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 26
+  expected.discarded
+    Which is: 27
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/3, where GetParam() = 3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Stop()
+
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Start(3969)
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:727: Failure
+Expected equality of these values:
+  a->discarded
+    Which is: 26
+  expected.discarded
+    Which is: 27
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery increments discarded exactly once
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:728: Failure
+Expected equality of these values:
+  std::memcmp(a, &expected, sizeof expected)
+    Which is: -1
+  0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+malformed discovery preserves all other core storage
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/4, where GetParam() = 4 (0 ms)
+[----------] 5 tests from AllStates/AdpInputControl (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.RejectsShortFrame/4, where GetParam() = 4
+
+ 5 FAILED TESTS

@@ -1,0 +1,283 @@
+Note: Google Test filter = AdpCore.A3toA5DiscoverAndDiscard:AllStates/AdpInputControl.ValidDiscovery/4
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:168: Failure
+Value of: fk.stops == stops + 1u && a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] 1 test from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:800: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery is never discarded
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:803: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:804: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery starts one delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:805: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:806: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery selects the delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:807: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery draws one delay
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:808: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:800: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery is never discarded
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:803: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:804: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery starts one delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:805: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:806: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery selects the delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:807: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery draws one delay
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:808: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:800: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery is never discarded
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:803: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:804: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery starts one delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:805: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:806: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery selects the delay timer
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:807: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery draws one delay
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:808: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AllStates/AdpInputControl.ValidDiscovery/4, where GetParam() = 4 (0 ms)
+[----------] 1 test from AllStates/AdpInputControl (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpCore.A3toA5DiscoverAndDiscard
+[  FAILED  ] AllStates/AdpInputControl.ValidDiscovery/4, where GetParam() = 4
+
+ 2 FAILED TESTS

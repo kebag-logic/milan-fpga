@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:44:56.076" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:44:56.076">
+    <testcase name="A7ResponsesKeyOnTheListenerUniqueId" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="542" status="run" result="completed" time="0." timestamp="2026-10-12T18:44:56.076" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:547&#x0A;Value of: a.sinks[1].state == ACMP_SETTLED_NO_RSV &amp;&amp; a.sinks[0].state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:547
+Value of: a.sinks[1].state == ACMP_SETTLED_NO_RSV && a.sinks[0].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

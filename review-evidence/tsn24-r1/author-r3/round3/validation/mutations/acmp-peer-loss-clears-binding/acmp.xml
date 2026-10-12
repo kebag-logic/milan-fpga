@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:45:02.984" name="AllTests">
+  <testsuite name="AcmpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:45:02.984">
+    <testcase name="DepartingRetainsBindingAndReprobes" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="1282" status="run" result="completed" time="0." timestamp="2026-10-12T18:45:02.984" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:164&#x0A;Value of: retained.bound &amp;&amp; retained.binding.talker_entity_id == kTkA &amp;&amp; retained.binding.talker_unique_id == 1u &amp;&amp; retained.binding.controller_entity_id == kCtl1&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;peer loss retains the binding and its talker, stream and controller&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:164
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:184&#x0A;Value of: view(0).bound &amp;&amp; view(0).state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;rediscovery keeps the sink bound while awaiting the new response&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:184
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+    <testcase name="AdpTimeoutRetainsBindingAndReprobes" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="1287" status="run" result="completed" time="0." timestamp="2026-10-12T18:45:02.984" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:164&#x0A;Value of: retained.bound &amp;&amp; retained.binding.talker_entity_id == kTkA &amp;&amp; retained.binding.talker_unique_id == 1u &amp;&amp; retained.binding.controller_entity_id == kCtl1&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;peer loss retains the binding and its talker, stream and controller&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:164
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:184&#x0A;Value of: view(0).bound &amp;&amp; view(0).state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;rediscovery keeps the sink bound while awaiting the new response&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:184
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
