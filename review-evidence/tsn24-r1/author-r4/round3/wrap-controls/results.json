@@ -1,0 +1,32 @@
+[
+  {
+    "case": "baseline",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_failure": false,
+    "listener_declaring": 0,
+    "destination_declaring": 0,
+    "bytes": 2007032,
+    "sha256": "e06a98308a00dc934ab1d3af6091650f8bb7049a92d5dd5b93014e94cc8cb864"
+  },
+  {
+    "case": "g-expiry-skipped-with-listener",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_failure": true,
+    "listener_declaring": 1,
+    "destination_declaring": 0,
+    "bytes": 2007352,
+    "sha256": "a9d8b377270ea6fe46115a2fa7bf1b97d8491b7cb7672fbb7d2e4540a52956c1"
+  },
+  {
+    "case": "g-expiry-skipped-invalid-da",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_failure": true,
+    "listener_declaring": 0,
+    "destination_declaring": 1,
+    "bytes": 2007216,
+    "sha256": "d3ac1c04f4d1a64d6a682f39169cc9847416d3439c14c62adddd1cd05c842b8e"
+  }
+]

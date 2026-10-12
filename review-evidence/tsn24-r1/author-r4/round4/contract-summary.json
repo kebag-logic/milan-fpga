@@ -1,0 +1,464 @@
+[
+  {
+    "plant": "dafresh-unanswered-clock",
+    "killer": "AcmpFresh.NoProbe",
+    "needle": "freshness requires an answered probe even at clock zero",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.NoProbe"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-listener-needs-probe",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "needle": "a registered Listener declares without any answered probe",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-ignore-address",
+    "killer": "AcmpFresh.InvalidAddress",
+    "needle": "invalid destination blocks both fresh and registered demand",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-withdrawal-clears-probe",
+    "killer": "AcmpFresh.FreshProbeAfterListenerWithdrawal",
+    "needle": "a fresh answered probe survives Listener registration and withdrawal",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.FreshProbeAfterListenerWithdrawal"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-query-source-twice",
+    "killer": "AcmpFresh.QueryPorts",
+    "needle": "each declaration query samples the live source once",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.QueryPorts"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-query-calls-srp",
+    "killer": "AcmpFresh.QueryPorts",
+    "needle": "declaration queries call only the existing clock and source ports",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.QueryPorts"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-listener-calls-clock",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "Listener input and invalid queries call no platform service",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-listener-bound-off-by-one",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "unknown Listener source is refused without a state write",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-wrong-interface",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "Listener interface must match the configured source interface",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-listener-range-only",
+    "killer": "AcmpFresh.ListenerInterfaceMismatch",
+    "needle": "a valid interface belonging to another source is refused",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ListenerInterfaceMismatch"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-listener-no-entry-guard",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "Listener input refuses synchronous source callback reentry",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-listener-rejects-asking-failed",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "needle": "a registered Listener declares without any answered probe",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-generated-window",
+    "killer": "EntityYaml.DaFreshRoundTrip",
+    "needle": "generated freshness configuration survives both target round trips",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-fixed-window",
+    "killer": "AcmpFresh.ConfiguredWindow",
+    "needle": "the core uses the configured interval without a mirrored constant",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-half-range",
+    "killer": "AcmpFresh.WindowRange",
+    "needle": "freshness intervals at or above the clock half range are refused",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WindowRange"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-range-wipes-instance",
+    "killer": "AcmpFresh.WindowRange",
+    "needle": "refusing a freshness interval leaves the instance unchanged",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WindowRange"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-range-calls-clock",
+    "killer": "AcmpFresh.WindowRange",
+    "needle": "freshness interval validation calls no platform service",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WindowRange"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "x-zero-never-expires",
+    "killer": "AcmpFresh.ZeroWindow",
+    "needle": "a zero interval disables probe demand even at answer acceptance",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-zero-blocks-listener",
+    "killer": "AcmpFresh.ZeroWindow",
+    "needle": "a zero interval still allows a registered Listener to declare",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-reset-retains-demand",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "needle": "initialization clears previous demand and probe timestamps",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-reset-retains-timestamp",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "needle": "initialization clears the saved answer timestamp itself",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-init-keeps-listener",
+    "killer": "AcmpFresh.InitClearsListener",
+    "needle": "initialization clears a Listener that was still registered",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InitClearsListener"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-wrong-source",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "needle": "a probe on the second source leaves the first source closed",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-listener-writes-source-zero",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "needle": "Listener demand does not leak into another source",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-answer-stamped-before-send",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "needle": "the final millisecond remains fresh from send acceptance",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-refused-answer",
+    "killer": "AcmpFresh.DeferredAnswer",
+    "needle": "a queued response does not yet count as an answer",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-incompatible-refresh",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "needle": "an incompatible interface answer cannot refresh a source",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-only-success",
+    "killer": "AcmpFresh.FailedAllocationAnswer",
+    "needle": "an answered allocation failure retains demand for later validity",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-state-reply-demand",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "needle": "other talker commands cannot supply probe freshness",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "acmp-probe-tx-reports-asking-failed",
+    "killer": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+    "needle": "A20 PROBE_TX_RESPONSE is Table 5.43",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpCore.A20ProbeTxIsAnsweredFromTheSource"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "acmp-get-tx-state-unheld-mac",
+    "killer": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+    "needle": "A20 with no destination MAC held, none is reported",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-no-renewal",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "needle": "another answer renews the complete freshness window",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-inclusive-edge",
+    "killer": "AcmpFresh.WindowEdge",
+    "needle": "the exact fifteen second boundary closes the declaration",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-expiry-equality",
+    "killer": "AcmpFresh.StaleProbe",
+    "needle": "a probe older than the freshness window cannot declare",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-absolute-clock",
+    "killer": "AcmpFresh.ClockWrap",
+    "needle": "unsigned elapsed time keeps a probe fresh across clock wrap",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-query-clock-twice",
+    "killer": "AcmpFresh.QueryPorts",
+    "needle": "each answered declaration query samples the existing clock once",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.QueryPorts"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "g-expiry-skipped-with-listener",
+    "killer": "AcmpFresh.StaleProbeAfterListenerWrap",
+    "needle": "Listener withdrawal after a serviced full wrap cannot revive an expired probe",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.StaleProbeAfterListenerWrap"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "g-expiry-skipped-invalid-da",
+    "killer": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+    "needle": "destination recovery after a serviced full wrap cannot revive an expired probe",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-declaring-no-entry-guard",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "both new entries account for refused callback recursion",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "r630-3-declaring-bound-off-by-one",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "needle": "Listener input and invalid queries call no platform service",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-query-calls-timer",
+    "killer": "AcmpFresh.QueryPorts",
+    "needle": "declaration queries call only the existing clock and source ports",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.QueryPorts"
+    ],
+    "escapes": true
+  },
+  {
+    "plant": "dafresh-query-calls-publish",
+    "killer": "AcmpFresh.QueryPorts",
+    "needle": "declaration queries do not publish sink state",
+    "full_instances": 424,
+    "removed_instances": 423,
+    "full_failures": [
+      "AcmpFresh.QueryPorts"
+    ],
+    "escapes": true
+  }
+]

@@ -1,0 +1,190 @@
+Start testing: Oct 12 18:44 CEST
+----------------------------------------------------------
+8/8 Testing: maap_debug
+8/8 Test: maap_debug
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/maap_debug"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"maap_debug" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"maap_debug" end time: Oct 12 18:44 CEST
+"maap_debug" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/8 Testing: adp_debug
+7/8 Test: adp_debug
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/adp_debug"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"adp_debug" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"adp_debug" end time: Oct 12 18:44 CEST
+"adp_debug" time elapsed: 00:00:00
+----------------------------------------------------------
+
+1/8 Testing: adp_tests
+1/8 Test: adp_tests
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/adp_tests"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"adp_tests" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"adp_tests" end time: Oct 12 18:44 CEST
+"adp_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/8 Testing: maap_tests
+3/8 Test: maap_tests
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/maap_tests"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"maap_tests" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"maap_tests" end time: Oct 12 18:44 CEST
+"maap_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/8 Testing: adp_release
+6/8 Test: adp_release
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/adp_release"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"adp_release" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"adp_release" end time: Oct 12 18:44 CEST
+"adp_release" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/8 Testing: acmp_tests
+2/8 Test: acmp_tests
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/acmp_tests"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"acmp_tests" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpFresh
+[ RUN      ] AcmpFresh.StaleProbe
+$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/tree/tests/test_acmp.cpp:2294: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+a probe older than the freshness window cannot declare
+
+$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/tree/tests/test_acmp.cpp:2296: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+an observed stale probe cannot resurrect on a later wrap
+
+$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/tree/tests/test_acmp.cpp:2294: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+a probe older than the freshness window cannot declare
+
+$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/tree/tests/test_acmp.cpp:2296: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+an observed stale probe cannot resurrect on a later wrap
+
+[  FAILED  ] AcmpFresh.StaleProbe (0 ms)
+[----------] 1 test from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpFresh.StaleProbe
+
+ 1 FAILED TEST
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"acmp_tests" end time: Oct 12 18:44 CEST
+"acmp_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/8 Testing: entity_tests
+4/8 Test: entity_tests
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/entity_tests"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"entity_tests" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"entity_tests" end time: Oct 12 18:44 CEST
+"entity_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/8 Testing: port_tests
+5/8 Test: port_tests
+Command: "$VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build/port_tests"
+Directory: $VALIDATION_STORAGE/tsn24-a606/round3/original-terms/dafresh-expiry-equality/build
+"port_tests" start time: Oct 12 18:44 CEST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = AcmpFresh.StaleProbe
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"port_tests" end time: Oct 12 18:44 CEST
+"port_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 12 18:44 CEST

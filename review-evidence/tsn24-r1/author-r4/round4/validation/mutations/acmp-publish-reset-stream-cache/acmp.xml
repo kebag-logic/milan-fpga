@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:29:46.284" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:29:46.284">
+    <testcase name="A31StoreResetOfASettledSinkPublishesAMovedStream" file="$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp" line="2218" status="run" result="completed" time="0." timestamp="2026-10-12T19:29:46.284" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2227&#x0A;Value of: !fk.pubs[0].bound &amp;&amp; fk.pubs[0].stream == 0u &amp;&amp; fk.pubs[0].moved&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572&#x0A;A31 withdrawal after a store reset reports the settled stream moved&#x0A;TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2227
+Value of: !fk.pubs[0].bound && fk.pubs[0].stream == 0u && fk.pubs[0].moved
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572
+A31 withdrawal after a store reset reports the settled stream moved
+TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

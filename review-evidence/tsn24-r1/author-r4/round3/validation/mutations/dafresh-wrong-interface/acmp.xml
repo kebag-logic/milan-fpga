@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:45:04.057" name="AllTests">
+  <testsuite name="AcmpFresh" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:45:04.057">
+    <testcase name="InputGuardsAndReentry" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="2475" status="run" result="completed" time="0." timestamp="2026-10-12T18:45:04.057" classname="AcmpFresh">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2478&#x0A;Value of: acmp_listener_registered(&amp;a, cfg.n_interfaces, 0, true)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;Listener interface must match the configured source interface&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2478
+Value of: acmp_listener_registered(&a, cfg.n_interfaces, 0, true)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+Listener interface must match the configured source interface
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2488&#x0A;Value of: acmp_declaring(&amp;a, 0)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2488
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

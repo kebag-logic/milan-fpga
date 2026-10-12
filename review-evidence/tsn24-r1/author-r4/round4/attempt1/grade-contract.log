@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/tsn24-a606/round4/grade_contract.py", line 123, in <module>
+    main()
+    ~~~~^^
+  File "$VALIDATION_STORAGE/tsn24-a606/round4/grade_contract.py", line 98, in main
+    require({key[1] for key in full_failed} == {killer} and full["only_killer"]
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and full["needle_seen"] and full["caught"], name + ": missing unique catch")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/tsn24-a606/round4/grade_contract.py", line 17, in require
+    raise RuntimeError(message)
+RuntimeError: r630-3-entry-time-stamp: missing unique catch

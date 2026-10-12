@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:683: Failure
+Value of: s.state == ACMP_PRB_W_DELAY && s.timer == ACMP_TIMER_DELAY && s.timer_deadline - fk.now <= spec::TMR_DELAY_MAX_MS && s.timer_deadline - fk.now == a.last_draw_ms
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:686: Failure
+Value of: s.acmp_status == spec::STATUS_TALKER_DEST_MAC_FAIL && s.probing == ACMP_PROBING_ACTIVE
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A11 and the ACMP status stays: step 2 sets none
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+
+ 1 FAILED TEST

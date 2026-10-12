@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.002" timestamp="2026-10-12T18:44:59.019" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.002" timestamp="2026-10-12T18:44:59.019">
+    <testcase name="DiscoveryPortBudgets" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="2029" status="run" result="completed" time="0.002" timestamp="2026-10-12T18:44:59.019" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2042&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::GPTP)&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;aging needs no grandmaster&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:2042
+Expected equality of these values:
+  fk.count(Call::GPTP)
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+aging needs no grandmaster
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

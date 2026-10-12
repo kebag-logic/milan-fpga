@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:44:58.561" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:44:58.561">
+    <testcase name="A24UnboundRecordsRefusalsAndRollback" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="1416" status="run" result="completed" time="0." timestamp="2026-10-12T18:44:58.561" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:1433&#x0A;Value of: !a.sinks[0].bound &amp;&amp; !a.sinks[2].bound &amp;&amp; a.sinks[0].state == ACMP_UNBOUND &amp;&amp; !a.sinks[2].disc_running &amp;&amp; a.sinks[2].interface == 1u &amp;&amp; fk.calls.empty()&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;A24 the roll-back drops every restored binding, keeps each sink&apos;s interface, calls no port&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:1433
+Value of: !a.sinks[0].bound && !a.sinks[2].bound && a.sinks[0].state == ACMP_UNBOUND && !a.sinks[2].disc_running && a.sinks[2].interface == 1u && fk.calls.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:1439&#x0A;Value of: std::all_of(back, back + sizeof back, [](std::uint8_t b) { return b == 0u; })&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;A24 an unbound sink&apos;s record is all zeros: how an unbind is saved&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:1439
+Value of: std::all_of(back, back + sizeof back, [](std::uint8_t b) { return b == 0u; })
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A24 an unbound sink's record is all zeros: how an unbind is saved
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,40 @@
+[
+  {
+    "plant": "g-expiry-skipped-with-listener",
+    "killer": "AcmpFresh.StaleProbeAfterListenerWrap",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 420,
+    "full_failures": [
+      "AcmpFresh.StaleProbeAfterListenerWrap"
+    ],
+    "killer_needle": "Listener withdrawal after a serviced full wrap cannot revive an expired probe",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 419,
+    "removed_tests": [
+      "AcmpFresh.StaleProbeAfterListenerWrap"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "36facac4f260a9c9d1e7c9b64022caeb3262eee9cafaf2cbdf8eb1a7bcd85140"
+  },
+  {
+    "plant": "g-expiry-skipped-invalid-da",
+    "killer": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 420,
+    "full_failures": [
+      "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+    ],
+    "killer_needle": "destination recovery after a serviced full wrap cannot revive an expired probe",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 419,
+    "removed_tests": [
+      "AcmpFresh.StaleProbeAfterInvalidAddressWrap"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "4ca90990ab6cc79b6d5a49f5ab098aef81b98a031447aebf2175a912bb66e39f"
+  }
+]

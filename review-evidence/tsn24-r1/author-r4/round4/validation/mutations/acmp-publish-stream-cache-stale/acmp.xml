@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T19:29:46.253" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T19:29:46.253">
+    <testcase name="A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt" file="$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp" line="2052" status="run" result="completed" time="0." timestamp="2026-10-12T19:29:46.253" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2070&#x0A;Value of: fk.pubs.empty() &amp;&amp; last().stream_id == kSid&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572&#x0A;A31 a GET_RX_STATE reports the stream already published, and publishes nothing&#x0A;TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2070
+Value of: fk.pubs.empty() && last().stream_id == kSid
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572
+A31 a GET_RX_STATE reports the stream already published, and publishes nothing
+TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2073&#x0A;Expected equality of these values:&#x0A;  fk.pubs.size()&#x0A;    Which is: 3&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572&#x0A;A31 an UNBIND_RX publishes the sink unbound&#x0A;TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round4/validation/mutations/baseline/tests/test_acmp.cpp:2073
+Expected equality of these values:
+  fk.pubs.size()
+    Which is: 3
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_551a14b7c4962cfa8902773177607572
+A31 an UNBIND_RX publishes the sink unbound
+TSN_MESSAGE_END_d63cbb06fba5ea86e9d5579f7e638e1c
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,35 @@
+Note: Google Test filter = AdpCore.A21DepartingCapacity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A21DepartingCapacity
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:442: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 1u && !a.available_owed && a.state == ADP_STATE_DOWN && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_adp.cpp:449: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 100001u && fk.sends == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A21 and so are 100000 more, each counted, the two owed unchanged
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+
+[  FAILED  ] AdpCore.A21DepartingCapacity (3 ms)
+[----------] 1 test from AdpCore (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A21DepartingCapacity
+
+ 1 FAILED TEST

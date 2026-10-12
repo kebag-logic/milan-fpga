@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:44:55.679" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:44:55.679">
+    <testcase name="A2UnknownSinkIsAnsweredListenerUnknownId" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp" line="369" status="run" result="completed" time="0." timestamp="2026-10-12T18:44:55.679" classname="AcmpCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:373&#x0A;Expected equality of these values:&#x0A;  fk.sent.size()&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;A2 a command for a sink the entity lacks is answered, msg 6&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_acmp.cpp:373
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+A2 a command for a sink the entity lacks is answered, msg 6
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

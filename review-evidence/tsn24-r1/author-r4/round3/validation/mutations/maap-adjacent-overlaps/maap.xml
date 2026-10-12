@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-10-12T18:45:00.904" name="AllTests">
+  <testsuite name="MaapCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-10-12T18:45:00.904">
+    <testcase name="DisjointAdjacentZeroAndDefendRange" file="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_maap.cpp" line="232" status="run" result="completed" time="0." timestamp="2026-10-12T18:45:00.904" classname="MaapCore">
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_maap.cpp:236&#x0A;Expected equality of these values:&#x0A;  r.frames.size()&#x0A;    Which is: 7&#x0A;  n&#x0A;    Which is: 5&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;half open intervals and zero count do not conflict&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_maap.cpp:236
+Expected equality of these values:
+  r.frames.size()
+    Which is: 7
+  n
+    Which is: 5
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+half open intervals and zero count do not conflict
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+      <failure message="$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_maap.cpp:238&#x0A;Expected equality of these values:&#x0A;  r.core.conflicts&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d&#x0A;DEFEND tests conflict fields&#x0A;TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4&#x0A;&#x0A;" type=""><![CDATA[$VALIDATION_STORAGE/tsn24-a606/round3/validation/mutations/baseline/tests/test_maap.cpp:238
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_72633da5d384359ec6e5737cb49d2d0d
+DEFEND tests conflict fields
+TSN_MESSAGE_END_5f8922ad48c85f83d506170b8b96d2c4
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

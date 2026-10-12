@@ -1,0 +1,242 @@
+[
+  {
+    "name": "dafresh-unanswered-clock",
+    "test": "AcmpFresh.NoProbe",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.NoProbe"
+    ],
+    "removal": [
+      "AcmpFresh.NoProbe"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-expiry-equality",
+    "test": "AcmpFresh.StaleProbe",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "removal": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-inclusive-edge",
+    "test": "AcmpFresh.WindowEdge",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "removal": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-no-renewal",
+    "test": "AcmpFresh.WithinWindowAndRefresh",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "removal": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-listener-needs-probe",
+    "test": "AcmpFresh.ListenerWithoutProbe",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "removal": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-ignore-address",
+    "test": "AcmpFresh.InvalidAddress",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "removal": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-absolute-clock",
+    "test": "AcmpFresh.ClockWrap",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "removal": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-fixed-window",
+    "test": "AcmpFresh.ConfiguredWindow",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "removal": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-refused-answer",
+    "test": "AcmpFresh.DeferredAnswer",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "removal": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-only-success",
+    "test": "AcmpFresh.FailedAllocationAnswer",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "removal": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-state-reply-demand",
+    "test": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "removal": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-wrong-source",
+    "test": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "removal": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-wrong-interface",
+    "test": "AcmpFresh.InputGuardsAndReentry",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "removal": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-reset-retains-demand",
+    "test": "AcmpFresh.ListenerWithdrawalAndReset",
+    "full_rc": 1,
+    "full_tests": 93,
+    "full_failures": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "removal": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 92,
+    "single_test_escape": true
+  },
+  {
+    "name": "dafresh-generated-window",
+    "test": "EntityYaml.DaFreshRoundTrip",
+    "full_rc": 1,
+    "full_tests": 4,
+    "full_failures": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "removal": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "removed_rc": 0,
+    "remaining_failures": [],
+    "remaining_tests": 3,
+    "single_test_escape": true
+  }
+]

@@ -1,0 +1,253 @@
+[
+ {
+  "plant": "dafresh-half-range",
+  "killer": "AcmpFresh.WindowRange",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-unanswered-clock",
+  "killer": "AcmpFresh.NoProbe",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-expiry-equality",
+  "killer": "AcmpFresh.StaleProbe",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-inclusive-edge",
+  "killer": "AcmpFresh.WindowEdge",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-no-renewal",
+  "killer": "AcmpFresh.WithinWindowAndRefresh",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-listener-needs-probe",
+  "killer": "AcmpFresh.ListenerWithoutProbe",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-ignore-address",
+  "killer": "AcmpFresh.InvalidAddress",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-absolute-clock",
+  "killer": "AcmpFresh.ClockWrap",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-fixed-window",
+  "killer": "AcmpFresh.ConfiguredWindow",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-refused-answer",
+  "killer": "AcmpFresh.DeferredAnswer",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-only-success",
+  "killer": "AcmpFresh.FailedAllocationAnswer",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-state-reply-demand",
+  "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-wrong-source",
+  "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-wrong-interface",
+  "killer": "AcmpFresh.InputGuardsAndReentry",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-reset-retains-demand",
+  "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "dafresh-generated-window",
+  "killer": "EntityYaml.DaFreshRoundTrip",
+  "suite_without_killer_rc": 0,
+  "escapes_without_killer": true,
+  "other_failures": [],
+  "killer_alone_rc": 8,
+  "killer_fails_with_needle": true
+ },
+ {
+  "plant": "x-no-expiry-clear",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.ListenerWithdrawalAndReset",
+   "AcmpFresh.StaleProbe",
+   "AcmpFresh.WindowEdge",
+   "AcmpFresh.ZeroWindow"
+  ]
+ },
+ {
+  "plant": "x-no-clock-refresh",
+  "suite_rc": 0,
+  "result": "SURVIVED",
+  "failing_tests": []
+ },
+ {
+  "plant": "x-any-probe-status",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.OtherRepliesDoNotRefresh"
+  ]
+ },
+ {
+  "plant": "x-declaring-no-guard",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.InputGuardsAndReentry",
+   "AcmpFresh.StaleProbe",
+   "AcmpFresh.WindowEdge"
+  ]
+ },
+ {
+  "plant": "x-listener-no-guard",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ]
+ },
+ {
+  "plant": "x-listener-level-ignored",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.ListenerWithdrawalAndReset",
+   "AcmpFresh.ListenerWithoutProbe",
+   "AcmpFresh.WindowEdge",
+   "AcmpFresh.ZeroWindow"
+  ]
+ },
+ {
+  "plant": "x-window-minus-one",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.ClockWrap",
+   "AcmpFresh.DeferredAnswer",
+   "AcmpFresh.WithinWindowAndRefresh",
+   "AcmpFresh.ZeroWindow"
+  ]
+ },
+ {
+  "plant": "x-declaring-bound",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.InputGuardsAndReentry"
+  ]
+ },
+ {
+  "plant": "x-zero-never-expires",
+  "suite_rc": 8,
+  "result": "CAUGHT",
+  "failing_tests": [
+   "AcmpFresh.ZeroWindow"
+  ]
+ },
+ {
+  "plant": "x-signed-age",
+  "suite_rc": 0,
+  "result": "SURVIVED",
+  "failing_tests": []
+ },
+ {
+  "plant": "y-yaml-wide-range",
+  "gate": "scripts/entity_selftest.py",
+  "gate_rc": 1,
+  "caught": true,
+  "owner_removed_rc": 0,
+  "escapes_without_owner": true
+ },
+ {
+  "plant": "y-yaml-no-emit",
+  "gate": "scripts/entity_yaml.py",
+  "gate_rc": 2,
+  "caught": true
+ },
+ {
+  "plant": "y-yaml-default-zero",
+  "gate": "scripts/entity_yaml.py",
+  "gate_rc": 2,
+  "caught": true
+ }
+]
