@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""ctrl_pin_store.py - the pin proof's controls of Git's object store (#697).
+"""ctrl_pin_store.py - the pin proof's controls of Git's object store and of the repositories' own configuration (#697).
 
 The pin proof reads the pinned commit and each tree under it raw from the
 stack's object store, and hashes each here against its id
@@ -17,6 +17,13 @@ of one object of the pin with the bytes of another that would hide the edit:
   forged object, the pinned commit;
 - the pinned blob of the edited source, with the edit's: refused by the edited
   source's name, since the proof reads no blob.
+The helper gives Git core.fsmonitor=false, so no repository's own
+configuration starts a program when Git reads an index. Two controls name a
+recorder (ctrl_pin_env.RECORDER) as core.fsmonitor in a repository's own
+configuration: a superproject's, whose index's gitlink is the pin, read as the
+proof reads the checkout's (ctrl_build.stack_gitlink); and the stack clone's,
+beside an edit. Each ends in the verdict its repository earns, and the
+recorder never runs.
 """
 
 from __future__ import annotations
@@ -25,8 +32,8 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from ctrl_build import Refusal, stack_pin
-from ctrl_pin_env import EDITED, Scene, answer
+from ctrl_build import Refusal, stack_gitlink, stack_pin
+from ctrl_pin_env import EDITED, GITLINK, Scene, answer
 
 #: More objects than a fetch of the pin's history brings, so that the fetch unpacks each into a loose object
 #: rather than keep the pack it is sent.
@@ -85,10 +92,25 @@ def forged_blob(scene: Scene) -> None:
     forge(scene, answer(scene.stack, "rev-parse", f"{scene.pin}:{EDITED}").strip(), blob)
 
 
+def monitored_superproject(scene: Scene) -> None:
+    """A superproject whose index's gitlink is the pin, and whose own configuration names the recorder as
+    core.fsmonitor."""
+    top = scene.own / "superproject"
+    answer(scene.own, "init", "--quiet", str(top))
+    answer(top, "update-index", "--add", "--cacheinfo", f"160000,{scene.pin},{GITLINK}")
+    answer(top, "config", "core.fsmonitor", scene.recorder())
+
+
+def monitored_stack(scene: Scene) -> None:
+    """The clone's own configuration naming the recorder as core.fsmonitor, and the edit on disk."""
+    answer(scene.stack, "config", "core.fsmonitor", scene.recorder())
+    scene.edit()
+
+
 def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
-    """The pin controls of the object store, as ctrl_pin.pin_controls runs them (each after a fresh clone of the
-    stack at `stack`, pinned at `pin`): each must end in its verdict. `edited` begins the refusal of a checkout
-    that differs."""
+    """The pin controls of the object store and of the repositories' own configuration, as ctrl_pin.pin_controls
+    runs them (each after a fresh clone of the stack at `stack`, pinned at `pin`): each must end in its verdict,
+    and no program a configuration names may run. `edited` begins the refusal of a checkout that differs."""
     own = work / "store"
     scene = Scene(stack, pin, own)
 
@@ -102,12 +124,25 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
             spoil(scene)
         return prepared
 
+    def gitlink() -> str:
+        """The superproject's gitlink, read as the pin proof reads the checkout's: the pin, or a Refusal."""
+        said = stack_gitlink(own / "superproject")
+        if said != pin:
+            raise Refusal(f"the superproject's gitlink was read as {said}, not as the pin {pin}")
+        return said
+
     def judged(read: Callable[[], str], needle: str) -> tuple[bool, str]:
-        """`read`'s verdict: accepted, and what it said."""
+        """`read`'s verdict: accepted, and what it said. A program a configuration names that Git ran fails the
+        control, whatever the verdict."""
         try:
-            return True, f"accepted {read()}"
+            accepted, said = True, f"accepted {read()}"
         except Refusal as exc:
-            return False, str(exc)
+            accepted, said = False, str(exc)
+        ran = sorted(own.rglob("ran"))
+        if ran:
+            return bool(needle), f"Git ran a program a repository's own configuration names: " \
+                                 f"{ran[0].read_text(encoding='utf-8').splitlines()[0]}"
+        return accepted, said
 
     def checked() -> str:
         """The pin check on the clone."""
@@ -119,6 +154,10 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
         ("the object store, a source edited, the pinned commit's object overwritten by a commit whose tree holds "
          "the edit", forged_commit, checked, FORGED + "the pinned commit"),
         ("the object store, a source edited, its pinned blob's object overwritten by the edit's", forged_blob,
+         checked, edited + EDITED),
+        ("the superproject's own configuration, a program named as core.fsmonitor, its gitlink read",
+         monitored_superproject, gitlink, ""),
+        ("the stack's own configuration, a program named as core.fsmonitor, a source edited", monitored_stack,
          checked, edited + EDITED),
     )
     return [(what, spoiled(spoil), lambda r=read, n=needle: judged(r, n), needle)

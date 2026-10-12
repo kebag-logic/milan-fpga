@@ -172,6 +172,7 @@ So Git reads the real objects only, and a replacement object (`refs/replace`) or
 Git checks the hash of no object `cat-file` prints, nor of a tree below the one `ls-tree -r` is given, so the proof reads the pinned commit and each tree under it raw and hashes each against its id itself.
 An object forged or corrupted in the stack's object store is refused by its place in the pin (the pinned `src/` tree, say), and no blob is read: each file is hashed from its own bytes.
 No variable the proof inherits (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE`, `HOME` and the rest) can redirect Git's repository, object store, configuration or replacement refs.
+The helper also gives Git `core.fsmonitor=false`, so no repository's own configuration, the superproject's included, names a program Git starts when it reads an index.
 What decides the pin is `stack_gitlink`, `stack_pin` and the command line's `main`.
 Before the proof's first Git call, where `ctrl_build.py` defines the helper, the proof installs a PEP 578 audit hook, which stays for the life of the process.
 An audit hook cannot be removed, and this one binds all it judges by as it is installed: the helper's code, the module's namespace, the Git program, and every function, builtin and constant it uses.
@@ -188,7 +189,6 @@ The proof's own modules are reviewed source, outside that model: a rebinding of 
 The hook is defence in depth against such code.
 It sees a launch through the interpreter's audited interfaces only: not `ctypes` or an extension module, and on the runner's CPython 3.12.3 not `_posixsubprocess.fork_exec`, which `subprocess` calls just after raising its own event from Python (CPython 3.14 audits `fork_exec` itself).
 What Git itself starts is outside the hook too, and so is code that runs before the hook is installed, at the top of `ctrl_build.py`.
-One route within the model is open, for a decision: a program the repository's own configuration names (`core.fsmonitor`), which Git starts when it reads the index.
 An import of a module already loaded raises no audit event, so `import importlib`, `__import__` or `pkgutil.importlib` alone is refused by the census below, not at run time; nothing it reaches can start a process or run dynamic code in the proof without an event the hook refuses.
 A function of the two modules that starts a process while the proof is not running is not judged.
 `ctrl_build.py`'s build functions and `run`, and `ctrl_pin.py`'s runs of `make` and of the gates its controls run, start their processes that way, through `fw_gtest.run`.
@@ -206,7 +206,7 @@ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP di
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-82 pin controls follow the boundary controls.
+84 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
@@ -227,10 +227,12 @@ They are also `core.fsmonitor` naming a program, through `GIT_CONFIG_COUNT`, `GI
 Each ends in the verdict the clone itself earns, and Git starts no program they name.
 A clean filter given through `GIT_CONFIG_COUNT`, and one whose attribute `GIT_ATTR_SOURCE` gives, would each turn an edit back into the pinned blob; the edit is refused by name.
 With every variable at once the pinned clone is accepted, and the hook's judge refuses a `fork_exec` entry list that gives a key twice.
-Three more ([`ctrl_pin_store.py`](test/ctrl_pin_store.py)) hold the object store.
-Each forges one object of the pin, in a clone whose objects are all loose in its own store, beside an edit the forged object would hide.
+Five more ([`ctrl_pin_store.py`](test/ctrl_pin_store.py)) hold the object store and the repositories' own configuration.
+Three each forge one object of the pin, in a clone whose objects are all loose in its own store, beside an edit the forged object would hide.
 The pinned `src/` tree forged to hold the edit is refused as a forged object, by that place, and so is the pinned commit forged to name such a tree.
 The edited source's pinned blob forged to hold the edit is refused by the source's name, since no blob is read.
+Two name a program as `core.fsmonitor` in a repository's own configuration, a superproject's whose gitlink is the pin and the stack's beside an edit.
+Git starts it for neither, and each verdict is the one its repository earns.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.
 Every mailbox bench target whose dry run reaches the stack runs for real, in a scratch copy, against a clone whose `wire.h` is poisoned.
 At this head those are `all`, `run-cosim`, `run-if2`, the firmware library and the pin target itself.

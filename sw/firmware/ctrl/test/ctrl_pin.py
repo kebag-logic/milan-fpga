@@ -58,10 +58,10 @@ audits fork_exec itself). What Git itself starts is outside the hook, and so
 is code that runs before the hook is installed (ctrl_build.py's top, above
 the helper). Every object the proof reads, the pinned commit and each tree
 under it, is read raw and hashed here against its id (ctrl_build.stored), so
-a forged or corrupt object is refused by its place; no blob is read
-(ctrl_pin_store.py holds its controls). One route within the model is open,
-for a decision: a program the repository's own configuration names
-(core.fsmonitor), which Git starts when it reads the index.
+a forged or corrupt object is refused by its place; no blob is read. The
+helper gives Git core.fsmonitor=false, so no repository's own configuration
+names a program Git starts when it reads an index; ctrl_pin_store.py holds
+the controls of both.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
 text, beside the hook's own check of them (exercised: the pin proof run from
@@ -126,7 +126,8 @@ the setting's name. The helper's environment the caller's again, with a
 variable added (GIT_DIR), and with a key or a value that is not a plain str,
 are refused at the helper's line, the variable by its name. The
 inherited-environment controls follow (ctrl_pin_env.py), then those of the
-object store (ctrl_pin_store.py), R585-12's forged src/ tree among them. The MAAP
+object store and the repositories' own configuration (ctrl_pin_store.py),
+R585-12's forged src/ tree among them. The MAAP
 differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
@@ -912,7 +913,8 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
     pinned commit is replaced by one holding the edit, the clone with a graft file beside the edit, and the clone
     whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The pin proof
     runs to its verdict under its audit hook, and ends in the hook's refusal with each plant of HOOK_PLANTS. The
-    controls of the inherited environment (ctrl_pin_env.py) and of the object store (ctrl_pin_store.py) hold.
+    controls of the inherited environment (ctrl_pin_env.py), and of the object store and the repositories' own
+    configuration (ctrl_pin_store.py), hold.
     The MAAP differential (both modes) and the AECP lane's arms, campaign and wire comparison refuse an edited
     clone before building it; every Makefile builder's target that reaches the stack refuses a poisoned one on
     the pin check.

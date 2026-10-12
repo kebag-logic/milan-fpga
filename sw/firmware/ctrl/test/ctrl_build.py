@@ -378,9 +378,11 @@ def audited(helper: Callable[..., GitRun]) -> Callable[..., GitRun]:
 def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
     """One git command in `directory`, its output captured: the helper, the only code of the pin proof's modules
     (this one and ctrl_pin.py) that names a process-launch facility, and the only one whose process the pin
-    proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it."""
+    proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it,
+    and core.fsmonitor off, so that no repository's own configuration names a program Git starts to read an
+    index."""
     import subprocess
-    res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT,
+    res = subprocess.run(["git", "-c", "core.fsmonitor=false", "-C", str(directory), *args], executable=GIT,
                          input=None if stdin is None else stdin.encode(errors="surrogateescape"), capture_output=True,
                          check=False, env=git_env())
     return GitRun(res.returncode, res.stdout.decode(errors="surrogateescape"),
