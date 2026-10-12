@@ -525,9 +525,8 @@ class NxnRxStackHarness {
         ck("[M13d] TV holds", lctx_rd(1, W_TV), 1);
         { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=2; feed(build_aaf(stim, c)); }
         flush_iv();
-        //! 3 accepted frames, 2 observation intervals: the tallies say 3, the
-        //! The coalesced FRAMES_RX total follows all accepted packets.
-        //! calls exactly this split "milan-interval" (INFO, not a defect)
+        //! Three accepted frames across two observation intervals: TV/TNV
+        //! and the committed FRAMES_RX total both count all three packets.
         ck("[M13e] TV+TNV = accepted frames (3)",
            lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), 3);
         //! coalesced law (USER 2026-08-05: ATDECC quantity, Milan cadence):

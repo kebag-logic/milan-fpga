@@ -481,8 +481,8 @@ class CrfRxHarness {
     // observer nominal. 300 PDUs: delta drifts +200/PDU; rate_o must stay 0
     // until the ring fills (256 PDUs) then read +100 ppm exactly:
     // 256 * 200 = 51 200 ns / 512 ms window. Lock on the 8th clean PDU.
-    // FRAMES_RX counts accepted PDUs (replica-pinned per
-    // PDU), never the 300 frames.
+    // FRAMES_RX counts all 300 accepted PDUs; the replica checks each
+    // increment independently of the final burst total.
     //-----------------------------------------------------------------------
     void pin_plus_100ppm_trajectory() {
         printf("[crf_rx] +100 ppm trajectory (300 PDUs, per-PDU pinned)\n");
