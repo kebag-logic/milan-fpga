@@ -189,9 +189,11 @@ suites and set the context's latency at 1745-2514 s, of which the eleven took
 492-725 s.
 
 `scripts/suite_shards.py` records each default suite's hosted duration and
-each worker's job overhead, measured from one dev run. It places the longest
-suite first, on the worker with the lowest predicted wall clock. Its
-self-test refuses a suite without a duration and a duration without a suite.
+each worker's job overhead. All figures come from one dev run, except `maap`,
+which keeps #696's figure from its pull-request run until a dev run measures
+that change. It places the longest suite first, on the worker with the lowest
+predicted wall clock. Its self-test refuses a suite without a duration and a
+duration without a suite.
 It also refuses any worker predicted above 60% of the job's
 `timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
 gives the refresh procedure. On dev `c6bd08c6` the old hash put worker 1/5 at
