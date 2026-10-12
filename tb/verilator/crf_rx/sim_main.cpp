@@ -95,7 +95,8 @@ struct Model {
     uint64_t last_ts = 0;
     bool last_tu = false;
     bool rate_seeded = false;
-    // gh #61 G1: all seven interval tallies are 32-bit WRAPPING - the old
+    // gh #61 G1: all seven tallies (FRAMES_RX per AVTPDU, six interval
+    // anomaly counters) are 32-bit WRAPPING - the old
     // 8-bit fmt/seq SATURATION violated 5.3.8.10's "wraps back to zero"
     // (a pegged instrument is frozen), and 16 bits wrapped at the
     // 65536 s = 18 h 12 min soak mark

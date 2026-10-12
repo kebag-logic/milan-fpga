@@ -545,9 +545,10 @@ class NxnRxStackHarness {
 
     // ---------------------------------------------------------------- //
     // [IV] Milan v1.2 Table 5.6 interval semantics, the bite-proof set: //
-    // N events inside ONE observation interval move each of the seven   //
-    // interval counters by EXACTLY 1; per-event counters keep counting  //
-    // per event; one event per interval across two intervals counts 2.  //
+    // N events inside ONE observation interval move each of the six   //
+    // anomaly interval counters (FRAMES_RX counts each accepted AVTPDU //
+    // and may publish in a batch) by EXACTLY 1; per-event counters keep //
+    // counting per event; one event per interval across two counts 2.  //
     // Runs on stream 2 (fresh context) so every delta starts at zero.   //
     // ---------------------------------------------------------------- //
     //! Hands [IV1] the settle-drain FRAMES_RX reading it measures against.

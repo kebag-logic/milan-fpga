@@ -393,7 +393,7 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | counter            | delta | window | verdict | reading |
       | UNSUPPORTED_FORMAT | 0     | 30     | SKIP    | static  |
 
-  @class:law @honesty @clause:17221-Table-7.157
+  @class:law @honesty @clause:17221-Table-7-157
   Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX
     # Historical 2026-08-03 measurements retained under the current ruling.
     # The anomaly conditions are intermittent; FRAMES_RX counts every packet.
@@ -415,7 +415,7 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     Given FRAMES_RX advanced by 900000 over 30 seconds with the stream flowing
     Then the semantics verdict is FAIL and the reading is impossible
 
-  @class:law @negative-control @clause:17221-Table-7.157 @regression
+  @class:law @negative-control @clause:17221-Table-7-157 @regression
   Scenario: interval-rate FRAMES_RX on a flowing stream is a FAIL
     Given FRAMES_RX advanced by 4 over 4 seconds with the stream flowing
     Then the semantics verdict is FAIL and the reading is interval
