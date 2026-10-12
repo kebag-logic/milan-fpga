@@ -1,0 +1,150 @@
+[
+  {
+    "check": "figures-controls",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/r3_check_controls.py",
+      "<evidence>/tools/check_b16_figures.py",
+      "<repo>/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "<evidence>",
+      "<review-packet>/scratch/figures-controls",
+      "<review-packet>/receipts/figures-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 1.266
+  },
+  {
+    "check": "b0-reproduction",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/r2_b0_receipt.py",
+      "<evidence>",
+      "<review-packet>/receipts/b0-recomputed.json"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "check": "alignment-controls",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/align_b16.py",
+      "control",
+      "synth",
+      "-",
+      "-",
+      "<review-packet>/receipts/alignment-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 4.692
+  },
+  {
+    "check": "presence-controls",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/tone_points_b16.py",
+      "control",
+      "<review-packet>/receipts/presence-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 2.227
+  },
+  {
+    "check": "grade-controls",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/b9_thdn.py",
+      "controls",
+      "<review-packet>/receipts/grade-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 87.113
+  },
+  {
+    "check": "loop-controls",
+    "command": [
+      "python3",
+      "-I",
+      "<evidence>/tools/dloop_b16.py",
+      "control",
+      "<review-packet>/receipts/loop-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 0.176
+  },
+  {
+    "check": "docs-check",
+    "command": [
+      "<markdown-python>",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.94
+  },
+  {
+    "check": "doc-style",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.052
+  },
+  {
+    "check": "doc-paths",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.078
+  },
+  {
+    "check": "toc-check",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.088
+  },
+  {
+    "check": "toc-anchors",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "seconds": 0.063
+  },
+  {
+    "check": "em-dash",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c20c85bd"
+    ],
+    "rc": 2,
+    "seconds": 0.853
+  },
+  {
+    "check": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "c20c85bd",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.005
+  }
+]
