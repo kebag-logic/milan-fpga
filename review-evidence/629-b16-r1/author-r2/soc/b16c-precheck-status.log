@@ -1,0 +1,58 @@
+LOCK 2026-10-12T05:48:07.226Z
+0
+495265.09 1764258.90
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: DEAD
+to-host: running (pid 3899)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 3899
+trigger_time: 495265.143550295
+tstamp      : 0.000000000
+delay       : 242
+avail       : 240
+avail_max   : 1539
+-----
+hw_ptr      : 3940
+appl_ptr    : 3700
+== /proc/asound/card0/pcm0p/sub0/status
+closed
+== /proc/asound/card1/pcm0c/sub0/status
+closed
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 3899
+trigger_time: 491759.686298145
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+PCM0P=closed
+ 3899 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+dbus
+messages
+messages.0
+SSH_RC=0
+UNLOCK 2026-10-12T05:48:07.564Z
