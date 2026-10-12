@@ -1,0 +1,587 @@
+[
+  {
+    "name": "docs-00",
+    "cmd": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-01",
+    "cmd": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "{packet}/scratch/hdl-reference"
+    ]
+  },
+  {
+    "name": "docs-02",
+    "cmd": [
+      "python3",
+      "scripts/docs_check.py"
+    ]
+  },
+  {
+    "name": "docs-03",
+    "cmd": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c6bd08c6"
+    ]
+  },
+  {
+    "name": "docs-04",
+    "cmd": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ]
+  },
+  {
+    "name": "docs-05",
+    "cmd": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-06",
+    "cmd": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ]
+  },
+  {
+    "name": "docs-07",
+    "cmd": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-08",
+    "cmd": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-09",
+    "cmd": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-10",
+    "cmd": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-11",
+    "cmd": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-12",
+    "cmd": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ]
+  },
+  {
+    "name": "docs-13",
+    "cmd": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-14",
+    "cmd": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-15",
+    "cmd": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-16",
+    "cmd": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ]
+  },
+  {
+    "name": "docs-17",
+    "cmd": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-18",
+    "cmd": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-19",
+    "cmd": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-20",
+    "cmd": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-21",
+    "cmd": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-22",
+    "cmd": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ]
+  },
+  {
+    "name": "docs-23",
+    "cmd": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-24",
+    "cmd": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-25",
+    "cmd": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-26",
+    "cmd": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-27",
+    "cmd": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-28",
+    "cmd": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-29",
+    "cmd": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-30",
+    "cmd": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ]
+  },
+  {
+    "name": "docs-31",
+    "cmd": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-32",
+    "cmd": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ]
+  },
+  {
+    "name": "docs-33",
+    "cmd": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-34",
+    "cmd": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ]
+  },
+  {
+    "name": "docs-35",
+    "cmd": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-36",
+    "cmd": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ]
+  },
+  {
+    "name": "docs-37",
+    "cmd": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ]
+  },
+  {
+    "name": "docs-38",
+    "cmd": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-39",
+    "cmd": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-40",
+    "cmd": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-41",
+    "cmd": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ]
+  },
+  {
+    "name": "docs-42",
+    "cmd": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-43",
+    "cmd": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-44",
+    "cmd": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-45",
+    "cmd": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ]
+  },
+  {
+    "name": "docs-46",
+    "cmd": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-47",
+    "cmd": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-48",
+    "cmd": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-49",
+    "cmd": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-50",
+    "cmd": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-51",
+    "cmd": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-52",
+    "cmd": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-53",
+    "cmd": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-54",
+    "cmd": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-55",
+    "cmd": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-56",
+    "cmd": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-57",
+    "cmd": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ]
+  },
+  {
+    "name": "docs-58",
+    "cmd": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-59",
+    "cmd": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-60",
+    "cmd": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-61",
+    "cmd": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ]
+  },
+  {
+    "name": "docs-62",
+    "cmd": [
+      "python3",
+      "scripts/check_archive.py"
+    ]
+  },
+  {
+    "name": "docs-63",
+    "cmd": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-64",
+    "cmd": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "docs-65",
+    "cmd": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ]
+  },
+  {
+    "name": "docs-66",
+    "cmd": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ]
+  },
+  {
+    "name": "docs-67",
+    "cmd": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-68",
+    "cmd": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-69",
+    "cmd": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "docs-70",
+    "cmd": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "bdd",
+    "cmd": [
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "tests"
+  },
+  {
+    "name": "grader",
+    "cmd": [
+      "python3",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "wire-accountability",
+    "cmd": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ]
+  }
+]

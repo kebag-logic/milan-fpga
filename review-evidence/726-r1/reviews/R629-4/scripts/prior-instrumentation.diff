@@ -1,0 +1,9 @@
+176c176,179
+<                 const long at=uns_log_when[j];
+---
+>                 // reviewer probe: shift the fixed window grid later by N cycles
+>                 const long shift=std::getenv("COUNTERS_WINDOW_SHIFT") ? std::atol(std::getenv("COUNTERS_WINDOW_SHIFT")) : 0;
+>                 const long at=uns_log_when[j]-shift;
+>                 if(at<0) continue;
+177a181
+>                 printf("NOTE,%d,%d,%d,%ld\n",ty,s,r,at);

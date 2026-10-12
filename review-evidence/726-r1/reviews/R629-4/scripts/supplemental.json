@@ -1,0 +1,45 @@
+[
+  {
+    "name": "standing-controls",
+    "cmd": [
+      "python3",
+      "{packet}/scripts/check_standing_controls.py",
+      "{root}",
+      "{packet}"
+    ]
+  },
+  {
+    "name": "gptp-docs",
+    "cmd": [
+      "make",
+      "-j16",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ]
+  },
+  {
+    "name": "gptp-parent-docs",
+    "cmd": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ]
+  },
+  {
+    "name": "sdk-offline-selftest",
+    "cmd": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "name": "no-git-docs",
+    "cmd": [
+      "python3",
+      "{packet}/scripts/check_no_git.py",
+      "{root}",
+      "{packet}"
+    ]
+  }
+]

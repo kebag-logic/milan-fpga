@@ -1,0 +1,91 @@
+{
+  "clean-1": {
+    "rows": 8,
+    "gaps": 28,
+    "min_ms": 1001.0,
+    "max_ms": 1001.867,
+    "max_service_ms": 3.263
+  },
+  "clean-8": {
+    "rows": 36,
+    "gaps": 126,
+    "min_ms": 1000.982,
+    "max_ms": 1012.029,
+    "max_service_ms": 14.058
+  },
+  "frames-only-1": {
+    "rows": 8,
+    "gaps": 28,
+    "min_ms": 1001.0,
+    "max_ms": 1001.867,
+    "max_service_ms": 3.263
+  },
+  "frames-only-8": {
+    "rows": 36,
+    "gaps": 126,
+    "min_ms": 1000.982,
+    "max_ms": 1012.029,
+    "max_service_ms": 14.058
+  },
+  "public_plants": {
+    "tx-interval": {
+      "failure_group": "TX",
+      "failures": 6,
+      "escape": "PASS"
+    },
+    "rx-interval": {
+      "failure_group": "RX",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    "tx-reset": {
+      "failure_group": "TX_RESET",
+      "failures": 4,
+      "escape": "PASS"
+    },
+    "aaf-reset": {
+      "failure_group": "RX_RESET",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    "crf-reset": {
+      "failure_group": "RX_RESET",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    "rx-saturation": {
+      "failure_group": "RX",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    "late": {
+      "failure_group": "CADENCE",
+      "failures": 4,
+      "escape": "PASS"
+    },
+    "rate": {
+      "failure_group": "RATE",
+      "failures": 8,
+      "escape": "PASS"
+    },
+    "tx-nodirty": {
+      "failure_group": "OUTPUT_CADENCE",
+      "failures": 4,
+      "escape": "PASS"
+    },
+    "grid": {
+      "failure_group": "PHASE",
+      "failures": 8,
+      "escape": "PASS"
+    }
+  },
+  "builder_recovery": {
+    "initial_observer_rc": 124,
+    "observer_rc": 0,
+    "container_rc": 0,
+    "stderr": "",
+    "logs_rc": 0,
+    "seconds": 192.209
+  },
+  "public_docs_receipts": 78
+}

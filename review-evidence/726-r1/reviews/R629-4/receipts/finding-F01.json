@@ -1,0 +1,20 @@
+{
+  "finding": "R629-4-F01",
+  "source": "tb/verilator/avtp_rxmon/sim_main_nx.cpp:651",
+  "source_sha256": "16510ab25885ff2984dce95ecc4d83576ea9ddf25308f73ecd98217f7fda58f6",
+  "source_lines": {
+    "645": "    void late_and_early_timestamp_coalesce(){",
+    "646": "        printf(\"\\n[IV8] LATE_TIMESTAMP / EARLY_TIMESTAMP: the last two Table 5.6\\n\"",
+    "647": "               \"      interval counters. Both are 'incremented at the end of every\\n\"",
+    "648": "               \"      observation interval during which a Stream Data AVTPDU has\\n\"",
+    "649": "               \"      been received with an AVTP timestamp field that was in the\\n\"",
+    "650": "               \"      past / too far in the future to process', so a BURST inside\\n\"",
+    "651": "               \"      one interval is +1 - the same law as FRX/SM/TU/UF/MR.\\n\");",
+    "652": "        {"
+  },
+  "runtime_receipt": "receipts/avtp_rxmon-run-2.run.log",
+  "runtime_sha256": "3bba08d42882df0465781a8098e935b818b4d57f9bfb67500b587f684b3144cd",
+  "claim_in_executed_output": true,
+  "numerical_counter_check_also_passes": true,
+  "corrected_outcome": "The emitted IV8 explanation lists only anomaly counters under the +1 per occupied interval law and does not apply that law to FRAMES_RX."
+}
