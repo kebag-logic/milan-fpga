@@ -1,0 +1,4 @@
+K12 (a failed join is not retried) under shutdown probes: rc=1 FAIL S2 a failed join is retried while the reader still runs after the retry pause; FAIL S3 reap failure then join failure
+K13 (the bounded join gives up on a live reader) under shutdown probes: rc=1 FAIL S1 reader alive past the bounded wait is held for, not abandoned; FAIL S2 a failed join is retried while the reader still runs after the retry pause; FAIL S3 reap failure then join failure
+K29 (stop runs with cleanup signals unblocked) under shutdown probes: rc=1 FAIL S4 cleanup signals are blocked during containment
+K36 (stop raises the last failure instead of the first) under shutdown probes: rc=1 FAIL S3 reap failure then join failure

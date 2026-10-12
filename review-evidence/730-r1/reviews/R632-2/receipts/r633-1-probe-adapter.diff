@@ -1,0 +1,67 @@
+--- probe_cpu_ranges.py	2026-10-12 23:36:07.961000000 +0200
++++ probe_cpu_ranges_adapted.py	2026-10-12 23:36:36.162870431 +0200
+@@ -26,6 +26,7 @@
+     'Refusal', 'job_container_width', 'replay_container_concurrency',
+     'slot_cpu_base', 'container_cpuset', 'cpu_range_overlaps', 'job_cpu_ranges',
+     'describe_job_cpu_ranges', 'JobCpuRanges', 'stop_job_cpu_range_monitor',
++    'join_job_cpu_reader',  # R632-2 adapter: helper split out at 5ba8313a
+ }
+ CONSTANTS = {
+     'CONTAINER_CPU_LIMIT', 'CONCURRENT_JOB_LIMIT', 'ACT_DEFAULT_MAX_PARALLEL',
+@@ -50,7 +51,8 @@
+                       subprocess=subprocess, pathlib=__import__('pathlib'),
+                       os=SimpleNamespace(cpu_count=lambda: 128),
+                       ReplaySlot=lambda number: SimpleNamespace(number=number),
+-                      blocked_cleanup_signals=contextlib.nullcontext)
++                      blocked_cleanup_signals=contextlib.nullcontext,
++                      time=__import__('time'), sys=sys, threading=__import__('threading'))  # R632-2 adapter
+     for node in tree.body:
+         if isinstance(node, ast.Assign) and len(node.targets) == 1:
+             target = node.targets[0]
+@@ -128,6 +130,11 @@
+                 raise m.Refusal('job container CPU-range move timed out after server application')
+             return subprocess.CompletedProcess([], 0, '', '')
+ 
++        def read(self, cid):  # R632-2 adapter: inspect answers from the inert daemon's config
++            if cid not in self.config:
++                return subprocess.CompletedProcess([], 1, '', f'Error: No such container: {cid}')
++            return subprocess.CompletedProcess([], 0, self.config[cid] + '\n', '')
++
+         def deliver(self, record, action, name):
+             cid = name * 64
+             if action == 'create':
+@@ -149,7 +156,7 @@
+             return not m.cpu_range_overlaps([(cid[0], self.config[cid]) for cid in sorted(self.live)])
+ 
+     daemon = Daemon()
+-    record = m.JobCpuRanges(boundary, cpus, daemon.assign)
++    record = m.JobCpuRanges(boundary, cpus, daemon.assign, daemon.read)
+     for name in 'abcd':
+         for action in ('create', 'update', 'start'):
+             daemon.deliver(record, action, name)
+@@ -165,7 +172,7 @@
+     check('foreign and malformed event cannot assign', before == record.held and len(record.problems) == 2, record.problems)
+ 
+     daemon = Daemon()
+-    record = m.JobCpuRanges(boundary, cpus, daemon.assign)
++    record = m.JobCpuRanges(boundary, cpus, daemon.assign, daemon.read)
+     sequence = [('create', 'a'), ('update', 'a'), ('start', 'a'), ('die', 'a'),
+                 ('create', 'b'), ('update', 'b'), ('start', 'b'), ('start', 'a')]
+     for action, name in sequence:
+@@ -173,7 +180,7 @@
+     check('F1 restart retains exclusive range', daemon.disjoint(), {'sequence': sequence, **daemon.snapshot(record)})
+ 
+     daemon = Daemon(ambiguous=True)
+-    record = m.JobCpuRanges(boundary, cpus, daemon.assign)
++    record = m.JobCpuRanges(boundary, cpus, daemon.assign, daemon.read)
+     sequence = [('create', 'a'), ('update', 'a'), ('start', 'a'),
+                 ('create', 'b'), ('update', 'b'), ('start', 'b')]
+     for action, name in sequence:
+@@ -202,6 +209,7 @@
+         def join(self, **kwargs): calls.append('joined')
+         def is_alive(self): return False
+     class Process:
++        pid = 4242  # R632-2 adapter: the head's join names the stream's group
+         stdout = io.StringIO()
+         returncode = None
+         def poll(self): return None

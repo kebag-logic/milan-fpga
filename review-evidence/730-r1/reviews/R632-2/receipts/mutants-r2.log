@@ -1,0 +1,73 @@
+K01 KILLED rc=1 fails=3 - die frees a range
+    first: FAIL a container that died keeps its range until it is removed: after create, update, start and die of A, then create, update and start of B, A starts again on its own range and never shares one with 
+    probe rc=1: FAIL P1 restart sequence; FAIL P2b applied, CLI timeout, inspect timeout; FAIL P9 fuzz without CLI faults; FAIL P10 fuzz with applied/lost/rejected moves and read timeouts
+K02 KILLED rc=1 fails=3 - a timed-out move releases its range
+    first: FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+    probe rc=1: FAIL P2 update applied then CLI timeout; FAIL P2b applied, CLI timeout, inspect timeout; FAIL P10 fuzz with applied/lost/rejected moves and read timeouts
+K03 KILLED rc=1 fails=1 - a refused move releases its range
+    first: FAIL a move the daemon refused keeps its range reserved and is reported
+    probe rc=0: all PASS
+K04 KILLED rc=1 fails=4 - no inspect after the move; counted moved on the CLI's word
+    first: FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+K05 KILLED rc=1 fails=9 - free ranges ignore reservations
+    first: FAIL four concurrent containers move to four different ranges, lowest first, each seen there by docker inspect
+    probe rc=1: FAIL P1 restart sequence; FAIL P2 update applied then CLI timeout; FAIL P2b applied, CLI timeout, inspect timeout; FAIL P9 fuzz without CLI faults; FAIL P10 fuzz with applied/lost/rejected moves and read timeouts
+K06 KILLED rc=1 fails=1 - no re-inspection of holders when every range is held
+    first: FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the staging range, reported
+K07 KILLED rc=1 fails=1 - an unreadable inspect releases the range
+    first: FAIL a move and a read that both time out keep the range reserved, never seen there
+    probe rc=1: FAIL P2b applied, CLI timeout, inspect timeout; FAIL P10 fuzz with applied/lost/rejected moves and read timeouts
+K08 KILLED rc=1 fails=2 - an off-target inspect releases the range
+    first: FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+    probe rc=1: FAIL P10 fuzz with applied/lost/rejected moves and read timeouts
+K09 KILLED rc=1 fails=2 - a containment (reap) failure skips the reader join
+    first: FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and the reap failure is what it raises
+K10 KILLED rc=1 fails=7 - the reader is never joined
+    first: FAIL after its body the monitor walks the stream's group down the containment ladder once, joins its reader with every line applied, and closes the pipe
+K11 KILLED rc=1 fails=5 - the reader is joined before the stream is contained
+    first: FAIL a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+K12 SURVIVED rc=0 fails=0 - a failed join is not retried
+K13 SURVIVED rc=0 fails=0 - the bounded join gives up on a live reader
+K14 KILLED rc=1 fails=6 - the event pipe is never closed
+    first: FAIL after its body the monitor walks the stream's group down the containment ladder once, joins its reader with every line applied, and closes the pipe
+K15 KILLED rc=1 fails=1 - slot 0 falls back silently on a small host
+    first: FAIL slot 0 refuses a host without the ranges a run derives, as every slot does: four containers need CPU 19 (19 CPUs refuse, 20 and 21 give 4-7 to 16-19), one container needs CPU 7 (7 refuse, 8 gives
+K16 KILLED rc=1 fails=2 - host CPU check off by one
+    first: FAIL slot 1 with four concurrent containers needs CPU 39: a 39-CPU host refuses it, a 40-CPU host gives it exactly 24-27 to 36-39
+K17 KILLED rc=1 fails=10 - slots spaced 16 CPUs apart (blocks meet)
+    first: FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+K18 KILLED rc=1 fails=2 - run uses a constant 4 ranges, not the derived count
+    first: FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+K19 KILLED rc=1 fails=4 - concurrency sums every job, not the CONCURRENT_JOB_LIMIT widest
+    first: FAIL a slot-0 dry run of the shipping rtl-full prints its 12 concurrent containers' own ranges after staging on 0-3, and an act command created on the staging range
+K20 KILLED rc=1 fails=1 - a signed max-parallel is accepted
+    first: FAIL a negative max-parallel is refused: the concurrency cannot be derived
+K21 KILLED rc=1 fails=1 - a too-wide derivation is not refused
+    first: FAIL a replay deriving 5 concurrent containers is refused: the slot has 4 ranges
+K22 KILLED rc=1 fails=1 - staging planted on a job range is not refused
+    first: FAIL a staging range planted on the first job range is refused before any container moves
+K23 KILLED rc=1 fails=2 - a CPU-range problem fails the run's verdict
+    first: FAIL with a container left on the staging range and act exiting 0, each workflow prints its CPU-range summary and one warning per problem, and the verdict follows act's exit alone
+K24 KILLED rc=1 fails=2 - the run prints no CPU-range summary or warnings
+    first: FAIL with a container left on the staging range and act exiting 0, each workflow prints its CPU-range summary and one warning per problem, and the verdict follows act's exit alone
+K25 KILLED rc=1 fails=1 - the record moves containers it does not own
+    first: FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once
+K26 KILLED rc=1 fails=1 - the event stream is not filtered to the boundary's label
+    first: FAIL the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its own
+K27 KILLED rc=1 fails=1 - a start whose create was never read is not placed
+    first: FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once
+K28 KILLED rc=1 fails=3 - execute_workflows never hands the monitor its ranges
+    first: FAIL each workflow's CPU-range monitor is handed the run's derived job ranges
+K29 SURVIVED rc=0 fails=0 - stop runs with cleanup signals unblocked
+K30 KILLED rc=1 fails=1 - a late update event is not re-read
+    first: FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+K31 SURVIVED rc=0 fails=0 - a reader crash is not recorded as a problem
+K32 SURVIVED rc=0 fails=0 - the event stream replays from an hour in the future (sees nothing)
+K33 KILLED rc=1 fails=2 - inspect equality not required: any answer counts as moved
+    first: FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+K34 KILLED rc=1 fails=1 - the events stream is not in its own session
+    first: FAIL the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its own
+K35 KILLED rc=1 fails=1 - a gone container (No such container on update) is not released
+    first: FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once
+K36 SURVIVED rc=0 fails=0 - stop raises the last failure instead of the first
+mutants: 36, killed 30, survived ['K12', 'K13', 'K29', 'K31', 'K32', 'K36'], bad anchors []

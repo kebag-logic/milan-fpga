@@ -1,0 +1,20 @@
+Gate receipts at 5ba8313a3f036f34aac1a6bfbfcec0e0efd8c646 (each: one .log and one .rc under receipts/gates/).
+Where: ci-events-*, slot-proof-selftest, baremetal-*, in a sandboxed git copy; py-idiom*, em-dash, toc-*, docs-check, doc-style, doc-paths, diff-check against the review clone mounted read-only (submodules initialized, pinned renderer venv).
+First attempts of em-dash/toc (renderer missing from one venv), py-idiom (copy without submodules) and diff-check (copy without object alternates) refused for environment reasons and were re-run as above; the logs below are the re-runs.
+baremetal-check rc=0 | baremetal-only: OK (0 findings across 1270 tracked first-party file(s))
+baremetal-selftest rc=0 | baremetal-only selftest: PASS (700 arm(s))
+ci-events-check rc=0 | ci_events: OK (2016 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci-events-selftest rc=0 | selftest: PASS (2016 contract items, 2828 arms)
+diff-check rc=0 | 
+doc-paths rc=0 | doc path gate: OK (964 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+docs-check rc=0 | docs_check: 0 finding(s) across 204 md files + 1272 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc-style rc=0 | documentation style: OK (22 current documents)
+em-dash rc=0 | check_em_dash: 0 finding(s) over 120 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [dc4d06cb..HEAD]
+py-idiom rc=0 |   over-long line: 0 <= 0
+py-idiom-selftest rc=0 | 54 checks: 54 PASS, 0 FAIL
+slot-proof-selftest rc=0 | act_slot_proof selftest: PASS (44 cases)
+toc-anchors rc=0 | anchor check: 480 existing cross-page fragment links reproduced
+toc-check rc=0 | TOC gate: OK (144 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+act_ci.py --selftest (sandboxed git-archive extraction, CPython 3.14.7, real CPU count 16): rc=0 ok=490 FAIL=0 selftest: PASS
+cpu_count=1 rc=0 ok=490 FAIL=0 selftest: PASS
+cpu_count=4 rc=0 ok=490 FAIL=0 selftest: PASS
