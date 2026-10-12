@@ -1,0 +1,34 @@
+Source scope audit
+acadfacd52c6daabf892d6ebe99da11ca06748cb [A605] Align receiver test comments with packet counts
+7b491e595e87078a06524c88605624913221131b [A605] Count stream AVTPDUs and restore counter refresh
+
+Changed paths:
+docs/README.md
+docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/findings/394_387_E1_SWITCH_CYCLES.md
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+docs/findings/667_TALKER_START_BENCH.md
+docs/findings/B14_BENCH_5603C353.md
+docs/history/v1/reference/PROTOCOL_TRACEABILITY.md
+docs/reference/REGISTER_MAP.md
+docs/testing/726_STREAM_COUNTERS.md
+docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+hdl/ieee1722/crf/KL_crf_rx.sv
+sw/firmware/ctrl/aecp/README.md
+tb/verilator/avtp_rxmon/sim_lockstep.cpp
+tb/verilator/avtp_rxmon/sim_main_nx.cpp
+tb/verilator/crf_rx/sim_main.cpp
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/sim_crf_licence.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/milan_dp/stream_counter_f5.cpp
+tb/verilator/milan_dp/stream_counter_f5.py
+tb/verilator/milan_dp/stream_counters.hpp
+tb/verilator/milan_dp/stream_counters.py
+tb/verilator/tkdiag/sim_main.cpp
+
+Firmware and submodule raw delta:
+:100644 100644 1cd72d21f d0f299bb1 M	sw/firmware/ctrl/aecp/README.md
