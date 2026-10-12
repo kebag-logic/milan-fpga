@@ -1,0 +1,127 @@
+{
+  "windows": [
+    {
+      "shape": 1,
+      "recorded": 40,
+      "graded": 24,
+      "output_graded": 12,
+      "min_gap_ms": 1000.996,
+      "max_gap_ms": 1001.867,
+      "service_max_ms": 3.263
+    },
+    {
+      "shape": 8,
+      "recorded": 180,
+      "graded": 108,
+      "output_graded": 54,
+      "min_gap_ms": 1000.982,
+      "max_gap_ms": 1012.029,
+      "service_max_ms": 14.058
+    }
+  ],
+  "mutants": [
+    {
+      "name": "tx-nodirty",
+      "group": "OUTPUT_CADENCE",
+      "failures": 16,
+      "escape": "PASS"
+    },
+    {
+      "name": "tx-interval",
+      "group": "TX",
+      "failures": 6,
+      "escape": "PASS"
+    },
+    {
+      "name": "rx-interval",
+      "group": "RX",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    {
+      "name": "tx-reset",
+      "group": "TX_RESET",
+      "failures": 4,
+      "escape": "PASS"
+    },
+    {
+      "name": "aaf-reset",
+      "group": "RX_RESET",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    {
+      "name": "crf-reset",
+      "group": "RX_RESET",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    {
+      "name": "rx-saturation",
+      "group": "RX",
+      "failures": 1,
+      "escape": "PASS"
+    },
+    {
+      "name": "late",
+      "group": "CADENCE",
+      "failures": 12,
+      "escape": "PASS"
+    },
+    {
+      "name": "rate",
+      "group": "RATE",
+      "failures": 32,
+      "escape": "PASS"
+    },
+    {
+      "name": "f5-late",
+      "group": "CADENCE",
+      "failures": 32,
+      "escape": "PASS"
+    },
+    {
+      "name": "f5-rate",
+      "group": "RATE",
+      "failures": 48,
+      "escape": "PASS"
+    }
+  ],
+  "native": [
+    {
+      "name": "tkdiag",
+      "result": "PASS",
+      "summary": [
+        "checks: 99   failures: 0"
+      ]
+    },
+    {
+      "name": "crf-rx",
+      "result": "PASS",
+      "summary": [
+        "KL_crf_rx: 14287 checks, 0 failures (1086 accepted PDUs pinned)"
+      ]
+    },
+    {
+      "name": "rxmon-nx",
+      "result": "PASS",
+      "summary": [
+        "NxN RX stack: 119 checks, 0 failures"
+      ]
+    },
+    {
+      "name": "lockstep-1",
+      "result": "PASS",
+      "summary": [
+        "== avtp_rxmon lockstep N=1: checks: 36   failures: 0 =="
+      ]
+    },
+    {
+      "name": "lockstep-8",
+      "result": "PASS",
+      "summary": [
+        "== avtp_rxmon lockstep N=8: checks: 36   failures: 0 =="
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+== NxN RX stack harness (N=4, NXN P1/P2/P3 + Table 5.6 IV) ==
+
+[G1] P2 golden: unbound frame counts nothing
+  [ ok ] frames_rx 0                                    = 0
+  [ ok ] not locked                                     = 0
+
+[G2] P2 golden: bind resets and arms (Milan Table 5.6)
+  [ ok ] counters clear after bind                      = 0
+  [ ok ] three accepted packets update TV               = 3
+  [ ok ] no invalid timestamp packets                   = 0
+  [ ok ] publication pending                            = 0
+SNAPSHOT,before,3,0,0
+  [ ok ] published total                                = 3
+SNAPSHOT,after,3,0,3
+
+{"phase": "before", "sample": {"TIMESTAMP_VALID": 3, "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 0}, "actual": "FAIL", "expected": "INFO", "detail": {"tv_plus_tnv": 3, "frames_rx": 0, "why": "FRAMES_RX differs from TV+TNV: every frame is counted by exactly one of the two tv tallies"}}
+{"phase": "after", "sample": {"TIMESTAMP_VALID": 3, "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 3}, "actual": "PASS", "expected": "PASS", "detail": {"tv_plus_tnv": 3, "frames_rx": 3, "reading": "1722.1-per-frame"}}
+snapshot diagnostic contract: FAIL
