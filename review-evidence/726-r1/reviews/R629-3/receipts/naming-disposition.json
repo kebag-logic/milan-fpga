@@ -1,0 +1,12 @@
+{
+  "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+  "module": "KL_avtp_rx_monitor_ctx",
+  "port": "dirty_p_o",
+  "documentation": "Per-context counter-change pulses, one clk_i cycle per update (Milan 5.4.5.2 Table 5.22). Every changed counter, including healthy TV/TNV and FRAMES_RX, marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12). Coalescing and spacing of 1 second belong to the notification scheduler.",
+  "classifier": [
+    "candidate",
+    "second",
+    ""
+  ],
+  "budget_identity_present": true
+}

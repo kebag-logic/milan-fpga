@@ -1,0 +1,56 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r629-3-726/sw/firmware/ctrl/test/aecp_arms.py", line 82, in core_arm
+    tests = fw_gtest.compile_tests(tree.build, inc, [HERE / test_source], out / "tests")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r629-3-726/sw/firmware/gtest/fw_gtest.py", line 154, in compile_tests
+    compile_many(build, todo)
+  File "$REVIEWS/r629-3-726/sw/firmware/gtest/fw_gtest.py", line 118, in compile_many
+    future.result()
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r629-3-726/sw/firmware/gtest/fw_gtest.py", line 110, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: test_aecp.cpp does not compile:
+In file included from $REVIEWS/726-r629-3-packet/scratch/f5-8-clean/test_aecp.cpp:3:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h: In instantiation of ‘testing::AssertionResult testing::internal::CmpHelperEQ(const char*, const char*, const T1&, const T2&) [with T1 = long unsigned int; T2 = int]’:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1398:23:   required from ‘static testing::AssertionResult testing::internal::EqHelper::Compare(const char*, const char*, const T1&, const T2&) [with T1 = long unsigned int; T2 = int; typename std::enable_if<((! std::is_integral<_Tp>::value) || (! std::is_pointer<_Dp>::value))>::type* <anonymous> = 0]’
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$REVIEWS/726-r629-3-packet/scratch/f5-8-clean/test_aecp.cpp:1119:5:   required from here
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const long unsigned int’ and ‘const int’ [-Werror=sign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~~^~~~~~
+cc1plus: all warnings being treated as errors
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/r629-3-726/tb/verilator/milan_dp/stream_counter_f5.py", line 73, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$REVIEWS/r629-3-726/tb/verilator/milan_dp/stream_counter_f5.py", line 56, in main
+    result = aecp_arms.core_arm(tree, ROOT / "configs" / (shape + ".yaml"),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r629-3-726/sw/firmware/ctrl/test/aecp_arms.py", line 87, in core_arm
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: test_aecp.cpp does not compile:
+In file included from $REVIEWS/726-r629-3-packet/scratch/f5-8-clean/test_aecp.cpp:3:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h: In instantiation of ‘testing::AssertionResult testing::internal::CmpHelperEQ(const char*, const char*, const T1&, const T2&) [with T1 = long unsigned int; T2 = int]’:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1398:23:   required from ‘static testing::AssertionResult testing::internal::EqHelper::Compare(const char*, const char*, const T1&, const T2&) [with T1 = long unsigned int; T2 = int; typename std::enable_if<((! std::is_integral<_Tp>::value) || (! std::is_pointer<_Dp>::value))>::type* <anonymous> = 0]’
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$REVIEWS/726-r629-3-packet/scratch/f5-8-clean/test_aecp.cpp:1119:5:   required from here
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const long unsigned int’ and ‘const int’ [-Werror=sign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~~^~~~~~
+cc1plus: all warnings being treated as errors
+

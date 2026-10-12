@@ -1,0 +1,192 @@
+[
+  {
+    "name": "frames-only-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/frames-only-1"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 62.695
+  },
+  {
+    "name": "uncertain-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--output-condition",
+      "uncertain",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/uncertain-1"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 62.435
+  },
+  {
+    "name": "frames-only-8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/frames-only-8"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 93.102
+  },
+  {
+    "name": "uncertain-8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--output-condition",
+      "uncertain",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/uncertain-8"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 92.683
+  },
+  {
+    "name": "tx-nodirty",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-nodirty",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/tx-nodirty"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 100.777
+  },
+  {
+    "name": "tx-interval",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-interval",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/tx-interval"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 100.263
+  },
+  {
+    "name": "rx-interval",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rx-interval",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/rx-interval"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 89.903
+  },
+  {
+    "name": "tx-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-reset",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/tx-reset"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 90.523
+  },
+  {
+    "name": "aaf-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "aaf-reset",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/aaf-reset"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 95.454
+  },
+  {
+    "name": "crf-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "crf-reset",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/crf-reset"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 95.582
+  },
+  {
+    "name": "rx-saturation",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rx-saturation",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/rx-saturation"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 94.714
+  },
+  {
+    "name": "late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "late",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/late"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 97.013
+  },
+  {
+    "name": "rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rate",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/rate"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 96.884
+  }
+]

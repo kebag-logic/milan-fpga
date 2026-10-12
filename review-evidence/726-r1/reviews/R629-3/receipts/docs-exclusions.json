@@ -1,0 +1,34 @@
+[
+  {
+    "command": "python3 -m pip install --quiet --require-hashes \\",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 -m pip install --quiet pyyaml",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \\",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 -m pip install --quiet wavedrom==2.0.3.post3",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 -m pip install --quiet pyyaml",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 sw/builder/test_builder.py --require-rv32",
+    "reason": "setup or prohibited bank/orchestrator"
+  },
+  {
+    "command": "python3 scripts/act_ci.py --selftest",
+    "reason": "setup or prohibited bank/orchestrator"
+  }
+]

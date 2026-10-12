@@ -1,0 +1,829 @@
+[
+  {
+    "name": "docs-00",
+    "argv": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.18
+  },
+  {
+    "name": "docs-01",
+    "argv": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$REVIEWS/726-r629-3-packet/scratch/hdl-reference"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 2.182
+  },
+  {
+    "name": "docs-02",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 4.579
+  },
+  {
+    "name": "docs-em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c6bd08c6"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 3.153
+  },
+  {
+    "name": "docs-04",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.05
+  },
+  {
+    "name": "docs-05",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.037
+  },
+  {
+    "name": "docs-06",
+    "argv": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.266
+  },
+  {
+    "name": "docs-07",
+    "argv": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.288
+  },
+  {
+    "name": "docs-08",
+    "argv": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.482
+  },
+  {
+    "name": "docs-09",
+    "argv": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.632
+  },
+  {
+    "name": "docs-10",
+    "argv": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.421
+  },
+  {
+    "name": "docs-11",
+    "argv": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.595
+  },
+  {
+    "name": "docs-12",
+    "argv": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.11
+  },
+  {
+    "name": "docs-13",
+    "argv": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 2.846
+  },
+  {
+    "name": "docs-14",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.514
+  },
+  {
+    "name": "docs-15",
+    "argv": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.73
+  },
+  {
+    "name": "docs-16",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.566
+  },
+  {
+    "name": "docs-17",
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.044
+  },
+  {
+    "name": "docs-18",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.1
+  },
+  {
+    "name": "docs-19",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.305
+  },
+  {
+    "name": "docs-20",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.396
+  },
+  {
+    "name": "docs-21",
+    "argv": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.357
+  },
+  {
+    "name": "docs-22",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.575
+  },
+  {
+    "name": "docs-23",
+    "argv": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 13.362
+  },
+  {
+    "name": "docs-24",
+    "argv": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.047
+  },
+  {
+    "name": "docs-25",
+    "argv": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.696
+  },
+  {
+    "name": "docs-26",
+    "argv": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.274
+  },
+  {
+    "name": "docs-27",
+    "argv": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.509
+  },
+  {
+    "name": "docs-28",
+    "argv": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.104
+  },
+  {
+    "name": "docs-29",
+    "argv": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.036
+  },
+  {
+    "name": "docs-30",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 18.768
+  },
+  {
+    "name": "docs-31",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 6.739
+  },
+  {
+    "name": "docs-32",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.249
+  },
+  {
+    "name": "docs-33",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.615
+  },
+  {
+    "name": "docs-34",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$REVIEWS/726-r629-3-packet/scratch/rv32-absent.jsonl"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 421.101
+  },
+  {
+    "name": "docs-35",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 2.177
+  },
+  {
+    "name": "docs-36",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 45.26
+  },
+  {
+    "name": "docs-37",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.871
+  },
+  {
+    "name": "docs-38",
+    "argv": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 81.834
+  },
+  {
+    "name": "docs-39",
+    "argv": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.112
+  },
+  {
+    "name": "docs-40",
+    "argv": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.245
+  },
+  {
+    "name": "docs-41",
+    "argv": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 2.46
+  },
+  {
+    "name": "docs-42",
+    "argv": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.584
+  },
+  {
+    "name": "docs-43",
+    "argv": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 3.021
+  },
+  {
+    "name": "docs-44",
+    "argv": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.501
+  },
+  {
+    "name": "docs-45",
+    "argv": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.496
+  },
+  {
+    "name": "docs-46",
+    "argv": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 3.103
+  },
+  {
+    "name": "docs-47",
+    "argv": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 3.574
+  },
+  {
+    "name": "docs-48",
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.732
+  },
+  {
+    "name": "docs-49",
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.723
+  },
+  {
+    "name": "docs-50",
+    "argv": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.873
+  },
+  {
+    "name": "docs-51",
+    "argv": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.883
+  },
+  {
+    "name": "docs-52",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 10.239
+  },
+  {
+    "name": "docs-53",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 10.489
+  },
+  {
+    "name": "docs-54",
+    "argv": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.472
+  },
+  {
+    "name": "docs-55",
+    "argv": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.539
+  },
+  {
+    "name": "docs-56",
+    "argv": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.404
+  },
+  {
+    "name": "docs-57",
+    "argv": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.409
+  },
+  {
+    "name": "docs-58",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.637
+  },
+  {
+    "name": "docs-59",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 1.754
+  },
+  {
+    "name": "docs-60",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 5.707
+  },
+  {
+    "name": "docs-61",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 5.73
+  },
+  {
+    "name": "docs-62",
+    "argv": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.249
+  },
+  {
+    "name": "docs-63",
+    "argv": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.231
+  },
+  {
+    "name": "docs-64",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.189
+  },
+  {
+    "name": "docs-65",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 18.997
+  },
+  {
+    "name": "docs-66",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.082
+  },
+  {
+    "name": "docs-67",
+    "argv": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.392
+  },
+  {
+    "name": "docs-68",
+    "argv": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.069
+  },
+  {
+    "name": "docs-69",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.896
+  },
+  {
+    "name": "docs-70",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 3.567
+  },
+  {
+    "name": "docs-71",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 5.138
+  },
+  {
+    "name": "docs-72",
+    "argv": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.066
+  },
+  {
+    "name": "docs-73",
+    "argv": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 13.177
+  },
+  {
+    "name": "docs-74",
+    "argv": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.818
+  },
+  {
+    "name": "docs-75",
+    "argv": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 49.452
+  }
+]

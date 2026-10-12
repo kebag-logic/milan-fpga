@@ -1,0 +1,101 @@
+[
+  {
+    "name": "bdd",
+    "cwd": "tests",
+    "argv": [
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ]
+  },
+  {
+    "name": "grader",
+    "argv": [
+      "python3",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ]
+  },
+  {
+    "name": "reproduce-contract",
+    "argv": [
+      "python3",
+      "{packet}/scripts/reproduce_contract.py",
+      "{root}"
+    ]
+  },
+  {
+    "name": "xside-probe",
+    "argv": [
+      "python3",
+      "-I",
+      "-B",
+      "{packet}/scripts/probe_xside_law.py",
+      "{root}"
+    ]
+  },
+  {
+    "name": "snapshot-probe",
+    "argv": [
+      "python3",
+      "{packet}/scripts/probe_snapshot.py",
+      "{root}",
+      "{packet}"
+    ]
+  },
+  {
+    "name": "f5-1-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "clean",
+      "--work",
+      "{packet}/scratch/f5-1-clean"
+    ]
+  },
+  {
+    "name": "f5-8-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "8",
+      "--variant",
+      "clean",
+      "--work",
+      "{packet}/scratch/f5-8-clean"
+    ]
+  },
+  {
+    "name": "f5-1-late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "late",
+      "--work",
+      "{packet}/scratch/f5-1-late"
+    ]
+  },
+  {
+    "name": "f5-1-rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "rate",
+      "--work",
+      "{packet}/scratch/f5-1-rate"
+    ]
+  }
+]

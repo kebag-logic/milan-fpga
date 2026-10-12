@@ -1,0 +1,127 @@
+[
+  {
+    "name": "bdd",
+    "argv": [
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$REVIEWS/r629-3-726/tests",
+    "rc": 0,
+    "elapsed_s": 1.628
+  },
+  {
+    "name": "grader",
+    "argv": [
+      "python3",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.567
+  },
+  {
+    "name": "reproduce-contract",
+    "argv": [
+      "python3",
+      "$REVIEWS/726-r629-3-packet/scripts/reproduce_contract.py",
+      "$REVIEWS/r629-3-726"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.355
+  },
+  {
+    "name": "xside-probe",
+    "argv": [
+      "python3",
+      "-I",
+      "-B",
+      "$REVIEWS/726-r629-3-packet/scripts/probe_xside_law.py",
+      "$REVIEWS/r629-3-726"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 0.085
+  },
+  {
+    "name": "snapshot-probe",
+    "argv": [
+      "python3",
+      "$REVIEWS/726-r629-3-packet/scripts/probe_snapshot.py",
+      "$REVIEWS/r629-3-726",
+      "$REVIEWS/726-r629-3-packet"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 5.221
+  },
+  {
+    "name": "f5-1-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "clean",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-clean"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 1,
+    "elapsed_s": 13.2
+  },
+  {
+    "name": "f5-8-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "8",
+      "--variant",
+      "clean",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-8-clean"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 1,
+    "elapsed_s": 13.689
+  },
+  {
+    "name": "f5-1-late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "late",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-late"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 1,
+    "elapsed_s": 14.347
+  },
+  {
+    "name": "f5-1-rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "rate",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-rate"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 1,
+    "elapsed_s": 14.553
+  }
+]
