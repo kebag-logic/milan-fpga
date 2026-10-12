@@ -1,0 +1,26 @@
+[
+  {
+    "name": "makeflags-shape1",
+    "cmd": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--work",
+      "{packet}/scratch/clean-1"
+    ],
+    "env": {
+      "MAKEFLAGS": " -w"
+    }
+  },
+  {
+    "name": "make-counters",
+    "cmd": [
+      "make",
+      "-j16",
+      "-C",
+      "tb/verilator/milan_dp",
+      "counters"
+    ]
+  }
+]

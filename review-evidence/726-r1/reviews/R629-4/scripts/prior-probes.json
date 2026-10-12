@@ -1,0 +1,40 @@
+[
+  {
+    "name": "contract-probe",
+    "cmd": [
+      "python3",
+      "{packet}/scripts/reproduce_contract.py",
+      "{root}"
+    ]
+  },
+  {
+    "name": "xside-probe",
+    "cmd": [
+      "python3",
+      "-I",
+      "-B",
+      "{packet}/scripts/probe_xside_law.py",
+      "{root}"
+    ]
+  },
+  {
+    "name": "snapshot-probe",
+    "cmd": [
+      "python3",
+      "{packet}/scripts/probe_snapshot.py",
+      "{root}",
+      "{packet}"
+    ]
+  },
+  {
+    "name": "clean-8",
+    "cmd": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--work",
+      "{packet}/scratch/clean-8"
+    ]
+  }
+]

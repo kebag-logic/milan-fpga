@@ -1,0 +1,8 @@
+COMMAND: ["python3", "-I", "-B", "{packet}/scripts/probe_xside_law.py", "{root}"]
+{"case": "ruled: DUT talker FRAMES_TX and peer listener FRAMES_RX both per AVTPDU (8000/s)", "talker": 32000, "listener": 32000, "verdict": "PASS", "talker_semantics": "per-frame", "listener_semantics": "per-frame", "peer_findings": [], "why": null}
+{"case": "regression: DUT talker FRAMES_TX one per interval, peer listener per AVTPDU", "talker": 4, "listener": 32000, "verdict": "FAIL", "talker_semantics": "interval", "listener_semantics": "per-frame", "peer_findings": [["talker", "FRAMES_TX (IEEE 1722.1-2021 Table 7.159)"]], "why": "interval-rate packet counter on talker; each finding names its own side under ruling #726"}
+{"case": "regression: both sides one per interval", "talker": 4, "listener": 4, "verdict": "FAIL", "talker_semantics": "interval", "listener_semantics": "interval", "peer_findings": [["talker", "FRAMES_TX (IEEE 1722.1-2021 Table 7.159)"], ["listener", "FRAMES_RX (IEEE 1722.1-2021 Table 7.157)"]], "why": "interval-rate packet counter on talker, listener; each finding names its own side under ruling #726"}
+{"assert_frame_accurate": "stream_output", "result": "accepted"}
+{"assert_frame_accurate": "stream_input", "result": "accepted"}
+{"grade_counter_semantics FRAMES_RX 4/4s flowing": "FAIL", "grade_counter_semantics FRAMES_RX 32000/4s flowing": "PASS"}
+{"A_XSIDE_INTERVAL_AGREE": "xside.interval-ticks-agree", "in LICENSED_STREAMING_ASSERTS": true}

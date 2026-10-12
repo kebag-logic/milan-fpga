@@ -1,0 +1,107 @@
+{
+  "reset_controls": [
+    {
+      "reset": "cnt_locked_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  MEDIA_LOCKED (cnt_locked_o)"
+    },
+    {
+      "reset": "cnt_unlocked_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  MEDIA_UNLOCKED (cnt_unlocked_o)"
+    },
+    {
+      "reset": "cnt_intr_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  STREAM_INTERRUPTED (cnt_intr_o)"
+    },
+    {
+      "reset": "seq_err_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  SEQ_NUM_MISMATCH (seq_err_o)"
+    },
+    {
+      "reset": "mr_cnt_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  MEDIA_RESET (mr_cnt_o)"
+    },
+    {
+      "reset": "tu_cnt_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  TIMESTAMP_UNCERTAIN (tu_cnt_o)"
+    },
+    {
+      "reset": "fmt_err_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  UNSUPPORTED_FORMAT (fmt_err_o)"
+    },
+    {
+      "reset": "late_cnt_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  LATE_TIMESTAMP (late_cnt_o)"
+    },
+    {
+      "reset": "early_cnt_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  EARLY_TIMESTAMP (early_cnt_o)"
+    },
+    {
+      "reset": "pdu_count_o",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):\n  FRAMES_RX (pdu_count_o)"
+    },
+    {
+      "reset": "iv_uf_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_uf_r"
+    },
+    {
+      "reset": "iv_sm_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_sm_r"
+    },
+    {
+      "reset": "iv_mr_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_mr_r"
+    },
+    {
+      "reset": "iv_tu_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_tu_r"
+    },
+    {
+      "reset": "iv_lt_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_lt_r"
+    },
+    {
+      "reset": "iv_et_r",
+      "detected": true,
+      "omitting_era_wipe_check_passes_other_era_checks": true,
+      "diagnostic": "interval seen flags left standing across the era wipe, each good for one phantom event in the new binding: iv_et_r"
+    }
+  ],
+  "old_guard": {
+    "tests_run": 80,
+    "failures": 1,
+    "named_test": "test_unpublished_zero_receive_snapshot",
+    "omission_tests_run": 79,
+    "omission_pass": true
+  }
+}

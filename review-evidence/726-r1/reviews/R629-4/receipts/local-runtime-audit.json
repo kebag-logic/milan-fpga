@@ -1,0 +1,243 @@
+{
+  "clean-1": {
+    "run": {
+      "receipt": "receipts/clean-1.run.log",
+      "failures": 0,
+      "named_groups": []
+    },
+    "independent_gap_audit": {
+      "rows": 8,
+      "gaps": 28,
+      "min_ms": 1001.0,
+      "max_ms": 1001.867,
+      "maximum_measured_service_ms": 3.263
+    }
+  },
+  "clean-8": {
+    "run": {
+      "receipt": "receipts/clean-8.run.log",
+      "failures": 0,
+      "named_groups": []
+    },
+    "independent_gap_audit": {
+      "rows": 36,
+      "gaps": 126,
+      "min_ms": 1000.982,
+      "max_ms": 1012.029,
+      "maximum_measured_service_ms": 14.058
+    }
+  },
+  "pending-wrap": {
+    "run": {
+      "receipt": "receipts/pending-wrap.run.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "tx-interval": {
+    "run": {
+      "receipt": "receipts/tx-interval.run.log",
+      "failures": 6,
+      "named_groups": [
+        "TX"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/tx-interval.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "rx-interval": {
+    "run": {
+      "receipt": "receipts/rx-interval.run.log",
+      "failures": 1,
+      "named_groups": [
+        "RX"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/rx-interval.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "tx-reset": {
+    "run": {
+      "receipt": "receipts/tx-reset.run.log",
+      "failures": 4,
+      "named_groups": [
+        "TX_RESET"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/tx-reset.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "aaf-reset": {
+    "run": {
+      "receipt": "receipts/aaf-reset.run.log",
+      "failures": 1,
+      "named_groups": [
+        "RX_RESET"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/aaf-reset.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "crf-reset": {
+    "run": {
+      "receipt": "receipts/crf-reset.run.log",
+      "failures": 1,
+      "named_groups": [
+        "RX_RESET"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/crf-reset.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "rx-saturation": {
+    "run": {
+      "receipt": "receipts/rx-saturation.run.log",
+      "failures": 1,
+      "named_groups": [
+        "RX"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/rx-saturation.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "late": {
+    "run": {
+      "receipt": "receipts/late.run.log",
+      "failures": 4,
+      "named_groups": [
+        "CADENCE"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/late.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "rate": {
+    "run": {
+      "receipt": "receipts/rate.run.log",
+      "failures": 8,
+      "named_groups": [
+        "RATE"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/rate.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "tx-nodirty": {
+    "run": {
+      "receipt": "receipts/tx-nodirty.run.log",
+      "failures": 4,
+      "named_groups": [
+        "OUTPUT_CADENCE"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/tx-nodirty.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "fixed-grid": {
+    "run": {
+      "receipt": "receipts/fixed-grid.run.log",
+      "failures": 8,
+      "named_groups": [
+        "PHASE"
+      ]
+    },
+    "escape": {
+      "receipt": "receipts/fixed-grid.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "f5-1-clean": {
+    "run": {
+      "receipt": "receipts/f5-1-clean.run.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "f5-8-clean": {
+    "run": {
+      "receipt": "receipts/f5-8-clean.run.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "f5-1-fixed-grid": {
+    "run": {
+      "receipt": "receipts/f5-1-fixed-grid.run.log",
+      "failures": 8,
+      "named_groups": []
+    },
+    "escape": {
+      "receipt": "receipts/f5-1-fixed-grid.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "f5-1-late": {
+    "run": {
+      "receipt": "receipts/f5-1-late.run.log",
+      "failures": 8,
+      "named_groups": []
+    },
+    "escape": {
+      "receipt": "receipts/f5-1-late.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "f5-1-rate": {
+    "run": {
+      "receipt": "receipts/f5-1-rate.run.log",
+      "failures": 8,
+      "named_groups": []
+    },
+    "escape": {
+      "receipt": "receipts/f5-1-rate.escape.log",
+      "failures": 0,
+      "named_groups": []
+    }
+  },
+  "public-baseline-1": {
+    "failures": 12,
+    "groups": [
+      "CADENCE",
+      "RX",
+      "TX"
+    ]
+  },
+  "public-baseline-8": {
+    "failures": 54,
+    "groups": [
+      "CADENCE",
+      "RX",
+      "TX"
+    ]
+  }
+}
