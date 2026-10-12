@@ -510,9 +510,13 @@ emits five summary shapes, and 29 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
-With no options the script remains the mandatory serial local sweep. GitHub
-uses five isolated `--shard INDEX/5` workers to reduce wall time, the last of
-them running `milan_dp` alone, then keeps
+With no options the script remains the mandatory serial local sweep. Its
+preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+worker before its suites. That self-test refuses to start until the selector's
+`SUITE_SECONDS` names every default suite, so a change that adds a suite first
+records a provisional figure for it, by the new-suite steps in the selector's
+docstring. GitHub uses five isolated `--shard INDEX/5` workers to reduce wall
+time, the last of them running `milan_dp` alone, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
 the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the

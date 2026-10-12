@@ -196,7 +196,10 @@ predicted wall clock. Its self-test refuses a suite without a duration and a
 duration without a suite.
 It also refuses any worker predicted above 60% of the job's
 `timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
-gives the refresh procedure. On dev `c6bd08c6` the old hash put worker 1/5 at
+gives the refresh procedure, and the steps for a change that adds a suite: a
+provisional figure from `run_all_suites.sh`'s `suite_timeout`, a worker added
+if a prediction then exceeds 60%, and the figure replaced from the change's
+own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
 104 minutes, and #696's head reached its 120-minute timeout there.
 
 The aggregate rejects missing, unexpected, or duplicate suite logs before it
