@@ -1,0 +1,697 @@
+{
+  "head": "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1",
+  "tree": "dcf00056e872f60856d46444b9871ca598fd4e50",
+  "tracked_files": 98,
+  "gitlinks": [],
+  "index_matches_tree": true,
+  "tracked_bytes_and_modes_match": true,
+  "status": "",
+  "entries": [
+    {
+      "path": ".github/workflows/quality.yml",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "5c05f0499771a2183632ecc419b4fbb7653190ea",
+      "verified": true
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "beebc070feb224d1adb395941385802a24862c4c",
+      "verified": true
+    },
+    {
+      "path": "CHANGELOG.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1ff7fbaf21d94a760550e2370fd9cd8045ab3bdc",
+      "verified": true
+    },
+    {
+      "path": "CMakeLists.txt",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c3050cd7b174b6246c9604b9ef2953f30eac8aae",
+      "verified": true
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "5255515a94de1c64d69c3494556af7a776eb80a8",
+      "verified": true
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c1ab2767d14d3c56f5c7bbc5bc3189785e36ff6b",
+      "verified": true
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a1475241ac6a734068698570b685d1cbbca76656",
+      "verified": true
+    },
+    {
+      "path": "SECURITY.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "608e71d77bd37147dcf21a5cc3241c03649ca175",
+      "verified": true
+    },
+    {
+      "path": "cmake/rv32.cmake",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "75649c5d3577833887f784ebefd8572ae36ef249",
+      "verified": true
+    },
+    {
+      "path": "configs/ax7101.yaml",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8e6f1610d78e10dabfe6a637fa3654021d8c855a",
+      "verified": true
+    },
+    {
+      "path": "configs/compat/ax7101.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6b53d188c958a36e3f7c78b92e76fcc7f1170d05",
+      "verified": true
+    },
+    {
+      "path": "configs/duplex.yaml",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1c21adb8e80ba5ebacd77931c74007cbb52f3588",
+      "verified": true
+    },
+    {
+      "path": "configs/listener.yaml",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a0cd5dec30350a4fe8fdb60cfb42adbcf350cc0d",
+      "verified": true
+    },
+    {
+      "path": "configs/talker.yaml",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "08cd82a495bbdcdfb786bd95612a194363428dcb",
+      "verified": true
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b54df1cb640fbc60eb0c95f94016dfdb6037fc14",
+      "verified": true
+    },
+    {
+      "path": "docs/CODING_STANDARD.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a7bd3fff32667a143a6fca186abb06c377768e39",
+      "verified": true
+    },
+    {
+      "path": "docs/COVERAGE.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "354b311e58c03bfd1af30088e43e356d710d4c26",
+      "verified": true
+    },
+    {
+      "path": "docs/DEVIATIONS.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b45cb6ca52af6c020c9eb5c0d86b1660ec2fda05",
+      "verified": true
+    },
+    {
+      "path": "docs/ENTITY_YAML.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "f08a0af54370a9b15f04941272d5869fb085c1ca",
+      "verified": true
+    },
+    {
+      "path": "docs/IMPORT.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ff5fb6219c9d1b982e888ff653c6676fa5c5ce4e",
+      "verified": true
+    },
+    {
+      "path": "docs/PORTING.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "bf09632a44034feafe92224d1336eef165dc3288",
+      "verified": true
+    },
+    {
+      "path": "docs/REQUIREMENTS.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "7aac1c6148b141ded256cedb680d54dbf1399eb5",
+      "verified": true
+    },
+    {
+      "path": "docs/STATIC_ANALYSIS.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "7f2ed4b1deed60f7451df18d4163fbffdb1441ec",
+      "verified": true
+    },
+    {
+      "path": "docs/TESTS.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ac957978b87079c0c3044f4cd9796497fac1b194",
+      "verified": true
+    },
+    {
+      "path": "docs/TRACEABILITY.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "aec0b33e371f145b6aed564513a43b25e1974d63",
+      "verified": true
+    },
+    {
+      "path": "docs/VERIFICATION.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "4acd4cfa5599c3c1cf0cb97bec7f64b81919cbbf",
+      "verified": true
+    },
+    {
+      "path": "docs/requirement-origins.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "059b02d0d0748d778eb00de249882ddf2ae6310d",
+      "verified": true
+    },
+    {
+      "path": "docs/requirements.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6516df5523aa0b834bb7eb949f00143ed75b0a1b",
+      "verified": true
+    },
+    {
+      "path": "examples/adp_port.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "f56995c89547e43737bcd4a395b1328862b7c77e",
+      "verified": true
+    },
+    {
+      "path": "examples/adp_port.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b38ab9a861b81e7a54af42ad5e540f99ba8db06b",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/ax7101/entity_config.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6d02edbdcb74b83df5181f518962fa1fb570866e",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/ax7101/entity_config.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ecd542ca47da1075c5137a2f5028a769ec81a151",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/duplex/entity_config.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a26ab65bbbb9a7b68cc2248970872c7f2082ef69",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/duplex/entity_config.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "3c5b9ba4e58d9c7e30496b4eccbfa33dbb4e42ab",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/listener/entity_config.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "7561ed3dd6497c4523ae9d99d621f144d185ff3e",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/listener/entity_config.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0817ce8e5afda489f379175578892fb8d4169ff9",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/talker/entity_config.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6d076b5a8a3361868257e48907a788fb79bff78e",
+      "verified": true
+    },
+    {
+      "path": "examples/entities/talker/entity_config.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ac616a7fdd1f984635c3a156054a5ffea17b1f37",
+      "verified": true
+    },
+    {
+      "path": "examples/entity_roundtrip.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6e3a758b2ecd4f906b6acb9dea944fa0d4456a0d",
+      "verified": true
+    },
+    {
+      "path": "examples/entity_roundtrip.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c6953eea80f61788259797d33eea44a9383ca136",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/include/assert.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "53de50f0a41ffec64855b35617d5108634d85a37",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/include/string.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "79273d3897946f81b94c931669588ee131ccec3c",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/link.ld",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "708ca40ca89144546e774e97d1471325f1685279",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/runtime.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "259b1da6036e43ba1500c8b21e850363d5249c5d",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/smoke.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "caa90cbdbd03c29ebb466f17f2419f755b4571af",
+      "verified": true
+    },
+    {
+      "path": "examples/rv32/start.S",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "d354952097809b2d0f3f3c5039332dbe5ccabd2c",
+      "verified": true
+    },
+    {
+      "path": "include/acmp.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6ff13ddc0fa26ff9e573fd68ff33f5c4b65a7e77",
+      "verified": true
+    },
+    {
+      "path": "include/adp.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e57db29a4b658f708d43fd11b6773bef5c0b91fe",
+      "verified": true
+    },
+    {
+      "path": "include/maap.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b7df9d665c2a33517539f67df76a1590305afb2e",
+      "verified": true
+    },
+    {
+      "path": "include/wire.h",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "fc6559f4b8b46d4bfacf3e6e4fd7129115ce83e0",
+      "verified": true
+    },
+    {
+      "path": "scripts/acmp_cache_controls.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "00ab86e2f6d9f58882d17f4e12ba1fce4eb4c51a",
+      "verified": true
+    },
+    {
+      "path": "scripts/assertion-defaults.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6b5104e5ec963e2cc298dcd05d0c840c40cecd60",
+      "verified": true
+    },
+    {
+      "path": "scripts/assertion_forms.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8963a6792a7fd7187f0abfcbc291a8c4215c30da",
+      "verified": true
+    },
+    {
+      "path": "scripts/assertion_messages.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0e51ae3d925c84d1f801b8a0608bc3ac428f86f5",
+      "verified": true
+    },
+    {
+      "path": "scripts/assertion_templates.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "7380f602d7cf8ab26cada7e17819f862f9fd33dd",
+      "verified": true
+    },
+    {
+      "path": "scripts/baremetal.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ddb1d6eb87229b7b4245765647b36597f48b68f9",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_acmp_cache.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1cfbd49631bc01ac07e88214c9f0b0e59febe3f4",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_boundary.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "20513a41629744fd3a3e64754cea2be9092b83d0",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_comments.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "630f3ac9cbe684e723dd2a1bec19006f91d12fa4",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_conditionals.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "2d8e90f329406f217c60ae93bcdc50cd21437f2b",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_license.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a966eae2b4467ad325b04baa0235a0e1670681b4",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_port_contracts.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b61f10d8f0f73fba3a094b4272a6e19ac915ca12",
+      "verified": true
+    },
+    {
+      "path": "scripts/check_privacy.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b2385cf8d9005b11e5c859abd7f813368a184de4",
+      "verified": true
+    },
+    {
+      "path": "scripts/comment_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ce4bee961090e259112251b3aea6abc3603bce5b",
+      "verified": true
+    },
+    {
+      "path": "scripts/compiler_tokens.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "65f7fc4a85a8295fda4387c90497d42966324cb7",
+      "verified": true
+    },
+    {
+      "path": "scripts/conditional_policy.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1c61cb4aa584538ae806ee168dfae308f9fcaf81",
+      "verified": true
+    },
+    {
+      "path": "scripts/coverage.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "cc0a497314aa004016cf33bcb656d4e8b00984d1",
+      "verified": true
+    },
+    {
+      "path": "scripts/coverage_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "43d5caa26497a741a1a41c2a848f7e2d3a2c0c77",
+      "verified": true
+    },
+    {
+      "path": "scripts/dependency_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "bd3ff58956d80d1981291ef6ba99b98fa4096291",
+      "verified": true
+    },
+    {
+      "path": "scripts/entity_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0909bb8e048b9798a36e5b78391576bc6f5f1186",
+      "verified": true
+    },
+    {
+      "path": "scripts/entity_yaml.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "3e8b566994a195619a67cdc8c25af082bf468869",
+      "verified": true
+    },
+    {
+      "path": "scripts/export_history.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "44ab8336ac676d8a9b7d112abf7af282b7a9c459",
+      "verified": true
+    },
+    {
+      "path": "scripts/milan_entity.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b018537500646142a316d5e55620e0203c30a8eb",
+      "verified": true
+    },
+    {
+      "path": "scripts/mutation.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6065a57582fc80f837004a7e84f992a6bf7a553a",
+      "verified": true
+    },
+    {
+      "path": "scripts/mutation_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "afa036d37342975f6cbc72240be9d0d9215a92de",
+      "verified": true
+    },
+    {
+      "path": "scripts/needle_audit.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "3f9bfd3e471a398b3b9e3a3ee196a5c064aed93a",
+      "verified": true
+    },
+    {
+      "path": "scripts/registration_selftest.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c6d8a412cb68c7a8de2fb458599d2cbbd731d211",
+      "verified": true
+    },
+    {
+      "path": "scripts/render_graphs.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ce1d43c0da5249d5cdec11e404a44c41888b1add",
+      "verified": true
+    },
+    {
+      "path": "scripts/requirement_records.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "65e49325eb34e1e8526d9b58c8c3d6654cfe8c83",
+      "verified": true
+    },
+    {
+      "path": "scripts/static_analysis.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "f38fba8436c226b00c41ba4caeed651dce9bcd25",
+      "verified": true
+    },
+    {
+      "path": "scripts/test_inventory.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "39107fce82a9028b781188055973cc747b755fd1",
+      "verified": true
+    },
+    {
+      "path": "scripts/test_registry.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "7936c5efd90110f54d467c34b3f2092266484967",
+      "verified": true
+    },
+    {
+      "path": "scripts/traceability.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0f06bdb8e2abd71175f35b858b36e41ca9f82527",
+      "verified": true
+    },
+    {
+      "path": "scripts/validate.py",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "9cc89a3c3c330395b3e10d4dc8633873ece89f0d",
+      "verified": true
+    },
+    {
+      "path": "src/acmp.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "804713acde1f8c62e5b91adf6a8d0367e7228870",
+      "verified": true
+    },
+    {
+      "path": "src/adp.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "764396c2e605e0b4ad0fe2a60df87495e1c7be20",
+      "verified": true
+    },
+    {
+      "path": "src/maap.c",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b2d02e82f231a7820163ef017ac1f8d2550634a0",
+      "verified": true
+    },
+    {
+      "path": "tests/acmp_fake.hpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1d56b922384d11ca881b970c919e5a004e4dc254",
+      "verified": true
+    },
+    {
+      "path": "tests/coverage.ratchet",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "da6f681e0a552543ab40a7d01415a84e70e3ce2e",
+      "verified": true
+    },
+    {
+      "path": "tests/main.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "11b00056b715936d7af8ad4c5374073215a8154d",
+      "verified": true
+    },
+    {
+      "path": "tests/mutations.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8533b960bd58028ba2c19fecd2a4ca5ea5cafff3",
+      "verified": true
+    },
+    {
+      "path": "tests/test_acmp.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "44b54d57e2874a51ae752d8323b6b14e71fc111a",
+      "verified": true
+    },
+    {
+      "path": "tests/test_adp.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c90855af6a58664b2a837c10f274d452eb1afe96",
+      "verified": true
+    },
+    {
+      "path": "tests/test_adp_reentry.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "9e8c9d82c94fc0ca3951243db44c192e356daaf5",
+      "verified": true
+    },
+    {
+      "path": "tests/test_entity.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "3a29978d193e3d86f2f17c0733719015e6515ea2",
+      "verified": true
+    },
+    {
+      "path": "tests/test_maap.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "73c5272171656043244a8301499987f06a2f598f",
+      "verified": true
+    },
+    {
+      "path": "tests/test_maap_debug.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0e9060b2992a2d321c38d4aac298ff991502916e",
+      "verified": true
+    },
+    {
+      "path": "tests/test_port.cpp",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "4a8f7fa27dd5d1f2f4caab69bb6b9e9d5d4750f8",
+      "verified": true
+    }
+  ]
+}

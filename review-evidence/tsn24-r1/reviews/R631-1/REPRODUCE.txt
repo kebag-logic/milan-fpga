@@ -1,0 +1,56 @@
+R631-1 reproduction
+
+Use an isolated checkout at 9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1.
+Keep all builds and disposable trees below PACKET/scratch.
+SOURCE and PACKET below are positional arguments, not fixed host paths.
+
+Required dependencies:
+- C11/C++20 compilers, CMake, Python with PyYAML, GoogleTest/GMock 1.14.0.
+- The source lexical gates require Clang 18.
+- RV32 compiler, binutils and qemu-system-riscv32.
+- The source validation driver also uses its documented static-analysis dependencies.
+- Focused fabric execution uses the verified 5.050 executable.
+- gh is used only for public read requests in fetch_fabric.py.
+
+1. Run the source/target campaigns concurrently:
+   python3 PACKET/scripts/run_gates.py SOURCE PACKET --gtest-prefix PREFIX --clang-bin CLANG_BIN
+   CLANG_BIN must contain working clang, clang++ and clang-18 launchers.
+   The runner limits its combined compiler workers to at most 16, retains each
+   campaign log/return code, and waits for both foreground child campaigns.
+   Full validation needs a mutually compatible compiler and C++ library install.
+
+2. Run the independent source model:
+   python3 PACKET/scripts/run_probe.py SOURCE PACKET --cc gcc
+
+3. Run physical-removal controls after the source mutation campaign:
+   Set PKG_CONFIG_PATH and LD_LIBRARY_PATH for the same GoogleTest/GMock 1.14.0
+   prefix used above, then:
+   python3 PACKET/scripts/removal_controls.py SOURCE PACKET --jobs 4
+   This compiles physically reduced test files against the recorded mutant objects.
+   It runs every remaining test in the corresponding arm, without a test filter.
+
+4. Obtain only the pinned fabric test inputs, verify their Git blobs, and run the
+   focused RTL test, baseline RV32 size comparison and YAML removal control:
+   python3 PACKET/scripts/fetch_fabric.py PACKET
+   python3 PACKET/scripts/run_extra.py SOURCE PACKET --verilator VERILATOR_5_050
+   These independent campaigns run concurrently and wait for completion. The RTL
+   make invocation uses -j16 with its nested compiler build capped at eight jobs.
+
+5. Verify the untouched source tree:
+   python3 PACKET/scripts/verify_source.py SOURCE PACKET/receipts/final-source-state.json
+
+The retained local full validation is intentionally not labelled a pass: its
+Clang 18/C++ header incompatibility and newer static-analyzer padding report are
+recorded. The latter was reproduced at the base. A separate full Clang 23
+sanitizer configure/build/test passed with TSN_SANITIZERS=ON, leak detection,
+ASAN halt_on_error and UBSAN halt_on_error. Published exact-head Clang 18 and
+all 28 source gates passed. The report distinguishes these evidence sources.
+
+Public source artifacts:
+https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266077627
+Quality artifact 11754608352; RV32 artifact 11754632421.
+receipts/hosted-provenance.json records their source identity;
+receipts/evidence-audit.json records download digest verification.
+
+No script performs a source fix, commit, push, merge or GitHub write.
+Scratch trees are disposable and excluded from MANIFEST.sha256.

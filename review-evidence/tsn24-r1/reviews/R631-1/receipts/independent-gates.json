@@ -1,0 +1,26 @@
+[
+  {
+    "name": "validate",
+    "rc": 1,
+    "command": [
+      "/usr/bin/python3",
+      "scripts/validate.py",
+      "--work",
+      "$REVIEWS/tsn24-r631-1-packet/scratch/validate",
+      "--jobs",
+      "3"
+    ]
+  },
+  {
+    "name": "rv32",
+    "rc": 0,
+    "command": [
+      "/usr/bin/python3",
+      "scripts/baremetal.py",
+      "--work",
+      "$REVIEWS/tsn24-r631-1-packet/scratch/rv32",
+      "--jobs",
+      "2"
+    ]
+  }
+]

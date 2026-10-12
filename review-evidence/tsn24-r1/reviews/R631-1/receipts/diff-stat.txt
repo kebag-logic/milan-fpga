@@ -1,0 +1,25 @@
+ configs/talker.yaml                        |   2 +
+ docs/ENTITY_YAML.md                        |   9 +-
+ docs/PORTING.md                            |  43 +++++++
+ docs/REQUIREMENTS.md                       |  14 +++
+ docs/TESTS.md                              |  17 ++-
+ docs/TRACEABILITY.md                       |  11 +-
+ docs/VERIFICATION.md                       |   2 +-
+ docs/requirements.json                     |  27 ++++-
+ examples/entities/ax7101/entity_config.c   |   1 +
+ examples/entities/duplex/entity_config.c   |   1 +
+ examples/entities/listener/entity_config.c |   1 +
+ examples/entities/talker/entity_config.c   |   1 +
+ examples/entity_roundtrip.c                |  39 ++++++-
+ examples/entity_roundtrip.h                |   1 +
+ examples/rv32/smoke.c                      |   1 +
+ include/acmp.h                             |  14 +++
+ scripts/entity_selftest.py                 |  12 ++
+ scripts/entity_yaml.py                     |  11 +-
+ scripts/requirement_records.py             |   4 +
+ src/acmp.c                                 |  59 ++++++++--
+ tests/coverage.ratchet                     |   2 +-
+ tests/mutations.json                       | 181 +++++++++++++++++++++++++++++
+ tests/test_acmp.cpp                        | 178 ++++++++++++++++++++++++++++
+ tests/test_entity.cpp                      |   6 +
+ 24 files changed, 612 insertions(+), 25 deletions(-)

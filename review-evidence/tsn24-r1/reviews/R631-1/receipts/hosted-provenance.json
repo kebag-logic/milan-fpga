@@ -1,0 +1,232 @@
+{
+  "runs": [
+    {
+      "id": 38266085764,
+      "name": "Portable core quality",
+      "event": "pull_request",
+      "head_sha": "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266085764",
+      "jobs": [
+        {
+          "id": 114868486294,
+          "name": "bare-metal",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266085764/job/114868486294",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install RV32 dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate the freestanding cores",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Keep RV32 evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 114868486642,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266085764/job/114868486642",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install host dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate the portable cores",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Keep gate evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 38266077627,
+      "name": "Portable core quality",
+      "event": "push",
+      "head_sha": "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266077627",
+      "jobs": [
+        {
+          "id": 114868456074,
+          "name": "bare-metal",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266077627/job/114868456074",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install RV32 dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate the freestanding cores",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Keep RV32 evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 114868456508,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/kebag-logic/tsn-c-stack/actions/runs/38266077627/job/114868456508",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install host dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate the portable cores",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Keep gate evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "push_artifacts": [
+    {
+      "id": 11754632421,
+      "name": "rv32-evidence",
+      "size_in_bytes": 7277,
+      "expired": false,
+      "digest": "sha256:ea228874c7978ac53751a5a44b2e0431fc6f37aaf472abb87818efa591e47d41",
+      "workflow_run": {
+        "id": 38266077627,
+        "repository_id": 1411276404,
+        "head_repository_id": 1411276404,
+        "head_branch": "acmp-da-fresh",
+        "head_sha": "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1"
+      }
+    },
+    {
+      "id": 11754608352,
+      "name": "quality-evidence",
+      "size_in_bytes": 425828,
+      "expired": false,
+      "digest": "sha256:1d778c7efe844b8ad70385ce337eb7a4cb1998edf5cb8e91d4cf58d8912e7d7f",
+      "workflow_run": {
+        "id": 38266077627,
+        "repository_id": 1411276404,
+        "head_repository_id": 1411276404,
+        "head_branch": "acmp-da-fresh",
+        "head_sha": "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpFresh.InvalidAddress
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpFresh
+[ RUN      ] AcmpFresh.InvalidAddress
+$REVIEWS/tsn24-r631-1-packet/scratch/validate/mutations/baseline/tests/test_acmp.cpp:2341: Failure
+Value of: acmp_declaring(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_b1d6e3cb8fb75a9572962e56dbcb9827
+invalid destination blocks both fresh and registered demand
+TSN_MESSAGE_END_5f7f7a32aed20717a8dcc60079151b04
+
+
+[  FAILED  ] AcmpFresh.InvalidAddress (0 ms)
+[----------] 1 test from AcmpFresh (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpFresh.InvalidAddress
+
+ 1 FAILED TEST
