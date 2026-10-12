@@ -1,0 +1,182 @@
+[
+  {
+    "name": "docs-check",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.9
+  },
+  {
+    "name": "docs-selftest",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.19
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c6bd08c6f52632c6d33d834ce842ac3cf63f29cc"
+    ],
+    "rc": 0,
+    "seconds": 4.18
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.07
+  },
+  {
+    "name": "toc",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.52
+  },
+  {
+    "name": "anchors",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 4.82
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "ci-scope",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "-I",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.89
+  },
+  {
+    "name": "ci-scope-memory",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/ci_scope.py",
+      "docs/design/SPLIT_CONTROL_MEMORY.md"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "ci-events",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.13
+  },
+  {
+    "name": "ci-events-selftest",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 2,
+    "seconds": 0.13
+  },
+  {
+    "name": "py-idiom",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.07
+  },
+  {
+    "name": "test-evidence",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.94
+  },
+  {
+    "name": "test-evidence-selftest",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 8.02
+  },
+  {
+    "name": "module-matrix",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.48
+  },
+  {
+    "name": "memory-baseline",
+    "argv": [
+      "$TOOLS/md-venv/bin/python",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.09
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "c6bd08c6f52632c6d33d834ce842ac3cf63f29cc",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.01
+  },
+  {
+    "name": "litex-runner-selftest",
+    "argv": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.68
+  }
+]

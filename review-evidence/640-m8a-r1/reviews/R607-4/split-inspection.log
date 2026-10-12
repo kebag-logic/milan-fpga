@@ -1,0 +1,13 @@
+PASS current largest image: actual export has 10 image banks and no BIOS memory
+PASS all 11 publication output ports preserved
+RAM declarations {"rom_bank0": "16383", "rom_bank1": "8191", "rom_bank2": "2047", "rom_bank3": "1023", "rom_bank4": "511", "sram_bank0": "16383", "sram_bank1": "8191", "sram_bank2": "2047", "sram_bank3": "1023", "sram_bank4": "511"}
+memory_region,plic,0xf0c00000,4194304,io+linker
+memory_region,clint,0xf0010000,65536,io+linker
+memory_region,rom,0x00000000,229376,cached
+memory_region,sram,0x10000000,229376,cached
+memory_region,main_ram,0x40000000,1073741824,cached
+memory_region,spiflash,0x01000000,16777216,cached
+memory_region,milan_csr,0x90000000,65536,io
+memory_region,ctrl_mbx,0x90100000,32768,io
+memory_region,csr,0xf0000000,65536,io
+RESULT: PASS
