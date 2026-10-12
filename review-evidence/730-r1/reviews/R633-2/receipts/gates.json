@@ -1,0 +1,131 @@
+[
+  {
+    "gate": "ci-contract",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.215
+  },
+  {
+    "gate": "ci-contract-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 23.163
+  },
+  {
+    "gate": "python-idiom",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 4.273
+  },
+  {
+    "gate": "baremetal",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 19.702
+  },
+  {
+    "gate": "docs",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.876
+  },
+  {
+    "gate": "doc-style",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.064
+  },
+  {
+    "gate": "doc-paths",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.114
+  },
+  {
+    "gate": "toc",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 4.776
+  },
+  {
+    "gate": "anchors",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 3.421
+  },
+  {
+    "gate": "em-dash",
+    "argv": [
+      "<packet>/scratch/doc-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "dc4d06cb"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 3.121
+  },
+  {
+    "gate": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "dc4d06cb",
+      "HEAD"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.016
+  },
+  {
+    "gate": "original-r1-probe",
+    "argv": [
+      "/usr/bin/python3",
+      "<packet>/probe_cpu_ranges_r1.py",
+      "<checkout>"
+    ],
+    "rc": 1,
+    "elapsed_seconds": 0.365
+  },
+  {
+    "gate": "compatible-r1-probe",
+    "argv": [
+      "/usr/bin/python3",
+      "<packet>/probe_cpu_ranges_compat.py",
+      "<checkout>"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.366
+  }
+]
