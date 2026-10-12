@@ -1,0 +1,1173 @@
+{
+ "note": "Lane B16 round 6: further escape forms against the check, each on an altered copy, round 5's first; offline, no bench action",
+ "detected": 70,
+ "expected_pass": 8,
+ "met": 78,
+ "probes": [
+  {
+   "probe": "descriptor index, unit after a line break",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\nppm.",
+   "line": 3735,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3735 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in bold",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 **ppm**.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in code",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 `ppm`.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in brackets",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 (ppm).",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after an HTML entity",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&nbsp;ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after an HTML comment",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7<!-- -->ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a thin space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a zero-width space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7​ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a backslash space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\ ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in capitals",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 PPM.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'PPM', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, per mille",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 ‰.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by '‰', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel index pair, unit after",
+   "from": "round 5",
+   "inserted": "The residual sat at channels 2 and 7 s.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2 (a measurement: only a row can claim it) (an identifier followed by 's', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 's', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "step index, unit after",
+   "from": "round 5",
+   "inserted": "The residual settled by step 7 s.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 's', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "round index, glued unit",
+   "from": "round 5",
+   "inserted": "The residual settled by round 7s.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "list-item index, unit after a line break",
+   "from": "round 5",
+   "inserted": "The residual sat at\n7. ppm",
+   "line": 3736,
+   "rc": 1,
+   "detected": true,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3736 7 "
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "lane name before a unit",
+   "from": "round 5",
+   "inserted": "The residual was B16 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "review name before a unit",
+   "from": "round 5",
+   "inserted": "The residual was R624-4 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 624 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -4 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause number before a unit",
+   "from": "round 5",
+   "inserted": "The residual was Milan v1.2 Table 5.4 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 5.4 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1.2 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "issue number before a unit",
+   "from": "round 5",
+   "inserted": "The residual was #629 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 629 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "fullwidth digit",
+   "from": "round 5",
+   "inserted": "The residual was ７ ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ７ (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "vulgar fraction",
+   "from": "round 5",
+   "inserted": "The residual was ½ ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ½ (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "superscript exponent",
+   "from": "round 5",
+   "inserted": "The residual was 10⁻⁶ of the rate.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 10 ",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ⁶ (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "Unicode minus, new figure",
+   "from": "round 5",
+   "inserted": "The floor was −130.00 dB.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 −130.00 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number in a quoted mention, unit after",
+   "from": "round 5",
+   "inserted": "The residual was \"7.25\" ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7.25 "
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number word zero before a unit",
+   "from": "round 5",
+   "inserted": "The residual was zero ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 zero (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number word before a unit",
+   "from": "round 5",
+   "inserted": "The residual was seven ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 seven (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "hex word before a unit",
+   "from": "round 5",
+   "inserted": "The residual was 0x7 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0x7 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "fraction before a unit",
+   "from": "round 5",
+   "inserted": "The residual was 1/2 ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1/2 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "range, second end",
+   "from": "round 5",
+   "inserted": "The residual stayed in 2-9 s.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2 ",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -9 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "thin-space thousands",
+   "from": "round 5",
+   "inserted": "The run held 1 234 frames.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1 ",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 234 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "percent glued",
+   "from": "round 5",
+   "inserted": "The residual was 7%.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "path in code naming no file",
+   "from": "round 5",
+   "inserted": "See `summary/bcrf/c-b9-grade7.json`.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 9 (no row can claim this spelling)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "link target off the repository",
+   "from": "round 5",
+   "inserted": "See [the note](https://example.com/7ppm).",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "link target to no heading",
+   "from": "round 5",
+   "inserted": "See [the round](#b16-round-7-ppm).",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16 (no row can claim this spelling)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -7 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "page marker not in the list",
+   "from": "round 5",
+   "inserted": "<!-- b16-725 -->",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "inside a comment, which the check drops before it reads the text",
+   "met": true
+  },
+  {
+   "probe": "identifier glued to a unit",
+   "from": "round 5",
+   "inserted": "The residual sat at McASP0s.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, small hyphen-minus (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7﹣ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, fullwidth hyphen-minus (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7－ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, em dash (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7—ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, closing bracket (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7) ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, apostrophe (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7' ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, en dash",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7–ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, figure dash",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7‒ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, minus sign",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7−ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, slash (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7/ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, single quotes (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 'ppm'.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index in brackets (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual was (CLOCK_DOMAIN 7) ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, dBm (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 dBm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'dBm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, degrees",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7°.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by '°', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a dash set off by spaces, then a unit",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 -- ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, escaped hyphen",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\-ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, entity space, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&#32;furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a word no list names",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The decode found STREAM_INPUT 2 events.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2 (a measurement: only a row can claim it) (an identifier followed by 'events', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel index, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The playback logged channel 3 underruns.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 3 (a measurement: only a row can claim it) (an identifier followed by 'underruns', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel pair, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The listener made channels 0 and 4 drops.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0 (a measurement: only a row can claim it) (an identifier followed by 'drops', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 4 (a measurement: only a row can claim it) (an identifier followed by 'drops', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "step index, a word",
+   "from": "round 6",
+   "inserted": "The lock took step 7 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "round index, a word",
+   "from": "round 6",
+   "inserted": "The lock took round 7 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "lane name, a word",
+   "from": "round 6",
+   "inserted": "The lock took lane B16 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "review name, a word",
+   "from": "round 6",
+   "inserted": "The lock took R624-5 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 624 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -5 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "operator, a word",
+   "from": "round 6",
+   "inserted": "The lock took [A603] furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 603 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "serial port, a word",
+   "from": "round 6",
+   "inserted": "The lock took McASP0 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "hash name, a word",
+   "from": "round 6",
+   "inserted": "The lock took SHA-256 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -256 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "issue number, a word",
+   "from": "round 6",
+   "inserted": "The lock took #629 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 629 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause number, a word",
+   "from": "round 6",
+   "inserted": "The lock took IEEE 1722.1 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1722.1 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause pair, a word",
+   "from": "round 6",
+   "inserted": "The lock took Milan v1.2 Table 5.4 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 5.4 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list)",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1.2 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index into a claimed measurement (a range)",
+   "from": "round 6",
+   "inserted": "CRF sink +10.60 to CLOCK_DOMAIN 7 to +10.65 ppm",
+   "line": 3174,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3174 7 (a measurement: only a row can claim it) (an identifier followed by 'to +10.65', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "entity digits before a unit",
+   "from": "round 6",
+   "inserted": "The residual was &#55;&#48; ppm.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 70 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a comment shown in a code span",
+   "from": "round 6",
+   "inserted": "See `<!-- 7 ppm -->`.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a comment holding a blank line, inside a paragraph",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7<!--\n\n-->ppm.",
+   "line": 3735,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3735 7 (a measurement: only a row can claim it) (an identifier followed by '<', not on the closed list)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a code literal before a unit",
+   "from": "round 6",
+   "inserted": "See `pts1` milliseconds.",
+   "line": 3011,
+   "rc": 1,
+   "detected": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1 (a measurement: only a row can claim it) (no row can claim this spelling)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, full stop, a unit (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual was CLOCK_DOMAIN 7. ppm.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a full stop ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "channel pair, full stop, a unit (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual was channels 7 to 8. ppm.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a full stop ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, comma, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7, furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a comma ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, colon, a unit (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7: ppm.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a colon ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a dash set off by spaces, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 -- furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a dash set off by spaces ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, possessive, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7's furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a possessive is on the list",
+   "met": true
+  },
+  {
+   "probe": "a code literal before a word",
+   "from": "round 6",
+   "inserted": "See `pts1` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "detected": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a code literal ends with its code word",
+   "met": true
+  }
+ ]
+}

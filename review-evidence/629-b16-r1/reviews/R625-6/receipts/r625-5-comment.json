@@ -1,0 +1,49 @@
+[
+  {
+    "name": "unchanged",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 0,
+    "stdout": "{\"lines\": 1728, \"tokens\": 1980, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1186, \"digits\": 13849, \"digits_by_row\": 11445, \"digits_by_category\": 2404, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2}\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index"
+    ]
+  },
+  {
+    "name": "single_line_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 1,
+    "stdout": "{\"lines\": 1728, \"tokens\": 1980, \"rows\": 1790, \"rows_ok\": 1790, \"rows_bad\": 0, \"by_category\": 1186, \"digits\": 13850, \"digits_by_row\": 11445, \"digits_by_category\": 2404, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 7 (a measurement: only a row can claim it) (no row can claim this spelling) | of the peer's talker stream. The residual was CLOCK_DOMAIN 7ppm. Channels 2 and 3 carry -1 to 0 LSB at every point, and\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tUNCOVERED"
+    ]
+  },
+  {
+    "name": "multiline_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!--\n-->ppm. Channels 2 and 3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 1,
+    "stdout": "{\"lines\": 1728, \"tokens\": 1980, \"rows\": 1790, \"rows_ok\": 1789, \"rows_bad\": 1, \"by_category\": 1186, \"digits\": 13850, \"digits_by_row\": 11444, \"digits_by_category\": 2404, \"digits_uncovered\": 2, \"uncovered\": 2, \"uncovered_measurements\": 2, \"refused_identifiers\": 2}\nBAD 564\t3108\tChannels \u00ab2\u00bb and\t-\td#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109 2 (a measurement: only a row can claim it) (an identifier followed by 'carry', not on the closed list) | talker stream. The residual was CLOCK_DOMAIN 7ppm. Channels 2 and 3 carry -1 to 0 LSB at every point, and McASP0's channe\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 7 (a measurement: only a row can claim it) (no row can claim this spelling) | of the peer's talker stream. The residual was CLOCK_DOMAIN 7ppm. Channels 2 and 3 carry -1 to 0 LSB at every point, and\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tUNCOVERED"
+    ]
+  }
+]
