@@ -1,0 +1,836 @@
+[
+  {
+    "artifact": "validate log",
+    "bytes": 561,
+    "sha256": "ec75116ff45a79e2a30e7ebadba4a2e6176a9caa1ac58878a97d17f22804d593",
+    "retained_as": "validate.log"
+  },
+  {
+    "artifact": "validate return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "validate.rc"
+  },
+  {
+    "artifact": "baremetal-final log",
+    "bytes": 2224,
+    "sha256": "dd72d632b08523bb25c0f234ae1229c7814c8447bca2123c9acfd65c0e97bb02",
+    "retained_as": "baremetal-final.log"
+  },
+  {
+    "artifact": "baremetal-final return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "baremetal-final.rc"
+  },
+  {
+    "artifact": "mutations-new log",
+    "bytes": 503,
+    "sha256": "e62c3ff2a7b68bb0a395583213e57643c9265e084413a620baf22a9818b5d7a2",
+    "retained_as": "mutations-new.log"
+  },
+  {
+    "artifact": "mutations-new return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "mutations-new.rc"
+  },
+  {
+    "artifact": "removals log",
+    "bytes": 607,
+    "sha256": "d4631221a87c1369d137df3846072a1762aac44ca4dfd4c5f39c7c6ce33a0ea3",
+    "retained_as": "removals.log"
+  },
+  {
+    "artifact": "removals return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "removals.rc"
+  },
+  {
+    "artifact": "schema-control log",
+    "bytes": 80,
+    "sha256": "5c12ec5678c91b7e7e0036dab86e7dd533cee525910e99649fdd765aacad99b6",
+    "retained_as": "schema-control.log"
+  },
+  {
+    "artifact": "schema-control return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "schema-control.rc"
+  },
+  {
+    "artifact": "privacy-final log",
+    "bytes": 147,
+    "sha256": "329524cb8eed292e8b99784c0bef41c013dee9e4815f82a47f2786aa20f798b0",
+    "retained_as": "privacy-final.log"
+  },
+  {
+    "artifact": "privacy-final return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "privacy-final.rc"
+  },
+  {
+    "artifact": "Full validation gates",
+    "bytes": 1404,
+    "sha256": "84f0dd54d03d8d6dae1f985e1bb09f99f3e5e9034bb592288ccabfb974c65fcc",
+    "retained_as": "gates.json"
+  },
+  {
+    "artifact": "Final RV32 results",
+    "bytes": 2224,
+    "sha256": "dd72d632b08523bb25c0f234ae1229c7814c8447bca2123c9acfd65c0e97bb02",
+    "retained_as": "rv32-results.json"
+  },
+  {
+    "artifact": "Physical removal results",
+    "bytes": 5500,
+    "sha256": "8f4f0176919075c701cc4da232dd82fc369388c769c710afe1a742e51d44edc2",
+    "retained_as": "removal-results.json"
+  },
+  {
+    "artifact": "Schema mutation and removal",
+    "bytes": 537,
+    "sha256": "68930439f812894c7030a2d27a0a923ca851af954b6a5629be3facf829835fa3",
+    "retained_as": "schema-results.json"
+  },
+  {
+    "artifact": "Image size baseline and final",
+    "bytes": 1147,
+    "sha256": "b531787a092253ef6980d9a61c7c55d64af3f89be68e453af1324528ae799c40",
+    "retained_as": "sizes.json"
+  },
+  {
+    "artifact": "Service memory samples",
+    "bytes": 7539,
+    "sha256": "f1f5fd0fd2cc3c7595c234aa45c0713e67ef7f185e855a7814ff0c036f29329d",
+    "retained_as": "memory.csv"
+  },
+  {
+    "artifact": "Validation acmp-cache",
+    "bytes": 366,
+    "sha256": "4eded9119042d79f06e796301f73655d1c778e919d34aa258128b60d032a8c9e",
+    "retained_as": "gate-acmp-cache.log"
+  },
+  {
+    "artifact": "Validation assertion-templates",
+    "bytes": 957,
+    "sha256": "e9b8bb260178099f5c39a2cbf5641d3bec45b94c142ddca74dc7e52bb470e38a",
+    "retained_as": "gate-assertion-templates.log"
+  },
+  {
+    "artifact": "Validation boundary",
+    "bytes": 661,
+    "sha256": "d4c4a2c13a4481fd738e4b8125f1086e1cfdd0521e03841dcbb46884d307f0bd",
+    "retained_as": "gate-boundary.log"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-build",
+    "bytes": 401,
+    "sha256": "ca5636e1fdf2cb9ac04a4d3de7e4dc4d51a82e135946100450a908dfeb4e59a7",
+    "retained_as": "gate-clang-sanitizers-build.log"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-configure",
+    "bytes": 145,
+    "sha256": "ada4a1dadb7f62f12e3e511f0cd6127167cea10e7046cf50da3cf807442215d7",
+    "retained_as": "gate-clang-sanitizers-configure.log"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-test",
+    "bytes": 878,
+    "sha256": "94c385e3661b5cb8d021c34d4bf24de8cbb84dbea918b99e1f2863384eb64316",
+    "retained_as": "gate-clang-sanitizers-test.log"
+  },
+  {
+    "artifact": "Validation comments",
+    "bytes": 3209,
+    "sha256": "4ea48984661075d6728824e5f312174889bc1fd31b10174798d595e06b86924a",
+    "retained_as": "gate-comments.log"
+  },
+  {
+    "artifact": "Validation conditionals",
+    "bytes": 192,
+    "sha256": "e5af86f74340fd2d4f93bb4e1f8acd212a9cc0c2096385d0b11190496212c3d3",
+    "retained_as": "gate-conditionals.log"
+  },
+  {
+    "artifact": "Validation coverage-controls",
+    "bytes": 90,
+    "sha256": "7137827cdebea07c6978264021e6a0263017f17a4f7f524054adf254acc0ea26",
+    "retained_as": "gate-coverage-controls.log"
+  },
+  {
+    "artifact": "Validation coverage",
+    "bytes": 518,
+    "sha256": "657d16c859003559914981c57efaaa41fc771fe4f251b48f57245c1382acd98a",
+    "retained_as": "gate-coverage.log"
+  },
+  {
+    "artifact": "Validation dependencies",
+    "bytes": 347,
+    "sha256": "513a7c1dba3c8b3502d1f0fa13257d90c3d8a6a086178da2380002d130d96c50",
+    "retained_as": "gate-dependencies.log"
+  },
+  {
+    "artifact": "Validation entity-controls",
+    "bytes": 21204,
+    "sha256": "e3617d106a53d63bce1cc335e09de00b4682ec74ad4a3c9a0810a7e2495df212",
+    "retained_as": "gate-entity-controls.log"
+  },
+  {
+    "artifact": "Validation entity-golden",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_as": "gate-entity-golden.log"
+  },
+  {
+    "artifact": "Validation gcc-build",
+    "bytes": 583,
+    "sha256": "347f60f462b9d28a23d5bbcc408bbbd5e0e8275b2218aacf1a3942ec93b96378",
+    "retained_as": "gate-gcc-build.log"
+  },
+  {
+    "artifact": "Validation gcc-configure",
+    "bytes": 132,
+    "sha256": "b56fda695e17e7cb8807c933aa37ff062d7c14eec41fe999841fd96cc9ce29f7",
+    "retained_as": "gate-gcc-configure.log"
+  },
+  {
+    "artifact": "Validation gcc-test",
+    "bytes": 865,
+    "sha256": "9eccaa98972976fe911e13b605c6e14a761da856f8a0658f12ea807bac844fe4",
+    "retained_as": "gate-gcc-test.log"
+  },
+  {
+    "artifact": "Validation graphs",
+    "bytes": 147,
+    "sha256": "0fe362ea43d7768b7e1b31fe36f76b4b1b4880f18fee2bc8c7d9be4094bb970a",
+    "retained_as": "gate-graphs.log"
+  },
+  {
+    "artifact": "Validation license",
+    "bytes": 72,
+    "sha256": "2901ad840947d461ca823c2347d55b2cfdae20062b46dbe37896b2ae2d9c700f",
+    "retained_as": "gate-license.log"
+  },
+  {
+    "artifact": "Validation mutation-controls",
+    "bytes": 786,
+    "sha256": "8de44f407fc0e6de48ce8ae226de88ca61df536548efab511ec97fc8cd61d86b",
+    "retained_as": "gate-mutation-controls.log"
+  },
+  {
+    "artifact": "Validation mutation",
+    "bytes": 12453,
+    "sha256": "12806bbfd15891857cb22da2083972f39202cb4bceeea45f0cf7fda7e92060a9",
+    "retained_as": "gate-mutation.log"
+  },
+  {
+    "artifact": "Validation needles",
+    "bytes": 183,
+    "sha256": "f2edbb71cd3fe13b62cf29bede908db14435d2b728c2d5cad22dffb2f522a591",
+    "retained_as": "gate-needles.log"
+  },
+  {
+    "artifact": "Validation port-contracts",
+    "bytes": 172,
+    "sha256": "9fb67259191560e217c93dddebd1259ae0f08bffa01d57da9d1255718c544c74",
+    "retained_as": "gate-port-contracts.log"
+  },
+  {
+    "artifact": "Validation privacy-selftest",
+    "bytes": 42,
+    "sha256": "13df338cf7b38185d44a50193bc7b2c9ec735c1747eb1f4108b0939e2e5183a0",
+    "retained_as": "gate-privacy-selftest.log"
+  },
+  {
+    "artifact": "Validation privacy",
+    "bytes": 146,
+    "sha256": "fbb906a2de21af0e9a7541e1f12d84e6e62c09949e6d710b4da85dd2b625545d",
+    "retained_as": "gate-privacy.log"
+  },
+  {
+    "artifact": "Validation registration-controls",
+    "bytes": 1554,
+    "sha256": "6fdccc821254e3bb1f1fbbe49604acd440e58996fc15c597c8b2d17499b794c0",
+    "retained_as": "gate-registration-controls.log"
+  },
+  {
+    "artifact": "Validation static-analysis",
+    "bytes": 3627,
+    "sha256": "2f82a481d4888a00f11360c3c30f3a7e8b21f19add2dacd956108a32cea8d7cd",
+    "retained_as": "gate-static-analysis.log"
+  },
+  {
+    "artifact": "Validation test-inventory",
+    "bytes": 629,
+    "sha256": "640d392e683828b77a6ba3415730647a1e74df5334d40a5960f23b3bc50c6524",
+    "retained_as": "gate-test-inventory.log"
+  },
+  {
+    "artifact": "Validation traceability",
+    "bytes": 2429,
+    "sha256": "98ed84237f0f8bf23fce76115d020600fb24d198f33c3ca70bbf7d79b69eb8a9",
+    "retained_as": "gate-traceability.log"
+  },
+  {
+    "artifact": "Validation acmp-cache return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-acmp-cache.rc"
+  },
+  {
+    "artifact": "Validation assertion-templates return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-assertion-templates.rc"
+  },
+  {
+    "artifact": "Validation boundary return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-boundary.rc"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-build return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-clang-sanitizers-build.rc"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-configure return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-clang-sanitizers-configure.rc"
+  },
+  {
+    "artifact": "Validation clang-sanitizers-test return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-clang-sanitizers-test.rc"
+  },
+  {
+    "artifact": "Validation comments return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-comments.rc"
+  },
+  {
+    "artifact": "Validation conditionals return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-conditionals.rc"
+  },
+  {
+    "artifact": "Validation coverage-controls return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-coverage-controls.rc"
+  },
+  {
+    "artifact": "Validation coverage return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-coverage.rc"
+  },
+  {
+    "artifact": "Validation dependencies return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-dependencies.rc"
+  },
+  {
+    "artifact": "Validation entity-controls return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-entity-controls.rc"
+  },
+  {
+    "artifact": "Validation entity-golden return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-entity-golden.rc"
+  },
+  {
+    "artifact": "Validation gcc-build return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-gcc-build.rc"
+  },
+  {
+    "artifact": "Validation gcc-configure return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-gcc-configure.rc"
+  },
+  {
+    "artifact": "Validation gcc-test return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-gcc-test.rc"
+  },
+  {
+    "artifact": "Validation graphs return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-graphs.rc"
+  },
+  {
+    "artifact": "Validation license return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-license.rc"
+  },
+  {
+    "artifact": "Validation mutation-controls return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-mutation-controls.rc"
+  },
+  {
+    "artifact": "Validation mutation return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-mutation.rc"
+  },
+  {
+    "artifact": "Validation needles return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-needles.rc"
+  },
+  {
+    "artifact": "Validation port-contracts return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-port-contracts.rc"
+  },
+  {
+    "artifact": "Validation privacy-selftest return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-privacy-selftest.rc"
+  },
+  {
+    "artifact": "Validation privacy return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-privacy.rc"
+  },
+  {
+    "artifact": "Validation registration-controls return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-registration-controls.rc"
+  },
+  {
+    "artifact": "Validation static-analysis return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-static-analysis.rc"
+  },
+  {
+    "artifact": "Validation test-inventory return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-test-inventory.rc"
+  },
+  {
+    "artifact": "Validation traceability return code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "retained_as": "gate-traceability.rc"
+  },
+  {
+    "artifact": "New plant report dafresh-absolute-clock",
+    "bytes": 1965,
+    "sha256": "d432720294ab033973887e75b70e747d0fecdad78023ccf03993736d5a57531f",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-absolute-clock/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-expiry-equality",
+    "bytes": 3356,
+    "sha256": "1a749b4793cf767d74cbb8e1de9a40551f2cb75536fd969db4532b656b0f4769",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-expiry-equality/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-fixed-window",
+    "bytes": 1288,
+    "sha256": "d0214fa0e2316e03bd26bc6dbd1d2f3f45a96ac860a86ab1ce2b147e2a95454c",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-fixed-window/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-generated-window",
+    "bytes": 1329,
+    "sha256": "19126afeedb778fde8bc960287fa38a821d4f28ac213b9e159028fff7dbee63b",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-generated-window/entity.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-ignore-address",
+    "bytes": 1274,
+    "sha256": "135f821d3ec19a42252b7f0ff0872d5e651945eb528c5b5c98b7edd920a52452",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-ignore-address/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-inclusive-edge",
+    "bytes": 3372,
+    "sha256": "680695444688ccaeba9ab3c9c4f60696e96834626e383f95c7fc50642a81b8de",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-inclusive-edge/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-listener-needs-probe",
+    "bytes": 1276,
+    "sha256": "cbe8764a29de096b769591e2fae3ba22a3a636f1645be8891281e39acd593c07",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-listener-needs-probe/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-no-renewal",
+    "bytes": 1266,
+    "sha256": "1577bfc338bc12cf912dde46a9894d27151dbc2007a11f0fb529f2c4f8d00f8f",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-no-renewal/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-only-success",
+    "bytes": 1292,
+    "sha256": "2c34e3ee1528315e897bed3f3c675e170cc45b57e8dca5e4650caf3f167dbf33",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-only-success/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-refused-answer",
+    "bytes": 1932,
+    "sha256": "d62f1fa75404cf7fca748d329c74bdf4960daa6c4bac1eeae0c0c9568d118947",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-refused-answer/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-reset-retains-demand",
+    "bytes": 1284,
+    "sha256": "d4d3146709c94cda26f733e306442e7f6ae3f7dd11b8bcaa3bc1e9e3a94b5a97",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-reset-retains-demand/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-state-reply-demand",
+    "bytes": 4044,
+    "sha256": "7f1fb07f817fefc879a01f2fff43dd0855d6f6c1a4e09f014442368ef9bd9f4f",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-state-reply-demand/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-unanswered-clock",
+    "bytes": 1259,
+    "sha256": "661d80bf7012f967de222d22bd3db4aa75c5010b375dd5e6ae58ae600a950736",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-unanswered-clock/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-wrong-interface",
+    "bytes": 1710,
+    "sha256": "b4cc06869afb38eff7c974a8abab88e3ad92d22039559c0ab857225defdbb94d",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-wrong-interface/acmp.xml"
+  },
+  {
+    "artifact": "New plant report dafresh-wrong-source",
+    "bytes": 2669,
+    "sha256": "2bc3a3280eb7a70ad20d57ca60a55c96e9f468ad0a130bfcfb7ff243c82c2aae",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/mutations-new/dafresh-wrong-source/acmp.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-absolute-clock/full.xml",
+    "bytes": 24865,
+    "sha256": "c87bb07a60edd66e59fcaa58b44113cc3f6e89ba7ccbaf9e8f8664eef4b781b0",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-absolute-clock/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-absolute-clock/removed.xml",
+    "bytes": 23318,
+    "sha256": "6fc239141aade51cea687c0f83e381dbeda67eb9f2e10bacf34354625dcf678a",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-absolute-clock/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-expiry-equality/full.xml",
+    "bytes": 26255,
+    "sha256": "6dfe67c564d0be5e88d30d81469748fdb044a197260f00b875be7692aee612bf",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-expiry-equality/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-expiry-equality/removed.xml",
+    "bytes": 23409,
+    "sha256": "78f82d5c263d44ce90550d9be8a97040215811a0137d52287d0f4a6aaa2fbe2e",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-expiry-equality/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-fixed-window/full.xml",
+    "bytes": 24181,
+    "sha256": "35f29bc0cc75b0c4ecf8cba3dc14b71522657c2bef3266a69bd93d35fef2e0bf",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-fixed-window/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-fixed-window/removed.xml",
+    "bytes": 23127,
+    "sha256": "e03468e57fed40f507e65532f5d738423bc8a0b0b761264ad43bc6006417571a",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-fixed-window/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-generated-window/full.xml",
+    "bytes": 2012,
+    "sha256": "38a920b7306d74b4a06f95f861e8b6efeb730882e8c05ff827d6ba2509ccdac1",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-generated-window/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-generated-window/removed.xml",
+    "bytes": 1013,
+    "sha256": "49dd240b509b44a0021f8b81db59e7eead49ee4f06bf043dea54e324c646fe10",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-generated-window/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-ignore-address/full.xml",
+    "bytes": 24169,
+    "sha256": "b3dd9c1a45d0321a1b6a3aacb70e2da7fca0db099a3a09491570b4d79da77517",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-ignore-address/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-ignore-address/removed.xml",
+    "bytes": 23313,
+    "sha256": "342496dc122d3c7bcf1afdea01a7ce85a37016707f0f9b3ae4c5261ab495ee72",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-ignore-address/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-inclusive-edge/full.xml",
+    "bytes": 26271,
+    "sha256": "c97b88c90569bc3c1dc68242cd27a03f35222c5fce545ed9e589cb582c64e2a3",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-inclusive-edge/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-inclusive-edge/removed.xml",
+    "bytes": 23317,
+    "sha256": "f8ebb8a41bbd4f8645ffb47478889f390f66e59cc57dbed64108dbbe9ca6dfaa",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-inclusive-edge/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-listener-needs-probe/full.xml",
+    "bytes": 24165,
+    "sha256": "e1e456d5367b0005b81a1cc3569774bd3246c859deccaa33b0cf2c93e580e52c",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-listener-needs-probe/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-listener-needs-probe/removed.xml",
+    "bytes": 23859,
+    "sha256": "e50c5df11dd502fc9051eed3e72e1dd7b90c739724f2776a2b83f33cbbfe1f83",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-listener-needs-probe/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-no-renewal/full.xml",
+    "bytes": 24153,
+    "sha256": "329d6ec1527e0387b7f108a2e577c6f56b522701fa27184f7065c4c27261aeb6",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-no-renewal/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-no-renewal/removed.xml",
+    "bytes": 22937,
+    "sha256": "14e84b6ee6241d35ab45e0fbf9420cad23c566342d220acc5a0772b38d5c82a9",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-no-renewal/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-only-success/full.xml",
+    "bytes": 24179,
+    "sha256": "435a30c815e71c08a4765e522627aa2371c60fcb18e7383a3608ca12c7b998e2",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-only-success/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-only-success/removed.xml",
+    "bytes": 23121,
+    "sha256": "f6ca74cece6748b55ecba230fa4d3fb2a74db2e26229641fc558ee9a71a1a3e1",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-only-success/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-refused-answer/full.xml",
+    "bytes": 24827,
+    "sha256": "87e363c16e8466d494829d979b75248481dc3d014afddad958a91d7f55ec1154",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-refused-answer/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-refused-answer/removed.xml",
+    "bytes": 23313,
+    "sha256": "a9758f6f0a96c9601161be86689e33d5640fbf6d7ce137db15c7fb980c6d4b27",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-refused-answer/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-reset-retains-demand/full.xml",
+    "bytes": 24167,
+    "sha256": "9a83fc56f0aa895048f8168d765a3d18e31c7b48012815dd534e518542773c7d",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-reset-retains-demand/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-reset-retains-demand/removed.xml",
+    "bytes": 23853,
+    "sha256": "6a0d0458b27127b9c81c3158b88610d6312477c80f2bf2d34ba3057c6a05f587",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-reset-retains-demand/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-state-reply-demand/full.xml",
+    "bytes": 26929,
+    "sha256": "3d622d11d195467cb6a4a6038cade32af384d592cef8fe313dcf625e8e345be9",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-state-reply-demand/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-state-reply-demand/removed.xml",
+    "bytes": 23671,
+    "sha256": "c06e0bf0da058a8db95aff8f551d538c74605ec91f4dd44bbc54d64358b85cbb",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-state-reply-demand/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-unanswered-clock/full.xml",
+    "bytes": 24161,
+    "sha256": "c9de74185576ba705932fcb48b161b2407e38170a78c5448847d2e3c4c576c4c",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-unanswered-clock/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-unanswered-clock/removed.xml",
+    "bytes": 23504,
+    "sha256": "39141c6ef110c5587bb0ad6861d8e07b9e99b5c19337cbadc21dad6e50bf30d9",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-unanswered-clock/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-wrong-interface/full.xml",
+    "bytes": 24598,
+    "sha256": "a654af40f4371e2903ea314efe77fa305fac640ddc81956019444bc1576b2e2f",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-wrong-interface/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-wrong-interface/removed.xml",
+    "bytes": 23398,
+    "sha256": "3192f2d08ae3fc15cddf7fadcacbd4b89ffc29f640add3d1529f4ed04c348443",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-wrong-interface/removed.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-wrong-source/full.xml",
+    "bytes": 25551,
+    "sha256": "1661639f3d504d751c7a09de2d12ffc0c5c7f4f41bdaa3c8cc32a158a9242c13",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-wrong-source/full.xml"
+  },
+  {
+    "artifact": "Removal report dafresh-wrong-source/removed.xml",
+    "bytes": 23116,
+    "sha256": "8f217d908f68052ba5cdcd913a8c0b5e691cdc4877f50f5afe19cdc9b2517d1c",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/removals/dafresh-wrong-source/removed.xml"
+  },
+  {
+    "artifact": "Full mutation results",
+    "bytes": 771047,
+    "sha256": "b9683243bf998f129fadc9a4af229e11a47cad3c89381fc98c008f9f9cfd7235",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/validation/mutations/results.json"
+  },
+  {
+    "artifact": "Full mutation message markers",
+    "bytes": 107,
+    "sha256": "43b5bf07d957ee1cec5b80ba666b945f64f176288f5806a34df935ad821c051d",
+    "retained_as": "mutation-markers.json"
+  },
+  {
+    "artifact": "Supplemental dependency clang-tidy-18.deb",
+    "bytes": 4956862,
+    "sha256": "4880055c77877bce65de8733f0931021a28826bbae3f450b4dc0065fb6b70363",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/toolchain/clang-tidy-18.deb"
+  },
+  {
+    "artifact": "Supplemental dependency libclang-rt-18-dev.deb",
+    "bytes": 3772036,
+    "sha256": "82d5d27d12c0abdf4cefbafa6044e7544a4cbbbec9c04784f5ce326979842b2b",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/toolchain/libclang-rt-18-dev.deb"
+  },
+  {
+    "artifact": "Supplemental dependency libstdc++-13-dev.deb",
+    "bytes": 2399142,
+    "sha256": "0e34b7a6ad0d9db6c718301a0c30a077590decbb31099d0fd6ac957222d77a94",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/toolchain/libstdc++-13-dev.deb"
+  },
+  {
+    "artifact": "rv32-before debug elf",
+    "bytes": 137428,
+    "sha256": "3537ad49746468417cf2b729de9f096dbae494bc3377b41eecd68490f2cf441a",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-before/debug/rv32_smoke.elf"
+  },
+  {
+    "artifact": "rv32-before debug bin",
+    "bytes": 45744,
+    "sha256": "a06f2cecdf55c11dbb75d60478b48f26cfdcf2058408923369f3d2a738a9a16b",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-before/debug/rv32_smoke.bin"
+  },
+  {
+    "artifact": "rv32-before release elf",
+    "bytes": 45328,
+    "sha256": "c72e1330a9f502a2567a7cad8d40f3b7bea932cfa6a764a51fe54eb307ad24fb",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-before/release/rv32_smoke.elf"
+  },
+  {
+    "artifact": "rv32-before release bin",
+    "bytes": 35792,
+    "sha256": "89610fbc7260156850d7c8937a80484a0ebf889d642482997a5ac421a3a907d2",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-before/release/rv32_smoke.bin"
+  },
+  {
+    "artifact": "rv32-final debug elf",
+    "bytes": 142388,
+    "sha256": "30a2a6de1c55e70e07edd83a1bba1d6e6f9db3462af67fc816b2f862ca0a881a",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-final/debug/rv32_smoke.elf"
+  },
+  {
+    "artifact": "rv32-final debug bin",
+    "bytes": 47952,
+    "sha256": "7936907e8a4c917c65b2a721dfcf4b4ba323435a067c90568cf1283edc071eef",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-final/debug/rv32_smoke.bin"
+  },
+  {
+    "artifact": "rv32-final release elf",
+    "bytes": 46784,
+    "sha256": "3fff83d319f821a65fd7c492804603440dff746605b0f68ea63424a319989875",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-final/release/rv32_smoke.elf"
+  },
+  {
+    "artifact": "rv32-final release bin",
+    "bytes": 37096,
+    "sha256": "613516fc3de39735d8211ac8a7895c3483d17d9939917c4f40dad5cebd8b7094",
+    "retained_in_scratch": "$VALIDATION_STORAGE/tsn24-a606/rv32-final/release/rv32_smoke.bin"
+  },
+  {
+    "artifact": "HANDOFF.md",
+    "retained_as": "HANDOFF.md",
+    "bytes": 19050,
+    "sha256": "594a2d60839d3462bb21095eff0640c34f6174c5c6efc25485097435ecd75641"
+  },
+  {
+    "artifact": "PR-BODY.md",
+    "retained_as": "PR-BODY.md",
+    "bytes": 1286,
+    "sha256": "ac369b55e0ede31f912bbf5603f192285c40315c7ed6aa9d658eba2b56f8f567"
+  },
+  {
+    "artifact": "STATUS.json",
+    "retained_as": "STATUS.json",
+    "bytes": 645,
+    "sha256": "2b9dd47aa5afba477fae71205dce0cdcbeb35fbdcab52145328a480c74c1da99"
+  },
+  {
+    "artifact": "CANDIDATE.patch",
+    "retained_as": "CANDIDATE.patch",
+    "bytes": 67477,
+    "sha256": "8f452e42c678d791e76b4c4ea52b9b6a7fafed487f6b5fb56929f9ecfa5ca447"
+  },
+  {
+    "artifact": "removal-controls.py",
+    "retained_as": "removal-controls.py",
+    "bytes": 4678,
+    "sha256": "8c077590e3b3335aec0c06842c2e113a1075a7241ddbfe0856844d48df76a80c"
+  },
+  {
+    "artifact": "schema-control.py",
+    "retained_as": "schema-control.py",
+    "bytes": 2392,
+    "sha256": "c7703cbfd3e2b03ca812d25c15275943a3e15ed611e5f1d976edb267de809d47"
+  },
+  {
+    "artifact": "mutation-summary.json",
+    "retained_as": "mutation-summary.json",
+    "bytes": 37463,
+    "sha256": "dc218a77dfdded7d8384b934a8488ea64a0db5e43638d5f8400114d5d976be84"
+  }
+]
