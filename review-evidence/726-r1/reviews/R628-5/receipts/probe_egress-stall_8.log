@@ -1,0 +1,10 @@
+# cmd: python3 -I $PACKET/scripts/probe_counters.py $CHECKOUT egress-stall 8 $PACKET/scratch/probe_egress-stall_8
+# cwd: $CHECKOUT
+# start: 2026-10-13T00:38:24+02:00
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+PROBE egress-stall shape=8 condition=uncertain: ESCAPED (clean run passed)
+PROBE egress-stall failing groups: {}
+# end: 2026-10-13T00:39:51+02:00 rc=0

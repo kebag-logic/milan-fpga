@@ -1,0 +1,14 @@
+w_makeflags shift=0 rc=0 RESULT: PASS fails=0
+w_makeflags shift=200 rc=0 RESULT: PASS fails=0
+w_makeflags shift=300 rc=0 RESULT: PASS fails=0
+w_makeflags shift=800 rc=0 RESULT: PASS fails=0
+w_makeflags shift=900 rc=0 RESULT: PASS fails=0
+w_makeflags shift=1000000 rc=0 RESULT: PASS fails=0
+w_makeflags shift=1000001 rc=1 RESULT: FAIL fails=1
+clean_8 shift=0 rc=0 RESULT: PASS fails=0
+clean_8 shift=200 rc=0 RESULT: PASS fails=0
+clean_8 shift=300 rc=0 RESULT: PASS fails=0
+clean_8 shift=800 rc=0 RESULT: PASS fails=0
+clean_8 shift=900 rc=0 RESULT: PASS fails=0
+clean_8 shift=1000000 rc=0 RESULT: PASS fails=0
+clean_8 shift=1000001 rc=1 RESULT: FAIL fails=1
