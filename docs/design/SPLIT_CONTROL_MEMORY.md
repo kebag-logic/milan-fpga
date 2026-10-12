@@ -108,7 +108,7 @@ Each is refused before any Verilog or init file is written.
 `--ctrl-mailbox` alone and `--ctrl-firmware` alone are each refused.
 The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
 
-The same three controls, on the linked firmware, were also run once through the SoC build:
+The same three controls, on the firmware linked at `c20ed894`, were also run once through the SoC build:
 
 - an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
@@ -139,37 +139,43 @@ F-INT PR 2 removes the wrapper in the split build; M8a-2 then routes the split w
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
+The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
 
 | Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | As mapped RAMB36 / RAMB18 | As mapped tiles | LUT cells / FF | Byte floor |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 1x1, one interface (shipping) | 95,032 | 45,520 | 35.0 | 33 / 2 | 34.0 | 212 / 32 | 35 |
-| 1x1, two interfaces | 96,320 | 56,880 | 38.0 | 37 / 1 | 37.5 | 89 / 7 | 38 |
-| 8x8, one interface | 108,680 | 86,080 | 48.5 | 46 / 2 | 47.0 | 307 / 33 | 48 |
-| 8x8, two interfaces (largest) | 110,056 | 112,208 | 54.5 | 52 / 2 | 53.0 | 328 / 40 | 55 |
+| 1x1, one interface (shipping) | 96,624 | 45,776 | 35.5 | 34 / 2 | 35.0 | 128 / 8 | 35 |
+| 1x1, two interfaces | 98,056 | 57,152 | 38.0 | 37 / 1 | 37.5 | 89 / 7 | 38 |
+| 8x8, one interface | 110,344 | 86,336 | 48.5 | 46 / 2 | 47.0 | 417 / 42 | 48 |
+| 8x8, two interfaces (largest) | 111,848 | 112,464 | 55.0 | 53 / 2 | 54.0 | 266 / 34 | 55 |
 
 "Planned" is `ctrl_memory.plan` with every bank in block RAM.
-The banks hold 96.6 to 99.6 percent of their bytes.
+The banks hold 97.2 to 99.8 percent of their bytes.
 The byte floor is the flat linked span at 4,096 B per RAMB36, rounded up.
 Every point is within the 56-RAMB36 budget.
-The largest leaves 3 tiles as mapped; the budget check reads the planned 54.5, so its image can grow 6 KiB (1.5 tiles) before it is refused.
+The largest leaves 2 tiles as mapped.
+The budget check reads the planned 55.0, so its banks can grow 4 KiB (1.0 tile) before it is refused; with the unused bytes inside them, 5,064 B.
 
 Two Vivado optimisations put the ROM below its plan:
 
 - it trims a ROM bit column that is constant across a bank, so `16384x31` takes 15 RAMB36 and one RAMB18;
-- it maps a small or sparse ROM bank into logic: the 512-word bank at 1x1 with one interface, and the 1,024-word bank at 8x8.
+- it maps a small or sparse ROM bank into logic: the 1,024-word bank at 8x8 with one interface, and the 512-word bank at 8x8 with two interfaces.
 
-That logic, with the `rom` region's bank decode and read multiplexer, is most of each point's LUT cells: 231 of the largest point's 328.
-A LUT cell is one LUT primitive, as `ctrl_memory_ooc.py` counts them; `report_utilization` gives 220 Slice LUTs for that region.
+At 1x1 every `rom` bank is in block RAM.
+At 8x8 that logic, with the `rom` region's bank decode and read multiplexer, is most of each point's LUT cells: 327 of 417 with one interface, and 169 of the largest point's 266.
+A LUT cell is one LUT primitive, as `ctrl_memory_ooc.py` counts them; `report_utilization` gives 161 Slice LUTs for the largest point's `rom` region.
 The decode and multiplexer are not free: two `rom` banks with none in logic take 36 LUT cells, and the largest point's five `sram` banks 97.
 The `sram` banks map exactly as planned, and their LUT cells are the bank decode and read multiplexer.
 LiteX's memory emitter carries no `ROM_STYLE`, so the build keeps Vivado's default.
-Forcing the logic bank into block RAM would recover only that bank's share of the 231, which this mapping does not separate.
-M8a-2's route weighs that share against at most 1.5 tiles.
+Forcing the logic bank into block RAM would recover only that bank's share of the 169, which this mapping does not separate.
+M8a-2's route weighs that share against at most 1.0 tile.
 
-Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2.
-One LiteX SRAM of the largest image's whole need took 64 RAMB36.
-The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 113 tiles after the split's release.
+The firmware of `ce10328c`, on dev `ac2c5e77`, planned 35.0 / 38.0 / 48.5 / 54.5 and mapped 34.0 / 37.5 / 47.0 / 53.0 tiles at the same points.
+Dev `c6bd08c6` added 1,792 B of `.text` and 264 B of `.bss` at the largest point, and its `rom` gained a fifth bank.
+
+Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
 
 ## 6. Reproduce
 
