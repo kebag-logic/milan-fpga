@@ -1,0 +1,21 @@
+ docs/ARCHITECTURE_HW_SW_SPLIT.md         |   1 +
+ docs/README.md                           |   1 +
+ docs/design/AREA_BUDGET.md               |  47 ++++----
+ docs/design/MAILBOX_SPLIT.md             |   7 ++
+ docs/design/MARK_II_AREA_PLAN.md         |  64 +++++-----
+ docs/design/SPLIT_CONTROL_MEMORY.md      | 201 +++++++++++++++++++++++++++++++
+ docs/litex/LITEX_SOC.md                  |   1 +
+ docs/testing/CI_WORKFLOWS.md             |  19 ++-
+ docs/testing/TESTING.md                  |  24 ++++
+ scripts/check_py_idiom.py                |  14 ++-
+ scripts/ci_scope.py                      |   7 +-
+ scripts/run_litex_sims.sh                |   1 +
+ sw/firmware/ctrl/README.md               |   6 +
+ sw/firmware/ctrl/plat/ctrl_split.ld      |  38 ++++++
+ sw/firmware/ctrl/plat/ctrl_split_start.S |  28 +++++
+ sw/firmware/ctrl/test/ctrl_srp_image.py  |  39 ++++--
+ sw/litex/ctrl_memory.py                  | 382 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ sw/litex/milan_soc.py                    |  89 +++++++++++++-
+ sw/litex/test_ctrl_memory.py             | 999 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ syn/ooc/ctrl_memory_ooc.py               | 119 ++++++++++++++++++
+ 20 files changed, 2017 insertions(+), 70 deletions(-)
