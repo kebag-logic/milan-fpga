@@ -1,0 +1,148 @@
+{
+  "public_script_blob": "ed81a024415b012cc63d3718fe2d52b1653808ce",
+  "public_script_sha256": "571bd0aabb766efeec0f0274909d181e81ed6f25b609b76a5c9c0c2fffcfc031",
+  "cases": {
+    "missing-duration-free": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED an inventory suite with no recorded duration is refused",
+        "ESCAPED a sharded selection refuses it too"
+      ]
+    },
+    "stale-entry-check-deleted": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED a recorded duration with no inventory suite is refused"
+      ]
+    },
+    "timeout-mirrored-120": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker",
+        "ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4320, 117: 4320, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}"
+      ]
+    },
+    "worker-count-mirrored-5": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED rtl.yml at 6 workers is refused for the 5-worker overhead table"
+      ]
+    },
+    "overhead-dropped": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED milan_dp at 4241 s puts it over and is refused"
+      ]
+    },
+    "bound-ge": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes"
+      ]
+    },
+    "mean-only": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker",
+        "ESCAPED milan_dp at 4241 s puts it over and is refused",
+        "ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused"
+      ]
+    },
+    "headroom-100-percent": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {70: 4200, 71: 4260, 120: 7200}, expected {70: 2520, 71: 2556, 120: 4320}"
+      ]
+    },
+    "headroom-75-percent": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {93: 4185, 94: 4230, 120: 5400}, expected {93: 3348, 94: 3384, 120: 4320}"
+      ]
+    },
+    "bound-formula-div10": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {11: 3960, 12: 4320, 120: 43200}, expected {11: 396, 12: 432, 120: 4320}"
+      ]
+    },
+    "pins-dropped": {
+      "rc": 1,
+      "escaped": []
+    },
+    "pin-moved-tsn_fuzz-0": {
+      "rc": 1,
+      "escaped": []
+    },
+    "dedicated-dropped": {
+      "rc": 1,
+      "escaped": []
+    },
+    "head-arms-skipped": {
+      "rc": 0,
+      "escaped": []
+    },
+    "measure-from-job-start": {
+      "rc": 1,
+      "escaped": []
+    },
+    "measure-round-down": {
+      "rc": 1,
+      "escaped": []
+    },
+    "nondeterministic-tie": {
+      "rc": 0,
+      "escaped": []
+    },
+    "table-zero-duration-allowed": {
+      "rc": 1,
+      "escaped": [
+        "ESCAPED a recorded duration of 0 s (aaf) is refused"
+      ]
+    },
+    "tree-head": {
+      "rc": 0,
+      "escaped": []
+    },
+    "tree-unmeasured-suite": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-removed-suite": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-gptp_plane+500": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-timeout-116": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-timeout-117": {
+      "rc": 0,
+      "escaped": []
+    },
+    "tree-six-workers": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-missing-rtl.yml": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-timeout-expression": {
+      "rc": 1,
+      "escaped": []
+    },
+    "tree-step-timeout-added": {
+      "rc": 0,
+      "escaped": []
+    },
+    "tree-maap-1380": {
+      "rc": 0,
+      "escaped": []
+    }
+  }
+}

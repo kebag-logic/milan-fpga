@@ -1,0 +1,105 @@
+SUITE_SECONDS = {
+    "aaf": 73,
+    "aaf_audio_loop": 6,
+    "aaf_clock_meter": 1055,
+    "aaf_latency_tap_bank": 16,
+    "aaf_latency_taps": 6,
+    "adp_tx": 12,
+    "aes3": 6,
+    "avtp_parser": 27,
+    "avtp_rxmon": 73,
+    "avtp_stream": 11,
+    "capture_coherence": 1737,
+    "cbs": 6,
+    "cdc": 6,
+    "chmap_capture": 168,
+    "chmap_render": 6,
+    "classifier": 6,
+    "clkvalid": 16,
+    "cls": 6,
+    "controller_rate": 9,
+    "crf_rx": 832,
+    "crf_tx": 6,
+    "csr": 306,
+    "datapath": 6,
+    "eth_tx_reset": 6,
+    "follow_ring": 1158,
+    "fw_service_budget": 2,
+    "gptp_plane": 784,
+    "gptp_shadow": 393,
+    "gptp_txts": 72,
+    "i2spb": 6,
+    "ifg": 6,
+    "lat_history_ring": 6,
+    "link_guard": 7,
+    "maap": 185,
+    "mac_rmon": 11,
+    "mbx": 82,
+    "media_grid_align": 255,
+    "media_nco": 17,
+    "milan_dp": 2797,
+    "milan_dp_gm_steps": 926,
+    "milan_dp_mclk": 2038,
+    "milan_dp_render": 1264,
+    "mmcm_servo": 1145,
+    "mmcm_servo_autorepair": 6,
+    "nvm_backend": 34,
+    "nvm_cosim": 775,
+    "pair_fill": 6,
+    "pcmlpf": 6,
+    "pp_shadow": 1251,
+    "ptp": 26,
+    "ptp_sync": 11,
+    "ptp_ts": 127,
+    "queues": 6,
+    "render_setpoint": 93,
+    "rx_filter": 18,
+    "shaper_core": 6,
+    "tcam": 27,
+    "tcam_csr": 6,
+    "tdm": 6,
+    "tdm_render": 6,
+    "tkdiag": 28,
+    "tsn_fuzz": 60,
+}
+WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 80)
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head worker 0/5 predicted 4204 s (70.1 min), bound 4320 s
+  ok   head worker 1/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 2/5 predicted 4203 s (70.0 min), bound 4320 s
+  ok   head worker 3/5 predicted 4205 s (70.1 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=True
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+  [ok]    and 117 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4176, 117: 4212, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+  [ok]    rtl.yml at 6 workers is refused for the 5-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS

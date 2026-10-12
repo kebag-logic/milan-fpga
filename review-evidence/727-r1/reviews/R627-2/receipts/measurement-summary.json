@@ -1,0 +1,60 @@
+{
+  "all_62_durations_match": true,
+  "all_5_overheads_match": true,
+  "maap": {
+    "suite": "maap",
+    "start": "2026-10-12T06:40:57.0569333Z",
+    "end": "2026-10-12T07:03:51.2344068Z",
+    "seconds_exact": "1374.1774735",
+    "seconds_ceil": 1375,
+    "worker": 1,
+    "log": "receipts/calibration-maap.log"
+  },
+  "partial_maap_log": {
+    "worker": 1,
+    "setup_exact": "106.8701802",
+    "tail_exact": "1086.4003861",
+    "overhead_ceil": null,
+    "complete": false,
+    "job_span_exact": "7213.2503266"
+  },
+  "dev_head": "c6bd08c6f52632c6d33d834ce842ac3cf63f29cc",
+  "dev_jobs": [
+    {
+      "id": 114706225351,
+      "name": "Verilator shard 0/5",
+      "conclusion": "success",
+      "start": "2026-10-12T07:26:05Z",
+      "end": "2026-10-12T08:10:38Z"
+    },
+    {
+      "id": 114706225397,
+      "name": "Verilator shard 2/5",
+      "conclusion": "success",
+      "start": "2026-10-12T07:26:06Z",
+      "end": "2026-10-12T08:44:55Z"
+    },
+    {
+      "id": 114706225398,
+      "name": "Verilator shard 4/5",
+      "conclusion": "success",
+      "start": "2026-10-12T07:26:06Z",
+      "end": "2026-10-12T08:14:04Z"
+    },
+    {
+      "id": 114706225439,
+      "name": "Verilator shard 3/5",
+      "conclusion": "success",
+      "start": "2026-10-12T07:26:06Z",
+      "end": "2026-10-12T07:57:44Z"
+    },
+    {
+      "id": 114706225444,
+      "name": "Verilator shard 1/5",
+      "conclusion": "success",
+      "start": "2026-10-12T07:26:06Z",
+      "end": "2026-10-12T09:11:12Z"
+    }
+  ],
+  "method": "Independent Decimal differences between logged completion lines, first window begins at shard marker; ceil each duration; setup plus tail rounded together."
+}

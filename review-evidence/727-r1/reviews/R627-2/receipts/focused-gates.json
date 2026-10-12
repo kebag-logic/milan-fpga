@@ -1,0 +1,96 @@
+{
+  "ci-events-check": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "ci-events-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  "suite-tally": {
+    "command": [
+      "python3",
+      "scripts/suite_tally.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  "cancellation": {
+    "command": [
+      "python3",
+      "scripts/test_suite_cancellation.py"
+    ],
+    "rc": 0
+  },
+  "python-idiom": {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  "test-evidence": {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "docs-check": {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  "doc-style": {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  "doc-paths": {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  "toc": {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2
+  },
+  "em-dash": {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c6bd08c6"
+    ],
+    "rc": 2
+  },
+  "diff-check": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "c6bd08c6",
+      "HEAD"
+    ],
+    "rc": 0
+  }
+}
