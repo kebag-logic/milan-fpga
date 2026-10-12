@@ -1,0 +1,32 @@
+# Excerpt of hosted artifact suite-logs-4 (artifact 11775868812, run 38311301025 'rtl-full', job 115017606642)
+# zip sha256 ce8ade113234c8ae0243dfa226405e90a04e69eaf235e4aea087d3af94f5ae0b (equals the artifact digest)
+# TARGET_SHA fb261fdb0b7ae4ccce5379f78119bb1a48d8d1a1 = merge of 1add0cfb into dc4d06cb
+# milan_dp.log sha256 b1368348929f6f6d5da6516492c2a7d4a015ceca745d5e41a962201f600459f7; RESULT: FAIL lines: 0
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 512.804, "state": "idle", "idle_s": 0.229}
+
+6 checks: 6 PASS, 0 FAIL
+make counters
+make[1]: Entering directory '$GITHUB_WORKSPACE/tb/verilator/milan_dp'
+VERILATOR=verilator python3 stream_counters.py --shape 1
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 8
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 1 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 8 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+make[1]: Leaving directory '$GITHUB_WORKSPACE/tb/verilator/milan_dp'
+make: Leaving directory '$GITHUB_WORKSPACE/tb/verilator/milan_dp'

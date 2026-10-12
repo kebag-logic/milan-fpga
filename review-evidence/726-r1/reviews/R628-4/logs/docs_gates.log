@@ -1,0 +1,37 @@
+2026-10-12T21:41:40Z
++ $PACKET/scripts/docs_gates.sh $CLONE $PACKET/scratch/docs_gate
+0	python3 scripts/docs_check.py
+0	python3 scripts/check_em_dash.py --base c6bd08c6
+0	python3 scripts/check_doc_style.py
+0	python3 scripts/check_doc_style.py --selftest
+0	python3 scripts/check_gptp_docs.py
+0	python3 docs/DOC_MAP.gen.py --check
+0	python3 scripts/check_solution_docs.py
+0	python3 scripts/check_submodule_docs.py
+0	python3 scripts/check_feature_status.py --self-test
+0	python3 docs/traceability/gen_module_matrix.py --check
+0	python3 scripts/check_nvm_capture.py
+0	python3 scripts/check_soc_sources.py
+0	python3 scripts/check_rtl_source_lists.py
+0	python3 scripts/measure_naming.py --check
+0	python3 scripts/measure_naming.py --selftest
+0	python3 scripts/check_port_contracts.py
+0	python3 scripts/measure_fail_fast.py --check
+0	python3 scripts/check_todo_ownership.py
+0	python3 scripts/measure_test_evidence.py --check
+0	python3 scripts/measure_test_evidence.py --selftest
+0	python3 scripts/check_hygiene.py --check
+0	python3 scripts/check_sv_idiom.py
+0	python3 scripts/check_cpp_idiom.py
+0	python3 scripts/check_cpp_idiom.py --selftest
+0	python3 scripts/check_py_idiom.py
+0	python3 scripts/check_py_idiom.py --selftest
+0	python3 scripts/check_sh_idiom.py
+0	python3 scripts/check_doc_paths.py
+0	python3 scripts/check_archive.py
+0	python3 scripts/gen_toc.py --verify-anchors
+0	python3 scripts/gen_toc.py --check
+0	python3 scripts/pp_srcs.py --check --selftest
+0	python3 scripts/lint_rtl.py --check --jobs 4
+0	git diff --check c6bd08c6 HEAD
+2026-10-12T21:43:02Z

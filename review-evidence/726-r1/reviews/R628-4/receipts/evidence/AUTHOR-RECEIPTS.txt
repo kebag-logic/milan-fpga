@@ -1,0 +1,10 @@
+# Author receipts read from 907f0116:review-evidence/726-r1/author-r4/evidence/ (not republished); sha256 of the fetched bytes:
+9bb5374cf4015c8eae3092b3c255d1d4e8800a17b7fed8b7d8255a5a86c2c501  route-area.log
+3455f7d228a328e175bc70615033e0e057383049cded5d5b7ca16484b8040427  alinx_ax7101_utilization_route.rpt
+ea5de95bc0ac0651d2b41deeefd4d61ac5d2a91beeed6a5d33fb8dac965ab492  alinx_ax7101_signoff_grade.txt
+# alinx_ax7101_utilization_route.rpt reads: Slice LUTs 49427, Slice Registers 53378, Block RAM Tile 87.5
+# IMAGE-ARTIFACTS.tsv lists alinx_ax7101_signoff_grade.txt with sha256 ea5de95bc0ac0651d2b41deeefd4d61ac5d2a91beeed6a5d33fb8dac965ab492 (matches)
+# Note: IMAGE-ARTIFACTS.tsv records e8782e2a... (13369 B) for the original utilization_route.rpt and 401f2e31... (4697 B)
+# for route-area.log; the published retained copies are 13373 B / 4718 B with the hashes above. The size deltas are
+# consistent with path-placeholder sanitization of the retained copies; the utilization rows read the claimed figures.
+# The grade file's hash matches the recorded value exactly.
