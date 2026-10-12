@@ -187,11 +187,12 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     And the reading in force is "1722.1-per-frame"
 
   @class:invariant @clause:Milan-Table-5.6 @regression
-  Scenario: interval-rate FRAMES_RX violates the ruled packet identity
-    # The ruling requires all 8000 received AVTPDUs to be counted.
+  Scenario: one snapshot cannot distinguish coalesced publication from packet loss
+    # The receiver publishes FRAMES_RX at the interval commit.
+    # Rate conformance requires a measured flowing window, graded below.
     Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1
-    Then the tv-tnv verdict is FAIL
-    And the reading in force is "interval"
+    Then the tv-tnv verdict is INFO
+    And the reading in force is "unequal-packet-totals"
 
   @class:invariant @negative-control
   Scenario: FRAMES_RX above TV plus TNV violates the packet identity

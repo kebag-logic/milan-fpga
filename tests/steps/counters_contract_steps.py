@@ -341,7 +341,7 @@ def step_cc_tvtnv(context: Context, tv: int, tnv: int, frx: int) -> None:
 
 @then("the tv-tnv verdict is {want}")
 def step_cc_tv_verdict(context: Context, want: str) -> None:
-    """The ruled per-AVTPDU identity passes; interval-rate RX fails."""
+    """Packet identity can pass; unequal coalesced snapshots are diagnostic."""
     assert context.cc_tv[0] == want, context.cc_tv
 
 

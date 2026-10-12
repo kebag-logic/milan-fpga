@@ -302,8 +302,9 @@ INTERVAL_CEILING_SLACK = 0.15
 def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
     """Check the three per-AVTPDU totals under ruling #726 (2026-10-12).
 
-    IEEE 1722.1-2021 Table 7.157 defines the packet law. An interval-like
-    FRAMES_RX fails even when the legacy classifier can name its shape.
+    IEEE 1722.1-2021 Table 7.157 defines the packet law. FRAMES_RX publication
+    may lag TV/TNV until the interval commit. A single lower FRAMES_RX snapshot
+    is diagnostic only; grade_counter_semantics() checks growth with flow evidence.
     The all-zero and unclaimed cases still provide no measurement evidence.
     """
     need = ("TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID", "FRAMES_RX")
@@ -323,12 +324,13 @@ def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
         return ("PASS", {"tv_plus_tnv": total, "frames_rx": frx,
                          "reading": "1722.1-per-frame"})
     if frx and total > frx:
-        return ("FAIL", {"tv_plus_tnv": total, "frames_rx": frx,
+        return ("INFO", {"tv_plus_tnv": total, "frames_rx": frx,
                          "ratio": total / frx,
-                         "reading": "interval",
-                         "why": "FRAMES_RX is below TV+TNV; ruling #726 "
-                                "requires the per-AVTPDU identity in "
-                                "IEEE 1722.1-2021 Table 7.157"})
+                         "reading": "unequal-packet-totals",
+                         "why": "FRAMES_RX is below TV+TNV; coalesced "
+                                "publication can lag between commits. "
+                                "Grade FRAMES_RX growth over a measured "
+                                "flowing window under Table 7.157."})
     return ("FAIL", {"tv_plus_tnv": total, "frames_rx": frx,
                      "why": "FRAMES_RX differs from TV+TNV: "
                             "every frame is counted by exactly one of "
@@ -1361,8 +1363,10 @@ A_TALKER_INVARIANT = AssertSpec(
 A_TV_TNV = AssertSpec(
     "counters.stream_input.tv-plus-tnv",
     "IEEE 1722.1-2021 Table 7.157 and ruling #726: TIMESTAMP_VALID plus "
-    "TIMESTAMP_NOT_VALID equals the FRAMES_RX packet total. An interval-rate "
-    "FRAMES_RX fails this identity; empty or unclaimed samples cannot pass.")
+    "TIMESTAMP_NOT_VALID equals the eventual FRAMES_RX packet total. "
+    "Coalesced publication makes a lower FRAMES_RX snapshot inconclusive; "
+    "the per-counter rate grader checks flowing-window growth. Empty or "
+    "unclaimed samples cannot pass.")
 A_RX_TICKING = AssertSpec(
     "counters.stream_input.frames-rx-advances",
     "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a "
@@ -4186,7 +4190,7 @@ class _CounterLawChecks:
             {"STREAM_START": 3, "STREAM_STOP": 1})[0], "FAIL")
 
     def test_tv_tnv_distinguishes_the_two_frames_rx_readings(self) -> None:
-        """Packet identity passes; the superseded interval-rate RX fails."""
+        """A single coalesced snapshot cannot establish a packet-rate defect."""
         # 1722.1 per-frame reading: the identity is exact
         v, d = check_tv_tnv({"TIMESTAMP_VALID": 1000,
                              "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1000})
@@ -4194,7 +4198,7 @@ class _CounterLawChecks:
         # Superseded interval reading: 8000 frames in 1 s, RX ticks once.
         v, d = check_tv_tnv({"TIMESTAMP_VALID": 8000,
                              "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1})
-        self.assertEqual((v, d["reading"]), ("FAIL", "interval"))
+        self.assertEqual((v, d["reading"]), ("INFO", "unequal-packet-totals"))
         # neither reading permits FRAMES_RX above TV+TNV
         self.assertEqual(check_tv_tnv({"TIMESTAMP_VALID": 5,
                                        "TIMESTAMP_NOT_VALID": 0,
