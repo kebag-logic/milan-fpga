@@ -1,0 +1,31 @@
+HEAD 1add0cfbcc778c5292a5935631ca7b47c612b990 tree 11896ba0ce355e92ac33c444fb8b0f4aeb14554b
+status-short-ignored-untracked: [0 entries]
+diff-index HEAD: [0 entries]; diff --cached: [0]
+ls-files -s digest c4559ad6104c31765c6dba7d7ea5a3577f505cb77a2de8ff0e1b7c79477dc66a
+ls-tree -r HEAD (mode/type/oid/path, reformatted as ls-files -s) digest c4559ad6104c31765c6dba7d7ea5a3577f505cb77a2de8ff0e1b7c79477dc66a
+worktree blob check (hash-object of every tracked regular file vs index):
+  mismatches=0 of 1300
+modes:    1252 100644      48 100755       5 160000 
+assume-unchanged/skip-worktree flags: 0 
+gitlinks (index):
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+gitlinks (base c6bd08c6, recursive ls-tree):
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+submodule status:
+  -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+   7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor (remotes/origin/main-1-g7dda9c3)
+   2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+  -08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+   48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+  protocol-processor clean-entries=0
+  gptp-processor clean-entries=0
+  third_party/verilog-axis clean-entries=0
+pinned simulator: Verilator 5.050 2026-07-01 rev v5.050

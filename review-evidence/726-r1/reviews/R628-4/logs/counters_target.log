@@ -1,0 +1,25 @@
+2026-10-12T21:38:07Z
++ make -C tb/verilator/milan_dp counters
+make: Entering directory '$CLONE/tb/verilator/milan_dp'
+VERILATOR=$TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 1
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=$TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 8
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=$TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 1 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=$TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 8 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+make: Leaving directory '$CLONE/tb/verilator/milan_dp'
+2026-10-12T21:43:24Z
