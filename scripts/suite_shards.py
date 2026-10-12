@@ -20,9 +20,13 @@ measured overhead, and PINNED_SUITES stay on the worker that installs their
 specialized setup.
 
 ``--selftest`` also holds the tree to its table: every inventory suite has a
-duration, every duration names an inventory suite, and no worker's predicted
-wall clock exceeds HEADROOM_PERCENT of the Verilator job's ``timeout-minutes``,
-read with the worker count from .github/workflows/rtl.yml.
+duration, every duration names an inventory suite, every provisional figure
+is the one scripts/run_all_suites.sh's ``suite_timeout`` gives its suite, and
+no worker's predicted wall clock exceeds HEADROOM_PERCENT of the Verilator
+job's ``timeout-minutes``, read with the worker count from
+.github/workflows/rtl.yml. It runs as the serial sweep's preflight and on
+every hosted worker before their suites, so neither starts until
+SUITE_SECONDS names every default suite.
 
 To refresh the tables, take an rtl-full run of dev in which all five
 Verilator workers passed, fetch their logs, and measure them:
@@ -46,13 +50,36 @@ suite windows: the setup before the first suite and the tally and upload after
 the last. Replace both tables with what it prints. A figure measured on a pull
 request for a change not yet on dev (``maap``, from #696) stays until a dev
 run measures that change.
+
+A change that adds a default suite cannot take its figure from a dev run, so
+it follows these steps in the same change. A renamed suite is a new suite, and
+its old entry goes.
+
+1. Record the provisional figure. Add the suite to SUITE_SECONDS at the wall
+   clock that ``suite_timeout`` in scripts/run_all_suites.sh gives it: its own
+   case arm if it has one, otherwise the ``*`` arm (1800 s). Name it in
+   PROVISIONAL_SUITES. ``--selftest`` holds every provisional figure to that
+   function, read from the script.
+2. If ``--selftest`` then predicts a worker above 60% of ``timeout-minutes``,
+   add a worker. In rtl.yml's ``verilator-shards`` job, append the next index
+   to ``shard``, raise ``total`` by one, and move the ownership step's
+   ``milan_dp`` arm to the new last index. Make the same move in
+   CANONICAL_OWNERSHIP_SCRIPT in scripts/ci_events.py and in the ``milan_dp``
+   landmark of this file's self-test. Insert one more WORKER_OVERHEAD_SECONDS
+   entry before the last, equal to the largest one already there. Repeat
+   until ``--selftest`` passes.
+3. Replace the provisional figure from the change's own hosted run. Once its
+   rtl-full run has passed, run the refresh commands above with that run's
+   number. Replace the suite's figure, and a new worker's overhead, with what
+   ``--measure`` prints for them, and drop the suite from PROVISIONAL_SUITES.
+   That figure stays until a dev run measures the change, as ``maap``'s does.
 """
 
 import argparse
 import re
 import sys
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import NamedTuple
@@ -76,11 +103,12 @@ PINNED_SUITES = {"tsn_fuzz": 1, "chmap_capture": 3}
 #: #727: no worker may be predicted above this share of its job timeout.
 HEADROOM_PERCENT = 60
 
-#: The tree this file belongs to, and the two things its head arms read.
+#: The tree this file belongs to, and the three things its head arms read.
 HERE = Path(__file__).resolve()
 ROOT = HERE.parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "rtl.yml"
 SUITE_ROOT = ROOT / "tb" / "verilator"
+DRIVER = ROOT / "scripts" / "run_all_suites.sh"
 VERILATOR_JOB = "verilator-shards"
 
 #: #727: hosted seconds per default suite, rounded up, by the rule in the
@@ -152,6 +180,11 @@ SUITE_SECONDS = {
     "tsn_fuzz": 60,
 }
 
+#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
+#: driver's suite_timeout gives a new suite, until the change's own hosted run
+#: measures it (step 3 of the module docstring's new-suite steps).
+PROVISIONAL_SUITES: frozenset[str] = frozenset()
+
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
@@ -190,7 +223,11 @@ def table_problems(suites: Sequence[str],
     name the same suites and every duration is a positive whole second."""
     inventory = set(suites)
     problems = [f"{suite}: inventory suite with no recorded duration in "
-                "SUITE_SECONDS (refresh it as the module docstring says)"
+                "SUITE_SECONDS (a new suite follows the module docstring's "
+                "new-suite steps: record suite_timeout's figure for it as "
+                "provisional, add a worker if one is then predicted over "
+                f"{HEADROOM_PERCENT}% of timeout-minutes, and replace the "
+                "figure from the change's own hosted run)"
                 for suite in suites if suite not in seconds]
     problems += [f"{suite}: SUITE_SECONDS names a suite that is not in the "
                  "inventory" for suite in sorted(set(seconds) - inventory)]
@@ -276,6 +313,59 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
                              f"{key} values, not one")
         found[key] = values[0]
     return found["timeout-minutes"], found["matrix total"]
+
+
+SUITE_TIMEOUT_ARM_RE = re.compile(
+    r" +([A-Za-z0-9_]+|\*)\) +printf '%s\\n' \"\$\{SUITE_TIMEOUT:-([0-9]+)\}\" ;;")
+
+
+def driver_timeouts(driver: str) -> tuple[dict[str, int], int]:
+    """Return the wall clock run_all_suites.sh's suite_timeout gives each
+    suite it names, and its `*` default, from the script's text. Every line
+    of the function's `case` is read, and an arm of any other shape, a name
+    given twice, or a `*` arm that is not the one last arm is refused."""
+    lines = driver.splitlines()
+    starts = [n for n, line in enumerate(lines) if line == "suite_timeout() {"]
+    if len(starts) != 1:
+        raise ValueError(f"run_all_suites.sh has {len(starts)} suite_timeout "
+                         "functions, not one")
+    body = lines[starts[0] + 1:]
+    body = body[:body.index("}")] if "}" in body else []
+    if body[:1] != ['  case "$1" in'] or body[-1:] != ["  esac"]:
+        raise ValueError("run_all_suites.sh's suite_timeout is not one "
+                         "`case \"$1\"` closed by its own brace")
+    arms = []
+    for line in body[1:-1]:
+        arm = SUITE_TIMEOUT_ARM_RE.fullmatch(line)
+        if not arm:
+            raise ValueError(f"run_all_suites.sh's suite_timeout arm "
+                             f"{line.strip()!r} is not a figure for one name")
+        arms.append((arm.group(1), int(arm.group(2))))
+    names = [name for name, _ in arms]
+    if len(set(names)) != len(names) or names[-1:] != ["*"]:
+        raise ValueError("run_all_suites.sh's suite_timeout names a suite twice "
+                         "or has no `*` arm last")
+    return dict(arms[:-1]), arms[-1][1]
+
+
+def provisional_problems(driver: str,
+                         seconds: Mapping[str, int] = SUITE_SECONDS,
+                         provisional: Collection[str] = PROVISIONAL_SUITES,
+                         ) -> list[str]:
+    """Where a provisional figure is not the wall clock the driver's
+    suite_timeout gives its suite: its own arm, otherwise the `*` default."""
+    named, default = driver_timeouts(driver)
+    problems = []
+    for suite in sorted(provisional):
+        expected = named.get(suite, default)
+        if suite not in seconds:
+            problems.append(f"{suite}: PROVISIONAL_SUITES names a suite with no "
+                            "figure in SUITE_SECONDS")
+        elif seconds[suite] != expected:
+            problems.append(f"{suite}: provisional figure {seconds[suite]!r} s is "
+                            f"not the {expected} s that run_all_suites.sh's "
+                            "suite_timeout gives it")
+    return problems
 
 
 def bound_seconds(timeout_minutes: int) -> int:
@@ -557,6 +647,21 @@ def with_verilator_key(workflow: str, key: str, value: object) -> str:
     raise ValueError(f"fixture drift: no Verilator {key.strip()}")
 
 
+def with_driver_arm(driver: str, name: str, value: int) -> str:
+    """run_all_suites.sh's text with suite_timeout's arm for `name` (or `*`)
+    set to `value`, added just before the `*` arm when it has none."""
+    lines = driver.splitlines(keepends=True)
+    arm = f"    {name}) printf '%s\\n' \"${{SUITE_TIMEOUT:-{value}}}\" ;;\n"
+    for number in range(lines.index("suite_timeout() {\n") + 1, len(lines)):
+        if lines[number].lstrip().startswith(f"{name})"):
+            lines[number] = arm
+            return "".join(lines)
+        if lines[number].lstrip().startswith("*)"):
+            lines.insert(number, arm)
+            return "".join(lines)
+    raise ValueError("fixture drift: suite_timeout has no `*` arm")
+
+
 def report(planted: str, caught: bool) -> int:
     """Print one planted defect's verdict; 1 when the gate let it through."""
     print(f"  {'[ok]   ' if caught else 'ESCAPED'} {planted}")
@@ -646,6 +751,35 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     return bad
 
 
+def provisional_selftest(driver: str) -> int:
+    """Plant provisional figures against the head's own run_all_suites.sh;
+    the number of defects the gate let through."""
+    _, default = driver_timeouts(driver)
+    new = "provisional_suite"
+
+    def held(text: str, value: int) -> bool:
+        """Whether a provisional `new` at `value` s passes against `text`."""
+        return not provisional_problems(text, {new: value}, {new})
+
+    bad = report(f"a provisional suite at {default} s, suite_timeout's figure "
+                 f"for it, passes, and at {default + 1} s is refused",
+                 held(driver, default) and not held(driver, default + 1))
+    # Read from the script, not mirrored: with the `*` arm planted a minute
+    # longer that figure passes and the head's is refused, and a suite given
+    # its own arm is held to that arm rather than to the default.
+    longer = with_driver_arm(driver, "*", default + 60)
+    bad += report(f"with suite_timeout's `*` arm planted at {default + 60} s, "
+                  f"{default + 60} s passes and {default} s is refused",
+                  held(longer, default + 60) and not held(longer, default))
+    armed = with_driver_arm(driver, new, default + 120)
+    bad += report(f"with its own arm planted at {default + 120} s, "
+                  f"{default + 120} s passes and {default} s is refused",
+                  held(armed, default + 120) and not held(armed, default))
+    bad += report("a provisional suite with no figure in SUITE_SECONDS is "
+                  "refused", bool(provisional_problems(driver, {}, {new})))
+    return bad
+
+
 def head_selftest() -> int:
     """Hold this tree's table to its inventory and rtl.yml's bound, prove
     the specialized owners, and plant each defect; the number of failures."""
@@ -656,10 +790,18 @@ def head_selftest() -> int:
     try:
         suites = sweep_suites(SUITE_ROOT)
         workflow = WORKFLOW.read_text(encoding="utf-8")
+        driver = DRIVER.read_text(encoding="utf-8")
         problems, load, bound = headroom_problems(suites, workflow)
+        provisional = provisional_problems(driver)
     except (OSError, ValueError) as exc:
         print(f"  FAIL head: {exc}")
         return 1
+    for problem in provisional:
+        print(f"  FAIL head: {problem}")
+    if not provisional:
+        figures = {suite: SUITE_SECONDS[suite] for suite in sorted(PROVISIONAL_SUITES)}
+        print(f"  ok   head provisional figures {figures} are what "
+              "run_all_suites.sh's suite_timeout gives")
     # Table problems leave nothing to predict; otherwise each problem is a
     # worker over the bound, printed once on its own worker's line.
     for problem in problems if not load else ():
@@ -668,8 +810,8 @@ def head_selftest() -> int:
         print(f"  {'ok  ' if value <= bound else 'FAIL'} head worker "
               f"{worker}/{len(load)} predicted {value} s ({value / 60:.1f} "
               f"min), bound {bound} s")
-    if problems:
-        return len(problems)
+    if problems or provisional:
+        return len(problems) + len(provisional)
 
     # The run-time half is the workflow's ownership step: tsn-gen and
     # Yosys/sv2v are installed on workers 1 and 3, and worker 4 must run
@@ -690,7 +832,8 @@ def head_selftest() -> int:
     ok = got == landmarks and alone and held
     print(f"  {'ok  ' if ok else 'FAIL'} specialized owners {got}, "
           f"milan_dp alone={alone}, held at any planted duration={held}")
-    return (0 if ok else 1) + planted_selftest(suites, workflow, load, bound)
+    return ((0 if ok else 1) + planted_selftest(suites, workflow, load, bound)
+            + provisional_selftest(driver))
 
 
 def selftest() -> int:
