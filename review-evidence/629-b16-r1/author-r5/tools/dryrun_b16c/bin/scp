@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+# B16c dry run: scp stand-in. Upload to a host: kept in the fake directory; download: an empty file.
+import os, shutil, sys
+a = [x for x in sys.argv[1:] if not x.startswith("-")]
+src, dst = a[-2], a[-1]
+D = os.environ["FAKE_DIR"]
+if ":" in dst:
+    shutil.copy(src, os.path.join(D, "board-" + os.path.basename(dst.split(":", 1)[1])))
+else:
+    open(dst, "wb").close()

@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# B16c dry run: ssh stand-in. Dispatches on the remote command; never contacts a host.
+import os, re, subprocess, sys, time, hashlib
+a = sys.argv[1:]
+i = 0
+while i < len(a) and a[i].startswith("-"):
+    i += 2 if a[i] in ("-o", "-i", "-p") else 1
+host, cmd = a[i], " ".join(a[i + 1:])
+D = os.environ["FAKE_DIR"]
+if "b8_ctl.py agent" in cmd:
+    os.execvp("python3", ["python3", "-B", os.path.join(os.environ["FAKE_TOOLS"], "fake_agent.py")])
+if "head -1 /proc/asound/card0/pcm0p/sub0/status" in cmd:
+    n = int(open(os.path.join(D, "music-checks")).read()) if os.path.exists(os.path.join(D, "music-checks")) else 0
+    open(os.path.join(D, "music-checks"), "w").write(str(n + 1))
+    print("RUNNING" if os.environ.get("FAKE_MUSIC_AT") and n + 1 >= int(os.environ["FAKE_MUSIC_AT"]) else "closed")
+    sys.exit(0)
+if cmd.startswith("sha256sum /tmp/a603-loop.raw"):
+    h = hashlib.sha256(open(os.path.join(D, "board-a603-loop.raw"), "rb").read()).hexdigest()
+    print(f"{h}  /tmp/a603-loop.raw"); sys.exit(0)
+if "arecord -D hw:0,0" in cmd:
+    secs = int(re.search(r"-B 1000000 -d (\d+)", cmd).group(1))
+    sys.stderr.write("123.45 0.0\n"); time.sleep(2 + secs)
+    sys.stdout.buffer.write(bytes(secs * 48000 * 32)); sys.stderr.write("arecord_rc=0\n"); sys.exit(0)
+if "tcpdump" in cmd:
+    secs = int(re.search(r"timeout (\d+) tcpdump", cmd).group(1))
+    time.sleep(secs); print("fake tap"); sys.exit(0)
+if "tdm8-uac2.sh status" in cmd and "kill" not in cmd and "setsid" not in cmd:
+    print("bridge\n  to-host: running (pid 4242)\n  from-host: DEAD"); sys.exit(0)
+print("FAKE-SSH " + cmd[:60].replace("\n", " "))
+if "kill" in cmd:
+    print("KILLED")
+if "setsid" in cmd:
+    print("STARTED")
+sys.exit(0)
