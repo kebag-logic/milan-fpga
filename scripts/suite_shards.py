@@ -61,13 +61,25 @@ its old entry goes.
    PROVISIONAL_SUITES. ``--selftest`` holds every provisional figure to that
    function, read from the script.
 2. If ``--selftest`` then predicts a worker above 60% of ``timeout-minutes``,
-   add a worker. In rtl.yml's ``verilator-shards`` job, append the next index
-   to ``shard``, raise ``total`` by one, and move the ownership step's
-   ``milan_dp`` arm to the new last index. Make the same move in
-   CANONICAL_OWNERSHIP_SCRIPT in scripts/ci_events.py and in the ``milan_dp``
-   landmark of this file's self-test. Insert one more WORKER_OVERHEAD_SECONDS
-   entry before the last, equal to the largest one already there. Repeat
-   until ``--selftest`` passes.
+   add a worker. The new count is one more than the old, the new last index
+   is the old count, and the last worker stays ``milan_dp``'s:
+
+   - In rtl.yml, append the new last index to the ``verilator-shards``
+     matrix's ``shard``, set its ``total`` and the ``verilator-suites``
+     verifier's ``--expect`` to the new count, and give the ownership step's
+     ``milan_dp`` arm the new last index.
+   - In scripts/ci_events.py, make the same changes to
+     CANONICAL_OWNERSHIP_SCRIPT and to the canonical ``verilator-suites``
+     verifier step. In its self-test, every Verilator worker count and index
+     that a fixture asserts or plants, or that an expected finding names,
+     goes up by one, and each Verilator shard list it asserts gains the next
+     index.
+   - In this file, give the self-test's ``milan_dp`` landmark the new last
+     index, and insert one more WORKER_OVERHEAD_SECONDS entry before the
+     last, equal to the largest one already there.
+
+   Repeat until ``--selftest`` passes. Then scripts/ci_events.py passes
+   ``--check`` and ``--selftest`` too.
 3. Replace the provisional figure from the change's own hosted run. Once its
    rtl-full run has passed, run the refresh commands above with that run's
    number. Replace the suite's figure, and a new worker's overhead, with what
