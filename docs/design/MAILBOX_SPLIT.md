@@ -107,7 +107,7 @@ fields sit at fixed bit positions, so its meaning never depends on the host's
 byte order. Frame bytes travel four to a ring word in little-endian lanes:
 frame byte k is ring word k/4, bits 8*(k%4)+7 down to 8*(k%4). Wire fields
 inside a frame keep network order, and the TSN stack's wire layer
-([`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/wire.h)) reads them byte by byte. A
+([`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/wire.h)) reads them byte by byte. A
 big-endian hard core reads the same values as the RISC-V.
 
 ## Rings, records and events
@@ -323,7 +323,7 @@ flowchart TB
   there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
   source and the CPU's interrupt mask enabled) never strands an owed frame.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
-  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h), the
+  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h), the
   [TSN stack's](../../third_party/tsn-c-stack) since #697) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
   seed. The mailbox adapter maps those onto the driver; a test maps them onto
@@ -520,7 +520,7 @@ the core in the [TSN stack](../../third_party/tsn-c-stack) (#697), the
 adapter and the binding owner in
 [`sw/firmware/ctrl/acmp`](../../sw/firmware/ctrl/acmp).
 
-- **The core** ([`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/acmp.h)) knows no
+- **The core** ([`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/acmp.h)) knows no
   mailbox. It implements every listener transition of Table 5.30 (5.5.3.5.1
   to 5.5.3.5.48) per sink, the talker's answers of 5.5.4, the discovery
   machine of Table 5.54 (5.6.4.5.1 to 5.6.4.5.4), the timers of Tables 5.26

@@ -243,8 +243,8 @@ Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
 All sixteen rows meet that standard through their public headers.
 The five `adp.c` rows cite the no-callback rule of the stack's
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md#ownership-and-dispatch), for the ports of
-[`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h), enforced by the core guard (#678).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/docs/PORTING.md#ownership-and-dispatch), for the ports of
+[`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h), enforced by the core guard (#678).
 
 ### Coverage exclusions
 
@@ -288,7 +288,7 @@ them differently would fail the gate, not pass it. `fw_coverage.py
 (a compensating swap and a condition over two lines).
 
 **ADP's port contract forbids synchronous callbacks.**
-The stack's [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/docs/PORTING.md#ownership-and-dispatch) states the rule for every port of [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/include/adp.h).
+The stack's [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/docs/PORTING.md#ownership-and-dispatch) states the rule for every port of [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h).
 The shared guard covers every instance and every public entry.
 It brackets TX, timer, gPTP, link and seed calls.
 Even zero-delay expiries arrive through later event-loop dispatch.
@@ -296,7 +296,7 @@ Debug/test builds assert; release builds ignore and count violations.
 The rule also appears in the other firmware port headers.
 F2 to F5 inherit it for their protocol ports.
 
-The stack's [`test_adp_reentry.cpp`](https://github.com/kebag-logic/tsn-c-stack/blob/1a9f651cdf7846b8e10ac246a6ef6916960fbb92/tests/test_adp_reentry.cpp) tests both build modes.
+The stack's [`test_adp_reentry.cpp`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/tests/test_adp_reentry.cpp) tests both build modes.
 Its two timer probes preserve DELAY and ADVERTISE timers respectively.
 Deferred expiries still advance both machines after rejected inline expiries.
 Every port is also paired with every public entry.
