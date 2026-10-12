@@ -648,7 +648,9 @@ class NxnRxStackHarness {
                "      observation interval during which a Stream Data AVTPDU has\n"
                "      been received with an AVTP timestamp field that was in the\n"
                "      past / too far in the future to process', so a BURST inside\n"
-               "      one interval is +1 - the same law as FRX/SM/TU/UF/MR.\n");
+               "      one interval is +1 - the same law as SM/TU/UF/MR.\n"
+               "      FRAMES_RX counts each accepted AVTPDU; its total may be\n"
+               "      published in a batch.\n");
         {
             long lt0 = lctx_rd(2, W_LT);
             long et0 = lctx_rd(2, W_ET);
