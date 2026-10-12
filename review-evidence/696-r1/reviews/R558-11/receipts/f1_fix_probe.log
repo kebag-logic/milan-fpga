@@ -1,0 +1,13 @@
+applied 2 edits
+rc=0 python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 204 md files + 1273 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 python3 scripts/check_em_dash.py --base c6bd08c6f52632c6d33d834ce842ac3cf63f29cc :: check_em_dash: 0 finding(s) over 344 added line(s) in 7 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c6bd08c6..HEAD]
+rc=0 python3 scripts/gen_toc.py --verify-anchors :: anchor check: 487 existing cross-page fragment links reproduced
+rc=0 python3 scripts/gen_toc.py --check :: TOC gate: OK (144 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+  ref 696: The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has 
+  ref 697: Against that record, the M2 route passes with no failing endpoint; it also passes against #696's record.
+  ref 1095: The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has 
+  ref 1096: Against that record, the M5 route passes with no failing endpoint; it also passes against #696's record.
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+restored: status lines 0 HEAD 1ceada05ff6384af12233eac8ea405b3bdfc6fae

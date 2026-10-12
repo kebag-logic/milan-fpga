@@ -1,0 +1,18 @@
+inventory rows: 22; recorded route scopes: 51
+scope key example: 'wrapper' -> {'LUT': 22993, 'FF': 18780, 'RAMB36': 16, 'RAMB18': 3, 'DSP': 8, 'CARRY4': 1443}
+[PASS] inventory: 66 figures, 0 differences
+[PASS] partial central: 37957 + sum(central-measured) {'M2': 166, 'M5': 479, 'M6': 182} = 38784; stated 38784, over 38040 by 744 (stated 744)
+  LUT: M5 49577 record 50013 growth -436 tol 500 ok
+  FF: M5 54226 record 54306 growth -80 tol 600 ok
+  SLICE: M5 15791 record 15753 growth 38 tol 80 ok
+  RAMB36: M5 74 record 74 growth 0 tol 0 ok
+  RAMB18: M5 27 record 27 growth 0 tol 0 ok
+  WNS_ns: M5 0.097 record 0.233 fall 0.136 limit 0.25 floor 0.03 ok
+  WHS_ns: M5 0.036 record 0.017 fall -0.019 limit 0.25 floor 0.0 ok
+[PASS] M5 route against the current route-1x1 record (LUT 50013)
+  ref 696: The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has 
+  ref 697: Against that record, the M2 route passes with no failing endpoint; it also passes against #696's record.
+  ref 1095: The base route equals the `route-1x1` record in every gated figure.
+  ref 1096: Against that record, the M5 route passes with no failing endpoint.
+  ref 1111: The gate record stays unchanged under D7.
+rc=0

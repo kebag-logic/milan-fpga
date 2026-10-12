@@ -1,0 +1,2988 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index bad66b843..4c098e09b 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
+ It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
+ It separates standalone synthesis from integrated implementation.
+ Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
+-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image after merging dev `6aa25dec` for [#645](https://github.com/kebag-logic/milan-fpga/issues/645) and [#647](https://github.com/kebag-logic/milan-fpga/issues/647), retaining processor `2ad2f845`.
++The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s lane head `bee1b0d7`, after its merge of dev `e8454e27`, retaining processor `2ad2f845`.
+ Its figures back the protocol processor budget and resource gate below.
+ 
+ The current command and media-clock claims are checked against the
+@@ -104,8 +104,12 @@ It explicitly limits synthesis to one worker; the flow identity records this mem
+ The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) holds those measurements, differences and receipts.
+ Issue [#686](https://github.com/kebag-logic/milan-fpga/issues/686) re-recorded all three endpoints on 2026-10-08 at `e519e31f`, its merge of dev `291710b1`, after `KL_maap`'s Annex B change.
+ Issue [#645](https://github.com/kebag-logic/milan-fpga/issues/645) then re-recorded all three endpoints on merge result `a5ca6e51`, including dev `6aa25dec`, the GMII capture change and the listener settle recentre.
+-That merge-result measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) retain the preceding [#686](https://github.com/kebag-logic/milan-fpga/issues/686) record.
+-Both measurements use the same recipe identity and policy.
++Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) retain the preceding [#686](https://github.com/kebag-logic/milan-fpga/issues/686) record.
++Issue [#696](https://github.com/kebag-logic/milan-fpga/issues/696) then re-recorded all three endpoints on merge result `0df48637`, its merge of dev `8b61b709`, after `KL_maap`'s remaining Annex B corrections.
++Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696) retain the preceding [#645](https://github.com/kebag-logic/milan-fpga/issues/645) record.
++After merging dev `e8454e27`, [#696](https://github.com/kebag-logic/milan-fpga/issues/696) re-recorded them at lane head `bee1b0d7` for `KL_maap`'s first-draw change.
++That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw) retain the preceding record.
++All four measurements use the same recipe identity and policy.
+ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
+ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inputs differ from F's only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) and comment lines of [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv); the processor pins are F's.
+ 
+@@ -117,18 +121,20 @@ The adopted image does not meet it:
+ 
+ | Resource | Device | Shipping route, processor `2ad2f845` | Used | Target | Status |
+ |---|---:|---:|---:|---|---|
+-| Slice LUT | 63,400 | 50,267 | 79.29 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 12,227 over |
+-| Slice register | 126,800 | 54,413 | 42.91 % | none stated | - |
+-| Slice | 15,850 | 15,779 | 99.55 % | must stay below the device to place | 71 free |
++| Slice LUT | 63,400 | 50,013 | 78.88 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 11,973 over |
++| Slice register | 126,800 | 54,306 | 42.83 % | none stated | - |
++| Slice | 15,850 | 15,753 | 99.39 % | must stay below the device to place | 97 free |
+ | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
+ | DSP | 240 | 14 | 5.83 % | none stated | - |
+-| WNS / WHS | - | +0.299 / +0.031 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
++| WNS / WHS | - | +0.233 / +0.017 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+ 
+ The table is the gate's record.
+-The slice row is the binding limit: placement has 71 slices left.
+-The routed critical setup path has 14 logic levels, from `milansoc_write_w_buffer_level0_reg[1]` to `storage_13_dat1_reg[14]`.
+-Its data delay is 9.294 ns, of which 7.331 ns is routing.
+-The preceding [#686](https://github.com/kebag-logic/milan-fpga/issues/686) image used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
++The slice row is the binding limit: placement has 97 slices left.
++The routed critical setup path has 27 logic levels on the 20 ns clock, inside the wrapper's `u_pp/u_aecp/u_d3`.
++It runs from `rec_r_reg[3]` to the reset pin of `deb_cnt_r_reg[29]`; its data delay is 18.991 ns, of which 14.014 ns is routing.
++The preceding [#696](https://github.com/kebag-logic/milan-fpga/issues/696) image, at `0df48637`, used 50,230 LUTs and 15,823 slices, 27 free, at +0.114 / +0.036 ns.
++The [#645](https://github.com/kebag-logic/milan-fpga/issues/645) image before it used 50,267 LUTs and 15,779 slices, 71 free, at +0.299 / +0.031 ns.
++The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) image before that used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
+ The earlier F image used 49,957 LUTs and 15,734 slices, 116 free, at +0.124 / +0.031 ns; its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
+ The E image before F used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
+ The baseline records F's endpoint and sub-block differences from E.
+@@ -137,13 +143,13 @@ The baseline records F's endpoint and sub-block differences from E.
+ 
+ The standalone wrapper uses 23,179 LUTs, 36.6 % of the device, at the shipping clock.
+ The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229) milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
+-Read as `milan_datapath`, that stack names 41,689 LUTs in the routed image, 65.8 % of the device.
+-The wrapper names 23,345 of them in that rebuilt hierarchy.
++Read as `milan_datapath`, that stack names 41,299 LUTs in the routed image, 65.1 % of the device.
++The wrapper names 22,993 of them in that rebuilt hierarchy.
+ The wrapper alone exceeds that historical allocation.
+ The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the whole-image [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) target.
+ 
+-Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 11,118 LUTs.
+-That requires removing 12,227 LUTs, 52 % of the wrapper.
++Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 11,020 LUTs.
++That requires removing 11,973 LUTs, 52 % of the wrapper.
+ The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) stays at 60 %.
+ It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)).
+ The [2026-10-05 schedule correction](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)
+@@ -370,7 +376,7 @@ F0-F4 firmware exists, but parent datapath integration is missing.
+ The mailbox remains idle and the wrapper remains unconditional.
+ Therefore no selected route or new area figure is reported.
+ LUT, FF, slices, RAMB36/RAMB18 and timing are **not measured**.
+-The accepted 50,267-LUT route remains the comparison record.
++At base `7c1b52be` the comparison record was #645's 50,267-LUT route; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT route has since replaced it.
+ Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
+ Those stored figures are not this lane's measurement.
+ 
+@@ -409,8 +415,8 @@ It also requires the route's BRAM tile ceiling.
+ 
+ Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
+ A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
+-At the current +0.299 ns WNS record, the 0.25 ns fall limit binds first: a comparable candidate needs at least +0.049 ns WNS.
+-The absolute +0.030 ns WNS floor and zero WHS floor remain unchanged.
++At the current +0.233 ns WNS record, the absolute +0.030 ns floor binds first, after a fall of 0.203 ns.
++The 0.25 ns fall limit and the zero WHS floor remain unchanged.
+ One more RAMB36, RAMB18 or DSP is always material.
+ A primitive count moves only when storage or arithmetic changes its mapping.
+ 
+@@ -462,6 +468,13 @@ Against F, its route moved by +434 LUTs, -11 FFs and +54 slices, and its WNS ros
+ In [#686](https://github.com/kebag-logic/milan-fpga/issues/686)'s routed hierarchy `KL_maap` uses 429 LUTs and 279 FFs, against 479 and 267 for the previous `KL_maap` in the [resource map](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md), and the wrapper 47 LUTs fewer than F; the rest of the LUT growth lies in blocks the change does not touch.
+ The [sixth re-baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-08-issues-645-and-647) records [#645](https://github.com/kebag-logic/milan-fpga/issues/645) and [#647](https://github.com/kebag-logic/milan-fpga/issues/647) on their merge of dev `6aa25dec`.
+ Against [#686](https://github.com/kebag-logic/milan-fpga/issues/686), its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
++The [seventh](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696) records [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s remaining `KL_maap` corrections on its merge of dev `8b61b709`.
++Against [#645](https://github.com/kebag-logic/milan-fpga/issues/645), its route moved by -37 LUTs, -105 FFs and +44 slices, with WNS -0.185 ns and WHS +0.005 ns; both standalone records kept every figure.
++In its routed hierarchy `KL_maap` uses 425 LUTs and 339 FFs, against 429 and 279 at [#686](https://github.com/kebag-logic/milan-fpga/issues/686).
++The [eighth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw) records [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s first-draw change at lane head `bee1b0d7`, after its merge of dev `e8454e27`.
++Its inputs differ from the seventh's only in `KL_maap.sv`.
++Its route moved by -217 LUTs, -2 FFs and -70 slices, with WNS +0.119 ns and WHS -0.019 ns; both standalone records kept every figure.
++In its routed hierarchy `KL_maap` uses 468 LUTs and 339 FFs.
+ All three endpoints passed against the preceding records before being written; every policy value stays unchanged.
+ 
+ The gate refuses, with exit 2, to compare across a tool or recipe change.
+diff --git a/docs/design/MAAP_FABRIC.md b/docs/design/MAAP_FABRIC.md
+index f9003afa8..77de72998 100644
+--- a/docs/design/MAAP_FABRIC.md
++++ b/docs/design/MAAP_FABRIC.md
+@@ -33,7 +33,7 @@ documentation comments).
+ 
+ ## Contents
+ 
+-- **[Annex B contract](#annex-b-contract)** -- The wire bytes, the Table B.7 walk, the timer draws and the conflict cells as IEEE 1722-2016 Annex B defines them and `KL_maap` implements them since #686, clause by clause. Also the deviations that remain outside #686's items, and the reference-implementation contract it replaced.
++- **[Annex B contract](#annex-b-contract)** -- The wire bytes, the Table B.7 walk, the timer draws and the conflict cells as IEEE 1722-2016 Annex B defines them and `KL_maap` implements them since #686, clause by clause. Also the remaining deviations, and the reference-implementation contract it replaced.
+ - **[Fabric integration](#fabric-integration)** -- Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP`; note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
+ - **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** -- How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
+ - **[Open decisions](#open-decisions)** -- Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
+@@ -50,8 +50,9 @@ ANNOUNCE = DEFEND.
+ 
+ - The pool is `91:E0:F0:00:00:00` plus a 16-bit offset, `0xFE00` addresses
+   (Table B.9). A randomly generated block is clipped to fit inside it. A
+-  supplied seed (`seed_offset_i` with `seed_valid_i`) is used as given,
+-  without range validation, so provisioning must supply a block that fits.
++  supplied seed must fit entirely inside the dynamic pool.
++  Invalid seeds fall back to a bounded random draw (#696 M7).
++  A block ending exactly at offset `0xFE00` is valid.
+ - EtherType `0x22F0`, subtype MAAP (`0xFE`), `sv` 0, `version` 0,
+   `maap_version` 1 (B.2.3.1), `stream_id` 0 (B.2.4).
+ - `control_data_length` is 16 in every MAAP frame (B.2.1).
+@@ -61,13 +62,18 @@ ANNOUNCE = DEFEND.
+ - PROBE and ANNOUNCE carry this station's range in requested_* and zero
+   conflict_* (B.3.6.5, B.3.6.7). A DEFEND carries the overlap of the PROBE's
+   range with this station's in conflict_* (B.2.7, B.2.8).
++  Its requested_* fields echo the triggering PROBE (B.3.6.6).
++  The echo preserves all sixteen requested_count bits.
+ - Every per-frame field a protocol event can change (message type,
+-  destination, requested offset, conflict range) is latched at the send
++  destination, requested range, conflict range) is latched at the send
+   request. A Restart! or a received PDU taken while a frame waits on the wire
+-  therefore cannot rewrite that frame. requested_count and the source MAC
+-  follow `count_i` and `station_mac_i` and are not protected against
+-  reconfiguration during a frame.
+-- Frames are 60 bytes, zero-padded. RX parsing accepts every
++  therefore cannot rewrite that frame.
++  The source MAC follows `station_mac_i` during transmission.
++  Reconfiguration during a frame is not protected.
++- Frames are 60 bytes, zero-padded.
++  RX requires every byte through conflict_count, including keep strobes.
++  Truncation has no state, timer or transmission effect (#696 M8).
++  RX parsing accepts every
+   `maap_version` (B.2.3.2 to B.2.3.4) and ignores reserved message types
+   (B.2.2).
+ 
+@@ -88,18 +94,39 @@ ANNOUNCE = DEFEND.
+   send can also wait for a frame already on the wire. So the engine draws N
+   from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
+   margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
+-  Both draws come from a free-running 16-bit LFSR. The module seeds it at
+-  reset from `station_mac_i`. All-zero is the LFSR's only fixed point, and
+-  no other state reaches it. A MAC that folds the seed to zero
+-  (`mac[15:0] ^ mac[31:16]` = `0xACE1`, such as `02:00:00:00:AC:E1`) takes a
+-  nonzero constant seed instead, so the module's draws stay random for
+-  every `station_mac_i`. In the shipping `milan_datapath` integration the
+-  seed is sampled during `axis_resetn`, when MAC_ADDR_LO/HI are still 0
+-  (`milan_csr` clears them in the same reset; firmware writes the MAC after
+-  boot). So every shipping station seeds `0xACE1`, and the station MAC does
+-  not enter the draws. Stations differ only by when their enable and sends
+-  fall. This seed timing is a follow-up item with B.3.6.1 below.
++  Both draws come from a free-running 32-bit LFSR with period 2^32 - 1.
++  The probe draw is the 6-bit parity fold `PROBE_FOLD_C` of the generator's next state.
++  The announce draw is the generator's low 10 bits.
++  First enable samples the low 32 bits of the sum of the programmed MAC
++  and the local real-time clock (#696 M4/M3, B.3.6.1) and loads that seed into the generator.
++  Reset initializes a constant and clears the seed-sampled flag.
++  Later Release!/Begin! events preserve the running sequence.
++  A zero sum takes a nonzero constant to avoid the all-zero fixed point.
++- The first Begin! after reset draws from the generator one step past the seed, as the firmware core does (#696 M4).
++  Its offset word folds all 32 bits of that stepped seed: bit i is the parity of the stepped seed under row i of `OFFSET_FOLD_C`.
++  The pool mapping then subtracts `0xFE00` from a word at or above it and clips the block to end inside the pool.
++  The first PROBE goes on the next cycle, and its probe timer draws the probe fold of the same stepped seed.
++  The 16 offset rows and the 6 probe rows are linearly independent, so the two first draws are independent too.
++  Later Begin! events draw the running generator's next low 16 bits; Restart! draws its current low 16 bits.
++- The fold rows serve equally timed stations, whose seeds differ only through the MAC or the clock (B.3.4 NOTE, B.3.6.1).
++  The separation criterion is the one recorded on #696 in [comment 6102832618](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6102832618).
++  Two seeds a power of two apart, with any carry, claim first blocks of up to 8 addresses that share no address (Table B.7 note b).
++  This holds through the pool fold and the clip; a pair with a zero sum takes the fallback and is outside it.
++  Adjacent MACs, MACs 2^i apart with i up to 31 and, at one MAC, clocks one power of two apart are such pairs.
++  Such pairs also draw different first probe intervals.
++  Seed bits 16..31 map one-to-one onto the offset word, so MACs differing only in bits 16..31 always draw different words; the pool fold can still map two such words onto one block, so their first blocks can coincide or overlap like any pair that is not a power of two apart.
++  Two seeds not a power of two apart can still claim overlapping blocks, about 15 times in 65,024, as two independent draws would.
++  No 16-bit draw can keep every pair of 2^32 seeds apart.
++  The default MAAP target establishes these properties for every seed from the RTL itself, as the TB entry below describes.
+ - `enable_i` falling acts like Release!: back to IDLE at once.
++- `port_operational_i` rising implements PortOperational! (B.3.5.9, Table B.7).
++  An enabled active engine immediately revokes validity and re-probes.
++  It draws a fresh range and sends four PROBEs.
++  The event does not increment the conflict counter.
++  A steady operational level causes no repeated restart.
++  Table B.3 defines no event for leaving the operational state.
++  A falling level therefore leaves the walk in progress running until the return.
++  The datapath supplies its existing synchronous `eff_link_w` level.
+ 
+ **Conflict detection (B.3.2, Table B.7 note b).**
+ 
+@@ -115,8 +142,8 @@ ANNOUNCE = DEFEND.
+ 
+ | Received, conflicting | in PROBE | in ANNOUNCE (Table B.7 DEFEND) |
+ |---|---|---|
+-| PROBE (rProbe!) | Restart! | sDefend, unless a frame is already on the wire |
+-| DEFEND (rDefend!) | Restart! | Restart! |
++| PROBE (rProbe!) | compare_MAC; Restart! when not lower | sDefend; retain one response while PROBE/ANNOUNCE drains |
++| DEFEND (rDefend!) | Restart! | compare_MAC; Restart! when not lower |
+ | ANNOUNCE (rAnnounce!) | Restart! | compare_MAC (B.3.6.4); Restart! only when this station is not the lower |
+ 
+ compare_MAC compares the two MACs octet-reversed, with the last octet most
+@@ -125,31 +152,40 @@ action (note d). One decision is taken per cycle, in priority order: disable,
+ Restart!, sDefend, then the timer's own send. A send deferred by any of them
+ happens on a later cycle.
+ 
+-**Remaining deviations outside #686's items.** These are recorded here and
+-not changed by #686; each needs its own decision.
+-
+-- Table B.7 applies compare_MAC (note d) in the rProbe!/PROBE and
+-  rDefend!/DEFEND cells too. `KL_maap` re-addresses in both cells without it.
+-- B.3.6.6 echoes the PROBE's requested_start_address and requested_count in
+-  the DEFEND. `KL_maap` sends this station's own range there.
+-- B.3.6.1 wants a uniform draw from a generator with a period of at least
+-  2^32 - 1, seeded from the sum of the MAC and the local real-time clock.
+-  `KL_maap` uses a 16-bit LFSR folded into the pool, seeded at reset from
+-  `station_mac_i`. In the shipping integration that input is still 0 at
+-  reset, so every station seeds `0xACE1` (seeding before the MAC is
+-  programmed); the follow-up decision covers both.
+-- Table B.7 restarts on PortOperational! (B.3.5.9). `KL_maap` has no link
+-  input, so a link that returns does not re-probe.
+-- A PROBE parsed while any frame is on the wire is not defended. Under Table
+-  B.7 the prober's probetimer! repeats PROBEs one to three within the probe
+-  interval, so this station can defend the next one. A missed fourth PROBE
+-  is not repeated: the prober's probeCount! sends its ANNOUNCE at once.
+-  The overlap is then settled by that ANNOUNCE and compare_MAC (B.3.6.4,
+-  note d), which can move this station off the range it already held.
++**Remaining deviations.** These are recorded here; #696 rulings settled M6
++capacity and M8 counting, and any further change needs its own decision.
++
++- B.3.6.1 requires uniform address selection.
++  Folding and clipping the 16-bit draw into the pool remains biased.
++  M3 now supplies the 2^32 - 1 period and MAC-plus-clock seed.
++  At the M3 step (lane head `39571196`, before the dev merge), the 1x1 recipe measures `g_maap.maap_engine` at 441 LUT / 340 FF.
++  Against `6aa25dec` (439 LUT / 280 FF), growth is +2 LUT / +60 FF.
++  At the merge result `0df48637`, before the first-draw folds, it measures 445 LUT / 340 FF.
++  That is +6 LUT / +60 FF against `6aa25dec`.
++  Dev `8b61b709` alone measures 443 LUT / 280 FF, so the lane's share is +2 LUT / +60 FF.
++  The first-draw folds (#696 M4) add logic only: at lane head `bee1b0d7` it measures 490 LUT / 340 FF.
++  That is +45 LUT / +0 FF against `0df48637` and +51 LUT / +60 FF against `6aa25dec`.
++  This fits the +60 / +60 ceiling and uses its full FF allowance.
++  In the [routed image](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw) the engine uses 468 LUT / 339 FF.
++  The pool mapping remains a separate deviation; full B.3.6.1 conformance is not claimed.
++- One shared response buffer covers a PROBE during PROBE/ANNOUNCE transmission (#696 M6).
++  Its destination, requested range and overlap remain until transmission completes.
++  Pending and transmitting DEFENDs occupy that same buffer.
++  The current frame remains byte-identical under backpressure.
++  Disable, conflict restart and link return discard stale pending responses.
++  Further PROBEs while that buffer is occupied remain unsupported.
++  This includes PROBEs arriving during another DEFEND.
++  The shared storage follows the area ruling on #696.
++  At the M6 step, the 1x1 recipe measures `g_maap.maap_engine` at 457 LUT / 324 FF.
++  The `6aa25dec` base is 439 LUT / 280 FF: cumulative growth is +18 LUT / +44 FF.
++  This fits the ruling's +60 LUT / +60 FF ceiling; the shared buffer is retained.
++  Table B.7 and B.3.6.6 define the response action.
++  B.3.6.3 defines probe-count decrement, not response storage.
++  Table B.7 requires responses; this capacity limit is not full conformance.
+ - RX parsing is untagged only; a tagged MAAP PDU is ignored.
+-- A supplied seed (`seed_offset_i`) is not range-checked. Table B.9's pool
+-  holds only when provisioning supplies a block that fits. Validating the
+-  seed against the pool is a follow-up decision.
++- Truncated-PDU discard accounting remains absent (B.2, #696 M8).
++  A later register-map change must provide an observable count.
++  The manager ruling on #696 withdraws counting from this lane.
+ 
+ **History.** Before #686 the engine followed the byte layout of a
+ reference AVB implementation instead. It set `control_data_length` 28, sent
+@@ -172,8 +208,21 @@ compared ranges with inclusive ends.
+   selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
+   `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
+   the old eight-lane numbering now reads the wrong mux.**
+-- Randomness: LFSR seeded at `axis_resetn` from `cfg_mac_addr`, which is 0
+-  then, so every station seeds `0xACE1`; interval jitter from the same LFSR.
++- Randomness: first enable samples `cfg_mac_addr` after firmware programming
++  and adds `ptp_now_w[31:0]`, the existing local PHC's low nanosecond bits.
++  The PHC and MAAP share the synchronous clock contract documented at the counter.
++  Interval jitter uses the same free-running LFSR.
++  The default MAAP target exercises the real CSR/datapath path.
++  The two equally timed test stations use different programmed MACs and draw different intervals.
++  Restoring reset-time sampling fails that check.
++  Same-MAC stations enabled at different PHC times also draw different intervals.
++  Ignoring the clock fails that integration check.
++  The same stations' first PROBEs carry the first claims, graded as fixed pairs:
++  the fixed adjacent MAC pair's blocks share no address, and the fixed pair of PHC times gives different first offsets.
++  Restoring the pre-#696 first draw fails the first check; a first offset that ignores the clock fails the second.
++  The unit suite observes the generator's linear transition map and checks its order.
++  Short-period, nonlinear-trap, missing-clock, XOR-seed and repeated-seed defects
++  fail the named M3 checks.
+ - Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → the datapath's
+   `eff_aaf_dmac` mux into the AAF framer dmac when
+   `MAAP_CTRL.en=1 && maap_valid`, **and** the block side of
+@@ -199,11 +248,29 @@ compared ranges with inclusive ends.
+   the four-PROBE walk at Begin! and Restart!, the DEFEND destination, every
+   conflict cell above with its note b range edges, a conflicting PROBE
+   parsed while an ANNOUNCE is part-way out on the wire, and strict B.3.4
+-  intervals over 150 walks and 24 announcements. A zero-seed station MAC
+-  (`02:00:00:00:AC:E1`) must also draw more than one distinct probe and
+-  announce interval. Its `mutants.py` plants at least one defect per #686
+-  item and requires the named check to fail. The coverage gate is 95 %,
+-  like avtp_rxmon.
++  intervals over 150 walks and 24 announcements. A station MAC whose seed
++  with clock 0 is zero (`02:00:00:00:00:00`) must also draw more than one
++  distinct probe and announce interval. A link outage longer than a whole
++  walk must leave that walk running, and only the return may restart it.
++  A DEFEND answering a PROBE that starts below this station's offset must echo that PROBE's requested start, not the overlap start.
++  Equally timed stations reset and enable on the same cycles and differ only in MAC or clock.
++  For every carry run of the seed, one pair of seeds a power of two apart must claim first blocks that share no address.
++  Adjacent MACs, MACs 2^i apart with 1 <= i <= 15 and MACs 2^i apart with 16 <= i <= 31 are separate checks.
++  R558-6's four MAC pairs and two fixed clock pairs have their own checks, named as fixed pairs: they pin those pairs at the current fold rows and carry no guarantee of their own.
++  Clocks one power of two apart must give different first offsets. The adjacent pairs, R558-6's pairs and the 16 single-bit pairs in bits 16..31 must give different first probe intervals.
++  The harness's section [13] establishes the criterion for every seed, not a sample.
++  It learns the first offset word and the first probe draw as linear maps of the seed from the RTL's own first Begin!, and confirms both maps on 256 further seeds.
++  It then claims every word of the offset image through the RTL, for each block size from 1 to 8.
++  Every one of the 528 carry runs, against every word and size, must claim disjoint blocks and draw a different first probe interval.
++  Seed bits 16..31 must map one-to-one onto the offset word, and the two first draws must be independent.
++  No fold row, generator tap or pool bound is restated in the suite, so a changed constant is graded as it stands.
++  Its `mutants.py` plants at least one defect per #686 item and requires
++  the named check to fail. The #696 plants include R558-6's p7 (the pre-#696 first draw), the raw low seed bits as the first offset,
++  an offset fold without the seed's high half, a first offset that ignores the clock, and a raw-seed first probe draw.
++  R559-6's q3 and q9 (one bit dropped from offset row 0 or row 6), its q1 (the probe fold of the unstepped state) and a nonlinear first fold pass every sampled pair, and each fails its section [13] check.
++  A probe row that repeats an offset row fails the independence check.
++  An echo of the overlap start fails the below-offset M2 check.
++  The coverage gate is 95 %, like avtp_rxmon.
+ 
+ ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
+ 
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 1e34f8141..66e3726b8 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -53,7 +53,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
+ | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
+ | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
+ | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
+-| Gate comparison | With the current record, WNS >= +0.049 ns also preserves the 0.25 ns fall limit |
++| Gate comparison | At the current +0.233 ns WNS record, the +0.030 ns floor binds first, after a fall of 0.203 ns; the 0.25 ns fall limit is unchanged |
+ | Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
+ | Delivery | Milestone 12 by 2026-12-15, before P3 |
+ 
+@@ -107,7 +107,10 @@ Its deltas therefore inform planning, not a comparable gate verdict.
+ 
+ ### Current processor inventory
+ 
+-These are the current record's source-scope references.
++These are the source-scope references of the gate's current record, [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [first-draw re-baseline of 2026-10-10](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw).
++It measured lane head `bee1b0d7`, after its merge of dev `e8454e27`, with processor `2ad2f845`.
++Against the baseline above, only the route figures changed; both standalone endpoints keep every figure.
++The levers and the ledger keep the baseline's route figures.
+ The routed hierarchy is rebuilt and can absorb neighbouring logic.
+ Use standalone scopes to estimate removable source functionality.
+ Parent rows include descendants; never add both to a saving.
+@@ -115,32 +118,33 @@ The [historical inventory](#inventory) supplies functions, clauses and construct
+ 
+ | Scope relative to wrapper | Route LUT | OOC 1x1 LUT | OOC 8x8 LUT | Split disposition |
+ |---|---:|---:|---:|---|
+-| `wrapper` | 23,345 | 23,179 | 30,135 | Replaced after every control function qualifies |
+-| `u_pp` | 22,794 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
+-| `u_pp/u_aecp` | 8,084 | 6,150 | 7,298 | F5; includes the following five children |
+-| `u_pp/u_aecp/u_d3` | 1,781 | 1,703 | 2,297 | F1/F5 saved-state ownership |
+-| `u_pp/u_aecp/u_dyn` | 1,440 | 134 | 497 | F5; fabric media state stays authoritative |
+-| `u_pp/u_aecp/u_store` | 979 | 1,026 | 1,119 | F5 validated image and names |
+-| `u_pp/u_aecp/u_ucpu` | 1,727 | 1,553 | 1,651 | F5; no second M10 credit |
+-| `u_pp/u_aecp/u_resp` | 345 | 432 | 416 | F5 response serving |
+-| `u_pp/u_notify` | 2,259 | 2,125 | 2,114 | F5 registry, notification and counter serving |
+-| `u_pp/u_srp` | 3,682 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
+-| `u_pp/u_srp/u_encoder` | 1,358 | 1,479 | 1,466 | Included in SRP |
++| `wrapper` | 22,993 | 23,179 | 30,135 | Replaced after every control function qualifies |
++| `u_pp` | 22,442 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
++| `u_pp/u_aecp` | 7,874 | 6,150 | 7,298 | F5; includes the following five children |
++| `u_pp/u_aecp/u_d3` | 1,817 | 1,703 | 2,297 | F1/F5 saved-state ownership |
++| `u_pp/u_aecp/u_dyn` | 1,289 | 134 | 497 | F5; fabric media state stays authoritative |
++| `u_pp/u_aecp/u_store` | 980 | 1,026 | 1,119 | F5 validated image and names |
++| `u_pp/u_aecp/u_ucpu` | 1,720 | 1,553 | 1,651 | F5; no second M10 credit |
++| `u_pp/u_aecp/u_resp` | 338 | 432 | 416 | F5 response serving |
++| `u_pp/u_notify` | 2,210 | 2,125 | 2,114 | F5 registry, notification and counter serving |
++| `u_pp/u_srp` | 3,638 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
++| `u_pp/u_srp/u_encoder` | 1,351 | 1,479 | 1,466 | Included in SRP |
+ | `u_pp/u_srp/u_decoder` | 579 | 588 | 922 | Included in SRP |
+-| `u_pp/u_listener` | 1,451 | 1,560 | 1,681 | F3 ACMP listener |
+-| `u_pp/u_talker` | 641 | 823 | 1,472 | F3 ACMP talker |
+-| `u_pp/u_adp` | 385 | 523 | 696 | F0/F3 advertisement and discovery |
+-| `u_pp/u_originator` | 687 | 697 | 682 | F3/F5 originated transactions |
++| `u_pp/u_listener` | 1,452 | 1,560 | 1,681 | F3 ACMP listener |
++| `u_pp/u_talker` | 624 | 823 | 1,472 | F3 ACMP talker |
++| `u_pp/u_adp` | 386 | 523 | 696 | F0/F3 advertisement and discovery |
++| `u_pp/u_originator` | 684 | 697 | 682 | F3/F5 originated transactions |
+ | `u_pp/u_nvm_shadow` | 792 | 808 | 780 | F1/F3 binding persistence |
+ | `u_pp/u_nvm_port` | 513 | 526 | 524 | F1 store and flash service |
+-| `u_nvm` | 486 | 581 | 1,116 | F1 replaces container backend |
+-| `u_pp/u_timer` | 882 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
+-| `u_pp/u_dispatch` | 665 | 887 | 908 | Replaced routing; no separate credit |
++| `u_nvm` | 487 | 581 | 1,116 | F1 replaces container backend |
++| `u_pp/u_timer` | 881 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
++| `u_pp/u_dispatch` | 670 | 887 | 908 | Replaced routing; no separate credit |
+ | `u_pp/u_trace` | 31 | 37 | 28 | Equivalent diagnostics retained; no credit |
+ 
+ The [#232](https://github.com/kebag-logic/milan-fpga/issues/232) registry, [#230](https://github.com/kebag-logic/milan-fpga/issues/230) SRP storage and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) rings/listener changes
+ are already included; their savings cannot be subtracted again.
+ [#686](https://github.com/kebag-logic/milan-fpga/issues/686) also changed MAAP, before [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) refreshed the record.
++[#696](https://github.com/kebag-logic/milan-fpga/issues/696) changed MAAP again before the current record.
+ 
+ ## Baseline at dev `e6172750`
+ 
+@@ -648,8 +652,8 @@ Firmware presence therefore earns no engine-removal credit.
+ | M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
+ 
+ No route was started; no new resource figure is claimed.
+-The last accepted gate record remains unchanged.
+-Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
++At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
++[#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it twice, now at 50,013 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
+ These are stored figures, not measurements of this lane.
+ The partial memory ledger still requires actual allocation and reconciliation.
+ Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
+@@ -688,8 +692,8 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
+ | Routed delta | -128 | -59 | -8 | 0 / 0 | +0.007 / -0.012 |
+ | Post-synthesis delta, same runs | -34 | -61 | - | 0 / 0 | - |
+ 
+-The base route equals the `route-1x1` record in every gated figure.
+-Against that record, the M2 route passes with no failing endpoint.
++The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
++Against that record, the M2 route passes with no failing endpoint; it also passes against #696's record.
+ The changed arrays account for 44 LUTRAM sites: eleven RAM32M fewer.
+ Post-synthesis, the netlist also gains 10 logic LUTs in the CPU's AXI-Lite bridge.
+ The other routed logic movement lies in untouched blocks, mostly the wrapper.
+@@ -699,7 +703,7 @@ The reproducible saving is 34 LUTs, below the 200 (100-400) estimate.
+ The changed arrays' whole LUTRAM footprint was 72 sites.
+ M2 adds no block-RAM tile; its +2 ledger allowance is unused.
+ The cumulative tables keep the planning figure until the week-4 re-measure.
+-The gate record stays unchanged under D7.
++M2 does not re-record the gate under D7.
+ 
+ ### Default split saving basis
+ 
+@@ -940,7 +944,7 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
+ | Routed delta | -706 | -958 | +12 | 0 / 0 | -0.158 / -0.013 |
+ | Post-synthesis delta, same runs | -524 | -957 | - | 0 / 0 | - |
+ 
+-Against the record, the M6 route passes with no failing endpoint.
++Against #645/#647's record, the M6 route passes with no failing endpoint; it also passes against #696's record.
+ Its worst setup path lies in the unchanged protocol processor.
+ Only the changed blocks are credited:
+ 
+@@ -961,7 +965,7 @@ Out of context, the changed modules save 552 LUTs at 1x1.
+ All three lie low in the 600 (400-900) estimate.
+ M6 adds no block-RAM tile; both blocks keep theirs.
+ The cumulative tables keep the planning figure until the week-4 re-measure.
+-The gate record stays unchanged under D7.
++M6 does not re-record the gate under D7.
+ 
+ ### Cumulative default-image estimates
+ 
+diff --git a/docs/findings/234_PP_SHADOW_AREA_BASELINE.md b/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+index 7bde38b65..2be675df8 100644
+--- a/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
++++ b/docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+@@ -3,7 +3,9 @@
+ Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
+ The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records processor pin `2ad2f845` after merging dev `79b086d4` for #682.
+ Issue #686 re-recorded the three endpoints on 2026-10-08 after merging dev `291710b1`.
+-The [current record](#re-baseline-of-2026-10-08-issues-645-and-647) includes #645 and #647 on their merge of dev `6aa25dec`.
++Issues #645 and #647 [re-recorded them](#re-baseline-of-2026-10-08-issues-645-and-647) on their merge of dev `6aa25dec`.
++Issue #696 [re-recorded them](#re-baseline-of-2026-10-10-issue-696) with its `KL_maap` corrections on its merge of dev `8b61b709`.
++The [current record](#re-baseline-of-2026-10-10-issue-696-first-draw) adds #696's first-draw change on its merge of dev `e8454e27`.
+ The later sections preserve combinations A through F as history.
+ Those earlier records cover the processor adoption and parent AAF packetizer change.
+ This re-baseline preserves the processor pin.
+@@ -12,6 +14,8 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
+ 
+ ## Contents
+ 
++- **[Re-baseline of 2026-10-10, issue #696 first draw](#re-baseline-of-2026-10-10-issue-696-first-draw)** -- The current record: #696's first-draw change after its dev merge, remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
++- **[Re-baseline of 2026-10-10, issue #696](#re-baseline-of-2026-10-10-issue-696)** -- The MAAP correction lane's merge with dev remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
+ - **[Re-baseline of 2026-10-08, issues #645 and #647](#re-baseline-of-2026-10-08-issues-645-and-647)** -- The reviewed composition remeasured at three endpoints, with unchanged policy, route-corner timing and input receipts.
+ - **[Re-baseline of 2026-10-07, processor 2ad2f845](#re-baseline-of-2026-10-07-processor-2ad2f845)** -- The same processor after merging dev `79b086d4`, with all three endpoints remeasured, unchanged policy and the complete input-digest provenance.
+ - **[Re-baseline of 2026-10-06, processor 2ad2f845](#re-baseline-of-2026-10-06-processor-2ad2f845)** -- The adopted pin on dev `bd884631`, its recorded synthesis worker limit, three measured endpoints, corner timing and declaration-warning counts.
+@@ -27,6 +31,154 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
+ - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
+ - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+ 
++## Re-baseline of 2026-10-10, issue #696 first draw
++
++This re-baseline follows the [round-6 assignment](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6097504752) and measures lane head `bee1b0d712773de799e50f8d9cfc7a02263651f4`.
++That head holds #696's merge of dev `e8454e2751d05b02ee8e5a571857589ab358ab86` (merge commit `941ba746`) and `KL_maap`'s first-draw change.
++The processor remains `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
++Against the [preceding record](#re-baseline-of-2026-10-10-issue-696) at `0df48637`, each endpoint's inputs differ only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv).
++The generated top, every other read file, the generics and the memory images are unchanged.
++
++All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
++The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
++Synthesis and implementation finish in one process.
++An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
++The resource gate reports matching measurement identities against the preceding record.
++
++| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|---:|---:|---:|
++| `route-1x1` | 50,013 | 54,306 | 15,753 | 74 / 27 | 14 | 3,397 | +0.233 | +0.017 |
++| `ooc-1x1` | 23,179 | 19,779 | - | 16 / 3 | 8 | 1,494 | -3.562 | +0.159 |
++| `ooc-8x8` | 30,135 | 27,380 | - | 21 / 5 | 8 | 1,889 | -2.278 | +0.159 |
++
++| Difference from the preceding record | LUT | FF | Slice | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|
++| `route-1x1` | -217 | -2 | -70 | +0.119 | -0.019 |
++| `ooc-1x1` | +0 | +0 | - | +0.000 | +0.000 |
++| `ooc-8x8` | +0 | +0 | - | +0.000 | +0.000 |
++
++Every RAMB36, RAMB18, DSP and CARRY4 difference is zero.
++The standalone wrapper does not instantiate `KL_maap`, so neither standalone endpoint can see the change.
++The shipping route uses 87.5 RAM tiles and leaves 97 slices free.
++Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
++WNS is 0.203 ns above its +0.030 ns floor and rose by 0.119 ns; WHS is 0.017 ns above zero.
++Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
++
++| Route corner | WNS ns | WHS ns |
++|---|---:|---:|
++| `Slow_0C` | +0.233 | +0.066 |
++| `Slow_85C` | +0.233 | +0.066 |
++| `Fast_0C` | +1.410 | +0.017 |
++| `Fast_85C` | +1.410 | +0.017 |
++
++The worst setup path has 27 logic levels on the 20 ns clock.
++It runs from `u_pp/u_aecp/u_d3/rec_r_reg[3]` to the reset pin of `u_pp/u_aecp/u_d3/deb_cnt_r_reg[29]`, both in the wrapper.
++Its data delay is 18.991 ns: 4.977 ns of logic and 14.014 ns of routing.
++The rebuilt datapath uses 41,299 LUTs, of which the wrapper uses 22,993.
++`KL_maap` uses 468 LUTs and 339 FFs, against 425 and 339 in the preceding record.
++Its worst incoming setup path keeps +3.906 ns of slack, its worst outgoing +5.963 ns, and its worst incoming hold +0.175 ns.
++The worst incoming path has 16 logic levels, from the real-time clock counter through the first draw into the offset register.
++The wrapper moves by +120 LUTs and -6 FFs with its sources unchanged; these are merged-image mapping results.
++Parent resource rows include their descendants and must not be added to them.
++
++Each `pp_resource_gate.py check` passed against the preceding records before `record --write` replaced its endpoint.
++Every tolerance, floor and ceiling remains unchanged.
++The endpoint notes identify the measured lane head rather than the later records-only commit.
++
++| Endpoint | Input SHA-256 |
++|---|---|
++| `route-1x1` | `29b603ffb306c3cdc07e7dd2bdb35091dd8a30b22ad6402f4b8a8d48528d8e1a` |
++| `ooc-1x1` | `b2a2e9dfe56b79bfc6748f34dcca5808e1b229fffcdd0ac079685f4b95c0ca15` |
++| `ooc-8x8` | `3b3ed3f9fa6242804f65d9009b59f112deea3d05d6206796e5ba1da9b97391a3` |
++
++All recorded source, header and memory-image bytes were rehashed after measurement.
++No completed measurement log contains a `Synth 8-4445` diagnostic.
++Runs were serial under the exclusive lock, with no competing build in this lane.
++An external stop ended the first 8x8 standalone attempt during synthesis; it was rerun in full and the stopped attempt is not used.
++The largest Vivado memory peak was 7,964 MB, in the route; the service recorded no out-of-memory event.
++The lane's receipts hold executed Tcl, input manifests, gate output and reports, with sizes and digests for artifacts over 200 KB.
++
++| Run | rc | Minutes | Log SHA-256 | Log bytes |
++|---|---:|---:|---|---:|
++| `route-1x1` | 0 | 52.7 | `d9f952dbd5f1c018261caf58bb11a686c56be6dc63da9e89473a9e4d98ccf185` | 818,672 |
++| `rtl-8x8` | 0 | 1.4 | `6cc79615b73a307b12c60a41f3f500813feb05d0e60b4be0f6b59bf49b568825` | 213,944 |
++| `ooc-1x1` | 0 | 25.5 | `0d620fe35a39f6f4ddc4b1a3b8f1a29cf69117486290c0688e847f57e1dcd57e` | 319,289 |
++| `ooc-8x8` | 0 | 53.2 | `8345a4cd14bf1742c4f87006fe3fbd2b2e53cd68f2868353b9cb7108ba4832fb` | 324,996 |
++
++## Re-baseline of 2026-10-10, issue #696
++
++This re-baseline follows the [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6089712293) and measures merge result `0df486370990fddf9b60096be2f2371150692a10`.
++It merges dev `8b61b70902f3ebf118e56967277e2686731081bd` into `39571196045ddcc881f9ad0957742537175441d6`.
++The processor remains `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
++The preceding records describe #645 and #647 at `a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb`; they omit #696's `KL_maap` corrections and dev's later changes.
++
++All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
++The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
++Synthesis and implementation finish in one process.
++An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
++The resource gate reports matching measurement identities against the #645 record.
++
++| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|---:|---:|---:|
++| `route-1x1` | 50,230 | 54,308 | 15,823 | 74 / 27 | 14 | 3,397 | +0.114 | +0.036 |
++| `ooc-1x1` | 23,179 | 19,779 | - | 16 / 3 | 8 | 1,494 | -3.562 | +0.159 |
++| `ooc-8x8` | 30,135 | 27,380 | - | 21 / 5 | 8 | 1,889 | -2.278 | +0.159 |
++
++| Difference from #645 | LUT | FF | Slice | WNS ns | WHS ns |
++|---|---:|---:|---:|---:|---:|
++| `route-1x1` | -37 | -105 | +44 | -0.185 | +0.005 |
++| `ooc-1x1` | +0 | +0 | - | +0.000 | +0.000 |
++| `ooc-8x8` | +0 | +0 | - | +0.000 | +0.000 |
++
++Every RAMB36, RAMB18 and DSP difference is zero.
++The shipping route uses 87.5 RAM tiles and leaves 27 slices free.
++Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
++WNS is 0.084 ns above its +0.030 ns floor; WHS is 0.036 ns above zero.
++The WNS fall of 0.185 ns is within the 0.25 ns timing-fall limit.
++Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
++
++| Route corner | WNS ns | WHS ns |
++|---|---:|---:|
++| `Slow_0C` | +0.114 | +0.102 |
++| `Slow_85C` | +0.114 | +0.102 |
++| `Fast_0C` | +1.518 | +0.036 |
++| `Fast_85C` | +1.518 | +0.036 |
++
++The worst setup path has 16 logic levels, from `milansoc_sdram_zqcs_timer_count1_reg[1]` to `milansoc_sdram_bankmachine1_level_reg[0]`.
++Its data delay is 9.574 ns: 2.279 ns of logic and 7.295 ns of routing.
++Both ends lie in the soft CPU's SDRAM controller, outside `milan_datapath`.
++The rebuilt datapath uses 41,367 LUTs, of which the wrapper uses 22,873.
++`KL_maap` uses 425 LUTs and 339 FFs.
++Its worst incoming setup path keeps +4.037 ns of slack, its worst outgoing +6.719 ns, and its worst incoming hold +0.135 ns.
++The wrapper moves by -472 LUTs and +3 FFs despite the unchanged processor pin; these are merged-image mapping results.
++Parent resource rows include their descendants and must not be added to them.
++
++Before the merge, the same `KL_maap` at `39571196` routed at +0.029 ns WNS, below the floor.
++That path lay inside the soft CPU's DMA write bridge, and that measurement was not recorded.
++
++Each `pp_resource_gate.py check` passed against the preceding records before `record --write` replaced its endpoint.
++Every tolerance, floor and ceiling remains unchanged.
++The endpoint notes identify the merge input rather than the later records-only commit.
++
++| Endpoint | Input SHA-256 |
++|---|---|
++| `route-1x1` | `a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab` |
++| `ooc-1x1` | `80fe5d9017b819d9c13b08f5529be7f26fde2bfb414607c4e3c270b915223d09` |
++| `ooc-8x8` | `cf62186b9d52d5876c8dffa92d46432c428236f1a5396ddb65cd45cc6195a4c4` |
++
++All recorded source, header and memory-image bytes were rehashed after measurement.
++No completed measurement log contains a `Synth 8-4445` diagnostic.
++Runs were serial under the exclusive lock, with no competing build in this lane.
++The largest Vivado memory peak was 8,026 MB, in the route; the service recorded no out-of-memory event.
++The lane's receipts hold executed Tcl, input manifests, gate output and reports, with sizes and digests for artifacts over 200 KB.
++
++| Run | rc | Minutes | Log SHA-256 | Log bytes |
++|---|---:|---:|---|---:|
++| `route-1x1` | 0 | 50.2 | `2e333d94600d66d1f9710359fa368c932050c0a5cd617b4780462d2a571a5f4e` | 820,111 |
++| `rtl-8x8` | 0 | 1.2 | `edf6e734efa37c1bda6da6a469911d10de6726392976486cdf3ce44f87dded56` | 214,698 |
++| `ooc-1x1` | 0 | 22.3 | `32010da91eb3c06d5393e6643a46e079cb749f16cd97a132be97150592948a30` | 319,329 |
++| `ooc-8x8` | 0 | 43.0 | `9c8b17eddfbfa588e348b0a466f2e0b57e756004236ad8a8ea952e67959c6b08` | 325,020 |
++
+ ## Re-baseline of 2026-10-08, issues #645 and #647
+ 
+ This re-baseline follows the [round-2f assignment](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6061613334) and measures merge result `a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb`.
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index c49ebdcb0..1a9674e9b 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -22,7 +22,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
+ | [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Audio continuity end to end against the reference peer on dev `ec0cc0c1`: the first-light pattern through the DUT's AAF talker to the peer's listener, recorded from the peer's digital output by an external audio capture; integrity, 660 s of continuity and 30 unbind and rebind restarts (#117 acceptance box 4) | Integrity PASS, bit-exact and in order; restarts PASS, 30 of 30 under 1 s, median 0.028 s; continuity FAIL as measured: one-frame drops every 1.266 s, attributed by inference to the peer's output rate; 236 of the 239 skips of 60 frames or more are stall-aligned capture-path loss; skips of 2 to 59 frames are not separated from a packet-sized drop downstream of the peer's receive counters; direction B NOT RUN |
+ | [PP_SHADOW_BASELINE.md](PP_SHADOW_BASELINE.md) | Protocol-processor area baseline at revision `7eb3b0d4`: standalone `KL_pp_shadow` synthesis against the integrated implementation at both product geometries, three placement directives, and #587's 50 MHz 8x8 rerun (#231, epic #229) | Current for its revision and method; the figures after #682 merges dev `79b086d4`, processor `2ad2f845`, are in [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md), and the gate's current record is in the [area budget](../design/AREA_BUDGET.md#headroom-target) |
+-| [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) | Protocol-processor measurements A through F, including #682's adoption of `2ad2f845` after merging dev `79b086d4`: route, standalone endpoints, per-block changes and mapped storage (#234, #661, #682, epic #229) | F record: 49,957 LUT (78.80 %), 54,274 FF, 15,734 slices (116 free), 87.5 BRAM tiles and +0.124 / +0.031 ns. NFR-RES-01 was then 11,917 LUT over its 60 % target; #640 owns the redesign. The merged AAF packetizer changes the resource inputs; recipe identity and gate policy are unchanged. The gate's current record is #686's re-baseline of 2026-10-08, in the [area budget](../design/AREA_BUDGET.md#headroom-target) |
++| [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) | Protocol-processor measurements A through F, including #682's adoption of `2ad2f845` after merging dev `79b086d4`: route, standalone endpoints, per-block changes and mapped storage (#234, #661, #682, epic #229) | F record: 49,957 LUT (78.80 %), 54,274 FF, 15,734 slices (116 free), 87.5 BRAM tiles and +0.124 / +0.031 ns. NFR-RES-01 was then 11,917 LUT over its 60 % target; #640 owns the redesign. The merged AAF packetizer changes the resource inputs; recipe identity and gate policy are unchanged. The gate's current record is #696's first-draw re-baseline of 2026-10-10, in the [area budget](../design/AREA_BUDGET.md#headroom-target) |
+ | [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the NFR-RES-01 gap. At the measurement revision, Yosys ignored converted elaboration guards. Since #651, both synthesis flows refuse active guards. At the measurement revision the builder accepted an 8x8 TDM8 configuration the saved-state backend refused (235 names against 128); since #652 the builder refuses that shape before generation. |
+ | [ADP shape (historical)](../history/v1/findings/ADP_SHAPE_STATIC_0727.md) | Generated ADP/AEM shape must match the instantiated stream geometry | Fixed; guarded by `scripts/check_entity_shape.py` |
+ | [CBS_DATAPATH_BUG.md](CBS_DATAPATH_BUG.md) | Per-frame classifier sideband timing at the CBS boundary | Fixed; covered by the controller-rate bench |
+diff --git a/hdl/ieee1722/maap/KL_maap.sv b/hdl/ieee1722/maap/KL_maap.sv
+index 6adb624a5..746be52d3 100644
+--- a/hdl/ieee1722/maap/KL_maap.sv
++++ b/hdl/ieee1722/maap/KL_maap.sv
+@@ -31,30 +31,28 @@
+                   500..600 ms, announce strictly inside 30..32 s.
+                   RX, only for a range that conflicts (note b: the ranges
+                   share an address; an empty range never conflicts):
+-                  PROBE while probing -> re-address; PROBE while announced
++                  PROBE while probing -> compare_MAC; PROBE while announced
+                   -> DEFEND with the overlapping sub-range (B.2.7/B.2.8);
+-                  DEFEND -> re-address; ANNOUNCE while probing ->
++                  DEFEND while probing -> re-address; while announced ->
++                  compare_MAC; ANNOUNCE while probing ->
+                   re-address; ANNOUNCE while announced -> compare_MAC
+                   (B.3.6.4), re-address only when this station is not the
+                   lower. A DEFEND is judged on its conflict_* fields, a
+                   PROBE or ANNOUNCE on its requested_* fields (B.2.5-B.2.8).
+ 
+                 Deviations (documented in MAAP_FABRIC.md, outside #686's
+-                items): no compare_MAC in the rProbe!/PROBE and
+-                rDefend!/DEFEND cells; a DEFEND carries this station's
+-                range, not the PROBE's, in requested_* (B.3.6.6); a 16-bit
+-                station-MAC-seeded LFSR draws the offset (B.3.6.1); no
+-                PortOperational! input; RX parse is untagged-only (a tagged
+-                MAAP PDU is ignored); a PROBE parsed while a frame is on
+-                the wire is not defended; a supplied seed is not
+-                range-checked.
++                items): the offset folds a generator draw into the pool
++                rather than drawing uniformly (B.3.6.1); RX is untagged-only.
++                One response buffer retains a PROBE during PROBE/ANNOUNCE
++                transmission; further PROBEs while a DEFEND is pending or
++                transmitting are lost.
++                Supplied seeds are validated against Table B.9.
+ 
+                 Persistence (reference load/save_state) is softcore
+                 provisioning: software may seed seed_offset_i +
+                 seed_valid_i before enable to re-probe the previously won
+                 block (Table B.7 note a). A random draw is clipped to the
+-                pool; the supplied seed is used as given, so provisioning
+-                must supply a block that fits inside the 0xFE00 pool.
++                pool; an invalid supplied seed falls back to a random draw.
+ 
+   Company     : Kebag Logic
+   Project     : Milan AVTP
+@@ -81,7 +79,9 @@ module KL_maap #(
+   input  wire         rst_n,             //! Active-low synchronous reset
+ 
+   input  wire         enable_i,          //! CSR MAAP_CTRL.en (0 = engine idle)
++  input  wire         port_operational_i, //! axis-clock link level; rising re-probes
+   input  wire [7:0]   count_i,           //! block size to claim (reference: 8)
++  input  wire [31:0]  realtime_ns_i,     //! local real-time clock, synchronous
+   input  wire [47:0]  station_mac_i,     //! source MAC ([47:40] = first wire byte)
+   input  wire [15:0]  seed_offset_i,     //! provisioning: preferred offset
+   input  wire         seed_valid_i,      //! 1 = first probe uses seed_offset_i
+@@ -138,21 +138,52 @@ module KL_maap #(
+   logic         tick_ms_w;
+   assign tick_ms_w = (tickdiv_r == '0);
+ 
+-  //! 16-bit Fibonacci LFSR (x^16+x^15+x^13+x^4+1), station-MAC seeded.
+-  //! All-zero is its only fixed point and no other state reaches it (the
+-  //! step is an invertible linear map), so the reset seed is never zero:
+-  //! a MAC that folds to zero (mac[15:0] ^ mac[31:16] == 0xACE1) takes the
+-  //! constant instead, and the B.3.4 timer draws stay random for every MAC.
+-  logic [15:0]  lfsr_r;
+-  wire  [15:0]  lfsr_next_w = {lfsr_r[14:0],
+-                               lfsr_r[15] ^ lfsr_r[14] ^ lfsr_r[12] ^ lfsr_r[3]};
+-  wire  [15:0]  mac_seed_w  = 16'hACE1 ^ station_mac_i[15:0] ^ station_mac_i[31:16];
++  //! B.3.6.1: 32-bit Fibonacci LFSR, period 2^32 - 1.
++  //! First enable samples the low 32 bits of MAC plus local real-time clock.
++  //! The all-zero seed takes a nonzero fallback to avoid the fixed point.
++  logic [31:0]  lfsr_r;
++  logic         rng_seeded_r;           //! first enable follows MAC programming
++  function automatic [31:0] lfsr_step(input [31:0] s);
++    lfsr_step = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};
++  endfunction
++  wire  [31:0]  lfsr_next_w = lfsr_step(lfsr_r);
++  wire  [31:0]  mac_seed_w  = station_mac_i[31:0] + realtime_ns_i;
++  wire  [31:0]  enable_seed_w = (mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w;
++  //! #696: the first Begin! draws from the generator one step past the seed,
++  //! like the firmware core, and never from the raw seed bits.
++  wire  [31:0]  seed_next_w = lfsr_step(enable_seed_w);
++
++  //! Draw folds (#696). Fold bit i is the parity of a 32-bit generator state
++  //! under row i (row 0 in the low 32 bits). Two seeds 2^i apart (adjacent
++  //! MACs, or MACs one bit apart, at an equal clock) give offset words whose
++  //! blocks of up to 8 addresses stay disjoint through rand_offset, and
++  //! different probe draws. Seed bits 16..31 map one-to-one onto the offset
++  //! word. The 22 rows are independent, so the first offset and the first
++  //! probe interval are too.
++  localparam logic [16*32-1:0] OFFSET_FOLD_C = {  //! rows 15..0
++    32'h0100_0410, 32'h0002_0104, 32'h0210_0008, 32'h0004_4800,
++    32'h1000_0084, 32'h0820_0000, 32'h0011_1000, 32'h2000_8001,
++    32'h8080_8000, 32'h8008_0040, 32'h4800_2000, 32'h0400_0220,
++    32'h1008_0002, 32'h0810_0040, 32'h1040_0000, 32'h0000_0081
++  };
++  localparam logic [6*32-1:0] PROBE_FOLD_C = {  //! rows 5..0
++    32'h1011_2104, 32'h804A_4200, 32'h4900_8050,
++    32'h0284_1420, 32'h0000_0409, 32'h2420_0880
++  };
++  function automatic [15:0] offset_fold(input [31:0] s);
++    for (int i = 0; i < 16; i++) offset_fold[i] = ^(s & OFFSET_FOLD_C[32*i +: 32]);
++  endfunction
++  function automatic [5:0] probe_fold(input [31:0] s);
++    for (int i = 0; i < 6; i++) probe_fold[i] = ^(s & PROBE_FOLD_C[32*i +: 32]);
++  endfunction
+ 
+   // ---- claim state ----------------------------------------------------------
+   logic [15:0]  offset_r;
+   logic [2:0]   probe_left_r;            //! PROBEs still to send, 4..1
+   logic [15:0]  timer_ms_r;              //! counts down to the next TX event
+   logic         seed_used_r;
++  logic         port_operational_r;
++  wire port_operational_p = port_operational_i && !port_operational_r;
+   assign offset_o = offset_r;
+   assign addr_o   = {POOL_BASE_HI_C, offset_r};
+   assign addr_valid_o = (state_r == ANNOUNCE_S);
+@@ -166,8 +197,9 @@ module KL_maap #(
+     rand_offset = o;
+   endfunction
+ 
+-  //! probe interval: 518 + lfsr[5:0] ms; announce: 30488 + lfsr[9:0] ms
+-  wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, lfsr_r[5:0]};
++  //! probe interval: 518 + the probe fold of the next state ms (at the first
++  //! PROBE, the seed one step on); announce: 30488 + lfsr[9:0] ms
++  wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, probe_fold(lfsr_next_w)};
+   wire [15:0] announce_iv_w = 16'(ANNOUNCE_MIN_MS_C) + {6'd0, lfsr_r[9:0]};
+ 
+   // ---- RX parse (untagged control AVTPDU, aligned lanes) --------------------
+@@ -187,6 +219,10 @@ module KL_maap #(
+   logic [15:0]  rx_start_r;              //! range offset
+   logic [15:0]  rx_cnt_r;                //! range count
+   logic         rx_done_p;               //! pulse: full PDU parsed
++  logic         rx_bytes_valid_r;        //! every required earlier byte present
++  wire [7:0] rx_required_keep_w = (rbeat_r < 3'd5) ? 8'hFF
++                                   : (rbeat_r == 3'd5) ? 8'h03 : 8'h00;
++  wire rx_beat_complete_w = ((rx_tkeep_i & rx_required_keep_w) == rx_required_keep_w);
+ 
+   //! byte lane accessor (little lane order: lane j = wire byte 8b+j)
+   function automatic [7:0] lane(input [63:0] w, input [2:0] j);
+@@ -206,6 +242,10 @@ module KL_maap #(
+   wire        conflict_w = rx_pool_r && (rx_cnt_r != 16'd0) && (count_i != 8'd0)
+                            && ({1'b0, rx_start_r} < our_end_w)
+                            && ({1'b0, offset_r} < req_end_w);
++  //! One response buffer holds a pending or transmitting DEFEND. PROBE and
++  //! ANNOUNCE use separate own-range snapshots, leaving that buffer available.
++  //! Further PROBEs while the response buffer is occupied cannot be queued.
++  logic defend_pending_r;
+   //! the overlapping sub-range a DEFEND reports (B.2.7/B.2.8)
+   wire [15:0] conf_start_w = (rx_start_r > offset_r) ? rx_start_r : offset_r;
+   wire [16:0] conf_end_w   = (req_end_w < our_end_w) ? req_end_w : our_end_w;
+@@ -220,21 +260,26 @@ module KL_maap #(
+ 
+   // ---- TX frame builder -----------------------------------------------------
+   //! 60-byte padded frame, 8 beats, last keep 0x0F. Every per-frame field a
+-  //! protocol event can change (message type, destination, requested offset,
++  //! protocol event can change (message type, destination, requested range,
+   //! conflict range) is latched at the send request, so a Restart! (or the
+   //! next RX PDU) taken while a frame is on the wire cannot rewrite that
+-  //! frame. requested_count and the source MAC follow count_i and
+-  //! station_mac_i and are not protected against reconfiguration during a
+-  //! frame.
++  //! frame. The source MAC follows station_mac_i and is not protected
++  //! against reconfiguration during a frame.
+   logic        tx_busy_r;
+   logic [1:0]  tx_msg_r;
+   logic [47:0] tx_dst_r;                 //! DEFEND only: the prober's MAC
+-  logic [15:0] tx_off_r;                 //! requested_start offset
++  logic [15:0] tx_off_r;                 //! own requested_start snapshot
++  logic [7:0]  tx_own_cnt_r;             //! own requested_count snapshot
++  logic [15:0] tx_defend_off_r;          //! PROBE requested_start echo
++  logic [15:0] tx_cnt_r;                 //! requested_count, full PROBE echo
+   logic [15:0] tx_conf_start_r, tx_conf_cnt_r;
+   logic [2:0]  tx_beat_r;
+ 
+   function automatic [63:0] tx_beat(input [2:0] b);
+     logic [7:0] f [0:63];
++    logic [15:0] requested_start, requested_count;
++    requested_start = (tx_msg_r == MSG_DEFEND_C) ? tx_defend_off_r : tx_off_r;
++    requested_count = (tx_msg_r == MSG_DEFEND_C) ? tx_cnt_r : {8'd0, tx_own_cnt_r};
+     for (int i = 0; i < 64; i++) f[i] = 8'h00;
+     //! B.2.1: a DEFEND to the triggering PROBE's source, others multicast
+     {f[0],f[1],f[2],f[3],f[4],f[5]} = (tx_msg_r == MSG_DEFEND_C) ? tx_dst_r
+@@ -247,8 +292,8 @@ module KL_maap #(
+     f[17] = CDL_C;                                   // control_data_length
+     // stream_id bytes 18..25 = 0
+     {f[26],f[27],f[28],f[29]} = POOL_BASE_HI_C;      // request_start
+-    f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];
+-    f[32] = 8'h00; f[33] = count_i;                  // request_count
++    f[30] = requested_start[15:8]; f[31] = requested_start[7:0];
++    f[32] = requested_count[15:8]; f[33] = requested_count[7:0];
+     if (tx_msg_r == MSG_DEFEND_C) begin              // DEFEND: conflict fields
+       {f[34],f[35],f[36],f[37]} = POOL_BASE_HI_C;
+       f[38] = tx_conf_start_r[15:8]; f[39] = tx_conf_start_r[7:0];
+@@ -268,19 +313,30 @@ module KL_maap #(
+   wire rx_hit_w = rx_done_p && (state_r != IDLE_S) && conflict_w;
+   //! INITIAL/Restart!: re-address and probe again
+   wire restart_w = rx_hit_w &&
+-                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S)) ||
+-                    (rx_msg_r == {2'b00, MSG_DEFEND_C}) ||
++                   (((rx_msg_r == {2'b00, MSG_PROBE_C}) && (state_r == PROBE_S) && !mac_lower_w) ||
++                    ((rx_msg_r == {2'b00, MSG_DEFEND_C}) &&
++                     ((state_r != ANNOUNCE_S) || !mac_lower_w)) ||
+                     ((rx_msg_r == {2'b00, MSG_ANNOUNCE_C}) &&
+                      ((state_r == PROBE_S) || !mac_lower_w)));
+-  //! sDefend; a PROBE parsed while a frame is in flight goes unanswered
+-  wire defend_w  = rx_hit_w && (rx_msg_r == {2'b00, MSG_PROBE_C})
+-                   && (state_r == ANNOUNCE_S) && !tx_busy_r;
++  wire probe_hit_w = rx_hit_w && (rx_msg_r == {2'b00, MSG_PROBE_C})
++                     && (state_r == ANNOUNCE_S);
++  wire defend_w = defend_pending_r
++                  && (state_r == ANNOUNCE_S) && !tx_busy_r;
++  //! Keep the single response buffer stable until its frame drains.
++  wire save_probe_w = probe_hit_w && !defend_pending_r
++                     && !(tx_busy_r && tx_msg_r == MSG_DEFEND_C);
+ 
+   // ---- main SM ---------------------------------------------------------------
+-  //! generate_address for Begin!: the provisioning seed once (note a), used
+-  //! as given (not range-checked); otherwise a random draw clipped to the pool
+-  wire [15:0] new_off_w = seed_valid_i && !seed_used_r
+-                          ? seed_offset_i : rand_offset(lfsr_next_w, count_i);
++  //! Table B.9: reject supplied ranges extending outside the dynamic pool.
++  wire [16:0] seed_end_w = {1'b0, seed_offset_i} + {9'd0, count_i};
++  wire seed_in_pool_w = (seed_offset_i < POOL_SIZE_C)
++                         && (seed_end_w <= {1'b0, POOL_SIZE_C});
++  //! generate_address for Begin!: use a valid provisioning seed once (note a).
++  //! An invalid seed falls back to the normal bounded random draw. The first
++  //! Begin! folds the stepped seed; later ones read the running generator.
++  wire [15:0] new_off_w = seed_valid_i && !seed_used_r && seed_in_pool_w
++                          ? seed_offset_i : rand_offset(rng_seeded_r ? lfsr_next_w[15:0]
++                                                                    : offset_fold(seed_next_w), count_i);
+ 
+   always_ff @(posedge clk_i) begin : maap_sm
+     if (!rst_n) begin
+@@ -289,17 +345,23 @@ module KL_maap #(
+       probe_left_r <= '0;
+       timer_ms_r   <= '0;
+       tickdiv_r    <= '0;
+-      lfsr_r       <= (mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w;
++      lfsr_r       <= 32'hACE1;
++      rng_seeded_r <= 1'b0;
+       seed_used_r  <= 1'b0;
++      port_operational_r <= 1'b0;
+       conflicts_o  <= '0;
+       defends_o    <= '0;
+       tx_busy_r    <= 1'b0;
+       tx_msg_r     <= '0;
+       tx_dst_r     <= '0;
+       tx_off_r     <= '0;
++      tx_own_cnt_r <= '0;
++      tx_defend_off_r <= '0;
++      tx_cnt_r     <= '0;
+       tx_conf_start_r <= '0;
+       tx_conf_cnt_r   <= '0;
+       tx_beat_r    <= '0;
++      defend_pending_r <= 1'b0;
+       rbeat_r      <= '0;
+       is_maap_r    <= 1'b0;
+       rx_msg_r     <= '0;
+@@ -308,12 +370,20 @@ module KL_maap #(
+       rx_start_r   <= '0;
+       rx_cnt_r     <= '0;
+       rx_done_p    <= 1'b0;
++      rx_bytes_valid_r <= 1'b0;
+     end
+     else begin
+       rx_done_p <= 1'b0;
++      port_operational_r <= port_operational_i;
+ 
+-      //! free-running entropy + ms tick
++      //! free-running generator + ms tick
+       lfsr_r    <= lfsr_next_w;
++      //! Firmware programs the MAC after reset. Sample MAC + clock at first enable,
++      //! then keep the generator running across Release!/Begin! retries.
++      if (enable_i && !rng_seeded_r) begin
++        lfsr_r       <= enable_seed_w;
++        rng_seeded_r <= 1'b1;
++      end
+       tickdiv_r <= (tickdiv_r == '0) ? ($bits(tickdiv_r))'(TICK_DIV_C - 1)
+                                      : tickdiv_r - 1'b1;
+       if (tick_ms_w && timer_ms_r != '0) timer_ms_r <= timer_ms_r - 16'd1;
+@@ -329,6 +399,7 @@ module KL_maap #(
+ 
+       // ---- RX monitor tap parse ------------------------------------------
+       if (in_acc_w) begin
++        rx_bytes_valid_r <= rx_beat_complete_w && ((rbeat_r == '0) || rx_bytes_valid_r);
+         rbeat_r <= (rbeat_r == 3'd7) ? 3'd7 : rbeat_r + 3'd1;
+         if (rbeat_r == 3'd0)
+           rx_src_r[47:32] <= {lane(rx_tdata_i, 3'd6), lane(rx_tdata_i, 3'd7)};
+@@ -350,11 +421,28 @@ module KL_maap #(
+           rx_cnt_r <= {lane(rx_tdata_i, 3'd0), lane(rx_tdata_i, 3'd1)};
+         if (rx_tlast_i) begin
+           rbeat_r   <= '0;
+-          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i;
++          rx_done_p <= is_maap_r && (rbeat_r >= 3'd5) && enable_i
++                       && rx_bytes_valid_r && rx_beat_complete_w;
+           is_maap_r <= 1'b0;
+         end
+       end
+ 
++      //! Response ownership ends with the allocation. Never defend a released
++      //! range after a link-return, disable or conflicting-announcement restart.
++      if (!enable_i || restart_w || port_operational_p)
++        defend_pending_r <= 1'b0;
++      else begin
++        if (defend_w) defend_pending_r <= 1'b0;
++        if (save_probe_w) begin
++          defend_pending_r <= 1'b1;
++          tx_dst_r        <= rx_src_r;
++          tx_defend_off_r <= rx_start_r;
++          tx_cnt_r        <= rx_cnt_r;
++          tx_conf_start_r <= conf_start_w;
++          tx_conf_cnt_r   <= conf_cnt_w;
++        end
++      end
++
+       // ---- state walk -------------------------------------------------------
+       //! One decision per cycle, in priority order: disable (Release!), a
+       //! conflict Restart!, a DEFEND, then the timer's own send. A timer send
+@@ -373,25 +461,23 @@ module KL_maap #(
+ 
+         PROBE_S, ANNOUNCE_S : begin
+           if (!enable_i) state_r <= IDLE_S;
+-          else if (restart_w) begin             //! Restart! -> ReserveAddress!
+-            offset_r     <= rand_offset(lfsr_r, count_i);
++          else if (restart_w || port_operational_p) begin //! Table B.7 restart
++            offset_r     <= rand_offset(lfsr_r[15:0], count_i);
+             probe_left_r <= 3'(PROBE_SENDS_C);
+             timer_ms_r   <= '0;                 //! sProbe at once
+             state_r      <= PROBE_S;
+-            conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
++            if (restart_w)
++              conflicts_o  <= (&conflicts_o) ? conflicts_o : conflicts_o + 8'd1;
+           end
+           else if (defend_w) begin              //! sDefend the overlap
+             tx_msg_r        <= MSG_DEFEND_C;
+-            tx_dst_r        <= rx_src_r;
+-            tx_off_r        <= offset_r;
+-            tx_conf_start_r <= conf_start_w;
+-            tx_conf_cnt_r   <= conf_cnt_w;
+             tx_busy_r       <= 1'b1;
+             defends_o <= (&defends_o) ? defends_o : defends_o + 8'd1;
+           end
+           else if (timer_ms_r == '0 && !tx_busy_r) begin
+             tx_busy_r <= 1'b1;
+             tx_off_r  <= offset_r;
++            tx_own_cnt_r <= count_i;
+             if (state_r == ANNOUNCE_S) begin    //! announcetimer!: sAnnounce
+               tx_msg_r   <= MSG_ANNOUNCE_C;
+               timer_ms_r <= announce_iv_w;
+diff --git a/hdl/ieee1722/maap/doc/KL_maap/KL_maap.md b/hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+index c0879298b..fa5f70dd0 100644
+--- a/hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
++++ b/hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+@@ -2,7 +2,7 @@
+ - **File:** `hdl/ieee1722/maap/KL_maap.sv`
+ - **Spec:** IEEE 1722-2016 Annex B (MAAP), the authority since #686; the clause-by-clause contract is in [`docs/design/MAAP_FABRIC.md`](../../../../../docs/design/MAAP_FABRIC.md#annex-b-contract)
+ 
+-Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defend/announce machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Four PROBEs, the first at once and then 500 < T < 600 ms apart; the first ANNOUNCE follows the fourth PROBE at once and repeats every 30 < T < 32 s. The claim (`addr_o`) is valid only in ANNOUNCE. Every frame carries `control_data_length` 16, and a DEFEND goes to the source MAC of the PROBE that caused it. A conflicting received PROBE re-randomizes while probing and is DEFENDed (with the exact overlap sub-range) while announced. A conflicting DEFEND (judged on its conflict fields) re-randomizes in either state. A conflicting ANNOUNCE (judged on its requested fields) re-randomizes while probing, and while announced only when compare_MAC says this station is not the lower. Randomness = a station-MAC-seeded 16-bit LFSR (offset choice + interval draws) whose seed is never zero, so the draws are random for every station MAC. `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (Table B.7 note a); that seed is used as given, not range-checked, while a random draw is clipped to the pool.
++Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defend/announce machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Four PROBEs, the first at once and then 500 < T < 600 ms apart; the first ANNOUNCE follows the fourth PROBE at once and repeats every 30 < T < 32 s. The claim (`addr_o`) is valid only in ANNOUNCE. Every frame carries `control_data_length` 16, and a DEFEND goes to the source MAC of the PROBE that caused it. A conflicting received PROBE applies compare_MAC while probing. It restarts only when this station is not lower. While announced, the engine sends DEFEND with the overlap sub-range. A conflicting DEFEND always restarts while probing. While announced, it applies the same compare_MAC rule. A conflicting ANNOUNCE (judged on its requested fields) re-randomizes while probing, and while announced only when compare_MAC says this station is not the lower. Randomness uses a 32-bit LFSR with period 2^32 - 1 (offset choice + interval draws). First enable samples the low 32 bits of the programmed MAC plus the local real-time clock and loads that seed into the generator. A zero seed takes a nonzero fallback. The first Begin! draws from the generator one step past the seed: its offset word is the parity fold `OFFSET_FOLD_C` of all 32 stepped bits, and the first PROBE's timer the 6-bit parity fold `PROBE_FOLD_C` of the same state (every probe interval uses that fold of the generator's next state). Equally timed stations whose seeds are a power of two apart, such as adjacent MACs, therefore claim first blocks of up to 8 addresses that share none and draw different first probe intervals ([MAAP_FABRIC.md](../../../../../docs/design/MAAP_FABRIC.md#annex-b-contract)); the MAAP suite establishes this for every seed from the RTL's own first draws. `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (Table B.7 note a); the supplied range must fit inside the dynamic pool. Invalid supplied ranges fall back to a bounded random draw.
+ 
+ ## Contents
+ 
+@@ -22,9 +22,11 @@ Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defe
+ |------|-----|------|-------------|
+ | `clk_i` / `rst_n` | in | `wire` | Clock / active-low sync reset |
+ | `enable_i` | in | `wire` | CSR MAAP_CTRL.en |
++| `port_operational_i` | in | `wire` | Rising link status revokes validity and re-probes |
+ | `count_i` | in | `wire [7:0]` | Block size to claim (reference: 8) |
+-| `station_mac_i` | in | `wire [47:0]` | Source MAC + LFSR seed |
+-| `seed_offset_i` / `seed_valid_i` | in | | Provisioning re-claim seed, used as given (not range-checked) |
++| `station_mac_i` | in | `wire [47:0]` | Source MAC + first-enable LFSR seed |
++| `realtime_ns_i` | in | `wire [31:0]` | Synchronous local PHC nanoseconds, added to the MAC at first enable |
++| `seed_offset_i` / `seed_valid_i` | in | | Provisioning range, validated against the dynamic pool |
+ | `rx_t*_i` | in | | RX AXIS monitor tap (never driven) |
+ | `m_axis_*` | out | | MAAP PDUs (60 B padded) to the low-rate TX arbiter |
+ | `addr_o` | out | `logic [47:0]` | Allocated base DMAC (pool + offset) |
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index e95c18c5a..e0ad46910 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -264,8 +264,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! EVERYTHING in docs/AAF_LATENCY_TAPS.md: the CAP-SOF/SOF-EOF/EOF-MAC
+   //! silicon numbers cannot be reproduced on a pruned bitstream.
+   parameter int LTAP_P = 1,
+-  //! MAAP engine (KL_maap, 515 LUT / 278 FF by syn/yosys/ooc.sh). 0 prunes
+-  //! it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
++  //! MAAP engine (KL_maap). Measured area: docs/design/MAAP_FABRIC.md.
++  //! 0 prunes it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
+   //! that is the state a build with MAAP_CTRL.en = 0 is in today:
+   //! eff_aaf_dmac falls back to the CSR-provisioned AAF_DMAC and the
+   //! admission gate's MAAP term (~cfg_maap_enable | maap_addr_valid) is
+@@ -7181,6 +7181,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
+     .clk_i (axis_clk), .rst_n (axis_resetn),
+     .enable_i (cfg_maap_enable),
++    .port_operational_i (eff_link_w),
++    .realtime_ns_i     (ptp_now_w[31:0]),
+     .count_i  (cfg_maap_count),
+     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+diff --git a/sw/firmware/ctrl/maap/README.md b/sw/firmware/ctrl/maap/README.md
+index 149c81bd2..2e55c3460 100644
+--- a/sw/firmware/ctrl/maap/README.md
++++ b/sw/firmware/ctrl/maap/README.md
+@@ -198,7 +198,10 @@ This stimulus does not reach them.
+ The differential observes software deadlines and parent frame completion cycles.
+ Equal-length frames make completion intervals equal send intervals.
+ A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
+-Varying the start phase reaches both ends of the parent's 518..581 ms draw.
++The sweep programs 1,024 MAC identities before first enable.
++Its isolated parent clock input is held at zero; the datapath suite checks the live PHC seed.
++Both draw endpoints are required within the strict timer bounds.
++A generator ignoring the MAC fails the draw-coverage check.
+ Firmware sends span both 511/589 ms guarded draw boundaries.
+ Named controls reject 1, 500 and 600 ms probe intervals.
+ Separate controls falsify the parent probe bound and count expectations.
+diff --git a/sw/firmware/ctrl/test/maap_differential.py b/sw/firmware/ctrl/test/maap_differential.py
+index 56096356c..684f23883 100644
+--- a/sw/firmware/ctrl/test/maap_differential.py
++++ b/sw/firmware/ctrl/test/maap_differential.py
+@@ -15,7 +15,7 @@ from ctrl_build import CTRL, ROOT, Outcome, Tree, compile_c, execute, sources
+ import fw_gtest
+ 
+ 
+-def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
++def differential(out: Path, ctrl: Path = CTRL, rtl: Path | None = None) -> Outcome:
+     """Build the real parent RTL and C core; grade by the shared test tally."""
+     out.mkdir(parents=True, exist_ok=True)
+     tree = Tree(ctrl, out, out / "reuse", fw_gtest.Build(jobs=4))
+@@ -28,7 +28,7 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
+             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
+             "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags),
+             "-LDFLAGS", " ".join(fw_gtest.TEST_LIBS), "-o", str(exe),
+-            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
++            str(rtl or ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
+             *map(str, objs)]
+     result = fw_gtest.run(argv, timeout=570)
+     (out / "build.log").write_text(result.stdout + result.stderr, encoding="utf-8")
+@@ -42,7 +42,7 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
+ 
+ 
+ def sensitivity(out: Path) -> int:
+-    """Require every differential case to reject its own planted core defect."""
++    """Require every differential case to reject its named planted defect."""
+     from ctrl_mutants import MUTANTS, caught
+ 
+     cells = [(m.name, "maap/maap.c", m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
+@@ -62,17 +62,23 @@ def sensitivity(out: Path) -> int:
+     cases.append(("parent-probe-count", "test/test_maap_differential.cpp",
+                   'ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four',
+                   'ASSERT_EQ(f.frames.size(), 4u) << "Table B.7 parent four', timing))
++    cases.append(("parent-ignores-mac", "hdl/ieee1722/maap/KL_maap.sv",
++                  "station_mac_i[31:0] + realtime_ns_i",
++                  "32'hAC61", timing))
+     escaped = 0
+     for name, path, old, new, test in cases:
+         copy = out / name / "ctrl"
+         shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"), dirs_exist_ok=True)
+-        source = copy / path
+-        original = source.read_text(encoding="utf-8")
++        is_rtl = path.startswith("hdl/")
++        source = out / name / "KL_maap.sv" if is_rtl else copy / path
++        original = (ROOT / path if is_rtl else source).read_text(encoding="utf-8")
+         if original.count(old) != 1:
+             raise ValueError(f"{name}: differential fixture is not unique")
+         source.write_text(original.replace(old, new), encoding="utf-8")
+-        outcome = differential(out / name / "build", copy)
+-        ok = caught(test, "", outcome)
++        outcome = differential(out / name / "build", copy, source if is_rtl else None)
++        # The draw-coverage check: either end ("lowest draws" or "highest draws").
++        needle = "MAC/phase sampling reaches the parent's " if is_rtl else ""
++        ok = caught(test, needle, outcome)
+         print(f"[{'ok' if ok else 'ESCAPED'}] differential mutant {name}: {test}", flush=True)
+         escaped += not ok
+     print(f"differential mutants: {len(cases) - escaped}/{len(cases)} caught")
+diff --git a/sw/firmware/ctrl/test/test_maap_differential.cpp b/sw/firmware/ctrl/test/test_maap_differential.cpp
+index a5281f325..af9ae4614 100644
+--- a/sw/firmware/ctrl/test/test_maap_differential.cpp
++++ b/sw/firmware/ctrl/test/test_maap_differential.cpp
+@@ -69,7 +69,7 @@ struct Fabric {
+     unsigned bytes = 0;
+     unsigned cycles = 0;
+     Fabric() {
+-        model->station_mac_i = kMac; model->count_i = 8;
++        model->station_mac_i = kMac; model->count_i = 8; model->realtime_ns_i = 0;
+         model->seed_offset_i = 0x100; model->seed_valid_i = 1;
+         model->enable_i = 0; model->rx_tvalid_i = 0; model->rx_tready_i = 1;
+         model->m_axis_tready = 1; model->rst_n = 0; step(6); model->rst_n = 1; step(3);
+@@ -174,6 +174,8 @@ TEST(MaapDifferential, ProbeTimingAndCount) {
+     unsigned parent_maximum = 0;
+     for (unsigned phase = 0; phase < 1024; ++phase) {
+         Fabric sampled;
++        // First enable samples the programmed identity (M4, #696).
++        sampled.model->station_mac_i = kMac + phase;
+         sampled.step(phase); sampled.begin(); sampled.frames_until(4);
+         for (unsigned k = 1; k < 4; ++k) {
+             auto cycles = sampled.frame_cycles[k] - sampled.frame_cycles[k - 1];
+@@ -184,12 +186,12 @@ TEST(MaapDifferential, ProbeTimingAndCount) {
+             parent_maximum = std::max(parent_maximum, cycles);
+         }
+     }
+-    std::printf("  parent PROBE intervals over 1024 phases: %u..%u cycles\n",
++    std::printf("  parent PROBE intervals over 1024 MAC/phase pairs: %u..%u cycles\n",
+                 parent_minimum, parent_maximum);
+     EXPECT_LE(parent_minimum, (kParentProbeMinMs + 2u) * 10u)
+-        << "phase sampling reaches the parent's lowest draws";
++        << "MAC/phase sampling reaches the parent's lowest draws";
+     EXPECT_GE(parent_maximum, (kParentProbeMaxMs - 2u) * 10u)
+-        << "phase sampling reaches the parent's highest draws";
++        << "MAC/phase sampling reaches the parent's highest draws";
+     // Reach both firmware draw boundaries through the real timer port.
+     unsigned minimum = 1000;
+     unsigned maximum = 0;
+diff --git a/syn/ooc/pp_resource_baseline.json b/syn/ooc/pp_resource_baseline.json
+index 6a65d8c4c..af98405d1 100644
+--- a/syn/ooc/pp_resource_baseline.json
++++ b/syn/ooc/pp_resource_baseline.json
+@@ -24,30 +24,30 @@
+      ],
+      "standalone_clock_ns": []
+     },
+-    "inputs_sha256": "95a6cc95786fa743da28e2aa603d3a6af08200c86bf4bb7c452aeba7ec072c4c",
++    "inputs_sha256": "29b603ffb306c3cdc07e7dd2bdb35091dd8a30b22ad6402f4b8a8d48528d8e1a",
+     "figures": {
+-     "LUT": 50267,
+-     "FF": 54413,
+-     "SLICE": 15779,
++     "LUT": 50013,
++     "FF": 54306,
++     "SLICE": 15753,
+      "BRAM_TILE": 87.5,
+      "RAMB36": 74,
+      "RAMB18": 27,
+      "DSP": 14,
+-     "WNS_ns": 0.299,
+-     "WHS_ns": 0.031,
+-     "CARRY4": 3402
++     "WNS_ns": 0.233,
++     "WHS_ns": 0.017,
++     "CARRY4": 3397
+     },
+     "scopes": {
+      "wrapper": {
+-      "LUT": 23345,
+-      "FF": 18783,
++      "LUT": 22993,
++      "FF": 18780,
+       "RAMB36": 16,
+       "RAMB18": 3,
+       "DSP": 8,
+-      "CARRY4": 1469
++      "CARRY4": 1443
+      },
+      "ctl_fifo": {
+-      "LUT": 71,
++      "LUT": 69,
+       "FF": 33,
+       "RAMB36": 1,
+       "RAMB18": 1,
+@@ -55,7 +55,7 @@
+       "CARRY4": 3
+      },
+      "u_nvm": {
+-      "LUT": 486,
++      "LUT": 487,
+       "FF": 476,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -63,12 +63,12 @@
+       "CARRY4": 47
+      },
+      "u_pp": {
+-      "LUT": 22794,
+-      "FF": 17953,
++      "LUT": 22442,
++      "FF": 17950,
+       "RAMB36": 15,
+       "RAMB18": 2,
+       "DSP": 4,
+-      "CARRY4": 1413
++      "CARRY4": 1387
+      },
+      "u_pp/g_rx_pool[0].u_rx_slots": {
+       "LUT": 37,
+@@ -87,7 +87,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[2].u_rx_slots": {
+-      "LUT": 51,
++      "LUT": 52,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -103,7 +103,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/g_rx_pool[5].u_rx_slots": {
+-      "LUT": 84,
++      "LUT": 83,
+       "FF": 62,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -111,7 +111,7 @@
+       "CARRY4": 3
+      },
+      "u_pp/u_adp": {
+-      "LUT": 385,
++      "LUT": 386,
+       "FF": 471,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -119,15 +119,15 @@
+       "CARRY4": 32
+      },
+      "u_pp/u_aecp": {
+-      "LUT": 8084,
+-      "FF": 3595,
++      "LUT": 7874,
++      "FF": 3596,
+       "RAMB36": 6,
+       "RAMB18": 0,
+       "DSP": 1,
+-      "CARRY4": 465
++      "CARRY4": 463
+      },
+      "u_pp/u_aecp/u_d3": {
+-      "LUT": 1781,
++      "LUT": 1817,
+       "FF": 582,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -135,15 +135,15 @@
+       "CARRY4": 103
+      },
+      "u_pp/u_aecp/u_dyn": {
+-      "LUT": 1440,
++      "LUT": 1289,
+       "FF": 467,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 62
++      "CARRY4": 60
+      },
+      "u_pp/u_aecp/u_resp": {
+-      "LUT": 345,
++      "LUT": 338,
+       "FF": 260,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -151,7 +151,7 @@
+       "CARRY4": 16
+      },
+      "u_pp/u_aecp/u_store": {
+-      "LUT": 979,
++      "LUT": 980,
+       "FF": 694,
+       "RAMB36": 2,
+       "RAMB18": 0,
+@@ -159,7 +159,7 @@
+       "CARRY4": 106
+      },
+      "u_pp/u_aecp/u_ucpu": {
+-      "LUT": 1727,
++      "LUT": 1720,
+       "FF": 495,
+       "RAMB36": 3,
+       "RAMB18": 0,
+@@ -167,7 +167,7 @@
+       "CARRY4": 72
+      },
+      "u_pp/u_ca_builder": {
+-      "LUT": 111,
++      "LUT": 112,
+       "FF": 152,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -183,7 +183,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch": {
+-      "LUT": 665,
++      "LUT": 670,
+       "FF": 635,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -207,7 +207,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_dispatch/u_aecp_q": {
+-      "LUT": 321,
++      "LUT": 326,
+       "FF": 287,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -223,7 +223,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_event_router": {
+-      "LUT": 229,
++      "LUT": 236,
+       "FF": 51,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -231,7 +231,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_listener": {
+-      "LUT": 1451,
++      "LUT": 1452,
+       "FF": 1054,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -239,7 +239,7 @@
+       "CARRY4": 24
+      },
+      "u_pp/u_lsn_admit": {
+-      "LUT": 9,
++      "LUT": 3,
+       "FF": 1,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -247,7 +247,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_mrp_strip": {
+-      "LUT": 71,
++      "LUT": 70,
+       "FF": 107,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -263,12 +263,12 @@
+       "CARRY4": 6
+      },
+      "u_pp/u_notify": {
+-      "LUT": 2259,
+-      "FF": 1287,
++      "LUT": 2210,
++      "FF": 1292,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+-      "CARRY4": 67
++      "CARRY4": 49
+      },
+      "u_pp/u_nvm_arb": {
+       "LUT": 29,
+@@ -295,7 +295,7 @@
+       "CARRY4": 51
+      },
+      "u_pp/u_originator": {
+-      "LUT": 687,
++      "LUT": 684,
+       "FF": 885,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -319,7 +319,7 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_rx_validator": {
+-      "LUT": 496,
++      "LUT": 498,
+       "FF": 751,
+       "RAMB36": 0,
+       "RAMB18": 1,
+@@ -327,7 +327,7 @@
+       "CARRY4": 35
+      },
+      "u_pp/u_scoreboard": {
+-      "LUT": 142,
++      "LUT": 145,
+       "FF": 169,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -343,15 +343,15 @@
+       "CARRY4": 0
+      },
+      "u_pp/u_srp": {
+-      "LUT": 3682,
+-      "FF": 3837,
++      "LUT": 3638,
++      "FF": 3828,
+       "RAMB36": 0,
+       "RAMB18": 1,
+       "DSP": 2,
+       "CARRY4": 237
+      },
+      "u_pp/u_srp/u_admission": {
+-      "LUT": 243,
++      "LUT": 245,
+       "FF": 143,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -368,22 +368,22 @@
+      },
+      "u_pp/u_srp/u_domain": {
+       "LUT": 77,
+-      "FF": 108,
++      "FF": 107,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+       "CARRY4": 0
+      },
+      "u_pp/u_srp/u_encoder": {
+-      "LUT": 1358,
+-      "FF": 1061,
++      "LUT": 1351,
++      "FF": 1053,
+       "RAMB36": 0,
+       "RAMB18": 0,
+       "DSP": 0,
+       "CARRY4": 102
+      },
+      "u_pp/u_srp/u_listener": {
+-      "LUT": 497,
++      "LUT": 485,
+       "FF": 667,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -391,7 +391,7 @@
+       "CARRY4": 35
+      },
+      "u_pp/u_srp/u_talker": {
+-      "LUT": 489,
++      "LUT": 472,
+       "FF": 602,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -399,7 +399,7 @@
+       "CARRY4": 24
+      },
+      "u_pp/u_srp/u_vlan": {
+-      "LUT": 231,
++      "LUT": 236,
+       "FF": 126,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -407,7 +407,7 @@
+       "CARRY4": 9
+      },
+      "u_pp/u_talker": {
+-      "LUT": 641,
++      "LUT": 624,
+       "FF": 517,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -415,7 +415,7 @@
+       "CARRY4": 17
+      },
+      "u_pp/u_timer": {
+-      "LUT": 882,
++      "LUT": 881,
+       "FF": 179,
+       "RAMB36": 1,
+       "RAMB18": 0,
+@@ -431,7 +431,7 @@
+       "CARRY4": 4
+      },
+      "u_pp/u_tx_arbiter": {
+-      "LUT": 185,
++      "LUT": 182,
+       "FF": 182,
+       "RAMB36": 0,
+       "RAMB18": 0,
+@@ -448,7 +448,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-08, issues #645 and #647: RTL inputs at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb, the merge of dev 6aa25dec977c6ad78bf4ff6275de47fb81d0c246 into 85db353400c6bf3965d279a9f5b5d47e08a0d1ed, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the GMII capture change and listener settle recentre. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #686 record at e519e31ff55af7dcae253da280baad531a7ad40c; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
++   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+    "tolerance": {
+     "LUT": 500,
+     "FF": 600,
+@@ -485,7 +485,7 @@
+       "20.000"
+      ]
+     },
+-    "inputs_sha256": "2dd522bd12b3480a8817cf2bb3dd969ac7be6f3d80be70d13fe32ce5576011a5",
++    "inputs_sha256": "b2a2e9dfe56b79bfc6748f34dcca5808e1b229fffcdd0ac079685f4b95c0ca15",
+     "figures": {
+      "LUT": 23179,
+      "FF": 19779,
+@@ -916,7 +916,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-08, issues #645 and #647: RTL inputs at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb, the merge of dev 6aa25dec977c6ad78bf4ff6275de47fb81d0c246 into 85db353400c6bf3965d279a9f5b5d47e08a0d1ed, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the GMII capture change and listener settle recentre. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #686 record at e519e31ff55af7dcae253da280baad531a7ad40c; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
++   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+    "tolerance": {
+     "LUT": 250,
+     "FF": 250,
+@@ -943,7 +943,7 @@
+       "20.000"
+      ]
+     },
+-    "inputs_sha256": "5604984543f875b19f344900a8b183adf81281c02ba42517ff894502f7a07f0c",
++    "inputs_sha256": "3b3ed3f9fa6242804f65d9009b59f112deea3d05d6206796e5ba1da9b97391a3",
+     "figures": {
+      "LUT": 30135,
+      "FF": 27380,
+@@ -1374,7 +1374,7 @@
+      }
+     }
+    },
+-   "measured": "2026-10-08, issues #645 and #647: RTL inputs at a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb, the merge of dev 6aa25dec977c6ad78bf4ff6275de47fb81d0c246 into 85db353400c6bf3965d279a9f5b5d47e08a0d1ed, processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the GMII capture change and listener settle recentre. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #686 record at e519e31ff55af7dcae253da280baad531a7ad40c; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
++   "measured": "2026-10-10, issue #696 first draw: RTL inputs at lane head bee1b0d712773de799e50f8d9cfc7a02263651f4, which merges dev e8454e2751d05b02ee8e5a571857589ab358ab86 (merge commit 941ba7463ebfc4fb961db78842ce5012e4f96928), processor 2ad2f845dd583f8310075fa2380cb60a04fd091a; includes the KL_maap first-draw folds, the only input that differs from the preceding record. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. All three comparisons passed against the preceding #696 record at 0df486370990fddf9b60096be2f2371150692a10; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+    "tolerance": {
+     "LUT": 316,
+     "FF": 339,
+diff --git a/tb/verilator/maap/Makefile b/tb/verilator/maap/Makefile
+index 318c9a10f..4c71e9fb0 100644
+--- a/tb/verilator/maap/Makefile
++++ b/tb/verilator/maap/Makefile
+@@ -13,32 +13,37 @@ RTL_DIR    = ../../../hdl
+ TOP        = KL_maap
+ MAAP_RTL  ?= $(RTL_DIR)/ieee1722/maap/KL_maap.sv
+ MDIR      ?= obj_dir
++COV_MDIR  ?= obj_cov
+ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) \
+-         -GCLK_FREQ_HZ_P=10000 \
++         -GCLK_FREQ_HZ_P=10000 --public-flat-rw \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
+          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+ SRCS = $(MAAP_RTL)
+-.PHONY: all run build mutants clean coverage
++.PHONY: all run build mutants clean coverage integration-build
+ all: run mutants
+ 
++# #696: the real CSR-to-MAAP path, using the datapath suite's source authority.
++DP_MDIR ?= obj_integration
++integration-build:
++	$(MAKE) -f integration.mk build DP_MDIR=$(DP_MDIR) MAAP_RTL=$(abspath $(MAAP_RTL))
++
+ build:
+ 	$(VERILATOR) $(VFLAGS) -Mdir $(MDIR) $(SRCS) sim_main.cpp -o VKL_maap_sim
+ 
+ run: build
+-	./$(MDIR)/VKL_maap_sim
++	$(abspath $(MDIR))/VKL_maap_sim
+ 
+ mutants:
+ 	python3 mutants.py
+ 
+ # Line coverage, gated at 95 % (defensive arms carry coverage_off pragmas)
+ coverage:
+-	rm -rf obj_cov coverage.dat cov_annotated
+-	$(VERILATOR) $(VFLAGS) --coverage --Mdir obj_cov $(SRCS) sim_main.cpp \
++	mkdir -p $(COV_MDIR)
++	$(VERILATOR) $(VFLAGS) --coverage --Mdir $(COV_MDIR) $(SRCS) sim_main.cpp \
+ 	    -o VKL_maap_cov
+-	./obj_cov/VKL_maap_cov
+-	verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat \
+-	    | tail -2
+-	@python3 ../avtp_rxmon/cov_gate.py cov_annotated 95 KL_maap.sv
++	cd $(COV_MDIR) && ./VKL_maap_cov
++	verilator_coverage --annotate $(COV_MDIR)/annotated --annotate-min 1 $(COV_MDIR)/coverage.dat
++	python3 ../avtp_rxmon/cov_gate.py $(COV_MDIR)/annotated 95 KL_maap.sv
+ clean:
+ 	rm -rf obj_dir obj_cov obj_mut_* coverage.dat cov_annotated
+diff --git a/tb/verilator/maap/integration.mk b/tb/verilator/maap/integration.mk
+new file mode 100644
+index 000000000..0d005fd0d
+--- /dev/null
++++ b/tb/verilator/maap/integration.mk
+@@ -0,0 +1,36 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++# #696 M4: source list and elaboration flags come from the datapath suite.
++VERILATOR ?= verilator
++VERILATOR_JOBS ?= 2
++DP_MDIR ?= obj_integration
++MAAP_RTL ?= ../../../hdl/ieee1722/maap/KL_maap.sv
++# MAKEFLAGS= : GNU make 4.3 (the hosted runner) leaks "Entering directory" lines into a
++# $(shell) capture under an inherited w flag inside a recursive -j parent, even with
++# --no-print-directory; the sibling suites (milan_dp_mclk, milan_dp_render, pp_shadow)
++# clear the inherited flags the same way. The job bound is passed explicitly.
++DP_SRCS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-srcs)
++ifneq ($(.SHELLSTATUS),0)
++$(error datapath source derivation failed)
++endif
++ifeq ($(strip $(DP_SRCS)),)
++$(error datapath source list is empty)
++endif
++ifneq ($(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS)),)
++$(error datapath source list names non-files: $(firstword $(filter-out $(wildcard $(DP_SRCS)),$(DP_SRCS))))
++endif
++DP_FLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C ../milan_dp print-dp-vflags VERILATOR_JOBS=$(VERILATOR_JOBS))
++ifneq ($(.SHELLSTATUS),0)
++$(error datapath flag derivation failed)
++endif
++SRCS = $(subst ../../../hdl/ieee1722/maap/KL_maap.sv,$(MAAP_RTL),$(DP_SRCS))
++.PHONY: build
++build:
++	mkdir -p $(DP_MDIR)
++	python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o $(DP_MDIR)/ltn_rom.hex
++	python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o $(DP_MDIR)/ucode.hex
++	$(VERILATOR) +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 \
++	  $(DP_FLAGS) --Mdir $(DP_MDIR) -GMAAP_CLK_HZ_P=10000 \
++	  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 \
++	  -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 \
++	  $(SRCS) sim_integration.cpp -o maap_integration
+diff --git a/tb/verilator/maap/mutants.py b/tb/verilator/maap/mutants.py
+index 672c8cd6b..085989b73 100644
+--- a/tb/verilator/maap/mutants.py
++++ b/tb/verilator/maap/mutants.py
+@@ -9,7 +9,9 @@ for every station MAC), item 3 B.3.2 Table B.7 notes b and d (ANNOUNCE
+ conflict detection), item 4 Table B.7 (four PROBEs, the first at once, the
+ ANNOUNCE at once). Item 0 marks a supporting change that grades no item's
+ own clause (frame integrity on the wire, the DEFEND overlap, this station's
+-empty range); it does not count toward the item guard. Each mutant is
++empty range); it does not count toward the item guard. The #696 items M1 to
++M8 carry their own mutants, named by item; DATAPATH_MUTANTS run the real
++CSR-to-MAAP path. Each mutant is
+ an exact source replacement whose anchor must occur exactly once, applied to
+ a scratch copy: no checkout file is edited. A mutant counts as killed only
+ when its build succeeds, the harness exits 1, and the named check is among
+@@ -29,13 +31,103 @@ RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
+ BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
+                "            state_r      <= PROBE_S;\n          end")
+ RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
+-                 "            state_r      <= PROBE_S;\n            conflicts_o")
++                 "            state_r      <= PROBE_S;\n            if (restart_w)")
+ CELL = "((state_r == PROBE_S) || !mac_lower_w)"
+-SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
++SEED = "(mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w"
++#: the first Begin! draw; R558-6's p7 restores the pre-#696 expression
++FIRST_DRAW = ("rand_offset(rng_seeded_r ? lfsr_next_w[15:0]\n"
++              "                                                                    "
++              ": offset_fold(seed_next_w), count_i)")
++PRE_696_FIRST_DRAW = "rand_offset(lfsr_next_w[15:0], count_i)"
++FIRST_FOLD = "offset_fold(seed_next_w), count_i)"
++PROBE_DRAW = "{10'd0, probe_fold(lfsr_next_w)}"
+ SUPPORTING = 0
+ 
+ #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
+ MUTANTS = (
++    ("m3_short_period", "M3",
++     "lfsr_step = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};",
++     "lfsr_step = {16'd0, s[14:0], s[15] ^ s[14] ^ s[12] ^ s[3]};",
++     "M3 B.3.6.1 generator period is 2^32-1"),
++    ("m3_trap_outside_basis", "M3",
++     "lfsr_next_w = lfsr_step(lfsr_r);",
++     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : lfsr_step(lfsr_r);",
++     "M3 B.3.6.1 generator period is 2^32-1"),
++    ("m3_ignores_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
++     "station_mac_i[31:0]", "M3 B.3.6.1 first enable seeds MAC plus clock"),
++    ("m3_xors_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
++     "station_mac_i[31:0] ^ realtime_ns_i", "M3 B.3.6.1 first enable seeds MAC plus clock"),
++    ("m3_reseeds_after_release", "M3", "enable_i && !rng_seeded_r", "enable_i",
++     "M3 Release/Begin retains the generator sequence"),
++    ("m3_first_offset_ignores_clock", "M3", FIRST_FOLD,
++     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
++     "M3 B.3.6.1 clocks 2^k apart claim different first offsets"),
++    ("m4_first_offset_ignores_seed", "M4", FIRST_DRAW, PRE_696_FIRST_DRAW,
++     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
++    ("m4_first_offset_raw_seed_bits", "M4", FIRST_FOLD, "enable_seed_w[15:0], count_i)",
++     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
++    ("m4_first_offset_drops_seed_high_half", "M4", FIRST_FOLD,
++     "offset_fold({16'd0, seed_next_w[15:0]}), count_i)",
++     "M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks"),
++    ("m4_first_interval_raw_seed_bits", "M4", PROBE_DRAW, "{10'd0, lfsr_r[5:0]}",
++     "M4 B.3.4 MACs 2^i apart draw different first probe intervals"),
++    # Defects that every sampled first-draw pair survives (R559-6's q3, q9 and
++    # q1, and a nonlinear first fold); section [13] must see each for every seed.
++    ("m4_offset_row0_bit_drop", "M4", "32'h1040_0000, 32'h0000_0081",
++     "32'h1040_0000, 32'h0000_0080",
++     "M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word"),
++    ("m4_offset_row6_bit_drop", "M4", "32'h8008_0040", "32'h8000_0040",
++     "M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8"),
++    ("m4_probe_fold_unstepped", "M4", PROBE_DRAW, "{10'd0, probe_fold(lfsr_r)}",
++     "M4 B.3.4 every seed pair 2^i apart draws different first probe intervals"),
++    ("m4_first_offset_nonlinear", "M4", FIRST_FOLD,
++     "offset_fold(seed_next_w) ^ {15'd0, &seed_next_w[1:0]}, count_i)",
++     "M4 first-draw maps learned from the RTL are linear in the seed"),
++    # A probe row that repeats an offset row ties the two first draws together.
++    ("m4_probe_row_repeats_offset_row", "M4", "32'h0000_0409, 32'h2420_0880",
++     "32'h0000_0409, 32'h0000_0081",
++     "M4 B.3.6.1 first offset word and first probe draw are independent"),
++    ("m6_overwrite_active_response", "M6",
++     "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
++     "M6 occupied response buffer preserves active DEFEND"),
++    ("m6_replace_pending_response", "M6",
++     "probe_hit_w && !defend_pending_r", "probe_hit_w",
++     "M6 pending response preserves prober and requested range"),
++    ("m6_pending_survives_release", "M6",
++     "if (!enable_i || restart_w || port_operational_p)", "if (1'b0)",
++     "M6 pending response cancelled with allocation"),
++    ("m6_drop_busy_probe", "M6", "if (save_probe_w) begin", "if (1'b0) begin",
++     "M6 busy PROBE gets DEFEND after wire is free"),
++    ("m6_pending_source_not_saved", "M6", "tx_dst_r        <= rx_src_r;",
++     "tx_dst_r        <= 48'd0;", "M6 pending response preserves prober and requested range"),
++    ("m5_ignore_link_return", "M5", "else if (restart_w || port_operational_p)", "else if (restart_w)",
++     "M5 B.3.5.9 link return revokes and reprobes"),
++    ("m5_level_restarts", "M5", "port_operational_i && !port_operational_r",
++     "port_operational_i", "M5 B.3.5.9 link return restarts PROBE"),
++    ("m5_restart_on_link_loss", "M5", "port_operational_i && !port_operational_r",
++     "!port_operational_i && port_operational_r",
++     "M5 B.3.5.9 link loss is no event; return reprobes"),
++    ("m1_probe_no_compare", "M1", "(state_r == PROBE_S) && !mac_lower_w",
++     "(state_r == PROBE_S)", "M1 rProbe/PROBE lower MAC keeps range"),
++    ("m1_defend_no_compare", "M1", "((state_r != ANNOUNCE_S) || !mac_lower_w)",
++     "1'b1", "M1 rDefend/DEFEND lower MAC keeps range"),
++    ("m8_early_last_accepted", "M8", "(rbeat_r >= 3'd5)", "1'b1",
++     "M8 B.2 truncated PROBE-state input has no effect"),
++    ("m8_missing_bytes_accepted", "M8", "&& rx_bytes_valid_r && rx_beat_complete_w", "",
++     "M8 B.2 truncated DEFEND-state input has no effect"),
++    ("m7_accept_invalid_seed", "M7", " && seed_in_pool_w", "",
++     "M7 Table B.9 invalid supplied range refused"),
++    ("m7_reject_valid_boundary", "M7", "seed_end_w <= {1'b0, POOL_SIZE_C}",
++     "seed_end_w < {1'b0, POOL_SIZE_C}",
++     "M7 Table B.9 valid supplied boundary retained"),
++    ("m2_own_requested_start", "M2", "tx_defend_off_r <= rx_start_r;",
++     "tx_defend_off_r <= offset_r;", "M2 B.3.6.6 requested start echoes PROBE"),
++    ("m2_echo_overlap_start", "M2", "tx_defend_off_r <= rx_start_r;",
++     "tx_defend_off_r <= conf_start_w;",
++     "M2 B.3.6.6 requested start echoes a PROBE starting below ours"),
++    ("m2_own_requested_count", "M2", "tx_cnt_r        <= rx_cnt_r;",
++     "tx_cnt_r        <= {8'd0, count_i};",
++     "M2 B.3.6.6 requested count echoes all 16 bits"),
+     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
+      "B.2.1 cdl 16 (Begin! PROBE 1)"),
+     ("defend_to_multicast", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
+@@ -44,7 +136,7 @@ MUTANTS = (
+      "B.2.1 DEFEND DA latched at send"),
+     ("every_frame_to_the_prober", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
+      "1'b1 ? tx_dst_r", "B.2.1 PROBE DA multicast (Begin! 1)"),
+-    ("probe_draw_7_bits", 2, "{10'd0, lfsr_r[5:0]}", "{9'd0, lfsr_r[6:0]}",
++    ("probe_draw_7_bits", 2, PROBE_DRAW, "{9'd0, lfsr_r[0], probe_fold(lfsr_next_w)}",
+      "B.3.4.2 probe T < 600 ms (campaign)"),
+     ("probe_base_500", 2, "PROBE_MIN_MS_C    = 518;", "PROBE_MIN_MS_C    = 500;",
+      "B.3.4.2 probe T > 500 ms (campaign)"),
+@@ -84,7 +176,7 @@ MUTANTS = (
+      "                timer_ms_r <= announce_iv_w;\n",
+      "T.B7 probeCount!: ANNOUNCE at once (Begin!)"),
+     ("restart_rewrites_the_frame_on_the_wire", SUPPORTING,
+-     "f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];",
++     "f[30] = requested_start[15:8]; f[31] = requested_start[7:0];",
+      "f[30] = offset_r[15:8]; f[31] = offset_r[7:0];", "frame on the wire keeps its offset"),
+     ("overlap_count_to_our_end", SUPPORTING, "16'(conf_end_w - {1'b0, conf_start_w})",
+      "16'(our_end_w - {1'b0, conf_start_w})", "B.2.8 conflict_count = overlap (below)"),
+@@ -95,14 +187,34 @@ MUTANTS = (
+      "note b: this station's empty range never conflicts"),
+ )
+ 
++#: (name, anchor, replacement, the integration check that must fail)
++DATAPATH_MUTANTS = (
++    ("m4_reset_time_sampling", "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;",
++     "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;",
++     "M4 datapath: programmed MAC changes probe intervals"),
++    ("m5_datapath_ignores_link", "else if (restart_w || port_operational_p)", "else if (restart_w)",
++     "M5 datapath: link return starts four fresh PROBEs"),
++    ("m3_datapath_ignores_clock", "station_mac_i[31:0] + realtime_ns_i", "station_mac_i[31:0]",
++     "M3 datapath: real-time clock changes probe intervals"),
++    ("m4_datapath_first_offset_ignores_seed", FIRST_DRAW, PRE_696_FIRST_DRAW,
++     "M4 datapath: fixed adjacent MAC pair claims disjoint first blocks"),
++    ("m3_datapath_first_offset_ignores_clock", FIRST_FOLD,
++     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
++     "M3 datapath: fixed PHC time pair claims different first offsets"),
++)
++
+ 
+-def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
++def run_case(work: Path, name: str, source: str, failure: str | None,
++             integration: bool = False) -> bool:
+     """A compiler error or abnormal termination never counts as a kill."""
+     rtl = work / f"{name}.sv"
+     rtl.write_text(source)
+     mdir = work / f"obj_{name}"
++    target = "integration-build" if integration else "build"
++    directory = "DP_MDIR" if integration else "MDIR"
+     result = subprocess.run(
+-        ["make", "-s", "-C", str(HERE), "build", f"MAAP_RTL={rtl}", f"MDIR={mdir}",
++        ["make", "-j8", "-s", "-C", str(HERE), target, f"MAAP_RTL={rtl}",
++         f"{directory}={mdir}",
+          f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}",
+          f"VERILATOR_JOBS={os.environ.get('VERILATOR_JOBS', '0')}"],
+         capture_output=True, text=True, check=False)
+@@ -110,7 +222,8 @@ def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
+         print(result.stdout[-2000:] + result.stderr[-2000:])
+         print(f"[ESCAPED] {name}: compilation failed")
+         return False
+-    result = subprocess.run([str(mdir / "VKL_maap_sim")],
++    executable = "maap_integration" if integration else "VKL_maap_sim"
++    result = subprocess.run([str(mdir / executable)], cwd=mdir,
+                             capture_output=True, text=True, check=False)
+     output = result.stdout + result.stderr
+     if failure is None:
+@@ -134,7 +247,7 @@ def main() -> int:
+ 
+     signal.signal(signal.SIGTERM, interrupted)
+     source = RTL.read_text()
+-    items = {item for _, item, _, _, _ in MUTANTS} - {SUPPORTING}
++    items = {item for _, item, _, _, _ in MUTANTS if isinstance(item, int)} - {SUPPORTING}
+     if items != {1, 2, 3, 4}:
+         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
+         return 1
+@@ -149,6 +262,13 @@ def main() -> int:
+                 results.append(False)
+                 continue
+             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
++        results.append(run_case(work, "m4_datapath_clean", source, None, True))
++        for name, anchor, replacement, failure in DATAPATH_MUTANTS:
++            if source.count(anchor) != 1:
++                print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
++                results.append(False)
++                continue
++            results.append(run_case(work, name, source.replace(anchor, replacement), failure, True))
+     failures = sum(not passed for passed in results)
+     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
+     return 1 if failures else 0
+diff --git a/tb/verilator/maap/sim_integration.cpp b/tb/verilator/maap/sim_integration.cpp
+new file mode 100644
+index 000000000..e02f65f70
+--- /dev/null
++++ b/tb/verilator/maap/sim_integration.cpp
+@@ -0,0 +1,191 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// #696 M4: equal reset/write/enable timing, different programmed MACs.
++// Observe complete frames at the real datapath MAC output (B.3.4 NOTE):
++// the PROBE intervals and the first PROBE's requested range (B.3.6.1).
++#include "Vmilan_datapath.h"
++#include "../../common/verilator_harness.hpp"
++#include <array>
++#include <cstdio>
++#include <vector>
++
++namespace {
++// The real control path inserts a 512-cycle gap between frames.
++constexpr unsigned kControlEgressBudget = 2000;
++class SeedHarness {
++ public:
++    std::vector<unsigned> intervals(unsigned mac_last, unsigned enable_delay=0) {
++        dut->axis_resetn = 0;
++        dut->gtx_resetn = 0;
++        dut->m_axis_mac_tx_tready = 1;
++        dut->i_mac_speed = 2;
++        dut->i_link_up = 1;
++        dut->i_full_duplex = 1;
++        for (int i = 0; i < 8; ++i) cycle();
++        dut->axis_resetn = 1;
++        dut->gtx_resetn = 1;
++        for (int i = 0; i < 16; ++i) cycle();
++        // Wire MAC 02:00:00:00:00:xx, programmed only after reset.
++        if (!write(0x71c, 5) || !write(0x108, 2) || !write(0x10c, mac_last << 8)) return {};
++        for (unsigned i=0;i<enable_delay;++i) cycle();
++        if (!write(0x6cc, 0x801)) return {};
++        for (unsigned i = 0; i < 25000 && starts.size() < 4; ++i) cycle();
++        if (starts.size() != 4 || !frames_ok) return {};
++        std::vector<unsigned> result;
++        for (unsigned i = 1; i < starts.size(); ++i)
++            result.push_back(starts[i] - starts[i - 1]);
++        return result;
++    }
++
++    bool link_return() {
++        for (unsigned i=0;i<kControlEgressBudget && announces==0;++i) cycle();
++        if (announces!=1) {
++            std::printf("initial ANNOUNCE count: %u\n",announces);
++            return false;
++        }
++        const auto before=starts.size();
++        dut->i_link_up=0;
++        for (unsigned i=0;i<8;++i) cycle();
++        const unsigned event=now;
++        dut->i_link_up=1;
++        for (unsigned i=0;i<25000 && announces<2;++i) cycle();
++        const bool reclaims=announces==2 && starts.size()==before+4
++            && starts[before]-event<kControlEgressBudget;
++        for (unsigned i=0;i<100;++i) cycle();
++        std::printf("link return: probes %zu -> %zu, announces %u, delay %u\n",
++                    before,starts.size(),announces,
++                    starts.size()>before ? starts[before]-event : 0);
++        return reclaims && starts.size()==before+4 && frames_ok;
++    }
++
++    // requested_start of the first PROBE, -1 before it is seen
++    long first_offset() const { return first_start; }
++
++ private:
++    const milan::tb::Model<Vmilan_datapath> model;
++    Vmilan_datapath* dut = model.get();
++    unsigned now = 0;
++    unsigned announces = 0;
++    unsigned start = 0;
++    long first_start = -1;
++    bool frames_ok = true;
++    std::vector<unsigned char> frame;
++    std::vector<unsigned> starts;
++
++    void low() {
++        dut->axis_clk = 0; dut->gtx_clk = 0;
++        dut->clk_audio_i = 0; dut->clk_tdm_i = 0;
++        dut->eval();
++    }
++
++    void high() {
++        if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
++            if (frame.empty()) start = now;
++            for (unsigned i = 0; i < 8; ++i)
++                if ((dut->m_axis_mac_tx_tkeep >> i) & 1)
++                    frame.push_back(dut->m_axis_mac_tx_tdata >> (8 * i));
++            if (dut->m_axis_mac_tx_tlast) {
++                if (frame.size()>=16 && frame[14]==0xfe)
++                    std::printf("wire type=%u bytes=%zu start=%u\n", frame[15],frame.size(),start);
++                if (frame.size() >= 16 && frame[14] == 0xfe && frame[15] == 1) {
++                    frames_ok &= frame.size() == 60 && frame[17] == 16;
++                    starts.push_back(start);
++                    if (first_start < 0) first_start = (frame[30] << 8) | frame[31];
++                }
++                if (frame.size()==60 && frame[14]==0xfe && frame[15]==3)
++                    ++announces;
++                frame.clear();
++            }
++        }
++        dut->axis_clk = 1; dut->gtx_clk = 1;
++        dut->clk_audio_i = 1; dut->clk_tdm_i = 1;
++        dut->eval();
++        ++now;
++    }
++
++    void cycle() { low(); high(); }
++
++    bool write(unsigned address, unsigned value) {
++        dut->s_axi_awaddr = address; dut->s_axi_awvalid = 1;
++        dut->s_axi_wdata = value; dut->s_axi_wstrb = 15;
++        dut->s_axi_wvalid = 1; dut->s_axi_bready = 1;
++        bool accepted = false;
++        for (unsigned i = 0; i < 2048 && !accepted; ++i) {
++            low();
++            accepted = dut->s_axi_awready && dut->s_axi_wready;
++            high();
++        }
++        dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
++        bool response = false;
++        for (unsigned i = 0; i < 2048 && !response; ++i) {
++            low(); response = dut->s_axi_bvalid; high();
++        }
++        dut->s_axi_bready = 0;
++        return accepted && response;
++    }
++};
++} // namespace
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    std::array<std::vector<unsigned>, 2> intervals;
++    std::array<long, 2> offsets{};
++    bool link_ok=true;
++    for (unsigned i = 0; i < intervals.size(); ++i) {
++        SeedHarness station;
++        intervals[i] = station.intervals(i + 1);
++        offsets[i] = station.first_offset();
++        std::printf("station %u first offset 0x%04lx, probe intervals:", i, offsets[i]);
++        for (unsigned value : intervals[i]) std::printf(" %u", value);
++        std::puts("");
++        link_ok &= station.link_return();
++    }
++    bool valid = true;
++    for (const auto& station : intervals) {
++        valid &= station.size() == 3;
++        for (unsigned value : station) valid &= value > 5000 && value < 6000;
++    }
++    const bool different = valid && intervals[0] != intervals[1];
++    std::printf("[%s] M4 datapath: programmed MAC changes probe intervals\n",
++                different ? "ok" : "FAIL");
++    std::printf("[%s] M5 datapath: link return starts four fresh PROBEs\n",
++                link_ok ? "ok" : "FAIL");
++    // The fixed adjacent pair 02:00:00:00:00:01 and :02: their 8-address
++    // first blocks must share no address (Table B.7 note b). The unit suite
++    // establishes this for every seed pair 2^i apart.
++    const bool blocks_apart = offsets[0] >= 0 && offsets[1] >= 0
++        && (offsets[0] >= offsets[1] + 8 || offsets[1] >= offsets[0] + 8);
++    std::printf("[%s] M4 datapath: fixed adjacent MAC pair claims disjoint first blocks\n",
++                blocks_apart ? "ok" : "FAIL");
++    // Delay by whole scaled milliseconds: the timer divider phase stays
++    // identical, while the real PHC advances before the first enable.
++    std::array<std::vector<unsigned>,2> clock_intervals;
++    std::array<long,2> clock_offsets{};
++    for (unsigned i=0;i<clock_intervals.size();++i) {
++        SeedHarness station;
++        clock_intervals[i]=station.intervals(1,(i+1)*1000);
++        clock_offsets[i]=station.first_offset();
++        std::printf("clock trial %u first offset 0x%04lx, probe intervals:",i,clock_offsets[i]);
++        for (unsigned value : clock_intervals[i]) std::printf(" %u",value);
++        std::puts("");
++    }
++    // Both starts follow the initial egress gap. Compare later intervals
++    // so an initial scheduling delay cannot stand in for clock seeding.
++    bool clock_ok=clock_intervals[0].size()==3 && clock_intervals[1].size()==3;
++    if (clock_ok)
++        clock_ok=clock_intervals[0][1]!=clock_intervals[1][1]
++            || clock_intervals[0][2]!=clock_intervals[1][2];
++    for (const auto& trial : clock_intervals)
++        for (unsigned value : trial) clock_ok &= value>5000 && value<6000;
++    std::printf("[%s] M3 datapath: real-time clock changes probe intervals\n",
++                clock_ok ? "ok" : "FAIL");
++    // A fixed pair of PHC times: one MAC enabled 1,000 and 2,000 cycles after
++    // programming. It pins this pair; the unit suite grades clocks 2^k apart.
++    const bool clock_offset_ok = clock_offsets[0] >= 0 && clock_offsets[1] >= 0
++        && clock_offsets[0] != clock_offsets[1];
++    std::printf("[%s] M3 datapath: fixed PHC time pair claims different first offsets\n",
++                clock_offset_ok ? "ok" : "FAIL");
++    const unsigned failures=(!different)+(!link_ok)+(!blocks_apart)+(!clock_ok)+(!clock_offset_ok);
++    std::printf("MAAP integration: 5 checks, %u failures\n", failures);
++    return failures ? 1 : 0;
++}
+diff --git a/tb/verilator/maap/sim_main.cpp b/tb/verilator/maap/sim_main.cpp
+index 891233631..9dfc863ac 100644
+--- a/tb/verilator/maap/sim_main.cpp
++++ b/tb/verilator/maap/sim_main.cpp
+@@ -6,21 +6,26 @@
+ // mutants.py plants one defect per #686 item and requires its named check to
+ // fail. Item 1 is B.2.1 (DEFEND destination, control_data_length 16), item 2
+ // B.3.3 Table B.8 and B.3.4 (strict, random probe and announce intervals,
+-// for a station MAC that folds the LFSR seed to zero as well), item 3
++// for a station MAC whose MAC-plus-clock seed is zero as well), item 3
+ // B.3.2 Table B.7 notes b and d (ANNOUNCE conflict detection), item 4 Table
+ // B.7 ReserveAddress!/probetimer!/probeCount! (four PROBEs, the first at
+-// once). A DEFEND's requested_* fields are not graded: their B.3.6.6 echo is
+-// a recorded deviation outside #686 (docs/design/MAAP_FABRIC.md).
++// once). #696 also grades the DEFEND requested-range echo (B.3.6.6) and the
++// first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1): on
++// the wire for sampled pairs, and for every seed through first-draw maps
++// learned from the RTL.
+ // Scaled clock: CLK_FREQ_HZ_P=10000 -> 1 ms = 10 cycles.
+ #include "VKL_maap.h"
++#include "VKL_maap___024root.h"
+ #include "verilated.h"
+ #include "../../common/verilator_harness.hpp"
+ #if VM_COVERAGE
+ #include "verilated_cov.h"
+ #endif
+ #include <algorithm>
++#include <array>
+ #include <cstdio>
+ #include <cstdint>
++#include <cstdlib>
+ #include <cstring>
+ #include <set>
+ #include <vector>
+@@ -45,7 +50,8 @@ constexpr int kSettleCyc = 50;
+ constexpr uint16_t kMaxOffset = 0xFDF8;
+ constexpr uint16_t kCount = 8;
+ constexpr uint64_t kMaapDst = 0x91E0F000FF00ULL;     // Table B.10
+-constexpr uint64_t kStationMac = 0x020000000001ULL;  // reversed: 01:..:02
++// Its first Begin! offset at clock 0 leaves room for the range fixtures.
++constexpr uint64_t kStationMac = 0x020000001001ULL;  // reversed: 01:10:..:02
+ // compare_MAC operands (B.3.6.4 compares octet-reversed MACs). kPeerAbove
+ // reverses to BB:AA:99:88:77:66, above this station, so compare_MAC is TRUE
+ // and this station keeps its range. kPeerBelow reverses to 00:AA:..:66,
+@@ -53,9 +59,13 @@ constexpr uint64_t kStationMac = 0x020000000001ULL;  // reversed: 01:..:02
+ // which is what lets a reversal defect show.
+ constexpr uint64_t kPeerAbove = 0x66778899AABBULL;
+ constexpr uint64_t kPeerBelow = 0x66778899AA00ULL;
+-// a station MAC whose two low 16-bit halves XOR to 0xACE1, which folds the
+-// LFSR's MAC seed to zero (the LFSR's fixed point)
+-constexpr uint64_t kZeroSeedMac = 0x02000000ACE1ULL;
++// A unicast MAC whose low 32 bits sum with clock zero to the fixed point.
++constexpr uint64_t kZeroSeedMac = 0x020000000000ULL;
++// The unicast prefix of the first-claim stations; their low 32 bits carry the seed.
++constexpr uint64_t kMacBase = 0x020000000000ULL;
++// first-draw linearity samples, and the tries to find an unambiguous pair
++constexpr int kLinearitySamples = 256;
++constexpr int kColumnTries = 64;
+ // timing campaign size: walks restarted by disable/enable
+ constexpr int kTimingWalks = 150;
+ constexpr int kAnnounceSamples = 24;
+@@ -64,6 +74,10 @@ constexpr int kZeroSeedWalks = 3;
+ constexpr int kZeroSeedAnnounces = 4;
+ // a walk stops counting PROBEs here (a defect could send them forever)
+ constexpr int kProbeLimit = 8;
++// A link outage longer than a whole walk (the at-once PROBE, three probe
++// intervals under 600 ms, the at-once ANNOUNCE), so a walk restarted at
++// the loss would end before the return
++constexpr long kOutageCyc = 4 * kProbeMaxCyc;
+ 
+ namespace {
+ 
+@@ -74,12 +88,61 @@ struct Frame {
+     long start = 0;
+     long end = 0;
+     uint64_t at(int pos, int n) const {
++        // A missing or short frame is a failed comparison, never an invalid read.
++        if (pos < 0 || n < 0 || static_cast<size_t>(pos + n) > b.size())
++            return UINT64_MAX;
+         uint64_t v = 0;
+         for (int k = 0; k < n; k++) v = (v << 8) | b[pos + k];
+         return v;
+     }
+ };
+ 
++//! What one station claimed at its first Begin!.
++struct FirstClaim {
++    long start = -1;     // the first PROBE's requested_start, -1 if none
++    long interval = -1;  // first PROBE to second PROBE, cycles, -1 if unmeasured
++};
++
++//! Two equally timed stations: a MAC and a clock each.
++struct StationPair {
++    uint64_t mac_a;
++    uint64_t mac_b;
++    uint32_t clock_a;
++    uint32_t clock_b;
++};
++
++//! A first-draw value and a seed the RTL maps onto it.
++struct SeedImage {
++    uint32_t value = 0;
++    uint32_t seed = 0;
++};
++//! Row-echelon basis of a learned map's image: entry b has top bit b.
++using ImageBasis = std::array<SeedImage, 32>;
++//! A learned GF(2)-linear map of the seed: column k is the image of bit k.
++using SeedMap = std::array<uint32_t, 32>;
++
++//! Learn a linear map of the seed from the RTL: column k is the XOR of two
++//! observations whose seeds differ in bit k only. `observe` returns -1 where
++//! it cannot tell the value; a zero seed (the fallback) is never observed.
++template <typename Observe>
++bool learn_seed_map(SeedMap& map, uint32_t sample, Observe observe) {
++    for (unsigned k=0;k<map.size();++k) {
++        bool found=false;
++        for (int t=0;t<kColumnTries && !found;++t) {
++            sample=sample*1664525u+1013904223u;
++            const uint32_t other=sample^(uint32_t{1}<<k);
++            if (!sample || !other) continue;
++            const long a=observe(sample);
++            const long b=observe(other);
++            if (a<0 || b<0) continue;
++            map[k]=static_cast<uint32_t>(a^b);
++            found=true;
++        }
++        if (!found) return false;
++    }
++    return true;
++}
++
+ //! What one ReserveAddress! walk put on the wire.
+ struct Walk {
+     int probes = 0;          // PROBEs before the first other frame
+@@ -117,7 +180,7 @@ class MaapHarness {
+     // The next frame not yet consumed, waiting up to budget cycles for it.
+     bool next(Frame& f, long budget){
+         for(long i=0;i<budget && frames.size()<=seen;i++) cyc();
+-        if(frames.size()<=seen) return false;
++        if(frames.size()<=seen){ f=Frame{}; return false; }
+         f=frames[seen++];
+         return true;
+     }
+@@ -126,7 +189,8 @@ class MaapHarness {
+     // defaults to 1 (byte 16 = version<<3 | cdl[10:8], cdl 16 per B.2.1)
+     void inject(uint8_t msg, uint64_t src, uint16_t req_off, uint16_t req_cnt,
+                 uint16_t conf_off, uint16_t conf_cnt, bool conf_pool=true,
+-                uint8_t maap_ver=1, bool req_pool=true){
++                uint8_t maap_ver=1, bool req_pool=true, unsigned length=60,
++                int missing_byte=-1, bool deliver=true){
+         uint8_t f[64]; memset(f,0,sizeof f);
+         for(int k=0;k<6;k++){ f[k]=kMaapDst>>(40-8*k); f[6+k]=src>>(40-8*k); }
+         f[12]=0x22; f[13]=0xF0; f[14]=0xFE; f[15]=msg;
+@@ -137,11 +201,16 @@ class MaapHarness {
+         if(conf_pool){ f[34]=0x91; f[35]=0xE0; f[36]=0xF0; f[37]=0x00; }
+         f[38]=conf_off>>8; f[39]=conf_off;
+         f[40]=conf_cnt>>8; f[41]=conf_cnt;
+-        for(int b=0;b<8;b++){
++        const int beats=static_cast<int>((length+7)/8);
++        for(int b=0;b<beats;b++){
+             uint64_t v=0;
+             for(int j=0;j<8;j++) v|=static_cast<uint64_t>(f[b*8+j])<<(8*j);
+-            dut->rx_tdata_i=v; dut->rx_tkeep_i=(b==7)?0x0F:0xFF;
+-            dut->rx_tvalid_i=1; dut->rx_tready_i=1; dut->rx_tlast_i=(b==7);
++            const unsigned bytes=std::min(8u, length-static_cast<unsigned>(b)*8);
++            unsigned keep=(1u<<bytes)-1;
++            if (missing_byte>=b*8 && missing_byte<(b+1)*8)
++                keep &= ~(1u<<(missing_byte-b*8));
++            dut->rx_tdata_i=v; dut->rx_tkeep_i=keep;
++            dut->rx_tvalid_i=deliver; dut->rx_tready_i=1; dut->rx_tlast_i=(b==beats-1);
+             cyc();
+         }
+         rx_end=now;
+@@ -173,7 +242,7 @@ class MaapHarness {
+     void announce_intervals_and_destination();
+     void defend_to_the_prober(uint16_t off0);
+     void announce_conflict_detection(uint16_t off0);
+-    void probe_mid_frame_is_not_defended();
++    void probe_mid_frame_is_defended();
+     void frame_on_the_wire_keeps_its_range();
+     void defend_and_probe_reception();
+     void ignore_disjoint_and_non_pool_pdus();
+@@ -182,6 +251,27 @@ class MaapHarness {
+     void disable_then_claim_the_seed();
+     std::vector<long> frame_starts(size_t n);
+     void zero_seed_mac_draws_random_timers();
++    void compare_mac_remaining_cells();
++    void pending_response_cancelled();
++    void port_return_reprobes();
++    void port_loss_is_no_event();
++    void supplied_seed_bounds();
++    void truncated_pdus_have_no_effect();
++    void generator_period_and_seed();
++    FirstClaim first_claim(uint64_t mac, uint32_t clock, bool interval);
++    bool claims_disjoint(const std::vector<StationPair>& pairs);
++    bool claims_differ(const std::vector<StationPair>& pairs);
++    bool intervals_differ(const std::vector<StationPair>& pairs);
++    void first_claims_of_equally_timed_stations();
++    uint16_t seeded_first_offset(uint32_t seed, uint8_t count);
++    long seeded_first_probe_draw(uint32_t seed);
++    static bool insert_image(ImageBasis& basis, SeedImage image, uint32_t& null_seed);
++    static int image_rank(const SeedMap& map, unsigned first, unsigned last);
++    void first_draws_for_every_seed();
++    using GeneratorMap = std::array<uint32_t, 32>;
++    static uint32_t apply_generator_map(const GeneratorMap& map, uint32_t state);
++    static uint32_t jump_generator(GeneratorMap map, uint32_t state, uint64_t steps);
++    uint32_t generator_step(uint32_t state);
+ 
+     const milan::tb::Model<VKL_maap> model;
+     VKL_maap* dut = model.get();
+@@ -200,7 +290,8 @@ class MaapHarness {
+ 
+ void MaapHarness::bring_up_idle(){
+     dut->station_mac_i=kStationMac;
+-    dut->enable_i=0; dut->count_i=kCount;
++    dut->realtime_ns_i=0;
++    dut->enable_i=0; dut->count_i=kCount; dut->port_operational_i=1;
+     dut->seed_offset_i=0; dut->seed_valid_i=0;
+     dut->m_axis_tready=1; dut->rx_tvalid_i=0;
+     dut->rst_n=0; cyc(6); dut->rst_n=1; cyc(3);
+@@ -334,6 +425,8 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
+     inject(1, kPeerAbove, off0+4, 8, 0, 0);       // overlaps [off0+4, off0+8)
+     next(f, kDefendBudgetCyc);
+     check_defend(f, "above", kPeerAbove, off0+4, 4);
++    ck("M2 B.3.6.6 requested start echoes PROBE", f.at(26,6),
++       static_cast<long>(0x91E0F0000000ULL | (off0+4)));
+     ck("still ANNOUNCE", dut->state_o, 2);
+     ck("defends counted", dut->defends_o, 1);
+ 
+@@ -341,20 +434,44 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
+     inject(1, kPeerBelow, off0-4, 8, 0, 0);       // overlaps [off0, off0+4)
+     next(f, kDefendBudgetCyc);
+     check_defend(f, "below", kPeerBelow, off0, 4);
++    // The only fixture whose PROBE starts below ours: the echo and the
++    // overlap start differ here, and anywhere else they coincide.
++    ck("M2 B.3.6.6 requested start echoes a PROBE starting below ours", f.at(26,6),
++       static_cast<long>(0x91E0F0000000ULL | static_cast<uint16_t>(off0-4)));
+ 
+     printf("\n[4c] DEFEND held by backpressure; a later PDU must not redirect it\n");
+     constexpr uint64_t kProber = 0x0A0B0C0D0E0FULL;
+     dut->m_axis_tready=0;
+-    inject(1, kProber, off0, 1, 0, 0);            // one-address overlap
++    inject(1, kProber, off0+7, 0x1234, 0, 0);     // one-address overlap
+     inject(1, 0x111111111111ULL, off0+1000, 8, 0, 0);   // disjoint: no action
+     cyc(kSettleCyc);
+     dut->m_axis_tready=1;
+     next(f, kDefendBudgetCyc);
+     ck("B.2.1 DEFEND DA latched at send", frame_is(f,2) && f.at(0,6)==kProber, 1);
+-    ck("B.2.7 one-address overlap start", f.at(38,2), off0);
++    ck("B.2.7 one-address overlap start", f.at(38,2), off0+7);
++    ck("M2 B.3.6.6 requested count echoes all 16 bits", f.at(32,2), 0x1234);
++    ck("M2 requested start held under backpressure", f.at(30,2), off0+7);
+     ck("B.2.8 one-address overlap count", f.at(40,2), 1);
+     ck("defends = 3", dut->defends_o, 3);
+ 
++    // The response buffer is occupied throughout a stalled DEFEND.
++    // A further conflicting PROBE must not rewrite that frame.
++    for (int accepted : {0,2,4,7}) {
++        dut->m_axis_tready=0;
++        inject(1, kProber, off0+1, 0x1234, 0, 0);
++        cyc(kSettleCyc);
++        dut->m_axis_tready=1; cyc(accepted); dut->m_axis_tready=0;
++        inject(1, kPeerAbove, off0+3, 0x2345, 0, 0);
++        cyc(kSettleCyc);
++        dut->m_axis_tready=1;
++        next(f, kDefendBudgetCyc);
++        ck("M6 occupied response buffer preserves active DEFEND",
++           frame_is(f,2) && f.at(0,6)==kProber && f.at(30,2)==off0+1
++           && f.at(32,2)==0x1234 && f.at(38,2)==off0+1 && f.at(40,2)==7,1);
++    }
++    const long after_busy=dut->defends_o;
++
++
+     printf("\n[4d] note b applies to PROBE: adjacent and empty ranges get no DEFEND\n");
+     const size_t before=frames.size();
+     inject(1, kPeerBelow, off0+kCount, 8, 0, 0);  // adjacent above
+@@ -362,7 +479,7 @@ void MaapHarness::defend_to_the_prober(uint16_t off0){
+     inject(1, kPeerBelow, off0+2, 0, 0, 0);       // empty, inside ours
+     cyc(kSettleCyc);
+     ck("note b: no DEFEND for non-conflicting PROBEs", static_cast<long>(frames.size()-before), 0);
+-    ck("defends still 3", dut->defends_o, 3);
++    ck("non-conflicting PROBEs leave defends unchanged", dut->defends_o, after_busy);
+ 
+     printf("\n[4e] unknown message type ignored (B.2.2)\n");
+     inject(5, kPeerBelow, off0, 8, off0, 8);
+@@ -416,28 +533,36 @@ void MaapHarness::announce_conflict_detection(uint16_t off0){
+     check_walk("Restart!", walk("Restart!", restart2, off2, true));
+ }
+ 
+-void MaapHarness::probe_mid_frame_is_not_defended(){
++void MaapHarness::probe_mid_frame_is_defended(){
+     printf("\n[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the\n"
+-           "     wire leaves that frame byte-identical and gets no DEFEND\n");
++           "     wire leaves that frame byte-identical and gets a deferred DEFEND\n");
++    for (int accepted : {0,2,7}) {
+     const uint16_t off=dut->offset_o;
+     const long defends=dut->defends_o;
+     const long c0=dut->conflicts_o;
+     dut->m_axis_tready=0;
+     for(long i=0;i<kAnnounceBudgetCyc && !dut->m_axis_tvalid;i++) cyc();
+     ck("ANNOUNCE requested under backpressure", dut->m_axis_tvalid, 1);
+-    dut->m_axis_tready=1; cyc(2); dut->m_axis_tready=0;   // two beats out, then stall
++    dut->m_axis_tready=1; cyc(accepted); dut->m_axis_tready=0;   // two beats out, then stall
+     const size_t before=frames.size();
+-    inject(1, kPeerAbove, off, 8, 0, 0);          // conflicting PROBE, mid-frame
++    inject(1, kPeerAbove, off+2, 0x1234, 0, 0);   // conflicting PROBE, mid-frame
++    inject(1, kPeerBelow, off+3, 8, 0, 0);       // occupied response keeps first PROBE
+     cyc(kSettleCyc);
+     dut->m_axis_tready=1;
+     Frame f;
+     next(f, kDefendBudgetCyc);
+     ck("PROBE mid-frame: frame on the wire byte-identical", frame_is(f,3) && f.b==golden(3,off), 1);
++    const bool defended=next(f,kDefendBudgetCyc) && frame_is(f,2);
++    ck("M6 busy PROBE gets DEFEND after wire is free",defended,1);
++    ck("M6 pending response preserves prober and requested range",
++       defended && f.at(0,6)==kPeerAbove && f.at(30,2)==off+2
++       && f.at(32,2)==0x1234 && f.at(38,2)==off+2 && f.at(40,2)==6,1);
+     cyc(kSettleCyc);
+-    ck("PROBE mid-frame: no DEFEND",
+-       static_cast<long>(frames.size()-before)==1 && dut->defends_o==defends, 1);
++    ck("M6 pending response sent exactly once",static_cast<long>(frames.size()-before),2);
++    ck("PROBE mid-frame: deferred DEFEND counted",dut->defends_o,defends+1);
+     ck("PROBE mid-frame: range kept",
+        dut->state_o==2 && dut->offset_o==off && dut->conflicts_o==c0, 1);
++    }
+ }
+ 
+ void MaapHarness::frame_on_the_wire_keeps_its_range(){
+@@ -470,7 +595,7 @@ void MaapHarness::defend_and_probe_reception(){
+     cyc(kSettleCyc);
+     ck("DEFEND judged on conflict_* only", dut->offset_o, off);
+     const long defends=dut->defends_o;
+-    inject(1, kPeerAbove, off, 8, 0, 0);
++    inject(1, kPeerBelow, off, 8, 0, 0);
+     cyc(kSettleCyc);
+     ck("probing + PROBE: still PROBE", dut->state_o, 1);
+     ck("probing + PROBE: offset changed", dut->offset_o!=off, 1);
+@@ -541,6 +666,8 @@ void MaapHarness::probe_interval_campaign(){
+     }
+     ck("campaign: every walk four PROBEs + ANNOUNCE", short_walks, 0);
+     ck("campaign: T.B7 Begin!: first PROBE at once", worst_first<=kAtOnceCyc, 1);
++    ck("campaign: observed PROBE intervals", !probe_iv.empty(), 1);
++    if(probe_iv.empty()) return;
+     const auto mm=std::minmax_element(probe_iv.begin(), probe_iv.end());
+     printf("  [i]    %zu PROBE intervals: %ld..%ld cycles\n", probe_iv.size(), *mm.first, *mm.second);
+     ck("B.3.4.2 probe T > 500 ms (campaign)", *mm.first>kProbeMinCyc, 1);
+@@ -584,8 +711,8 @@ std::vector<long> MaapHarness::frame_starts(size_t n){
+ // ANNOUNCE) start at another tick phase, so counting them would let a draw
+ // frozen at one value pass as random through the phase alone.
+ void MaapHarness::zero_seed_mac_draws_random_timers(){
+-    printf("\n[11] B.3.4: a station MAC that folds the LFSR seed to zero\n"
+-           "     (02:00:00:00:AC:E1) still draws random probe and announce intervals\n");
++    printf("\n[11] B.3.4: a station MAC whose seed with clock 0 is zero\n"
++           "     (02:00:00:00:00:00) still draws random probe and announce intervals\n");
+     dut->enable_i=0; cyc(5);
+     while(dut->m_axis_tvalid) cyc();
+     dut->station_mac_i=kZeroSeedMac; dut->seed_valid_i=0;
+@@ -621,6 +748,533 @@ void MaapHarness::zero_seed_mac_draws_random_timers(){
+     ck("B.3.4.1 announce T randomized (zero-seed MAC)", ad.size()>1, 1);
+ }
+ 
++void MaapHarness::compare_mac_remaining_cells(){
++    dut->station_mac_i=kStationMac;
++    for (unsigned state : {1u, 2u}) {
++        bool keeps=true;
++        bool yields=true;
++        for (auto peer : {kPeerAbove,kPeerBelow,kStationMac}) {
++            dut->enable_i=0; cyc(20); seen=frames.size();
++            dut->seed_valid_i=1; dut->seed_offset_i=0x100;
++            dut->enable_i=1;
++            Frame frame;
++            const unsigned nframes=state==1 ? 1 : 5;
++            for (unsigned n=0;n<nframes;++n)
++                keeps &= next(frame,kProbeBudgetCyc);
++            const unsigned conflicts=dut->conflicts_o;
++            inject(state==1 ? 1 : 2,peer,0x100,8,0x100,8);
++            cyc(kSettleCyc);
++            if (peer==kPeerAbove)
++                keeps &= dut->state_o==state && dut->offset_o==0x100
++                         && dut->conflicts_o==conflicts;
++            else
++                yields &= dut->state_o==1 && dut->conflicts_o==conflicts+1;
++        }
++        ck(state==1 ? "M1 rProbe/PROBE lower MAC keeps range"
++                    : "M1 rDefend/DEFEND lower MAC keeps range", keeps,1);
++        ck(state==1 ? "M1 rProbe/PROBE higher or equal MAC yields"
++                    : "M1 rDefend/DEFEND higher or equal MAC yields", yields,1);
++    }
++    dut->seed_valid_i=0;
++}
++
++void MaapHarness::pending_response_cancelled(){
++    bool cancelled=true;
++    for (unsigned action=0;action<4;++action) {
++        dut->enable_i=0; dut->rst_n=0; dut->m_axis_tready=1;
++        dut->port_operational_i=1; cyc(6);
++        dut->station_mac_i=kStationMac; dut->count_i=kCount;
++        dut->seed_valid_i=1; dut->seed_offset_i=0x100;
++        dut->rst_n=1; cyc(3); dut->enable_i=1;
++        frames.clear(); cur=Frame{}; seen=0;
++        Frame frame;
++        for (unsigned n=0;n<5;++n) cancelled &= next(frame,kProbeBudgetCyc);
++        dut->m_axis_tready=0;
++        for (long n=0;n<kAnnounceBudgetCyc && !dut->m_axis_tvalid;++n) cyc();
++        inject(1,kPeerAbove,0x102,8,0,0);
++        if (action==0) { dut->enable_i=0; cyc(2); dut->enable_i=1; }
++        if (action==1) { dut->port_operational_i=0; cyc(2); dut->port_operational_i=1; }
++        if (action==2) inject(3,kPeerBelow,0x100,8,0,0);
++        if (action==3) { dut->rst_n=0; cyc(2); dut->rst_n=1; }
++        frames.clear(); seen=0; dut->m_axis_tready=1;
++        cyc(20000); // Includes a full new four-PROBE walk and deferred sends.
++        cancelled &= dut->state_o==2 && dut->defends_o==0;
++        for (const auto& emitted : frames) cancelled &= !frame_is(emitted,2);
++    }
++    ck("M6 pending response cancelled with allocation",cancelled,1);
++    dut->seed_valid_i=0;
++}
++
++void MaapHarness::port_return_reprobes(){
++    for (unsigned state : {1u,2u}) {
++        dut->enable_i=0; dut->port_operational_i=1; cyc(20);
++        seen=frames.size(); dut->enable_i=1;
++        Frame frame;
++        const unsigned nframes=state==1 ? 1 : 5;
++        bool valid=true;
++        for (unsigned n=0;n<nframes;++n) valid &= next(frame,kProbeBudgetCyc);
++        const unsigned conflicts=dut->conflicts_o;
++        dut->port_operational_i=0; cyc(8);
++        const long event=now;
++        dut->port_operational_i=1; cyc();
++        valid &= dut->state_o==1 && !dut->addr_valid_o;
++        seen=frames.size();
++        const Walk restarted=walk("PortOperational",event,dut->offset_o,false);
++        valid &= restarted.probes==4 && restarted.announced && restarted.first<=kAtOnceCyc;
++        valid &= dut->conflicts_o==conflicts;
++        ck(state==1 ? "M5 B.3.5.9 link return restarts PROBE"
++                    : "M5 B.3.5.9 link return revokes and reprobes",valid,1);
++        cyc(kSettleCyc);
++        ck("M5 stable operational level does not restart",dut->state_o,2);
++    }
++}
++
++// B.3.5.9 makes entering the operational state the event; Table B.3 names
++// none for leaving it, so the walk in progress carries on through an
++// outage. The outage outlasts a whole walk: a restart taken at the loss
++// would finish before the return, so only a restart at the return passes.
++void MaapHarness::port_loss_is_no_event(){
++    bool held=true;
++    for (unsigned state : {1u,2u}) {
++        dut->enable_i=0; dut->port_operational_i=1; cyc(20);
++        seen=frames.size(); dut->enable_i=1;
++        Frame frame;
++        const unsigned nframes=state==1 ? 1 : 5;
++        for (unsigned n=0;n<nframes;++n) held &= next(frame,kProbeBudgetCyc);
++        const uint16_t off=dut->offset_o;
++        const unsigned conflicts=dut->conflicts_o;
++        const size_t before=frames.size();
++        dut->port_operational_i=0;
++        const long loss=now;
++        cyc(kOutageCyc);
++        // Only the rest of the walk in progress, on its own range: three
++        // timer PROBEs and the ANNOUNCE from PROBE, nothing from ANNOUNCE.
++        int probes=0;
++        int announces=0;
++        for (size_t n=before;n<frames.size();++n) {
++            probes += frame_is(frames[n],1);
++            announces += frame_is(frames[n],3);
++            held &= frames[n].start-loss>kAtOnceCyc && frames[n].at(30,2)==off;
++        }
++        held &= probes==(state==1 ? 3 : 0) && announces==(state==1 ? 1 : 0);
++        held &= frames.size()-before==static_cast<size_t>(probes+announces);
++        held &= dut->state_o==2 && dut->offset_o==off && dut->conflicts_o==conflicts;
++        const long event=now;
++        dut->port_operational_i=1; cyc();
++        held &= dut->state_o==1 && !dut->addr_valid_o;
++        seen=frames.size();
++        const Walk restarted=walk("PortOperational",event,dut->offset_o,false);
++        held &= restarted.probes==4 && restarted.announced
++                && restarted.first>=0 && restarted.first<=kAtOnceCyc;
++        held &= dut->conflicts_o==conflicts;
++    }
++    ck("M5 B.3.5.9 link loss is no event; return reprobes",held,1);
++}
++
++void MaapHarness::supplied_seed_bounds(){
++    bool valid_kept=true;
++    bool invalid_refused=true;
++    for (unsigned count : {1u, 8u, 255u}) {
++        dut->count_i=count;
++        const unsigned limit=0xfe00-count;
++        for (unsigned seed : {0u, limit, limit+1, 0xfe00u, 0xff00u, 0xffffu}) {
++            dut->enable_i=0; cyc(20);
++            seen=frames.size();
++            dut->seed_valid_i=1; dut->seed_offset_i=seed;
++            dut->enable_i=1; cyc(20);
++            const unsigned got=dut->offset_o;
++            if (seed<=limit) valid_kept &= got==seed;
++            else invalid_refused &= got<=limit && got!=seed;
++        }
++    }
++    ck("M7 Table B.9 valid supplied boundary retained", valid_kept, 1);
++    ck("M7 Table B.9 invalid supplied range refused", invalid_refused, 1);
++    dut->count_i=kCount; dut->seed_valid_i=0;
++}
++
++void MaapHarness::truncated_pdus_have_no_effect(){
++    // Compare an idle RX tap with identical cycles carrying malformed PDUs.
++    // Equal complete output frames and deadlines prove timer/TX noninterference.
++    for (unsigned state : {1u, 2u}) {
++        std::vector<Frame> reference;
++        long origin=0;
++        bool no_effect=true;
++        for (bool deliver : {false, true}) {
++            dut->enable_i=0; dut->rst_n=0; cyc(6);
++            dut->station_mac_i=kStationMac;
++            dut->count_i=kCount; dut->seed_valid_i=1; dut->seed_offset_i=0x100;
++            dut->rst_n=1; cyc(3); dut->enable_i=1;
++            frames.clear(); cur=Frame{}; seen=0;
++            Frame f;
++            const unsigned initial_frames=state==1 ? 1 : 5;
++            for (unsigned n=0;n<initial_frames;++n)
++                no_effect &= next(f,kProbeBudgetCyc);
++            origin=now;
++            frames.clear(); seen=0;
++            for (unsigned type : {1u, 2u, 3u}) {
++                for (unsigned length=1;length<42;++length)
++                    inject(type,kPeerBelow,0x100,8,0x100,8,true,1,true,
++                           length,-1,deliver);
++                // Full frame length cannot hide a missing required byte.
++                for (int missing=0;missing<42;++missing)
++                    inject(type,kPeerBelow,0x100,8,0x100,8,true,1,true,
++                           60,missing,deliver);
++            }
++            no_effect &= dut->state_o==state && dut->offset_o==0x100;
++            no_effect &= dut->conflicts_o==0 && dut->defends_o==0;
++            // Observe the next timer event, without injecting a receive event.
++            seen=frames.size();
++            no_effect &= next(f,state==1 ? kProbeBudgetCyc : kAnnounceBudgetCyc);
++            for (auto& frame : frames) { frame.start-=origin; frame.end-=origin; }
++            if (!deliver) reference=frames;
++            else {
++                no_effect &= frames.size()==reference.size();
++                for (size_t n=0;n<std::min(frames.size(),reference.size());++n)
++                    no_effect &= frames[n].b==reference[n].b
++                        && frames[n].start==reference[n].start
++                        && frames[n].end==reference[n].end;
++            }
++        }
++        ck(state==1 ? "M8 B.2 truncated PROBE-state input has no effect"
++                    : "M8 B.2 truncated DEFEND-state input has no effect", no_effect,1);
++    }
++}
++
++// Learn one-step transitions by clocking the RTL, then check the order of
++// its linear map. For N = 2^32 - 1, N's prime factors are 3, 5, 17, 257,
++// and 65537. Returning after N steps and after none of N/q proves that the
++// seed-1 orbit has exactly N states, covering every nonzero 32-bit state.
++uint32_t MaapHarness::apply_generator_map(const GeneratorMap& map, uint32_t state) {
++    uint32_t result=0;
++    for (unsigned bit=0;bit<map.size();++bit)
++        if (state & (uint32_t{1}<<bit)) result ^= map[bit];
++    return result;
++}
++
++uint32_t MaapHarness::jump_generator(GeneratorMap map, uint32_t state, uint64_t steps) {
++    while (steps) {
++        if (steps & 1) state=apply_generator_map(map,state);
++        GeneratorMap squared{};
++        for (unsigned bit=0;bit<map.size();++bit)
++            squared[bit]=apply_generator_map(map,map[bit]);
++        map=squared;
++        steps >>= 1;
++    }
++    return state;
++}
++
++uint32_t MaapHarness::generator_step(uint32_t state) {
++    dut->rootp->KL_maap__DOT__lfsr_r=state;
++    cyc();
++    return dut->rootp->KL_maap__DOT__lfsr_r;
++}
++
++void MaapHarness::generator_period_and_seed() {
++    bring_up_idle();
++    GeneratorMap map{};
++    for (unsigned bit=0;bit<map.size();++bit)
++        map[bit]=generator_step(uint32_t{1}<<bit);
++    bool linear=true;
++    for (uint32_t state : {0u,1u,0x12345678u,UINT32_MAX,0x80000001u})
++        linear &= generator_step(state)==apply_generator_map(map,state);
++    uint32_t sample=0x9e3779b9u;
++    for (unsigned i=0;i<128;++i) {
++        sample=sample*1664525u+1013904223u;
++        linear &= generator_step(sample)==apply_generator_map(map,sample);
++    }
++    bool maximal=linear && jump_generator(map,1,UINT32_MAX)==1;
++    for (uint32_t factor : {3u,5u,17u,257u,65537u})
++        maximal &= jump_generator(map,1,UINT32_MAX/factor)!=1;
++    ck("M3 B.3.6.1 generator period is 2^32-1",maximal,1);
++
++    struct SeedCase { uint64_t mac; uint32_t clock; };
++    const std::array<SeedCase,5> seeds{{
++        {0x020000000000ULL,0},
++        {kStationMac,17},
++        {0x020012345678ULL,0x01020304u},
++        {0x0200ffffffffULL,1},
++        {0x020000000000ULL,0xffff1234u},
++    }};
++    bool seeded=true;
++    bool continuous=true;
++    for (const auto& test : seeds) {
++        bring_up_idle();
++        dut->station_mac_i=test.mac;
++        dut->realtime_ns_i=test.clock;
++        dut->enable_i=1;
++        cyc();
++        uint32_t observed=dut->rootp->KL_maap__DOT__lfsr_r;
++        const uint32_t expected=static_cast<uint32_t>(test.mac+test.clock);
++        seeded &= expected ? observed==expected : observed!=0;
++        // First enable is the seeding boundary. A later Release!/Begin!
++        // continues the generator even if the MAC and clock have changed.
++        dut->station_mac_i=test.mac ^ 0x000100000001ULL;
++        dut->realtime_ns_i=test.clock+32;
++        dut->enable_i=0;
++        cyc();
++        continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);
++        observed=dut->rootp->KL_maap__DOT__lfsr_r;
++        dut->enable_i=1;
++        cyc();
++        continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);
++    }
++    ck("M3 B.3.6.1 first enable seeds MAC plus clock",seeded,1);
++    ck("M3 Release/Begin retains the generator sequence",continuous,1);
++}
++
++// One station from reset. Every station resets, samples its MAC and clock
++// and enables on the same cycles, so only the MAC and the clock separate
++// equally timed stations (B.3.4 NOTE).
++FirstClaim MaapHarness::first_claim(uint64_t mac, uint32_t clock, bool interval){
++    dut->enable_i=0; dut->rst_n=0; cyc(6);
++    dut->station_mac_i=mac; dut->realtime_ns_i=clock;
++    dut->count_i=kCount; dut->seed_valid_i=0; dut->port_operational_i=1;
++    dut->m_axis_tready=1; dut->rx_tvalid_i=0;
++    dut->rst_n=1; cyc(3);
++    frames.clear(); cur=Frame{}; seen=0;
++    dut->enable_i=1;
++    FirstClaim claim;
++    Frame probe;
++    if(!next(probe,kProbeBudgetCyc) || !frame_is(probe,1)) return claim;
++    claim.start=static_cast<long>(probe.at(30,2));
++    Frame retransmission;
++    if(interval && next(retransmission,kProbeBudgetCyc) && frame_is(retransmission,1))
++        claim.interval=retransmission.start-probe.start;
++    return claim;
++}
++
++// Table B.7 note b: two blocks of kCount addresses conflict when they share one.
++bool MaapHarness::claims_disjoint(const std::vector<StationPair>& pairs){
++    bool disjoint=true;
++    for(const auto& p : pairs){
++        const FirstClaim a=first_claim(p.mac_a,p.clock_a,false);
++        const FirstClaim b=first_claim(p.mac_b,p.clock_b,false);
++        const bool apart=a.start>=0 && b.start>=0
++                         && (a.start>=b.start+kCount || b.start>=a.start+kCount);
++        if(!apart)
++            printf("  [i]    %012llx clock %08x -> 0x%04lx; %012llx clock %08x -> 0x%04lx\n",
++                   static_cast<unsigned long long>(p.mac_a),p.clock_a,a.start,
++                   static_cast<unsigned long long>(p.mac_b),p.clock_b,b.start);
++        disjoint &= apart;
++    }
++    return disjoint;
++}
++
++bool MaapHarness::claims_differ(const std::vector<StationPair>& pairs){
++    bool differ=true;
++    for(const auto& p : pairs){
++        const FirstClaim a=first_claim(p.mac_a,p.clock_a,false);
++        const FirstClaim b=first_claim(p.mac_b,p.clock_b,false);
++        differ &= a.start>=0 && b.start>=0 && a.start!=b.start;
++    }
++    return differ;
++}
++
++bool MaapHarness::intervals_differ(const std::vector<StationPair>& pairs){
++    bool differ=true;
++    for(const auto& p : pairs){
++        const FirstClaim a=first_claim(p.mac_a,p.clock_a,true);
++        const FirstClaim b=first_claim(p.mac_b,p.clock_b,true);
++        differ &= a.interval>=0 && b.interval>=0 && a.interval!=b.interval;
++    }
++    return differ;
++}
++
++// #696 M4 (B.3.4 NOTE, B.3.6.1): the station MAC and the real-time clock must
++// separate the first claims of equally timed stations. For every carry run
++// i..j of the seed, one pair of seeds 2^i apart whose sum flips exactly bits
++// i..j; each pair has its own common clock, and the MACs carry the rest of
++// the seeds. i = 0 gives adjacent MACs, 16 <= i <= 31 MACs that differ only
++// in bits 16..31. These sample the criterion of #696 comment 6102832618;
++// section [13] establishes it for every seed. The fixed pairs are R558-6's
++// and two clock pairs: they pin those pairs at these fold constants, and
++// pairs that are not a power of two apart carry no separation guarantee.
++void MaapHarness::first_claims_of_equally_timed_stations(){
++    printf("\n[12] #696 M4: first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1)\n");
++    const std::vector<StationPair> fixed{{0x020000000001ULL,0x020000000002ULL,0,0},
++                                   {0x020000000001ULL,0x020000010001ULL,0,0},
++                                   {0x0200000a1234ULL,0x0200005b1234ULL,7,7},
++                                   {0x020011001234ULL,0x020022001234ULL,0,0}};
++    std::vector<StationPair> adjacent;
++    std::vector<StationPair> high;
++    std::vector<StationPair> low;
++    std::vector<StationPair> timers;
++    uint32_t sample=0x2545f491u;
++    for(unsigned i=0;i<32;++i)
++        for(unsigned j=i;j<32;++j){
++            sample=sample*1664525u+1013904223u;
++            const uint32_t ones=static_cast<uint32_t>((uint64_t{1}<<j)-(uint64_t{1}<<i));
++            const uint32_t seed=(sample|ones)&~(uint32_t{1}<<j);
++            const uint32_t clock=sample*2654435761u;
++            const StationPair p{kMacBase|static_cast<uint32_t>(seed-clock),
++                                kMacBase|static_cast<uint32_t>(seed-clock+(uint32_t{1}<<i)),
++                                clock,clock};
++            (i==0 ? adjacent : i>=16 ? high : low).push_back(p);
++            if(i==0 || (i>=16 && j==i)) timers.push_back(p);
++        }
++    std::vector<StationPair> clocks;
++    for(unsigned k=0;k<32;++k){
++        sample=sample*1664525u+1013904223u;
++        clocks.push_back({kStationMac,kStationMac,sample,sample+(uint32_t{1}<<k)});
++    }
++    const std::vector<StationPair> fixed_clocks{{kStationMac,kStationMac,0,17},
++                                                {kStationMac,kStationMac,0x01020304u,0xffff1234u}};
++    printf("  [i]    2^i apart: %zu adjacent, %zu with i 16..31, %zu with i 1..15, %zu clock,"
++           " %zu interval pairs; fixed: %zu MAC, %zu clock pairs\n",
++           adjacent.size(),high.size(),low.size(),clocks.size(),timers.size(),
++           fixed.size(),fixed_clocks.size());
++    ck("M4 B.3.6.1 adjacent MACs claim disjoint first blocks",claims_disjoint(adjacent),1);
++    ck("M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks",
++       claims_disjoint(high),1);
++    ck("M4 B.3.6.1 MACs 2^i apart (1 <= i <= 15) claim disjoint first blocks",
++       claims_disjoint(low),1);
++    ck("M4 B.3.6.1 R558-6's fixed MAC pairs claim disjoint first blocks",claims_disjoint(fixed),1);
++    ck("M3 B.3.6.1 clocks 2^k apart claim different first offsets",claims_differ(clocks),1);
++    ck("M3 B.3.6.1 fixed clock pairs claim different first offsets",claims_differ(fixed_clocks),1);
++    ck("M4 B.3.4 MACs 2^i apart draw different first probe intervals",intervals_differ(timers),1);
++    ck("M4 B.3.4 R558-6's fixed MAC pairs draw different first probe intervals",
++       intervals_differ(fixed),1);
++}
++
++// One station's first Begin! from reset, as the RTL draws it: the seed is
++// the MAC's low word at clock 0, and enable follows reset by one cycle. The
++// claim is made at that edge; with tready low nothing reaches the wire.
++uint16_t MaapHarness::seeded_first_offset(uint32_t seed, uint8_t count){
++    dut->enable_i=0; dut->rst_n=0; dut->m_axis_tready=0; cyc();
++    dut->station_mac_i=kMacBase|seed; dut->realtime_ns_i=0;
++    dut->count_i=count; dut->seed_valid_i=0; dut->port_operational_i=1;
++    dut->rst_n=1; dut->enable_i=1; cyc();
++    return dut->offset_o;
++}
++
++// The same station's first probe draw: the probe timer its first PROBE loads
++// on the next cycle, less the RTL's own PROBE_MIN_MS_C.
++long MaapHarness::seeded_first_probe_draw(uint32_t seed){
++    seeded_first_offset(seed, kCount);
++    cyc();
++    return static_cast<long>(dut->rootp->KL_maap__DOT__timer_ms_r)
++           - static_cast<long>(VKL_maap___024root::KL_maap__DOT__PROBE_MIN_MS_C);
++}
++
++// Reduce `image` against the basis. A new pivot extends the image; a value
++// that reduces to zero leaves its seed in the map's null space.
++bool MaapHarness::insert_image(ImageBasis& basis, SeedImage image, uint32_t& null_seed){
++    for (int bit=31;bit>=0;--bit) {
++        if (!((image.value>>bit)&1)) continue;
++        if (!basis[bit].value) { basis[bit]=image; return true; }
++        image.value^=basis[bit].value;
++        image.seed^=basis[bit].seed;
++    }
++    null_seed=image.seed;
++    return false;
++}
++
++int MaapHarness::image_rank(const SeedMap& map, unsigned first, unsigned last){
++    ImageBasis basis{};
++    uint32_t null_seed=0;
++    int rank=0;
++    for (unsigned k=first;k<=last;++k) rank+=insert_image(basis,{map[k],uint32_t{1}<<k},null_seed);
++    return rank;
++}
++
++// #696 M4: the criterion of comment 6102832618 for every seed, not a sample.
++// The first offset word and the first probe draw are GF(2)-linear in the seed
++// (one generator step, then parity folds), so the suite learns both maps from
++// the RTL's own first Begin! and checks them on fresh seeds. Seeds s and
++// s + 2^i differ by one carry run i..j, so their words differ by that run's
++// image whatever s is: every run meets every word of the image, and each
++// word's claim for counts 1..8 is the offset the RTL claims for it. No fold
++// row, generator tap or pool bound is restated here.
++void MaapHarness::first_draws_for_every_seed(){
++    printf("\n[13] #696 M4: first draws for every seed, learned from the RTL (B.3.4, B.3.6.1)\n");
++    // With count 0 the clip never acts, and the pool fold puts every word
++    // above the pool below this bound, so an offset at or above it is the word.
++    constexpr long kUnfolded=0x10000L-VKL_maap___024root::KL_maap__DOT__POOL_SIZE_C;
++    SeedMap offset_map{};
++    SeedMap probe_map{};
++    bool linear=learn_seed_map(offset_map,0x7f4a7c15u,[this](uint32_t seed){
++        const long offset=seeded_first_offset(seed,0);
++        return offset>=kUnfolded ? offset : -1L; });
++    linear&=learn_seed_map(probe_map,0x2b992ddfu,[this](uint32_t seed){
++        return seeded_first_probe_draw(seed); });
++
++    // Every word of the offset image, each steered by a seed the RTL maps onto
++    // it. Adding a null-space seed keeps every steered seed nonzero.
++    ImageBasis basis{};
++    uint32_t null_seed=0;
++    for (unsigned k=0;k<offset_map.size();++k) {
++        uint32_t dependent=0;
++        if (!insert_image(basis,{offset_map[k],uint32_t{1}<<k},dependent) && !null_seed)
++            null_seed=dependent;
++    }
++    std::vector<SeedImage> pivots;
++    for (const auto& entry : basis) if (entry.value) pivots.push_back(entry);
++    linear&=null_seed!=0;
++    // claims[count-1][word]: the offset the RTL claims, -1 outside the image
++    std::vector<std::vector<int32_t>> claims(kCount, std::vector<int32_t>(1u<<16,-1));
++    for (uint32_t m=0;linear && m<(uint32_t{1}<<pivots.size());++m) {
++        SeedImage word{0,null_seed};
++        for (unsigned p=0;p<pivots.size();++p)
++            if ((m>>p)&1) { word.value^=pivots[p].value; word.seed^=pivots[p].seed; }
++        for (unsigned count=1;count<=kCount;++count)
++            claims[count-1][word.value]=seeded_first_offset(word.seed,static_cast<uint8_t>(count));
++    }
++    uint32_t sample=0x6c8e9cf5u;
++    for (int n=0;linear && n<kLinearitySamples;++n) {
++        sample=sample*1664525u+1013904223u;
++        if (!sample) continue;
++        const unsigned count=1+static_cast<unsigned>(n)%kCount;
++        linear&=seeded_first_offset(sample,static_cast<uint8_t>(count))
++                ==claims[count-1][apply_generator_map(offset_map,sample)];
++        linear&=seeded_first_probe_draw(sample)
++                ==static_cast<long>(apply_generator_map(probe_map,sample));
++    }
++    dut->m_axis_tready=1;
++    ck("M4 first-draw maps learned from the RTL are linear in the seed",linear,1);
++
++    bool disjoint=linear;
++    bool probes_differ=linear;
++    long spare=1L<<16;
++    for (unsigned i=0;linear && i<32;++i)
++        for (unsigned j=i;j<32;++j) {
++            const uint32_t run=static_cast<uint32_t>((uint64_t{1}<<(j+1))-(uint64_t{1}<<i));
++            const uint32_t delta=apply_generator_map(offset_map,run);
++            if (!apply_generator_map(probe_map,run)) {
++                if (probes_differ) printf("  [i]    carry run %u..%u: equal first probe draws\n",i,j);
++                probes_differ=false;
++            }
++            for (unsigned count=1;count<=kCount;++count) {
++                const auto& claim=claims[count-1];
++                for (uint32_t w=0;w<claim.size();++w) {
++                    if (claim[w]<0) continue;
++                    // delta lies in the image, so claim[w^delta] is known
++                    const long other=claim[w^delta];
++                    const long gap=other<0 ? -1 : std::labs(claim[w]-other);
++                    if (gap<static_cast<long>(count) && disjoint)
++                        printf("  [i]    carry run %u..%u, count %u: words 0x%04x / 0x%04x"
++                               " claim 0x%04x / 0x%04lx\n",i,j,count,w,w^delta,
++                               static_cast<unsigned>(claim[w]),static_cast<unsigned long>(other));
++                    disjoint&=gap>=static_cast<long>(count);
++                    spare=std::min(spare,gap-static_cast<long>(count));
++                }
++            }
++        }
++    SeedMap both{};
++    for (unsigned k=0;k<both.size();++k) both[k]=offset_map[k]|(probe_map[k]<<16);
++    if (linear)
++        printf("  [i]    offset image %zu bits, probe image %d bits; %zu words x %d counts claimed;"
++               " 528 carry runs; least spare addresses %ld\n",
++               pivots.size(),image_rank(probe_map,0,31),size_t{1}<<pivots.size(),kCount,spare);
++    else
++        printf("  [i]    the maps are not linear, so no claim below is established\n");
++    ck("M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8",disjoint,1);
++    ck("M4 B.3.4 every seed pair 2^i apart draws different first probe intervals",probes_differ,1);
++    ck("M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word",
++       linear && image_rank(offset_map,16,31)==16,1);
++    ck("M4 B.3.6.1 first offset word and first probe draw are independent",
++       linear && image_rank(both,0,31)==22,1);
++}
++
+ int MaapHarness::run(){
+     bring_up_idle();
+     check_reset_idle();
+@@ -628,7 +1282,7 @@ int MaapHarness::run(){
+     announce_intervals_and_destination();
+     defend_to_the_prober(off0);
+     announce_conflict_detection(off0);
+-    probe_mid_frame_is_not_defended();
++    probe_mid_frame_is_defended();
+     frame_on_the_wire_keeps_its_range();
+     defend_and_probe_reception();
+     ignore_disjoint_and_non_pool_pdus();
+@@ -636,6 +1290,15 @@ int MaapHarness::run(){
+     probe_interval_campaign();
+     disable_then_claim_the_seed();
+     zero_seed_mac_draws_random_timers();
++    compare_mac_remaining_cells();
++    pending_response_cancelled();
++    port_return_reprobes();
++    port_loss_is_no_event();
++    supplied_seed_bounds();
++    truncated_pdus_have_no_effect();
++    generator_period_and_seed();
++    first_claims_of_equally_timed_stations();
++    first_draws_for_every_seed();
+ 
+     printf("\n======================================================================\n");
+     printf("KL_maap: %ld checks, %ld failures\n", checks, fails);
