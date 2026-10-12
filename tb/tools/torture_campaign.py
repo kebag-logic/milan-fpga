@@ -806,7 +806,9 @@ def _interval_ticks_verdict(d: dict, ticks: dict[str, int], deviant: list[str],
     if deviant:
         d["attributed"] = True
         if len(deviant) == 1:
-            d["conformant_role"] = "listener" if deviant == ["talker"] else "talker"
+            other = "listener" if deviant == ["talker"] else "talker"
+            if d[other + "_semantics"] == "per-frame":
+                d["conformant_role"] = other
         d["why"] = ("interval-rate packet counter on " + ", ".join(deviant)
                     + "; each finding names its own side under ruling #726")
         return ("FAIL", d)
@@ -816,6 +818,9 @@ def _interval_ticks_verdict(d: dict, ticks: dict[str, int], deviant: list[str],
     if abs(talker_delta - listener_delta) > tol:
         d["why"] = "packet totals disagree beyond the measured-read skew allowance"
         return ("FAIL", d)
+    if talker_delta > 0 and d["perframe_bound_ticks"] is None:
+        d["why"] = "no measured duration; matching deltas do not establish packet-rate growth"
+        return ("SKIP", d)
     return ("PASS", d)
 
 
@@ -829,7 +834,7 @@ def interval_ticks_agree(talker_delta: Optional[int],
     Both deltas must describe matching traffic in one streaming/binding era.
     The default packet allowance covers non-atomic reads and RX publication.
     A positive measured window enables the conservative packet-rate band;
-    without it only movement and count agreement are measurable. A negative
+    without it matching positive deltas are inconclusive. A negative
     delta indicates reset/wrap and cannot establish this comparison.
     """
     tol = XSIDE_TOLERANCE["snapshot_skew_frames"] if tolerance is None else tolerance
@@ -939,8 +944,8 @@ def check_concurrent_flowing(pair_ticks: dict[str, dict[str, int | None]], *,
         detail["peer_findings"] = findings
         detail["why"] = "interval-rate stream counter(s) on the named pair and side"
         return ("FAIL", detail)
-    if window_s is not None and window_s <= 0:
-        detail["why"] = "a nonpositive shared window cannot measure flow"
+    if window_s is None or window_s <= 0:
+        detail["why"] = "a positive measured shared window is required for packet-rate flow"
         return ("SKIP", detail)
     if unreadable:
         detail["why"] = (f"{unreadable} could not be read on either side, so "
@@ -4333,7 +4338,7 @@ class _StreamingLicenceChecks:
                 self.assertIn("IEEE 1722.1-2021", finding["counter"])
         self.assertEqual(interval_ticks_agree(32000, 48000, window_s=4)[0], "FAIL")
         self.assertEqual(interval_ticks_agree(32000, 32003, tolerance=2, window_s=4)[0], "FAIL")
-        self.assertEqual(interval_ticks_agree(4, 4)[0], "PASS")  # no duration, no rate claim
+        self.assertEqual(interval_ticks_agree(4, 4)[0], "SKIP")  # no duration, no rate claim
 
     def test_concurrent_packet_law_attributes_each_direction(self) -> None:
         """A shared flowing window cannot pass an interval-rate pair."""
@@ -4344,6 +4349,8 @@ class _StreamingLicenceChecks:
             self.assertEqual(verdict, "FAIL" if roles else "PASS", "[726 MULTI] packet rate")
             self.assertEqual([f["role"] for f in detail.get("peer_findings", [])], roles)
             self.assertTrue(all(f["pair"] == "tested" for f in detail.get("peer_findings", [])))
+        self.assertEqual(check_concurrent_flowing(
+            {"unmeasured": {"tx_ticks": 4, "rx_ticks": 4}}, licensed=True)[0], "SKIP")
 
     def test_cross_side_growth_bites_every_way(self) -> None:
         """Each cross-participant invariant fails on its own defect - one-sided
@@ -5864,8 +5871,8 @@ class _ConcurrencyChecks:
             return {"tx_ticks": tx, "rx_ticks": rx}
         # all pairs flowing together, licence open -> PASS, and the
         # comparison names itself as packets
-        v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(5, 4)},
-                                        licensed=True)
+        v, d = check_concurrent_flowing({"a": P(32000, 32000), "b": P(32001, 32000)},
+                                        licensed=True, window_s=4)
         self.assertEqual(v, "PASS")
         self.assertIn("AVTPDU PACKETS", d["compares"])
         # ONE DEAD AMONG MANY - the defect this area exists for

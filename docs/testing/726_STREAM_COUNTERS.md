@@ -169,7 +169,8 @@ A measured flowing window still rejects interval-rate FRAMES_RX.
 
 The cross-device helpers apply Tables 7.159/7.157 to both packet totals.
 A per-AVTPDU pair passes; an interval-rate side receives its own finding.
-Concurrent-flow checks apply that law when given the measured shared window.
+Concurrent-flow checks require the measured shared window for a packet-rate PASS.
+Matching positive deltas without a measured duration remain inconclusive.
 The historical helper and assertion identifiers remain compatible with existing callers.
 Their `tx_ticks` and `rx_ticks` fields now mean packet deltas.
 Compare matching traffic within one streaming or binding era.
