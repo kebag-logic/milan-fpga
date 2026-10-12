@@ -1,0 +1,426 @@
+diff --git a/Makefile b/Makefile
+index e919b43..397efc7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -8,20 +8,12 @@ DRAWIO      ?= drawio
+ DRAWIO_SRC  := $(wildcard docs/diagrams/src/*.drawio)
+ DRAWIO_SVG  := $(patsubst docs/diagrams/src/%.drawio,docs/diagrams/%.svg,$(DRAWIO_SRC))
+ 
+-<<<<<<< 4029dc5de2a0a540d6a015c747319fbee7abba2e
+-.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix modmatrix params aecpcmd ids figures stale
+-=======
+-.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix reqtags modmatrix params ids figures stale
+->>>>>>> 6d536868
++.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix reqtags modmatrix params aecpcmd ids figures stale
+ all: diagrams check
+ 
+ # everything the CI docs-gates job enforces: it runs this target (see
+ # docs/architecture/09_verification.md section 7)
+-<<<<<<< 4029dc5de2a0a540d6a015c747319fbee7abba2e
+-check: lint wavedrom-check links matrix modmatrix params aecpcmd ids figures stale
+-=======
+-check: lint wavedrom-check links matrix reqtags modmatrix params ids figures stale
+->>>>>>> 6d536868
++check: lint wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures stale
+ 
+ diagrams: $(DRAWIO_SVG) wavedrom
+ 
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index f302a2d..65dce9a 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -538,23 +538,13 @@ verification).
+ 
+ | REQ | Clause | Requirement | Mand | Cov | Finding | Arch | Doc | Ver |
+ |---|---|---|---|---|---|---|---|---|
+-<<<<<<< 4029dc5de2a0a540d6a015c747319fbee7abba2e
+-| REQ-REU-001 | project charter | Bus-agnostic interface contracts: every external contract is a signal table with a handshake class (A–F) | design | A | [GAP-10](#gap-10) | interface classes | 02 §1–§8 | — |
+-| REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A | [GAP-10](#gap-10) | F01.5 + single-source rules; `make check` `ids` fails any P-/T- ID without its F01.5/F08.1 row | 01 §7, docs/README §2, 09 §7 | lint |
+-| REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+-| REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A | [GAP-11](#gap-11) | verification plan | 09 §3, 09 §7 | — |
+-| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A (the tree: P, per Arch) | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 30 held within their declared scope; 32 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.10 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. echo_entries membership is held, and its size exemption covers non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.10 | lint |
+-| REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
+-| REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+-=======
+ | REQ-REU-001 | project charter | Bus-agnostic interface contracts: every external contract is a signal table with a handshake class (A–F) | design | A; no check | [GAP-10](#gap-10) | interface classes | 02 §1–§8 | — |
+ | REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A; no check | [GAP-10](#gap-10) | F01.5 + single-source rules; `make check` `ids` fails any P-/T- ID without its F01.5/F08.1 row | 01 §7, docs/README §2, 09 §7 | lint |
+ | REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A; no check | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A; no check | [GAP-11](#gap-11) | verification plan; the REQ tags in `tb/`, held by `scripts/check-req-tags.py` | 09 §3, 09 §7, 09 §8.10 | — |
+-| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A; no check | [GAP-11](#gap-11) | F09.1 | 09 §1 | lint |
++| REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A; no check | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 30 held within their declared scope; 32 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.11 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. echo_entries membership is held, and its size exemption covers non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.11 | lint |
+ | REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A; traced | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
+ | REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A; no check | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+->>>>>>> 6d536868
+ 
+ ## 7. Disposition of findings (F00.2)
+ 
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 73c60fa..72fed3b 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -244,7 +244,7 @@ The status set is the command's own: every AEM command can also answer
+ `ENTITY_MISBEHAVING` (the deadline kill of 03 §6 rule (e), and a failed response
+ memory), and every MVU command `NOT_IMPLEMENTED` for the same two. This common-status sentence is hand-written.
+ The registry declares `common_status`, `engine_status` and `oversize` held to nothing: the
+-status checks trust those exemptions, and the Oversize cells are rendering inputs (09 §8.10).
++status checks trust those exemptions, and the Oversize cells are rendering inputs (09 §8.11).
+ 
+ <!-- BEGIN F06.14: generated from hdl/aecp/ucode/aecp_commands.json by scripts/check_aecp_commands.py --write; edit the table, not these rows -->
+ | Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |
+@@ -1208,7 +1208,7 @@ exists. It takes its status codes and the MVU command_type from the command tabl
+ `hdl/aecp/ucode/aecp_commands.json`, which also generates F06.14. The hand-written
+ µprograms are held to the table by `make check` `aecpcmd`, and so are the engine's
+ hand-written decode and dispatch, through what `tb/aecp_cmds` observes the engine do
+-(09 §8.10). The table's `entries` record the programs the engine dispatches each command
++(09 §8.11). The table's `entries` record the programs the engine dispatches each command
+ to; they select nothing in the engine.
+ 
+ ### 8.1 Realization status (`hdl/aecp/KL_aecp_engine.sv`)
+@@ -1426,7 +1426,7 @@ becomes the right shape once the hazard class, minimum length, response-size id,
+ lock/GDI/notify flags and per-profile valid bits have consumers. When it lands it
+ replaces both decode stages and nothing else. Its per-opcode content, other than the
+ per-profile valid bits, already has one source: the command table behind F06.14
+-(09 §8.10). Today both decode stages are hand-written. The table holds them through
++(09 §8.11). Today both decode stages are hand-written. The table holds them through
+ what `tb/aecp_cmds` observes: the programs each opcode is dispatched to, the shortest
+ command accepted (the minimum length), the GET_DYNAMIC_INFO members and the
+ unsolicited map. `aecpcmd` holds their constants and the classifier.
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 6e8345f..5f4a20b 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -27,7 +27,7 @@ counters). This realizes the original document's single-source vision
+ ([review §4](../00_MILAN_COMPLIANCE_REVIEW.md)).
+ 
+ Of this shape, one part exists today: the AECP command table and what it generates,
+-observes and gates (§8.10). Everything else in the diagram is still the target.
++observes and gates (§8.11). Everything else in the diagram is still the target.
+ 
+ ## 2. Traceability
+ 
+@@ -126,7 +126,7 @@ against at least two independent controller implementations.
+ | `reqtags` | `scripts/check-req-tags.py` (`--selftest` first) | the static half of §8.10: every REQ row whose `Ver` needs a check has a tagged check of that category under `tb/` or a §8.10 waiver naming one of its own GAPs and a reason; no tag is malformed, names an unknown REQ or category, or stands above a check whose statement lacks its name; no waiver is stale; the Cov column and the §8.10 coverage table equal what the gate finds. The self-test plants each fault, the five of issue #72 among them, and must see each named |
+ | `modmatrix` | `scripts/gen_matrix.py --check` | `docs/traceability/MODULE_MATRIX.md` is not stale, and no module is without a suite (budget zero) |
+ | `params` | `scripts/check-integrator-params.py` | the guide section 2 table and diagram 21's `integration-parameters` group each equal the overridable parameter set of `protocol_processor_top`, with no missing, extra or duplicate names; empty or unparseable inputs fail |
+-| `aecpcmd` | `scripts/check_aecp_commands.py` and its modules `scripts/aecp_gate/` (`--selftest` first) | F06.14 is what the AECP command table `hdl/aecp/ucode/aecp_commands.json` generates, and every consumer of a served command agrees with that table: what the engine decodes and dispatches as `tb/aecp_cmds` recorded it (`tb/aecp_cmds/decode.json`), the engine's opcode and µPC entry constants, the top's hazard classifier, the scoreboard's lock-protected classes, the notify block's class map, `ucpu_pkg`'s status codes and IEEE Table 7-141, the generated µcode walked from every entry, and 06 §8.1 (§8.10). Each disagreement names its consumer and its command (or, where no command is involved, the opcode, table field or file); an unreadable input or a pattern that parses nothing refuses with exit 2, and a table the generator cannot read is refused by name before it runs. The self-test plants one defect for every finding the gate can print and for every refusal, the table defects the generator reads in a file copy, and must see each caught by name. That the record is what the engine does is the suite `tb/aecp_cmds`'s check (§8.10) |
++| `aecpcmd` | `scripts/check_aecp_commands.py` and its modules `scripts/aecp_gate/` (`--selftest` first) | F06.14 is what the AECP command table `hdl/aecp/ucode/aecp_commands.json` generates, and every consumer of a served command agrees with that table: what the engine decodes and dispatches as `tb/aecp_cmds` recorded it (`tb/aecp_cmds/decode.json`), the engine's opcode and µPC entry constants, the top's hazard classifier, the scoreboard's lock-protected classes, the notify block's class map, `ucpu_pkg`'s status codes and IEEE Table 7-141, the generated µcode walked from every entry, and 06 §8.1 (§8.11). Each disagreement names its consumer and its command (or, where no command is involved, the opcode, table field or file); an unreadable input or a pattern that parses nothing refuses with exit 2, and a table the generator cannot read is refused by name before it runs. The self-test plants one defect for every finding the gate can print and for every refusal, the table defects the generator reads in a file copy, and must see each caught by name. That the record is what the engine does is the suite `tb/aecp_cmds`'s check (§8.11) |
+ | `ids` | `scripts/check-ids.py` (`--selftest` first) | every `P-` or `T-` ID used in a file under `docs/`, `hdl/` or `tb/` has its row in [F01.5](01_overview.md#fig-01-params) or [F08.1](08_timing.md#fig-08-constants); a family (`T-MRP-*`) needs one row in it, each member of a braced list (`T-NVM-{RS-DEADLINE, RS-AGGREGATE}`) its own row, and an ID with an optional segment (`T-ADP-DELAY(-START)`) a row for both; braces or `(-` holding anything but ID segments fail; an ID broken at a line end and a sibling written as its last segment (`T-BUDGET-AECP-TYP / -WC`) are read whole, and `-1` reads as minus one only if the base has a row; any other text after a hyphen is prose (`T-MRP-JOIN-driven` uses `T-MRP-JOIN`); an unreadable, empty or duplicated master table fails. The self-test plants a stray in each scanned tree, a stray in each of those forms (including a missing minus-one base, a line-broken optional member and an optional member after a line-broken ID) and each master-table fault, and must see each caught with rc 1 and its diagnostic token |
+ | `figures` | `scripts/check-figures.py` (`--selftest` first) | every file under `docs/diagrams/` is a draw.io source with its export, a WaveDrom render whose block exists, or a hand-authored SVG listed in `docs/diagrams/README.md` that is well-formed, has an SVG-namespace `<svg>` root and a `viewBox`, carries no `<image>`, `<feImage>` or `<foreignObject>`, and is linked from a page ([docs/README §3](../README.md#3-figures-one-source-one-home)); any other file fails, and so does a missing or empty hand-authored inventory. The self-test plants each fault and must see it caught |
+ | `stale` | `Makefile` | each committed `.svg` is newer than its `.drawio` source |
+@@ -134,7 +134,7 @@ against at least two independent controller implementations.
+ ## 8. The suites that exist today
+ 
+ The single-source generated environment of [F09.1](#fig-09-env) is still the target
+-shape; its one existing part, the AECP command table, is §8.10. What the tree actually
++shape; its one existing part, the AECP command table, is §8.11. What the tree actually
+ carries is one hand-written, self-checking Verilator suite per module under `tb/`, each
+ with an **independent** C++ reference model built from the document byte offsets — never
+ from DUT logic.
+@@ -453,12 +453,92 @@ latest frame (`depth_*`, `*_tag_port_bits`, `expiry_port_dropped`, `cancel_one_p
+ `rgy_port_from_latest_frame`, `dereg_matches_other_port`). The records are in the three
+ suites' READMEs.
+ 
+-<<<<<<< 4029dc5de2a0a540d6a015c747319fbee7abba2e
+-To add once the generated environment exists: REQ-ID ↔ test-tag coverage (§2), and a
+-single-source scan (no timing values outside F08.1, no parameter values outside F01.5)
+-per the scope rules in [docs/README §2](../README.md).
++### 8.10 Requirement tags and the traceability gate (issue #72)
++
++A check that verifies a row of the compliance matrix (00 §6) carries a tag statement on
++its own line directly above it, one per row it verifies:
++
++```cpp
++REQ_TAG("REQ-NOT-001", "STORM", "ST1b");
++```
++
++The tag names the row, the §3 category of the check it labels, and the check's name as the
++check prints it (`tb/common/req_tag.hpp`; a Python test calls `tb/common/req_tag.py`'s
++`REQ_TAG` at the head of the test method, named `Class.method`). There is no hand-kept
++list: `scripts/check-req-tags.py` reads the tags out of the suites' sources and the rows
++out of 00 §6, and a REQ-ID in prose is no tag. `python3 scripts/check-req-tags.py --table`
++prints every row with its state and the file:line and name of each of its tags.
++
++A row whose Ver is DIR, MTXW, TOL, TIM, RND, STORM or NVM needs a check. It is **traced**
++by a tag of its own category on a check that runs. A tag of another category labels its
++check and traces nothing: the targeted DEREGISTER's timed and directed checks carry
++REQ-AEM-025 as TIM and DIR, and the RND row stays waived. A row with no tag of its
++category needs a waiver below naming one of the row's own findings and a reason, or the
++gate fails. A lint row is held by a CI gate of §7 and a — row has no dynamic verification:
++neither needs a check. The Cov column of 00 §6 ends with each row's state.
+ 
+-### 8.10 The AECP command model (issue #73)
++The gate has two halves:
++
++| Half | Runs in | Fails, by name, on |
++|---|---|---|
++| static | `make check` (`reqtags`, §7), so the CI docs-gates job, which has no simulator | a row needing a check with neither a tag of its category nor a waiver; a tag that is malformed, outside a suite, names an unknown REQ or category, or stands above a check whose statement lacks its name; a waiver without a GAP of its own row or without a reason, on a traced row (stale) or on a row needing no check; a Cov cell or a row of the coverage table below that is not what the gate finds |
++| executed | the CI suites job, on that job's own `run_suites.sh` run, made with `REQ_TAG_LOG` set | a tag whose suite does not PASS in that run; a tag that never ran in it, as a tag moved onto a check that never runs does; an evidence line no tag accounts for (a stale file) |
++
++With `REQ_TAG_LOG` unset, which is every other run, a tag does nothing: the output of
++`run_suites.sh`, every check count and every line a suite prints are the same with and
++without the tags (the build tools' own report lines, Verilator's timing among them, differ
++from one run to the next either way). Set, each tag appends `suite file:line REQ CAT` to that file the first time it runs in a
++process, the suite being the run's working directory. The executed half by hand:
++
++```sh
++rm -f /tmp/req-tags.txt
++REQ_TAG_LOG=/tmp/req-tags.txt ./scripts/run_suites.sh > /tmp/suites.txt
++python3 scripts/check-req-tags.py --suites /tmp/suites.txt --evidence /tmp/req-tags.txt
++```
++
++The self-test (`--selftest`, which `make check` runs first) plants each fault in a scratch
++tree and must see it named: among them the five of issue #72, a tag removed so its row is
++uncovered, a tag to an unknown REQ, a tag on a check that never runs, a waiver without a
++GAP and a row added with no tag.
++
++The RND and STORM rows: §8.4's RN, ST and CS and `tb/originator` R trace REQ-AEM-005,
++REQ-AEM-016, REQ-NOT-001, REQ-NOT-002 and REQ-NOT-003. REQ-AEM-025 and REQ-MAAP-001 have no
++check of their category and are waived below.
++
++<a id="req-coverage"></a>
++
++| State | Ver | Rows |
++|---|---|---|
++| traced | DIR | REQ-ADP-002, REQ-ADP-003, REQ-ADP-004, REQ-ADP-005, REQ-ADP-006, REQ-ADP-009, REQ-ADP-010, REQ-ADP-011, REQ-ADP-013, REQ-ACMP-002, REQ-ACMP-004, REQ-ACMP-005, REQ-ACMP-006, REQ-ACMP-007, REQ-ACMP-008, REQ-ACMP-010, REQ-ACMP-017, REQ-ACMP-018, REQ-ACMP-020, REQ-ACMP-022, REQ-ACMP-023 |
++| traced | DIR | REQ-AEM-001, REQ-AEM-002, REQ-AEM-004, REQ-AEM-006, REQ-AEM-007, REQ-AEM-008, REQ-AEM-009, REQ-AEM-010, REQ-AEM-011, REQ-AEM-012, REQ-AEM-014, REQ-AEM-015, REQ-AEM-018, REQ-AEM-020, REQ-AEM-021, REQ-AEM-022, REQ-MVU-001, REQ-MVU-002, REQ-MDL-001, REQ-MDL-002, REQ-MDL-003 |
++| traced | DIR | REQ-MDL-004, REQ-MDL-005, REQ-MDL-006, REQ-MDL-007, REQ-MDL-008, REQ-MDL-009, REQ-MDL-010, REQ-MDL-011, REQ-NET-001, REQ-NET-002, REQ-NET-003, REQ-SRP-003, REQ-SRP-004, REQ-SRP-006, REQ-MAAP-002, REQ-MAAP-006, REQ-MAAP-007, REQ-SCP-002, REQ-SCP-003, REQ-FWX-001 |
++| traced | MTXW | REQ-ADP-007, REQ-ADP-012, REQ-ACMP-011, REQ-ACMP-013, REQ-ACMP-014, REQ-ACMP-016, REQ-ACMP-019, REQ-SRP-005, REQ-MAAP-003, REQ-MAAP-005 |
++| traced | TOL | REQ-ACMP-001, REQ-ACMP-012, REQ-AEM-023, REQ-SRP-002 |
++| traced | TIM | REQ-ADP-001, REQ-ADP-008, REQ-ADP-014, REQ-ACMP-003, REQ-ACMP-009, REQ-ACMP-015, REQ-AEM-003, REQ-AEM-017, REQ-AEM-024, REQ-AEM-026, REQ-MVU-005, REQ-NOT-004, REQ-SRP-001, REQ-MAAP-004 |
++| traced | RND | REQ-AEM-005, REQ-AEM-016, REQ-NOT-002 |
++| traced | STORM | REQ-NOT-001, REQ-NOT-003 |
++| traced | NVM | REQ-ACMP-021, REQ-AEM-013, REQ-NOT-005, REQ-PER-001, REQ-PER-002, REQ-PER-003 |
++| no check | lint | REQ-REU-002, REQ-VER-002, REQ-DOC-001 |
++| no check | — | REQ-REU-001, REQ-REU-003, REQ-VER-001 |
++
++<a id="req-waivers"></a>
++
++| REQ | Ver | GAP | Reason |
++|---|---|---|---|
++| REQ-AEM-019 | DIR | GAP-05 | The counter banks and their rules are the integrator's (owner decision 2026-09-19): the processor keeps no bank, so the invariant pairs, the observation interval and the bank resets are graded where the banks are. `tb/pp_top` K9 to K11 and K16 carry a bench store's counts to the wire, which grades the face (REQ-AEM-018), not these rules |
++| REQ-AEM-025 | RND | GAP-06 | No randomized check: RN stays under the monitor's 30 s floor (RN c) and never removes a controller by itself. The targeted DEREGISTER is graded by checks that carry the row's tag as TIM and DIR: `tb/pp_top` U5d (a TIME_LIMITED expiry) and U10f (a failed availability probe), `tb/aecp_notify` DR1b |
++| REQ-MAAP-001 | RND | GAP-04 | No randomized check of the row's category: `tb/maap` U1 and U17 (DIR tags) grade the Table B.9 pool and the block fit, U17 and U18 on a scripted draw, and `tb/prng` E grades the address draw's (kind 7) bounds and spread against its model; no seeded session draws addresses against a model of the pool |
++| REQ-MVU-003 | DIR | GAP-03 | Not implemented, under the October release waiver (the owner decision GAP-03 records); `tb/pp_top` M4 grades only the NOT_IMPLEMENTED answer in its place |
++| REQ-MVU-004 | DIR | GAP-03 | Not implemented, under the October release waiver (the owner decision GAP-03 records); `tb/pp_top` M4 grades only the NOT_IMPLEMENTED answer in its place |
++| REQ-NET-004 | DIR | GAP-05 | The LINK_UP, LINK_DOWN and GPTP_GM_CHANGED counters are the integrator's AVB_INTERFACE bank (owner decision 2026-09-19), graded where the bank is. `tb/pp_top` K9 to K11 carry a bench store's counts to the wire, which grades the face (REQ-AEM-018), not the counters |
++| REQ-NET-005 | DIR | GAP-04 | The discard is the integrator's AVTP datapath, outside the processor. The processor's half, the published bound view and input formats that datapath is armed from, is graded by `tb/pp_top` AS2 and W23a2 |
++| REQ-SCP-001 | DIR | GAP-12 | A scoping statement (01 §1): the non-redundant PAAD excludes Milan chapter 8 by construction, so no behaviour exists to direct a check at. Its observable consequence, GET_MILAN_INFO REDUNDANCY = 0, is REQ-SCP-002's check (`tb/pp_top` M2) |
++
++To add once the generated environment exists: a single-source scan (no timing values
++outside F08.1, no parameter values outside F01.5) per the scope rules in
++[docs/README §2](../README.md).
++
++### 8.11 The AECP command model (issue #73)
+ 
+ The one part of [F09.1](#fig-09-env) that exists: a machine-readable table of every
+ command the AECP engine serves, `hdl/aecp/ucode/aecp_commands.json` (schema
+@@ -477,6 +557,16 @@ F06.14 rows of the commands the engine does not serve, and a `fields` reference.
+ `make check` target `aecpcmd` (§7) holds the tree to it, and so does the suite
+ `tb/aecp_cmds` (CI's suites job):
+ 
++The suite's `ObservedCommands.test_sweep` in `tb/aecp_cmds/check_observed.py`
++tags the existing fresh-sweep comparison with REQ-VER-002 as DIR and preserves
++the gate's output and exit status. The executed traceability gate (§8.10) requires
++that tag to run in the passing suite. REQ-VER-002 remains a lint row, held by
++`aecpcmd` in §7, so its generated coverage state is `no check` under §8.10's
++rule; a waiver on this row would be invalid. The command-gate self-tests and
++field-registry plants belong to that same lint gate. This is partial realization
++of F09.1; the original architecture's Cov grade remains A, with the implemented
++part and its limits recorded in the row's Arch cell and below.
++
+ | Consumer | Form | Held to the table by |
+ |---|---|---|
+ | F06.14 (06 §6) | **generated** | `python3 scripts/check_aecp_commands.py --write` rewrites the rows between its markers; `aecpcmd` fails on any cell that differs, naming the row and the column |
+@@ -678,90 +768,3 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+ - unserved: held. Default program for every unserved opcode in the observed population. Consumer:
+   record._unserved. Check: unserved program.
+ <!-- END AECP FIELD REGISTRY -->
+-=======
+-### 8.10 Requirement tags and the traceability gate (issue #72)
+-
+-A check that verifies a row of the compliance matrix (00 §6) carries a tag statement on
+-its own line directly above it, one per row it verifies:
+-
+-```cpp
+-REQ_TAG("REQ-NOT-001", "STORM", "ST1b");
+-```
+-
+-The tag names the row, the §3 category of the check it labels, and the check's name as the
+-check prints it (`tb/common/req_tag.hpp`; a Python test calls `tb/common/req_tag.py`'s
+-`REQ_TAG` at the head of the test method, named `Class.method`). There is no hand-kept
+-list: `scripts/check-req-tags.py` reads the tags out of the suites' sources and the rows
+-out of 00 §6, and a REQ-ID in prose is no tag. `python3 scripts/check-req-tags.py --table`
+-prints every row with its state and the file:line and name of each of its tags.
+-
+-A row whose Ver is DIR, MTXW, TOL, TIM, RND, STORM or NVM needs a check. It is **traced**
+-by a tag of its own category on a check that runs. A tag of another category labels its
+-check and traces nothing: the targeted DEREGISTER's timed and directed checks carry
+-REQ-AEM-025 as TIM and DIR, and the RND row stays waived. A row with no tag of its
+-category needs a waiver below naming one of the row's own findings and a reason, or the
+-gate fails. A lint row is held by a CI gate of §7 and a — row has no dynamic verification:
+-neither needs a check. The Cov column of 00 §6 ends with each row's state.
+-
+-The gate has two halves:
+-
+-| Half | Runs in | Fails, by name, on |
+-|---|---|---|
+-| static | `make check` (`reqtags`, §7), so the CI docs-gates job, which has no simulator | a row needing a check with neither a tag of its category nor a waiver; a tag that is malformed, outside a suite, names an unknown REQ or category, or stands above a check whose statement lacks its name; a waiver without a GAP of its own row or without a reason, on a traced row (stale) or on a row needing no check; a Cov cell or a row of the coverage table below that is not what the gate finds |
+-| executed | the CI suites job, on that job's own `run_suites.sh` run, made with `REQ_TAG_LOG` set | a tag whose suite does not PASS in that run; a tag that never ran in it, as a tag moved onto a check that never runs does; an evidence line no tag accounts for (a stale file) |
+-
+-With `REQ_TAG_LOG` unset, which is every other run, a tag does nothing: the output of
+-`run_suites.sh`, every check count and every line a suite prints are the same with and
+-without the tags (the build tools' own report lines, Verilator's timing among them, differ
+-from one run to the next either way). Set, each tag appends `suite file:line REQ CAT` to that file the first time it runs in a
+-process, the suite being the run's working directory. The executed half by hand:
+-
+-```sh
+-rm -f /tmp/req-tags.txt
+-REQ_TAG_LOG=/tmp/req-tags.txt ./scripts/run_suites.sh > /tmp/suites.txt
+-python3 scripts/check-req-tags.py --suites /tmp/suites.txt --evidence /tmp/req-tags.txt
+-```
+-
+-The self-test (`--selftest`, which `make check` runs first) plants each fault in a scratch
+-tree and must see it named: among them the five of issue #72, a tag removed so its row is
+-uncovered, a tag to an unknown REQ, a tag on a check that never runs, a waiver without a
+-GAP and a row added with no tag.
+-
+-The RND and STORM rows: §8.4's RN, ST and CS and `tb/originator` R trace REQ-AEM-005,
+-REQ-AEM-016, REQ-NOT-001, REQ-NOT-002 and REQ-NOT-003. REQ-AEM-025 and REQ-MAAP-001 have no
+-check of their category and are waived below.
+-
+-<a id="req-coverage"></a>
+-
+-| State | Ver | Rows |
+-|---|---|---|
+-| traced | DIR | REQ-ADP-002, REQ-ADP-003, REQ-ADP-004, REQ-ADP-005, REQ-ADP-006, REQ-ADP-009, REQ-ADP-010, REQ-ADP-011, REQ-ADP-013, REQ-ACMP-002, REQ-ACMP-004, REQ-ACMP-005, REQ-ACMP-006, REQ-ACMP-007, REQ-ACMP-008, REQ-ACMP-010, REQ-ACMP-017, REQ-ACMP-018, REQ-ACMP-020, REQ-ACMP-022, REQ-ACMP-023 |
+-| traced | DIR | REQ-AEM-001, REQ-AEM-002, REQ-AEM-004, REQ-AEM-006, REQ-AEM-007, REQ-AEM-008, REQ-AEM-009, REQ-AEM-010, REQ-AEM-011, REQ-AEM-012, REQ-AEM-014, REQ-AEM-015, REQ-AEM-018, REQ-AEM-020, REQ-AEM-021, REQ-AEM-022, REQ-MVU-001, REQ-MVU-002 |
+-| traced | DIR | REQ-MDL-001, REQ-MDL-002, REQ-MDL-003, REQ-MDL-004, REQ-MDL-005, REQ-MDL-006, REQ-MDL-007, REQ-MDL-008, REQ-MDL-009, REQ-MDL-010, REQ-MDL-011 |
+-| traced | DIR | REQ-NET-001, REQ-NET-002, REQ-NET-003, REQ-SRP-003, REQ-SRP-004, REQ-SRP-006, REQ-MAAP-002, REQ-MAAP-006, REQ-MAAP-007, REQ-SCP-002, REQ-SCP-003, REQ-FWX-001 |
+-| traced | MTXW | REQ-ADP-007, REQ-ADP-012, REQ-ACMP-011, REQ-ACMP-013, REQ-ACMP-014, REQ-ACMP-016, REQ-ACMP-019, REQ-SRP-005, REQ-MAAP-003, REQ-MAAP-005 |
+-| traced | TOL | REQ-ACMP-001, REQ-ACMP-012, REQ-AEM-023, REQ-SRP-002 |
+-| traced | TIM | REQ-ADP-001, REQ-ADP-008, REQ-ADP-014, REQ-ACMP-003, REQ-ACMP-009, REQ-ACMP-015, REQ-AEM-003, REQ-AEM-017, REQ-AEM-024, REQ-AEM-026, REQ-MVU-005, REQ-NOT-004, REQ-SRP-001, REQ-MAAP-004 |
+-| traced | RND | REQ-AEM-005, REQ-AEM-016, REQ-NOT-002 |
+-| traced | STORM | REQ-NOT-001, REQ-NOT-003 |
+-| traced | NVM | REQ-ACMP-021, REQ-AEM-013, REQ-NOT-005, REQ-PER-001, REQ-PER-002, REQ-PER-003 |
+-| no check | lint | REQ-REU-002, REQ-VER-002, REQ-DOC-001 |
+-| no check | — | REQ-REU-001, REQ-REU-003, REQ-VER-001 |
+-
+-<a id="req-waivers"></a>
+-
+-| REQ | Ver | GAP | Reason |
+-|---|---|---|---|
+-| REQ-AEM-019 | DIR | GAP-05 | The counter banks and their rules are the integrator's (owner decision 2026-09-19): the processor keeps no bank, so the invariant pairs, the observation interval and the bank resets are graded where the banks are. `tb/pp_top` K9 to K11 and K16 carry a bench store's counts to the wire, which grades the face (REQ-AEM-018), not these rules |
+-| REQ-AEM-025 | RND | GAP-06 | No randomized check: RN stays under the monitor's 30 s floor (RN c) and never removes a controller by itself. The targeted DEREGISTER is graded by checks that carry the row's tag as TIM and DIR: `tb/pp_top` U5d (a TIME_LIMITED expiry) and U10f (a failed availability probe), `tb/aecp_notify` DR1b |
+-| REQ-MAAP-001 | RND | GAP-04 | No randomized check of the row's category: `tb/maap` U1 and U17 (DIR tags) grade the Table B.9 pool and the block fit, U17 and U18 on a scripted draw, and `tb/prng` E grades the address draw's (kind 7) bounds and spread against its model; no seeded session draws addresses against a model of the pool |
+-| REQ-MVU-003 | DIR | GAP-03 | Not implemented, under the October release waiver (the owner decision GAP-03 records); `tb/pp_top` M4 grades only the NOT_IMPLEMENTED answer in its place |
+-| REQ-MVU-004 | DIR | GAP-03 | Not implemented, under the October release waiver (the owner decision GAP-03 records); `tb/pp_top` M4 grades only the NOT_IMPLEMENTED answer in its place |
+-| REQ-NET-004 | DIR | GAP-05 | The LINK_UP, LINK_DOWN and GPTP_GM_CHANGED counters are the integrator's AVB_INTERFACE bank (owner decision 2026-09-19), graded where the bank is. `tb/pp_top` K9 to K11 carry a bench store's counts to the wire, which grades the face (REQ-AEM-018), not the counters |
+-| REQ-NET-005 | DIR | GAP-04 | The discard is the integrator's AVTP datapath, outside the processor. The processor's half, the published bound view and input formats that datapath is armed from, is graded by `tb/pp_top` AS2 and W23a2 |
+-| REQ-SCP-001 | DIR | GAP-12 | A scoping statement (01 §1): the non-redundant PAAD excludes Milan chapter 8 by construction, so no behaviour exists to direct a check at. Its observable consequence, GET_MILAN_INFO REDUNDANCY = 0, is REQ-SCP-002's check (`tb/pp_top` M2) |
+-
+-To add once the generated environment exists: a single-source scan (no timing values
+-outside F08.1, no parameter values outside F01.5) per the scope rules in
+-[docs/README §2](../README.md).
+->>>>>>> 6d536868
+diff --git a/scripts/aecp_gate/field_docs.py b/scripts/aecp_gate/field_docs.py
+index 9b51b3d..cc7095c 100644
+--- a/scripts/aecp_gate/field_docs.py
++++ b/scripts/aecp_gate/field_docs.py
+@@ -31,7 +31,7 @@ def arch(entries: list) -> str:
+             and e["path"] in ("common_status", "commands[].engine_status", "commands[].oversize")]
+     return (f"Registry: {len(entries)} fields, {held} held within their declared scope; "
+             f"{len(entries) - held} held to nothing (containers, rendering and explicit limits). "
+-            "Generated references: gate docstring, 09 §8.10 and PR field reference. "
++            "Generated references: gate docstring, 09 §8.11 and PR field reference. "
+             f"Explicitly held to nothing: {', '.join(free)}. Status-path claims trust these "
+             "status exemptions. Every held field has a standing named mutation. "
+             "F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are "
+diff --git a/tb/aecp_cmds/Makefile b/tb/aecp_cmds/Makefile
+index 335b2bc..7ec1917 100644
+--- a/tb/aecp_cmds/Makefile
++++ b/tb/aecp_cmds/Makefile
+@@ -29,7 +29,7 @@ SRCS = $(HDL)/common/pp_pkg.sv $(HDL)/aecp/ucpu_pkg.sv \
+ CPP  = sim_main.cpp
+ 
+ run: obj_dir/observed.json
+-	python3 -B $(GATE) --observed obj_dir/observed.json
++	python3 -B check_observed.py obj_dir/observed.json
+ 
+ record: obj_dir/observed.json
+ 	python3 -B $(GATE) --observed obj_dir/observed.json --write-record
+diff --git a/tb/aecp_cmds/README.md b/tb/aecp_cmds/README.md
+index 1a32991..5e27aee 100644
+--- a/tb/aecp_cmds/README.md
++++ b/tb/aecp_cmds/README.md
+@@ -114,3 +114,9 @@ matches. The generator edit also fails the ROM walk. The command names come
+ from this suite and these controls, which run in CI's suites job, where
+ Verilator is present. After an intended engine change, `make record` and
+ commit `decode.json`.
++
++The suite invokes its existing observed-command gate through `check_observed.py`.
++`ObservedCommands.test_sweep` carries REQ-VER-002 as DIR for the executed
++traceability gate; the command gate's checks, output and exit status are unchanged.
++REQ-VER-002 remains a lint row held by `make check`, with the `no check` state
++required by the traceability rules (09 §8.10). The command model is in 09 §8.11.
+diff --git a/tb/aecp_cmds/check_observed.py b/tb/aecp_cmds/check_observed.py
+new file mode 100644
+index 0000000..7c667b6
+--- /dev/null
++++ b/tb/aecp_cmds/check_observed.py
+@@ -0,0 +1,34 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Run the existing observed-command gate with its requirement execution tag.
++
++The check and its 176 verdicts remain scripts/check_aecp_commands.py's. The tag
++records that this suite reached that check during the same run_suites.sh run.
++REQ-VER-002 remains a lint row: this directed observation labels its check but
++does not change the matrix's verification category or require a waiver.
++"""
++import importlib.util
++from pathlib import Path
++import subprocess
++import sys
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++SPEC = importlib.util.spec_from_file_location("req_tag", HERE.parent / "common/req_tag.py")
++TAG = importlib.util.module_from_spec(SPEC)
++SPEC.loader.exec_module(TAG)
++REQ_TAG = TAG.REQ_TAG
++
++
++class ObservedCommands:
++    """The directed sweep's existing table and recorded-observation comparisons."""
++
++    def test_sweep(self, observation: Path) -> int:
++        """Preserve the command gate's output and exit status, and record execution."""
++        REQ_TAG("REQ-VER-002", "DIR", "ObservedCommands.test_sweep")
++        return subprocess.run([sys.executable, "-B", str(ROOT / "scripts/check_aecp_commands.py"),
++                               "--observed", str(observation)], check=False).returncode
++
++
++if __name__ == "__main__":
++    raise SystemExit(ObservedCommands().test_sweep(Path(sys.argv[1])))
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index 2aee19d..9832755 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -17,12 +17,12 @@
+     "inputs": {
+       "hdl/common/pp_pkg.sv": "6cd0a143e3a33ba9995c536d8f82ed9b3a33fc6ca15d024f405a4c94ed110f86",
+       "hdl/aecp/ucpu_pkg.sv": "030d9dd714eddd4ff1f49e6480f752b4563025e951a966bfb7a4c3b95e956f9c",
+-      "hdl/aecp/KL_aecp_ucpu.sv": "568201acb0c7efe9691981c83e9b9b52ba698801aee95f8d762c80dcb0159596",
+-      "hdl/aecp/KL_aecp_desc_store.sv": "5addf2254aa6ba85b40ddcc18048a3a3655c42ca3a72fae45f383e660112ca1f",
++      "hdl/aecp/KL_aecp_ucpu.sv": "771c36f73e78c451c810739dc28eb7681e0b0c9f0279ea677000eb30009fcb66",
++      "hdl/aecp/KL_aecp_desc_store.sv": "e054e36f733c4f6da833a9808b0776df22baacc26496dd7ade642f4eaceb3623",
+       "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+-      "hdl/aecp/KL_aecp_nvm_writer.sv": "7c21ee4a9ff137d355a45fecdc596e79b8ed577566d642f2f5c664f739e10a7e",
+-      "hdl/aecp/KL_aecp_resp_buf.sv": "45dbe0d0b1d2f0bc9f640ff73939de9f4f55ec5568e4d71ec07725254b91c4ea",
+-      "hdl/aecp/KL_aecp_engine.sv": "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d",
++      "hdl/aecp/KL_aecp_nvm_writer.sv": "eac4257846e683df02ee5bafaaa31bd769af9103d85df9235d983e0eb3618c08",
++      "hdl/aecp/KL_aecp_resp_buf.sv": "a5fb5ee1e4342d37d8ab8492bb513a8b37783de7874088fddcfcab1b7397a093",
++      "hdl/aecp/KL_aecp_engine.sv": "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6",
+       "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+       "tb/aecp_cmds/sim_main.cpp": "7dfd29cf53d97c4cf393368c85b3b2c93f7c3aa832eb30a58b9efe0ab554c37d",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
