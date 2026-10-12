@@ -1,0 +1,46 @@
+{
+ "control": "drop at 60,000 and repeat at 100,000 after 2 s of silence",
+ "result": {
+  "frames": 240000,
+  "decoded": 144000,
+  "invalid": 96000,
+  "torn": 0,
+  "first_decoded_frame": 96000,
+  "last_decoded_frame": 239999,
+  "events": [
+   {
+    "frame": 156000,
+    "step": 1,
+    "kind": "skip",
+    "frames": 1,
+    "invalid_between": 0,
+    "second": 3.25
+   },
+   {
+    "frame": 196000,
+    "step": -1,
+    "kind": "repeat",
+    "frames": 1,
+    "invalid_between": 0,
+    "second": 4.083
+   }
+  ],
+  "skips": 1,
+  "repeats": 1,
+  "net_step_frames": 0,
+  "events_across_invalid": 0
+ },
+ "expected": [
+  [
+   "skip",
+   1,
+   156000
+  ],
+  [
+   "repeat",
+   1,
+   196000
+  ]
+ ],
+ "verdict": "PASS"
+}
