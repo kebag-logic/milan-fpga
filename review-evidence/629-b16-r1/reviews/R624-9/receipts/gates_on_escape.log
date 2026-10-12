@@ -1,0 +1,10 @@
+rc=0 scripts/docs_check.py
+    docs_check: 0 finding(s) across 203 md files + 1267 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 scripts/check_doc_style.py
+    documentation style: OK (22 current documents)
+rc=0 scripts/gen_toc.py --check
+    TOC gate: OK (143 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 scripts/gen_toc.py --verify-anchors
+    anchor check: 479 existing cross-page fragment links reproduced
+rc=0 scripts/check_doc_paths.py
+    doc path gate: OK (966 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)

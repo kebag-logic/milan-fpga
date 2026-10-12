@@ -1,0 +1,207 @@
+{
+ "check": "scratch/ev/review-evidence/629-b16-r1/author-r8/tools/check_b16_figures.py",
+ "results": [
+  {
+   "case": "unchanged",
+   "document": null,
+   "line": null,
+   "phrase": null,
+   "expect": "pass",
+   "exit": 0,
+   "verdict": "OK",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_email_autolink_then_7ppm",
+   "document": "page",
+   "line": 19,
+   "phrase": " Write to x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_email_autolink_then_7ppm_no_space_word",
+   "document": "page",
+   "line": 19,
+   "phrase": " x@example.com, 7 ppm.",
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_www_autolink_then_7ppm",
+   "document": "page",
+   "line": 19,
+   "phrase": " See www.example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | its listener to its own talker on this See www.example.com 7 ppm. network, because its probe for that talker goes unansw"
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_url_autolink_then_7ppm",
+   "document": "page",
+   "line": 19,
+   "phrase": " See https://example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | listener to its own talker on this See https://example.com 7 ppm. network, because its probe for that talker goes unansw"
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_7ppm_alone",
+   "document": "page",
+   "line": 19,
+   "phrase": " It ran 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | r cannot bind its listener to its own talker on this It ran 7 ppm. network, because its probe for that talker goes unansw"
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "section_para_first_line_email_then_7ppm",
+   "document": "page",
+   "line": 2301,
+   "phrase": " x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it) | The peer's listener, bound to its own talker, x@example.com 7 ppm. sent its probe for that talker onto the network and ne"
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "section_para_later_line_email_then_7ppm",
+   "document": "page",
+   "line": 2302,
+   "phrase": " x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it) | talker onto the network and never received an x@example.com 7 ppm. answer, so it never learned the stream and the talker"
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "section_table_cell_email_then_7ppm",
+   "document": "page",
+   "line": 2324,
+   "phrase": " x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 7 (a measurement: only a row can claim it) | See B16: bench as left x@example.com 7 ppm."
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "index_row_email_then_7ppm",
+   "document": "index",
+   "line": 15,
+   "phrase": "; write to x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "index_row_www_then_7ppm",
+   "document": "index",
+   "line": 15,
+   "phrase": "; see www.example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED README.md:15 7 (a measurement: only a row can claim it) | ed ratio for B-CRF and B-AAF, and #645; see www.example.com 7 ppm."
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "index_row_7ppm_alone",
+   "document": "index",
+   "line": 15,
+   "phrase": "; it ran 7 ppm.",
+   "expect": "detect",
+   "exit": 1,
+   "verdict": "DETECTED",
+   "named": [
+    "UNCOVERED README.md:15 7 (a measurement: only a row can claim it) | lane B6's timed ratio for B-CRF and B-AAF, and #645; it ran 7 ppm."
+   ],
+   "summary": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_mailto_autolink_then_7ppm",
+   "document": "page",
+   "line": 19,
+   "phrase": " Write mailto:x@example.com 7 ppm.",
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_email_then_figure_on_next_word_run",
+   "document": "page",
+   "line": 19,
+   "phrase": " x@example.com: 7 ppm, 26 s, -3 dB.",
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  },
+  {
+   "case": "intro_and_index_email_then_7ppm",
+   "document": "both",
+   "line": [
+    19,
+    15
+   ],
+   "phrase": [
+    " Write to x@example.com 7 ppm.",
+    "; write to x@example.com 7 ppm."
+   ],
+   "expect": "detect",
+   "exit": 0,
+   "verdict": "ESCAPE",
+   "named": [],
+   "summary": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+   "stderr": ""
+  }
+ ]
+}

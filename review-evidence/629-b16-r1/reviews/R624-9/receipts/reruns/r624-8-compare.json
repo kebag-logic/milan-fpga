@@ -1,0 +1,189 @@
+[
+ {
+  "case": "unchanged",
+  "r8": [
+   0,
+   "PASS"
+  ],
+  "r9": [
+   0,
+   "PASS"
+  ],
+  "same": true,
+  "r9_markup": []
+ },
+ {
+  "case": "heading_plain_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": []
+ },
+ {
+  "case": "heading_pre_from_line_above_no_figure",
+  "r8": [
+   1,
+   "FAIL"
+  ],
+  "r9": [
+   1,
+   "FAIL"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2287 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "heading_pre_from_line_above_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2287 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "intro_pre_from_line_above_with_figure",
+  "r8": [
+   0,
+   "ESCAPED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": false,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "contents_pre_from_line_above_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:84 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "intro_pre_closed_on_second_covered_line_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "intro_div_from_line_above_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 html_block <div> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "heading_comment_from_line_above_with_figure",
+  "r8": [
+   1,
+   "FAIL"
+  ],
+  "r9": [
+   1,
+   "FAIL"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2287 html_block <!-- (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "emoji_shortcode_between_identifier_and_unit",
+  "r8": [
+   0,
+   "PASS"
+  ],
+  "r9": [
+   0,
+   "PASS"
+  ],
+  "same": true,
+  "r9_markup": []
+ },
+ {
+  "case": "inside_section_pre_one_line_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2288 html_block <pre>THD+N -90 dB</pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "inside_section_pre_two_lines_with_figure",
+  "r8": [
+   1,
+   "DETECTED"
+  ],
+  "r9": [
+   1,
+   "DETECTED"
+  ],
+  "same": true,
+  "r9_markup": [
+   "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2443 html_block <pre> (refused: a construct off the allowlist; write plain Markdown)"
+  ]
+ },
+ {
+  "case": "link_title_with_figure",
+  "r8": [
+   0,
+   "PASS"
+  ],
+  "r9": [
+   0,
+   "PASS"
+  ],
+  "same": true,
+  "r9_markup": []
+ }
+]

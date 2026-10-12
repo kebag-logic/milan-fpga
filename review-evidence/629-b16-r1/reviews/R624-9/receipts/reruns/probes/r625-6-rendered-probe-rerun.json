@@ -1,0 +1,171 @@
+{
+ "note": "Lane B16 round 9: R625-6-RENDERED's published probe, R625-6/scripts/probe_rendered_comment.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at cb5ff79f; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_rendered_comment.py",
+ "probe_sha256": "22c38feb3cd3cac780bf5a2f299716b125047c9703df0b60dbe54beccc3aed57",
+ "page_commit": "cb5ff79f1f69117efba353484851eceb620e5c92",
+ "exit": 1,
+ "reading": {
+  "versions": {
+   "cmarkgfm": "2025.10.22",
+   "html5lib": "1.1"
+  },
+  "statuses": [
+   0,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "names": [
+   "unchanged",
+   "plain",
+   "ordinary_comment",
+   "short_comment",
+   "short_dash_comment",
+   "short_comment_unknown_unit"
+  ],
+  "markup": [
+   [],
+   [],
+   [
+    "html_inline <!-- -->"
+   ],
+   [
+    "html_inline <!-->",
+    "html_inline <!-- -->"
+   ],
+   [
+    "html_inline <!--->",
+    "html_inline <!-- -->"
+   ],
+   [
+    "html_inline <!-->",
+    "html_inline <!-- -->"
+   ]
+  ],
+  "uncovered": [
+   [],
+   [
+    "7"
+   ],
+   [
+    "7"
+   ],
+   [
+    "7"
+   ],
+   [
+    "7"
+   ],
+   [
+    "7"
+   ]
+  ]
+ },
+ "results": {
+  "versions": {
+   "cmarkgfm": "2025.10.22",
+   "html5lib": "1.1"
+  },
+  "checker_sha256": "bafea39b3af1d6ba654cfbfc8c2feaf30e147a0abb5e8226650108d1e3238f11",
+  "results": [
+   {
+    "name": "unchanged",
+    "source_line": 3011,
+    "insertion": "",
+    "rendered_html": "",
+    "normalised_fragment": "",
+    "visible_fragment": "",
+    "full_page_visible_context": "Every stage at the path's floor. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observations, not review verdicts",
+    "rc": 0,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14956, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+    ]
+   },
+   {
+    "name": "plain",
+    "source_line": 3011,
+    "insertion": " CLOCK_DOMAIN 7 ppm.",
+    "rendered_html": "<p>CLOCK_DOMAIN 7 ppm.</p>\n",
+    "normalised_fragment": "CLOCK_DOMAIN 7 ppm.",
+    "visible_fragment": "CLOCK_DOMAIN 7 ppm.\n",
+    "full_page_visible_context": "Every stage at the path's floor. CLOCK_DOMAIN 7 ppm. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observations,",
+    "rc": 1,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2175, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | Every stage at the path's floor. CLOCK_DOMAIN 7 ppm. See B16c: attribution\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+    ]
+   },
+   {
+    "name": "ordinary_comment",
+    "source_line": 3011,
+    "insertion": " CLOCK_DOMAIN 7<!-- -->ppm.",
+    "rendered_html": "<p>CLOCK_DOMAIN 7<!-- -->ppm.</p>\n",
+    "normalised_fragment": "CLOCK_DOMAIN 7<!-- -->ppm.",
+    "visible_fragment": "CLOCK_DOMAIN 7ppm.\n",
+    "full_page_visible_context": "Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observations, ",
+    "rc": 1,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+    ]
+   },
+   {
+    "name": "short_comment",
+    "source_line": 3011,
+    "insertion": " CLOCK_DOMAIN 7<!-->ppm<!-- -->.",
+    "rendered_html": "<p>CLOCK_DOMAIN 7<!-->ppm<!-- -->.</p>\n",
+    "normalised_fragment": "CLOCK_DOMAIN 7<!-->ppm<!-- -->.",
+    "visible_fragment": "CLOCK_DOMAIN 7ppm.\n",
+    "full_page_visible_context": "Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observations, ",
+    "rc": 1,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!--> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-->\tMARKUP",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+    ]
+   },
+   {
+    "name": "short_dash_comment",
+    "source_line": 3011,
+    "insertion": " CLOCK_DOMAIN 7<!--->ppm<!-- -->.",
+    "rendered_html": "<p>CLOCK_DOMAIN 7<!--->ppm<!-- -->.</p>\n",
+    "normalised_fragment": "CLOCK_DOMAIN 7<!--->ppm<!-- -->.",
+    "visible_fragment": "CLOCK_DOMAIN 7ppm.\n",
+    "full_page_visible_context": "Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observations, ",
+    "rc": 1,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7ppm. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!---> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!--->\tMARKUP",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+    ]
+   },
+   {
+    "name": "short_comment_unknown_unit",
+    "source_line": 3011,
+    "insertion": " CLOCK_DOMAIN 7<!-->furlongs<!-- -->.",
+    "rendered_html": "<p>CLOCK_DOMAIN 7<!-->furlongs<!-- -->.</p>\n",
+    "normalised_fragment": "CLOCK_DOMAIN 7<!-->furlongs<!-- -->.",
+    "visible_fragment": "CLOCK_DOMAIN 7furlongs.\n",
+    "full_page_visible_context": "Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\n\n\nA DUT fix\nNot needed\nNo DUT stage loses or alters the tone\n\n\nRestore\nDone\nSee B16c: bench as left\n\n\n\nThese are operator observati",
+    "rc": 1,
+    "stdout": "{\"lines\": 2162, \"tokens\": 2174, \"rows\": 1909, \"rows_ok\": 1909, \"rows_bad\": 0, \"by_category\": 1321, \"digits\": 14957, \"digits_by_row\": 12531, \"digits_by_category\": 2425, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!--> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "categories": [
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-->\tMARKUP",
+     "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+    ]
+   }
+  ]
+ }
+}
