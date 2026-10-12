@@ -1,0 +1,10 @@
+[R632] round R632-4, independent pass recorded before reading any prior review finding text.
+Recorded at: 2026-10-12T22:43:04Z
+Head: 31e53e82a4a1604569ccacba8473f21e70b9cbc0
+Own findings from the diff dc4d06cb..31e53e82, the docs, and own probes (probe_r632_4.py):
+- No BLOCKER, MAJOR or MINOR.
+- SUGGESTION (Tests): no standing self-test arm pins that the run derives its ranges from the
+  materialized (replayed) checkout rather than from the trusted runner's own workflow files;
+  probe_r632_4.py A4 shows the head reads the checkout and kills the read-the-runner's-root mutant.
+- SUGGESTION (Tests): summary and diagnostic-only paths (pipe-close failure, staging outcome
+  label, off-target warning for a moved container, unread stream stderr) are not pinned.

@@ -1,0 +1,18 @@
+# First pass: each gate on a fresh local git copy of the head inside sandbox.sh.
+# The five non-zero rows were environment-only: py-idiom needs initialized submodules; em-dash and gen_toc need the pinned
+# Markdown renderer; diff-check could not reach the clone's alternate object store. Their logs under receipts/gates/ were
+# replaced by the second pass (tree-gates-summary.txt: review clone bound read-only, renderer venv bound read-only), all rc 0.
+baremetal-check rc=0 | baremetal-only: OK (0 findings across 1270 tracked first-party file(s))
+baremetal-selftest rc=0 | baremetal-only selftest: PASS (700 arm(s))
+ci-events-check rc=0 | ci_events: OK (2016 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci-events-selftest rc=0 | selftest: PASS (2016 contract items, 2828 arms)
+diff-check rc=128 | fatal: unable to read 588d24b4145c3b8ae63e459cd4b0a3525f354d91
+doc-paths rc=0 | doc path gate: OK (964 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+docs-check rc=0 | docs_check: 0 finding(s) across 204 md files + 1272 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc-style rc=0 | documentation style: OK (22 current documents)
+em-dash rc=2 | check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools
+py-idiom rc=2 | REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-7dda9c3b4d65cbbb28f72a34e1ee0efe368695d
+py-idiom-selftest rc=2 | [PASS] a malformed budget value is no entry
+slot-proof-selftest rc=0 | act_slot_proof selftest: PASS (44 cases)
+toc-anchors rc=2 | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
+toc-check rc=2 | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
