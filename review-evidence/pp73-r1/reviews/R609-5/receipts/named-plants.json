@@ -1,0 +1,2330 @@
+[
+  {
+    "family": "memory",
+    "plant": "echo_entries is not a list",
+    "expected_words": [
+      "schema: echo_entries must be a list of program names"
+    ],
+    "named_failures": [
+      "  schema: echo_entries must be a list of program names"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "echo_entries contains a non-name",
+    "expected_words": [
+      "schema: echo_entries must be a list of program names"
+    ],
+    "named_failures": [
+      "  schema: echo_entries must be a list of program names"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "echo_entries names no shared program",
+    "expected_words": [
+      "schema: echo_entries: ABSENT",
+      "nor listed in shared_entries"
+    ],
+    "named_failures": [
+      "  schema: echo_entries: ABSENT is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "echo_entries names a private secondary program",
+    "expected_words": [
+      "schema: echo_entries: RDESCENT",
+      "nor listed in shared_entries"
+    ],
+    "named_failures": [
+      "  schema: echo_entries: RDESCENT is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "echo_entries names an owned first entry used elsewhere",
+    "expected_words": [
+      "schema: echo_entries: EAVL",
+      "first-entry owner"
+    ],
+    "named_failures": [
+      "  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a first-entry echo needs its shared declaration",
+    "expected_words": [
+      "schema: echo_entries: NSUPPE",
+      "nor listed in shared_entries"
+    ],
+    "named_failures": [
+      "  schema: echo_entries: NSUPPE is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a shared echo cannot exempt ROM SUCCESS (R608-3 echo-hide)",
+    "expected_words": [
+      "rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12"
+    ],
+    "named_failures": [
+      "  rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12, the table's response is 32"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a shared echo cannot exempt observed SUCCESS (R608-3 echo-hide)",
+    "expected_words": [
+      "decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12"
+    ],
+    "named_failures": [
+      "  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12, the table's response is 32"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a shared echo cannot exempt a symbolic SUCCESS",
+    "expected_words": [
+      "decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at the command's own length"
+    ],
+    "named_failures": [
+      "  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at the command's own length, and the table's response is no echo"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an opcode renumbered in the table only",
+    "expected_words": [
+      "engine: GET_SAMPLING_RATE",
+      "0x001E"
+    ],
+    "named_failures": [
+      "  engine: GET_SAMPLING_RATE: the table says opcode 0x001E, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x0015"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a size changed in the doc table only",
+    "expected_words": [
+      "F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size"
+    ],
+    "named_failures": [
+      "  F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size, reads '36 B (cdl 24)' where the table gives '32 B (cdl 20)'"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an OP_*_C changed in the RTL only",
+    "expected_words": [
+      "engine: GET_SAMPLING_RATE",
+      "OP_GET_SAMP_RATE_C = 0x001E"
+    ],
+    "named_failures": [
+      "  engine: GET_SAMPLING_RATE: the table says opcode 0x0015, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x001E"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command missing from the table",
+    "expected_words": [
+      "OP_GET_AS_PATH_C = 0x0028 and the table has no command"
+    ],
+    "named_failures": [
+      "  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_AS_PATH_C = 0x0028 and the table has no command for it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command missing from the table, as the engine decodes it",
+    "expected_words": [
+      "decode: AEM 0x0028 is no table command",
+      "GASP"
+    ],
+    "named_failures": [
+      "  decode: AEM 0x0028 is no table command and the engine dispatches it to GASP, not only NOTIMPL"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an OP_*_C written in another form",
+    "expected_words": [
+      "OP_GET_AS_PATH_C is not written"
+    ],
+    "named_failures": [
+      "  engine: OP_GET_AS_PATH_C is not written `localparam logic [15:0] OP_GET_AS_PATH_C = 16'hXXXX;`, so its opcode cannot be held to the table"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GDI_*_C the table does not document",
+    "expected_words": [
+      "GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such"
+    ],
+    "named_failures": [
+      "  engine: hdl/aecp/KL_aecp_engine.sv declares GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such GET_DYNAMIC_INFO member"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a success arm redirected to another program (R608-1 q1, as recorded)",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: the table's entries name SCLKS"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a success arm redirected to another program, the other line",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS, which is not one of the table's entries (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a decode keyed on another opcode (R608-1 q2, as recorded)",
+    "expected_words": [
+      "decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS"
+    ],
+    "named_failures": [
+      "  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an entry the engine cannot dispatch to",
+    "expected_words": [
+      "GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C"
+    ],
+    "named_failures": [
+      "  engine: GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C, so the engine cannot dispatch to it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an entry the engine never dispatches the command to",
+    "expected_words": [
+      "decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN"
+    ],
+    "named_failures": [
+      "  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an engine entry no command claims",
+    "expected_words": [
+      "UPC_NSUPP1_C is claimed by no command"
+    ],
+    "named_failures": [
+      "  engine: UPC_NSUPP1_C is claimed by no command, notification body or shared entry of the table"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command cdl off the engine's decode floor",
+    "expected_words": [
+      "decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20"
+    ],
+    "named_failures": [
+      "  decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a decode floor moved in the engine (as recorded)",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016",
+      "is cdl 16"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 16, the table's command cdl is 20"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a declared floor dropped from the table",
+    "expected_words": [
+      "decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024",
+      "the table's command cdl is 16"
+    ],
+    "named_failures": [
+      "  decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024 the engine dispatches to REGUN is cdl 12, the table's command cdl is 16"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a per-record command accepted between records (as recorded)",
+    "expected_words": [
+      "decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24"
+    ],
+    "named_failures": [
+      "  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24, which is no 20 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an echo command per reduced to a divisor, with its response",
+    "expected_words": [
+      "decode: ADD_AUDIO_MAPPINGS: command per is 4",
+      "gcd",
+      "is 8"
+    ],
+    "named_failures": [
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an echo command accepting a multiple of the record step",
+    "expected_words": [
+      "decode: REMOVE_AUDIO_MAPPINGS: command per is 8",
+      "gcd",
+      "is 16"
+    ],
+    "named_failures": [
+      "  decode: REMOVE_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 16"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a response the bench saw at another size (as recorded)",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24, the table's response is 20"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a response the bench saw at the command's length on a fixed rule (as recorded)",
+    "expected_words": [
+      "decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length"
+    ],
+    "named_failures": [
+      "  decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length, and the table's response is no echo"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status the bench saw outside the set (as recorded)",
+    "expected_words": [
+      "decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES"
+    ],
+    "named_failures": [
+      "  decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES, which is not in the table's status set"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a program that sent no frame (as recorded)",
+    "expected_words": [
+      "decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame"
+    ],
+    "named_failures": [
+      "  decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command answered without a program (as recorded)",
+    "expected_words": [
+      "decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program"
+    ],
+    "named_failures": [
+      "  decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program, the table says its response is program-built"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command the bench saw dropped (as recorded)",
+    "expected_words": [
+      "decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped"
+    ],
+    "named_failures": [
+      "  decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped at cdl 12"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a served command the sweep never sent (as recorded)",
+    "expected_words": [
+      "decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000"
+    ],
+    "named_failures": [
+      "  decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000: the sweep never sent it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unserved opcode decoded (as recorded)",
+    "expected_words": [
+      "decode: AEM 0x0003 is no table command",
+      "GCFG"
+    ],
+    "named_failures": [
+      "  decode: AEM 0x0003 is no table command and the engine dispatches it to GCFG, not only NOTIMPL"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "another message type decoded as AEM (as recorded)",
+    "expected_words": [
+      "decode: AVC 0x0016 is no table command",
+      "SCLKS"
+    ],
+    "named_failures": [
+      "  decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an engine source changed after the sweep",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv",
+      "sweep this engine with make -C tb/aecp_cmds record"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4b59126375de, this tree's is 3bfed9e21bab): sweep this engine with make -C tb/aecp_cmds record"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the bench changed after the sweep",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp (sha256 7dfd29cf53d9, this tree's is c33eea954ba5): sweep this engine with make -C tb/aecp_cmds record"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the ROM changed after the sweep",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated)"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 96b293c6283f): sweep this engine with make -C tb/aecp_cmds record"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a trial that never ended (as recorded)",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json: 1 trials never ended"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json: 1 trials never ended"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a record of another schema",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0'"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0', this gate reads 'aecp-decode-record/1'"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a record without its parts",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json is not a decode record"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json is not a decode record: KeyError('gdi')"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO member the engine refuses (as recorded)",
+    "expected_words": [
+      "decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member"
+    ],
+    "named_failures": [
+      "  decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO flag changed in the table",
+    "expected_words": [
+      "decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO"
+    ],
+    "named_failures": [
+      "  decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO record length changed (as recorded)",
+    "expected_words": [
+      "decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes"
+    ],
+    "named_failures": [
+      "  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes, the table's response is cdl 148 (136 bytes)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO member that never runs its program (as recorded)",
+    "expected_words": [
+      "decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG"
+    ],
+    "named_failures": [
+      "  decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO record dispatched outside the entries (as recorded)",
+    "expected_words": [
+      "decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS"
+    ],
+    "named_failures": [
+      "  decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS, which is not one of its entries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "GET_DYNAMIC_INFO's empty aggregate at another size (as recorded)",
+    "expected_words": [
+      "decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16"
+    ],
+    "named_failures": [
+      "  decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16, the table's response is SUCCESS at 12 + records"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GET_DYNAMIC_INFO record that voids the aggregate (as recorded)",
+    "expected_words": [
+      "decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12"
+    ],
+    "named_failures": [
+      "  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "GET_DYNAMIC_INFO's response cdl changed in the table",
+    "expected_words": [
+      "decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12"
+    ],
+    "named_failures": [
+      "  decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12, the table's response is SUCCESS at 16 + records"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited job carrying another command_type (as recorded)",
+    "expected_words": [
+      "decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers"
+    ],
+    "named_failures": [
+      "  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0007 with GCFG, the table says 0x0006 with GCFG"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited job no table command claims (as recorded)",
+    "expected_words": [
+      "decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG"
+    ],
+    "named_failures": [
+      "  decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG, which is no table command's notification"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited body changed in the table",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers 0x0016 with GCLKS, the table says 0x0016 with GSRATE"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited kind the engine does not run",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited job at another size (as recorded)",
+    "expected_words": [
+      "decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24"
+    ],
+    "named_failures": [
+      "  decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24, the table's response is 20"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited arm no command claims",
+    "expected_words": [
+      "decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB"
+    ],
+    "named_failures": [
+      "  decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB, which is no table command's notification"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a hazard class changed in the top",
+    "expected_words": [
+      "classifier: SET_NAME: the table says NAME_WR",
+      "0x0010 STREAM_CFG"
+    ],
+    "named_failures": [
+      "  classifier: SET_NAME: the table says NAME_WR, hdl/top/protocol_processor_top.sv hz_classify gives 0x0010 STREAM_CFG"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a hazard class changed in the table",
+    "expected_words": [
+      "classifier: GET_COUNTERS: the table says MAP_CFG"
+    ],
+    "named_failures": [
+      "  classifier: GET_COUNTERS: the table says MAP_CFG, hdl/top/protocol_processor_top.sv hz_classify gives 0x0029 RO_SNAPSHOT"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a classified opcode no command carries",
+    "expected_words": [
+      "hz_classify names 0x004B"
+    ],
+    "named_failures": [
+      "  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x004B, which no table command carries"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a hazard code changed in pp_pkg",
+    "expected_words": [
+      "classifier: hazard class IDENTIFY is 8 in the table and 9"
+    ],
+    "named_failures": [
+      "  classifier: hazard class IDENTIFY is 8 in the table and 9 in hdl/common/pp_pkg.sv"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a lock flag changed in the table",
+    "expected_words": [
+      "rom: SET_CONTROL: the table says lock false"
+    ],
+    "named_failures": [
+      "  rom: SET_CONTROL: the table says lock false, its programs do reach CHECK_LOCK"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "CHECK_LOCK dropped from a program",
+    "expected_words": [
+      "rom: SET_CLOCK_SOURCE: the table says lock true",
+      "never reach CHECK_LOCK"
+    ],
+    "named_failures": [
+      "  rom: SET_CLOCK_SOURCE: the table says lock true, its programs never reach CHECK_LOCK"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the scoreboard's lock-protected set changed",
+    "expected_words": [
+      "scoreboard:",
+      "hz_is_lockprot"
+    ],
+    "named_failures": [
+      "  scoreboard: hdl/packet_engine/KL_pp_scoreboard.sv hz_is_lockprot is ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'STREAM_CFG'], the table's lock-protected commands are ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG']"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a notification class changed in the table",
+    "expected_words": [
+      "rom: SET_SAMPLING_RATE: its programs enqueue notification class [5]"
+    ],
+    "named_failures": [
+      "  rom: SET_SAMPLING_RATE: its programs enqueue notification class [5], the table says [8]"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a NOTIFY_ENQ class changed in a program",
+    "expected_words": [
+      "rom: SET_CONTROL: its programs enqueue notification class [2]"
+    ],
+    "named_failures": [
+      "  rom: SET_CONTROL: its programs enqueue notification class [2], the table says [4]"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the notify block's class map changed",
+    "expected_words": [
+      "notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C"
+    ],
+    "named_failures": [
+      "  notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_CLKS_C"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status dropped from the table",
+    "expected_words": [
+      "rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered"
+    ],
+    "named_failures": [
+      "  rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered by a path of its programs and missing from the table's status set"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status the programs cannot answer",
+    "expected_words": [
+      "rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table"
+    ],
+    "named_failures": [
+      "  rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table's status set and no path of its programs can answer it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a refusal status changed in a program",
+    "expected_words": [
+      "rom: SET_CONFIGURATION: status NO_RESOURCES is answered"
+    ],
+    "named_failures": [
+      "  rom: SET_CONFIGURATION: status NO_RESOURCES is answered by a path of its programs and missing from the table's status set"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status code changed in ucpu_pkg",
+    "expected_words": [
+      "status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9"
+    ],
+    "named_failures": [
+      "  status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9 in hdl/aecp/ucpu_pkg.sv"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a response size changed in the table",
+    "expected_words": [
+      "rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20"
+    ],
+    "named_failures": [
+      "  rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20, the table's response is 24"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a field dropped from a program",
+    "expected_words": [
+      "rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl"
+    ],
+    "named_failures": [
+      "  rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl 60, the table's response is 68"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "GET_AUDIO_MAP's response cdl 20, F06.14 regenerated",
+    "expected_words": [
+      "rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8\u00b7N",
+      "the table's response is 20 + 8\u00b7N"
+    ],
+    "named_failures": [
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "GET_AUDIO_MAP's response cdl 28, F06.14 regenerated",
+    "expected_words": [
+      "rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8\u00b7N",
+      "the table's response is 28 + 8\u00b7N"
+    ],
+    "named_failures": [
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8\u00b7N, the table's response is 28 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a header field NOPed in E_GAMAP",
+    "expected_words": [
+      "rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22"
+    ],
+    "named_failures": [
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22 + 8\u00b7N, the table's response is 24 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a header field NOPed in E_GAVB",
+    "expected_words": [
+      "rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28"
+    ],
+    "named_failures": [
+      "  rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28 + 4\u00b7N, the table's response is 32 + 4\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a header field NOPed in E_GASP",
+    "expected_words": [
+      "rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14"
+    ],
+    "named_failures": [
+      "  rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14 + 8\u00b7N, the table's response is 16 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a header field NOPed in E_RDESC",
+    "expected_words": [
+      "rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy"
+    ],
+    "named_failures": [
+      "  rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the record APPEND NOPed in E_GAMAP",
+    "expected_words": [
+      "rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24",
+      "no path builds the variable part"
+    ],
+    "named_failures": [
+      "  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24, never 24 + 8\u00b7N: no path builds the variable part"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the record APPEND NOPed in E_GAVB",
+    "expected_words": [
+      "rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32"
+    ],
+    "named_failures": [
+      "  rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32, never 32 + 4\u00b7N: no path builds the variable part"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the record APPEND NOPed in E_GASP",
+    "expected_words": [
+      "rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16"
+    ],
+    "named_failures": [
+      "  rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16, never 16 + 8\u00b7N: no path builds the variable part"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a per-record response read as a fixed one",
+    "expected_words": [
+      "rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8\u00b7N, the table's response is 16"
+    ],
+    "named_failures": [
+      "  rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8\u00b7N, the table's response is 16"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an echo row's response off its command size",
+    "expected_words": [
+      "schema: ACQUIRE_ENTITY: an echo response is the command's own size"
+    ],
+    "named_failures": [
+      "  schema: ACQUIRE_ENTITY: an echo response is the command's own size: response cdl 32, command cdl 28"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an echo row's command off its response size",
+    "expected_words": [
+      "schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size"
+    ],
+    "named_failures": [
+      "  schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size: response cdl 20 + 8\u00b7N, command cdl 24 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unsolicited body of another size",
+    "expected_words": [
+      "unsolicited body E_STRMUNS is cdl 12"
+    ],
+    "named_failures": [
+      "  rom: START_STREAMING: its unsolicited body E_STRMUNS is cdl 12, the table's response is 16",
+      "  rom: STOP_STREAMING: its unsolicited body E_STRMUNS is cdl 12, the table's response is 16"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a path into the ROM fill",
+    "expected_words": [
+      "rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word"
+    ],
+    "named_failures": [
+      "  rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word 2047, which no program placed (the fill)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "section 8.1 missing a served command",
+    "expected_words": [
+      "8.1: ENTITY_AVAILABLE (AEM 0x0002) is served"
+    ],
+    "named_failures": [
+      "  8.1: ENTITY_AVAILABLE (AEM 0x0002) is served and section 8.1 does not list it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a row missing from F06.14",
+    "expected_words": [
+      "F06.14: row 0x0029 GET_COUNTERS is missing"
+    ],
+    "named_failures": [
+      "  F06.14: row 0x0029 GET_COUNTERS is missing (run --write)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "two commands on one opcode",
+    "expected_words": [
+      "schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's"
+    ],
+    "named_failures": [
+      "  schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status the table does not define",
+    "expected_words": [
+      "schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status code off IEEE Table 7-141 (no RTL constant holds it)",
+    "expected_words": [
+      "schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12"
+    ],
+    "named_failures": [
+      "  schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status code that is not an integer",
+    "expected_words": [
+      "schema: status NO_RESOURCES: code must be an integer"
+    ],
+    "named_failures": [
+      "  schema: status NO_RESOURCES: code must be an integer"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a common status the table does not define",
+    "expected_words": [
+      "schema: common_status AEM: status BUSY is not in status_codes"
+    ],
+    "named_failures": [
+      "  schema: common_status AEM: status BUSY is not in status_codes"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unserved program that is no shared entry",
+    "expected_words": [
+      "schema: unserved 'NOTIMPL2' is no shared entry"
+    ],
+    "named_failures": [
+      "  schema: unserved 'NOTIMPL2' is no shared entry"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a table of another schema",
+    "expected_words": [
+      "schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2'"
+    ],
+    "named_failures": [
+      "  schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2', this gate reads 'aecp-command-table/1'"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an empty part of the table",
+    "expected_words": [
+      "schema: status_codes, hazard_classes or commands is empty"
+    ],
+    "named_failures": [
+      "  schema: status_codes, hazard_classes or commands is empty"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command without a field",
+    "expected_words": [
+      "schema: GET_NAME: missing hazard"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: missing hazard"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a command listed twice",
+    "expected_words": [
+      "schema: GET_NAME is listed twice"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME is listed twice"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a message type that is neither AEM nor MVU",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the MVU row the generator reads, gone",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: no command with message MVU"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a message type without its common statuses",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: message 'MVU' has no common_status row"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: message 'MVU' has no common_status row"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an opcode not written 0xHHHH",
+    "expected_words": [
+      "schema: GET_NAME: opcode '0x11' is not 0xHHHH"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: opcode '0x11' is not 0xHHHH"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a hazard class the table does not define",
+    "expected_words": [
+      "schema: GET_NAME: hazard NAME_RD is not in hazard_classes"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: hazard NAME_RD is not in hazard_classes"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a flag that is not true or false",
+    "expected_words": [
+      "schema: GET_NAME: lock, gdi and oversize must be true or false"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: lock, gdi and oversize must be true or false"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a size without an integer cdl",
+    "expected_words": [
+      "schema: GET_NAME: response has no integer cdl"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: response has no integer cdl"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a per-record size without its unit",
+    "expected_words": [
+      "schema: GET_AS_PATH: response per must be an integer with its unit"
+    ],
+    "named_failures": [
+      "  schema: GET_AS_PATH: response per must be an integer with its unit and greater than zero"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a zero echo record step",
+    "expected_words": [
+      "schema: ADD_AUDIO_MAPPINGS: command per must be"
+    ],
+    "named_failures": [
+      "  schema: ADD_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a null echo record step",
+    "expected_words": [
+      "schema: REMOVE_AUDIO_MAPPINGS: command per must be"
+    ],
+    "named_failures": [
+      "  schema: REMOVE_AUDIO_MAPPINGS: command per must be an integer with its unit and greater than zero"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a negative record step",
+    "expected_words": [
+      "schema: GET_AVB_INFO: response per must be"
+    ],
+    "named_failures": [
+      "  schema: GET_AVB_INFO: response per must be an integer with its unit and greater than zero"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a floor at or above the command cdl",
+    "expected_words": [
+      "schema: ACQUIRE_ENTITY: command floor must be"
+    ],
+    "named_failures": [
+      "  schema: ACQUIRE_ENTITY: command floor must be a command's integer from 12 below its cdl"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an entry listed twice",
+    "expected_words": [
+      "schema: GET_NAME: entries must be a non-empty list of names without repeats"
+    ],
+    "named_failures": [
+      "  schema: GET_NAME: entries must be a non-empty list of names without repeats"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a notification without its body",
+    "expected_words": [
+      "schema: SET_NAME: notify must be null or carry class, kind and body"
+    ],
+    "named_failures": [
+      "  schema: SET_NAME: notify must be null or carry class, kind and body"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unserved F06.14 row short of a cell",
+    "expected_words": [
+      "schema: documented row '0x0003': needs"
+    ],
+    "named_failures": [
+      "  schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unserved F06.14 row without its name (R609-1 S2)",
+    "expected_words": [
+      "schema: documented row '0x0003': needs"
+    ],
+    "named_failures": [
+      "  schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a constant the engine does not declare",
+    "expected_words": [
+      "engine: GET_NAME: the table names OP_GET_NAMES_C",
+      "declares no such constant"
+    ],
+    "named_failures": [
+      "  engine: GET_NAME: the table names OP_GET_NAMES_C and hdl/aecp/KL_aecp_engine.sv declares no such constant"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GDI_*_C renumbered in the table",
+    "expected_words": [
+      "engine: GET_VIDEO_FORMAT: the table says 0x000C",
+      "GDI_GET_VIDEO_FMT_C = 0x000B"
+    ],
+    "named_failures": [
+      "  engine: GET_VIDEO_FORMAT: the table says 0x000C, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a GDI_*_C the engine does not declare",
+    "expected_words": [
+      "engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C"
+    ],
+    "named_failures": [
+      "  engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C and hdl/aecp/KL_aecp_engine.sv declares no such constant"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a hazard code pp_pkg adds",
+    "expected_words": [
+      "classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not"
+    ],
+    "named_failures": [
+      "  classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a non-AEM command off the classifier's default",
+    "expected_words": [
+      "classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default"
+    ],
+    "named_failures": [
+      "  classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default RO_SNAPSHOT, not MAP_CFG"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a class the notify block maps and does not queue",
+    "expected_words": [
+      "notify:",
+      "class 9 (START_STREAMING) is in one only"
+    ],
+    "named_failures": [
+      "  notify: hdl/aecp/KL_aecp_notify.sv queues classes [1, 2, 3, 4, 5, 7, 8] and maps [1, 2, 3, 4, 5, 7, 8, 9]: class 9 (START_STREAMING) is in one only"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a class off the notify block's map whose kind another class carries",
+    "expected_words": [
+      "notify: SET_NAME: class 6 is not in",
+      "its kind PP_UNS_NAME_C is another class's"
+    ],
+    "named_failures": [
+      "  notify: SET_NAME: class 6 is not in hdl/aecp/KL_aecp_notify.sv's map, yet its kind PP_UNS_NAME_C is another class's"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a class the notify block maps and no command enqueues",
+    "expected_words": [
+      "notify:",
+      "maps class 10 to PP_UNS_STRM_C and no table command enqueues it"
+    ],
+    "named_failures": [
+      "  notify: hdl/aecp/KL_aecp_notify.sv maps class 10 to PP_UNS_STRM_C and no table command enqueues it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a ucpu_pkg status the table does not name",
+    "expected_words": [
+      "status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it"
+    ],
+    "named_failures": [
+      "  status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an engine-built status on a program-built response",
+    "expected_words": [
+      "rom: GET_NAME: engine_status is only for an engine-built response"
+    ],
+    "named_failures": [
+      "  rom: GET_NAME: engine_status is only for an engine-built response"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an entry the generator never placed",
+    "expected_words": [
+      "rom: ENTITY_AVAILABLE: entry EAVL is no placed program"
+    ],
+    "named_failures": [
+      "  rom: ENTITY_AVAILABLE: entry EAVL is no placed program in hdl/aecp/ucode/gen_ucode.py"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a status code the table does not know set in a program",
+    "expected_words": [
+      "rom: SET_CONFIGURATION: a path sets status 13, which the table does not know"
+    ],
+    "named_failures": [
+      "  rom: SET_CONFIGURATION: a path sets status 13, which the table does not know"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a notification body the generator never placed",
+    "expected_words": [
+      "rom: START_STREAMING: notification body STRMUNS is no placed program"
+    ],
+    "named_failures": [
+      "  rom: START_STREAMING: notification body STRMUNS is no placed program"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "F06.14's header changed",
+    "expected_words": [
+      "F06.14: the header is not"
+    ],
+    "named_failures": [
+      "  F06.14: the header is not | Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a row repeated in F06.14",
+    "expected_words": [
+      "F06.14: 42 rows where the table generates 41"
+    ],
+    "named_failures": [
+      "  F06.14: 42 rows where the table generates 41"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a row in F06.14 the table does not generate",
+    "expected_words": [
+      "F06.14: row 0x0029 GET_COUNTER is not in the table"
+    ],
+    "named_failures": [
+      "  F06.14: row 0x0029 GET_COUNTER is not in the table"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an F06.14 row with an extra cell",
+    "expected_words": [
+      "F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12"
+    ],
+    "named_failures": [
+      "  F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "F06.14 rows out of order",
+    "expected_words": [
+      "F06.14: the rows are out of the generated order"
+    ],
+    "named_failures": [
+      "  F06.14: the rows are out of the generated order (run --write)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "section 8.1 listing a command the engine does not serve",
+    "expected_words": [
+      "8.1: section 8.1 lists AEM 0x0003 and the table serves no such command"
+    ],
+    "named_failures": [
+      "  8.1: section 8.1 lists AEM 0x0003 and the table serves no such command"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a parsed block renamed (a stale pattern)",
+    "expected_words": [
+      "gate refused",
+      "hz_classify",
+      "the pattern has gone stale"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/top/protocol_processor_top.sv hz_classify: 'always_comb\\s+begin\\s*:\\s*hz_classify\\b' not found - the pattern has gone stale)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a parsed block with no end",
+    "expected_words": [
+      "gate refused",
+      "hdl/aecp/KL_aecp_notify.sv emit_pick: no "
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/KL_aecp_notify.sv emit_pick: no '\\bendcase\\b' after 'unique\\s+case\\s*\\(\\s*cmdq_class_r\\s*\\[[^\\]]*\\]\\s*\\)')"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the engine's entries written in another form",
+    "expected_words": [
+      "gate refused",
+      "hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "hz_classify's opcode case written in another form",
+    "expected_words": [
+      "gate refused",
+      "hz_classify's default or its opcode case is not parseable"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/top/protocol_processor_top.sv: hz_classify's default or its opcode case is not parseable)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "hz_classify's opcode labels written in another form",
+    "expected_words": [
+      "gate refused",
+      "hz_classify's opcode case parsed nothing"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/top/protocol_processor_top.sv: hz_classify's opcode case parsed nothing)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "pp_pkg's hazard codes written in another form",
+    "expected_words": [
+      "gate refused",
+      "no PP_HZ_* enum parsed"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/common/pp_pkg.sv: no PP_HZ_* enum parsed)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "hz_is_lockprot naming a class without its alias",
+    "expected_words": [
+      "gate refused",
+      "hz_is_lockprot is not parseable"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/packet_engine/KL_pp_scoreboard.sv: hz_is_lockprot is not parseable)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "the notify block's queued classes written in another form",
+    "expected_words": [
+      "gate refused",
+      "the command-class map is not parseable"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/KL_aecp_notify.sv: the command-class map is not parseable)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "ucpu_pkg's status codes written in another form",
+    "expected_words": [
+      "gate refused",
+      "no ST_*_C parsed"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/ucpu_pkg.sv: no ST_*_C parsed)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "F06.14's end marker gone",
+    "expected_words": [
+      "gate refused",
+      "the F06.14 markers are missing"
+    ],
+    "named_failures": [
+      "  (gate refused: docs/architecture/06_aecp_engine.md: the F06.14 markers are missing; restore them, then run --write)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "section 8.1's heading renamed",
+    "expected_words": [
+      "gate refused",
+      "section 8.1's table is not parseable"
+    ],
+    "named_failures": [
+      "  (gate refused: docs/architecture/06_aecp_engine.md: section 8.1's table is not parseable)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unregistered table field",
+    "expected_words": [
+      "fields: unknown: table field missing from registry"
+    ],
+    "named_failures": [
+      "  fields: unknown: table field missing from registry"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unregistered nested field",
+    "expected_words": [
+      "fields: commands[].command.extra: table field missing from registry"
+    ],
+    "named_failures": [
+      "  fields: commands[].command.extra: table field missing from registry"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a registry entry for no field",
+    "expected_words": [
+      "fields: absent: registry entry has no such table field"
+    ],
+    "named_failures": [
+      "  fields: absent: registry entry has no such table field"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a duplicate registry entry",
+    "expected_words": [
+      "fields: commands[].opcode: duplicate registry entry"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: duplicate registry entry"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a registry which is no list",
+    "expected_words": [
+      "fields: registry must be a list of field objects"
+    ],
+    "named_failures": [
+      "  fields: registry must be a list of field objects"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a registry row which is no object",
+    "expected_words": [
+      "fields: registry must be a list of field objects"
+    ],
+    "named_failures": [
+      "  fields: registry must be a list of field objects"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a registry entry without a path",
+    "expected_words": [
+      "fields: registry entry needs a path"
+    ],
+    "named_failures": [
+      "  fields: registry entry needs a path"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "an unknown registry status",
+    "expected_words": [
+      "fields: commands[].opcode: status must be held or held to nothing"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: status must be held or held to nothing"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a registry entry without a reason",
+    "expected_words": [
+      "fields: commands[].opcode: needs a reason"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: needs a reason describing its scope"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field without a consumer",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field without a check",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field without a probe",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field without named words",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field probe without edits",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field probe without a value",
+    "expected_words": [
+      "fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: held needs consumer, check and a named drift probe"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field probe of another field",
+    "expected_words": [
+      "fields: commands[].opcode: probe must change this table field"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: probe must change this table field"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a held field probe of an absent field",
+    "expected_words": [
+      "fields: commands[].opcode: probe must change this table field"
+    ],
+    "named_failures": [
+      "  fields: commands[].opcode: probe must change this table field"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a missing docstring registry marker",
+    "expected_words": [
+      "fields:",
+      "scripts/check_aecp_commands.py",
+      "needs exactly one pair of registry markers"
+    ],
+    "named_failures": [
+      "  (gate refused: fields: scripts/check_aecp_commands.py: needs exactly one pair of registry markers)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "reversed registry markers",
+    "expected_words": [
+      "fields:",
+      "scripts/check_aecp_commands.py",
+      "registry markers are reversed"
+    ],
+    "named_failures": [
+      "  (gate refused: fields: scripts/check_aecp_commands.py: registry markers are reversed)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "missing Arch markers",
+    "expected_words": [
+      "fields:",
+      "docs/00_MILAN_COMPLIANCE_REVIEW.md",
+      "needs the AECP Arch markers"
+    ],
+    "named_failures": [
+      "  (gate refused: fields: docs/00_MILAN_COMPLIANCE_REVIEW.md: needs the AECP Arch markers)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a stale registry reference in scripts/check_aecp_commands.py",
+    "expected_words": [
+      "fields:",
+      "scripts/check_aecp_commands.py",
+      "registry reference differs"
+    ],
+    "named_failures": [
+      "  fields: scripts/check_aecp_commands.py: registry reference differs (run --write)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a stale registry reference in docs/architecture/09_verification.md",
+    "expected_words": [
+      "fields:",
+      "docs/architecture/09_verification.md",
+      "registry reference differs"
+    ],
+    "named_failures": [
+      "  fields: docs/architecture/09_verification.md: registry reference differs (run --write)"
+    ]
+  },
+  {
+    "family": "memory",
+    "plant": "a stale registry reference in docs/00_MILAN_COMPLIANCE_REVIEW.md",
+    "expected_words": [
+      "fields:",
+      "docs/00_MILAN_COMPLIANCE_REVIEW.md",
+      "registry reference differs"
+    ],
+    "named_failures": [
+      "  fields: docs/00_MILAN_COMPLIANCE_REVIEW.md: registry reference differs (run --write)"
+    ]
+  },
+  {
+    "family": "observed",
+    "plant": "a stale PR field reference",
+    "expected_words": [
+      "fields: PR body: registry reference differs"
+    ],
+    "named_failures": [
+      "  fields: PR body: registry reference differs (run --write --pr-body)"
+    ]
+  },
+  {
+    "family": "observed",
+    "plant": "an unreadable PR draft",
+    "expected_words": [
+      "gate refused",
+      "fields: PR body: cannot read draft"
+    ],
+    "named_failures": [
+      "  (gate refused: fields: PR body: cannot read draft: [Errno 2] No such file or directory: '$REVIEWS/pp73-r609-5-packet/scratch/tmp/aecp-draft-selftest-6fk93_6q/PR-BODY.md')"
+    ]
+  },
+  {
+    "family": "observed",
+    "plant": "a fresh sweep that is not the recorded one",
+    "expected_words": [
+      "decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS"
+    ],
+    "named_failures": [
+      "  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0016 SCLKS: observed nothing, recorded {\"answers\": {\"0\": \"20\", \"7\": \"20\"}, \"cdls\": \"20-100\", \"floor\": 20} (make -C tb/aecp_cmds record)"
+    ]
+  },
+  {
+    "family": "observed",
+    "plant": "a sweep output that cannot be read",
+    "expected_words": [
+      "gate refused",
+      "the sweep's output",
+      "cannot be read"
+    ],
+    "named_failures": [
+      "  (gate refused: the sweep's output $REVIEWS/r609-5-pp73/tb/aecp_cmds/obj_dir/no-such-sweep.json cannot be read: [Errno 2] No such file or directory: '$REVIEWS/r609-5-pp73/tb/aecp_cmds/obj_dir/no-such-sweep.json')"
+    ]
+  },
+  {
+    "family": "observed",
+    "plant": "pp_pkg's unsolicited kinds written in another form",
+    "expected_words": [
+      "gate refused",
+      "no PP_UNS_*_C kind parsed"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/common/pp_pkg.sv: no PP_UNS_*_C kind parsed)"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "R608-3 echo-hide: short EAVL SUCCESS hidden by echo_entries",
+    "expected_words": [
+      "schema: echo_entries: EAVL",
+      "nor listed in shared_entries"
+    ],
+    "named_failures": [
+      "  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "an unreadable registry",
+    "expected_words": [
+      "gate refused",
+      "cannot read an input",
+      "aecp_fields.json"
+    ],
+    "named_failures": [
+      "  (gate refused: cannot read an input: [Errno 2] No such file or directory: '$REVIEWS/pp73-r609-5-packet/scratch/tmp/aecp-commands-selftest-pyh9_bnl/hdl/aecp/ucode/aecp_fields.json')"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a registry that is not JSON",
+    "expected_words": [
+      "gate refused",
+      "aecp_fields.json is not JSON"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/ucode/aecp_fields.json is not JSON: Expecting value: line 1 column 2 (char 1))"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a table that is not JSON",
+    "expected_words": [
+      "gate refused",
+      "hdl/aecp/ucode/aecp_commands.json is not JSON"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/ucode/aecp_commands.json is not JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1))"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a decode record that is not JSON",
+    "expected_words": [
+      "gate refused",
+      "tb/aecp_cmds/decode.json is not JSON"
+    ],
+    "named_failures": [
+      "  (gate refused: tb/aecp_cmds/decode.json is not JSON: Expecting value: line 1 column 2 (char 1))"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "an input that cannot be read",
+    "expected_words": [
+      "gate refused",
+      "cannot read an input"
+    ],
+    "named_failures": [
+      "  (gate refused: cannot read an input: [Errno 2] No such file or directory: '$REVIEWS/pp73-r609-5-packet/scratch/tmp/aecp-commands-selftest-yl4ulxmf/docs/architecture/06_aecp_engine.md')"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a decode record that cannot be read",
+    "expected_words": [
+      "gate refused",
+      "cannot read an input"
+    ],
+    "named_failures": [
+      "  (gate refused: cannot read an input: [Errno 2] No such file or directory: '$REVIEWS/pp73-r609-5-packet/scratch/tmp/aecp-commands-selftest-ekuy36ld/tb/aecp_cmds/decode.json')"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a swept input that cannot be read",
+    "expected_words": [
+      "gate refused",
+      "cannot read an input"
+    ],
+    "named_failures": [
+      "  (gate refused: cannot read an input: [Errno 2] No such file or directory: '$REVIEWS/pp73-r609-5-packet/scratch/tmp/aecp-commands-selftest-3sp42fw4/tb/aecp_cmds/sim_main.cpp')"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a generator that does not run",
+    "expected_words": [
+      "gate refused",
+      "hdl/aecp/ucode/gen_ucode.py did not generate"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/ucode/gen_ucode.py did not generate: RuntimeError('planted'))"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a generator of another shape",
+    "expected_words": [
+      "gate refused",
+      "hdl/aecp/ucode/gen_ucode.py defines no occupied"
+    ],
+    "named_failures": [
+      "  (gate refused: hdl/aecp/ucode/gen_ucode.py defines no occupied: the generator's shape has changed under this gate)"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a message type the generator cannot read, in the file (R608-1 p5e)",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a message type the generator cannot read, in the file (R608-1 p5)",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: no command with message MVU"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "an entry the generator never placed, in the file (R608-1 p8)",
+    "expected_words": [
+      "decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2"
+    ],
+    "named_failures": [
+      "  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a status code row the generator reads, gone from the file",
+    "expected_words": [
+      "schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes"
+    ],
+    "named_failures": [
+      "  schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a status code the generator reads, not an integer in the file",
+    "expected_words": [
+      "schema: status NO_RESOURCES: code must be an integer"
+    ],
+    "named_failures": [
+      "  schema: status NO_RESOURCES: code must be an integer"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "a status code changed in the file only",
+    "expected_words": [
+      "schema: status NO_RESOURCES is 9 in the table"
+    ],
+    "named_failures": [
+      "  schema: status NO_RESOURCES is 9 in the table, IEEE 1722.1-2021 Table 7-141 gives 8"
+    ]
+  },
+  {
+    "family": "file",
+    "plant": "the MVU row the generator reads, renamed in the file",
+    "expected_words": [
+      "schema: GET_MILAN_INFO: no command with message MVU"
+    ],
+    "named_failures": [
+      "  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: missing entries",
+    "expected_words": [
+      "GET_CLOCK_SOURCE: entries needs"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: entries is not a list",
+    "expected_words": [
+      "GET_CLOCK_SOURCE: entries needs"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_CLOCK_SOURCE: entries needs a non-empty list of names)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: missing name",
+    "expected_words": [
+      "AEM 0x0017",
+      "name needs"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: AEM 0x0017 (OP_GET_CLOCK_SRC_C): name needs a non-empty string)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: non-hexadecimal MVU opcode",
+    "expected_words": [
+      "GET_MILAN_INFO:",
+      "opcode"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: missing commands",
+    "expected_words": [
+      "commands: needs a non-empty list",
+      "GET_MILAN_INFO"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: commands: needs a non-empty list including GET_MILAN_INFO)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: a command is not an object",
+    "expected_words": [
+      "commands[0]: needs a command object"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: commands[0]: needs a command object)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: an entry it never placed",
+    "expected_words": [
+      "GET_CLOCK_SOURCE: entries names SCFGRUN2",
+      "placed no E_SCFGRUN2"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_CLOCK_SOURCE: entries names SCFGRUN2, and gen_ucode.py placed no E_SCFGRUN2 program)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: a status code row it reads, gone",
+    "expected_words": [
+      "status_codes gives no integer code for STREAM_IS_RUNNING"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for STREAM_IS_RUNNING, which gen_ucode.py's programs set)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: a status code it reads, not an integer",
+    "expected_words": [
+      "status_codes gives no integer code for BAD_ARGUMENTS"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for BAD_ARGUMENTS, which gen_ucode.py's programs set)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: the MVU row it reads, gone",
+    "expected_words": [
+      "GET_MILAN_INFO: no command with message MVU"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)"
+    ]
+  },
+  {
+    "family": "generator",
+    "plant": "the generator: the MVU opcode it reads, not hexadecimal",
+    "expected_words": [
+      "GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode"
+    ],
+    "named_failures": [
+      "  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].command.cdl",
+    "named_failures": [
+      "  decode: GET_COUNTERS: the shortest AEM 0x0029 the engine dispatches to GCTRS is cdl 16, the table's command cdl is 20"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].command.floor",
+    "named_failures": [
+      "  decode: ACQUIRE_ENTITY: the shortest AEM 0x0000 the engine dispatches to NSUPPE is cdl 12, the table's floor is 16"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].command.per",
+    "named_failures": [
+      "  decode: ADD_AUDIO_MAPPINGS: command per is 4, the gcd of accepted offsets from floor 20 is 8"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].entries",
+    "named_failures": [
+      "  decode: GET_COUNTERS: the table's entries name GCLKS, which the engine never dispatches AEM 0x0029 to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the engine dispatches AEM 0x0029 to GCTRS, which is not one of the table's entries (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the engine dispatches AEM 0x0029 to GCTRSNS, which is not one of the table's entries (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO the engine dispatches it to GCTRS, which is not one of its entries",
+      "  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO the engine dispatches it to GCTRSNS, which is not one of its entries"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].gdi",
+    "named_failures": [
+      "  decode: GET_CONTROL: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].hazard",
+    "named_failures": [
+      "  classifier: GET_COUNTERS: the table says MAP_CFG, hdl/top/protocol_processor_top.sv hz_classify gives 0x0029 RO_SNAPSHOT"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].lock",
+    "named_failures": [
+      "  rom: SET_NAME: the table says lock false, its programs do reach CHECK_LOCK"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].message",
+    "named_failures": [
+      "  decode: GET_COUNTERS: the table's entries name BADARG, which the engine never dispatches MVU 0x0029 to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the table's entries name GCTRS, which the engine never dispatches MVU 0x0029 to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the table's entries name GCTRSNS, which the engine never dispatches MVU 0x0029 to (tb/aecp_cmds/decode.json)",
+      "  decode: GET_COUNTERS: the engine dispatches MVU 0x0029 to NOTIMPL, which is not one of the table's entries (tb/aecp_cmds/decode.json)"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].notify",
+    "named_failures": [
+      "  rom: SET_CONFIGURATION: its programs enqueue notification class [1], the table says none"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].notify.body",
+    "named_failures": [
+      "  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0006 with GCFG, the table says 0x0006 with GCLKS"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].notify.class",
+    "named_failures": [
+      "  rom: SET_CONFIGURATION: its programs enqueue notification class [1], the table says [2]"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].notify.kind",
+    "named_failures": [
+      "  notify: SET_CONFIGURATION: class 1 is PP_UNS_CFG_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_NAME_C"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].opcode",
+    "named_failures": [
+      "  engine: GET_COUNTERS: the table says opcode 0x007E, hdl/aecp/KL_aecp_engine.sv OP_GET_COUNTERS_C = 0x0029"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].response.cdl",
+    "named_failures": [
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N",
+      "  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8\u00b7N, the table's response is 20 + 8\u00b7N"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].response.echo",
+    "named_failures": [
+      "  rom: SET_STREAM_INFO: E_SINFO answers SUCCESS at cdl 12, the table's response is 96",
+      "  rom: SET_STREAM_INFO: E_SINFO answers NO_SUCH_DESCRIPTOR at cdl 12, the table's response is 96",
+      "  rom: SET_STREAM_INFO: E_SINFO answers ENTITY_LOCKED at cdl 12, the table's response is 96"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].response.engine",
+    "named_failures": [
+      "  decode: GET_DYNAMIC_INFO: the engine answers AEM 0x004B without a program, the table says its response is program-built"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].response.per",
+    "named_failures": [
+      "  rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 32 + 4\u00b7N, the table's response is 32 + 2\u00b7N",
+      "  rom: GET_AVB_INFO: E_GAVB answers NO_SUCH_DESCRIPTOR at cdl 32 + 4\u00b7N, the table's response is 32 + 2\u00b7N",
+      "  rom: GET_AVB_INFO: its unsolicited body E_GAVB is cdl 32 + 4\u00b7N, the table's response is 32 + 2\u00b7N",
+      "  rom: GET_AVB_INFO: its unsolicited body E_GAVB is cdl 32 + 4\u00b7N, the table's response is 32 + 2\u00b7N"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].response.stub",
+    "named_failures": [
+      "  rom: READ_DESCRIPTOR: E_RDESC answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESC answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCENT answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCENT answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCAU answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCAU answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCCD answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCCD answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCSI answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCSI answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCSO answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 16 + descriptor",
+      "  rom: READ_DESCRIPTOR: E_RDESCSO answers BAD_ARGUMENTS at cdl 20, the table's response is 16 + descriptor"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].rtl",
+    "named_failures": [
+      "  engine: GET_COUNTERS: the table names OP_MISSING_C and hdl/aecp/KL_aecp_engine.sv declares no such constant"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "commands[].status",
+    "named_failures": [
+      "  rom: SET_CONFIGURATION: status STREAM_IS_RUNNING is answered by a path of its programs and missing from the table's status set"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "documented[].gdi",
+    "named_failures": [
+      "  decode: 0x000B: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "documented[].opcode",
+    "named_failures": [
+      "  engine: GET_VIDEO_FORMAT: the table says 0x007E, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "documented[].rtl",
+    "named_failures": [
+      "  engine: GET_VIDEO_FORMAT: the table names GDI_MISSING_C and hdl/aecp/KL_aecp_engine.sv declares no such constant"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "echo_entries",
+    "named_failures": [
+      "  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "fields",
+    "named_failures": [
+      "  fields: fields: export must name aecp_fields.json"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "hazard_classes.*",
+    "named_failures": [
+      "  classifier: hazard class RO_SNAPSHOT is 15 in the table and 0 in hdl/common/pp_pkg.sv"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "schema",
+    "named_failures": [
+      "  schema: hdl/aecp/ucode/aecp_commands.json declares 'other', this gate reads 'aecp-command-table/1'"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "status_codes.*.code",
+    "named_failures": [
+      "  schema: status SUCCESS is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 0"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "status_codes.*.rtl",
+    "named_failures": [
+      "  status: SUCCESS is 0 in the table and ST_MISSING_C = None in hdl/aecp/ucpu_pkg.sv"
+    ]
+  },
+  {
+    "family": "field",
+    "plant": "unserved",
+    "named_failures": [
+      "  decode: ADDRESS_ACCESS 0x0000-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL",
+      "  decode: AEM 0x0003, 0x0005, 0x000A-0x000D, 0x0012-0x0013, 0x001A-0x0021, 0x002A, 0x002E-0x004A, 0x004C-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL",
+      "  decode: AVC 0x0000-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL",
+      "  decode: EXTENDED 0x0000-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL",
+      "  decode: MVU 0x0001-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL",
+      "  decode: MVU/wrong-protocol-id 0x0000-0x007F is no table command and the engine dispatches it to NOTIMPL, not only DLKILL"
+    ]
+  }
+]

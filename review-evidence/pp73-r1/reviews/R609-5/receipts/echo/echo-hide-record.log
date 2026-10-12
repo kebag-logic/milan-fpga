@@ -1,0 +1,4 @@
+command: ['/usr/bin/python3', '-B', 'scripts/check_aecp_commands.py', '--observed', '$REVIEWS/pp73-r609-5-packet/scratch/echo/tb/aecp_cmds/obj_dir/echo-observed.json', '--write-record']
+aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials
+FAIL:  schema: echo_entries: EAVL is neither a shared program without a first-entry owner nor listed in shared_entries
+aecp_cmds: 585760 trials swept; 2 checks: 1 PASS, 1 FAIL

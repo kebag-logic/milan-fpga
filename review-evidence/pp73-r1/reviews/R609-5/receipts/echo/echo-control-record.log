@@ -1,0 +1,4 @@
+command: ['/usr/bin/python3', '-B', 'scripts/check_aecp_commands.py', '--observed', '$REVIEWS/pp73-r609-5-packet/scratch/echo/tb/aecp_cmds/obj_dir/echo-observed.json', '--write-record']
+aecp commands: wrote tb/aecp_cmds/decode.json from 585760 trials
+FAIL:  decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12, the table's response is 32
+aecp_cmds: 585760 trials swept; 176 checks: 175 PASS, 1 FAIL

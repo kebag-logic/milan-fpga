@@ -1,0 +1,37 @@
+{
+  "positive": [
+    {
+      "program": "TIZ4NS",
+      "explicit_shared": false,
+      "findings": []
+    },
+    {
+      "program": "EAVL",
+      "explicit_shared": true,
+      "findings": []
+    }
+  ],
+  "disabled": [
+    {
+      "disabled": "membership",
+      "rc": 1,
+      "expected_failure": [
+        "SELFTEST FAIL: 'echo_entries names no shared program' was not caught by name ('schema: echo_entries: ABSENT', 'nor listed in shared_entries'):"
+      ]
+    },
+    {
+      "disabled": "rom-success",
+      "rc": 1,
+      "expected_failure": [
+        "SELFTEST FAIL: 'a shared echo cannot exempt ROM SUCCESS (R608-3 echo-hide)' was not caught by name ('rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12',):"
+      ]
+    },
+    {
+      "disabled": "record-success",
+      "rc": 1,
+      "expected_failure": [
+        "SELFTEST FAIL: 'a shared echo cannot exempt observed SUCCESS (R608-3 echo-hide)' was not caught by name ('decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12',):"
+      ]
+    }
+  ]
+}

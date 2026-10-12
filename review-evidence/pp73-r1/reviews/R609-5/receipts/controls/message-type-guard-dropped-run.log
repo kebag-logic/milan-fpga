@@ -1,0 +1,12 @@
+FAIL:  decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL
+FAIL:  decode: AVC 0x0016 is no table command and the engine dispatches it to TIZ4NS, not only NOTIMPL
+FAIL:  decode: EXTENDED 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL
+FAIL:  decode: EXTENDED 0x0016 is no table command and the engine dispatches it to TIZ4NS, not only NOTIMPL
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AVC 0x0016 NOTIMPL: observed nothing, recorded {"answers": {"1": "echo"}, "cdls": "24, 100", "floor": 24} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AVC 0x0016 SCLKS: observed {"answers": {"0": "20"}, "cdls": "24, 100", "floor": 24}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AVC 0x0016 TIZ4NS: observed {"answers": {"11": "20"}, "cdls": "24, 100", "floor": 24}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode EXTENDED 0x0016 NOTIMPL: observed nothing, recorded {"answers": {"1": "echo"}, "cdls": "24, 100", "floor": 24} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode EXTENDED 0x0016 SCLKS: observed {"answers": {"0": "20"}, "cdls": "24, 100", "floor": 24}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode EXTENDED 0x0016 TIZ4NS: observed {"answers": {"11": "20"}, "cdls": "24, 100", "floor": 24}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "55ece82cc5b39a548fcb1501be58b34619855b121bb3b507017dd2c748c707b3", recorded "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 178 checks: 175 PASS, 3 FAIL

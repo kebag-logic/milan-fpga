@@ -1,0 +1,1 @@
+The initial reviewer membership-disabling probe also removed shape validation; its malformed-list plant raised before reaching membership controls. The corrected probe disables only the membership predicate, preserving shape validation. This was a probe setup error, not a source-head failure.
