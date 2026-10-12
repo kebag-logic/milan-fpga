@@ -1,0 +1,22 @@
+37c37
+< from ctrl_configs import configurations, derive, held, makefiles  # noqa: E402
+---
+> from ctrl_configs import Scope, configurations, derive, held, makefiles  # noqa: E402
+40c40
+< from ctrl_runs import captures, owned  # noqa: E402
+---
+> from ctrl_runs import captures, control_capture, owned, stack_gate  # noqa: E402
+88c88
+<     without = frozenset(args.without)
+---
+>     without = Scope(frozenset(args.without))
+96c96
+<         said, refused = cb.stack_gate(False, work / "stack-gate-build", mine)
+---
+>         said, refused = stack_gate(False, work / "stack-gate-build", mine)
+110,111c110,111
+<                 capture = cb.control_capture(probe, trees, base, work / "plant-run")
+<                 findings = cb.judge(trees, rv32, work / "plants-build", capture, control=probe, without=without)
+---
+>                 capture = control_capture(probe, trees, base, work / "plant-run")
+>                 findings = cb.judge(trees, rv32, work / "plants-build", capture, control=probe, scope=without)
