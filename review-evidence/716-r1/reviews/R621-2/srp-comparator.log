@@ -1,0 +1,83 @@
+{
+  "controls": {
+    "packing_only": "PASS",
+    "within_opportunity_order": "PASS",
+    "frame_grouping": "PASS",
+    "zero_padding": "PASS",
+    "five_value_vector": "PASS",
+    "plants": [
+      {
+        "plant": "swapped-opportunities",
+        "caught_by": "ordered opportunity comparison"
+      },
+      {
+        "plant": "collapsed-opportunities",
+        "caught_by": "ordered opportunity comparison"
+      },
+      {
+        "plant": "plus-k-off-by-one",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "wrong-AttributeEvent",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "wrong-FourPackedEvent",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "dropped-declaration",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "extra-declaration",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "duplicated-declaration",
+        "caught_by": "canonical multiset comparison"
+      },
+      {
+        "plant": "LeaveAll-wrong-attribute-type",
+        "caught_by": "per-type LeaveAll comparison"
+      },
+      {
+        "plant": "malformed-PDU-EndMark",
+        "caught_by": "truncated Message header"
+      },
+      {
+        "plant": "malformed-list-EndMark",
+        "caught_by": "truncated vector or AttributeList EndMark"
+      },
+      {
+        "plant": "wrong-ProtocolVersion",
+        "caught_by": "ProtocolVersion or truncated PDU"
+      },
+      {
+        "plant": "wrong-AttributeLength",
+        "caught_by": "inconsistent AttributeLength"
+      },
+      {
+        "plant": "wrong-AttributeListLength",
+        "caught_by": "truncated vector or AttributeList EndMark"
+      },
+      {
+        "plant": "reserved-ThreePackedEvents",
+        "caught_by": "reserved ThreePackedEvents"
+      },
+      {
+        "plant": "reserved-LeaveAllEvent",
+        "caught_by": "reserved LeaveAllEvent"
+      },
+      {
+        "plant": "truncated-PDU-EndMark",
+        "caught_by": "inconsistent AttributeListLength"
+      },
+      {
+        "plant": "oversized-frame",
+        "caught_by": "frame length outside 17..1500"
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+[
+  {
+    "name": "ci-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.2147964320029132
+  },
+  {
+    "name": "ci-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 23.211428706999868
+  },
+  {
+    "name": "command-census",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--firmware-census"
+    ],
+    "rc": 0,
+    "seconds": 0.2142888989765197
+  },
+  {
+    "name": "shard-selftest",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+      "--census",
+      "<packet>/shards.json"
+    ],
+    "rc": 0,
+    "seconds": 0.16420598101103678
+  },
+  {
+    "name": "scope-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.776890829001786
+  },
+  {
+    "name": "coverage-selftest",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.46489832701627165
+  },
+  {
+    "name": "srp-comparator",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/srp_wire_compare.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.06443318299716339
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.781335240986664
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06391921098111197
+  }
+]

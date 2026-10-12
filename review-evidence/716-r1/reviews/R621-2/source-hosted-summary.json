@@ -1,0 +1,1659 @@
+[
+  {
+    "id": 38180290240,
+    "name": "docs",
+    "event": "pull_request",
+    "head": "941e15593ef3dbf561bd8ed75aaf680f5d146a41",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": [
+      {
+        "name": "docs-check",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build the validated HDL reference",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload the HDL reference HTML",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the python gate dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Markdown renderer downloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned Markdown renderer",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install diagram gate dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Link health, wording, dead-reference and local-info gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Added-line em-dash gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Concise audience documentation gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Audience diagram no-drift gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Product solution source-fact gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verified submodule documentation gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "HDL timing diagram no-drift gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Published diagram PNG gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Milan feature-status consistency gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Traceability matrix no-drift gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch the builder source dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Imported gPTP documentation gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Code-quality measurement self-tests",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Bare-metal scope gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Compiler-absent firmware controls",
+            "conclusion": "success"
+          },
+          {
+            "name": "End-station builder gates",
+            "conclusion": "success"
+          },
+          {
+            "name": "NVM record-space gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Capture measurement census and clock gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Saved-state writer gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+            "conclusion": "success"
+          },
+          {
+            "name": "RTL source-list drift gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Boundary-unit naming ratchet",
+            "conclusion": "success"
+          },
+          {
+            "name": "Port contract gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fail-fast ratchet",
+            "conclusion": "success"
+          },
+          {
+            "name": "TODO ownership gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test-evidence ratchet",
+            "conclusion": "success"
+          },
+          {
+            "name": "Mechanical hygiene ratchet",
+            "conclusion": "success"
+          },
+          {
+            "name": "SystemVerilog idiom gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "C and C++ idiom gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Python idiom gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Shell idiom gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "CI event and SHA contract gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Local act runner contract gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Doc cited-path gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Archive integrity gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Per-page contents gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "AEM store generator self-test",
+            "conclusion": "success"
+          },
+          {
+            "name": "Sweep/build shape gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Deploy shape gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Entity shape gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Markdown renderer downloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "docs-check-no-git",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Strip git metadata, then run the docs gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "wire-accountability",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch the engine authority the builder derives from",
+            "conclusion": "success"
+          },
+          {
+            "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 38180290227,
+    "name": "elaborate",
+    "event": "pull_request",
+    "head": "941e15593ef3dbf561bd8ed75aaf680f5d146a41",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": [
+      {
+        "name": "elaborate",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Decide whether this head needs an elaboration",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch the source dependencies the elaboration reads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned pip downloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install LiteX at the pinned revisions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the Scala toolchain",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the generated CPU metadata",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install sbt",
+            "conclusion": "success"
+          },
+          {
+            "name": "Place the VexiiRiscv source at the revision LiteX pins",
+            "conclusion": "success"
+          },
+          {
+            "name": "Apply the toolchain patch series",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Elaboration gates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Standalone LiteX simulation aggregate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Keep the generated CPU netlist arguments for the next run",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the generated CPU metadata",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the Scala toolchain",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned pip downloads",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 38180290302,
+    "name": "rtl-full",
+    "event": "pull_request",
+    "head": "941e15593ef3dbf561bd8ed75aaf680f5d146a41",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": [
+      {
+        "name": "full-ci-gate",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Print the event and pin the one SHA this run validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Assert the repository default branch is dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Hold every workflow file to its contract",
+            "conclusion": "success"
+          },
+          {
+            "name": "Decide whether this exact head needs the exhaustive gates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Yosys shard 3/4",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Verilator shard 2/5",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Yosys shard 0/4",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Verilator shard 4/5",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Verilator shard 1/5",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Verilator shard 3/5",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Yosys shard 2/4",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Yosys shard 1/4",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Verilator shard 0/5",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Physical gPTP (nightly and manual)",
+        "conclusion": "skipped",
+        "steps": []
+      },
+      {
+        "name": "verilator-suites",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download every shard's logs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require every shard to have validated this run's SHA",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove exhaustive ownership and tally every log",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require every Verilator worker to pass",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "yosys-portability",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Download every shard's evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require every shard to have validated this run's SHA",
+            "conclusion": "success"
+          },
+          {
+            "name": "Reconcile the live inventory and structural gates",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require every Yosys worker to pass",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 38180290290,
+    "name": "rtl-fast",
+    "event": "pull_request",
+    "head": "941e15593ef3dbf561bd8ed75aaf680f5d146a41",
+    "conclusion": "success",
+    "attempt": 10,
+    "jobs": [
+      {
+        "name": "changes",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Classify the change conservatively",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "bdd-conformance",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch the processor model inputs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install behave",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the specification-facing suite",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "verilator-lint",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run the ratcheted whole-tree lint gate",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove protocol-processor source lists are derived",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "firmware-control-mutants",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install GoogleTest and GoogleMock and print the versions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the control mutation campaign",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "firmware-unit",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install GoogleTest and GoogleMock and print the versions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove the tally reads a failing and a crashing test as failures",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the control-plane firmware suites and RV32 builds",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the saved-state store suites and its RV32 build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Hold the firmware coverage ratchet",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "publication-census",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the publication census in every shape the builder builds",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "firmware-srp-mutants",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install GoogleTest and GoogleMock and print the versions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run both SRP mutation campaigns and pin controls",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "yosys-elaboration",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "conclusion": "success"
+          },
+          {
+            "name": "Elaborate the integration-heavy tops",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove both synthesis flows refuse active elaboration guards",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove the result cache refuses a planted entry",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "firmware-aecp-mutants",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install GoogleTest and GoogleMock and print the versions",
+            "conclusion": "success"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run the AECP mutation campaign",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "rtl-fast",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Require every applicable fast gate to pass",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  }
+]

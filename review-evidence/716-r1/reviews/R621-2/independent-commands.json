@@ -1,0 +1,376 @@
+{
+  "before": [
+    [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get update -qq",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 -m pip install --quiet pyyaml",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "dpkg-query -W libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "g++ --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "gcov --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/tally_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs \"$(nproc)\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_coverage.py --selftest",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ]
+  ],
+  "after": [
+    [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get update -qq",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 -m pip install --quiet pyyaml",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "dpkg-query -W libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "g++ --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "gcov --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/tally_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs \"$(nproc)\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_coverage.py --selftest",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/gtest/fw_coverage.py --check --jobs \"$(nproc)\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get update -qq",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 -m pip install --quiet pyyaml",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "dpkg-query -W libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "g++ --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "gcov --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get update -qq",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 -m pip install --quiet pyyaml",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "dpkg-query -W libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "g++ --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "gcov --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get update -qq",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 -m pip install --quiet pyyaml",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "dpkg-query -W libgtest-dev libgmock-dev",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "g++ --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "gcov --version | head -n 1",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "set -euo pipefail",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk_selftest.py",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ],
+    [
+      "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4",
+      "${{ needs.changes.outputs.rtl == 'true' }}",
+      "success()"
+    ]
+  ]
+}

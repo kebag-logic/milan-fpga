@@ -1,0 +1,191 @@
+commit 941e15593ef3dbf561bd8ed75aaf680f5d146a41
+Merge: f41e4f2dd 09c7231ec
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 11 23:32:23 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 11 23:32:23 2026 +0200
+
+    Merge dev 09c7231e into firmware CI split
+
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+remerge CONFLICT (content): Merge conflict in .github/workflows/rtl-fast.yml
+index 743de05c0..902b92cd4 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -470,11 +470,7 @@ jobs:
+   rtl-fast:
+     name: rtl-fast
+     if: ${{ always() && !cancelled() }}
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants]
+-=======
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit]
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
++    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -497,15 +493,11 @@ jobs:
+             "verilator-lint:$VERILATOR_LINT_RESULT" \
+             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
++            "publication-census:$PUBLICATION_CENSUS_RESULT" \
+             "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+             "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
+             "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
+             "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT"; do
+-=======
+-            "publication-census:$PUBLICATION_CENSUS_RESULT" \
+-            "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
+             name="${pair%%:*}"
+             result="${pair#*:}"
+             printf '%-24s %s\n' "$name" "$result"
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+remerge CONFLICT (content): Merge conflict in docs/testing/CI_WORKFLOWS.md
+index ccaa6aabe..d7b2df647 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -71,6 +71,9 @@ It also runs the tally checks and complete coverage ratchet.
+ `firmware-control-mutants` runs the complete control mutation table.
+ `firmware-aecp-mutants` runs the complete AECP mutation table.
+ `firmware-srp-mutants` runs both SRP campaigns and pin controls.
++The normal shard includes the SRP wire comparator self-test.
++Both SRP interface campaigns retain F-INT's publication mutants.
++The aggregate also requires the separate `publication-census` job.
+ All jobs verify the same pinned SDK.
+ Only that authenticated SDK is cached; builds remain fresh.
+ 
+@@ -99,11 +102,8 @@ The generated command census retains each command's conditions.
+ It also pins every worker and its 45-minute timeout.
+ 
+ A change containing only documentation skips the Verilator and Yosys setup
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
+-jobs and all four firmware jobs. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+-=======
+-jobs, `publication-census` and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
++jobs, `publication-census` and all four firmware jobs.
++Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+ `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+ module reads (#444). A gated module is code under the six roots named below,
+ other than the builder bank that `docs-check` runs whole. A page a gated module
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+remerge CONFLICT (content): Merge conflict in scripts/ci_events.py
+index ec18023c3..ff8d72328 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -590,12 +590,9 @@ INHERITED_STEP_ENV = {
+     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                              "FIRMWARE_UNIT_RESULT",
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
+                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+                              "FIRMWARE_SRP_MUTANTS_RESULT",
+-=======
+                              "PUBLICATION_CENSUS_RESULT",
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
+                              "VERILATOR_LINT_RESULT",
+                              "YOSYS_ELABORATION_RESULT"),
+     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+@@ -1260,18 +1257,15 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
+ OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+ #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
+ FIRMWARE_UNIT_JOB = "firmware-unit"
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
+ FIRMWARE_JOBS = (FIRMWARE_UNIT_JOB, "firmware-control-mutants",
+                  "firmware-aecp-mutants", "firmware-srp-mutants")
+ FIRMWARE_JOB_IF = "${{ needs.changes.outputs.rtl == 'true' }}"
+ FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
+                         "Run the control mutation campaign", "Run the AECP mutation campaign",
+                         "Run both SRP mutation campaigns and pin controls")
+-=======
+ #: #665 F-INT: the fast job that runs the mailbox publication census in every
+ #: shape the builder builds, on its own runner (comment 6100024293).
+ CENSUS_JOB = "publication-census"
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
+ OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
+ #: ...and it must NAME the submodule. Holding the bare verb alone let the
+ #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index a5ca39693..3f0bea6ec 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -151,7 +151,8 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+                 ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+                 ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                 ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
+-                ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
++                ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
++                ctrl_arms.arm_srpcmp()]
+     if args.lwsrp is not None:
+         outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+         for i in (1, 2):
+@@ -176,7 +177,8 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
+         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                   if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+                                                         "p11-", "srp-bound-", "srp-term-",
+-                                                        "srp-poll-extra", "srp-send-extra")))
++                                                        "srp-poll-extra", "srp-send-extra",
++                                                        *srp_pub_mutants.ROUND5)))
+         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
+     finally:
+         srp_mutants.DEFECTS = complete_srp_table
+@@ -276,55 +278,10 @@ def main(argv: list[str] | None = None) -> int:
+         try:
+             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+             cut_reuse(tree.reuse)
+-<<<<<<< f41e4f2dd (ci: require four firmware jobs within unchanged timeout budgets)
+             failed = run_selected(args, tree, out)
+         except Refusal as exc:
+             print(f"REFUSED: {exc}")
+             return 2
+-=======
+-            outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
+-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+-                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+-                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
+-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
+-                        ctrl_arms.arm_srpcmp()]
+-            if args.lwsrp is not None:
+-                outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+-                for i in (1, 2):
+-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+-                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
+-                          "srp_latency.cpp", "srp_walk.cpp"):
+-                        outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+-                outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+-            outcomes.extend(aecp_arms.all_arms(tree))
+-        except Refusal as exc:
+-            print(f"REFUSED: {exc}")
+-            return 2
+-        failed = ctrl_arms.report(outcomes)
+-        if args.self_test and not failed:
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+-            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+-            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
+-            if args.lwsrp is not None:
+-                failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
+-                complete_srp_table = srp_mutants.DEFECTS
+-                try:
+-                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+-                                              if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+-                                                                    "p11-", "srp-bound-", "srp-term-",
+-                                                                    "srp-poll-extra", "srp-send-extra",
+-                                                                    *srp_pub_mutants.ROUND5)))
+-                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
+-                finally:
+-                    srp_mutants.DEFECTS = complete_srp_table
+-                try:
+-                    failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+-                except Refusal as exc:
+-                    print(f"REFUSED: {exc}")
+-                    return 2
+->>>>>>> 09c7231ec (Merge PR #704: Publish the firmware owner's class-D state to the fabric through the mailbox window (#665 F-INT PR 1))
+     print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+     return 1 if failed else 0
+ 

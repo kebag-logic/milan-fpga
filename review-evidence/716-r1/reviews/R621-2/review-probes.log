@@ -1,0 +1,16 @@
+PASS: actual base main, head default and ordered shard union have identical 916 invocations (60/507/77/272).
+PASS: comparator runs in normal shard; every ROUND5 mutant runs for both interface counts in SRP shard.
+PASS: independent baseline comparison catches omit comparator.
+PASS: independent baseline comparison catches duplicate comparator.
+PASS: independent baseline comparison catches omit interface-1 publication mutants.
+PASS: phase 0 failure propagates.
+PASS: phase 1 failure propagates.
+PASS: phase 2 failure propagates.
+PASS: phase 3 failure propagates.
+PASS: interface-1 refusal restores the complete SRP mutation table.
+PASS: separate interface-2, interface-1 and pin-control failures propagate through the real SRP phase.
+PASS: real normal-suite comparator wrapper grades all five controls and eighteen planted defects.
+PASS: actual base workflow and merged workflow preserve all 19 command/guard rows (55 with repeated setup); budgets, SDK-only caches, publication job and required dependencies preserved.
+PASS: actual aggregate script rejects failure, cancellation and absent result for every dependency; 36 result probes, with explicit skipped-context semantics.
+PASS: unsplit coverage entry function, measurement, exclusions/self-tests and ratchet retain base identity; one unsplit coverage check remains.
+All review probes PASS.
