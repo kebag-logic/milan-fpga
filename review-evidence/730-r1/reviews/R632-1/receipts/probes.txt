@@ -1,0 +1,26 @@
+PROBE P1.docs NOTE derived=1 jobs=3 non-unit widths={}
+PROBE P1.elaborate NOTE derived=1 jobs=1 non-unit widths={}
+PROBE P1.rtl-fast NOTE derived=1 jobs=10 non-unit widths={}
+PROBE P1.rtl-full NOTE derived=4 jobs=6 non-unit widths={'verilator-shards': 4, 'yosys-shards': 4}
+PROBE P1.all OK all four shipping workflows together derive 4
+PROBE P1b.mp2 OK derived=2 slot1 ranges=('24-27', '28-31')
+PROBE P1b.mp5 OK derived=5; ranges refused: the replayed workflows run up to 5 job containers at once, but a replay slot has 4 CPU ranges for them (CONCURRENT_JOB_LIMIT 1 x act's default max-parallel 4)
+PROBE P1b.expr OK derive refused: workflow .github/workflows/rtl.yml job a max-parallel "${{ fromJSON('2') }}" is not a literal integer; its concurrency cannot be derived
+PROBE P1b.quoted OK derived=3 slot1 ranges=('24-27', '28-31', '32-35')
+PROBE P1b.null OK derive refused: workflow .github/workflows/rtl.yml job a max-parallel '' is not a literal integer; its concurrency cannot be derived
+PROBE P1b.two-wide-jobs OK derived=4 slot1 ranges=('24-27', '28-31', '32-35', '36-39')
+PROBE P2 OK 389 admitted (host, slot, concurrency) layouts; problems: []
+PROBE P2.128 OK 128-CPU host admits slots [0, 1, 2, 3, 4, 5] at concurrency 4 and [0, 1, 2, 3, 4, 5, 6] at concurrency 1
+PROBE P2b NOTE pre-#730 slots whose CPUs meet this runner's slot 0 at concurrency 4: [1, 2, 3, 4]
+PROBE P3.1 NOTE restart after die: moves=[('a', '4-7'), ('b', '4-7')] held={b:0} started_on_staging=1 problems=[] (a restarted a would run on 4-7 beside b; act 0.2.89 runs with --rm and no restart policy)
+PROBE P3.2 NOTE move timed out for a, then b created: moves=[('a', '4-7'), ('b', '4-7')] problems=['cannot move job container aaaaaaaaaaaa to 4-7: job container CPU-range move timed out'] (if the daemon applied a's move, a and b share 4-7; the run prints a WARNING)
+PROBE P3.3 OK duplicate create: moves=[('a', '4-7')] created=2 moved=1
+PROBE P3.4 NOTE gone before move: summary='1 job container(s) created, 0 moved to a range of their own, at most 0 at once; 0 started on the staging range before the move' problems=[]
+PROBE P3.5 OK stale die/destroy ignored; held b on 0
+PROBE P3.6 OK fifth shard after the third leg ends: live={'a': '4-7', 'b': '8-11', 'd': '16-19', 'e': '12-15'}
+PROBE P4.1 OK KeyboardInterrupt in the body: calls=['popen', 'terminate'] outcome=KeyboardInterrupt:  pipe closed=True
+PROBE P4.2 OK TerminationRequest in the body: calls=['popen', 'terminate'] outcome=TerminationRequest: SIGTERM
+PROBE P4.3 OK reader thread cannot start: calls=['popen', 'terminate'] outcome=Refusal: cannot start CPU-range monitor
+PROBE P4.4 NOTE containment walk itself raises: calls=['popen', 'terminate'] outcome=Refusal: cannot reap interrupted host process leader pipe closed=False (the reader is not joined on this path)
+PROBE P4.5 OK in-flight move completes before the monitor exits: ['move-start', 'terminate', 'move-end', 'after-monitor']
+PROBE P5 OK report returns None; stdout='act-ci: rtl-full: CPU ranges: 0 job container(s) created, 0 moved to a range of their own, at most 0 at once; 0 started on the staging range before the move' stderr='act-ci: WARNING: rtl-full: CPU ranges: planted'
