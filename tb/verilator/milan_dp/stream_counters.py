@@ -119,7 +119,7 @@ def run(shape: int, variant: str, work: Path, verilator: str, output_condition: 
     runtime = work / "tb/verilator/milan_dp"
     runtime.mkdir(parents=True, exist_ok=True)
     flags = shlex.split(subprocess.check_output(
-        ["make", "-s", "print-dp-vflags"], cwd=HERE, text=True))
+        ["make", "--no-print-directory", "-s", "print-dp-vflags"], cwd=HERE, text=True))
     flags = [f.replace("../../../", str(ROOT) + "/") for f in flags
              if not f.startswith(("-GDIAG_TICK", "-GLDIAG_IVAL"))]
     flags[flags.index("-j") + 1] = "2"
@@ -136,7 +136,7 @@ def run(shape: int, variant: str, work: Path, verilator: str, output_condition: 
               f"-DCOUNTERS_FRAMES_ONLY_TB={int(output_condition == 'frames-only')}",
               "--Mdir", str(work / "obj")]
     sources = shlex.split(subprocess.check_output(
-        ["make", "-s", "print-srcs"], cwd=HERE, text=True))
+        ["make", "--no-print-directory", "-s", "print-srcs"], cwd=HERE, text=True))
     sources = [str((HERE / s).resolve()) for s in sources]
     replacements = plant(variant, work, output_condition)
     sources = [replacements.get(s, s) for s in sources]
