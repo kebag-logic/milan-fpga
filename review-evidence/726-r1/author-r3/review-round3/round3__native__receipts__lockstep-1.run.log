@@ -1,0 +1,47 @@
+  [ ok ] [LS] setup: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [ ok ] [GC] every sink answers its own row and column (seeded signatures) got=0 exp=0
+  [ ok ] [LS] GC: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] GC: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  [ ok ] [LS] H1: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H1: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [ ok ] [H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11) got=0x5 exp=0x5
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [LS] H3: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H3: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  [ ok ] [LS] H4: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H4: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 25607, 300000 cycles
+  soak exercised: 13534 accepts, 4091 dirty cycles, 2094 window writes, 2161 window reads, 77 resets, 157022 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 13815 accepts, 4037 dirty cycles, 2109 window writes, 2105 window reads, 63 resets, 165424 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=1: checks: 36   failures: 0 ==
+RESULT: PASS
