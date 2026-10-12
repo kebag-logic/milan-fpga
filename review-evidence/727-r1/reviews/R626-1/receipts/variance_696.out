@@ -1,0 +1,31 @@
+worker 2/5: 13 windows, overhead 81
+worker 4/5: 1 windows, overhead 74
+worker 3/5: 13 windows, overhead 94
+worker 0/5: 12 windows, overhead 83
+worker 1/5: 20 windows, overhead cut off
+suite: table s, other-run s, ratio (suites >= 60 s in the table)
+  chmap_capture: 168 176 1.048
+  csr: 306 318 1.039
+  milan_dp_gm_steps: 926 948 1.024
+  nvm_cosim: 775 777 1.003
+  maap: 1375 1375 1.000
+  avtp_rxmon: 73 73 1.000
+  gptp_shadow: 393 392 0.997
+  follow_ring: 1158 1155 0.997
+  media_grid_align: 255 254 0.996
+  crf_rx: 832 823 0.989
+  capture_coherence: 1737 1715 0.987
+  gptp_txts: 72 71 0.986
+  milan_dp_render: 1264 1245 0.985
+  gptp_plane: 784 770 0.982
+  mbx: 82 70 0.854
+  ptp_ts: 127 102 0.803
+  aaf: 73 58 0.795
+  render_setpoint: 93 73 0.785
+  mmcm_servo: 1145 804 0.702
+  aaf_clock_meter: 1055 738 0.700
+  milan_dp: 2797 1887 0.675
+  milan_dp_mclk: 2038 1114 0.547
+head split predicted (table): [4204, 4205, 4203, 4205, 2877]
+head split with the other run's windows where measured (same owners): [3815, 4208, 2942, 4172, 1967]
+bound 4320 s; suites without an other-run window: ['pp_shadow', 'tcam_csr', 'tsn_fuzz']

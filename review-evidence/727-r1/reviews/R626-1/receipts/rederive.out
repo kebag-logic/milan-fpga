@@ -1,0 +1,26 @@
+dev worker 0/5 job 114706225351: 12 suites, log span 2670.7044964 s, overhead 82.1894223 s -> 83, api 2673 s
+dev worker 2/5 job 114706225397: 13 suites, log span 4727.1899295 s, overhead 79.0486964 s -> 80, api 4729 s
+dev worker 4/5 job 114706225398: 1 suites, log span 2875.9470083 s, overhead 79.7785358 s -> 80, api 2878 s
+dev worker 3/5 job 114706225439: 13 suites, log span 1894.6036386 s, overhead 92.6800943 s -> 93, api 1898 s
+dev worker 1/5 job 114706225444: 23 suites, log span 6301.8645366 s, overhead 114.1401201 s -> 115, api 6306 s
+#696 worker 1/5 maap window 1374.1774735 s (PASS) -> 1375; overhead n/a (cut off)
+
+SUITE_SECONDS entries: 62; dev-measured suites: 62
+SUITE_SECONDS mismatches vs independent derivation (maap from #696): none
+WORKER_OVERHEAD_SECONDS head (83, 115, 80, 93, 80) vs derived (83, 115, 80, 93, 80): EQUAL
+dev maap window 184.1286345 s -> 185
+
+old hash split (base selector) predicted vs measured on dev run (in-sample):
+  0/5 predicted 2678 s (44.6 min) api 2673 s (44.5 min) diff +5 s; with #696 maap 2678 s (44.6 min)
+  1/5 predicted 6314 s (105.2 min) api 6306 s (105.1 min) diff +8 s; with #696 maap 7504 s (125.1 min)
+  2/5 predicted 4734 s (78.9 min) api 4729 s (78.8 min) diff +5 s; with #696 maap 4734 s (78.9 min)
+  3/5 predicted 1901 s (31.7 min) api 1898 s (31.6 min) diff +3 s; with #696 maap 1901 s (31.7 min)
+  4/5 predicted 2877 s (48.0 min) api 2878 s (48.0 min) diff -1 s; with #696 maap 2877 s (48.0 min)
+
+new split predictions:
+  0/5 15 suites, predicted 4204 s (70.1 min), selector says 4204
+  1/5 16 suites, predicted 4205 s (70.1 min), selector says 4205
+  2/5 14 suites, predicted 4203 s (70.0 min), selector says 4203
+  3/5 16 suites, predicted 4205 s (70.1 min), selector says 4205
+  4/5 1 suites, predicted 2877 s (48.0 min), selector says 2877
+  sensitivity maap=1380: [4206, 4207, 4204, 4205, 2877] max 4207 vs bound 4320

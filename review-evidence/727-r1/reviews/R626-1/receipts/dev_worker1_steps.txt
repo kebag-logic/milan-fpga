@@ -1,0 +1,18 @@
+1	Set up job	success	1
+2	Run actions/checkout@v4	success	2
+3	Fetch RTL dependencies	success	2
+4	Record the tree this worker validates	success	0
+5	Cache the pinned Verilator build	success	3
+6	Build Verilator from source on cache miss	skipped	0
+7	Put Verilator on PATH and prove the version	success	1
+8	Prove specialized suite ownership	success	0
+9	Cache the pinned Yosys build for the netlist-level suite owner	skipped	0
+10	Build Yosys from source on cache miss	skipped	0
+11	Install the pinned Yosys and prove the version	skipped	0
+12	Install sv2v for the netlist-level suite owner	skipped	0
+13	Build the pinned tsn-gen field oracle on its suite owner	success	31
+14	Run this exhaustive suite shard	success	6260
+15	Upload this shard's suite logs	success	1
+29	Post Cache the pinned Verilator build	success	0
+30	Post Run actions/checkout@v4	success	1
+31	Complete job	success	0
