@@ -1,0 +1,23 @@
+R584-15 execution summary (exact head 5b4ea55160c5ee34263e24140f960c4f03d923bc, tree bfc159e4340d62df621848448dc3640d41f0eb1b)
+Clone: isolated detached clone at the head; submodules initialised at their gitlinks: third_party/tsn-c-stack 405dc683, third_party/lwSRP 08ee86e8 (protocol-processor, gptp-processor, verilog-axis were present).
+Gits: system Git 2.56.0; upstream Git 2.43.0 built from git-2.43.0.tar.xz (sha256 5446603e73d911781d259e565750dcd277a42836c8e392cac91cf137aa9b76ec, equal to R584-14's receipt), CFLAGS -std=gnu17 (the host compiler defaults to C23), NO_TCLTK NO_GETTEXT NO_PERL NO_PYTHON.
+Pythons: CPython 3.14.7 (system, PyYAML 6.0.3); CPython 3.12.3 in a scratch venv with PyYAML 6.0.3.
+RV32 SDK: riscv32-ilp32d--glibc--stable-2025.08-1 extracted from an archive whose sha256 is d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f (scripts/ci_rv32_sdk.py ARCHIVE_SHA256), gcc 14.3.0.
+Verilator: scoped 5.050 wrapper (prints "Verilator 5.050 2026-07-01 rev v5.050"); the host's 5.052 was not used.
+GoogleTest/GMock 1.14.0 and Clang 18.1.3 from the shared pinned tool directory for the stack's own gate.
+Docs venv: CPython 3.14.7 with tools/markdown/requirements.txt (--require-hashes), PyYAML and wavedrom 2.0.3.post3.
+
+Runs (receipts in this packet):
+- probes/prior-R584-14/superproject_spelling_probe.py, unchanged (sha256 equals R584-14's MANIFEST), on upstream 2.43.0 + CPython 3.12.3 and on 2.56.0 + CPython 3.14.7 -> receipts/superproject_spelling_head_git*.txt
+- probes/r584_15_spelling_probe.py (new spellings) on both Gits -> receipts/r584_15_spelling_git*.txt
+- probes/r584_15_mutants.py M00-M13 on both Gits (14 parallel per Git) -> receipts/mutants/*.log; M09 on 2.43.0 exceeded the 590 s cap and was re-run streamed -> M09-*.g243.stream.log
+- probes/prior-R584-14/run_pin_controls.py at the head on both Gits -> receipts/pin_controls_head_*.log
+- probes/r584_15_prior_probes.sh (R584-14 stack_spelling_probe.py and forged_entrypoints.py, R585-12 forge_probe.py, R584-12 store_probe.py, R585-14's two sparse superproject probes, each unchanged) on both Gits -> receipts/prior_probes/*
+- python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator -> receipts/boundary_without_verilator.log (rc 0, 831 s, 16 CPUs shared with other runs)
+- python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator -> receipts/boundary_only_verilator.log (rc 0, 493 s)
+- ctrl_image.py at the five shapes with --base c6bd08c6 at the head, and dev c6bd08c6's own ctrl_image.py in a disposable dev tree -> receipts/ctrl_image_*.log, ctrl_image_elf.sha256, ctrl_image_elf_compare.txt
+- the docs workflow's python3 commands (76, act_ci.py excluded), 12 in parallel, em-dash judged against c6bd08c6 -> receipts/docs/*.log
+- merge audit (path-by-path three-way comparison, and git merge-tree --write-tree of 6e88cfb6 and c6bd08c6) -> receipts/merge_audit.txt
+- hosted check runs at the head, read-only listing at review time -> receipts/hosted_check_runs_at_head.tsv
+- probes/r584_15_checkout_integrity.py after all runs -> receipts/checkout_integrity.txt
+Deviation: one docs-command batch was first launched with a wrapper that dropped the interpreter word; in it the candidate's scripts/act_ci.py --selftest ran once on the host through its shebang (receipt not kept as evidence). It stopped at a PyYAML refusal inside its offline self-test; no container was listed afterwards and the clone's tracked state was verified unchanged. No other act or Docker command was run.
