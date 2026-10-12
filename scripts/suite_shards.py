@@ -545,15 +545,16 @@ def in_checkout() -> bool:
     return HERE.name == "suite_shards.py" and HERE.parent.name == "scripts"
 
 
-def with_verilator_timeout(workflow: str, minutes: int) -> str:
-    """rtl.yml's text with only the Verilator job's timeout-minutes replaced."""
+def with_verilator_key(workflow: str, key: str, value: object) -> str:
+    """rtl.yml's text with only the Verilator job's `key`, given with its
+    indentation, set to `value`."""
     lines = workflow.splitlines(keepends=True)
     start = lines.index(f"  {VERILATOR_JOB}:\n")
     for number in range(start + 1, len(lines)):
-        if lines[number].startswith("    timeout-minutes:"):
-            lines[number] = f"    timeout-minutes: {minutes}\n"
+        if lines[number].startswith(f"{key}:"):
+            lines[number] = f"{key}: {value}\n"
             return "".join(lines)
-    raise ValueError("fixture drift: no Verilator timeout-minutes")
+    raise ValueError(f"fixture drift: no Verilator {key.strip()}")
 
 
 def report(planted: str, caught: bool) -> int:
@@ -581,6 +582,10 @@ def planted_selftest(suites: Sequence[str], workflow: str,
                                     {**SUITE_SECONDS, "retired_suite": 1})
     bad += report("a recorded duration with no inventory suite is refused",
                   any(p.startswith("retired_suite:") for p in found))
+    zero = suites[0]
+    found, _, _ = headroom_problems(suites, workflow, {**SUITE_SECONDS, zero: 0})
+    bad += report(f"a recorded duration of 0 s ({zero}) is refused",
+                  any(p.startswith(f"{zero}: recorded duration") for p in found))
 
     # The tightest timeout-minutes in rtl.yml that the head's busiest worker
     # exceeds must be refused, and one minute more must not: the bound moves
@@ -589,9 +594,9 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     tight = max((m for m in range(1, timeout + 1) if bound_seconds(m) < peak),
                 default=0)
     over, _, over_bound = headroom_problems(
-        suites, with_verilator_timeout(workflow, tight))
+        suites, with_verilator_key(workflow, "    timeout-minutes", tight))
     under, _, under_bound = headroom_problems(
-        suites, with_verilator_timeout(workflow, tight + 1))
+        suites, with_verilator_key(workflow, "    timeout-minutes", tight + 1))
     bad += report(f"rtl.yml timeout-minutes {tight} (bound {bound_seconds(tight)}"
                   f" s) is refused for a {peak} s worker", bool(over))
     bad += report(f"and {tight + 1} minutes is not", not under)
@@ -604,6 +609,15 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     bad += report(f"the bound applied at each timeout-minutes is 36 s a minute "
                   f"(60%): {dict(sorted(applied.items()))}, expected "
                   f"{dict(sorted(expected.items()))}", applied == expected)
+
+    # The worker count is read from rtl.yml too, so one more worker there
+    # than the overhead table describes must be refused.
+    found, _, _ = headroom_problems(
+        suites, with_verilator_key(workflow, "        total", f"[{workers + 1}]"))
+    bad += report(f"rtl.yml at {workers + 1} workers is refused for the "
+                  f"{len(WORKER_OVERHEAD_SECONDS)}-worker overhead table",
+                  any(p.startswith("WORKER_OVERHEAD_SECONDS describes")
+                      for p in found))
 
     # Planted heavy durations. The dedicated suite exactly at the bound with
     # its worker's overhead passes and one second more does not; a balanced
