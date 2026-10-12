@@ -1,0 +1,43 @@
+{
+  "missing-free": [
+    "ESCAPED an inventory suite with no recorded duration is refused",
+    "ESCAPED a sharded selection refuses it too",
+    "selftest: 2 FAILURE(S)"
+  ],
+  "stale-ignored": [
+    "ESCAPED a recorded duration with no inventory suite is refused",
+    "selftest: 1 FAILURE(S)"
+  ],
+  "timeout-mirrored": [
+    "ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker",
+    "selftest: 1 FAILURE(S)"
+  ],
+  "overhead-dropped": [
+    "ESCAPED milan_dp at 4241 s puts it over and is refused",
+    "selftest: 1 FAILURE(S)"
+  ],
+  "mean-only": [
+    "ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker",
+    "ESCAPED milan_dp at 4241 s puts it over and is refused",
+    "ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused",
+    "selftest: 3 FAILURE(S)"
+  ],
+  "inclusive-bound": [
+    "ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes",
+    "selftest: 1 FAILURE(S)"
+  ],
+  "pin-dropped": [
+    "FAIL specialized owners {'tsn_fuzz': 3, 'chmap_capture': 1, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False",
+    "selftest: 1 FAILURE(S)"
+  ],
+  "bound-disabled": [
+    "ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker",
+    "ESCAPED milan_dp at 4241 s puts it over and is refused",
+    "ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused",
+    "selftest: 3 FAILURE(S)"
+  ],
+  "measure-from-job-start": [
+    "FAIL log windows {'alpha': 71, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]",
+    "selftest: 1 FAILURE(S)"
+  ]
+}

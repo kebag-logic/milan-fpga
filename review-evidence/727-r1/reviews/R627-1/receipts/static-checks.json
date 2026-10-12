@@ -1,0 +1,62 @@
+[
+  {
+    "check": "docs-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "check": "doc-style",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "check": "doc-paths",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "check": "toc-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2
+  },
+  {
+    "check": "em-dash",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c6bd08c6"
+    ],
+    "rc": 2
+  },
+  {
+    "check": "python-idiom",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "check": "test-evidence",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

@@ -1,0 +1,84 @@
+== control: unmodified copy of the head
+   rc=0
+   selftest: PASS
+== m_unmeasured_free: An inventory suite with no duration is not flagged and costs 0 s.
+   rc=1
+   ESCAPED an inventory suite with no recorded duration is refused
+   ESCAPED a sharded selection refuses it too
+   selftest: 2 FAILURE(S)
+== m_stale_ignored: A recorded duration with no inventory suite is not flagged.
+   rc=1
+   ESCAPED a recorded duration with no inventory suite is refused
+   selftest: 1 FAILURE(S)
+== m_timeout_mirrored: The gate uses a mirrored 120 min and 5 workers instead of reading rtl.yml.
+   rc=1
+   ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+   selftest: 1 FAILURE(S)
+== m_block_unbounded: The Verilator job's block runs on into the jobs after it.
+   rc=1
+   FAIL head: rtl.yml job `verilator-shards` has 5 timeout-minutes values, not one
+   selftest: 1 FAILURE(S)
+== m_overhead_dropped: The prediction leaves out each worker's measured overhead.
+   rc=1
+   ESCAPED milan_dp at 4241 s puts it over and is refused
+   selftest: 1 FAILURE(S)
+== m_mean_only: Only the mean worker is held to the bound.
+   rc=1
+   ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker
+   ESCAPED milan_dp at 4241 s puts it over and is refused
+   ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+   selftest: 3 FAILURE(S)
+== m_at_bound_refused: A worker exactly at the bound is refused (> became >=).
+   rc=1
+   ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+   selftest: 1 FAILURE(S)
+== m_pin_dropped: chmap_capture is no longer pinned to the Yosys/sv2v worker.
+   rc=1
+   FAIL specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+   selftest: 1 FAILURE(S)
+== m_tsn_pin_dropped: tsn_fuzz is no longer pinned to the tsn-gen worker.
+   rc=1
+   FAIL specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+   selftest: 1 FAILURE(S)
+== m_tsn_pin_moved: tsn_fuzz is pinned to worker 2, where tsn-gen is not built.
+   rc=1
+   FAIL specialized owners {'tsn_fuzz': 2, 'chmap_capture': 3, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+   selftest: 1 FAILURE(S)
+== m_measure_from_job_start: --measure starts a worker's first suite at the job, setup included.
+   rc=1
+   FAIL log windows {'alpha': 71, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]
+   selftest: 1 FAILURE(S)
+== t_unmeasured_suite: The tree gains a suite directory that the table does not name.
+   rc=1
+   FAIL head: new_unmeasured: inventory suite with no recorded duration in SUITE_SECONDS (refresh it as the module docstring says)
+   selftest: 1 FAILURE(S)
+== t_suite_removed: A measured suite leaves the inventory (no Makefile) while its duration stays.
+   rc=1
+   FAIL head: pcmlpf: SUITE_SECONDS names a suite that is not in the inventory
+   selftest: 1 FAILURE(S)
+== t_heavy_entry: One real table entry grows by 500 s (gptp_plane 784 s to 1284 s).
+   rc=1
+   FAIL head worker 0/5 predicted 4333 s (72.2 min), bound 4320 s
+   FAIL head worker 1/5 predicted 4328 s (72.1 min), bound 4320 s
+   FAIL head worker 2/5 predicted 4329 s (72.2 min), bound 4320 s
+   FAIL head worker 3/5 predicted 4327 s (72.1 min), bound 4320 s
+   selftest: 4 FAILURE(S)
+== t_timeout_lowered: rtl.yml lowers the Verilator job to 116 minutes (bound 4176 s).
+   rc=1
+   FAIL head worker 0/5 predicted 4204 s (70.1 min), bound 4176 s
+   FAIL head worker 1/5 predicted 4205 s (70.1 min), bound 4176 s
+   FAIL head worker 2/5 predicted 4203 s (70.0 min), bound 4176 s
+   FAIL head worker 3/5 predicted 4205 s (70.1 min), bound 4176 s
+   selftest: 4 FAILURE(S)
+== t_worker_count: rtl.yml grows to six workers while the overhead table has five.
+   rc=1
+   FAIL head: WORKER_OVERHEAD_SECONDS describes 5 workers; rtl.yml runs 6
+   selftest: 1 FAILURE(S)
+== t_workflow_missing: The tree has no rtl.yml to read.
+   rc=1
+   FAIL head: [Errno 2] No such file or directory: '<scratch>/t_workflow_missing/.github/workflows/rtl.yml'
+   selftest: 1 FAILURE(S)
+== t_renamed_copy: A renamed copy outside scripts/, as test_suite_cancellation.py runs.
+   rc=0
+   skip head arms: real_selector.py is not scripts/suite_shards.py of a checkout, so there is no inventory or rtl.yml to read
+   selftest: PASS
