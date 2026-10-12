@@ -1,0 +1,5 @@
+[as-expected] Q0 clean clone | expect accept | exit 0 | RAN=0 | tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+[UNEXPECTED] Q3a [Core] FSMonitor (mixed case), edit on disk | expect refuse:core.fsmonitor (local) | exit 2 | RAN=0 | REFUSED: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+[UNEXPECTED] Q3c includeIf gitdir: to a file naming core.fsmonitor, edit on disk | expect refuse:core.fsmonitor (local) | exit 2 | RAN=0 | REFUSED: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+[UNEXPECTED] Q3d valueless boolean [core] fsmonitor (builtin daemon), edit on disk | expect refuse:core.fsmonitor (local) | exit 2 | RAN=0 | REFUSED: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+PROBES: 3 unexpected

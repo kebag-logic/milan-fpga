@@ -1,0 +1,5 @@
+[as-expected] Q0 clean clone | expect accept | exit 0 | RAN=0 | tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+[UNEXPECTED] Q1 forged src/ tree inside a pack (idx entries swapped), edit on disk | expect refuse:forged or corrupt object: the pinned src/ tree | exit 0 | RAN=0 | tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff | setup check: Git now serves src 5c8c189a as an object hashing to 832cc534
+[UNEXPECTED] Q2 forged src/ tree in an alternates store, clone's own store emptied, edit on disk | expect refuse:forged or corrupt object: the pinned src/ tree | exit 0 | RAN=0 | tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+[UNEXPECTED] Q9 forged pinned commit inside a pack (idx entries swapped), edit on disk | expect refuse:forged or corrupt object: the pinned commit | exit 0 | RAN=0 | tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff | setup check: Git now serves the pin as an object hashing to 3abf5e27
+PROBES: 3 unexpected

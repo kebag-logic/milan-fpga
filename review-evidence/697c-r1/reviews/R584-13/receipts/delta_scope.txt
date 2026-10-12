@@ -1,0 +1,36 @@
+# delta 8aaa2da74..44eef11f8: files
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/test/ctrl_build.py
+M	sw/firmware/ctrl/test/ctrl_configs.py
+M	sw/firmware/ctrl/test/ctrl_pin.py
+M	sw/firmware/ctrl/test/ctrl_pin_env.py
+A	sw/firmware/ctrl/test/ctrl_pin_store.py
+# changed lines naming an image/build input of ctrl_build.py (expect none)
+(end)
+# hunks of ctrl_build.py
+@@ -186 +186,3 @@ NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
+@@ -188 +190,15 @@ GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "
+@@ -199 +215,2 @@ class GitRun:
+@@ -203,0 +221 @@ class GitRun:
+@@ -379 +397,2 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
+@@ -381,3 +400,5 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
+@@ -424,0 +446,66 @@ def on_disk(stack: Path, algorithm: str) -> dict[str, tuple[str, str, str]]:
+@@ -428,3 +515,6 @@ def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
+@@ -434,0 +525 @@ def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
+@@ -439,8 +530,3 @@ def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
+# HDL/RTL files in the whole PR diff c20c85bd..44eef11f8
+0
+# commits in delta
+44eef11f8ee0d0f980eb68355c930efe2cce8cd8 Refuse by name, before any object is read, every key of the stack's own configuration outside an al
+a8fe548a083239efc799a79c540b2be63e9d13e7 Forge the object-store controls' objects as new files, so no loose file a hard link shares with ano
+4a35f2f44aefb5c4efed4a4d243aaa8128f9b91c Empty the alternates file in the pin control whose clone's store no longer holds the pin, so a stac
+b62c1981c6ea4970ef3f5246b2fde3fd01fc743a Give every Git command of the pin proof core.fsmonitor=false, so no repository's own configuration 
+d89898db3666ac857af772cbc9a916c8e56adce4 Hash every object the pin proof reads against its id, so a forged src/ tree or pinned commit in the
+# commit message shape (one line, no trailers)
+44eef11f8ee0d0f980eb68355c930efe2cce8cd8 lines=1
+a8fe548a083239efc799a79c540b2be63e9d13e7 lines=1
+4a35f2f44aefb5c4efed4a4d243aaa8128f9b91c lines=1
+b62c1981c6ea4970ef3f5246b2fde3fd01fc743a lines=1
+d89898db3666ac857af772cbc9a916c8e56adce4 lines=1
+# gitlink in delta
+0
