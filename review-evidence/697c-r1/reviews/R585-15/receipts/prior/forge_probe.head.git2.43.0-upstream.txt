@@ -1,0 +1,7 @@
+git version 2.43.0
+pin 405dc68310a18f669049ffc10cc23eef7300dcff
+F0 edit only: REFUSED tsn-c-stack differs from the pinned 405dc683: src/adp.c | fsck rc=0 ['dangling commit 11861bfef3a6a52ac25d05f7897e7b0adde66c3d']
+F1 forged src/ tree: REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 9b48fa40, not to its id, so nothing under it can be compared | fsck rc=11 ['error: 9b48fa403cda96cf06eab06d7075b3ff97f8778b: hash-path mismatch, found at: .git/objects/5c/8c189a2158818a3881103fee359ea704fedbbd']
+F2 forged pinned commit: REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned commit (commit 405dc683) hashes to 55f2ca0d, not to its id, so nothing under it can be compared | fsck rc=3 ['error: 55f2ca0dce6c4e1423ccbb89d2f8460fc4f9e41b: hash-path mismatch, found at: .git/objects/40/5dc68310a18f669049ffc10cc23eef7300dcff']
+F3 clone's own core.fsmonitor: REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local) | program ran: 0 time(s)
+rc=0

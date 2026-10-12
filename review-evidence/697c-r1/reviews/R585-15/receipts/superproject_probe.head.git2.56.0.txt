@@ -1,0 +1,12 @@
+git: /usr/bin/git git version 2.56.0; pin 405dc68310a18f669049ffc10cc23eef7300dcff
+CASE plain_other_program_keys_no_promisor: RAN=0 :: accepted 405dc68310a18f669049ffc10cc23eef7300dcff
+CASE sparse_tree_missing_other_program_keys_no_promisor: RAN=0 :: REFUSED: third_party/tsn-c-stack is not one stage-0 gitlink
+CASE sparse_tree_present_other_program_keys_no_promisor: RAN=0 :: accepted 405dc68310a18f669049ffc10cc23eef7300dcff
+CASE plain_includeIf_gitdir_fsmonitor: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local)
+CASE plain_includeIf_onbranch_promisor: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+CASE plain_mixed_case_keys: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.Origin.promisor (local), remote.Origin.uploadpack (local)
+CASE plain_legacy_subsection_syntax: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+CASE sparse_tree_missing_includeIf_gitdir_fsmonitor: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local)
+CASE sparse_tree_missing_includeIf_onbranch_promisor: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+CASE sparse_tree_missing_mixed_case_keys: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.Origin.promisor (local), remote.Origin.uploadpack (local)
+CASE sparse_tree_missing_legacy_subsection_syntax: RAN=0 :: REFUSED: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)

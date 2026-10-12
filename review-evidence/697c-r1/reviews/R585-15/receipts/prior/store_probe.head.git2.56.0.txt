@@ -1,0 +1,26 @@
+git version 2.56.0
+PROBE clean ACCEPTED 405dc68310a18f669049ffc10cc23eef7300dcff RAN=0
+PROBE edit REFUSED tsn-c-stack differs from the pinned 405dc683: src/adp.c RAN=0
+PROBE forged_src REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared RAN=0
+PROBE forged_root REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned root tree (tree 68f17411) hashes to 136fdee2, not to its id, so nothing under it can be compared RAN=0
+PROBE forged_commit REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned commit (commit 405dc683) hashes to 3abf5e27, not to its id, so nothing under it can be compared RAN=0
+PROBE forged_blob REFUSED tsn-c-stack differs from the pinned 405dc683: src/adp.c RAN=0
+# forged_deep: forged tree examples/rv32/include (48eafa71), edited examples/rv32/include/assert.h
+PROBE forged_deep REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned examples/rv32/include/ tree (tree 48eafa71) hashes to 4a8aa3df, not to its id, so nothing under it can be compared RAN=0
+PROBE tag_for_commit REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned commit (commit 405dc683) hashes to 3abf5e27, not to its id, so nothing under it can be compared RAN=0
+PROBE commit_for_tree REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared RAN=0
+PROBE alternate_forged REFUSED tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 5c8c189a) hashes to 832cc534, not to its id, so nothing under it can be compared RAN=0
+PROBE corrupt REFUSED cannot read the pinned tree of $REVIEWS/697c-r585-15-packet/scratch/pp256/store/corrupt/stack: the pinned src/ tree (tree 5c8c189a): error: corrupt loose object '5c8c189a2158818a3881103fee359ea704fedbbd'
+fatal: loose object 5c8c189a2158818a3881103fee359ea704fedbbd (stored in .git/objects/5c/8c189a2158818a3881103fee359ea704fedbbd) is corrupt RAN=0
+PROBE trailing REFUSED cannot read the pinned tree of $REVIEWS/697c-r585-15-packet/scratch/pp256/store/trailing/stack: the pinned src/ tree (tree 5c8c189a): error: corrupt loose object '5c8c189a2158818a3881103fee359ea704fedbbd'
+fatal: loose object 5c8c189a2158818a3881103fee359ea704fedbbd (stored in .git/objects/5c/8c189a2158818a3881103fee359ea704fedbbd) is corrupt RAN=0
+PROBE missing REFUSED cannot read the pinned tree of $REVIEWS/697c-r585-15-packet/scratch/pp256/store/missing/stack: the pinned src/ tree (tree 5c8c189a): fatal: git cat-file 5c8c189a2158818a3881103fee359ea704fedbbd: bad file RAN=0
+PROBE lazy_uploadpack_fail REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local) RAN=0
+PROBE lazy_uploadpack_serve REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local) RAN=0
+PROBE lazy_ssh REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local), extensions.partialclone (local), remote.origin.promisor (local) RAN=0
+PROBE lazy_toctou REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local) RAN=0
+# lazy_toctou: after the verdict, src/adp.c planted: False; re-check: REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+PROBE super_fsmonitor REFUSED the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local) RAN=0
+PROBE stack_fsmonitor REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local) RAN=0
+PROBE core_worktree REFUSED $REVIEWS/697c-r585-15-packet/scratch/pp256/store/core_worktree/stack is not its own checkout: initialise the tsn-c-stack submodule RAN=0
+rc=0
