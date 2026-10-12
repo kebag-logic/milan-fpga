@@ -1808,10 +1808,15 @@ replica time, not fidelity. On every exit the event stream's process group is
 walked down the same containment ladder as `act`'s, and the monitor's reader is
 joined and proven ended, before the Docker boundary is torn down. That holds
 when the containment, its leader reap or the join itself fails: the runner
-finishes every step and raises the first failure only afterwards. A reader
-still running after its bounded wait is printed as a containment hold, and
-teardown waits for it. The effect on a replay's wall clock is not measured yet
-(#730).
+finishes every step first. Then the first failure wins. An interrupt or a
+failure that was already unwinding through the monitor keeps going, so
+`SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
+diagnostic. Each cleanup failure is printed beside it as
+`act-ci: CPU-range monitor cleanup also failed: ...`. With no earlier failure,
+the first cleanup failure is raised, and any later one is printed the same
+way. A reader still running after its bounded wait is
+printed as a containment hold, and teardown waits for it. The effect on a
+replay's wall clock is not measured yet (#730).
 
 The bounds are replica-shape decisions, not trust-boundary ones; the offline
 self-test pins the word's four tokens in order, the CPU ceiling for host
@@ -1836,10 +1841,18 @@ ranges it pins:
   every range held, an inspect frees the range of a container removed without
   its event and keeps a stopped one's. Foreign, malformed and repeated events
   move nothing;
-- the monitor's event filter. Its containment, reader join and closed pipe
-  hold after a body that returns, raises or ends on a signal while the reader
-  is still moving a container. They hold after a failed leader reap, poll or
-  join, and when the stream or the reader cannot start;
+- the monitor's event filter, and its `--since` second against a stubbed
+  clock. Its containment, reader join and closed pipe hold after a body that
+  returns, raises or ends on a signal while the reader is still moving a
+  container. They hold after a failed leader reap, poll or join, and when the
+  stream or the reader cannot start. A failed join is retried while the reader
+  still runs after the pause. A reader that outlives a shortened bounded wait
+  is held for, printed and recorded. Containment runs with the cleanup signals
+  blocked, and a reader whose read fails records a problem;
+- which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
+  `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
+  diagnostic, with the reap failure printed beside them. With no earlier
+  failure, a reap failure and then a join failure raise the reap's;
 - a run whose monitor left a container on the staging range: each workflow
   prints its summary and one warning per problem, and the verdict follows
   `act`'s exit alone;
