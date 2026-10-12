@@ -1,0 +1,69 @@
+=== PR head e893e4d1, hosted run 38303342738, suite-logs-4 TARGET_SHA ed36ebad5593fd62c9b4fd0eca3e8e0639f3c487 (PR merge ref)
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 436.64, "state": "idle", "idle_s": 0.142}
+
+6 checks: 6 PASS, 0 FAIL
+make counters
+make[1]: Entering directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+VERILATOR=verilator python3 stream_counters.py --shape 1
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 201, in <module>
+    main()
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 197, in main
+    run(args.shape, args.variant, Path(work), verilator, condition)
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 144, in run
+    subprocess.run([verilator, *flags, *sources, str(HERE / "sim_nxn.cpp"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['verilator', '+incdir+<home-path>/work/milan-fpga/milan-fpga/configs/generated/endstation_ax7101_1x1_tdm8', 'make[2]:', 'Entering', 'directory', '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp', '--cc', '--exe', '--build', '-j', '2', '--top-module', 'milan_datapath', '+incdir+<home-path>/work/milan-fpga/milan-fpga/hdl/common', '+incdir+/hom
+make[1]: *** [Makefile:668: counters] Error 1
+make[1]: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+make: *** [Makefile:561: run] Error 2
+make: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+
+=== PR head 37944f8a, hosted run 38292138840, suite-logs-4 TARGET_SHA 8efea4d22e0b8cfb4aa68ac2c549d8dbc499c0d8 (PR merge ref)
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 759.485, "state": "idle", "idle_s": 0.136}
+
+6 checks: 6 PASS, 0 FAIL
+make counters
+make[1]: Entering directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+VERILATOR=verilator python3 stream_counters.py --shape 1
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 197, in <module>
+    main()
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 193, in main
+    run(args.shape, args.variant, Path(work), verilator, condition)
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 141, in run
+    subprocess.run([verilator, *flags, *sources, str(HERE / "sim_nxn.cpp"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['verilator', '+incdir+<home-path>/work/milan-fpga/milan-fpga/configs/generated/endstation_ax7101_1x1_tdm8', 'make[2]:', 'Entering', 'directory', '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp', '--cc', '--exe', '--build', '-j', '2', '--top-module', 'milan_datapath', '+incdir+<home-path>/work/milan-fpga/milan-fpga/hdl/common', '+incdir+/hom
+make[1]: *** [Makefile:668: counters] Error 1
+make[1]: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+make: *** [Makefile:561: run] Error 2
+make: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+
+=== PR head acadfacd, hosted run 38279786076, suite-logs-4 TARGET_SHA 1642c084ad57fa69b1105c265c2bb4789ecf592f (PR merge ref)
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 464.268, "state": "idle", "idle_s": 0.149}
+
+6 checks: 6 PASS, 0 FAIL
+make counters
+make[1]: Entering directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+VERILATOR=verilator python3 stream_counters.py --shape 1
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 174, in <module>
+    main()
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 170, in main
+    run(args.shape, args.variant, Path(work), verilator)
+  File "<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp/stream_counters.py", line 128, in run
+    subprocess.run([verilator, *flags, *sources, str(HERE / "sim_nxn.cpp"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['verilator', '+incdir+<home-path>/work/milan-fpga/milan-fpga/configs/generated/endstation_ax7101_1x1_tdm8', 'make[2]:', 'Entering', 'directory', '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp', '--cc', '--exe', '--build', '-j', '2', '--top-module', 'milan_datapath', '+incdir+<home-path>/work/milan-fpga/milan-fpga/hdl/common', '+incdir+/hom
+make[1]: *** [Makefile:668: counters] Error 1
+make[1]: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+make: *** [Makefile:561: run] Error 2
+make: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+
