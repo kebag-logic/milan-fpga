@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+# B16c dry run: the external capture's stand-in: -d seconds of zeros into the last argument.
+import sys, time
+a = sys.argv[1:]
+d = int(a[a.index("-d") + 1]); c = int(a[a.index("-c") + 1])
+time.sleep(d)
+open(a[-1], "wb").write(bytes(d * 48000 * c * 3))
+print("fake arecord")
