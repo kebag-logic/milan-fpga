@@ -610,7 +610,7 @@ def _crf_bind_block():
 
 @then("the CRF Media Clock Input zeroes all ten counters on the bind edge")
 def step_cc_crf_era_wipe(context: Context) -> None:
-    """5.3.8.10's era wipe, judged against all ten registers AND the interval
+    """5.3.8.10's era wipe, judged against all ten registers AND the six anomaly
     seen flags: a flag left standing across the wipe is worth one phantom event
     in the new binding at the very next tick.
     """
@@ -624,9 +624,10 @@ def step_cc_crf_era_wipe(context: Context) -> None:
         "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new "
         "binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall "
         "reset all of these counters to zero'):\n  " + "\n  ".join(survivors))
-    # the observation-interval SEEN flags belong to the dead era too: one left
+    # FRAMES_RX is per AVTPDU; pdu_count_o is checked above. Only the six
+    # anomaly counters retain observation-interval SEEN flags. One left
     # standing commits +1 into a just-zeroed counter at the very next tick
-    stale = [f for f in ("iv_frx_r", "iv_uf_r", "iv_sm_r", "iv_mr_r",
+    stale = [f for f in ("iv_uf_r", "iv_sm_r", "iv_mr_r",
                          "iv_tu_r", "iv_lt_r", "iv_et_r")
              if not re.search(r"\b%s\s*<=\s*1'b0\s*;" % f, body)]
     assert not stale, (
