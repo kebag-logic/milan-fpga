@@ -1,0 +1,161 @@
+[
+  {
+    "artifact": "author/evidence/tkdiag-full.log",
+    "result_lines": [
+      "checks: 99   failures: 0",
+      "RESULT: PASS",
+      "[PASS] the unmutated restart engine still passes the tkdiag harness",
+      "[PASS] mutant caught: a request flips the target, cancelling a pending restart - breaks \"T17 talker 1 puts exactly ONE toggle on the wire, never none\"",
+      "[PASS] mutant caught: one shared target that merges while any stream is pending - breaks \"T18 talker 0 had put the disruption on the wire: the request is its 2nd toggle\"",
+      "[PASS] mutant caught: the pending window ends at the adoption, not at the first PDU - breaks \"T17 talker 0 sent no PDU at the adopted level: the request merges, ONE toggle\"",
+      "[PASS] mutant caught: the pending window stays open for the whole hold, not until the first PDU - breaks \"T18 talker 0 had put the disruption on the wire: the request is its 2nd toggle\"",
+      "5 checks: 5 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/crf-rx-full.log",
+    "result_lines": [
+      "[PASS] validation_error_unlocks: rc=1",
+      "[PASS] validation_error_refreshes_timeout: rc=1",
+      "[PASS] tu_ignored: rc=1",
+      "[PASS] jump_removed: rc=1",
+      "[PASS] refill_short: rc=1",
+      "[PASS] accept_edge_late: rc=1",
+      "[PASS] servo_clean: rc=0",
+      "[PASS] servo_ignores_valid: rc=1",
+      "[PASS] servo_never_resumes: rc=1",
+      "== crf_rx mutants: checks: 10   failures: 0 =="
+    ]
+  },
+  {
+    "artifact": "author/evidence/avtp-rxmon-final.log",
+    "result_lines": [
+      "== avtp_rxmon lockstep N=1: checks: 36   failures: 0 ==",
+      "RESULT: PASS",
+      "== avtp_rxmon lockstep N=8: checks: 36   failures: 0 ==",
+      "RESULT: PASS",
+      "[PASS] the unmutated context engine still passes the lockstep harness",
+      "[PASS] mutant caught: lost increment: a pulse that lands on a queued dispatch drops out of the queue count - breaks \"[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU\"",
+      "[PASS] mutant caught: torn read: the mirror takes a write's high half one cycle after its low half - breaks \"[H2] GET_COUNTERS read identical to the reference in every cycle of the update window\"",
+      "[PASS] mutant caught: wrong stream index: the GET_COUNTERS read ignores the sink - breaks \"[GC] every sink answers its own row and column (seeded signatures)\"",
+      "[PASS] mutant caught: missed reset: the bundle queue's count survives a reset - breaks \"[H4] no bundle queued before a reset is served after it\"",
+      "5 checks: 5 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/crf_tx-full.log",
+    "result_lines": [
+      "  [PASS] [H3] MTT 4000000 -> excess < one period  got=0x00000001 exp=0x00000001",
+      "  [PASS] [H3] MTT 2000000 -> Eq 14 offset         got=2000000 exp=2000000",
+      "  [PASS] [H3] MTT 2000000 -> offset >= TTmax      got=0x00000001 exp=0x00000001",
+      "  [PASS] [H3] MTT 2000000 -> excess < one period  got=0x00000001 exp=0x00000001",
+      "  [PASS] [H3-mid-a] mid-frame write: this PDU keeps the old offset got=491520 exp=491520",
+      "  [PASS] [H3-mid-a] ... the NEXT PDU has the converted one got=1020834 exp=1020834",
+      "  [PASS] [H3-mid-b] write during the conversion: PREVIOUS value used got=491520 exp=491520",
+      "  [PASS] [H3-mid-b] ... adopted whole on the following PDU got=20834 exp=20834",
+      "  [PASS] disable: wire silent                     got=0x00000000 exp=0x00000000",
+      "KL_crf_tx: 127 checks, 0 failures"
+    ]
+  },
+  {
+    "artifact": "author/evidence/notify-full.log",
+    "result_lines": [
+      "  [ok]   [GSI] G8 sink 0 withdrawn: MSRP_FAILURE_VALID  = 0x0",
+      "  [ok]   [GSI] G8 sink 0 withdrawn: REGISTERING_FAILED  = 0x0",
+      "  [ok]   [GSI] G8 sink 1 keeps its own failure: MSRP_FAILURE_VALID = 0x1",
+      "  [ok]   [GSI] G8 sink 1 keeps its own failure: REGISTERING_FAILED = 0x1",
+      "  [ok]   [GSI] G10 sink 0 after a reset: MSRP_FAILURE_VALID = 0x0",
+      "  [ok]   [GSI] G10 sink 0 after a reset: REGISTERING_FAILED = 0x0",
+      "  [ok]   [GSI] G10 sink 1 after a reset: MSRP_FAILURE_VALID = 0x0",
+      "  [ok]   [GSI] G10 sink 1 after a reset: REGISTERING_FAILED = 0x0",
+      "checks: 423   failures: 0",
+      "RESULT: PASS"
+    ]
+  },
+  {
+    "artifact": "author/evidence/crflic-full.log",
+    "result_lines": [
+      "  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0",
+      "  [PASS] admitted re-declaration still streams",
+      "  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6",
+      "  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5",
+      "  [PASS] SRP service is idle before staging                                 got=0 exp=0",
+      "  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0",
+      "  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0",
+      "  [PASS] no malformed DUT MRPDU                                             got=0 exp=0",
+      "checks: 416   failures: 0",
+      "RESULT: PASS"
+    ]
+  },
+  {
+    "artifact": "author/evidence/aclk-final-run.log",
+    "result_lines": [
+      "media_aclk: 193 checks, 0 failures",
+      "RESULT: PASS"
+    ]
+  },
+  {
+    "artifact": "author/evidence/unb-mutants-1.log",
+    "result_lines": [
+      "[PASS] the unmutated gateware still passes the obj_notify leg",
+      "[PASS] mutant caught: the processor holds every ACMP frame 6000 cycles, so the push overtakes the response - breaks [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response; [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response (its tallies report 4 failure(s) across 423 checks)",
+      "[PASS] mutant caught: the CRF unbind does not count its unlock (the engine before #653) - breaks [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED; [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED (its tallies report 2 failure(s) across 423 checks)",
+      "3 checks: 3 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/unb-mutants-2.log",
+    "result_lines": [
+      "[PASS] the unmutated gateware still passes the obj_notify leg",
+      "[PASS] mutant caught: the CRF unbind keeps the lock, so the silence timeout counts the unlock again - breaks [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED; [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED (its tallies report 2 failure(s) across 423 checks)",
+      "[PASS] mutant caught: the CRF unbind also counts a STREAM_INTERRUPTED - breaks [UNB] CRF sink 1 U3 right after the response: STREAM_INTERRUPTED; [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED (its tallies report 2 failure(s) across 423 checks)",
+      "[PASS] mutant caught: the CRF unbind counts its unlock but arms no push - breaks [UNB] CRF sink 1 U2 a push reporting the unlock reached A (its tallies report 2 failure(s) across 423 checks)",
+      "4 checks: 4 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/crflic-mutants-1.log",
+    "result_lines": [
+      "[PASS] mutant caught: every gate reads the raw verdict - breaks \"the CRF licence never opened (every cycle sampled)\"",
+      "[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks \"the CRF licence equals ACTIVE[CRF] AND real grant\"",
+      "[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks \"the AAF gate never opened\"",
+      "4 checks: 4 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/crflic-mutants-2.log",
+    "result_lines": [
+      "[PASS] mutant caught: every gate drops the real grant - breaks \"refused CRF licence never opened\"",
+      "[PASS] mutant caught: the CRF licence alone drops the real grant - breaks \"refused CRF licence never opened\"",
+      "[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks \"refused AAF gate never opened\"",
+      "4 checks: 4 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "artifact": "author/evidence/yosys-counters.log",
+    "result_lines": [
+      "  [PASS] KL_avtp_rx_monitor_ctx cells=10829",
+      "  [PASS] KL_crf_rx              cells=30459",
+      "  [PASS] KL_crf_tx              cells=2726",
+      "  [PASS] KL_aaf_packetizer      cells=18743",
+      "RESULT: PASS",
+      "TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones)",
+      "TAP-PURITY RESULT: PASS"
+    ]
+  },
+  {
+    "artifact": "author/evidence/yosys-datapath.log",
+    "result_lines": [
+      "  [PASS] milan_datapath         cells=1718180",
+      "RESULT: PASS",
+      "TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones)",
+      "TAP-PURITY RESULT: PASS"
+    ]
+  },
+  {
+    "artifact": "author/evidence/xvlog.log",
+    "result_lines": [
+      "xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)"
+    ]
+  }
+]

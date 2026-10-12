@@ -1,0 +1,66 @@
+{
+  "shape-1": {
+    "recorded_windows": 40,
+    "graded_windows": 24,
+    "min_gap_ms": 1000.996,
+    "max_gap_ms": 1001.867,
+    "max_service_ms": 3.263
+  },
+  "shape-8": {
+    "recorded_windows": 180,
+    "graded_windows": 108,
+    "min_gap_ms": 1000.982,
+    "max_gap_ms": 1012.029,
+    "max_service_ms": 14.058
+  },
+  "plant-tx-interval": {
+    "failures": 6,
+    "group": "TX",
+    "escape": "PASS"
+  },
+  "plant-rx-interval": {
+    "failures": 1,
+    "group": "RX",
+    "escape": "PASS"
+  },
+  "plant-tx-reset": {
+    "failures": 4,
+    "group": "TX_RESET",
+    "escape": "PASS"
+  },
+  "plant-aaf-reset": {
+    "failures": 1,
+    "group": "RX_RESET",
+    "escape": "PASS"
+  },
+  "plant-crf-reset": {
+    "failures": 1,
+    "group": "RX_RESET",
+    "escape": "PASS"
+  },
+  "plant-rx-saturation": {
+    "failures": 1,
+    "group": "RX",
+    "escape": "PASS"
+  },
+  "plant-late": {
+    "failures": 12,
+    "group": "CADENCE",
+    "escape": "PASS"
+  },
+  "plant-rate": {
+    "failures": 32,
+    "group": "RATE",
+    "escape": "PASS"
+  },
+  "firmware-late": {
+    "failures": 32,
+    "group": "CADENCE",
+    "escape": "PASS"
+  },
+  "firmware-rate": {
+    "failures": 48,
+    "group": "RATE",
+    "escape": "PASS"
+  }
+}
