@@ -27,7 +27,7 @@
         gsi_rx_q.push_back(f);
     }
 
-    std::array<uint32_t,kNstreamsTb+1> wire_tx{};
+    std::array<uint32_t,kNstreamsTb+1> wire_tx{}, wire_tu{}, wire_mr{};
     const char* omitted_check = std::getenv("COUNTERS_OMIT_CHECK");
     void counter_check(const char* group,const char* what,unsigned long got,unsigned long expected) {
         if(omitted_check && std::strcmp(omitted_check,group)==0) return;
@@ -42,7 +42,11 @@
         const int o=gsi_be(f,12,2)==0x8100 ? 4 : 0;
         if(f.size()>size_t(26+o) && gsi_be(f,12+o,2)==0x22f0 && (f[14+o]==2 || f[14+o]==4)) {
             const unsigned ix=f[14+o]==4 ? kNstreamsTb : gsi_be(f,24+o,2);
-            if(ix<=kNstreamsTb)++wire_tx[ix];
+            if(ix<=kNstreamsTb) {
+                ++wire_tx[ix];
+                wire_tu[ix] += f[(f[14+o]==4 ? 15 : 17)+o] & 1;
+                wire_mr[ix] += (f[15+o] >> 3) & 1;
+            }
         }
         if(!counter_watch_on || f.size()<46 || !aecp_is_unsolicited(f) || notify_cmd(f)!=0x29) return;
         const auto ty=gsi_be(f,38,2),s=gsi_be(f,40,2);
@@ -106,6 +110,25 @@
             }
             gsi_tick();
         }
+        // No start/stop, MR or TU update may explain the steady output pushes.
+        for(int s=0;s<=kNstreamsTb;++s) {
+            const auto* diag=dut->rootp;
+            const auto tu=diag->milan_datapath__DOT__talker_diag__DOT__tuiv_r[s];
+            const auto mr=diag->milan_datapath__DOT__talker_diag__DOT__mreset_r[s];
+            const auto starts=diag->milan_datapath__DOT__talker_diag__DOT__start_r[s];
+            const auto stops=diag->milan_datapath__DOT__talker_diag__DOT__stop_r[s];
+            printf("OUTPUT_CONDITION,%d,%s,%u,%u,%u,%u,%u,%u\n",s,
+                   COUNTERS_FRAMES_ONLY_TB ? "frames-only" : "uncertain",
+                   tu,mr,starts,stops,wire_tu[s],wire_mr[s]);
+            if(COUNTERS_FRAMES_ONLY_TB) {
+                counter_check("OUTPUT_CONDITION","TU counter stays zero",tu,0);
+                counter_check("OUTPUT_CONDITION","MR counter stays zero",mr,0);
+                counter_check("OUTPUT_CONDITION","only initial start",starts,1);
+                counter_check("OUTPUT_CONDITION","no stop during windows",stops,0);
+                counter_check("OUTPUT_CONDITION","all wire tu bits clear",wire_tu[s],0);
+                counter_check("OUTPUT_CONDITION","wire mr remains at reset",wire_mr[s],0);
+            }
+        }
         counter_watch_on=false;
         axi_write(A_AAF_CTRL,0x00020002);axi_write(A_CRFT_CTRL,0);
         for(int t=0;t<5000;++t)gsi_tick();
@@ -129,13 +152,14 @@
                 if(last>=0) {ming=std::min(ming,at-last);maxg=std::max(maxg,at-last);}
                 last=at;
             }
+            const char* cadence=ty==6 && COUNTERS_FRAMES_ONLY_TB ? "OUTPUT_CADENCE" : "CADENCE";
             for(int b=2;b<5;++b) {
-                counter_check("CADENCE","every complete steady window notified",bins[b]>=1,1);
+                counter_check(cadence,"every complete steady window notified",bins[b]>=1,1);
                 counter_check("RATE","no duplicate in a complete steady window",bins[b]<=1,1);
             }
             counter_check("RATE","minimum spacing",ming>=second,1);
             const int slot=(ty==5 ? 0 : kNstreamsTb+1)+s;
-            counter_check("CADENCE","gap bounded by measured service",maxg<=second+service_max[slot],1);
+            counter_check(cadence,"gap bounded by measured service",maxg<=second+service_max[slot],1);
             for(int b=0;b<5;++b) printf("%d,%d,%d,%d,%d,%d,%.5f,%.5f\n",kNstreamsTb,ty,s,r,b,bins[b],
               ming/double(kMsCycTb),maxg/double(kMsCycTb));
           }

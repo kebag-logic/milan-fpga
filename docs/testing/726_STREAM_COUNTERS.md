@@ -63,7 +63,27 @@ The gap check allows only that measured service delay beyond 1000 ms.
 The same fixture at `c6bd08c6` records zero input notifications in every
 graded row-window: 12 absent input row-windows at the shipping shape and
 54 at the largest shape. Output row-windows already contain one each.
+These original runs use `uncertain`: every output stamps `tu=1`.
+TIMESTAMP_UNCERTAIN consequently changes alongside FRAMES_TX; `mr` stays clear.
 After the change all input and output row-windows contain one each.
+
+Round 2 also measures `frames-only` at both shapes.
+Its scratch parent clears uncertainty at both talker inputs.
+The actual packetizers stamp those bits into their outgoing AVTPDUs.
+The fixture checks clear wire `tu` and `mr` on every output.
+TU and MEDIA_RESET counters remain zero throughout these finite runs.
+Only the initial start occurs; no stop occurs during measurement.
+FRAMES_TX is therefore the only changing output counter during steady windows.
+This models the locked-PHC condition, without establishing physical synchronization.
+
+| Condition | Output rows | Graded output row-windows | Notifications per window | Total checks |
+|---|---|---:|---:|---:|
+| `frames-only`, shipping | AAF 0 and CRF 1, both recipients | 12 | 1 | 110 |
+| `frames-only`, largest | AAF 0 through 7 and CRF 8, both recipients | 54 | 1 | 481 |
+
+Their gaps and service maxima equal the table above.
+Removing the per-AVTPDU output event fails `OUTPUT_CADENCE` 16 times.
+That shipping plant escapes when only `OUTPUT_CADENCE` is omitted.
 
 | Shape | Output | Baseline FRAMES_TX | MAC AVTPDUs | Corrected FRAMES_TX |
 |---|---|---:|---:|---:|
@@ -110,6 +130,8 @@ Builds use two workers; run at most two concurrently.
 ```sh
 python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work "$SCRATCH/stream-1"
 python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --work "$SCRATCH/stream-8"
+python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --output-condition frames-only --work "$SCRATCH/frames-only-1"
+python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --output-condition frames-only --work "$SCRATCH/frames-only-8"
 python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --variant before --work "$SCRATCH/before-1"
 python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --variant before --work "$SCRATCH/before-8"
 python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 1 --work "$SCRATCH/f5-1"
@@ -119,7 +141,8 @@ make -C tb/verilator/milan_dp counters-mutants
 
 Clean checks must exit zero.
 The `before` variant reads the three original counter engines from `c6bd08c6`.
-Its driver requires the baseline executable to report the reproduced defects.
+Its driver requires named `TX`, `RX` and `CADENCE` failures.
+Any other failure group, missing group or exit status is rejected.
 Each mutation driver requires a named failure, then a passing check-omission run.
 A crash, compilation error or unrelated failure does not count as detection.
 No submodule source changes during these runs.
@@ -134,5 +157,17 @@ No submodule source changes during these runs.
 | `rx-saturation` | AAF pending total saturates at 65,535 | `RX` |
 | `late` | Parent suppresses input change events | `CADENCE` |
 | `rate` | Parent supplies a timer divisor halved in error | `RATE` |
+| `tx-nodirty` | Output packet event removed under `frames-only` | `OUTPUT_CADENCE` |
 | Firmware `late` | Completion deadline advances by 2000 ms | `CADENCE` |
 | Firmware `rate` | Completion deadline advances by 500 ms | `RATE` |
+
+The required behavior gate includes the bind-era and receive-law contracts.
+Round 2 passes 405 scenarios, including interval-rate FRAMES_RX rejection.
+The bench grader applies IEEE 1722.1-2021 Table 7.157 to FRAMES_RX.
+
+```sh
+cd tests
+python3 -m behave --no-capture -f plain
+cd ..
+python3 tb/tools/torture_campaign.py --self-test
+```

@@ -25,7 +25,8 @@ AAF = "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv"
 DP = "hdl/milan/milan_datapath.sv"
 GROUPS = {"tx-interval": "TX", "rx-interval": "RX", "tx-reset": "TX_RESET",
           "aaf-reset": "RX_RESET", "crf-reset": "RX_RESET",
-          "rx-saturation": "RX", "late": "CADENCE", "rate": "RATE"}
+          "rx-saturation": "RX", "late": "CADENCE", "rate": "RATE",
+          "tx-nodirty": "OUTPUT_CADENCE"}
 
 
 def replace_once(text, old, new):
@@ -34,7 +35,7 @@ def replace_once(text, old, new):
     return text.replace(old, new)
 
 
-def plant(variant, work):
+def plant(variant, work, output_condition):
     files = {rel: (ROOT / rel).read_text() for rel in (TX, RX, AAF, DP)}
     if variant == "before":
         for rel in files:
@@ -64,6 +65,10 @@ def plant(variant, work):
   always_ff @(posedge clk_i) begin : engine""")
         files[RX] = replace_once(files[RX], "pdu_count_o <= pdu_count_o + 32'd1;",
                                 "pdu_count_o <= pdu_count_o + 32'(!counted_r || iv_tick_r);")
+    elif variant == "tx-nodirty":
+        files[TX] = replace_once(files[TX],
+                                "ftx_r[c] <= ftx_r[c] + 32'd1;\n          dirty_p_o[c] <= 1'b1;",
+                                "ftx_r[c] <= ftx_r[c] + 32'd1;")
     elif variant == "tx-reset":
         files[TX] = replace_once(files[TX], "ftx_r[c]    <= {31'd0, ev_f_w[c]};",
                                 "ftx_r[c]    <= ftx_r[c];")
@@ -84,6 +89,13 @@ def plant(variant, work):
     elif variant == "rate":
         files[DP] = replace_once(files[DP], ".TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),",
                                 ".TIM_DIV_MS_P   (PP_TIM_DIV_MS_P / 2),")
+    if output_condition == "frames-only":
+        # Model the locked-PHC condition at both talker inputs. The real
+        # packetizers stamp tu=0 and their completed-frame bits feed diagnostics.
+        anchor = ".ts_uncertain_i (clkv_tu_w)"
+        if files[DP].count(anchor) != 2:
+            raise ValueError("expected AAF and CRF timestamp-uncertainty inputs")
+        files[DP] = files[DP].replace(anchor, ".ts_uncertain_i (1'b0)")
     paths = {}
     for rel, text in files.items():
         dest = work / Path(rel).name
@@ -93,7 +105,7 @@ def plant(variant, work):
     return paths
 
 
-def run(shape, variant, work, verilator):
+def run(shape, variant, work, verilator, output_condition):
     work.mkdir(parents=True, exist_ok=True)
     # Preserve the fixture's repository-relative descriptor paths without
     # writing ROM images or object files into the checkout.
@@ -117,12 +129,13 @@ def run(shape, variant, work, verilator):
               f"-GAUDIO_IF_SLOTS_P={8 if shape == 1 else 32}",
               f"-GAUDIO_IF_CLK_HZ_P={24576000 if shape == 1 else 98304000}",
               "-GI2SPB_P=0", "-GLPF_P=0", "-CFLAGS",
-              f"-DNSTREAMS_TB={shape} -DMS_CYC_TB=1000 -DSTREAM_COUNTERS_TB=1",
+              f"-DNSTREAMS_TB={shape} -DMS_CYC_TB=1000 -DSTREAM_COUNTERS_TB=1 "
+              f"-DCOUNTERS_FRAMES_ONLY_TB={int(output_condition == 'frames-only')}",
               "--Mdir", str(work / "obj")]
     sources = shlex.split(subprocess.check_output(
         ["make", "-s", "print-srcs"], cwd=HERE, text=True))
     sources = [str((HERE / s).resolve()) for s in sources]
-    replacements = plant(variant, work)
+    replacements = plant(variant, work, output_condition)
     sources = [replacements.get(s, s) for s in sources]
     with (work / "build.log").open("w") as log:
         subprocess.run([verilator, *flags, *sources, str(HERE / "sim_nxn.cpp"),
@@ -149,11 +162,16 @@ def run(shape, variant, work, verilator):
             if result.returncode != 1 or not failures or any(marker not in f for f in failures):
                 raise RuntimeError(f"{variant}: no attributable named detection: {failures}")
         elif variant == "before":
-            if result.returncode != 1 or not failures:
-                raise RuntimeError("baseline did not reproduce the defect")
+            expected = {"TX", "RX", "CADENCE"}
+            found = {group for group in expected
+                     if any("[726 " + group + "]" in f for f in failures)}
+            if (result.returncode != 1 or found != expected or
+                    any(not any("[726 " + group + "]" in f for group in expected)
+                        for f in failures)):
+                raise RuntimeError(f"baseline lacks named TX/RX/CADENCE defects: {failures}")
         elif result.returncode != 0 or failures or "RESULT: PASS" not in text:
             raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
-        print(f"{shape}x{shape} {variant} {name}: rc={result.returncode}, failures={len(failures)}")
+        print(f"{shape}x{shape} {variant} {output_condition} {name}: rc={result.returncode}, failures={len(failures)}")
 
 
 def main():
@@ -161,13 +179,18 @@ def main():
     parser.add_argument("--work", type=Path)
     parser.add_argument("--shape", type=int, choices=(1, 8), default=1)
     parser.add_argument("--variant", choices=("clean", "before", *GROUPS), default="clean")
+    parser.add_argument("--output-condition", choices=("uncertain", "frames-only"),
+                        help="default: frames-only for tx-nodirty, uncertain otherwise")
     args = parser.parse_args()
+    condition = args.output_condition or ("frames-only" if args.variant == "tx-nodirty" else "uncertain")
+    if args.variant == "tx-nodirty" and condition != "frames-only":
+        parser.error("tx-nodirty requires the frames-only output condition")
     verilator = os.environ.get("VERILATOR", "verilator")
     if args.work:
-        run(args.shape, args.variant, args.work.resolve(), verilator)
+        run(args.shape, args.variant, args.work.resolve(), verilator, condition)
     else:
         with tempfile.TemporaryDirectory(prefix="stream-counters-") as work:
-            run(args.shape, args.variant, Path(work), verilator)
+            run(args.shape, args.variant, Path(work), verilator, condition)
 
 
 if __name__ == "__main__":

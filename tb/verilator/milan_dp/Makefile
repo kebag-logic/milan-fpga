@@ -667,13 +667,15 @@ print-dp-vflags:
 counters:
 	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1
 	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1 --output-condition frames-only
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8 --output-condition frames-only
 
 counters-f5:
 	python3 stream_counter_f5.py --shape 1
 	python3 stream_counter_f5.py --shape 8
 
 counters-mutants:
-	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate; do \
+	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty; do \
 	  VERILATOR=$(VERILATOR) python3 stream_counters.py --variant $$variant; \
 	done
 	python3 stream_counter_f5.py --variant late
