@@ -1,0 +1,724 @@
+{
+ "checks": [
+  {
+   "name": "manifest sha256",
+   "ok": true,
+   "detail": "8d417d54b13a264484bfcb0b69f8a643e5cd3bf2819294cea201242a2f67f034"
+  },
+  {
+   "name": "manifest entries 1,680",
+   "ok": true,
+   "detail": "1680"
+  },
+  {
+   "name": "27 author files path-redacted",
+   "ok": true,
+   "detail": "27"
+  },
+  {
+   "name": "1/9/17 by round",
+   "ok": true,
+   "detail": "{\"author-r1\": [471, 1], \"reviews\": [184, 4], \"author-r2\": [499, 9], \"author-r3\": [526, 17]}"
+  },
+  {
+   "name": "pinned commit has author-r1..r3, no author-r4",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "tip has author-r4",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "every manifest entry equals its published file at the pin",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "name": "no unlisted author file at the pin",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "name": "line 2577 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`, the peer's link"
+  },
+  {
+   "name": "line 2578 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`, the DUT's link"
+  },
+  {
+   "name": "line 2579 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`, the external capture"
+  },
+  {
+   "name": "line 2580 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`, the peer's link, with the bind"
+  },
+  {
+   "name": "line 2581 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`, the DUT's link"
+  },
+  {
+   "name": "line 2582 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`, the external capture"
+  },
+  {
+   "name": "line 2589 tools/b16-asrun/run_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "18087 d1a60cc2be9af3d8a3f81424ce468441ceeae88c960d817c127de5816f27a289"
+  },
+  {
+   "name": "line 2590 tools/tone_points_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "19842 975645309ecb92d124b28d488c74902a2aea9379470e3eec563f1d93ea20869c"
+  },
+  {
+   "name": "line 2591 tools/align_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "7802 71fd639b5db4c00f4048c6f2930330ee6880388613459a0d7411d577ab3eac86"
+  },
+  {
+   "name": "line 2592 tools/acmp_tap_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "2949 8c686a58e5c0288623c50cd7a40b273a6d0336b66af9765f0214a4dffaf57f65"
+  },
+  {
+   "name": "line 2593 controls/b16-tap-controls.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1565 77a5995f07b9e300b5d819477e70441ed7ba3a26848e881ec6841219867da8fe"
+  },
+  {
+   "name": "line 2594 controls/b16-align-controls-synth.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1176 20ca766eb693b2f2252f6de97efda18c94455ade5d661813a8e26fd604b1d276"
+  },
+  {
+   "name": "line 2595 runs/loop1/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "11587 0390182f646584223bceeaf240e47135be383e47ddd56b4d15950336a441f954"
+  },
+  {
+   "name": "line 2596 runs/loop2/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "11656 cb3a5ffada5c35cdbbbbacc866e3f15abeded2e706754e9b3958479f75a0e2c0"
+  },
+  {
+   "name": "line 2597 summary/loop2/acmp-peer-tap.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "8739 ecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6688"
+  },
+  {
+   "name": "line 2598 summary/loop1/d-extcap-pair.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "664 496e6ad34ad164d1b8fea06c92d8ed099e3e831386c58d4b192d7881dfc64704"
+  },
+  {
+   "name": "line 2599 summary/loop2/d-extcap-pair.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "661 17f6c33f990654a1dd6dae8e5277ecd874955337cac66f0cfeb94eac33f549a5"
+  },
+  {
+   "name": "line 2600 restore/census-compare.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "369 3a9a17cfc7ab6849571b9b2221c4981e8a19b7f460f1f66c30f9293a43f2de6f"
+  },
+  {
+   "name": "line 2601 identity/identity-verdict.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1532 4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130"
+  },
+  {
+   "name": "line 2940 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`, the peer's link"
+  },
+  {
+   "name": "line 2941 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`, the DUT's link"
+  },
+  {
+   "name": "line 2942 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`, McASP0"
+  },
+  {
+   "name": "line 2943 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`, the external capture"
+  },
+  {
+   "name": "line 2944 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`"
+  },
+  {
+   "name": "line 2945 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`"
+  },
+  {
+   "name": "line 2946 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`"
+  },
+  {
+   "name": "line 2947 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`"
+  },
+  {
+   "name": "line 2948 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`b6-loop.raw`, lane B6's loop"
+  },
+  {
+   "name": "line 2949 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`"
+  },
+  {
+   "name": "line 2950 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`"
+  },
+  {
+   "name": "line 2951 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`, empty: the incident"
+  },
+  {
+   "name": "line 2952 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`"
+  },
+  {
+   "name": "line 2953 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`"
+  },
+  {
+   "name": "line 2954 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`"
+  },
+  {
+   "name": "line 2955 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`"
+  },
+  {
+   "name": "line 2956 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`"
+  },
+  {
+   "name": "line 2957 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`"
+  },
+  {
+   "name": "line 2958 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`"
+  },
+  {
+   "name": "line 2959 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`"
+  },
+  {
+   "name": "line 2960 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`"
+  },
+  {
+   "name": "line 2967 tools/run_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "25161 424234725a2035ab9ce30512e2da1275495758283f1f483c86d982e008a43be2"
+  },
+  {
+   "name": "line 2968 tools/run_locked_b16.sh size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1812 8694f9b0e3c38814ab55896108abbde59f04e302b9de82f690c12f41646f90fa"
+  },
+  {
+   "name": "line 2969 tools/dloop_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "4122 d3bf1a0e81b2b01bd1c12713b5ab7dbca0903c596d3fb33b6ac194e725af1ecf"
+  },
+  {
+   "name": "line 2970 controls/b16b-dloop-control.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "705 fbce8878a37a47b76d67fed3e450eecf57b6b3083c7ec0edc12e789e5bd775fb"
+  },
+  {
+   "name": "line 2971 runs/pts1/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "8437 bcd8663a9cd40acd7c4cf7c933950751527d9088432d153a9306f40ae12031fd"
+  },
+  {
+   "name": "line 2972 runs/pts2/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "9876 d6a68179a3dc2aed3e36a15d2e080922068e476c9163657d4aeacfbe394ac45b"
+  },
+  {
+   "name": "line 2973 runs/b0/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "11877 6b9bb18043df40efeb2d93808cbca099d0988b25bfa04a91aefaaf9c3994053a"
+  },
+  {
+   "name": "line 2974 runs/b0-2/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "11883 d5e6d8dd6cc5b349a0aa37adad9394206fded1f221905b0e41f7d82f96dc82ab"
+  },
+  {
+   "name": "line 2975 runs/pts3/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "8435 a53e635e28ca361874eb2b9c5d842d45479ca69722f74ce10e27c31cd8997c40"
+  },
+  {
+   "name": "line 2976 summary/pts1/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "422 11bc737c7af2d4ef1cf77d234dfe275049102e65a801e5cf1ff0e8eb6548fcb3"
+  },
+  {
+   "name": "line 2977 summary/pts2/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "422 9cf3e2f3923e649dc20a34f9f711c4f62f0a772b41a7e7a51f28f0baaa7a8202"
+  },
+  {
+   "name": "line 2978 summary/pts3/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "422 dab152d9ae393ed2f20476b8e79b45d969bc3240c06a2235a49c58f2bc7f41cd"
+  },
+  {
+   "name": "line 2979 summary/b0-2/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 a24903924f8a43d07721c366966d7ee9a84a0b70f708612de079438bfb3e0da4"
+  },
+  {
+   "name": "line 2980 summary/b0-2/align-b-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 141619ca294c004ca02231eab1122a4a93ce6ddd732635c7d2e95bfbaf29bcd2"
+  },
+  {
+   "name": "line 2981 summary/b0-2/c-b9-grade.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "135813 1d554ce3a70dfb4a5ef935d139980ff0bee6cf8eb505ec42fca2781a7ed54078"
+  },
+  {
+   "name": "line 2982 summary/pts2/d-loop-decode.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "563 49ce9f4c6487fcc15f41d68e5a25f36a0b83b7f994cee838e0c8204b455a21da"
+  },
+  {
+   "name": "line 2983 summary/b0-2/d-loop-decode.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "316 a58b5ebbe5a15cd3a3d216b18192b4157a5b762baa7b010be901428d9e56fd1b"
+  },
+  {
+   "name": "line 2984 restore/census-compare-b16b.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "481 d14071dedb18e5cafc24421ede3cd450289d77e1af6f13f8a48c9d3c26f66648"
+  },
+  {
+   "name": "line 2985 identity-b16b/identity-verdict.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1532 4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130"
+  },
+  {
+   "name": "line 3354 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`, the peer's link"
+  },
+  {
+   "name": "line 3355 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`, the DUT's link"
+  },
+  {
+   "name": "line 3356 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`, McASP0"
+  },
+  {
+   "name": "line 3357 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`, the external capture"
+  },
+  {
+   "name": "line 3358 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`poll-run.jsonl`, the console poll"
+  },
+  {
+   "name": "line 3359 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tone-status.jsonl`, the tone monitor"
+  },
+  {
+   "name": "line 3360 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-peer.pcap`"
+  },
+  {
+   "name": "line 3361 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tap-dut.pcap`"
+  },
+  {
+   "name": "line 3362 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`mcasp-all.raw`"
+  },
+  {
+   "name": "line 3363 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`extcap.raw`"
+  },
+  {
+   "name": "line 3364 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`poll-run.jsonl`"
+  },
+  {
+   "name": "line 3365 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`tone-status.jsonl`"
+  },
+  {
+   "name": "line 3366 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "`b6-loop.raw`, lane B6's loop"
+  },
+  {
+   "name": "line 3374 tools/run_b16c.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "41693 8ed6b63f03598f595c6b2aedcfedcdd81f37d3d130cdc2368ba5010962948a3c"
+  },
+  {
+   "name": "line 3375 tools/run_locked_b16c.sh size and sha256 in author-r4",
+   "ok": true,
+   "detail": "2564 6eed98dbba4f6fde2752e185c5406005ad5e0915910c8ca43026231b8aa0cd6f"
+  },
+  {
+   "name": "line 3376 tools/tables_b16c.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "6593 95b33b4530062c48e17b0db09019ff18b0fa166938006693947ee3b31408d918"
+  },
+  {
+   "name": "line 3377 tools/dryrun_b16c/dryrun_b16c.sh size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1903 699955707f9847b5db9076782d0f4472978c27ea4d85cb45fcedcc8e95b60be7"
+  },
+  {
+   "name": "line 3378 tools/dryrun_b16c/check_dryrun_b16c.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "4074 fdfffe23a65b2e07fd28270128e5832d8f0ce6eb801178bd0de671b216c4a204"
+  },
+  {
+   "name": "line 3379 controls/b16c-dryrun-summary.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "273 685737875fc4df85c27e5e37ac680f373cdc0e02e930da8189da8834a891e336"
+  },
+  {
+   "name": "line 3380 controls/b16c-wrapper-deadline.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "617 090969eb04c94470e4589d465f960e72d938745fa1c61203570f0ef9fc439677"
+  },
+  {
+   "name": "line 3381 runs/bcrf/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "20973 9e6b07074af7d371cbca8df974a85e9a6d3f6bd73526bd6350c42344a7c88e55"
+  },
+  {
+   "name": "line 3382 runs/baaf/events.jsonl size and sha256 in author-r4",
+   "ok": true,
+   "detail": "20973 2011eca5bb7b5802451342da06268acc88af4b2ac0c161c06edd9d7f7b24ab2f"
+  },
+  {
+   "name": "line 3383 summary/bcrf/c-b9-grade.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "135192 a74f236bb68e333f5dbc8f1a47176badf318048573728e9cec603cc8de5a7e6b"
+  },
+  {
+   "name": "line 3384 summary/baaf/c-b9-grade.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "135271 2b0ee83ea4d80978bc7239cba706e6c14881f77b4a503c89759021c0203efd84"
+  },
+  {
+   "name": "line 3385 summary/bcrf/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 80df5a0b1751a209f2b8055409e5399d3648618bd80ca036c913d9045e3721ec"
+  },
+  {
+   "name": "line 3386 summary/bcrf/align-b-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 e22934e3702eb234534b11342b3710bdee94001dd4ffbc1b446a9d52d7e51cf2"
+  },
+  {
+   "name": "line 3387 summary/baaf/align-a-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 1c88af889538788a8c7842e79aea5f2e3684802d5d2dbaa5dd293e8003dbfabd"
+  },
+  {
+   "name": "line 3388 summary/baaf/align-b-c.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "426 1a8d61828b3d882136014f6cd2b2eefc69a963b46a33d49c84e047702103c245"
+  },
+  {
+   "name": "line 3389 summary/bcrf/d-loop-decode.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "316 9b238160fb9fda206294b9df90bc52724c6d9d97d262681c8e7a6a011b74fae0"
+  },
+  {
+   "name": "line 3390 summary/baaf/d-loop-decode.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "316 342724e82b1877b12579f04102566a8ae7cba30dd0baea8a55a8cb88acf2e2b9"
+  },
+  {
+   "name": "line 3391 summary/b16c-tables.md size and sha256 in author-r4",
+   "ok": true,
+   "detail": "12847 8df9a8ccda5f2bbc143bc2dbcaa8868e3dd5a1d1fab8eb427428c2a7d95a19f8"
+  },
+  {
+   "name": "line 3392 restore/census-compare-b16c.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "481 5b0015fd2a63e3aa2a6676842da251196fcb1f1540c7532980f006b7c5f90dcc"
+  },
+  {
+   "name": "line 3393 identity-b16c/identity-verdict.txt size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1532 4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130"
+  },
+  {
+   "name": "line 3475 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16-state-1.json"
+  },
+  {
+   "name": "line 3476 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16-meters-1.json"
+  },
+  {
+   "name": "line 3477 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16-meters-2.json"
+  },
+  {
+   "name": "line 3478 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16-state-2.json"
+  },
+  {
+   "name": "line 3479 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16b-state-1.json"
+  },
+  {
+   "name": "line 3480 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16b-meters-1.json"
+  },
+  {
+   "name": "line 3481 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16b-meters-2.json"
+  },
+  {
+   "name": "line 3482 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16b-state-2.json"
+  },
+  {
+   "name": "line 3483 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16c-state-1.json"
+  },
+  {
+   "name": "line 3484 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16c-meters-1.json"
+  },
+  {
+   "name": "line 3485 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16c-meters-2.json"
+  },
+  {
+   "name": "line 3486 read hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "b16c-state-2.json"
+  },
+  {
+   "name": "line 3496 tools/r2_poll_b16c.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "10234 14ae199a556bca981cd9898d186efd983609325b93412beb6dd332a0f0276cb2"
+  },
+  {
+   "name": "line 3497 tools/r2_source_b16.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "6604 903145f68d3ce8e4e2dc3813b67ac9acfad2b0361a58b146e73b839bec63fa3c"
+  },
+  {
+   "name": "line 3498 tools/r2_b0_receipt.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "4874 cf650fa86179d611ddf63eed2151b5f1062847fd6797b277590e3a5e82cdfcad"
+  },
+  {
+   "name": "line 3499 r2/bcrf-poll-receipt.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "6945 abb1f853804c23c364b49f2b4263bcae68b928881ccb501d187f78a64c00660f"
+  },
+  {
+   "name": "line 3500 r2/bcrf-poll-trace.tsv size and sha256 in author-r4",
+   "ok": true,
+   "detail": "62923 050aeded3806ec9ec821b19da28b85313a9ae58921fc9d2c86a236d10078f1db"
+  },
+  {
+   "name": "line 3501 r2/baaf-poll-receipt.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "7446 2f8cc0894cfb8918ff3b066721f8e0b0200c2241ee280375202cf6d6f641c931"
+  },
+  {
+   "name": "line 3502 r2/baaf-poll-trace.tsv size and sha256 in author-r4",
+   "ok": true,
+   "detail": "62923 3e891d0faf7ba65997b8a487ad53f01e86dfc2713fa8b1721ff33c0d1bdfdeea"
+  },
+  {
+   "name": "line 3503 r2/source-receipt.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "21276 1afbce9cdd27468394bf33265c45f1bb1d1e7a46091e15a715950a2ba4406912"
+  },
+  {
+   "name": "line 3504 r2/b0-2-receipt.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "2484 8bcab8394d2f8d02890c76ce9bf5f864f53cf195ae4c58bec8bee055c3aba6f7"
+  },
+  {
+   "name": "line 3505 controls/r2-controls.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1984 dc6f67634197b22e7f30225758d4221f697833472997b0b05a8174d94956b437"
+  },
+  {
+   "name": "line 3596 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "06:02:00"
+  },
+  {
+   "name": "line 3597 raw hash in RAW-ARTIFACTS.json",
+   "ok": true,
+   "detail": "08:03:53"
+  },
+  {
+   "name": "line 3607 tools/r3_playback_logs.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1990 27334c6d3106f9305187deef6196a7dcb7e14b10d6fbea08f721029766dcf595"
+  },
+  {
+   "name": "line 3608 r3/playback-logs.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "795 68e905288cf0c01c385a995bf66edc78e6323e041de99c1e0f1f3e4b360f64fe"
+  },
+  {
+   "name": "line 3609 tools/r3_check_controls.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "6541 85fc57876334b823cd349a9752bf12581bbb22f9f5c5b2a4d6f68ab948a54157"
+  },
+  {
+   "name": "line 3610 controls/r3-controls.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1579 6b6f8bc7b99e5ec6843a7c385e681b4bcf4b89b1b56d84dcc10a88889ce6cc05"
+  },
+  {
+   "name": "line 3691 tools/r4_evidence_receipt.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "5191 7dca8a53f24c1e7330ed2e154e41f4e30a47012171d68c2a80c138c2834c6164"
+  },
+  {
+   "name": "line 3692 r4/evidence-receipt.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "38177 1a433cd27edb2632a92e7abbc1f4eebca9ad4d15fae55f23d98a48647ee9805a"
+  },
+  {
+   "name": "line 3693 tools/r4_check_controls.py size and sha256 in author-r4",
+   "ok": true,
+   "detail": "10379 54d2e1df507cb1b8c8b77214942f49cfcbe3a524f4e52b882ae124384e6d4e0f"
+  },
+  {
+   "name": "line 3694 controls/r4-controls.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "3116 d01b56caf89cf99604dc32ce2d69118618fae457074c7c723eb792ef890b68e5"
+  },
+  {
+   "name": "line 3695 controls/r4-rerun-r3-controls.json size and sha256 in author-r4",
+   "ok": true,
+   "detail": "1579 a0c9a8ed6f768b70208c1c28e6d37c402444a57b2877b882f175c5db4586ce87"
+  }
+ ],
+ "fail": 0,
+ "manifest_by_dir": {
+  "author-r1": [
+   471,
+   1
+  ],
+  "reviews": [
+   184,
+   4
+  ],
+  "author-r2": [
+   499,
+   9
+  ],
+  "author-r3": [
+   526,
+   17
+  ]
+ },
+ "redacted_files": [
+  "author-r1/tools/gates_r2.py",
+  "author-r2/gates/r2/doc-paths.log",
+  "author-r2/gates/r2/doc-style.log",
+  "author-r2/gates/r2/docs-check.log",
+  "author-r2/gates/r2/em-dash.log",
+  "author-r2/gates/r2/results.json",
+  "author-r2/gates/r2/toc-check.log",
+  "author-r2/gates/r2/toc-verify-anchors.log",
+  "author-r2/gates/r2/tool-md.log",
+  "author-r2/tools/gates_r2.py",
+  "author-r3/gates/r2/doc-paths.log",
+  "author-r3/gates/r2/doc-style.log",
+  "author-r3/gates/r2/docs-check.log",
+  "author-r3/gates/r2/em-dash.log",
+  "author-r3/gates/r2/results.json",
+  "author-r3/gates/r2/toc-check.log",
+  "author-r3/gates/r2/toc-verify-anchors.log",
+  "author-r3/gates/r2/tool-md.log",
+  "author-r3/gates/r3/doc-paths.log",
+  "author-r3/gates/r3/doc-style.log",
+  "author-r3/gates/r3/docs-check.log",
+  "author-r3/gates/r3/em-dash.log",
+  "author-r3/gates/r3/results.json",
+  "author-r3/gates/r3/toc-check.log",
+  "author-r3/gates/r3/toc-verify-anchors.log",
+  "author-r3/gates/r3/tool-md.log",
+  "author-r3/tools/gates_r2.py",
+  "reviews/R624-1/execution.json",
+  "reviews/R624-2/execution.json",
+  "reviews/R625-1/execution.json",
+  "reviews/R625-2/execution.json"
+ ],
+ "hash_rows": 125,
+ "packet_rows": 71,
+ "raw_rows": 54
+}
