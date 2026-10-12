@@ -30,7 +30,10 @@ second findings round corrected figures against their receipts and published
 reduced receipts; see
 [B16, round 2: reduced receipts](#b16-round-2-reduced-receipts). Its third
 added a check that recomputes every figure from its receipt; see
-[B16, round 3: figures check](#b16-round-3-figures-check).
+[B16, round 3: figures check](#b16-round-3-figures-check). Its fourth states
+where the packet is published and makes the check claim figures inside links
+and quoted phrases too; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -75,7 +78,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
-- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows.
 
 ## Identity and setup
 
@@ -2316,8 +2319,8 @@ in [B16, round 3: figures check](#b16-round-3-figures-check).
 | Restore | Done | See [B16: bench as left](#b16-bench-as-left) |
 
 These are operator observations, not review verdicts. Paths such as
-`runs/loop2/events.jsonl` are in the lane packet, `629-b16-a603`, whose
-publication is the manager's; see [B16: artifact hashes](#b16-artifact-hashes).
+`runs/loop2/events.jsonl` are in the lane packet, `629-b16-a603`; where it is
+published is in [B16: artifact hashes](#b16-artifact-hashes).
 
 ### B16: identity and setup
 
@@ -2520,7 +2523,7 @@ form, so nothing downstream of the source was graded on a tone.
 |---|---|
 | DUT stream state | Unbound; STREAM_INPUT 0 at `0205022001006000`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
 | Reference peer | Its STREAM_INPUT 0 bound to the DUT's AAF talker at `0205022002006000`, its STREAM_INPUT 8 to the DUT's CRF talker, its CLOCK_DOMAIN on the source on that CRF input, never set; all as found |
-| Census, start against end | 45 of 46 entries equal; the other is the DUT's live propagation delay, 387 to 377 ns |
+| Census, start against end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay, 387 to 377 ns |
 | DUT saved state | NVM image seq 276, 42 commits, `pend=0`, `VD_OK`, unchanged: the DUT was not bound |
 | The tone | Stopped by its process ID at 06:01:59 CEST; the playback closed |
 | SoC board | Same boot; the to-host leg running with the process ID it had as found, never stopped; the from-host leg dead, as found; McASP playback closed; USB function configured |
@@ -2551,7 +2554,7 @@ So not every #629 item is met, and #629 stays open.
 
 ### B16: limits
 
-- Two loopback runs, each about a minute, on one reference peer.
+- Two loopback runs, each about a minute, on this bench's reference peer only.
 - The loopback was tried as an ATDECC bind on this bench's network only. The
   maintainer's working loopback is not described in public. This lane shows
   only that this bind cannot carry it.
@@ -2566,7 +2569,7 @@ So not every #629 item is met, and #629 stays open.
 ### B16: artifact hashes
 
 The raw files stay outside the lane packet, on the bench host. The packet's
-`RAW-ARTIFACTS.json` records each one. The external capture's sizes are
+`RAW-ARTIFACTS.json` records each of them. The external capture's sizes are
 withheld there and here, because they would state its channel count.
 
 | Run | Raw file | Bytes | SHA-256 |
@@ -2597,10 +2600,37 @@ The packet's evidence files, as retained after its redaction pass
 | `restore/census-compare.txt` (the start against the end) | 369 | `3a9a17cfc7ab6849571b9b2221c4981e8a19b7f460f1f66c30f9293a43f2de6f` |
 | `identity/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
 
+**Where the packet is.** It is published on branch `629-b16-review-evidence`,
+pinned at commit `b84584e4ccb069248909f0fdeb7f8b72a1c41ae4`. There the packet
+label `629-b16-a603` maps to a directory per findings round under
+`review-evidence/629-b16-r1/`, each a copy of the packet as that round left
+it: `author-r1/` for lanes B16, B16b and B16c, archived with this page at
+`e20fd282`; `author-r2/` for round 2, at `35e332b6`; and `author-r3/` for
+round 3, at `0782c55f`. So `runs/loop2/events.jsonl` is
+`review-evidence/629-b16-r1/author-r3/runs/loop2/events.jsonl`. Round 4's
+packet goes to `author-r4/`, in a later commit on the same branch.
+
+`review-evidence/629-b16-r1/MANIFEST.json` at `b84584e4` has 1,680 entries
+and SHA-256 `8d417d54b13a264484bfcb0b69f8a643e5cd3bf2819294cea201242a2f67f034`.
+For each published file it gives the `original_sha256`, the lane packet's
+file, beside the `published_sha256`, with a `path_redacted` flag; the
+hashes differ exactly where the flag is set. The publication masked local
+paths in 27 author files, 1 in `author-r1/`, 9 in `author-r2/` and 17 in
+`author-r3/`: gate logs, gate results and the gate tool `tools/gates_r2.py`.
+No hash row in lane B16's section names any of them. Each of the 66
+packet-file rows in its tables at `0782c55f`, here, in
+[B16b: artifact hashes](#b16b-artifact-hashes),
+[B16c: artifact hashes](#b16c-artifact-hashes), round 2's and round 3's,
+equals its file's `original_sha256`, its `published_sha256` and the published
+file in `author-r3/`, by size and SHA-256. `tools/r4_evidence_receipt.py`
+reads all of this from the repository's object store and writes
+`r4/evidence-receipt.json`; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
+
 ### B16b: the resume
 
-The manager [ruled on the STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6117672835)
-on 2026-10-12. Lane B15's four-point capture was to run with the DUT's
+The manager [ruled on the STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6117672835).
+Lane B15's four-point capture was to run with the DUT's
 listener bound to the peer's talker. If the tone was present at the peer's
 talker, step 4 followed: B0, B-CRF and B-AAF graded by THD+N and SNR, with
 every loss attributed to a stage. Operator [A603] resumed on the same image,
@@ -2608,7 +2638,7 @@ branch and head, `694d7da6`; the first bench action was at 06:22:23 CEST.
 
 | Item | Verdict | Evidence |
 |---|---|---|
-| Identity gate, dev `5603c353`, again | PASS | 06:22:29 to 06:22:34 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16 left it: census 45 of 46 entries equal, the other the DUT's live propagation delay |
+| Identity gate, dev `5603c353`, again | PASS | 06:22:29 to 06:22:34 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16 left it: census 44 of 45 reads equal, the other the DUT's live propagation delay |
 | (a) The peer's talker stream on the peer's link | TONE PRESENT | 997 Hz on channel 0 and 9,973 Hz on channel 1 in every run, at -14.14 dBFS to 06:28:50 CEST and -14.10 dBFS from 06:31:51. See [B16b: the four points](#b16b-the-four-points) |
 | (b) The same stream on the DUT's link | TONE PRESENT | Equal to (a), 0 sequence gaps on both taps |
 | (c) The DUT's TDM output on McASP0 | TONE PRESENT | Equal to (a) and (b) sample for sample: 480,000 of 480,000 frames in three runs, and the 34.1 s the taps cover in B0, 0 slips |
@@ -2666,7 +2696,7 @@ bind, and the board played the loop 2 s before it recorded (`run_b16.py`'s mode
 `b0`; the board's log shows the playback running before the recording). So the
 recording starts about 26 s after the last bind, past lane B7's 20 s.
 
-**One incident.** In `b0` McASP0's recording failed at once with "Device or
+**One incident.** In `b0` McASP0's recording failed immediately with "Device or
 resource busy". The wrapper stopped the to-host leg only for modes `dirb` and
 `dira`, and the running leg held McASP0's capture. Nothing else was affected:
 the leg kept its process ID, and the binds were undone and read back. B0 is
@@ -2841,9 +2871,9 @@ it on its internal source. A run in the loop would grade something other than
 what B-CRF and B-AAF claim. So the lane did not run them, and stops for a
 decision between:
 
-1. a set of the peer's CLOCK_DOMAIN to its internal source for these two
-   cases, read back, and restored to the as-found source with a read-back;
-2. the two cases run in the loop as found, reported as loop cases, not as
+1. a set of the peer's CLOCK_DOMAIN to its internal source for B-CRF and
+   B-AAF, read back, and restored to the as-found source with a read-back;
+2. B-CRF and B-AAF run in the loop as found, reported as loop cases, not as
    following;
 3. step 4 closed on B0.
 
@@ -2853,7 +2883,7 @@ decision between:
 |---|---|
 | DUT stream state | Both STREAM_INPUTs unbound; STREAM_INPUT 0 at `0205022001006000` and STREAM_INPUT 1 at `041060010000bb80`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
 | Reference peer | STREAM_INPUT 0 bound to the DUT's STREAM_OUTPUT 0 at `0205022002006000`, STREAM_INPUT 8 to the DUT's STREAM_OUTPUT 1; its CLOCK_DOMAIN on CLOCK_SOURCE 1, never set; all as found |
-| Census, the B16b start against its end | 45 of 46 entries equal; the other is the DUT's live propagation delay |
+| Census, the B16b start against its end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay |
 | DUT saved state | NVM image seq 276 to 286, commits 42 to 52, `pend=0`, `VD_OK` |
 | The tone | Stopped by its process ID at 06:52:19 CEST; the playback closed |
 | The tone source | As the owner left it; the lane wrote nothing. Its clock setting differs from the lane's start |
@@ -2886,12 +2916,13 @@ So not every #629 item is met, and #629 stays open.
 
 ### B16b: limits
 
-- Four graded runs on one DUT and one reference peer. Three had 10 s at McASP0
-  and about 24 s of each tap. B0 had 300 s at McASP0 and 40 s of each tap.
+- Four graded runs, on this bench's DUT and reference peer only. Three had
+  10 s at McASP0 and about 24 s of each tap. B0 had 300 s at McASP0 and 40 s
+  of each tap.
 - B0 here is not lane B7's mismatch control. With the peer following the DUT,
-  both run on one clock, so B0 holds no mismatch for the metric to show.
+  both run on the same clock, so B0 holds no mismatch for the metric to show.
 - The tone source changed during the lane, outside it. `pts1` and `pts2`
-  graded one state of it, B0 and `pts3` the other.
+  graded it before the change, B0 and `pts3` after it.
 - The path's floor and the 23 degraded blocks inside the taps' 34.1 s are
   shown in the peer's talker stream; the other 108 degraded blocks are
   assigned to it by inference. Their cause is not analysed: the source and the
@@ -2901,8 +2932,8 @@ So not every #629 item is met, and #629 stays open.
 ### B16b: artifact hashes
 
 The raw files stay outside the lane packet, on the bench host, and the
-packet's `RAW-ARTIFACTS.json` records each one. The external capture's sizes
-are withheld, because they would state its channel count.
+packet's `RAW-ARTIFACTS.json` records each of them. The external capture's
+sizes are withheld, because they would state its channel count.
 
 | Run | Raw file | Bytes | SHA-256 |
 |---|---|---|---|
@@ -2955,8 +2986,8 @@ The packet's evidence files for B16b, as retained after its redaction pass
 
 ### B16c: the resume
 
-The manager [ruled on the B16b STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6118365090)
-on 2026-10-12. For B-CRF and B-AAF only, the maintainer allows setting the
+The manager [ruled on the B16b STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6118365090).
+For B-CRF and B-AAF only, the maintainer allows setting the
 reference peer's clock source to its internal source over ATDECC: a
 SET_CLOCK_SOURCE on the peer's CLOCK_DOMAIN, read back with GET_CLOCK_SOURCE.
 After the case the peer returns to following its CRF input, as found, and that
@@ -2966,7 +2997,7 @@ offline dry run below, the first bench action was at 07:48:07 CEST.
 
 | Item | Verdict | Evidence |
 |---|---|---|
-| Identity gate, dev `5603c353`, again | PASS | 07:48:16 to 07:48:22 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16b left it: census 45 of 46 entries equal, the other the DUT's live propagation delay |
+| Identity gate, dev `5603c353`, again | PASS | 07:48:16 to 07:48:22 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16b left it: census 44 of 45 reads equal, the other the DUT's live propagation delay |
 | Tool controls | PASS | The new run mode, dry-run offline against stand-ins in 8 of 8 scenarios, and its wrapper's deadline path. See [B16c: method](#b16c-method) |
 | The peer's clock source, the ruling's exception | Set and restored, each read back | Set to INTERNAL before each case's binds, and returned to its CRF input after the DUT's binds were undone. See [B16c: clock-source record](#b16c-clock-source-record) |
 | B-CRF: the DUT follows the peer's CRF talker | Graded | Servo LOCKED 2.585 to 3.161 s after the set and at all 596 polls of the window. THD+N -123.98 dB at 997 Hz and -123.97 dB at 9,973 Hz, median over 300 one-second blocks, all 300 at the path's floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN. See [B16c: B-CRF and B-AAF](#b16c-b-crf-and-b-aaf) and [B16c: the following record](#b16c-the-following-record) |
@@ -2982,8 +3013,8 @@ such as `runs/bcrf/events.jsonl`, are in the same lane packet as lane B16's.
 ### B16c: method
 
 Each case is one locked action of `run_b16c.py` through `run_locked_b16c.sh`.
-These are copies of lane B16b's tools with two modes added, `bcrf` and
-`baaf`. Each mode is lane B16b's `b0` with the following set of lanes B9 and
+These are copies of lane B16b's tools with the modes `bcrf` and `baaf`
+added. Each mode is lane B16b's `b0` with the following set of lanes B9 and
 B10 (`run_b9.py`, `run_b10.py`), in this order:
 
 1. Refuse to start unless the tone plays, the board's McASP playback is
@@ -3033,7 +3064,7 @@ Each scenario checks the order of every state-changing request and the end
 state; 8 of 8 pass. The wrapper's deadline path passes too: the action's
 teardown and the leg's restart finish under the lock. The first dry run
 failed on a fault in a stand-in. It also showed that the teardown could not
-restore the peer's clock source once the controller agent had ended. The
+restore the peer's clock source after the controller agent had ended. The
 tool now starts a new agent for each restore step that finds the agent gone;
 neither bench case needed it.
 
@@ -3122,7 +3153,9 @@ B6's loop, which McASP0 played into the DUT's TDM input:
 | `baaf` | 14,585,924 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 303 of the 303 wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start |
 
 So there were 0 net steps between the DUT's TDM clock and the peer's output
-over 303.8 s and 303.9 s. One frame in 14.58 million would be 0.07 ppm.
+over 303.8 s and 303.9 s. The decode counts a step as small as one frame, as
+its planted control shows (`controls/b16b-dloop-control.json`); one frame in
+14.58 million would be 0.07 ppm.
 
 ### B16c: the following record
 
@@ -3174,8 +3207,8 @@ which it appears, against the DUT's set. In each case five steps fell in the
 12.2 s between the binds and the DUT's set, all with the servo IDLE: from 0.1
 s after the binds to 1.4 s before the set. Then the DUT was on INTERNAL and
 the peer on its own clock. The steps are consistent with the ring absorbing
-the two clocks' difference and, for the first, with the one slip per bind
-that lane B16b counted; the receipts do not separate the two. The rest fell
+the clocks' difference and, for the first, with the one slip per bind
+that lane B16b counted; the receipts do not separate these causes. The rest fell
 in ACQUIRE, the servo reading ACQUIRE at both polls of each:
 
 - B-CRF: one step, between 2.08 and 2.66 s after the set;
@@ -3255,7 +3288,7 @@ either (`r3/playback-logs.json`).
 |---|---|
 | DUT stream state | Both STREAM_INPUTs unbound; STREAM_INPUT 0 at `0205022001006000` and STREAM_INPUT 1 at `041060010000bb80`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
 | Reference peer | STREAM_INPUT 0 bound to the DUT's STREAM_OUTPUT 0, STREAM_INPUT 8 to the DUT's STREAM_OUTPUT 1; its CLOCK_DOMAIN on CLOCK_SOURCE 1, its CRF input, as found. It was set to 0 and back to 1 once per case, each read back |
-| Census, the B16c start against its end | 45 of 46 entries equal; the other is the DUT's live propagation delay |
+| Census, the B16c start against its end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay |
 | Counters, the B16c start against its end | Moved only as the method implies; see the residuals |
 | DUT saved state | NVM image seq 286 to 292, commits 52 to 58, `pend=0`, `VD_OK` |
 | The tone | Stopped by its process ID at 08:03:52 CEST; the playback closed |
@@ -3292,9 +3325,9 @@ McASP0's timing sampler, or a recorded decision.
 
 ### B16c: limits
 
-- One graded run per case on one DUT and one reference peer, each with 300 s
-  at McASP0 and 40 s of each tap. Lane B7's windows were 630 s; one locked
-  action must end within 10 minutes.
+- One graded run per case, on this bench's DUT and reference peer only, each
+  with 300 s at McASP0 and 40 s of each tap. Lane B7's windows were 630 s;
+  one locked action must end within 10 minutes.
 - Lane B6's timed ratio was NOT RUN: this mode ran no timing sampler at
   McASP0. The counted ratio at (d) stands in for it as evidence only; no
   recorded decision replaces the term.
@@ -3313,8 +3346,8 @@ McASP0's timing sampler, or a recorded decision.
 ### B16c: artifact hashes
 
 The raw files stay outside the lane packet, on the bench host, and the
-packet's `RAW-ARTIFACTS.json` records each one. The external capture's sizes
-are withheld, because they would state its channel count.
+packet's `RAW-ARTIFACTS.json` records each of them. The external capture's
+sizes are withheld, because they would state its channel count.
 
 | Run | Raw file | Bytes | SHA-256 |
 |---|---|---|---|
@@ -3361,7 +3394,7 @@ The packet's evidence files for B16c, as retained after its redaction pass
 
 ### B16, round 2: reduced receipts
 
-Two reviews of this section,
+The reviews of this section,
 [R624-1](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119236428)
 and [R625-1](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119311570),
 found figures that did not equal their receipts and figures with no public
@@ -3390,7 +3423,7 @@ The receipts:
 - **The console poll of each B16c case.** `r2_poll_b16c.py` reads the raw poll
   and refuses it unless its size and SHA-256 equal the record in the case's
   own `events.jsonl`. It then recomputes the published poll summary from the
-  raw poll with the run tool's own rule; it equals the published one in both
+  raw poll with the run tool's own rule; it equals the published summary in both
   cases. It decodes each poll by
   [the register map](../reference/REGISTER_MAP.md), cuts spans at the case's
   steps and gives each span's servo states, servo word values, and the minimum
@@ -3473,7 +3506,7 @@ The round's files in the packet:
 
 ### B16, round 3: figures check
 
-Two reviews of round 2,
+The reviews of round 2,
 [R624-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119878041)
 and [R625-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119899949),
 found more figures that did not equal their receipts. Neither alleged a DUT
@@ -3483,7 +3516,7 @@ operator [A603] corrected the text above and added a figures check to the lane
 packet, documents only. Nothing on the bench was touched.
 
 **The check.** `tools/check_b16_figures.py` is in the packet, not the tree. It
-holds one row per quoted figure in this section, in this page's introduction
+holds a row for each quoted figure in this section, in this page's introduction
 and Contents entry on lane B16, and in lane B16's part of the page's row in
 the [findings index](README.md). A row gives the document line, the figure as shown,
 the receipt, the key into it and the displayed precision. The receipt is a
@@ -3496,17 +3529,20 @@ shown, as a clock shows them: lane B16b's identity gate ended at 06:22:34.993
 and shows as 06:22:34.
 
 The check also reads every number, time, date, hash and number word in that
-text. Each must be claimed by a row or fall in a named identifier category:
+text. In round 3 each had to be claimed by a row or fall in a named category:
 descriptor and channel indices, step and list ordinals, tone names, commit
-names, citations, links, and units such as "24-bit". A figure added without a
-row fails the check.
+names, citations, units, and links and quoted phrases as a whole. So a figure
+added without a row failed the check unless it was written inside a link or
+a quoted phrase. Round 4 closed that gap; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
 
-At this head the check passes. All of its rows equal their receipts, and no
-token is left uncovered. Its output is in the packet: `r3/figures-rows.tsv`,
-one line per row with the recomputed value, and `r3/figures-coverage.tsv`,
-every token that a category covers. Their SHA-256 and the check's own are in
-the packet's `MANIFEST.sha256`, not on this page. The check holds this page's
-figures, so this page cannot also hold the check's hash.
+At round 3's head the check passed. All of its rows equalled their receipts,
+and no token was left uncovered. Its output is in the packet:
+`r3/figures-rows.tsv`, a line for each row with the recomputed value, and
+`r3/figures-coverage.tsv`, every token that a category covers. Their SHA-256
+and the check's own are in the packet's `MANIFEST.sha256`, not on this page.
+The check holds this page's figures, so this page cannot also hold the
+check's hash.
 
 Its controls ran on altered copies (`controls/r3-controls.json`, 5 of 5 PASS,
 from `tools/r3_check_controls.py`). Each of these fails the check and is named
@@ -3572,3 +3608,88 @@ The round's files in the packet:
 | `r3/playback-logs.json` | 795 | `68e905288cf0c01c385a995bf66edc78e6323e041de99c1e0f1f3e4b360f64fe` |
 | `tools/r3_check_controls.py` (the check's controls) | 6,541 | `85fc57876334b823cd349a9752bf12581bbb22f9f5c5b2a4d6f68ab948a54157` |
 | `controls/r3-controls.json` (5 of 5 PASS) | 1,579 | `6b6f8bc7b99e5ec6843a7c385e681b4bcf4b89b1b56d84dcc10a88889ce6cc05` |
+
+### B16, round 4: packet and coverage
+
+The reviews of round 3,
+[R624-3](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6121093801)
+and [R625-3](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6121186527),
+each found a MINOR. Neither alleged a DUT defect, changed a figure or
+reversed a bench verdict. Under the manager's
+[round 4 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6121193402),
+operator [A603] made the changes below, documents only. Nothing on the bench
+was touched.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-3-F1: where the packet is | Not stated | The branch, a pinned commit, each round's directory, and the manifest's original and published hash per file; see [B16: artifact hashes](#b16-artifact-hashes) | `r4/evidence-receipt.json` |
+| R625-3-F1: a figure inside a link label or a quoted phrase | Exempt with the link or the phrase as a whole | Read as any other text: claimed by a row, or by an identifier category bound to its keyword | `controls/r4-controls.json` |
+| R625-3-S1, taken: the census | 45 of 46 entries equal | 44 of 45 reads equal, the census's start record aside | `restore/census-*.jsonl`, `restore/census-compare*.txt` |
+
+**The check's exemptions.** Round 3's check exempted a whole link, label and
+target, and a whole quoted phrase, so a figure written inside either needed
+no row. R625-3 showed it with a figure and its unit added both ways. The check
+now exempts only identifiers, each bound to the text that makes it an
+identifier:
+
+- commit names, each listed;
+- clause numbers: IEEE 1722.1 and Milan v1.2 Table 5.4;
+- descriptor, channel, step, round and list-item indices, each after its
+  keyword;
+- the packet's label, `629-b16-a603`;
+- a link's target, the URL or anchor in its parentheses, not its label.
+
+Every other token is claimed by a row that reads a receipt. Round 3's other
+categories are gone. The tone frequencies now read the tone tool and the
+analyser, the block length and the comparison's bit width read the run
+summaries, the decode's smallest step reads its planted control, and the
+lane's limit on a locked action reads the operator's record. The check's
+tokens now also take a full commit name and the number words for tens.
+
+A guard sits under the categories. A token followed by a unit, such as dB,
+dBFS, ppm, %, s, Hz, frames, samples, blocks, polls, bits or LSB, is a
+measurement, and only a row can claim it, whatever category matches. So no
+category, present or added later, can hide a measured figure.
+
+**Its controls.** `tools/r4_check_controls.py` runs each control on an
+altered copy (`controls/r4-controls.json`, 8 of 8 PASS). The first five are
+round 3's, their code unchanged. The new ones:
+
+- a figure with its unit added inside a quoted phrase on the attribution row
+  R625-3 used: the check fails and names the figure UNCOVERED;
+- the same figure added there as a link label: the check fails the same way;
+- a category planted in a copy of the check that matches every token, with
+  the figure added in plain text: the check still fails, naming the figure as
+  a measurement.
+
+Round 3's own runner, `tools/r3_check_controls.py`, run unchanged against the
+new check, passes 5 of 5 too (`controls/r4-rerun-r3-controls.json`).
+
+The unchanged page passes: at this head the check's output,
+`r4/figures-rows.tsv` and `r4/figures-coverage.tsv`, has every row OK and no
+token uncovered. `tools/r4_figures_build.py` regenerates the check byte for
+byte from `tools/r4_figures_spec.py`. As in round 3, the hashes of the check,
+its spec and its output are in the packet's `MANIFEST.sha256`, not here.
+
+**Rewording.** Seventeen phrases whose number words only a category covered,
+and which state no figure, were reworded: "records each one",
+"the published one", "failed at once", "once the controller agent",
+"these two cases", "the two cases run", "on one clock", "one state of it",
+"two modes added", "the two clocks' difference", "do not separate the two.",
+"Two reviews of this section", "Two reviews of round 2",
+"one row per quoted figure", "one line per row", "on one reference peer" and
+"on one DUT and one reference peer". The date after each ruling's link was
+dropped; the section's heading carries it. Each quoted number word above, and
+in round 3's list, has a row that finds its phrase on this page as it stood
+before the rewording.
+
+The round's files in the packet:
+
+<!-- b16-r4-evidence -->
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r4_evidence_receipt.py` (where the packet is) | 5,191 | `7dca8a53f24c1e7330ed2e154e41f4e30a47012171d68c2a80c138c2834c6164` |
+| `r4/evidence-receipt.json` | 38,177 | `1a433cd27edb2632a92e7abbc1f4eebca9ad4d15fae55f23d98a48647ee9805a` |
+| `tools/r4_check_controls.py` (the check's controls) | 10,379 | `54d2e1df507cb1b8c8b77214942f49cfcbe3a524f4e52b882ae124384e6d4e0f` |
+| `controls/r4-controls.json` (8 of 8 PASS) | 3,116 | `d01b56caf89cf99604dc32ce2d69118618fae457074c7c723eb792ef890b68e5` |
+| `controls/r4-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `a0c9a8ed6f768b70208c1c28e6d37c402444a57b2877b882f175c5db4586ce87` |
