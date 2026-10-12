@@ -172,18 +172,21 @@ So Git reads the real objects only, and a replacement object (`refs/replace`) or
 Git checks the hash of no object `cat-file` prints, nor of a tree below the one `ls-tree -r` is given, so the proof reads the pinned commit and each tree under it raw and hashes each against its id itself.
 An object forged or corrupted in the stack's object store is refused by its place in the pin (the pinned `src/` tree, say), and no blob is read: each file is hashed from its own bytes.
 No variable the proof inherits (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE`, `HOME` and the rest) can redirect Git's repository, object store, configuration or replacement refs.
+Both repositories' configuration is read by one parser (`ctrl_build.parsed_key`), which splits each key as Git's own does: a section, a subsection that may be absent, empty or named, and a variable.
 The stack's own configuration may hold only the keys Git writes itself for a clone and a submodule (`ctrl_build.STACK_CONFIG`, the allowlist).
 They are `core.repositoryformatversion`, `core.filemode`, `core.bare`, `core.logallrefupdates`, `core.worktree`, a remote's `url` and `fetch`, a branch's `remote` and `merge`, and the submodule bookkeeping: `submodule.active`, a submodule's `url` and `active`, `submodule.alternateLocation` and `submodule.alternateErrorStrategy`.
+A remote, a branch and a submodule are named subsections; a key with an empty subsection, such as `submodule "".active`, is not in the allowlist.
 Before it reads any object, the pin check lists all the configuration Git reads there (`git config --list --show-scope`) and refuses every other key by its name and scope.
-Those are a promisor remote and its transport (`extensions.partialClone`, `remote.<name>.promisor`, `remote.<name>.uploadpack`, `core.sshCommand`), `core.fsmonitor`, `core.hooksPath`, a filter, a credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
-That allowlist is the configuration guarantee for the stack: no key of the stack's own configuration can have Git start a program, or fetch a missing object from a remote, while the pin is decided.
-The gitlink is read from the superproject's index, and before that the pin check lists the superproject's configuration the same way and refuses by name the keys of `ctrl_build.SUPERPROJECT_REFUSED`.
-They are a promisor remote and its transport (`extensions.partialClone`, `remote.<name>.promisor`, `remote.<name>.partialCloneFilter`, `remote.<name>.uploadpack`, `core.sshCommand`) and `core.fsmonitor`, in its own file, an included one or its work tree's.
-Those keys are the guarantee for the superproject: without a promisor remote Git fetches nothing, so a tree its sparse index lacks is not fetched through a program while the gitlink is read, and no fsmonitor is started.
+Those are a promisor remote and its transport (`extensions.partialClone`, `remote.promisor`, `remote.partialCloneFilter`, `remote.uploadpack` and `core.sshCommand`, with any subsection or none), `core.fsmonitor`, `core.hooksPath`, a filter, a credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
+That allowlist is what holds the stack's configuration: it holds Git's own bookkeeping only, and no key that names a program, a promisor remote or its transport.
+The gitlink is read from the superproject's index, and before that the pin check lists the superproject's configuration the same way and refuses by name every key whose section and variable `ctrl_build.SUPERPROJECT_REFUSED` lists, whatever its subsection: none, empty or named.
+They are a promisor remote and its transport (`extensions.partialClone`, `remote.promisor`, `remote.partialCloneFilter`, `remote.uploadpack`, `core.sshCommand`) and `core.fsmonitor`, in its own file, an included one or its work tree's.
+Git reads `remote.promisor` and `remote.partialCloneFilter` as declaring a promisor remote with no subsection or an empty one (`remote "".promisor`) as well as with a name, so the subsection never decides.
+So the superproject declares no promisor remote in any key spelling Git reads, judged by section and variable, and names no fsmonitor.
 The superproject's other keys are not judged: `actions/checkout` writes its token there as `http.<url>.extraheader`, and Git the submodules' entries.
-The helper also gives Git `core.fsmonitor=false`, defence in depth behind both.
-`GIT_NO_LAZY_FETCH=1` keeps Git from fetching a missing object from a promisor remote; Git honours it from 2.45.0, and so does a Git patched for CVE-2024-32465, as Ubuntu 24.04's 2.43.0 is.
-Where a Git does not honour it (upstream 2.43.0 or 2.44.0), the stack's allowlist and the superproject's refused keys are the guarantee.
+The helper also gives Git `core.fsmonitor=false`; it and `GIT_NO_LAZY_FETCH=1` are defence in depth behind both repositories' checks.
+`GIT_NO_LAZY_FETCH=1` keeps Git from fetching a missing object from a promisor remote; Git honours it from 2.45.0, and so does a Git patched for CVE-2024-32465, as Ubuntu 24.04's updated 2.43.0 package is (`2.43.0-1ubuntu7.3` checked; its release package `2.43.0-1ubuntu7` is not).
+Where a Git does not honour it (an upstream release before 2.45.0 other than the CVE-2024-32465 maintenance releases, such as 2.43.0 or 2.44.0), the stack's allowlist and the superproject's refused keys are the guarantee.
 What decides the pin is `stack_gitlink`, `stack_pin` and the command line's `main`.
 Before the proof's first Git call, where `ctrl_build.py` defines the helper, the proof installs a PEP 578 audit hook, which stays for the life of the process.
 An audit hook cannot be removed, and this one binds all it judges by as it is installed: the helper's code, the module's namespace, the Git program, and every function, builtin and constant it uses.
@@ -217,7 +220,7 @@ The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP di
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-102 pin controls follow the boundary controls.
+106 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
@@ -238,21 +241,22 @@ They are also `core.fsmonitor` naming a program, through `GIT_CONFIG_COUNT`, `GI
 Each ends in the verdict the clone itself earns, and Git starts no program they name.
 A clean filter given through `GIT_CONFIG_COUNT`, and one whose attribute `GIT_ATTR_SOURCE` gives (its filter through `GIT_CONFIG_COUNT`), would each turn an edit back into the pinned blob; the edit is refused by name.
 With every variable at once the pinned clone is accepted, and the hook's judge refuses a `fork_exec` entry list that gives a key twice.
-Twenty-three more ([`ctrl_pin_store.py`](test/ctrl_pin_store.py)) hold the object store, the attributes and the repositories' own configuration.
+Twenty-seven more ([`ctrl_pin_store.py`](test/ctrl_pin_store.py)) hold the object store, the attributes and the repositories' own configuration.
 Three each forge one object of the pin, in a clone whose objects are all loose in its own store, beside an edit the forged object would hide.
 The pinned `src/` tree forged to hold the edit is refused as a forged object, by that place, and so is the pinned commit forged to name such a tree.
 The edited source's pinned blob forged to hold the edit is refused by the source's name, since no blob is read.
 So is a source whose line endings the clone's attributes have Git convert back into the pinned blob, since no file is hashed through Git.
-Five read the gitlink of a superproject whose index records the pin.
+Eight read the gitlink of a superproject whose index records the pin.
 Its own configuration naming a program as `core.fsmonitor` is refused by that key, and so are an included file and its work tree's own configuration each naming one.
 A partial clone whose sparse index lacks the tree that holds the gitlink, as R585-14 probed it, is refused by its promisor keys: its upload-pack a program that would serve the tree, or its remote reached over ssh through `core.sshCommand`.
-Each is refused naming exactly the keys it planted, and Git starts no program they name.
+So is that sparse index beside a promisor remote declared with no subsection (`remote.promisor`, `remote.partialCloneFilter`) or an empty one (`remote "".promisor`), as R584-14 probed it, which Git names `""` and reaches through a program by an `ext::` URL rewrite; each is refused by that key alone.
+Each is refused naming exactly the refused keys it planted, and Git starts no program they name.
 A superproject configured as `actions/checkout` and `git submodule update --init` leave it, the token as `http.<url>.extraheader` among its keys, is accepted.
-Thirteen plant keys outside the allowlist in the stack clone's own configuration, each naming a program where the key names one.
+Fourteen plant keys outside the allowlist in the stack clone's own configuration, each naming a program where the key names one.
 Two are partial clones, missing the pinned `src/` tree's object, whose promisor remote's transport is a program: its upload-pack, and ssh through `core.sshCommand`.
 Four hold each of those keys alone, `extensions.partialClone` and `remote.<name>.promisor` beside the missing object.
 The rest are `core.fsmonitor` beside an edit, `core.hooksPath`, `credential.helper`, and seven other keys Git starts a program for (`core.askPass`, `core.pager`, `core.editor`, a `textconv`, `gpg.program`, `core.alternateRefsCommand`, `uploadpack.packObjectsHook`).
-They are also an included file and a work tree's own configuration, each naming a program as `core.fsmonitor`, and a key no Git defines.
+They are also an included file and a work tree's own configuration, each naming a program as `core.fsmonitor`, a key no Git defines, and `submodule "".active`, a section and variable of the allowlist with an empty subsection.
 Each is refused naming exactly the keys it planted, with their scope, and Git starts no program they name.
 A clone holding a key of every family of the allowlist is accepted.
 Both modes of the MAAP differential and the three AECP tools refuse an edited clone before building it.

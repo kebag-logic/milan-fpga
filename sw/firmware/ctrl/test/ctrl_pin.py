@@ -58,15 +58,15 @@ audits fork_exec itself). What Git itself starts is outside the hook, and so
 is code that runs before the hook is installed (ctrl_build.py's top, above
 the helper). Every object the proof reads, the pinned commit and each tree
 under it, is read raw and hashed here against its id (ctrl_build.stored), so
-a forged or corrupt object is refused by its place; no blob is read. The
-configuration guarantee is an allowlist (ctrl_build.STACK_CONFIG): the
-stack's own configuration may hold only the keys Git writes itself for a
-clone and a submodule, and any other is refused by its name before an object
-is read, so none can have Git start a program or fetch from a remote while
-the pin is decided. The superproject's may not name a promisor remote, its
-transport or an fsmonitor (ctrl_build.SUPERPROJECT_REFUSED), each refused by
-its name before the gitlink is read; its other keys are not judged. The
-helper's core.fsmonitor=false and GIT_NO_LAZY_FETCH=1 are defence in depth;
+a forged or corrupt object is refused by its place; no blob is read. One
+parser reads both repositories' keys (ctrl_build.parsed_key). The stack's
+own configuration may hold only the keys Git writes itself for a clone and a
+submodule (its allowlist, ctrl_build.STACK_CONFIG); any other is refused by
+name before an object is read. The superproject's may hold no key of a
+promisor remote, its transport or an fsmonitor, judged by section and
+variable whatever the subsection (ctrl_build.SUPERPROJECT_REFUSED), so it
+declares no promisor remote in any key spelling Git reads; its other keys are
+not judged. core.fsmonitor=false and GIT_NO_LAZY_FETCH=1 are defence in depth;
 ctrl_pin_store.py holds the controls of the store and the configuration.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
@@ -133,8 +133,8 @@ variable added (GIT_DIR), and with a key or a value that is not a plain str,
 are refused at the helper's line, the variable by its name. The
 inherited-environment controls follow (ctrl_pin_env.py), then those of the
 object store and the repositories' own configuration (ctrl_pin_store.py),
-R585-12's forged src/ tree, R584-12's and R585-14's promisors among them. The MAAP
-differential (both its modes) and the AECP
+R585-12's forged src/ tree, R584-12's, R585-14's and R584-14's promisors among
+them. The MAAP differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
 every Makefile builder whose dry run reaches the stack is run for real, in a

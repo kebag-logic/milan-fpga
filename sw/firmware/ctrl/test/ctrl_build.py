@@ -183,10 +183,11 @@ NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
 #: caller's, so no variable it inherits (GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY,
 #: GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_REPLACE_REF_BASE, GIT_CONFIG_*, GIT_ATTR_*, HOME and the rest) can
 #: redirect Git's repository, object store, configuration or replacement refs. Replacement objects (refs/replace)
-#: are ignored, the graft file does not exist, no configuration but the repository's own is read, and no missing
-#: object is fetched from a promisor remote (GIT_NO_LAZY_FETCH, which Git honours from 2.45.0, as does a Git patched
-#: for CVE-2024-32465 such as Ubuntu 24.04's 2.43.0; where it is not honoured, the stack's allowlist, STACK_CONFIG,
-#: and the superproject's refused keys, SUPERPROJECT_REFUSED, are the guarantee).
+#: are ignored, the graft file does not exist, and no configuration but the repository's own is read. A missing
+#: object is not fetched from a promisor remote (GIT_NO_LAZY_FETCH) by a Git that honours it, from 2.45.0, and by a
+#: Git patched for CVE-2024-32465 such as Ubuntu 24.04's updated 2.43.0: defence in depth. What holds is that
+#: neither repository's own configuration declares a promisor remote: the stack's allowlist (STACK_CONFIG) and the
+#: superproject's refused keys (SUPERPROJECT_REFUSED).
 GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "GIT_CONFIG_NOSYSTEM": "1",
                    "GIT_CONFIG_GLOBAL": os.devnull, "GIT_NO_LAZY_FETCH": "1"}
 #: The one setting the helper gives Git on its command line: core.fsmonitor off, defence in depth behind the
@@ -194,10 +195,12 @@ GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "
 #: core.fsmonitor by name.
 HELPER_CONFIG = "core.fsmonitor=false"
 #: The configuration the stack's own repository may hold, its allowlist (configured): the keys Git writes itself for
-#: a clone and for a submodule, `*` standing for any subsection. None names a program or a store. Every other key is
-#: refused by its name before the proof reads an object: a promisor remote and its transport (extensions.partialClone,
-#: remote.<name>.promisor, remote.<name>.uploadpack, core.sshCommand), an fsmonitor, a hooks path, a filter, a
-#: credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
+#: a clone and for a submodule, each as its family (family), `*` standing for any named subsection; a key whose
+#: subsection is empty is in no family listed. None names a program or a store. Every other key is refused by its name
+#: before the proof reads an object: a promisor remote and its transport (extensions.partialClone, remote.promisor,
+#: remote.partialCloneFilter, remote.uploadpack, core.sshCommand, with any subsection or none), an fsmonitor, a hooks
+#: path, a filter, a credential or other helper, an include, a work tree's own configuration, and every key a later
+#: Git adds.
 STACK_CONFIG = ("core.repositoryformatversion", "core.filemode", "core.bare", "core.logallrefupdates", "core.worktree",
                 "remote.*.url", "remote.*.fetch", "branch.*.remote", "branch.*.merge", "submodule.active",
                 "submodule.*.url", "submodule.*.active", "submodule.alternatelocation",
@@ -205,13 +208,15 @@ STACK_CONFIG = ("core.repositoryformatversion", "core.filemode", "core.bare", "c
 #: The pin check's words before the keys of the stack's own configuration it refuses, each with its scope.
 UNLISTED = "tsn-c-stack's repository holds configuration outside the pin proof's allowlist: "
 #: The keys of the superproject's own configuration refused by name before stack_gitlink reads its index
-#: (superproject_configured), `*` standing for any subsection: a promisor remote and its transport
-#: (extensions.partialClone, remote.<name>.promisor, remote.<name>.partialCloneFilter, remote.<name>.uploadpack,
-#: core.sshCommand), through which a Git that does not honour GIT_NO_LAZY_FETCH fetches a tree a sparse index lacks,
-#: and core.fsmonitor, which Git starts to read an index. Its other keys are not judged: actions/checkout writes
+#: (superproject_configured), each by its section and variable, whatever its subsection: none, empty or named
+#: (parsed_key). They are a promisor remote and its transport (extensions.partialClone, remote.promisor,
+#: remote.partialCloneFilter, remote.uploadpack, core.sshCommand), through which a Git that does not honour
+#: GIT_NO_LAZY_FETCH fetches a tree a sparse index lacks, and core.fsmonitor, which Git starts to read an index. Git
+#: reads remote.promisor or remote.partialCloneFilter as declaring a promisor remote with an empty subsection or none
+#: as well as with a name, so the subsection never decides. Its other keys are not judged: actions/checkout writes
 #: http.<url>.extraheader there, and Git the submodules' entries.
-SUPERPROJECT_REFUSED = ("extensions.partialclone", "remote.*.promisor", "remote.*.partialclonefilter",
-                        "remote.*.uploadpack", "core.sshcommand", "core.fsmonitor")
+SUPERPROJECT_REFUSED = ("extensions.partialclone", "remote.promisor", "remote.partialclonefilter", "remote.uploadpack",
+                        "core.sshcommand", "core.fsmonitor")
 #: The pin check's words before the keys of the superproject's own configuration it refuses, each with its scope.
 SUPERPROJECT_KEYS = "the superproject's repository holds configuration that has Git start a program or fetch while " \
                     "the gitlink is read: "
@@ -499,11 +504,22 @@ def pinned_tree(stack: Path, pin: str, algorithm: str) -> dict[str, tuple[str, s
     return want
 
 
-def configuration(directory: Path) -> list[tuple[str, str, str, str]]:
+def parsed_key(key: str) -> tuple[str, str | None, str]:
+    """A configuration key as Git lists it, parsed as Git's own parser (parse_config_key) parses it: its section, all
+    before the first dot; its variable, all after the last; and its subsection, which may hold dots, all between.
+    Git lists the section and the variable in lower case. The subsection is None where the key has none
+    (remote.promisor), "" where it is empty (remote "".promisor, which Git lists as remote..promisor), and its name
+    otherwise."""
+    section, _, rest = key.partition(".")
+    subsection, dot, variable = rest.rpartition(".")
+    return section, subsection if dot else None, variable
+
+
+def configuration(directory: Path) -> list[tuple[str, str, str | None, str, str, str]]:
     """All the configuration Git reads for the proof's commands in the repository at `directory`, as Git lists it
     through the helper (config --list --show-scope), an included file's keys in the including file's scope: each
-    key's scope, its name (section and variable in lower case, any subsection read as `*`), the key as Git names
-    it, and its value. Listing it reads no index and no object."""
+    key's scope, its section, subsection and variable (parsed_key, the one parser of both repositories' keys), the
+    key as Git names it, and its value. Listing it reads no index and no object."""
     res = git(directory, "config", "--list", "--show-scope", "-z")
     if res.returncode:
         raise Refusal(f"cannot read the configuration of {directory}: {res.stderr.strip()}")
@@ -512,35 +528,46 @@ def configuration(directory: Path) -> list[tuple[str, str, str, str]]:
         scope, _, listed = listed.partition("\0")
         entry, _, listed = listed.partition("\0")
         key, _, value = entry.partition("\n")
-        section, _, rest = key.partition(".")
-        subsection, _, variable = rest.rpartition(".")
-        entries.append((scope, f"{section}.*.{variable}" if subsection else key, key, value))
+        entries.append((scope, *parsed_key(key), key, value))
     return entries
 
 
+def family(section: str, subsection: str | None, variable: str) -> str:
+    """A parsed key (parsed_key) as STACK_CONFIG names its family: `section.variable` without a subsection,
+    `section.*.variable` with a named one, and `section."".variable` with an empty one, a family STACK_CONFIG does
+    not list."""
+    if subsection is None:
+        return f"{section}.{variable}"
+    named = "*" if subsection else '""'
+    return f"{section}.{named}.{variable}"
+
+
 def configured(stack: Path) -> None:
-    """Refuse the stack's repository whose configuration holds a key STACK_CONFIG does not name, by the key's name
-    and scope, before the proof reads any object of it. What is judged is all the configuration Git reads for the
-    proof's commands there (configuration): the repository's own and its work tree's, which may hold STACK_CONFIG's
-    keys only, and the helper's own setting (HELPER_CONFIG), the one key its command line gives. No system or global
-    file is read (GIT_ENVIRONMENT), so a key of either scope is refused too. So no key the proof does not know can
-    have Git start a program, or fetch from a remote, while the pin is decided, whatever a Git version makes of it."""
-    refused = [f"{key} ({scope})" for scope, named, key, value in configuration(stack)
-               if not (scope in ("local", "worktree") and named in STACK_CONFIG or
+    """Refuse the stack's repository whose configuration holds a key outside STACK_CONFIG's families (family), by
+    the key's name and scope, before the proof reads any object of it. What is judged is all the configuration Git
+    reads for the proof's commands there (configuration): the repository's own and its work tree's, which may hold
+    keys of STACK_CONFIG's families only, and the helper's own setting (HELPER_CONFIG), the one key its command line
+    gives. No system or global file is read (GIT_ENVIRONMENT), so a key of either scope is refused too. So the
+    stack's configuration holds Git's own bookkeeping of a clone and a submodule only, and no key of it names a
+    program, a promisor remote or its transport."""
+    refused = [f"{key} ({scope})" for scope, section, subsection, variable, key, value in configuration(stack)
+               if not (scope in ("local", "worktree") and family(section, subsection, variable) in STACK_CONFIG or
                        scope == "command" and f"{key}={value}" == HELPER_CONFIG)]
     if refused:
         raise Refusal(UNLISTED + ", ".join(sorted(refused)))
 
 
 def superproject_configured(root: Path) -> None:
-    """Refuse the superproject at `root` whose own configuration holds a key SUPERPROJECT_REFUSED names, by the
-    key's name and scope, before stack_gitlink reads its index. What is judged is all the configuration Git reads
-    for the proof's commands there (configuration), but the helper's own setting (HELPER_CONFIG): the repository's
-    own and its work tree's, an included file's keys among them. So the superproject declares no promisor remote,
-    through whose transport Git would fetch a tree a sparse index lacks while the gitlink is read, whatever a Git
-    version makes of GIT_NO_LAZY_FETCH, and names no fsmonitor; its other keys are not judged."""
-    refused = [f"{key} ({scope})" for scope, named, key, value in configuration(root)
-               if named in SUPERPROJECT_REFUSED and not (scope == "command" and f"{key}={value}" == HELPER_CONFIG)]
+    """Refuse the superproject at `root` whose own configuration holds a key of a section and variable
+    SUPERPROJECT_REFUSED names, whatever its subsection (parsed_key), by the key's name and scope, before
+    stack_gitlink reads its index. What is judged is all the configuration Git reads for the proof's commands there
+    (configuration), but the helper's own setting (HELPER_CONFIG): the repository's own and its work tree's, an
+    included file's keys among them. So the superproject declares no promisor remote in any key spelling Git reads,
+    judged by section and variable, through whose transport Git would fetch a tree a sparse index lacks while the
+    gitlink is read, and names no fsmonitor; its other keys are not judged."""
+    refused = [f"{key} ({scope})" for scope, section, _, variable, key, value in configuration(root)
+               if f"{section}.{variable}" in SUPERPROJECT_REFUSED and
+               not (scope == "command" and f"{key}={value}" == HELPER_CONFIG)]
     if refused:
         raise Refusal(SUPERPROJECT_KEYS + ", ".join(sorted(refused)))
 

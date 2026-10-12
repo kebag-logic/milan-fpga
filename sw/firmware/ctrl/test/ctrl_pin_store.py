@@ -21,11 +21,14 @@ edit (a new file, so no file a hard link shares is written):
 Nor is a file hashed through Git: a source whose line endings the clone's
 attributes have Git convert back into the pinned blob (text) is refused by
 its name.
+Both repositories' keys are parsed by one parser (ctrl_build.parsed_key)
+into a section, a subsection (none, empty or named) and a variable.
 The stack's own configuration may hold only Git's own bookkeeping of a
-clone and a submodule (ctrl_build.STACK_CONFIG, its allowlist), and the pin
-check refuses every other key by its name before it reads an object
-(ctrl_build.configured). One control holds each family of keys it refuses,
-each key naming a recorder (ctrl_pin_env.RECORDER) where it names a program:
+clone and a submodule (ctrl_build.STACK_CONFIG, its allowlist, `*` standing
+for a named subsection), and the pin check refuses every other key by its
+name before it reads an object (ctrl_build.configured). One control holds
+each family of keys it refuses, each key naming a recorder
+(ctrl_pin_env.RECORDER) where it names a program:
 - a promisor remote whose transport is a program, beside a missing object of
   the pin, as R584-12 and R585-13 probed it: its upload-pack
   (remote.<name>.uploadpack), and ssh through core.sshCommand;
@@ -40,29 +43,37 @@ each key naming a recorder (ctrl_pin_env.RECORDER) where it names a program:
 - a key no Git defines, as a later Git might add.
 Each ends in the refusal naming exactly the keys it planted, and the recorder
 never runs. A clone holding a key of every family of the allowlist is
-accepted. A clean filter in the clone's own configuration is held by
-ctrl_pin.py's control.
-The superproject's own configuration may not hold the keys
-ctrl_build.SUPERPROJECT_REFUSED names, a promisor remote and its transport
-(extensions.partialClone, remote.<name>.promisor,
-remote.<name>.partialCloneFilter, remote.<name>.uploadpack, core.sshCommand)
-and core.fsmonitor, and the pin check refuses each by its name before it
-reads the gitlink from the superproject's index
-(ctrl_build.superproject_configured); its other keys are not judged. Five
-controls read the gitlink of a superproject whose index records the pin, as
-the proof reads the checkout's (ctrl_build.stack_gitlink):
+accepted, and one holding submodule "".active, an allowlisted section and
+variable with an empty subsection, is refused by that key. A clean filter in
+the clone's own configuration is held by ctrl_pin.py's control.
+The superproject's own configuration may not hold a key of the sections and
+variables ctrl_build.SUPERPROJECT_REFUSED names, whatever its subsection: a
+promisor remote and its transport (extensions.partialClone,
+remote.promisor, remote.partialCloneFilter, remote.uploadpack,
+core.sshCommand) and core.fsmonitor. The pin check refuses each by its name
+before it reads the gitlink from the superproject's index
+(ctrl_build.superproject_configured), so the superproject declares no
+promisor remote in any key spelling Git reads, judged by section and
+variable; its other keys are not judged. Eight controls read the gitlink of a
+superproject whose index records the pin, as the proof reads the checkout's
+(ctrl_build.stack_gitlink):
 - its own configuration naming the recorder as core.fsmonitor;
 - a partial clone whose sparse index lacks the tree that holds the gitlink, as
   R585-14 probed it: its promisor remote's upload-pack the recorder, which
   then serves the tree (SERVER), and its remote reached over ssh through
   core.sshCommand;
+- that sparse index beside a promisor remote declared without a subsection
+  (remote.promisor, remote.partialCloneFilter) or with an empty one
+  (remote "".promisor), as R584-14 probed it, which Git names "" and reaches
+  through the recorder by an ext:: URL rewrite (unnamed_promisor);
 - an included file and its work tree's own configuration, each naming the
   recorder as core.fsmonitor.
-Each ends in the refusal naming exactly the keys it planted, and the recorder
-never runs. A fifth, the superproject configured as actions/checkout and
-git submodule update --init leave it (its token as http.<url>.extraheader,
-the stack's submodule entries), is read as the pin. The helper also gives Git
-core.fsmonitor=false, defence in depth behind both repositories' checks.
+Each ends in the refusal naming exactly the refused keys it planted, and the
+recorder never runs. An eighth, the superproject configured as
+actions/checkout and git submodule update --init leave it (its token as
+http.<url>.extraheader, the stack's submodule entries), is read as the pin.
+The helper also gives Git core.fsmonitor=false and GIT_NO_LAZY_FETCH=1,
+defence in depth behind both repositories' checks.
 """
 
 from __future__ import annotations
@@ -71,7 +82,8 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from ctrl_build import STACK_CONFIG, SUPERPROJECT_KEYS, UNLISTED, Refusal, stack_gitlink, stack_pin
+from ctrl_build import (STACK_CONFIG, SUPERPROJECT_KEYS, UNLISTED, Refusal, family, parsed_key, stack_gitlink,
+                        stack_pin)
 from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer
 
 #: More objects than a fetch of the pin's history brings, so that the fetch unpacks each into a loose object
@@ -216,6 +228,16 @@ def served(scene: Scene) -> str:
     return str(program)
 
 
+def unnamed_promisor(scene: Scene, key: str, value: str) -> None:
+    """A sparse superproject (sparse_superproject) whose own configuration declares a promisor remote by `key` alone,
+    in a spelling without a subsection or with an empty one, as R584-14 probed it: Git names that remote "" and
+    fetches from "" as a URL, which an empty url.<base>.insteadOf rewrites to an ext:: transport whose program is
+    the recorder (protocol.ext.allow=always). The superproject's check refuses neither of those two keys, so its
+    refusal names `key` alone."""
+    sparse_superproject(scene, lambda _: ((key, value), (f"url.ext::{scene.recorder()}.insteadOf", ""),
+                                          ("protocol.ext.allow", "always")))
+
+
 def monitored_stack(scene: Scene) -> None:
     """The clone's own configuration naming the recorder as core.fsmonitor, and the edit on disk."""
     answer(scene.stack, "config", "core.fsmonitor", scene.recorder())
@@ -265,12 +287,8 @@ def allowlisted(scene: Scene) -> None:
                   ("branch.main.merge", "refs/heads/main"), ("submodule.active", "."),
                   ("submodule.pin-control.url", "../pin-control.git"), ("submodule.pin-control.active", "true"),
                   ("submodule.alternateLocation", "superproject"), ("submodule.alternateErrorStrategy", "die")))
-    held = set()
-    for entry in filter(None, answer(scene.stack, "config", "--list", "--local", "-z").split("\0")):
-        key = entry.partition("\n")[0]
-        section, _, rest = key.partition(".")
-        subsection, _, variable = rest.rpartition(".")
-        held.add(f"{section}.*.{variable}" if subsection else key)
+    held = {family(*parsed_key(entry.partition("\n")[0]))
+            for entry in filter(None, answer(scene.stack, "config", "--list", "--local", "-z").split("\0"))}
     lacking = sorted(set(STACK_CONFIG) - held)
     if lacking:
         raise Refusal(f"the allowlisted configuration control's clone holds no {', '.join(lacking)}")
@@ -287,9 +305,22 @@ HELPERS = ("core.askPass", "core.pager", "core.editor", "diff.pin-control.textco
            "core.alternateRefsCommand", "uploadpack.packObjectsHook")
 
 
+#: The spellings of a promisor remote without a subsection or with an empty one (unnamed_promisor), as R584-14
+#: probed them: what each is, the key set and its value, and the key as Git lists it.
+UNNAMED = (("remote.promisor, no subsection", "remote.promisor", "true", "remote.promisor"),
+           ("remote.partialCloneFilter, no subsection", "remote.partialCloneFilter", "tree:0",
+            "remote.partialclonefilter"),
+           ('remote "".promisor, an empty subsection', "remote..promisor", "true", "remote..promisor"))
+
+
 def refused(*keys: str) -> str:
     """The pin check's refusal of exactly `keys` of the superproject's own configuration, each with its scope."""
     return SUPERPROJECT_KEYS + ", ".join(keys)
+
+
+def unlisted(*keys: str) -> str:
+    """The pin check's refusal of exactly `keys` of the stack's own configuration, each with its scope."""
+    return UNLISTED + ", ".join(keys)
 
 
 def superproject_controls(gitlink: Callable[[], str]) -> tuple[tuple, ...]:
@@ -311,6 +342,10 @@ def superproject_controls(gitlink: Callable[[], str]) -> tuple[tuple, ...]:
          lambda s: sparse_superproject(s, lambda _: (*partial("probe", "ssh://pin-control.invalid/superproject"),
                                                      ("core.sshCommand", None))), gitlink,
          refused("core.sshcommand (local)", "extensions.partialclone (local)", "remote.probe.promisor (local)")),
+        *(("the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its "
+           f"tree, a promisor remote declared by {what}, reached through a program by an ext:: URL rewrite, its "
+           "gitlink read", lambda s, k=key, v=value: unnamed_promisor(s, k, v), gitlink, refused(f"{listed} (local)"))
+          for what, key, value, listed in UNNAMED),
         ("the superproject's own configuration, an included file (include.path) and its work tree's own "
          "configuration each naming a program as core.fsmonitor, its gitlink read", superproject_included, gitlink,
          refused("core.fsmonitor (local)", "core.fsmonitor (worktree)")),
@@ -359,10 +394,6 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
         """The pin check on the clone."""
         return stack_pin(stack, pin)
 
-    def unlisted(*keys: str) -> str:
-        """The pin check's refusal of exactly `keys` of the stack's own configuration, each with its scope."""
-        return UNLISTED + ", ".join(keys)
-
     controls = (
         ("the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit",
          forged_tree, checked, FORGED + "the pinned src/ tree"),
@@ -377,6 +408,9 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
          checked, unlisted("core.fsmonitor (local)")),
         ("the stack's own configuration, a key of each family of its allowlist, the pinned clone", allowlisted,
          checked, ""),
+        ("the stack's own configuration, a key of an allowlisted family's section and variable with an empty "
+         'subsection (submodule "".active), the pinned clone', lambda s: keyed(s, (("submodule..active", "true"),)),
+         checked, unlisted("submodule..active (local)")),
         ("the stack's own configuration, a partial clone whose promisor remote's upload-pack is a program, the "
          "pinned src/ tree's object missing",
          lambda s: keyed(s, (*partial("origin", str(s.stack)), ("remote.origin.uploadpack", None)), True), checked,
