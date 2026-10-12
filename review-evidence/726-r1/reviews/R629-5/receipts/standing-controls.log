@@ -1,0 +1,57 @@
+DETECTED retained reset: cnt_locked_o
+OMISSION other era checks PASS: cnt_locked_o
+DETECTED retained reset: cnt_unlocked_o
+OMISSION other era checks PASS: cnt_unlocked_o
+DETECTED retained reset: cnt_intr_o
+OMISSION other era checks PASS: cnt_intr_o
+DETECTED retained reset: seq_err_o
+OMISSION other era checks PASS: seq_err_o
+DETECTED retained reset: mr_cnt_o
+OMISSION other era checks PASS: mr_cnt_o
+DETECTED retained reset: tu_cnt_o
+OMISSION other era checks PASS: tu_cnt_o
+DETECTED retained reset: fmt_err_o
+OMISSION other era checks PASS: fmt_err_o
+DETECTED retained reset: late_cnt_o
+OMISSION other era checks PASS: late_cnt_o
+DETECTED retained reset: early_cnt_o
+OMISSION other era checks PASS: early_cnt_o
+DETECTED retained reset: pdu_count_o
+OMISSION other era checks PASS: pdu_count_o
+DETECTED retained reset: iv_uf_r
+OMISSION other era checks PASS: iv_uf_r
+DETECTED retained reset: iv_sm_r
+OMISSION other era checks PASS: iv_sm_r
+DETECTED retained reset: iv_mr_r
+OMISSION other era checks PASS: iv_mr_r
+DETECTED retained reset: iv_tu_r
+OMISSION other era checks PASS: iv_tu_r
+DETECTED retained reset: iv_lt_r
+OMISSION other era checks PASS: iv_lt_r
+DETECTED retained reset: iv_et_r
+OMISSION other era checks PASS: iv_et_r
+...............................................................................F
+======================================================================
+FAIL: test_unpublished_zero_receive_snapshot (__main__.StandingChecks.test_unpublished_zero_receive_snapshot)
+Real startup boundary: three accepted packets precede RX publication.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REPO/tb/tools/torture_campaign.py", line 4121, in test_unpublished_zero_receive_snapshot
+    self.assertEqual(verdict, "INFO", "[726 SNAPSHOT] unpublished zero")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAIL' != 'INFO'
+- FAIL
++ INFO
+ : [726 SNAPSHOT] unpublished zero
+
+----------------------------------------------------------------------
+Ran 80 tests in 0.310s
+
+FAILED (failures=1)
+
+...............................................................................
+----------------------------------------------------------------------
+Ran 79 tests in 0.299s
+
+OK
+Standing controls PASS: retained resets and old snapshot guard detected; omission controls pass
