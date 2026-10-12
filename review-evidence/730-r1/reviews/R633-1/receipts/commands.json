@@ -1,0 +1,159 @@
+{
+  "execution": "Foreground commands; independent checks overlapped, at most four; no detached jobs. TMPDIR under packet scratch for repository gates; PYTHONDONTWRITEBYTECODE=1. venv created with python3 -m venv under packet scratch.",
+  "commands": [
+    {
+      "receipt": "probe",
+      "argv": [
+        "python3",
+        "<packet>/probe_cpu_ranges.py",
+        "<checkout>"
+      ],
+      "cwd": "<checkout>",
+      "rc": 1
+    },
+    {
+      "receipt": "ci-contract",
+      "argv": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "ci-contract-selftest",
+      "argv": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "py-idiom",
+      "argv": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "baremetal",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "dc4d06cb",
+        "HEAD"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "doc-style",
+      "argv": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "doc-paths",
+      "argv": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "docs-check",
+      "argv": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "toc",
+      "argv": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "cwd": "<checkout>",
+      "rc": 2
+    },
+    {
+      "receipt": "docs-dependencies",
+      "argv": [
+        "<packet>/scratch/docs-venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-cache-dir",
+        "--require-hashes",
+        "-r",
+        "tools/markdown/requirements.txt"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "toc-pinned",
+      "argv": [
+        "<packet>/scratch/docs-venv/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "anchors",
+      "argv": [
+        "<packet>/scratch/docs-venv/bin/python",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "em-dash",
+      "argv": [
+        "<packet>/scratch/docs-venv/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "dc4d06cb"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    },
+    {
+      "receipt": "integrity",
+      "argv": [
+        "python3",
+        "<packet>/verify_integrity.py",
+        "<checkout>"
+      ],
+      "cwd": "<checkout>",
+      "rc": 0
+    }
+  ]
+}

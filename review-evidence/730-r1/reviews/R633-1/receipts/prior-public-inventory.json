@@ -1,0 +1,61 @@
+{
+  "observed_at_utc": "2026-10-12T20:45:21.379715+00:00",
+  "own_verdict_and_ledger_written_first": true,
+  "items": [
+    {
+      "kind": "conversation",
+      "id": 6132166732,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/731#issuecomment-6132166732",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R632-1",
+      "review_state": null
+    },
+    {
+      "kind": "conversation",
+      "id": 6132173615,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/731#issuecomment-6132173615",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R633-1",
+      "review_state": null
+    },
+    {
+      "kind": "issue",
+      "id": 6131408752,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/730#issuecomment-6131408752",
+      "first_line": "[A10] **Lane assignment.** Executor [A607], branch `730-act-cpusets` from dev `dc4d06cb`. Internal review R632, external review R633. The maintainer asked for faster CI (2026-10-12, \"ok improve ci\").",
+      "review_state": null
+    },
+    {
+      "kind": "issue",
+      "id": 6131500852,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/730#issuecomment-6131500852",
+      "first_line": "[A607] TAKEN",
+      "review_state": null
+    },
+    {
+      "kind": "issue",
+      "id": 6131691911,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/730#issuecomment-6131691911",
+      "first_line": "[A10] **Disk note for this lane (measured 2026-10-12).** Each isolated slot keeps its own data-root under `/var/lib/milan-act-ci/slot-N`, holding a full copy of the runner image and the seeded tool cache. That is about 64-70 GB per slot. On this host the data-roots sit on the root filesystem, which is shared with the default daemon's own 53 GB copy. Two slots filled it to 100 %, and slot 1's cache has been removed. Slot 3, your measurement slot, is the only slot cache that may exist during this lane. Delete `/var/lib/milan-act-ci/slot-3` when your measurement ends (`sudo rm -rf`, with no slot-3 daemon running), and record its size before deletion. The CPU change in this issue gives one replay its speed; parallel slots need their data-roots moved off the root disk first, and that is out of scope here.",
+      "review_state": null
+    },
+    {
+      "kind": "issue",
+      "id": 6131815815,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/730#issuecomment-6131815815",
+      "first_line": "[A10] **Ruling: no replays inside this lane.** The slot-3 \"before\" replay was stopped at 22:10 and its data-root deleted. A slot's image cache took 64-70 GB on the root filesystem, and the root disk was filling at about 1.4 GB per minute. Executor [A607].",
+      "review_state": null
+    },
+    {
+      "kind": "issue",
+      "id": 6132134158,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/730#issuecomment-6132134158",
+      "first_line": "[A607] REVIEW READY",
+      "review_state": null
+    }
+  ],
+  "counts": {
+    "conversation": 2,
+    "reviews": 0,
+    "inline": 0,
+    "issue": 5
+  }
+}
