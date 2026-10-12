@@ -1,0 +1,7 @@
+source_sha256=a9c135b0c94692590f24e4aca2bc60296a519794ea7814f166232713724facf2
+PASS ordinary : 64 seeds x 300 daemon/event transitions; reservations cover configured and pending job ranges
+PASS applied-timeout : 64 seeds x 300 daemon/event transitions; reservations cover configured and pending job ranges
+PASS late : 64 seeds x 300 daemon/event transitions; reservations cover configured and pending job ranges
+PASS unreadable : 64 seeds x 300 daemon/event transitions; reservations cover configured and pending job ranges
+PASS capacity: 88 combinations, exact boundary and insufficient-capacity refusals
+PASS: all inert allocation probes
