@@ -1,0 +1,8 @@
+67c67
+<                 service_begin[i]=uns_log_cycle;
+---
+>                 {service_begin[i]=uns_log_cycle; printf("ELIG,%d,%ld\n",i,uns_log_cycle);}
+132a133
+>         printf("WATCH_OFF,%ld\n",uns_log_cycle);
+150a152
+>                 printf("EV,%d,%d,%d,%ld\n",ty,s,r,at);
