@@ -1,0 +1,11 @@
+# Polls around the first LOCKED read, from the published r2 traces (start and end against the DUT's set).
+# Console read order per poll (tools/console_poll_b8.py CMDS): 0x8e0 (8 bytes), 0x8f8, 0x8d4 (12), 0x738, 0x748; MCSRV_STAT is the second read.
+# Run tool rule (tools/run_b16c.py wait_state): s_lo = end (raw1) of the poll before the first LOCKED poll; s_hi = end of the first LOCKED poll.
+bcrf poll 43 start 2.080 end 2.152 MCSRV_STAT ffad0033 state 3
+bcrf poll 44 start 2.585 end 2.656 MCSRV_STAT ffab0033 state 3
+bcrf poll 45 start 3.090 end 3.161 MCSRV_STAT ffa60034 state 4
+baaf poll 51 start 6.102 end 6.179 MCSRV_STAT ffad0033 state 3
+baaf poll 52 start 6.602 end 6.679 MCSRV_STAT ffaa0033 state 3
+baaf poll 53 start 7.103 end 7.180 MCSRV_STAT ffa50034 state 4
+bcrf published servo-state s_lo 2.657 s_hi 3.161 poll_n 45
+baaf published servo-state s_lo 6.68 s_hi 7.18 poll_n 53

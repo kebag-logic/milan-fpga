@@ -1,0 +1,7 @@
+OK  poll-start..peer-set: 1 polls 
+OK  peer-set..dut-set: 34 polls 
+OK  dut-set..window-start: 52 polls 
+BAD window-start..window-end: 596 polls last 0x8d4 000000b0 vs 000000ae; distinct 0x8d4 2 vs 1; distinct 0x8f8 6 vs 5
+BAD window-end..restored: 10 polls first 0x8d4 000000b0 vs 000000ae; last 0x8d4 000000b0 vs 000000ae
+BAD restored..poll-end: 12 polls first 0x8d4 000000b0 vs 000000ae; last 0x8d4 000000b0 vs 000000ae
+ok=3 bad=3
