@@ -34,8 +34,10 @@ What the arms hold, and why each one is here:
   order, the dump file ends with the last writer's bytes, and an empty name
   fails at the first writer as the sequential recipe did;
 * the runner's own lines add no check and no failure to the suite's tally;
-* the Makefile hands the runner the eleven legs of the recipe, in the recipe's
-  order and with its banners, at two workers unless SIM_JOBS says one.
+* the Makefile hands the runner the twelve legs of the recipe, in the recipe's
+  order and with its banners, at two workers unless SIM_JOBS says one; then
+  render_mutants.py is the recipe's last step, and nothing of the #387 GM step
+  leg is built or run (#621 moved it to ../milan_dp_gm_steps).
 
 A runner that never has two legs alive leaves the two arms that need two
 waiting rather than passing: ending that wait is the person's or the per-suite
@@ -67,7 +69,8 @@ RUNNER = HERE / "sim_pool.py"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import FAIL_MARKER, log_reports_failure, scan  # noqa: E402
 
-#: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530.
+#: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530,
+#: and the #658 leg dev 30e3c018 (PR #670) added.
 #: The rebase retains this full inventory and each existing execution phase.
 LEGACY_LEGS = (
     (None, "./obj_dir/Vmilan_dp_sim"),
@@ -76,6 +79,8 @@ LEGACY_LEGS = (
      "./obj_notify/Vmilan_dp_notify"),
     ("---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----",
      "./obj_crflic/Vmilan_dp_crflic"),
+    ("---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----",
+     "./obj_dynmap/Vmilan_dp_dynmap"),
     (None, "./obj_nxn/Vmilan_dp_nxn"),
     ("---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----",
      "./obj_nxndv/Vmilan_dp_nxndv"),
@@ -856,10 +861,12 @@ def logical_lines(text: str) -> list[str]:
 
 
 def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
-    """`make -n run`: the runner gets exactly the recipe's eleven legs, in its
+    """`make -n run`: the runner gets exactly the recipe's twelve legs, in its
     order and with its banners, two workers unless SIM_JOBS=1 and whatever
     -j says, after all ordinary builds and before render_mutants.py, on a line
-    whose errors make does not ignore."""
+    whose errors make does not ignore. render_mutants.py is the last step, and
+    no line builds or runs the #387 GM step leg, its banner or its controls:
+    #621 moved them to ../milan_dp_gm_steps, and run no longer depends on it."""
     expected: list[str] = []
     for banner, exe in LEGACY_LEGS:
         if banner is not None:
@@ -886,7 +893,10 @@ def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
         assert len(built) == len(LEGACY_LEGS), f"{extra}: {len(built)} of the ordinary builds"
         render_at = lines.index("python3 render_mutants.py")
         assert max(built) < runner_at[0] < render_at, extra
-        assert render_at < lines.index("python3 gmstep_mutants.py"), extra
+        after = [line for line in lines[render_at + 1:] if not line.startswith("make: ")]
+        assert after == [], f"{extra}: steps after render_mutants.py: {after}"
+        gmstep = [line for line in lines if "gmstep" in line.lower() or "gm step" in line.lower()]
+        assert gmstep == [], f"{extra}: run still builds or runs the GM step leg: {gmstep}"
     recipe = [line for line in (HERE / "Makefile").read_text().splitlines()
               if "sim_pool.py" in line and line.startswith("\t")]
     assert len(recipe) == 1, recipe
