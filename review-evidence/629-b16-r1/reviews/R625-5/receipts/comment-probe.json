@@ -1,0 +1,49 @@
+[
+  {
+    "name": "unchanged",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 0,
+    "stdout": "{\"lines\": 1571, \"tokens\": 1919, \"rows\": 1749, \"rows_ok\": 1749, \"rows_bad\": 0, \"by_category\": 1098, \"digits\": 13209, \"digits_by_row\": 11037, \"digits_by_category\": 2172, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0}\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index"
+    ]
+  },
+  {
+    "name": "single_line_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 1,
+    "stdout": "{\"lines\": 1571, \"tokens\": 1920, \"rows\": 1749, \"rows_ok\": 1749, \"rows_bad\": 0, \"by_category\": 1098, \"digits\": 13210, \"digits_by_row\": 11037, \"digits_by_category\": 2172, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 7 (a measurement: only a row can claim it) | of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and 3 carry -1 to 0 LSB at every poi\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tUNCOVERED"
+    ]
+  },
+  {
+    "name": "multiline_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!--\n-->ppm. Channels 2 and 3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 0,
+    "stdout": "{\"lines\": 1571, \"tokens\": 1920, \"rows\": 1749, \"rows_ok\": 1749, \"rows_bad\": 0, \"by_category\": 1099, \"digits\": 13210, \"digits_by_row\": 11037, \"digits_by_category\": 2173, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0}\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tdescriptor index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index"
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "name": "docs-hygiene",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diff-whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "c20c85bd",
+      "HEAD"
+    ],
+    "rc": 0
+  }
+]
