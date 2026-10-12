@@ -48,6 +48,7 @@ import io
 import inspect
 import io
 import ipaddress
+import itertools
 import json
 import os
 import pathlib
@@ -7118,18 +7119,37 @@ def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) 
         f"  narrow:\n{plain}    strategy:\n      max-parallel: 2\n      matrix:\n        n: [1, 2, 3]\n"
         f"  single:\n{plain}"
     )
+    three = f"  three:\n{plain}    strategy:\n      max-parallel: 3\n      matrix:\n        n: [1, 2, 3]\n"
+    orders = [
+        ("docs", "rtl-full"),
+        ("rtl-full", "docs"),
+        *itertools.permutations(("docs", "rtl-fast", "rtl-full")),
+    ]
     with tempfile.TemporaryDirectory(prefix="act-ci-concurrency-") as raw:
         root = pathlib.Path(raw)
         write_concurrency_workflow(root, "rtl-full", jobs)
+        write_concurrency_workflow(root, "rtl-fast", three)
         write_concurrency_workflow(root, "docs", f"  only:\n{plain}")
         derived: dict[int, int] = {}
+        alone: dict[int, tuple[int, ...]] = {}
+        ordered: dict[int, set[int]] = {}
         for limit in (1, 2, 3):
             with mock.patch.object(sys.modules[__name__], "CONCURRENT_JOB_LIMIT", limit):
                 derived[limit] = replay_container_concurrency(root, ("docs", "rtl-full"))
+                alone[limit] = tuple(
+                    replay_container_concurrency(root, (name,)) for name in ("rtl-fast", "docs")
+                )
+                ordered[limit] = {replay_container_concurrency(root, order) for order in orders}
     check(
         "a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together "
         "(4, then 4+2, then 4+2+1), the most of any selected workflow",
         derived == {1: 4, 2: 6, 3: 7},
+    )
+    check(
+        "the most of any selected workflow in every order: rtl-full beside docs either way "
+        "round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, "
+        "derives 4, 6, 7",
+        alone == {1: (3, 1), 2: (3, 1), 3: (3, 1)} and ordered == {1: {4}, 2: {6}, 3: {7}},
     )
     shipping = {name: replay_container_concurrency(shipping_root, (name,)) for name in WORKFLOWS}
     check(
