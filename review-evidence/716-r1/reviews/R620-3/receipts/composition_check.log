@@ -1,0 +1,226 @@
+== 1. candidate identity
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+candidate tree 093c496f7ff05a1d8f8d6723ed0705f50df913e7; mechanical clean merge tree 093c496f7ff05a1d8f8d6723ed0705f50df913e7
+== 2. files changed on both sides since the merge base
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+dev side: 49 files; PR side: 5 files
+both: docs/testing/CI_WORKFLOWS.md
+== 3. PR-only files are byte-identical to the PR head in the candidate
+.github/workflows/rtl-fast.yml cand=902b92cd40baa61a73d1149154853c9318e5b989 pr=902b92cd40baa61a73d1149154853c9318e5b989
+scripts/ci_events.py cand=ff8d7232827093fcbb52bf284c76e9543001928d pr=ff8d7232827093fcbb52bf284c76e9543001928d
+sw/firmware/ctrl/test/test_ctrl_firmware.py cand=3f0bea6ecbbca33bedf4f000d1b9ad24132f2d91 pr=3f0bea6ecbbca33bedf4f000d1b9ad24132f2d91
+sw/firmware/ctrl/test/test_ctrl_firmware_shards.py cand=07ec7a3ebf46a303894bc504742a0a591e84526e pr=07ec7a3ebf46a303894bc504742a0a591e84526e
+== 4. dev-only files are byte-identical to dev in the candidate
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+48 dev-only paths (mode and object) identical
+== 5. the shared page carries each side's hunks byte-identically
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+dev hunk: 20 changed lines; PR hunks: 60 changed lines; both carried exactly
+warning: unable to find all commit-graph files
+@@ -301 +301 @@ These historical samples do not measure the corrected candidate.
+@@ -305,0 +306,18 @@ If later exact-head margin falls below 10%, split further.
+warning: unable to find all commit-graph files
+@@ -45 +45,2 @@ pull-request update and on every push to `dev`. It produces one stable
+@@ -62,0 +64,40 @@ pull-request update and on every push to `dev`. It produces one stable
+@@ -64 +105,2 @@ A change containing only documentation skips the Verilator and Yosys setup
+@@ -2326,0 +2369,14 @@ python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs
+== 6. dev-side paths named by the PR's CI and firmware inputs
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:sw/firmware/milan_baremetal/milan_baremetal.c:171:/* The snapshot-ownership contract (docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:sw/firmware/nvm_hosttest/nvm_host.c:96:	 * docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md, as far as a model
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:287:        (["docs/diagrams/PNG_MANIFEST.json"], True),
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:7:workflow files and one page of prose, docs/testing/CI_WORKFLOWS.md, and for
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:259:POLICY = "docs/testing/CI_WORKFLOWS.md"
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:267:        (["docs/testing/CI_WORKFLOWS.md"], False),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:sw/firmware/gtest/README.md:399:([CI workflow policy](../../../docs/testing/CI_WORKFLOWS.md#fast-feedback))
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:76:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:117:        run: git submodule update --init protocol-processor gptp-processor
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:132:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:221:      # protocol-processor and gptp-processor submodules this job already fetches.
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:252:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:325:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:374:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:408:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:.github/workflows/rtl-fast.yml:442:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:183:                            'protocol-processor gptp-processor\n'
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:699:    "gptp-processor",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:786:    "make -C gptp-processor docs",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:1131:             'git submodule update --init gptp-processor',
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:1274:OOC_SH_SUBMODULES = ("protocol-processor", "gptp-processor")
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:2093:    'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor',
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:2295:             'git submodule update --init protocol-processor gptp-processor',
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6468:        ("#245 ooc.sh self-test fetch stops naming gptp-processor",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6469:         _m_ooc_selftest_fetch_drops_submodule("gptp-processor"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6509:        ("docs builder omits gptp-processor",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6510:         _m_builder_drop_submodule(DOCS, "docs-check", "gptp-processor"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6511:         "must initialize `gptp-processor`"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6634:        ("elaborate builder omits gptp-processor",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6635:         _m_builder_drop_submodule(ELABORATE, "elaborate", "gptp-processor"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:6636:         "must initialize `gptp-processor`"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:7021:                     "make -C gptp-processor docs\n", ""),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:7030:                     "make -C gptp-processor docs\n",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:7031:                     "make -C gptp-processor docs || true\n"),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:5:`gptp-processor`, `external`, `third_party/...`) and `.gitmodules` itself move
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:324:        (["gptp-processor"], True),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:329:        (["docs/x.md", "gptp-processor"], True),
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:440:        for victim in ("gptp-processor", "protocol-processor", "external",
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:509:    for want in ("protocol-processor", "gptp-processor", "external",
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:1019:             'python3 scripts/check_nvm_capture.py',
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:228:                            'python3 scripts/suite_shards.py --selftest\n'
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_events.py:1932:    "python3 scripts/suite_shards.py --selftest",
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:scripts/ci_scope.py:291:        (["tb/verilator/milan_dp/README.md"], True),
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+194b7c4114c609fa3dc3b10f82292a45e7781b0e:sw/firmware/ctrl_nvm/README.md:328:    (`tb/verilator/nvm_capture_cpu/measurements.json`: the shipping writer's
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+COMPOSITION CHECK: PASS
