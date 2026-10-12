@@ -1,0 +1,40 @@
+ok         tree-head                            rc=0 (want 0)    
+ok         missing-duration-made-free           rc=1 (want 1)    ESCAPED an inventory suite with no recorded duration is refused | ESCAPED a sharded selection refuses it too
+ok         stale-check-deleted                  rc=1 (want 1)    ESCAPED a recorded duration with no inventory suite is refused
+ok         timeout-mirrored-120                 rc=1 (want 1)    ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker | ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {116: 4320, 117: 4320, 120: 4320}, expected {116: 4176, 117: 4212, 120: 4320}
+ok         headroom-75                          rc=1 (want 1)    ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {93: 4185, 94: 4230, 120: 5400}, expected {93: 3348, 94: 3384, 120: 4320}
+ok         headroom-100                         rc=1 (want 1)    ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {70: 4200, 71: 4260, 120: 7200}, expected {70: 2520, 71: 2556, 120: 4320}
+ok         bound-formula-div10                  rc=1 (want 1)    ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {11: 3960, 12: 4320, 120: 43200}, expected {11: 396, 12: 432, 120: 4320}
+ok         bound-formula-hour                   rc=1 (want 1)    ESCAPED the bound applied at each timeout-minutes is 36 s a minute (60%): {70: 4200, 71: 4260, 120: 7200}, expected {70: 2520, 71: 2556, 120: 4320}
+ok         bound-ge                             rc=1 (want 1)    ESCAPED milan_dp at 4240 s puts worker 4 exactly at the bound and passes
+ok         bound-check-mean-only                rc=1 (want 1)    ESCAPED rtl.yml timeout-minutes 116 (bound 4176 s) is refused for a 4205 s worker | ESCAPED milan_dp at 4241 s puts it over and is refused | ESCAPED milan_dp_mclk grown by 464 s to 2502 s puts a balanced worker over and is refused
+ok         overhead-dropped                     rc=1 (want 1)    ESCAPED milan_dp at 4241 s puts it over and is refused
+ok         worker-count-mirrored-5              rc=1 (want 1)    ESCAPED rtl.yml at 6 workers is refused for the 5-worker overhead table
+ok         zero-duration-allowed                rc=1 (want 1)    ESCAPED a recorded duration of 0 s (aaf) is refused
+ok         pins-dropped                         rc=1 (want 1)    FAIL specialized owners {'tsn_fuzz': 3, 'chmap_capture': 1, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+ok         pin-moved                            rc=1 (want 1)    FAIL specialized owners {'tsn_fuzz': 1, 'chmap_capture': 2, 'milan_dp': 4}, milan_dp alone=True, held at any planted duration=False
+ok         dedicated-dropped                    rc=1 (want 1)    FAIL  2 shard(s): dedicated alone=False balanced owners unchanged=True | FAIL  4 shard(s): dedicated alone=False balanced owners unchanged=True | FAIL  5 shard(s): dedicated alone=False balanced owners unchanged=True | FAIL  7 shard(s): dedicated alone=False balanced owners unchanged=True | FAIL 23 shard(s): dedicated alone=False balanced owners unchanged=True | FAIL head worker 0/5 predicted 4907
+ok         tie-by-hash                          rc=1 (want 1)    FAIL the 5 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+ok         worker-tie-highest                   rc=0 (want 0)    
+ok         provisional-default-mirrored-1800    rc=1 (want 1)    ESCAPED with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+ok         provisional-named-arms-ignored       rc=1 (want 1)    ESCAPED with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+ok         provisional-never-compared           rc=1 (want 1)    ESCAPED a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused | ESCAPED with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused | ESCAPED with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+ok         provisional-no-figure-let-through    rc=1 (want 1)    ESCAPED a provisional suite with no figure in SUITE_SECONDS is refused
+ok         provisional-head-call-deleted        rc=0 (want 0)    
+ok         in-checkout-forced-false             rc=1 (want 1)    FAIL head: suite_shards.py would skip its head arms with .github/workflows/rtl.yml, tb/verilator, scripts/run_all_suites.sh beside it
+ok         measure-from-job-start               rc=1 (want 1)    FAIL log windows {'alpha': 71, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]
+ok         measure-round-down                   rc=1 (want 1)    FAIL log windows {'alpha': 10, 'beta': 120}, overhead 62 s, truncated log without overhead=False, refused timeout/no shard line/short count=[True, True, True]
+ok         measure-accept-timeout               rc=1 (want 1)    FAIL log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[False, True, True]
+ok         plant-unmeasured-suite               rc=1 (want 1)    FAIL head: zz_unmeasured: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follows the module docstring's new-suite steps: record suite_timeout's figure for it as provisional, add a worker if one is then predicted over 60% of timeout-minutes, and replace the figure from the change's own hosted run)
+ok         remove-suite-aaf                     rc=1 (want 1)    FAIL head: aaf: SUITE_SECONDS names a suite that is not in the inventory
+ok         yml-timeout-116                      rc=1 (want 1)    FAIL head worker 0/5 predicted 4204 s (70.1 min), bound 4176 s | FAIL head worker 1/5 predicted 4205 s (70.1 min), bound 4176 s | FAIL head worker 2/5 predicted 4203 s (70.0 min), bound 4176 s | FAIL head worker 3/5 predicted 4205 s (70.1 min), bound 4176 s
+ok         yml-timeout-117                      rc=0 (want 0)    
+ok         yml-total-6                          rc=1 (want 1)    FAIL head: WORKER_OVERHEAD_SECONDS describes 5 workers; rtl.yml runs 6
+ok         yml-second-timeout                   rc=1 (want 1)    FAIL head: rtl.yml job `verilator-shards` has 2 timeout-minutes values, not one
+ok         yml-missing                          rc=1 (want 1)    FAIL head: [Errno 2] No such file or directory: '$REVIEWS/727-r626-3-packet/scratch/probe/yml-missing/.github/workflows/rtl.yml'
+ok         driver-missing                       rc=1 (want 1)    FAIL head: [Errno 2] No such file or directory: '$REVIEWS/727-r626-3-packet/scratch/probe/driver-missing/scripts/run_all_suites.sh'
+ok         gptp-plane-plus-500                  rc=1 (want 1)    FAIL head worker 0/5 predicted 4333 s (72.2 min), bound 4320 s | FAIL head worker 1/5 predicted 4328 s (72.1 min), bound 4320 s | FAIL head worker 2/5 predicted 4329 s (72.2 min), bound 4320 s | FAIL head worker 3/5 predicted 4327 s (72.1 min), bound 4320 s
+ok         driver-arm-unparseable               rc=1 (want 1)    FAIL head: run_all_suites.sh's suite_timeout arm '*)                 echo 1800 ;;' is not a figure for one name
+ok         provisional-head-wrong               rc=1 (want 1)    FAIL head: zz_new: provisional figure 1799 s is not the 1800 s that run_all_suites.sh's suite_timeout gives it | FAIL head worker 0/5 predicted 4628 s (77.1 min), bound 4320 s | FAIL head worker 1/5 predicted 4628 s (77.1 min), bound 4320 s | FAIL head worker 2/5 predicted 4630 s (77.2 min), bound 4320 s | FAIL head worker 3/5 predicted 4730 s (78.8 min), bound 4320 s
+cases 38, unexpected 0
+rc=0

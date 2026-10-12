@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 8617, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 8610, in main
+    return selftest(args.root)
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 8482, in selftest
+    for found, arms in (_selftest_arms(pristine),
+                        ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 7973, in _selftest_arms
+    misses = _run_mutations(real, pristine)
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 7960, in _run_mutations
+    mutate(world)
+    ~~~~~~^^^^^^^
+  File "$REVIEWS/727-r626-3-packet/scratch/newsuite/scripts/ci_events.py", line 5336, in _m_verify_expect_missing
+    assert "--expect 5 " in s["run"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

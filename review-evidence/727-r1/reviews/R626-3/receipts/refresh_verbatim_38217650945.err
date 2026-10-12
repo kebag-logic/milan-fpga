@@ -1,0 +1,17 @@
++ run=38217650945
+++ mktemp -d
++ logs=/tmp/tmp.HXYya1BPgW
++ gh run view 38217650945 -R kebag-logic/milan-fpga --json jobs --jq '.jobs[] | select(.name | startswith("Verilator shard")) | .databaseId'
++ read -r job
++ gh run view 38217650945 -R kebag-logic/milan-fpga --job 114706225351 --log
++ read -r job
++ gh run view 38217650945 -R kebag-logic/milan-fpga --job 114706225397 --log
++ read -r job
++ gh run view 38217650945 -R kebag-logic/milan-fpga --job 114706225398 --log
++ read -r job
++ gh run view 38217650945 -R kebag-logic/milan-fpga --job 114706225439 --log
++ read -r job
++ gh run view 38217650945 -R kebag-logic/milan-fpga --job 114706225444 --log
++ read -r job
++ python3 scripts/suite_shards.py --measure /tmp/tmp.HXYya1BPgW/114706225351.log /tmp/tmp.HXYya1BPgW/114706225397.log /tmp/tmp.HXYya1BPgW/114706225398.log /tmp/tmp.HXYya1BPgW/114706225439.log /tmp/tmp.HXYya1BPgW/114706225444.log
++ python3 scripts/suite_shards.py --selftest

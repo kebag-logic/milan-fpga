@@ -1,0 +1,169 @@
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 67766752e..75dee6999 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -153,8 +153,8 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        shard: [0, 1, 2, 3, 4]
+-        total: [5]
++        shard: [0, 1, 2, 3, 4, 5]
++        total: [6]
+     steps:
+       - uses: actions/checkout@v4
+       - name: Fetch RTL dependencies
+@@ -219,7 +219,7 @@ jobs:
+           case "$SHARD" in
+             1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+             3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+-            4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
++            5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
+           esac
+ 
+       - name: Cache the pinned Yosys build for the netlist-level suite owner
+@@ -418,7 +418,7 @@ jobs:
+         run: |
+           shopt -s nullglob
+           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+-          python3 scripts/ci_events.py --require-target-sha --expect 5 \
++          python3 scripts/ci_events.py --require-target-sha --expect 6 \
+             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+ 
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 52df0a83b..9f0b3ee2a 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -1928,7 +1928,7 @@ CANONICAL_OWNERSHIP_SCRIPT = (
+     'case "$SHARD" in',
+     '1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;',
+     '3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;',
+-    '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
++    '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
+     "esac",
+ )
+ 
+@@ -2191,7 +2191,7 @@ RTL_STEP_LISTS = {
+          "run": (
+              'shopt -s nullglob',
+              'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
+-             'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha '
++             'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha '
+              'gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"',
+          )},
+         {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF,
+@@ -5101,25 +5101,25 @@ def _m_shard_denominator_stale(w: World) -> None:
+     # O9: the matrix grows, the restated denominator does not.
+     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+         "shard"]
+-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+-    _restate_shards(w, "verilator-shards", "5")
+-    shard.append(5)
++    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
++    _restate_shards(w, "verilator-shards", "6")
++    shard.append(6)
+ 
+ 
+ def _m_dedicated_worker_dropped(w: World) -> None:
+     """#444: milan_dp's own worker leaves the matrix, `total` stays five."""
+     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+         "shard"]
+-    assert shard[-1] == 4, "fixture drift: verilator-shards matrix"
++    assert shard[-1] == 5, "fixture drift: verilator-shards matrix"
+     shard.pop()
+ 
+ 
+ def _m_dedicated_worker_reverted(w: World) -> None:
+     """#444: the matrix and its `total` return to four, `--expect` stays."""
+     matrix = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]
+-    assert matrix["shard"][-1] == 4, "fixture drift: verilator-shards matrix"
++    assert matrix["shard"][-1] == 5, "fixture drift: verilator-shards matrix"
+     matrix["shard"].pop()
+-    matrix["total"] = [4]
++    matrix["total"] = [5]
+ 
+ 
+ def _ownership_step(w: World) -> YamlMap:
+@@ -5133,7 +5133,7 @@ def _ownership_step(w: World) -> YamlMap:
+ def _m_ownership_dedicated_arm_dropped(w: World) -> None:
+     """#444: the proof that shard 4 runs milan_dp alone is deleted."""
+     s = _ownership_step(w)
+-    arm = '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
++    arm = '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+     assert arm in s["run"], "fixture drift: no dedicated ownership arm"
+     s["run"] = "\n".join(l for l in s["run"].splitlines() if arm not in l)
+ 
+@@ -5249,7 +5249,7 @@ def _m_shard_matrix_include(w: World) -> None:
+     """verilator-shards' matrix gains an `include`."""
+     jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+         "include"
+-    ] = [{"shard": 4, "total": 5}]
++    ] = [{"shard": 5, "total": 6}]
+ 
+ 
+ def _m_shard_matrix_exclude(w: World) -> None:
+@@ -5333,16 +5333,16 @@ def _m_verify_expect_wrong(w: World) -> None:
+ def _m_verify_expect_missing(w: World) -> None:
+     """verilator-suites' verifier passes no `--expect`."""
+     s = _verify_step(w, "verilator-suites")
+-    assert "--expect 5 " in s["run"]
+-    s["run"] = s["run"].replace("--expect 5 ", "")
++    assert "--expect 6 " in s["run"]
++    s["run"] = s["run"].replace("--expect 6 ", "")
+ 
+ 
+ def _m_matrix_grows_expect_stays(w: World) -> None:
+     """verilator-shards' matrix grows, the verifier's `--expect` does not."""
+     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+         "shard"]
+-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+-    shard.append(5)
++    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
++    shard.append(6)
+ 
+ 
+ def _m_aggregate_if_loosened(w: World) -> None:
+@@ -6369,7 +6369,7 @@ def _shard_and_fast_arms() -> list[Arm]:
+         ("#444 the dedicated milan_dp worker leaves the matrix",
+          _m_dedicated_worker_dropped, "shard denominator matrix `total`"),
+         ("#444 the matrix and total return to four, --expect stays",
+-         _m_dedicated_worker_reverted, "--expect 4"),
++         _m_dedicated_worker_reverted, "--expect 5"),
+         ("#444 ownership proof loses the dedicated milan_dp arm",
+          _m_ownership_dedicated_arm_dropped,
+          f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index ac930bf2a..f5a2a0486 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -192,17 +192,18 @@ SUITE_SECONDS = {
+     "tdm_render": 6,
+     "tkdiag": 28,
+     "tsn_fuzz": 60,
++    "zz_new_suite": 1800,
+ }
+ 
+ #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
+ #: driver's suite_timeout gives a new suite, until the change's own hosted run
+ #: measures it (step 3 of the module docstring's new-suite steps).
+-PROVISIONAL_SUITES: frozenset[str] = frozenset()
++PROVISIONAL_SUITES: frozenset[str] = frozenset({"zz_new_suite"})
+ 
+ #: Seconds of each worker's job outside its suite windows in the same dev run:
+ #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
+ #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
+-WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 80)
++WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 115, 80)
+ 
+ 
+ def parse_shard(value: str) -> tuple[int, int]:
+@@ -841,7 +842,7 @@ def head_selftest() -> int:
+     # balance alone can put a suite on its owner by chance, so each
+     # specialized suite is also planted as the lightest and the heaviest.
+     owners, _ = balance(suites, len(load))
+-    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 4}
++    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 5}
+     got = {suite: owners.get(suite) for suite in landmarks}
+     alone = dedicated_alone(suites, len(load), DEDICATED_SUITES, SUITE_SECONDS)
+     specialized = ("tsn_fuzz", "chmap_capture")

@@ -1,0 +1,19 @@
+== stage 0 (planted, no figure)
+selftest rc=1
+--shard 0/5 --list rc=2
+== after steps 1 and 2
+selftest rc=0
+  ok   head provisional figures {'zz_new_suite': 1800} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 1/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 2/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 3/6 predicted 3747 s (62.5 min), bound 4320 s
+  ok   head worker 4/6 predicted 3747 s (62.5 min), bound 4320 s
+  ok   head worker 5/6 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 5}, milan_dp alone=True, held at any planted duration=True
+six lists: union == inventory, no duplicates (63 suites)
+worker 5/6: milan_dp 
+ci_events --check rc=0 :: ci_events: OK (1822 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events --selftest rc=0 :: selftest: PASS (1822 contract items, 2530 arms)
+serial preflight rc=0 :: PREFLIGHT_DONE
+rc=0

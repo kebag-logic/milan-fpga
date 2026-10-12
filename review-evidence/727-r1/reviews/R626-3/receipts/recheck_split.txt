@@ -1,0 +1,12 @@
+rtl.yml verilator-shards: timeout-minutes 120, total [5], shard [0, 1, 2, 3, 4]
+60% bound: 4320 s (72.0 min)
+inventory 62 suites; table 62; inventory==table keys: True
+worker 0/5: 15 suites, predicted 4204 s (70.1 min, 58.4% of timeout), independent split equal=True
+worker 1/5: 16 suites, predicted 4205 s (70.1 min, 58.4% of timeout), independent split equal=True
+worker 2/5: 14 suites, predicted 4203 s (70.0 min, 58.4% of timeout), independent split equal=True
+worker 3/5: 16 suites, predicted 4205 s (70.1 min, 58.4% of timeout), independent split equal=True
+worker 4/5: 1 suites, predicted 2877 s (48.0 min, 40.0% of timeout), independent split equal=True
+union==inventory True; duplicates False; worker 4 is milan_dp alone True; tsn_fuzz on 1 and chmap_capture on 3 True
+old SHA-256 rule with the same table (incl. #696 maap): 2678 s (44.6 min), 7504 s (125.1 min), 4734 s (78.9 min), 1901 s (31.7 min), 2877 s (48.0 min)
+RESULT OK
+rc=0
