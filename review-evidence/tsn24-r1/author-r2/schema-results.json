@@ -1,0 +1,25 @@
+{
+  "name": "dafresh-schema-range",
+  "old": "integer(acmp['da_fresh_ms'], 15000, 15000, 'acmp.da_fresh_ms')",
+  "new": "integer(acmp['da_fresh_ms'], 15000, 15001, 'acmp.da_fresh_ms')",
+  "baseline": {
+    "tests": 197,
+    "failures": [],
+    "errors": [],
+    "skipped": []
+  },
+  "caught": {
+    "tests": 197,
+    "failures": [
+      "entity_selftest.EntityTests.test_dafresh_configuration"
+    ],
+    "errors": [],
+    "skipped": []
+  },
+  "escaped": {
+    "tests": 196,
+    "failures": [],
+    "errors": [],
+    "skipped": []
+  }
+}

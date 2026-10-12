@@ -1,0 +1,325 @@
+[
+  {
+    "plant": "x-zero-never-expires",
+    "killer": "AcmpFresh.ZeroWindow",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "killer_needle": "a zero interval disables probe demand even at answer acceptance",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ZeroWindow"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "2e35b72be5e0c13071f4aadc2fd2b642f0a753575e5e02aba649786f711c751f"
+  },
+  {
+    "plant": "dafresh-half-range",
+    "killer": "AcmpFresh.WindowRange",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WindowRange"
+    ],
+    "killer_needle": "freshness intervals at or above the clock half range are refused",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WindowRange"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "c9ce2a1359ba337aa57965b5ea6172bd7231f8223d943d429853d500fb0bdb9b"
+  },
+  {
+    "plant": "dafresh-unanswered-clock",
+    "killer": "AcmpFresh.NoProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.NoProbe"
+    ],
+    "killer_needle": "freshness requires an answered probe even at clock zero",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.NoProbe"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "f1c9fdf015813cb47b38e9742d8cb29154c4d9540314932774fd5886e3c76b44"
+  },
+  {
+    "plant": "dafresh-expiry-equality",
+    "killer": "AcmpFresh.StaleProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "killer_needle": "a probe older than the freshness window cannot declare",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.StaleProbe"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "1ec3ee5a4fff71b29f14ea7bf1171914d2d0773678552c5016877a587a922676"
+  },
+  {
+    "plant": "dafresh-inclusive-edge",
+    "killer": "AcmpFresh.WindowEdge",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "killer_needle": "the exact fifteen second boundary closes the declaration",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WindowEdge"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "059f24877f1fffd901cc8c2ee52cf6fa8f6ceab54d05eb395589d6313d5343ba"
+  },
+  {
+    "plant": "dafresh-no-renewal",
+    "killer": "AcmpFresh.WithinWindowAndRefresh",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "killer_needle": "another answer renews the complete freshness window",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.WithinWindowAndRefresh"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "820bb24e607c81f1d1f6ba3d3e33d654dc80cf296faae51edb4bb737299cdd11"
+  },
+  {
+    "plant": "dafresh-listener-needs-probe",
+    "killer": "AcmpFresh.ListenerWithoutProbe",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "killer_needle": "a registered Listener declares without any answered probe",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ListenerWithoutProbe"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "55653310196983ae4c0317797b98abfc5edd3f5c1df222f7964270a11bef84de"
+  },
+  {
+    "plant": "dafresh-ignore-address",
+    "killer": "AcmpFresh.InvalidAddress",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "killer_needle": "invalid destination blocks both fresh and registered demand",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.InvalidAddress"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "da93f5aaae639bbfbd5a99fd82c3a5c6340c5055b5000d107db10226fdbbc33a"
+  },
+  {
+    "plant": "dafresh-absolute-clock",
+    "killer": "AcmpFresh.ClockWrap",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "killer_needle": "unsigned elapsed time keeps a probe fresh across clock wrap",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ClockWrap"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "2ce57d32bc8b10356fb70bc54536d627b30e6459fc1a2ba1f4982fd6076d6447"
+  },
+  {
+    "plant": "dafresh-fixed-window",
+    "killer": "AcmpFresh.ConfiguredWindow",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "killer_needle": "the core uses the configured interval without a mirrored constant",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ConfiguredWindow"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "2f6a2d01c8000d382c3501d70c42c01c3c9e11cc91e482579945a6b7e0fd6f02"
+  },
+  {
+    "plant": "dafresh-refused-answer",
+    "killer": "AcmpFresh.DeferredAnswer",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "killer_needle": "a queued response does not yet count as an answer",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.DeferredAnswer"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "ffc6fafb89db0b28f49a6694d6a07e151ebb472f20c4024b483fe0865e188157"
+  },
+  {
+    "plant": "dafresh-only-success",
+    "killer": "AcmpFresh.FailedAllocationAnswer",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "killer_needle": "an answered allocation failure retains demand for later validity",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.FailedAllocationAnswer"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "23480af277c27d2736b4e72a1497c7cf219078cc39f9978ea70c830f0d355dda"
+  },
+  {
+    "plant": "dafresh-state-reply-demand",
+    "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "killer_needle": "other talker commands cannot supply probe freshness",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.OtherRepliesDoNotRefresh"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "65dbfd6d59c459d550d551ade06289e96c2ede3cce882d8e3fb03eb2806bbd1a"
+  },
+  {
+    "plant": "dafresh-wrong-source",
+    "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "killer_needle": "a probe on the second source leaves the first source closed",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.SourceAndInterfaceIsolation"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "4e8395a592f3322d6bbea3dd406b07ab97434514ee6a508bc07ecc91f42b58e7"
+  },
+  {
+    "plant": "dafresh-wrong-interface",
+    "killer": "AcmpFresh.InputGuardsAndReentry",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "killer_needle": "Listener interface must match the configured source interface",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.InputGuardsAndReentry"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "6271380504e137390af5c93022d23a1acc331ba86c46f34e3489e42ecbb4ebc6"
+  },
+  {
+    "plant": "dafresh-reset-retains-demand",
+    "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "killer_needle": "initialization clears previous demand and probe timestamps",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "AcmpFresh.ListenerWithdrawalAndReset"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "52a3dcf748a6b8967eecfea319fa1d78c6009bceeffcc88fe83e0edc3412a366"
+  },
+  {
+    "plant": "dafresh-generated-window",
+    "killer": "EntityYaml.DaFreshRoundTrip",
+    "full_rc": 8,
+    "full_binaries": 8,
+    "full_tests": 418,
+    "full_failures": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "killer_needle": "generated freshness configuration survives both target round trips",
+    "physical_removed_rc": 0,
+    "remaining_binaries": 8,
+    "remaining_tests": 417,
+    "removed_tests": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "escapes": true,
+    "mutant_source_sha256": "8728036b120baa0d91cba86b7effef2e58be2c9254aebe15e1483311ca7dbbb6"
+  }
+]
