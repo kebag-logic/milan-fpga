@@ -1,0 +1,40 @@
+# fabric reference at milan-fpga c6bd08c6f52632c6d33d834ce842ac3cf63f29cc, protocol-processor gitlink 2ad2f845dd583f8310075fa2380cb60a04fd091a
+## hdl/acmp/KL_acmp_talker.sv:391-398 (listener term, freshness)
+  function automatic logic lsn_reg_f(input logic [SRC_W_C-1:0] s);
+    return (lsn_state_f(s) != srp_pkg::SRP_DECL_IGNORE);
+  endfunction
+
+  //! derived freshness: probed within T-SRP-DAFRESH (wrap-safe mod-2^32)
+  function automatic logic fresh_f(input tk_rec_t r);
+    return r.pinged && ((now_ms_i - r.ping_ts) < 32'(DAFRESH_MS_P));
+  endfunction
+## hdl/acmp/KL_acmp_talker.sv:664-690 (ping on valid uid + matching interface, before DA check)
+  assign iface_ok_w   = (src_iface_f(tsrc_w) == txn_r.interface_index);
+  assign ping_w       = talker_cmd_w && (txn_r.msg_type == MT_PROBE_TX_C)
+                        && uid_valid_w && iface_ok_w;
+  always_comb begin : txn_commit
+    txn_rec2_w         = rec_w;
+    txn_open_w         = 1'b0;
+    txn_initset_w      = 1'b0;
+    if (ping_w) begin
+      txn_rec2_w.pinged  = 1'b1;
+      txn_rec2_w.ping_ts = now_ms_i;
+      if ((rec_w.gstate == GS_DA_OK_C) && da_ok_w) begin
+## hdl/acmp/KL_acmp_talker.sv:830-841 (EVC_LSN: listener change re-evaluates fresh OR listener)
+      EVC_LSN: begin
+        ev_daok2_w = rec_w.da_valid && !pe_conflict_r[ev_src_r];
+        ev_gate_w  = ev_daok2_w
+                     && (fresh_f(rec_w) || lsn_reg_f(ev_src_r));
+        if ((rec_w.gstate == GS_DA_OK_C) && ev_gate_w) begin
+          ev_rec2_w.gstate = GS_DECLARING_C;
+          ev_open_w        = 1'b1;
+          ev_we_w          = 1'b1;
+        end else if ((rec_w.gstate == GS_DECLARING_C) && !ev_gate_w) begin
+          ev_rec2_w.gstate = GS_DA_OK_C;
+          ev_close_w       = 1'b1;
+          ev_we_w          = 1'b1;
+## tb/acmp_talker/sim_main.cpp:641-644 (fabric asserts: Listener loss with a fresh probe does not withdraw)
+// ---- D: T-SRP-DAFRESH freshness expiry ------------------------------
+void Hn::check_dafresh_expiry() {
+  set_lsn(3, LSN_NONE);                     // gate now rests on freshness
+  CHECK(gates.empty(), "D1 still fresh: no withdraw on listener loss");

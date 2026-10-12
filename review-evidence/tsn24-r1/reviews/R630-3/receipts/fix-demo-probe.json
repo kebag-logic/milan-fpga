@@ -1,0 +1,407 @@
+[
+ {
+  "plant": null,
+  "mode": "control",
+  "build_rc": 0,
+  "tests": 423,
+  "failures": [],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 100
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  }
+ },
+ {
+  "plant": "r630-3-withdrawal-clears-probe",
+  "mode": "removed",
+  "build_rc": 0,
+  "tests": 422,
+  "failures": [],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 99
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewWithdrawalKeepsFreshProbe",
+  "failing_set": [],
+  "escapes": true
+ },
+ {
+  "plant": "r630-3-listener-range-only",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 423,
+  "failures": [
+   {
+    "test": "AcmpFresh.ReviewListenerOnAnotherInterface",
+    "binary": "acmp_tests",
+    "message": "<packet>/scratch/fsp-demo/w1/src/tests/test_acmp.cpp:2510\nValue of: acmp_listener_registered(&a, 1, 0, true)\n  Actual: true\nExpected: false\nreview demo: a Listener on another configured interface is refused\n\n<packet>/scratch/fsp-demo/w1/src/tests/test_acmp.cpp:2512\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nreview demo: a refused Listener leaves the source closed\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 100
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewListenerOnAnotherInterface",
+  "failing_set": [
+   "AcmpFresh.ReviewListenerOnAnotherInterface"
+  ],
+  "caught": true,
+  "only_killer": true,
+  "needle_seen": true
+ },
+ {
+  "plant": "r630-3-init-keeps-listener",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 423,
+  "failures": [
+   {
+    "test": "AcmpFresh.ReviewInitClearsListener",
+    "binary": "acmp_tests",
+    "message": "<packet>/scratch/fsp-demo/w1/src/tests/test_acmp.cpp:2528\nValue of: acmp_declaring(&a, 0)\n  Actual: true\nExpected: false\nreview demo: initialization clears a registered Listener\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 100
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewInitClearsListener",
+  "failing_set": [
+   "AcmpFresh.ReviewInitClearsListener"
+  ],
+  "caught": true,
+  "only_killer": true,
+  "needle_seen": true
+ },
+ {
+  "plant": "r630-3-listener-range-only",
+  "mode": "removed",
+  "build_rc": 0,
+  "tests": 422,
+  "failures": [],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 99
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewListenerOnAnotherInterface",
+  "failing_set": [],
+  "escapes": true
+ },
+ {
+  "plant": "r630-3-init-keeps-listener",
+  "mode": "removed",
+  "build_rc": 0,
+  "tests": 422,
+  "failures": [],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 99
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewInitClearsListener",
+  "failing_set": [],
+  "escapes": true
+ },
+ {
+  "plant": "r630-3-withdrawal-clears-probe",
+  "mode": "full",
+  "build_rc": 0,
+  "tests": 423,
+  "failures": [
+   {
+    "test": "AcmpFresh.ReviewWithdrawalKeepsFreshProbe",
+    "binary": "acmp_tests",
+    "message": "<packet>/scratch/fsp-demo/w3/src/tests/test_acmp.cpp:2521\nValue of: acmp_declaring(&a, 0)\n  Actual: false\nExpected: true\nreview demo: Listener withdrawal keeps a fresh probe declaring\n"
+   }
+  ],
+  "skipped": 0,
+  "disabled": 0,
+  "binaries": {
+   "adp_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 39
+   },
+   "acmp_tests": {
+    "rc": 1,
+    "xml": true,
+    "completed": 100
+   },
+   "maap_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 34
+   },
+   "entity_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 4
+   },
+   "port_tests": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   },
+   "adp_release": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "adp_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 122
+   },
+   "maap_debug": {
+    "rc": 0,
+    "xml": true,
+    "completed": 1
+   }
+  },
+  "killer": "AcmpFresh.ReviewWithdrawalKeepsFreshProbe",
+  "failing_set": [
+   "AcmpFresh.ReviewWithdrawalKeepsFreshProbe"
+  ],
+  "caught": true,
+  "only_killer": true,
+  "needle_seen": true
+ }
+]

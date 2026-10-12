@@ -1,0 +1,8 @@
+# loadable image = riscv64-elf-objcopy -O binary <elf>; sizes in bytes
+base debug 45744 a06f2cecdf55c11dbb75d60478b48f26cfdcf2058408923369f3d2a738a9a16b
+base release 35792 89610fbc7260156850d7c8937a80484a0ebf889d642482997a5ac421a3a907d2
+head debug 47512 ff69c62b1d3b7d162f4a7a4d60fb64176aa7986cf7b046429578d913ce750ff6
+head release 36864 80c2f685ccef17748ea3fa4cc3425009b9c156fce8c7be85b9fc8dd91751f303
+release delta = 1072 (ceiling 2048)
+debug delta = 1768 (informational)
+head image sha256 equal to author round3 sizes.json (milan-fpga 66585285 review-evidence/tsn24-r1/author-r3/round3/sizes.json): debug ff69c62b... release 80c2f685... yes

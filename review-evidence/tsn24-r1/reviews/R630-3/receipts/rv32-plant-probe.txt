@@ -1,0 +1,10 @@
+control baremetal_rc=0 smoke=[ADP, ACMP and MAAP smoke checks: rc 0 ADP, ACMP and MAAP smoke checks: rc 0 ]
+rv32-generated-window baremetal_rc=1 smoke=[]
+rv32-answer-not-recorded baremetal_rc=1 smoke=[]
+# direct qemu exit codes (smoke main return value; CHECK ids 80/81/85 are entity_check_dafresh)
+rv32-head/debug qemu_exit=0
+rv32-head/release qemu_exit=0
+rv32probe/rv32-generated-window/build/debug qemu_exit=80
+rv32probe/rv32-generated-window/build/release qemu_exit=80
+rv32probe/rv32-answer-not-recorded/build/debug qemu_exit=85
+rv32probe/rv32-answer-not-recorded/build/release qemu_exit=85

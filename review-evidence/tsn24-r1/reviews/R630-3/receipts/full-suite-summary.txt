@@ -1,0 +1,52 @@
+# full_suite_probe.py at exact head 1edff318: 8 hosted binaries, fresh XML per run, GTEST_FILTER cleared
+control: completed 420 failures 0 skipped 0
+
+## registered ACMP-11 plants (19): full suite with killer / killer physically deleted
+dafresh-absolute-clock: killer=AcmpFresh.ClockWrap full=420 failing=['AcmpFresh.ClockWrap'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-expiry-equality: killer=AcmpFresh.StaleProbe full=420 failing=['AcmpFresh.StaleProbe'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-fixed-window: killer=AcmpFresh.ConfiguredWindow full=420 failing=['AcmpFresh.ConfiguredWindow'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-generated-window: killer=EntityYaml.DaFreshRoundTrip full=420 failing=['EntityYaml.DaFreshRoundTrip'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-half-range: killer=AcmpFresh.WindowRange full=420 failing=['AcmpFresh.WindowRange'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-ignore-address: killer=AcmpFresh.InvalidAddress full=420 failing=['AcmpFresh.InvalidAddress'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-inclusive-edge: killer=AcmpFresh.WindowEdge full=420 failing=['AcmpFresh.WindowEdge'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-listener-needs-probe: killer=AcmpFresh.ListenerWithoutProbe full=420 failing=['AcmpFresh.ListenerWithoutProbe'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-no-renewal: killer=AcmpFresh.WithinWindowAndRefresh full=420 failing=['AcmpFresh.WithinWindowAndRefresh'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-only-success: killer=AcmpFresh.FailedAllocationAnswer full=420 failing=['AcmpFresh.FailedAllocationAnswer'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-refused-answer: killer=AcmpFresh.DeferredAnswer full=420 failing=['AcmpFresh.DeferredAnswer'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-reset-retains-demand: killer=AcmpFresh.ListenerWithdrawalAndReset full=420 failing=['AcmpFresh.ListenerWithdrawalAndReset'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-state-reply-demand: killer=AcmpFresh.OtherRepliesDoNotRefresh full=420 failing=['AcmpFresh.OtherRepliesDoNotRefresh'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-unanswered-clock: killer=AcmpFresh.NoProbe full=420 failing=['AcmpFresh.NoProbe'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-wrong-interface: killer=AcmpFresh.InputGuardsAndReentry full=420 failing=['AcmpFresh.InputGuardsAndReentry'] needle=True | removed=419 failing=[] escapes=True -> PASS
+dafresh-wrong-source: killer=AcmpFresh.SourceAndInterfaceIsolation full=420 failing=['AcmpFresh.SourceAndInterfaceIsolation'] needle=True | removed=419 failing=[] escapes=True -> PASS
+g-expiry-skipped-invalid-da: killer=AcmpFresh.StaleProbeAfterInvalidAddressWrap full=420 failing=['AcmpFresh.StaleProbeAfterInvalidAddressWrap'] needle=True | removed=419 failing=[] escapes=True -> PASS
+g-expiry-skipped-with-listener: killer=AcmpFresh.StaleProbeAfterListenerWrap full=420 failing=['AcmpFresh.StaleProbeAfterListenerWrap'] needle=True | removed=419 failing=[] escapes=True -> PASS
+x-zero-never-expires: killer=AcmpFresh.ZeroWindow full=420 failing=['AcmpFresh.ZeroWindow'] needle=True | removed=419 failing=[] escapes=True -> PASS
+registered plants meeting caught-only-by-killer AND escape-on-removal: 19/19
+
+## reviewer gap mutants (complete suite)
+r630-3-ax7101-window: completed=420 failing=['EntityYaml.DaFreshRoundTrip'] -> CAUGHT
+r630-3-declaring-bound-off-by-one: completed=420 failing=['AcmpFresh.InputGuardsAndReentry'] -> CAUGHT
+r630-3-declaring-ignores-invalid-only-for-listener: completed=420 failing=['AcmpFresh.InvalidAddress'] -> CAUGHT
+r630-3-declaring-no-entry-guard: completed=420 failing=['AcmpFresh.InputGuardsAndReentry'] -> CAUGHT
+r630-3-declaring-reads-source-zero: completed=420 failing=['AcmpFresh.SourceAndInterfaceIsolation'] -> CAUGHT
+r630-3-derived-freshness-no-latch: completed=420 failing=['AcmpFresh.StaleProbe', 'AcmpFresh.StaleProbeAfterInvalidAddressWrap', 'AcmpFresh.StaleProbeAfterListenerWrap'] -> CAUGHT
+r630-3-drop-send-clock-reread: completed=420 failing=[] -> SURVIVED
+r630-3-entry-time-stamp: completed=420 failing=['AcmpCore.CommandPortBudgets', 'AcmpFresh.DeferredAnswer', 'AcmpFresh.WithinWindowAndRefresh'] -> CAUGHT
+r630-3-index-by-listener-uid: completed=420 failing=['AcmpFresh.SourceAndInterfaceIsolation'] -> CAUGHT
+r630-3-init-keeps-listener: completed=420 failing=[] -> SURVIVED
+r630-3-listener-bound-off-by-one: completed=420 failing=['AcmpFresh.InputGuardsAndReentry'] -> CAUGHT
+r630-3-listener-no-entry-guard: completed=420 failing=['AcmpFresh.InputGuardsAndReentry'] -> CAUGHT
+r630-3-listener-range-only: completed=420 failing=[] -> SURVIVED
+r630-3-listener-sticky: completed=420 failing=['AcmpFresh.ListenerWithdrawalAndReset', 'AcmpFresh.ListenerWithoutProbe', 'AcmpFresh.StaleProbeAfterListenerWrap', 'AcmpFresh.WindowEdge', 'AcmpFresh.ZeroWindow'] -> CAUGHT
+r630-3-listener-writes-source-zero: completed=420 failing=['AcmpFresh.SourceAndInterfaceIsolation'] -> CAUGHT
+r630-3-status-unshifted: completed=420 failing=['AcmpFresh.FailedAllocationAnswer'] -> CAUGHT
+r630-3-withdrawal-clears-probe: completed=420 failing=[] -> SURVIVED
+
+## disposable demonstration (scratch clone, three added assertions; not a source fix)
+None control completed 423 failing None escapes None
+r630-3-withdrawal-clears-probe removed completed 422 failing [] escapes True
+r630-3-listener-range-only full completed 423 failing ['AcmpFresh.ReviewListenerOnAnotherInterface'] escapes None
+r630-3-init-keeps-listener full completed 423 failing ['AcmpFresh.ReviewInitClearsListener'] escapes None
+r630-3-listener-range-only removed completed 422 failing [] escapes True
+r630-3-init-keeps-listener removed completed 422 failing [] escapes True
+r630-3-withdrawal-clears-probe full completed 423 failing ['AcmpFresh.ReviewWithdrawalKeepsFreshProbe'] escapes None

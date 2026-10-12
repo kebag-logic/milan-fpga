@@ -1,0 +1,172 @@
+[
+ {
+  "name": "r630-3-entry-time-stamp",
+  "path": "src/acmp.c",
+  "old": "\ta->in_port = true;\n\tbool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);\n\ta->in_port = false;\n\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&\n\t    ((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||\n\t     (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {\n\t\tstruct acmp_source *s = &a->sources[wire_be16(frame + O_TALKER_UID)];\n\t\ta->now_read = false;\n\t\ts->answered_at = now(a);",
+  "new": "\tuint32_t sent_at = now(a);\n\ta->in_port = true;\n\tbool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);\n\ta->in_port = false;\n\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&\n\t    ((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||\n\t     (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {\n\t\tstruct acmp_source *s = &a->sources[wire_be16(frame + O_TALKER_UID)];\n\t\ta->now_read = false;\n\t\ts->answered_at = sent_at;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-drop-send-clock-reread",
+  "path": "src/acmp.c",
+  "old": "\t\ta->now_read = false;\n\t\ts->answered_at = now(a);",
+  "new": "\t\ts->answered_at = now(a);",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-range-only",
+  "path": "src/acmp.c",
+  "old": "if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "new": "if (source >= a->cfg.n_sources || interface >= a->cfg.n_interfaces) {",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-bound-off-by-one",
+  "path": "src/acmp.c",
+  "old": "if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "new": "if (source > a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-bound-off-by-one",
+  "path": "src/acmp.c",
+  "old": "\tif (source >= a->cfg.n_sources) {\n\t\treturn false;\n\t}\n\tstruct acmp_source *s",
+  "new": "\tif (source > a->cfg.n_sources) {\n\t\treturn false;\n\t}\n\tstruct acmp_source *s",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-init-keeps-listener",
+  "path": "src/acmp.c",
+  "old": "\tmemset(a, 0, sizeof *a);\n\ta->cfg = *cfg;",
+  "new": "\tbool kept[ACMP_MAX_SOURCES];\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\tkept[k] = a->sources[k].listener_registered;\n\t}\n\tmemset(a, 0, sizeof *a);\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\ta->sources[k].listener_registered = kept[k];\n\t}\n\ta->cfg = *cfg;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-derived-freshness-no-latch",
+  "path": "src/acmp.c",
+  "old": "\tif (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {\n\t\ts->answered = false;\n\t}\n\tstruct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n\treturn st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "\tbool fresh = s->answered && (uint32_t)(now(a) - s->answered_at) < a->cfg.da_fresh_ms;\n\tstruct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n\treturn st.dest_mac_valid && (fresh || s->listener_registered);",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-sticky",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[source].listener_registered |= registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-withdrawal-clears-probe",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[source].listener_registered = registered;\n\tif (!registered) {\n\t\ta->sources[source].answered = false;\n\t}",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-no-entry-guard",
+  "path": "src/acmp.c",
+  "old": "bool acmp_declaring(struct acmp *a, unsigned source)\n{\n\tif (!enter(a)) {\n\t\treturn false;\n\t}\n",
+  "new": "bool acmp_declaring(struct acmp *a, unsigned source)\n{\n\ta->now_read = false;\n",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-no-entry-guard",
+  "path": "src/acmp.c",
+  "old": "bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered)\n{\n\tif (!enter(a)) {\n\t\treturn false;\n\t}\n",
+  "new": "bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered)\n{\n",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-index-by-listener-uid",
+  "path": "src/acmp.c",
+  "old": "&a->sources[wire_be16(frame + O_TALKER_UID)]",
+  "new": "&a->sources[wire_be16(frame + O_LISTENER_UID)]",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-status-unshifted",
+  "path": "src/acmp.c",
+  "old": "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL",
+  "new": "frame[O_STATUS] == ACMP_STATUS_TALKER_DEST_MAC_FAIL",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-reads-source-zero",
+  "path": "src/acmp.c",
+  "old": "\tstruct acmp_source *s = &a->sources[source];\n\tif (s->answered &&",
+  "new": "\tstruct acmp_source *s = &a->sources[0];\n\tif (s->answered &&",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-writes-source-zero",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[0].listener_registered = registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-ax7101-window",
+  "path": "examples/entities/ax7101/entity_config.c",
+  "old": ".da_fresh_ms = 15000u,",
+  "new": ".da_fresh_ms = 15001u,",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-ignores-invalid-only-for-listener",
+  "path": "src/acmp.c",
+  "old": "return st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "return (st.dest_mac_valid && s->answered) || s->listener_registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ }
+]

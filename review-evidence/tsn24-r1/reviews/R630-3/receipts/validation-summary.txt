@@ -1,0 +1,74 @@
+# scripts/validate.py --work <scratch>/val-head --jobs 10 --graphs at exact head 1edff318; runner rc=1
+entity-golden: rc 0
+entity-controls: rc 0
+boundary: rc 0
+needles: rc 0
+assertion-templates: rc 0
+dependencies: rc 0
+comments: rc 0
+conditionals: rc 0
+port-contracts: rc 0
+acmp-cache: rc 0
+registration-controls: rc 0
+license: rc 0
+traceability: rc 0
+test-inventory: rc 0
+coverage-controls: rc 0
+privacy-selftest: rc 0
+privacy: rc 0
+gcc-configure: rc 0
+clang-sanitizers-configure: rc 0
+clang-sanitizers-build: rc 0
+clang-sanitizers-test: rc 0
+gcc-build: rc 0
+gcc-test: rc 0
+coverage: rc 0
+static-analysis: rc 1
+mutation: rc 0
+mutation-controls: rc 0
+graphs: rc 0
+
+# coverage
+file                                                 lines    branches   after exclusions
+include/wire.h                                    10/10        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       792/792     392/392     lines 100.00 %  branches 100.00 %
+src/adp.c                                        205/207      97/104     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+# mutation tail
+CAUGHT maap-constant-announce_base
+CAUGHT maap-constant-announce_variation
+{"CAUGHT": 367, "ESCAPED": 0, "ERROR": 0}
+# gcc-test tail
+
+100% tests passed out of 8
+
+Total Test time (real) =   0.19 sec
+# clang-sanitizers-test tail
+
+100% tests passed out of 8
+
+Total Test time (real) =   0.48 sec
+# traceability tail
+requirement definitions: 45 missing-row controls caught
+requirement records: 31 metadata defects caught
+registration: 8 binaries; 420 instances
+traceability: 45 requirements; 146 test declarations
+# test-inventory
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/val-head/registration
+[  9%] Built target tsn_test
+[ 23%] Built target entity_examples
+[ 39%] Built target tsn_debug
+[ 39%] Built target tsn
+[ 44%] Built target example_port
+[ 51%] Built target adp_release
+[ 65%] Built target acmp_tests
+[ 65%] Built target maap_tests
+[ 72%] Built target maap_debug
+[ 79%] Built target adp_tests
+[ 86%] Built target adp_debug
+[ 93%] Built target entity_tests
+[100%] Built target port_tests
+registration: 8 binaries; 420 instances
+test sensitivity: 146 declarations, 367 plants

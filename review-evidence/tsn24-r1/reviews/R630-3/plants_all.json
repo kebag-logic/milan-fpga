@@ -1,0 +1,400 @@
+[
+ {
+  "name": "x-zero-never-expires",
+  "path": "src/acmp.c",
+  "old": "s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "new": "s->answered && a->cfg.da_fresh_ms != 0u && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "killer": "AcmpFresh.ZeroWindow",
+  "needle": "a zero interval disables probe demand even at answer acceptance",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-half-range",
+  "path": "src/acmp.c",
+  "old": "cfg->da_fresh_ms >= UINT32_C(0x80000000)",
+  "new": "cfg->da_fresh_ms > UINT32_C(0x80000000)",
+  "killer": "AcmpFresh.WindowRange",
+  "needle": "freshness intervals at or above the clock half range are refused",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-unanswered-clock",
+  "path": "src/acmp.c",
+  "old": "\tmemset(a, 0, sizeof *a);\n\ta->cfg = *cfg;",
+  "new": "\tmemset(a, 0, sizeof *a);\n\ta->sources[0].answered = true;\n\ta->cfg = *cfg;",
+  "killer": "AcmpFresh.NoProbe",
+  "needle": "freshness requires an answered probe even at clock zero",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-expiry-equality",
+  "path": "src/acmp.c",
+  "old": "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "new": "(uint32_t)(now(a) - s->answered_at) == a->cfg.da_fresh_ms",
+  "killer": "AcmpFresh.StaleProbe",
+  "needle": "a probe older than the freshness window cannot declare",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-inclusive-edge",
+  "path": "src/acmp.c",
+  "old": "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "new": "((uint32_t)(now(a) - s->answered_at) > a->cfg.da_fresh_ms || a->cfg.da_fresh_ms == 0u)",
+  "killer": "AcmpFresh.WindowEdge",
+  "needle": "the exact fifteen second boundary closes the declaration",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-no-renewal",
+  "path": "src/acmp.c",
+  "old": "s->answered_at = now(a);",
+  "new": "if (!s->answered) s->answered_at = now(a);",
+  "killer": "AcmpFresh.WithinWindowAndRefresh",
+  "needle": "another answer renews the complete freshness window",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-listener-needs-probe",
+  "path": "src/acmp.c",
+  "old": "return st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "return st.dest_mac_valid && (s->answered || (s->listener_registered && s->answered_at != 0u));",
+  "killer": "AcmpFresh.ListenerWithoutProbe",
+  "needle": "a registered Listener declares without any answered probe",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-ignore-address",
+  "path": "src/acmp.c",
+  "old": "return st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "return s->answered || s->listener_registered;",
+  "killer": "AcmpFresh.InvalidAddress",
+  "needle": "invalid destination blocks both fresh and registered demand",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-absolute-clock",
+  "path": "src/acmp.c",
+  "old": "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "new": "now(a) >= s->answered_at + a->cfg.da_fresh_ms",
+  "killer": "AcmpFresh.ClockWrap",
+  "needle": "unsigned elapsed time keeps a probe fresh across clock wrap",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-fixed-window",
+  "path": "src/acmp.c",
+  "old": "(uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms",
+  "new": "(uint32_t)(now(a) - s->answered_at) >= (a->cfg.da_fresh_ms == 0u ? 0u : 15000u)",
+  "killer": "AcmpFresh.ConfiguredWindow",
+  "needle": "the core uses the configured interval without a mirrored constant",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-refused-answer",
+  "path": "src/acmp.c",
+  "old": "if (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+  "new": "if (frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+  "killer": "AcmpFresh.DeferredAnswer",
+  "needle": "a queued response does not yet count as an answer",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-only-success",
+  "path": "src/acmp.c",
+  "old": "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL",
+  "new": "(frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS",
+  "killer": "AcmpFresh.FailedAllocationAnswer",
+  "needle": "an answered allocation failure retains demand for later validity",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-state-reply-demand",
+  "path": "src/acmp.c",
+  "old": "\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+  "new": "\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_GET_TX_STATE_RESPONSE && (frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS) {\n\t\ta->sources[wire_be16(frame + O_TALKER_UID)].listener_registered = true;\n\t}\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&",
+  "killer": "AcmpFresh.OtherRepliesDoNotRefresh",
+  "needle": "other talker commands cannot supply probe freshness",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-wrong-source",
+  "path": "src/acmp.c",
+  "old": "&a->sources[wire_be16(frame + O_TALKER_UID)]",
+  "new": "&a->sources[0]",
+  "killer": "AcmpFresh.SourceAndInterfaceIsolation",
+  "needle": "a probe on the second source leaves the first source closed",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-wrong-interface",
+  "path": "src/acmp.c",
+  "old": "source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]",
+  "new": "source >= a->cfg.n_sources || (interface != a->cfg.source_interface[source] && false)",
+  "killer": "AcmpFresh.InputGuardsAndReentry",
+  "needle": "Listener interface must match the configured source interface",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-reset-retains-demand",
+  "path": "src/acmp.c",
+  "old": "\tmemset(a, 0, sizeof *a);\n\ta->cfg = *cfg;",
+  "new": "\tstruct acmp_source saved_sources[ACMP_MAX_SOURCES];\n\tmemcpy(saved_sources, a->sources, sizeof saved_sources);\n\tmemset(a, 0, sizeof *a);\n\tmemcpy(a->sources, saved_sources, sizeof saved_sources);\n\ta->cfg = *cfg;",
+  "killer": "AcmpFresh.ListenerWithdrawalAndReset",
+  "needle": "initialization clears previous demand and probe timestamps",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "dafresh-generated-window",
+  "path": "examples/entities/talker/entity_config.c",
+  "old": ".da_fresh_ms = 15000u,",
+  "new": ".da_fresh_ms = 15001u,",
+  "killer": "EntityYaml.DaFreshRoundTrip",
+  "needle": "generated freshness configuration survives both target round trips",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "g-expiry-skipped-with-listener",
+  "path": "src/acmp.c",
+  "old": "if (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {",
+  "new": "if (s->answered && !s->listener_registered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {",
+  "killer": "AcmpFresh.StaleProbeAfterListenerWrap",
+  "needle": "Listener withdrawal after a serviced full wrap cannot revive an expired probe",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "g-expiry-skipped-invalid-da",
+  "path": "src/acmp.c",
+  "old": "if (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {\n\t\ts->answered = false;\n\t}\n\tstruct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n",
+  "new": "struct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n\tif (st.dest_mac_valid && s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {\n\t\ts->answered = false;\n\t}\n",
+  "killer": "AcmpFresh.StaleProbeAfterInvalidAddressWrap",
+  "needle": "destination recovery after a serviced full wrap cannot revive an expired probe",
+  "modes": [
+   "full",
+   "removed"
+  ]
+ },
+ {
+  "name": "r630-3-entry-time-stamp",
+  "path": "src/acmp.c",
+  "old": "\ta->in_port = true;\n\tbool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);\n\ta->in_port = false;\n\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&\n\t    ((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||\n\t     (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {\n\t\tstruct acmp_source *s = &a->sources[wire_be16(frame + O_TALKER_UID)];\n\t\ta->now_read = false;\n\t\ts->answered_at = now(a);",
+  "new": "\tuint32_t sent_at = now(a);\n\ta->in_port = true;\n\tbool ok = a->ports->send(a->ports->ctx, interface, frame, ACMP_FRAME_BYTES);\n\ta->in_port = false;\n\t// REQ: ACMP-11\n\tif (ok && frame[O_MSG] == ACMP_MSG_PROBE_TX_RESPONSE &&\n\t    ((frame[O_STATUS] >> 3) == ACMP_STATUS_SUCCESS ||\n\t     (frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL)) {\n\t\tstruct acmp_source *s = &a->sources[wire_be16(frame + O_TALKER_UID)];\n\t\ta->now_read = false;\n\t\ts->answered_at = sent_at;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-drop-send-clock-reread",
+  "path": "src/acmp.c",
+  "old": "\t\ta->now_read = false;\n\t\ts->answered_at = now(a);",
+  "new": "\t\ts->answered_at = now(a);",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-range-only",
+  "path": "src/acmp.c",
+  "old": "if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "new": "if (source >= a->cfg.n_sources || interface >= a->cfg.n_interfaces) {",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-bound-off-by-one",
+  "path": "src/acmp.c",
+  "old": "if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "new": "if (source > a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-bound-off-by-one",
+  "path": "src/acmp.c",
+  "old": "\tif (source >= a->cfg.n_sources) {\n\t\treturn false;\n\t}\n\tstruct acmp_source *s",
+  "new": "\tif (source > a->cfg.n_sources) {\n\t\treturn false;\n\t}\n\tstruct acmp_source *s",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-init-keeps-listener",
+  "path": "src/acmp.c",
+  "old": "\tmemset(a, 0, sizeof *a);\n\ta->cfg = *cfg;",
+  "new": "\tbool kept[ACMP_MAX_SOURCES];\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\tkept[k] = a->sources[k].listener_registered;\n\t}\n\tmemset(a, 0, sizeof *a);\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\ta->sources[k].listener_registered = kept[k];\n\t}\n\ta->cfg = *cfg;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-derived-freshness-no-latch",
+  "path": "src/acmp.c",
+  "old": "\tif (s->answered && (uint32_t)(now(a) - s->answered_at) >= a->cfg.da_fresh_ms) {\n\t\ts->answered = false;\n\t}\n\tstruct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n\treturn st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "\tbool fresh = s->answered && (uint32_t)(now(a) - s->answered_at) < a->cfg.da_fresh_ms;\n\tstruct acmp_source_state st;\n\tmemset(&st, 0, sizeof st);\n\tp_source(a, source, &st);\n\treturn st.dest_mac_valid && (fresh || s->listener_registered);",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-sticky",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[source].listener_registered |= registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-withdrawal-clears-probe",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[source].listener_registered = registered;\n\tif (!registered) {\n\t\ta->sources[source].answered = false;\n\t}",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-no-entry-guard",
+  "path": "src/acmp.c",
+  "old": "bool acmp_declaring(struct acmp *a, unsigned source)\n{\n\tif (!enter(a)) {\n\t\treturn false;\n\t}\n",
+  "new": "bool acmp_declaring(struct acmp *a, unsigned source)\n{\n\ta->now_read = false;\n",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-no-entry-guard",
+  "path": "src/acmp.c",
+  "old": "bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered)\n{\n\tif (!enter(a)) {\n\t\treturn false;\n\t}\n",
+  "new": "bool acmp_listener_registered(struct acmp *a, unsigned interface, unsigned source, bool registered)\n{\n",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-index-by-listener-uid",
+  "path": "src/acmp.c",
+  "old": "&a->sources[wire_be16(frame + O_TALKER_UID)]",
+  "new": "&a->sources[wire_be16(frame + O_LISTENER_UID)]",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-status-unshifted",
+  "path": "src/acmp.c",
+  "old": "(frame[O_STATUS] >> 3) == ACMP_STATUS_TALKER_DEST_MAC_FAIL",
+  "new": "frame[O_STATUS] == ACMP_STATUS_TALKER_DEST_MAC_FAIL",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-reads-source-zero",
+  "path": "src/acmp.c",
+  "old": "\tstruct acmp_source *s = &a->sources[source];\n\tif (s->answered &&",
+  "new": "\tstruct acmp_source *s = &a->sources[0];\n\tif (s->answered &&",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-listener-writes-source-zero",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[0].listener_registered = registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-ax7101-window",
+  "path": "examples/entities/ax7101/entity_config.c",
+  "old": ".da_fresh_ms = 15000u,",
+  "new": ".da_fresh_ms = 15001u,",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ },
+ {
+  "name": "r630-3-declaring-ignores-invalid-only-for-listener",
+  "path": "src/acmp.c",
+  "old": "return st.dest_mac_valid && (s->answered || s->listener_registered);",
+  "new": "return (st.dest_mac_valid && s->answered) || s->listener_registered;",
+  "killer": null,
+  "modes": [
+   "full"
+  ]
+ }
+]

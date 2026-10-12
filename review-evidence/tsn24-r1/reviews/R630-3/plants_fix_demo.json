@@ -1,0 +1,38 @@
+[
+ {
+  "name": "r630-3-listener-range-only",
+  "path": "src/acmp.c",
+  "old": "if (source >= a->cfg.n_sources || interface != a->cfg.source_interface[source]) {",
+  "new": "if (source >= a->cfg.n_sources || interface >= a->cfg.n_interfaces) {",
+  "killer": "AcmpFresh.ReviewListenerOnAnotherInterface",
+  "modes": [
+   "full",
+   "removed"
+  ],
+  "needle": "review demo: a Listener on another configured interface is refused"
+ },
+ {
+  "name": "r630-3-withdrawal-clears-probe",
+  "path": "src/acmp.c",
+  "old": "a->sources[source].listener_registered = registered;",
+  "new": "a->sources[source].listener_registered = registered;\n\tif (!registered) {\n\t\ta->sources[source].answered = false;\n\t}",
+  "killer": "AcmpFresh.ReviewWithdrawalKeepsFreshProbe",
+  "modes": [
+   "full",
+   "removed"
+  ],
+  "needle": "review demo: Listener withdrawal keeps a fresh probe declaring"
+ },
+ {
+  "name": "r630-3-init-keeps-listener",
+  "path": "src/acmp.c",
+  "old": "\tmemset(a, 0, sizeof *a);\n\ta->cfg = *cfg;",
+  "new": "\tbool kept[ACMP_MAX_SOURCES];\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\tkept[k] = a->sources[k].listener_registered;\n\t}\n\tmemset(a, 0, sizeof *a);\n\tfor (unsigned k = 0; k < ACMP_MAX_SOURCES; ++k) {\n\t\ta->sources[k].listener_registered = kept[k];\n\t}\n\ta->cfg = *cfg;",
+  "killer": "AcmpFresh.ReviewInitClearsListener",
+  "modes": [
+   "full",
+   "removed"
+  ],
+  "needle": "review demo: initialization clears a registered Listener"
+ }
+]
