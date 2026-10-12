@@ -15,6 +15,11 @@ Lane B15 located the loss on dev `5603c353`: the tone is already absent in the
 peer's own talker stream, on the peer's link, and the DUT renders what it
 receives sample for sample; see
 [Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15).
+Lane B16 tried the reference peer's own loopback as the positive reference
+on the same image: the peer cannot bind its listener to its own talker on this
+network, because its probe for that talker goes unanswered, so the lane
+stopped there; see
+[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -59,6 +64,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with one route changed since lane B15, the controls, the #629 acceptance, limits and hashes.
 
 ## Identity and setup
 
@@ -2260,3 +2266,312 @@ Every raw row above is recorded in `RAW-ARTIFACTS.json` at `06148614`.
 | `runs/pts1/events.jsonl` | 6,213 | `063f01784e0b308cdc34cf154d4d603e8f7bf84fa6eb31ec0d7db52b10a851de` |
 | `runs/pts2/events.jsonl` | 6,007 | `c81c682006b884e7f3cd3e6cb01df9895df4a6f74b7bbbaa2580e2cf83442db4` |
 | `restore/census-compare.txt` (the start against the end) | 369 | `a38dca80e66a1e108f7e9418ba33dba47e56fc6b2c7cd6420dadea3f2ff7164f` |
+
+## Dev 5603c353, 2026-10-12: lane B16
+
+Refs #629. Operator [A603], 2026-10-12, under the
+[bench lane B16 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6117305187).
+The image is the manager's build of dev `5603c353`, as flashed and booted. No
+flash, JTAG reload or power cycle occurred in this lane.
+
+Lane B15 found the known tone absent already in the reference peer's own
+talker stream. The maintainer has since reported that the peer's path from
+its talker inputs to its talker works in loopback. This lane's first task was
+to reproduce that loopback as the positive reference: the peer's own listener
+bound to its own talker, the tone played into the peer's talker inputs, and the
+peer's output graded at the external capture.
+
+The loopback did not form. The peer's listener, bound to its own talker,
+sent its probe for that talker onto the network and never received an
+answer, so it never learned the stream and the talker never started. The
+external capture read exact zero. Under the assignment that is a STOP, and the
+lane stopped at step 2.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate, dev `5603c353` | PASS | The assignment's ATDECC and console facts. See [B16: identity and setup](#b16-identity-and-setup) |
+| Tool controls | PASS | Lanes B6 and B9's byte-equal to lane B15's; the tap decode 8 of 8 and the full-value alignment 6 of 6, both with new controls. See [B16: the controls](#b16-the-controls) |
+| Step 2, the loopback as the positive reference | TONE ABSENT; no stream formed. STOP | Two runs. The peer's listener never resolved its own talker's stream, and its digital output read exact zero. See [B16: the loopback](#b16-the-loopback) |
+| Where this setup and the working loopback differ | At the bind | The peer sends its probe for its own talker to the network, twice, 200 ms apart, and no answer arrives. Lane B15's `pts1` failed at the same step. See [B16: the loopback](#b16-the-loopback) |
+| The tone source, read only | Playing, routed as lane B15 read, plus one change | The tone left it on the outputs the documented wiring uses, as in lane B15. It now also leaves on a second pair of outputs, which lane B15 read silent. See [B16: the tone source, read only](#b16-the-tone-source-read-only) |
+| Step 3, the talker stream with the loopback carrying the tone | NOT RUN | No loopback carried the tone. The peer's talker sent no PDU on its link in either run |
+| Step 4, Direction B end to end; B0, B-CRF, B-AAF | NOT RUN | The lane stopped at step 2 |
+| A DUT fix | Not applicable | No DUT stage was reached |
+| Restore | Done | See [B16: bench as left](#b16-bench-as-left) |
+
+These are operator observations, not review verdicts. Paths such as
+`runs/loop2/events.jsonl` are in the lane packet, `629-b16-a603`, whose
+publication is the manager's; see [B16: artifact hashes](#b16-artifact-hashes).
+
+### B16: identity and setup
+
+| Identity check | Result |
+|---|---|
+| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPGA 1x1 TDM8", firmware_version "2.96.0", serial "AX7101-0001" |
+| Console `milan_status` | ID `4d494c4e`, VERSION `0x00020060` |
+| AEM image CRC32 in QSPI, 7,512 bytes | `5ba355eb` |
+| Live ENTITY and CONFIGURATION | Byte-equal to the QSPI AEM bytes the console dumps, 312 and 106 bytes |
+| Clock sources of #629 | CLOCK_SOURCE 0 INTERNAL; 1 INPUT_STREAM on STREAM_INPUT 1; 2 INPUT_STREAM on STREAM_INPUT 0; CLOCK_SOURCE 3 answers NO_SUCH_DESCRIPTOR; CLOCK_DOMAIN 0 lists 0, 1 and 2 and reads 0 |
+| UART grader | 10 of 10 |
+| ADP | The DUT with entity model `001bc5c1935893e1` |
+| Identity gate | PASS, 05:45:07 to 05:45:13 CEST |
+
+The gate is lane B15's (`identity_b16.sh`, `identity_b15.py`), unchanged but
+for its environment and staging. The flash record is the manager's.
+
+As found, at 05:45 CEST, the bench was in lane B15's end state:
+
+- **DUT.** Every stream unbound. STREAM_INPUT 0 at the peer talker's
+  `0205022001006000`; STREAM_PORT_INPUT 0 with four identity mappings and
+  STREAM_PORT_OUTPUT 0 with eight. CLOCK_DOMAIN 0 on CLOCK_SOURCE 0. NVM image
+  seq 276, 42 commits, `pend=0`. `SLIP_LB` 152 dups.
+- **Reference peer.** Its STREAM_INPUT 0 bound to the DUT's AAF talker, at
+  `0205022002006000`, and its STREAM_INPUT 8 bound to the DUT's CRF talker. Its
+  CLOCK_DOMAIN on the source located on that CRF input. Its STREAM_OUTPUT 0, the
+  AAF talker, at `0205022001006000` with connection count 0.
+- **SoC board.** Reached only over key-based SSH; its serial console was not
+  used. The to-host bridge leg running, the from-host leg dead, and its McASP
+  playback closed: no other playback was running. The USB function was
+  configured.
+- **Controller host.** No gPTP daemon, no staging.
+
+### B16: method
+
+**The tone.** Lane B15's: lane B9's loop (`b9_tone.py`, 997 Hz and 9,973 Hz
+at -20 dBFS), SHA-256 `d9684a8f...`, played into the reference peer's talker
+inputs through the authorised tone source, from 05:55:38 to 06:02:00 CEST. The
+lane only started and stopped that playback, read the source's state twice and
+read its meters passively. No instrument setting was written.
+
+**The runs.** Each run is one locked action of `run_b16.py`:
+
+- The peer's STREAM_INPUT 0 is unbound from its as-found talker, the DUT's AAF
+  talker. It is then bound to the peer's own STREAM_OUTPUT 0 under the binding
+  rule. The DUT is not bound.
+- For 12 s after the bind, and again after the captures, the listener's
+  GET_RX_STATE, its GET_COUNTERS and the talker's GET_TX_STATE are read every
+  2 s.
+- Both taps and the external capture record.
+- Teardown unbinds, restores the listener's format, remakes the as-found bind
+  and reads every format, clock source, binding and map back.
+
+| Run | Window, CEST | Captures | Purpose |
+|---|---|---|---|
+| `loop1` | 05:56:31 to 05:57:31 | Taps 30.6 s and the external capture 22 s, from 05:56:45 | The loopback, as assigned |
+| `loop2` | 05:59:18 to 06:00:29 | Taps 52.5 s from 05:59:19, before the bind; the external capture 16 s from 05:59:36 | The same, with the bind's ACMP exchange on record |
+
+`loop2` was added after `loop1`. `loop1`'s taps started after the bind, so
+they held none of its messages.
+
+**Binding rule record.**
+
+| Bind | Talker format | Listener format read | Set on the listener | Read back |
+|---|---|---|---|---|
+| Peer AAF to the peer's STREAM_INPUT 0, `loop1` and `loop2` | `0205022001006000` | `0205022002006000` | `0205022001006000`, SUCCESS | `0205022001006000` |
+| DUT AAF to the peer's STREAM_INPUT 0, the as-found bind remade | `0205022002006000` | `0205022002006000`, after its restore | None, equal | - |
+
+Every bind and unbind answered SUCCESS. No clock source was set on either
+entity, and the DUT was not bound. Each run ended with every format, clock
+source, binding and map read back equal to its start.
+
+**Grading rules, fixed before any capture.** The presence rule is lane B15's
+(share of the channel's power within 5 Hz of a tone above 0.9) with one change.
+The level floor is -100 dBFS instead of -40 dBFS, because the tone leaves the
+source at about -38.5 dBFS and a converted tone could sit below -40 dBFS.
+A channel present between -100 and -40 dBFS is flagged, so lane B8's rule can
+still be read off. The loopback is graded by THD+N and SNR at the external
+capture where a tone is present.
+
+### B16: the loopback
+
+The peer's listener, polled every 2 s after the bind:
+
+| Run | Reads | Listener stream ID and destination | Listener flags | Talker connection count | MEDIA_LOCKED, FRAMES_RX |
+|---|---|---|---|---|---|
+| `loop1` | 14, over 12 s after the bind and 12 s after the captures | `0000000000000000`, `000000000000` at every read | `0x0002` at every read | 0 at every read | 0, 0 at every read and at both counter marks |
+| `loop2` | 14, likewise | The same | The same | The same | The same |
+
+The bind itself answered SUCCESS with connection count 1. The listener never
+learned the talker's stream ID or destination, and the talker's connection
+count stayed 0.
+
+The bind's ACMP exchange in `loop2`, from the peer's link tap. Times are from
+the controller's UNBIND_RX command:
+
+| Time, ms | Direction | Message | Talker, listener | Result |
+|---|---|---|---|---|
+| 0.0 | Controller to the peer | UNBIND_RX command | The DUT's AAF talker, the peer's STREAM_INPUT 0 | - |
+| 0.0 | The peer | UNBIND_RX response | - | SUCCESS, connection count 0 |
+| 0.1 | Controller to the peer | BIND_RX command | The peer's STREAM_OUTPUT 0, the peer's STREAM_INPUT 0 | - |
+| 99.6 | The peer | BIND_RX response | The same | SUCCESS, connection count 1, stream ID 0 |
+| 99.6 | The peer, to the network | PROBE_TX command | The peer's own STREAM_OUTPUT 0 | No response |
+| 299.6 | The peer, to the network | PROBE_TX command, again | The same | No response |
+
+Milan's PROBE_TX is IEEE 1722.1's CONNECT_TX. No PROBE_TX response and no
+further probe appear in the remaining 49 s of the capture.
+
+So the peer resolves its own talker over the network, as for any talker, and
+nothing answers. A switch does not send a frame back out of the port it
+arrived on, and the peer evidently does not answer its own probe internally. Its
+listener therefore never learns the stream, never declares it, and the talker
+never starts. Neither tap holds one PDU of the peer's talker stream in either
+run:
+
+<!-- b16-points -->
+| Run | Point | Content | Either tone |
+|---|---|---|---|
+| `loop1` | The peer's link, its talker stream | 0 PDUs; the link carries only the DUT's CRF stream to the peer | Absent: no stream |
+| `loop1` | The DUT's link, the peer's talker stream | 0 PDUs | Absent: no stream |
+| `loop1` | The external capture, the peer's digital output | Its two channels: every word zero, 1,056,000 frames | Absent |
+| `loop2` | The peer's link, its talker stream | 0 PDUs; the link carries the DUT's CRF stream to the peer, and its AAF stream until the unbind | Absent: no stream |
+| `loop2` | The DUT's link, the peer's talker stream | 0 PDUs | Absent: no stream |
+| `loop2` | The external capture, the peer's digital output | Its two channels: every word zero, 768,000 frames | Absent |
+
+With no tone at any point, there is no frequency, SNR or THD+N to fit, and no
+point carries the talker for step 3's tap to decode.
+
+Lane B15's `pts1` bound the same listener to the same talker and read the
+same: rx state flags `0x0002`, stream ID 0, counters 0, output zero. Lane B15
+attributed it to the switch not reflecting the talker's frames. Its tap did
+not cover the bind. This lane's record places the failure one step earlier:
+the stream is never started, because the listener's probe goes unanswered.
+
+So the loopback the maintainer reports working is not this bind on this
+network path. It must differ: another network path, a different bind, or a
+loop outside ATDECC. The lane cannot tell which, and the owner holds that
+setup. Under the assignment's step 2 the lane stops here. The tone was absent
+at the loopback's output, the levels below are recorded, and the source's
+routing was read read-only.
+
+### B16: the tone source, read only
+
+The tone source's state was read before the playback and again at its end,
+at 05:48 and 06:01 CEST. The two reads are identical. Its level meters were
+read passively while the tone played. Nothing was written.
+
+The read method changed from lane B15's. Another client of the source's
+control service held the reply port that lane B15's read binds. This lane
+observed the service's replies passively on the host instead, binding no port.
+Each state read sent one request, the service's documented state read, as
+lane B15's did.
+
+| Source outputs | Before the output level setting | Output level setting | Leaving the source | Lane B15 |
+|---|---|---|---|---|
+| The pair the documented wiring uses | -20.0 dBFS on each | -18.5 dB | -38.5 dBFS on each | The same |
+| A second pair | -20.0 dBFS on each | +6.0 dB | -14.0 dBFS on each | Silent, same setting |
+| Every other output | Silent | - | Silent | Silent |
+
+The playback reads -20.0 dBFS, so it reaches the documented pair at 0 dB, as
+the owner's condition requires. The second pair is new: lane B15 read it
+silent with the same output setting. So the route from the playback to that
+pair changed between the two lanes, outside this lane. The documented wiring
+does not include that pair, and the lane did not change it.
+
+This is the per-channel record the assignment asks for: the source's two
+documented outputs carry the tone at -38.5 dBFS. The peer's output, its talker
+stream and the DUT's link carry nothing, because no stream formed.
+
+### B16: the controls
+
+**Tool controls.** All ran before any capture was graded.
+
+| Control | Result |
+|---|---|
+| `b6_thdn.py controls` | Byte-equal to lane B15's `controls.json`, `7bbefc71...` |
+| `b9_thdn.py controls` | Byte-equal to lane B15's `b9-controls.json`, `728a4f0e...` |
+| `tone_points_b16.py control`: lane B15's five controls | PASS, 5 of 5, each record equal to lane B15's |
+| The same, new: the tone pair at -60 dBFS on a one-LSB floor | Present on both channels, flagged below lane B8's floor, at -60.00 dBFS. PASS |
+| The same, new: a -130 dBFS tone alone | Its share is 1.0, but it is below the level floor: absent. PASS |
+| The same, new: eight channels with the tone pair on channels 5 and 6 | Found there only. PASS |
+| `align_b16.py control synth`: lane B15's five planted cases on a synthetic tone stream | PASS, 5 of 5 |
+| The same, new: one sample changed by +256 LSB, its low byte unchanged | One differing frame. PASS. Lane B15's `align_b15.py` reads the same recording SAMPLE-EXACT, because it keys on each sample's low byte |
+
+`align_b16.py` was built for step 4, which did not run. Its new control shows
+why lane B15's alignment needed the change for a stream that carries a tone.
+
+**The positive reference itself is the control this lane lacks.** The loopback
+was to show the tone through the peer before the DUT was involved. It did not
+form, so nothing downstream of the source was graded on a tone.
+
+### B16: bench as left
+
+| State | As left |
+|---|---|
+| DUT stream state | Unbound; STREAM_INPUT 0 at `0205022001006000`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
+| Reference peer | Its STREAM_INPUT 0 bound to the DUT's AAF talker at `0205022002006000`, its STREAM_INPUT 8 to the DUT's CRF talker, its CLOCK_DOMAIN on the source on that CRF input, never set; all as found |
+| Census, start against end | 45 of 46 entries equal; the other is the DUT's live propagation delay, 387 to 377 ns |
+| DUT saved state | NVM image seq 276, 42 commits, `pend=0`, `VD_OK`, unchanged: the DUT was not bound |
+| The tone | Stopped by its process ID at 06:02:00 CEST; the playback closed |
+| SoC board | Same boot; the to-host leg running with the process ID it had as found, never stopped; the from-host leg dead, as found; McASP playback closed; USB function configured |
+| Controller host | No task process; staging removed |
+| Tap host | No capture file left |
+| Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
+
+Residuals that no permitted command restores:
+
+- **The DUT's AAF talker** counted two more stream stops and starts, one per
+  run, when the peer's listener was unbound from it and bound back.
+- **The peer's STREAM_INPUT 0 counters** restarted at the rebind: their
+  TIMESTAMP_VALID and FRAMES_RX read lower at the end than at the start.
+- **`SLIP_LB`** read 152 dups at both ends, unchanged.
+
+### B16: #629 acceptance
+
+Lane B16 changes no judgement in [B15: #629 acceptance](#b15-629-acceptance).
+
+| #629 item | Judgement after lane B16 | Evidence |
+|---|---|---|
+| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7; NOT met for Direction B | The positive reference could not be formed, and no Direction B case ran. See [B16: the loopback](#b16-the-loopback) |
+| Bench, both directions, each followed source | As judged after lane B8 | - |
+| Fabric, lock loss, protocol processor | As judged after lane B8, with #645 open | - |
+| Every other item | As judged in [B7: #629 acceptance](#b7-629-acceptance) | - |
+
+So not every #629 item is met, and #629 stays open.
+
+### B16: limits
+
+- Two loopback runs, each about a minute, on one reference peer.
+- The loopback was tried as an ATDECC bind on this bench's network only. The
+  maintainer's working loopback is not described in public. This lane shows
+  only that this bind cannot carry it.
+- Whether the peer's talker now carries the tone is not shown: its talker
+  never started. The new route of the playback to a second pair of source
+  outputs makes that worth checking. A capture with the DUT's listener bound
+  to the talker, lane B15's method, would show it; the STOP precedes it.
+- The tone source's playback routes are shown by its meters, before and after
+  each output's level setting, not by a read of a routing setting.
+- Printed precision is not calibrated accuracy.
+
+### B16: artifact hashes
+
+The raw files stay outside the lane packet, on the bench host. The packet's
+`RAW-ARTIFACTS.json` records each one. The external capture's sizes are
+withheld there and here, because they would state its channel count.
+
+| Run | Raw file | Bytes | SHA-256 |
+|---|---|---|---|
+| `loop1` | `tap-peer.pcap`, the peer's link | 1,567,518 | `0f4c6b42f6792dc84d8ba89d93e9edb97add667bf236b2d06833256ba14f1b0b` |
+| `loop1` | `tap-dut.pcap`, the DUT's link | 1,567,518 | `a879b24feec3f4cdd4d72522d152afce4a1f6b527ce6a8210213c9779a6d9036` |
+| `loop1` | `extcap.raw`, the external capture | Withheld | `afff760831cd795283185c800d86460a1216511be9ebeb90a00baebc2ce8d0e2` |
+| `loop2` | `tap-peer.pcap`, the peer's link, with the bind | 8,752,338 | `6e0e1f4271d31495bd4d4c33ca4f5a55d791c9c3c8540a53b584abc505696776` |
+| `loop2` | `tap-dut.pcap`, the DUT's link | 8,680,530 | `898242c513f4f30be70d0b3386f983e536f4bc4e5d63eaf341149b47aa6ac276` |
+| `loop2` | `extcap.raw`, the external capture | Withheld | `265d9585facf0aa1d6766454a5a0c1a871ae1449e0850e7de7f684b32b03067c` |
+
+The packet's evidence files, as retained after its redaction pass
+(`redaction.json` gives each masked file's original and retained hashes):
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/run_b16.py` (the runs) | 18,087 | `d1a60cc2be9af3d8a3f81424ce468441ceeae88c960d817c127de5816f27a289` |
+| `tools/tone_points_b16.py` (the presence verdicts) | 19,842 | `975645309ecb92d124b28d488c74902a2aea9379470e3eec563f1d93ea20869c` |
+| `tools/align_b16.py` (the full-value alignment) | 7,802 | `71fd639b5db4c00f4048c6f2930330ee6880388613459a0d7411d577ab3eac86` |
+| `tools/acmp_tap_b16.py` (the ACMP decode) | 2,949 | `8c686a58e5c0288623c50cd7a40b273a6d0336b66af9765f0214a4dffaf57f65` |
+| `controls/b16-tap-controls.json` | 1,565 | `77a5995f07b9e300b5d819477e70441ed7ba3a26848e881ec6841219867da8fe` |
+| `controls/b16-align-controls-synth.json` | 1,176 | `20ca766eb693b2f2252f6de97efda18c94455ade5d661813a8e26fd604b1d276` |
+| `runs/loop1/events.jsonl` | 11,587 | `0390182f646584223bceeaf240e47135be383e47ddd56b4d15950336a441f954` |
+| `runs/loop2/events.jsonl` | 11,656 | `cb3a5ffada5c35cdbbbbacc866e3f15abeded2e706754e9b3958479f75a0e2c0` |
+| `summary/loop2/acmp-peer-tap.json` (the bind's ACMP exchange) | 8,739 | `ecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6688` |
+| `summary/loop1/d-extcap-pair.json` | 664 | `496e6ad34ad164d1b8fea06c92d8ed099e3e831386c58d4b192d7881dfc64704` |
+| `summary/loop2/d-extcap-pair.json` | 661 | `17f6c33f990654a1dd6dae8e5277ecd874955337cac66f0cfeb94eac33f549a5` |
+| `restore/census-compare.txt` (the start against the end) | 369 | `3a9a17cfc7ab6849571b9b2221c4981e8a19b7f460f1f66c30f9293a43f2de6f` |
+| `identity/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
