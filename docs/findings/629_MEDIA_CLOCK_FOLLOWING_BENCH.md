@@ -36,7 +36,7 @@ and quoted phrases too; see
 [B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage). Its
 fifth makes the check account for every digit, and holds a number before its
 unit to be a measurement however it is written; see
-[B16, round 5: every digit](#b16-round-5-every-digit). Its sixth reads the text as a reader sees it, and lets an identifier stand only before a closed list of what may follow it; see [B16, round 6: the closed list](#b16-round-6-the-closed-list). Its seventh refuses any markup in the text the check reads, instead of dropping comments as a renderer would; see [B16, round 7: no markup](#b16-round-7-no-markup).
+[B16, round 5: every digit](#b16-round-5-every-digit). Its sixth reads the text as a reader sees it, and lets an identifier stand only before a closed list of what may follow it; see [B16, round 6: the closed list](#b16-round-6-the-closed-list). Its seventh refuses any markup in the text the check reads, instead of dropping comments as a renderer would; see [B16, round 7: no markup](#b16-round-7-no-markup). Its eighth reads that text through the pinned Markdown parser and refuses any construct off a closed allowlist; see [B16, round 8: the parser](#b16-round-8-the-parser).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -81,7 +81,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
-- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed. Then round 8: the check reads its text through the repository's pinned Markdown parser, judges only the visible text it yields, and refuses any construct off a closed allowlist, in the index row too.
 
 ## Identity and setup
 
@@ -2309,7 +2309,7 @@ documents only, is in
 [B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), the third
 in [B16, round 3: figures check](#b16-round-3-figures-check), the fourth in
 [B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage), and the
-fifth in [B16, round 5: every digit](#b16-round-5-every-digit), and the sixth in [B16, round 6: the closed list](#b16-round-6-the-closed-list), and the seventh in [B16, round 7: no markup](#b16-round-7-no-markup).
+fifth in [B16, round 5: every digit](#b16-round-5-every-digit), and the sixth in [B16, round 6: the closed list](#b16-round-6-the-closed-list), and the seventh in [B16, round 7: no markup](#b16-round-7-no-markup), and the eighth in [B16, round 8: the parser](#b16-round-8-the-parser).
 
 | Item | Verdict | Evidence |
 |---|---|---|
@@ -2613,7 +2613,7 @@ it: `author-r1/` for lanes B16, B16b and B16c, archived with this page at
 `e20fd282`; `author-r2/` for round 2, at `35e332b6`; and `author-r3/` for
 round 3, at `0782c55f`. So `runs/loop2/events.jsonl` is
 `review-evidence/629-b16-r1/author-r3/runs/loop2/events.jsonl`. Round 4's
-packet is in `author-r4/`, archived with this page at `61ae8641` and published by commit `b83e5d76`; round 5's is in `author-r5/`, archived at `36190193` and published by commit `a73ce5c4`, whose tree holds every directory named here and whose `MANIFEST.json` binds them the same way. Round 6's is in `author-r6/`, archived at `e91a62ee` and published by commit `b616e7ea`, whose `MANIFEST.json` binds every directory the same way. Round 7's packet follows as `author-r7/`, in a later commit on the same branch. `tools/r7_evidence_receipt.py` checks this mapping; see [B16, round 7: no markup](#b16-round-7-no-markup).
+packet is in `author-r4/`, archived with this page at `61ae8641` and published by commit `b83e5d76`; round 5's is in `author-r5/`, archived at `36190193` and published by commit `a73ce5c4`, whose tree holds every directory named here and whose `MANIFEST.json` binds them the same way. Round 6's is in `author-r6/`, archived at `e91a62ee` and published by commit `b616e7ea`, whose `MANIFEST.json` binds every directory the same way. Round 7's is in `author-r7/`, archived at `295ba9d7` and published by commit `fa974c3f`, whose `MANIFEST.json` binds every directory the same way. Round 8's packet follows as `author-r8/`, in a later commit on the same branch. `tools/r8_evidence_receipt.py` checks this mapping; see [B16, round 8: the parser](#b16-round-8-the-parser).
 
 `review-evidence/629-b16-r1/MANIFEST.json` at `b84584e4` has 1,680 entries
 and SHA-256: `8d417d54b13a264484bfcb0b69f8a643e5cd3bf2819294cea201242a2f67f034`.
@@ -3464,12 +3464,12 @@ overlap moves the inside and beyond counts.
 The extraction, from the packet's root with the raw files at their recorded
 paths:
 
-```sh
-python3 -I tools/r2_poll_b16c.py {raw}/bcrf/poll-run.jsonl runs/bcrf/events.jsonl r2/bcrf-poll-receipt.json r2/bcrf-poll-trace.tsv
-python3 -I tools/r2_poll_b16c.py {raw}/baaf/poll-run.jsonl runs/baaf/events.jsonl r2/baaf-poll-receipt.json r2/baaf-poll-trace.tsv
-python3 -I tools/r2_source_b16.py {class map} {list of the twelve reads} r2/source-receipt.json
-python3 -I tools/r2_b0_receipt.py . r2/b0-2-receipt.json
-```
+
+- `python3 -I tools/r2_poll_b16c.py {raw}/bcrf/poll-run.jsonl runs/bcrf/events.jsonl r2/bcrf-poll-receipt.json r2/bcrf-poll-trace.tsv`
+- `python3 -I tools/r2_poll_b16c.py {raw}/baaf/poll-run.jsonl runs/baaf/events.jsonl r2/baaf-poll-receipt.json r2/baaf-poll-trace.tsv`
+- `python3 -I tools/r2_source_b16.py {class map} {list of the twelve reads} r2/source-receipt.json`
+- `python3 -I tools/r2_b0_receipt.py . r2/b0-2-receipt.json`
+
 
 The tone source's twelve reads, now also listed in the packet's
 `RAW-ARTIFACTS.json` under `source/`. Their sizes are withheld, because they
@@ -4023,7 +4023,7 @@ dropped any more, so nothing written on a line can vanish from what the check
 reads. The check names each refused line with its markup, as MARKUP, and then
 fails, whatever else it finds. It still reads a backslash escape or an entity
 as the character it gives, keeps code as written, and splits the text into
-blocks at blank lines, with whitespace collapsed across line breaks.
+blocks at blank lines, with whitespace collapsed across line breaks. Round 8's reading, through the pinned parser, replaced it; see [B16, round 8: the parser](#b16-round-8-the-parser).
 
 **The section's markup.** The section held an HTML comment before each of its
 tables, a marker the earlier checks dropped, and a code block wrote its
@@ -4113,3 +4113,160 @@ The round's files in the packet:
 | `controls/r7-controls-on-r6-check.json` | 18,212 | `f288208a13bff378280fd5f9e4cbb1e4e17a137790730bc1d007319d398fa6e3` |
 | `tools/r7_evidence_receipt.py` (where the packet is) | 6,919 | `a46c4ad554c6a1448319f7d1e26fdf6e01407aedb0d4868d1fb96bf66d8b099e` |
 | `r7/evidence-receipt.json` | 52,808 | `23322f43d94c68a2dcc6da0412007596828c33bcb60fdb522f1a0f4fbf4a128f` |
+
+### B16, round 8: the parser
+
+The reviews of round 7, NEGATIVE in
+[R624-7](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6130711392)
+and in
+[R625-7](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6130634625),
+each rate a finding MINOR. In R624-7-F1, image syntax between an identifier's
+number and its unit put an exclamation mark into the check's text that a
+reader never sees, and the check took it for a mark that ends a phrase, so a
+number before its unit passed. In R625-7-F1, markup in the index row, in its
+part on lane B16, stopped the check with an exception before it named the
+line or wrote its receipts. Neither review alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[assignment for round 8](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6130721355),
+the operator, [A603], changed how the check reads its text, documents only.
+Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-7-F1: image syntax hid a phrase mark from the reader, not from the check | Passed: the check read the image's exclamation mark as a mark that ends a phrase | Fails: the check reads what the pinned parser yields; the image is refused at its line, and the text around it is read without it | `r8/r624-7-escapes-probe-rerun.json` |
+| R625-7-F1: markup in the index row, in its part on lane B16, stopped the check | An exception, with no line named and no receipt written | Refused at the index row's line and named MARKUP, with both receipts written | `r8/r625-7-markup-probe-rerun.json` |
+
+**The parser.** The check now parses both documents whole with the
+repository's pinned Markdown parser: cmark-gfm, through the cmarkgfm binding,
+at the releases `tools/markdown/requirements.txt` pins. It verifies them as
+the documentation gates do, with `scripts/gen_toc_renderer.py`, and parses
+with that renderer's extensions and options. Without them it does not run: it
+names what is missing and fails. It judges only the visible inline text the
+parser yields: text, code spans and link text. A code span is read with a code
+mark at each end, which every rule of the check looks past, so a code literal
+still ends with its code word. Every line it names is the parser's own source
+position. No pattern of the check reads code, escapes, entities, comments or
+tags any more, and its separators no longer look past a tag, a comment or a
+link's target, since none of them can stand in the text it reads.
+
+**A closed allowlist.** The text may hold paragraphs, headings, lists and
+their items, tables, block quotes, text, soft and hard line breaks, emphasis,
+strong emphasis, links and code spans. Any other construct is refused at the
+first line of it that the check covers, named MARKUP by the parser's name for
+it, and not read: an image, raw HTML inline or as a block, a fenced or
+indented code block, a thematic break, struck text, a footnote or a reference
+to a footnote, a task list item, and anything else the parser yields. The
+check then fails, whatever else it finds. The only exception is a block of raw
+HTML that is a whole line equal, byte for byte, to a marker that
+`scripts/check_solution_docs.py` writes. A link is read on its text. Its
+target and its title are not text a reader sees, so neither is read, but a
+target must still resolve, as since round 5: to an issue or a pull request of
+the repository on GitHub, or to a heading's anchor on the page. A target that
+does not is read as text of its own, at its line.
+
+**The index row.** Both documents are parsed whole, so the index row is read
+where the parser places it, and only its part on lane B16, from that part's
+first byte on, by the source columns of the row's text. Markup there is
+refused at the row's line as it is on the page, and the check writes both
+receipts before it fails.
+
+**The section's code block.** The section held a fenced code block, the
+extraction commands of round 2. They are now a list of code spans on the
+same lines, so no line moved. A list's numbers are drawn from its structure,
+not written as text, so the category for list-item numbers is gone, and so is
+the category for link targets.
+
+**What the rule does not cover.** Round 6's and round 7's limits stand, but
+for markup. A word of the closed list followed by words that hold no number,
+and then a unit, passes, and so does a bare unit after "of" or "and". A
+list's numbers are not text, so a numbered item that is only a unit passes.
+Code is text a reader sees, so markup written in a code span is read as
+written, not refused, and the same holds for a tag that a backslash escapes,
+a less-than sign that starts no tag, and an autolink, which is a link. A
+link's title, a link's target that resolves, a reference definition and a
+footnote that nothing cites show the reader no text, and the check does not
+read them. A mark that a reader sees after an identifier still ends its
+phrase. A construct that starts above the section and runs into it is refused
+at the first line of it that the check covers.
+
+**Earlier expectations.** Each earlier runner keeps its code. A control of
+round 4's and a control of round 7's now each fail on a single expectation,
+and in both the check still fails the altered page and names the added
+number. Round 4's control for a figure written as a link's text before a unit
+expects that number not to be named a measurement, since the link's target
+stood between it and the unit; a reader sees the number before the unit, and
+the check now names it a measurement. Round 7's control for a comment inside
+a code span expects the line named MARKUP; a reader sees the comment written
+out in the code, and the check now reads it as text, names the number
+UNCOVERED and refuses nothing. `tools/r8_check_controls.py` holds both forms
+with these expectations. The assignment asks that earlier controls keep their
+outcomes, and reading only what the parser yields changes both; the change is
+published here, in the pull request and in the post, for the manager's
+decision.
+
+**Its controls.** `tools/r8_check_controls.py` runs each control on an
+altered copy (`controls/r8-controls.json`, 73 of 73 PASS). Round 7's 50 come
+first, their code unchanged but for the expectations above. The new
+controls:
+
+- R624-7's image forms, appended to the attribution row as in R624-7: each
+  fails with its line named MARKUP, an image, and the added number named
+  UNCOVERED there;
+- R625-7's index cases, appended to the index row's part on lane B16, as in
+  R625-7: each fails with the row's line named MARKUP, the added number named
+  UNCOVERED where it adds a number, both receipts written and no exception;
+- a control per construct off the allowlist, written with no digit, so that
+  only the refusal can catch it: an image, raw HTML inline and as a block, a
+  fenced and an indented code block, a thematic break, struck text, a
+  footnote's reference and its definition, and a task list item, each failing
+  with the construct's first line named MARKUP by the parser's name for it;
+- the check run by an interpreter without the pinned parser, which fails,
+  names the parser and writes no receipt.
+
+Against round 7's check and page, the new runner passes the 48 earlier
+controls whose expectations stand and fails the other 25
+(`controls/r8-controls-on-r7-check.json`): round 7's check passed every image
+form and every new construct, stopped on each index case, and ran without the
+parser. Round 3's to round 7's runners, unchanged, against the new check: 5
+of 5, 7 of 8, 21 of 22, 38 of 39 and 48 of 50, failing only the controls
+above (`controls/r8-rerun-r3-controls.json` to
+`controls/r8-rerun-r7-controls.json`).
+
+**The reviews' probes.** Each runs unchanged under the parser's environment,
+with its results in `r8/`, a file per probe. R624-7's
+`probe_r624_7_markdown_escapes.py`: no form escapes; the unchanged page and
+the stated full stop pass, and every other form fails. R624-7's
+`probe_r624_7_invisible.py`: every form fails. R625-7's `probe_markup.py`:
+every case but the unchanged page fails, and each index case is refused at the
+index row's line, with both receipts written and no exception. The earlier
+probes give what round 7's record shows, but for the name each refusal now
+carries and for a form of R624-6's that may pass or fail: a link reference
+definition with a title, which renders nothing, now passes.
+
+**Further forms.** `tools/r8_self_probes.py` (`r8/self-probes.json`) runs
+round 5's, round 6's and round 7's forms, then round 8's: Markdown that
+renders no character between a number and its unit, a figure inside each
+construct off the allowlist, and forms that show the reader nothing. All 138
+meet what the rule says: 108 fail and are named at their lines, and 30 pass
+as stated. Five of round 7's forms, which failed there, now pass, each as a
+reader sees it: an autolink, a tag in a code span, a comment after a
+backslash, an unclosed tag, and angle brackets around a link target that
+resolves.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no construct is refused. The output, `r8/figures-rows.tsv` and
+`r8/figures-coverage.tsv`, lists each identifier with its category.
+`tools/r8_figures_build.py` regenerates the check byte for byte from
+`tools/r8_figures_spec.py`. As before, the hashes of the check, its spec and
+its output are in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r8_check_controls.py` (the check's controls) | 36,524 | `68f85edf41723ad7e87aa7dd4353182666022bb7286cdfa81cccbbe86fb864d6` |
+| `controls/r8-controls.json` (73 of 73 PASS) | 26,053 | `83f791b3819086772ce214262e148c0b8e5e6241f1895cb31acc09cecb7ed64b` |
+| `controls/r8-controls-on-r7-check.json` | 26,077 | `ddea3af5efc65645fcadde07c5e38f7d7d70149956d7437ae4d6fcc3949a4b40` |
+| `tools/r8_evidence_receipt.py` (where the packet is) | 7,353 | `95c3ca5ea4f5ebda66ea3d5bbeb2584cb7dda9773182ac40b3b9aea4c6a1ebee` |
+| `r8/evidence-receipt.json` | 59,920 | `1377b5d575bd0adb974a5cfc5f002a8e3d12d222e8b89ff22cd7f6f14709b502` |
