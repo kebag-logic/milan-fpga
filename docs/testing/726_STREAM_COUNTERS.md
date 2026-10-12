@@ -183,3 +183,9 @@ python3 -m behave --no-capture -f plain
 cd ..
 python3 tb/tools/torture_campaign.py --self-test
 ```
+
+Run the complete [documentation workflow](../../.github/workflows/docs.yml) locally.
+Install its pinned dependencies before running its commands.
+Every gate must return zero without increasing ratchet budgets.
+This includes boundary units, evidence readers, and language idioms.
+Retain each command's result, including explicit environment-dependent skips.
