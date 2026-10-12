@@ -1,0 +1,91 @@
+== a replacement tree (HEAD 1a9f651c, replace refs: 1)
+  [REFUSED] ctrl_build.py --stack-pin (the Makefile's pin check): exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --build-only: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] fw_coverage.py --check: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_srp_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_boundary.py --without verilator: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_arms.py --app: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_mutants.py --shard 0 1000: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_wire.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx stack-pin: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx obj_fw/libctrlfw.a: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-cosim: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-if2: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+== a replacement commit for the pin (HEAD 1a9f651c, replace refs: 1)
+  [REFUSED] ctrl_build.py --stack-pin (the Makefile's pin check): exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --build-only: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] fw_coverage.py --check: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_srp_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_boundary.py --without verilator: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_arms.py --app: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_mutants.py --shard 0 1000: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_wire.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx stack-pin: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx obj_fw/libctrlfw.a: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-cosim: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-if2: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+== a graft file (HEAD 1a9f651c, replace refs: 0)
+  [REFUSED] ctrl_build.py --stack-pin (the Makefile's pin check): exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --build-only: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] fw_coverage.py --check: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_srp_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_boundary.py --without verilator: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_arms.py --app: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_mutants.py --shard 0 1000: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_wire.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx stack-pin: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx obj_fw/libctrlfw.a: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-cosim: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-if2: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+== a clean filter through attributes (HEAD 1a9f651c, replace refs: 0)
+  [REFUSED] ctrl_build.py --stack-pin (the Makefile's pin check): exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --build-only: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] test_ctrl_firmware.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] fw_coverage.py --check: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_srp_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] ctrl_boundary.py --without verilator: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] maap_differential.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_arms.py --app: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_mutants.py --shard 0 1000: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] aecp_wire.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx stack-pin: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx obj_fw/libctrlfw.a: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-cosim: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx run-if2: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+  [REFUSED] make -C tb/verilator/mbx: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/adp.h
+== a mode change (HEAD 1a9f651c, replace refs: 0)
+  [REFUSED] ctrl_build.py --stack-pin (the Makefile's pin check): exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] test_ctrl_firmware.py --build-only: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] test_ctrl_firmware.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] fw_coverage.py --check: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] ctrl_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] ctrl_srp_image.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] ctrl_boundary.py --without verilator: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] maap_differential.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] maap_differential.py --self-test: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] aecp_arms.py --app: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] aecp_mutants.py --shard 0 1000: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] aecp_wire.py: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] make -C tb/verilator/mbx stack-pin: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] make -C tb/verilator/mbx obj_fw/libctrlfw.a: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] make -C tb/verilator/mbx run-cosim: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] make -C tb/verilator/mbx run-if2: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+  [REFUSED] make -C tb/verilator/mbx: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+entry points: 17 x 5 states, 0 not refused

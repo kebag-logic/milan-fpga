@@ -1,0 +1,16 @@
+clone at 386b8e69e6f2fd0233e7a432e75c9d877c583a7b, tsn-c-stack gitlink 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+=== probe 1: src/acmp.c edited in the clone's submodule
+ M src/acmp.c
+  rc=2 aecp_arms.py --app: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c 
+  rc=2 aecp_mutants.py --shard 0 1000: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c 
+  rc=2 aecp_wire.py: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c 
+  rc=2 ctrl_srp_image.py --with-aecp: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c 
+  rc=2 test_ctrl_firmware.py --require-rv32: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c 
+=== probe 2: a stack source includes the AECP core's header
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at d4cf5fa25b8f06278665251ef2687293077faa0e   [FAIL] host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h   [FAIL] host: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp_model.h   [FAIL] rv32: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp.h   [FAIL] rv32: the stack's src/adp.c includes sw/firmware/ctrl/aecp/aecp_
+=== probe 3: an AECP arm's mode guards a stack include of the mailbox HAL
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at a23c5fbc0042aaa6a3f48887a0351cdcd25b34e4   [FAIL] host [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h   [FAIL] rv32 [-DAECP_TEST_APP]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h ctrl_boundary: FAIL 
+=== probe 4: the AECP adapter reaches a stack source by its checkout path
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92   [FAIL] firmware: aecp/aecp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers   [FAIL] firmware rv32: aecp/aecp_mbx.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers ctrl_boundary: FAIL 
+=== restored
+ 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 third_party/tsn-c-stack (1a9f651)
