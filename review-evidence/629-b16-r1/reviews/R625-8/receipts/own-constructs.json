@@ -1,0 +1,252 @@
+[
+  {
+    "name": "strike-in-index",
+    "where": "index",
+    "line": 15,
+    "added": " ~~evidence~~",
+    "rc": 1,
+    "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP README.md:15 strikethrough ~~evidence~~ (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "image-in-index",
+    "where": "index",
+    "line": 15,
+    "added": " ![evidence](x.png)",
+    "rc": 1,
+    "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP README.md:15 image ![evidence](x.png) (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "footnote-in-index",
+    "where": "index",
+    "line": 15,
+    "added": " note[^own]",
+    "rc": 1,
+    "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1242, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2275, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 1}\nUNCOVERED README.md:15 645 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'note', not on the closed list) | ch control, lane B6's timed ratio for B-CRF and B-AAF, and #645 note\nMARKUP README.md:15 footnote_reference [^own] (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "task-list-end",
+    "where": "end",
+    "line": 4274,
+    "added": "- [x] evidence",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 tasklist - [x] evidence (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "reference-image-end",
+    "where": "end",
+    "line": 4274,
+    "added": "![label][picture]\n\n[picture]: x.png",
+    "rc": 1,
+    "stdout": "{\"lines\": 2014, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 image ![label][picture] (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "raw-processing-instruction",
+    "where": "end",
+    "line": 4274,
+    "added": "<?evidence?>",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <?evidence?> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "raw-declaration",
+    "where": "end",
+    "line": 4274,
+    "added": "<!DOCTYPE evidence>",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <!DOCTYPE evidence> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "raw-cdata",
+    "where": "end",
+    "line": 4274,
+    "added": "<![CDATA[evidence]]>",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <![CDATA[evidence]]> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "empty-strike",
+    "where": "end",
+    "line": 4274,
+    "added": "~~evidence~~",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 strikethrough ~~evidence~~ (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "reference-footnote",
+    "where": "end",
+    "line": 4274,
+    "added": "Evidence[^n].\n\n[^n]: text.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2014, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 2}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 footnote_reference [^n] (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4276 footnote_definition text. (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "indented-code",
+    "where": "end",
+    "line": 4274,
+    "added": "    evidence",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 code_block evidence (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "block-html-multiline",
+    "where": "end",
+    "line": 4274,
+    "added": "<div>\nevidence\n</div>",
+    "rc": 1,
+    "stdout": "{\"lines\": 2014, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <div> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "numeric-character-reference",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN &#55; ppm.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | CLOCK_DOMAIN 7 ppm.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "numeric-character-reference-newline",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN &#55;\nppm.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2013, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | CLOCK_DOMAIN 7 ppm.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "code-split-unknown-unit",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN `7`furlongs.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7  | CLOCK_DOMAIN `7`furlongs.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "emphasis-split-unknown-unit",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN *7*furlongs.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (no row can claim this spelling) | CLOCK_DOMAIN 7furlongs.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "nested-link-emphasis",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN [**7**](#b16c-attribution)ppm.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (a measurement: only a row can claim it) (no row can claim this spelling) | CLOCK_DOMAIN 7ppm.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "hardbreak-in-quote",
+    "where": "end",
+    "line": 4274,
+    "added": "> CLOCK_DOMAIN 7\\\n> furlongs.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2013, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | CLOCK_DOMAIN 7 furlongs.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "unicode-zero-width",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN 7​furlongs.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (no row can claim this spelling) | CLOCK_DOMAIN 7furlongs.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "tab-in-number-unit",
+    "where": "end",
+    "line": 4274,
+    "added": "CLOCK_DOMAIN 7\tppm.",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | CLOCK_DOMAIN 7 ppm.\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "math-block",
+    "where": "end",
+    "line": 4274,
+    "added": "$$\n7 ppm\n$$",
+    "rc": 1,
+    "stdout": "{\"lines\": 2014, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4275 7 (a measurement: only a row can claim it) | $$ 7 ppm $$\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "marked-generator-extra-line",
+    "where": "end",
+    "line": 4274,
+    "added": "<!-- solution-cpu-contract:start -->\n<!--extra-->",
+    "rc": 1,
+    "stdout": "{\"lines\": 2013, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4275 html_block <!--extra--> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "blank-generator-padding",
+    "where": "end",
+    "line": 4274,
+    "added": " <!-- solution-cpu-contract:start -->",
+    "rc": 1,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <!-- solution-cpu-contract:start --> (refused: a construct off the allowlist; write plain Markdown)\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "autolink-no-number",
+    "where": "end",
+    "line": 4274,
+    "added": "<https://example.com/evidence>",
+    "rc": 0,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "stderr": "",
+    "receipts": true
+  },
+  {
+    "name": "generator-exact",
+    "where": "end",
+    "line": 4274,
+    "added": "<!-- solution-cpu-contract:start -->",
+    "rc": 0,
+    "stdout": "{\"lines\": 2012, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "stderr": "",
+    "receipts": true
+  }
+]

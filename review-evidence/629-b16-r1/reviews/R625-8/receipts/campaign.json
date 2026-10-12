@@ -1,0 +1,137 @@
+[
+  {
+    "name": "figures",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/receipts/figures-rows.tsv $OUTPUT/receipts/figures-coverage.tsv --repo $REPO"
+  },
+  {
+    "name": "controls-r3",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/r3_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r3 $OUTPUT/receipts/controls-r3.json"
+  },
+  {
+    "name": "controls-r4",
+    "returncode": 1,
+    "command": "$ENV/bin/python -I $PACKET/tools/r4_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r4 $OUTPUT/receipts/controls-r4.json"
+  },
+  {
+    "name": "controls-r5",
+    "returncode": 1,
+    "command": "$ENV/bin/python -I $PACKET/tools/r5_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r5 $OUTPUT/receipts/controls-r5.json"
+  },
+  {
+    "name": "controls-r6",
+    "returncode": 1,
+    "command": "$ENV/bin/python -I $PACKET/tools/r6_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r6 $OUTPUT/receipts/controls-r6.json"
+  },
+  {
+    "name": "controls-r7",
+    "returncode": 1,
+    "command": "$ENV/bin/python -I $PACKET/tools/r7_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r7 $OUTPUT/receipts/controls-r7.json"
+  },
+  {
+    "name": "controls-r8",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/r8_check_controls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/controls-r8 $OUTPUT/receipts/controls-r8.json"
+  },
+  {
+    "name": "self-probes",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/r8_self_probes.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $OUTPUT/scratch/campaign/self-probes $OUTPUT/receipts/self-probes.json"
+  },
+  {
+    "name": "r624-4",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_escape_forms.py $REPO $PACKET $OUTPUT/scratch/campaign/r624-4/scratch $OUTPUT/scratch/campaign/r624-4/out.json"
+  },
+  {
+    "name": "r625-4",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_coverage.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-4"
+  },
+  {
+    "name": "r625-3",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_figure_coverage.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-3"
+  },
+  {
+    "name": "r624-5-row3200",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_row3200.py $REPO $PACKET $OUTPUT/scratch/campaign/r624-5-row3200/scratch $OUTPUT/scratch/campaign/r624-5-row3200/out.json"
+  },
+  {
+    "name": "r624-5-escapes",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_r624_5_escapes.py $REPO $PACKET $OUTPUT/scratch/campaign/r624-5-escapes/scratch $OUTPUT/scratch/campaign/r624-5-escapes/out.json"
+  },
+  {
+    "name": "r625-5-comment",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_comment_separator.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-5-comment"
+  },
+  {
+    "name": "r625-6-rendered",
+    "returncode": 1,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_rendered_comment.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-6-rendered"
+  },
+  {
+    "name": "r625-6-followers",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_followers.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-6-followers"
+  },
+  {
+    "name": "r624-6-escapes",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_r624_6_escapes.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $REPO $OUTPUT/scratch/campaign/r624-6-escapes/scratch $OUTPUT/scratch/campaign/r624-6-escapes/out.json"
+  },
+  {
+    "name": "r624-6-row3200-polls",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_row3200_polls.py $PACKET/tools/check_b16_figures.py $REPO/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md $PACKET $REPO $OUTPUT/scratch/campaign/r624-6-row3200-polls/work $OUTPUT/scratch/campaign/r624-6-row3200-polls/out.json"
+  },
+  {
+    "name": "r624-7-escapes",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_r624_7_markdown_escapes.py $REPO $PACKET $OUTPUT/scratch/campaign/r624-7-escapes/work $OUTPUT/scratch/campaign/r624-7-escapes/out.json"
+  },
+  {
+    "name": "r624-7-invisible",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_r624_7_invisible.py $REPO $PACKET $OUTPUT/scratch/campaign/r624-7-invisible/work $OUTPUT/scratch/campaign/r624-7-invisible/out.json"
+  },
+  {
+    "name": "r625-7-markup",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I $PACKET/tools/review-probes/probe_markup.py $REPO $PACKET $OUTPUT/scratch/campaign/r625-7-markup"
+  },
+  {
+    "name": "docs-check",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I scripts/docs_check.py"
+  },
+  {
+    "name": "doc-style",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I scripts/check_doc_style.py"
+  },
+  {
+    "name": "toc",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I scripts/gen_toc.py --check"
+  },
+  {
+    "name": "doc-paths",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I scripts/check_doc_paths.py"
+  },
+  {
+    "name": "em-dash",
+    "returncode": 0,
+    "command": "$ENV/bin/python -I scripts/check_em_dash.py --base c20c85bd"
+  },
+  {
+    "name": "diff-check",
+    "returncode": 0,
+    "command": "git diff --check c20c85bd HEAD"
+  }
+]

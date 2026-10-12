@@ -1,0 +1,97 @@
+{
+  "r3": {
+    "passed": 5,
+    "total": 5,
+    "failures": []
+  },
+  "r4": {
+    "passed": 7,
+    "total": 8,
+    "failures": [
+      {
+        "control": "a figure with its unit added as a link label",
+        "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+        "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+        "observed": {
+          "rc": 1,
+          "named": false
+        },
+        "verdict": "FAIL",
+        "from": "round 4"
+      }
+    ]
+  },
+  "r5": {
+    "passed": 21,
+    "total": 22,
+    "failures": [
+      {
+        "control": "a figure with its unit added as a link label",
+        "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+        "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+        "observed": {
+          "rc": 1,
+          "named": false
+        },
+        "verdict": "FAIL",
+        "from": "round 4"
+      }
+    ]
+  },
+  "r6": {
+    "passed": 38,
+    "total": 39,
+    "failures": [
+      {
+        "control": "a figure with its unit added as a link label",
+        "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+        "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+        "observed": {
+          "rc": 1,
+          "named": false
+        },
+        "verdict": "FAIL",
+        "from": "round 4"
+      }
+    ]
+  },
+  "r7": {
+    "passed": 48,
+    "total": 50,
+    "failures": [
+      {
+        "control": "a figure with its unit added as a link label",
+        "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+        "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+        "observed": {
+          "rc": 1,
+          "named": false
+        },
+        "verdict": "FAIL",
+        "from": "round 4"
+      },
+      {
+        "control": "a comment inside a code span",
+        "alteration": "'See `CLOCK_DOMAIN 7<!-- -->ppm`.' appended to the attribution row, line 3011",
+        "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+        "observed": {
+          "rc": 1,
+          "named": false
+        },
+        "verdict": "FAIL",
+        "from": "round 7"
+      }
+    ]
+  },
+  "r8": {
+    "passed": 73,
+    "total": 73,
+    "failures": []
+  },
+  "all_prior_controls_green": false,
+  "all_current_controls_green": true,
+  "unchanged_check_outputs_equal_published": {
+    "rows": true,
+    "coverage": true
+  }
+}
