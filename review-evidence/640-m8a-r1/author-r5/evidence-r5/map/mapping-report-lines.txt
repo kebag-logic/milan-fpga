@@ -1,0 +1,69 @@
+27:# set_msg_config -id {Synth 8-4445} -new_severity ERROR
+31:# synth_design -top s1i1_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+32:Command: synth_design -top s1i1_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+203:|s1i1_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+204:|s1i1_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+355:# synth_design -top s1i1_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+356:Command: synth_design -top s1i1_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+487:|s1i1_sram   | sram_bank1_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+488:|s1i1_sram   | sram_bank2_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+489:|s1i1_sram   | sram_bank3_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+490:|s1i1_sram   | sram_bank0_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+512:|s1i1_sram   | sram_bank1_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+513:|s1i1_sram   | sram_bank2_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+514:|s1i1_sram   | sram_bank3_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+515:|s1i1_sram   | sram_bank0_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+642:# synth_design -top s1i2_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+643:Command: synth_design -top s1i2_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+811:|s1i2_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+812:|s1i2_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+813:|s1i2_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+814:|s1i2_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+958:# synth_design -top s1i2_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+959:Command: synth_design -top s1i2_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1084:|s1i2_sram   | sram_bank1_reg | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+1085:|s1i2_sram   | sram_bank2_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+1086:|s1i2_sram   | sram_bank0_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+1108:|s1i2_sram   | sram_bank1_reg | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+1109:|s1i2_sram   | sram_bank2_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+1110:|s1i2_sram   | sram_bank0_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+1237:# synth_design -top s8i1_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1238:Command: synth_design -top s8i1_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1410:|s8i1_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+1411:|s8i1_rom    | rom_bank2_dat0_reg | 2048x32       | Block RAM      | 
+1412:|s8i1_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+1413:|s8i1_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+1414:|s8i1_rom    | rom_bank2_dat0_reg | 2048x32       | Block RAM      | 
+1415:|s8i1_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+1565:# synth_design -top s8i1_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1566:Command: synth_design -top s8i1_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1697:|s8i1_sram   | sram_bank1_reg | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+1698:|s8i1_sram   | sram_bank2_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+1699:|s8i1_sram   | sram_bank3_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+1700:|s8i1_sram   | sram_bank0_reg | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 
+1722:|s8i1_sram   | sram_bank1_reg | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+1723:|s8i1_sram   | sram_bank2_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+1724:|s8i1_sram   | sram_bank3_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+1725:|s8i1_sram   | sram_bank0_reg | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 
+1862:# synth_design -top s8i2_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+1863:Command: synth_design -top s8i2_rom -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+2036:|s8i2_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+2037:|s8i2_rom    | rom_bank2_dat0_reg | 2048x32       | Block RAM      | 
+2038:|s8i2_rom    | rom_bank3_dat0_reg | 1024x32       | Block RAM      | 
+2039:|s8i2_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+2040:|s8i2_rom    | rom_bank1_dat0_reg | 8192x32       | Block RAM      | 
+2041:|s8i2_rom    | rom_bank2_dat0_reg | 2048x32       | Block RAM      | 
+2042:|s8i2_rom    | rom_bank3_dat0_reg | 1024x32       | Block RAM      | 
+2043:|s8i2_rom    | rom_bank0_dat0_reg | 16384x31      | Block RAM      | 
+2194:# synth_design -top s8i2_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+2195:Command: synth_design -top s8i2_sram -part xc7a100t-fgg484-2 -mode out_of_context -directive AreaOptimized_high
+2336:|s8i2_sram   | sram_bank1_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+2337:|s8i2_sram   | sram_bank2_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+2338:|s8i2_sram   | sram_bank3_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+2339:|s8i2_sram   | sram_bank4_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+2340:|s8i2_sram   | sram_bank0_reg | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 
+2362:|s8i2_sram   | sram_bank1_reg | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+2363:|s8i2_sram   | sram_bank2_reg | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+2364:|s8i2_sram   | sram_bank3_reg | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+2365:|s8i2_sram   | sram_bank4_reg | 512 x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 1      | 0      | 
+2366:|s8i2_sram   | sram_bank0_reg | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 

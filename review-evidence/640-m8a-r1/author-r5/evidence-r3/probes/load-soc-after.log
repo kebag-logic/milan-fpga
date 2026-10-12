@@ -1,0 +1,24 @@
+{
+  "build_rc": 1,
+  "refusal": "reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there",
+  "error": null,
+  "verilog_count": 0,
+  "first_eight_programmed_words": [],
+  "original_first_eight_words": [
+    "10003117",
+    "d2010113",
+    "07c00293",
+    "10000317",
+    "ff430313",
+    "10000397",
+    "ff038393",
+    "00737c63"
+  ],
+  "changed_field": "p_filesz of the PT_LOAD containing _start",
+  "fixture": "linked with the exact-head reset assembly and linker script"
+}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/640m8a-a594/r3/revev/review-evidence/640-m8a-r1/reviews/R607-2/probe_load_soc.py", line 45, in <module>
+    assert result['rc'] == 0 and len(result['verilog']) == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

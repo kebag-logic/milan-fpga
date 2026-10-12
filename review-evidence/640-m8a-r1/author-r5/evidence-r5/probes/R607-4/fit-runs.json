@@ -1,0 +1,86 @@
+[
+  {
+    "name": "fit-1x1_tdm8-if1",
+    "rc": 0,
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--interfaces",
+      "1",
+      "--with-aecp",
+      "--layout",
+      "split",
+      "--output",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/fit-1x1_tdm8-if1",
+      "--libc",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libcompiler_rt.a"
+    ]
+  },
+  {
+    "name": "fit-1x1_tdm8-if2",
+    "rc": 0,
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--interfaces",
+      "2",
+      "--with-aecp",
+      "--layout",
+      "split",
+      "--output",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/fit-1x1_tdm8-if2",
+      "--libc",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libcompiler_rt.a"
+    ]
+  },
+  {
+    "name": "fit-8x8-if1",
+    "rc": 0,
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_8x8.yaml",
+      "--interfaces",
+      "1",
+      "--with-aecp",
+      "--layout",
+      "split",
+      "--output",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/fit-8x8-if1",
+      "--libc",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libcompiler_rt.a"
+    ]
+  },
+  {
+    "name": "fit-8x8-if2",
+    "rc": 0,
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "--config",
+      "configs/endstation_ax7101_8x8.yaml",
+      "--interfaces",
+      "2",
+      "--with-aecp",
+      "--layout",
+      "split",
+      "--output",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/fit-8x8-if2",
+      "--libc",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/640m8a-a594/r5/r607pkt/scratch/runtime/libcompiler_rt.a"
+    ]
+  }
+]
