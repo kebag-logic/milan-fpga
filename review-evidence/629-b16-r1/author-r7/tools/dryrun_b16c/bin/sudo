@@ -1,0 +1,4 @@
+#!/bin/sh
+# B16c dry run: sudo stand-in; drops -n and runs the rest from the fake PATH.
+[ "$1" = -n ] && shift
+exec "$@"
