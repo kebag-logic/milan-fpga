@@ -1,0 +1,42 @@
+[
+  {
+    "plant": "control",
+    "baremetal_rc": 0,
+    "qemu_failed": false,
+    "caught": null,
+    "passes": true,
+    "last_line": "]"
+  },
+  {
+    "plant": "rv-generated-window",
+    "baremetal_rc": 1,
+    "qemu_failed": true,
+    "caught": true,
+    "passes": null,
+    "last_line": "RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel <packet>/scratch/rv32probe/rv-generated-window/rv32/debug/rv32_smoke.elf -no-reboot"
+  },
+  {
+    "plant": "rv-answer-not-recorded",
+    "baremetal_rc": 1,
+    "qemu_failed": true,
+    "caught": true,
+    "passes": null,
+    "last_line": "RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel <packet>/scratch/rv32probe/rv-answer-not-recorded/rv32/debug/rv32_smoke.elf -no-reboot"
+  },
+  {
+    "plant": "rv-gate-always-closed",
+    "baremetal_rc": 1,
+    "qemu_failed": true,
+    "caught": true,
+    "passes": null,
+    "last_line": "RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel <packet>/scratch/rv32probe/rv-gate-always-closed/rv32/debug/rv32_smoke.elf -no-reboot"
+  },
+  {
+    "plant": "rv-window-zero",
+    "baremetal_rc": 1,
+    "qemu_failed": true,
+    "caught": true,
+    "passes": null,
+    "last_line": "RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel <packet>/scratch/rv32probe/rv-window-zero/rv32/debug/rv32_smoke.elf -no-reboot"
+  }
+]

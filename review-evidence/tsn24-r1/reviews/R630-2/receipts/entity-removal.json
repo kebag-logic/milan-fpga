@@ -1,0 +1,40 @@
+[
+  {
+    "variant": "control",
+    "plant_applied": false,
+    "killer_removed": false,
+    "killer_present_after": true,
+    "build_rc": 0,
+    "suite_rc": 0,
+    "binaries_completed": 8,
+    "test_instances_ran": 418,
+    "failing_tests": [],
+    "needle_seen": false
+  },
+  {
+    "variant": "plant-killer-present",
+    "plant_applied": true,
+    "killer_removed": false,
+    "killer_present_after": true,
+    "build_rc": 0,
+    "suite_rc": 8,
+    "binaries_completed": 8,
+    "test_instances_ran": 418,
+    "failing_tests": [
+      "EntityYaml.DaFreshRoundTrip"
+    ],
+    "needle_seen": true
+  },
+  {
+    "variant": "plant-killer-removed",
+    "plant_applied": true,
+    "killer_removed": true,
+    "killer_present_after": false,
+    "build_rc": 0,
+    "suite_rc": 0,
+    "binaries_completed": 8,
+    "test_instances_ran": 417,
+    "failing_tests": [],
+    "needle_seen": false
+  }
+]
