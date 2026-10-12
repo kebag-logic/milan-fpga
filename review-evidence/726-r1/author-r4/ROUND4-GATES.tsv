@@ -1,0 +1,142 @@
+check	rc	seconds	sampled_service_peak_bytes	cwd	command	disposition
+before-1	0	31.992	3589177344	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --variant before --work $EARLIER_SCRATCH/standing-before-1	completed
+before-8	0	48.715	1899675648	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --variant before --work $EARLIER_SCRATCH/standing-before-8	completed
+behavior	0	1.717	1973178368	$ROOT/tests	python3 -m behave --no-capture -f plain	completed
+capture-control	0	27.964	1548652544	$ROOT	python3 $SCRATCH/capture_control.py	completed
+dependencies	0	0.164	1883324416	$ROOT	"python3 -c 'import sys,importlib.metadata as m,hashlib,pathlib,subprocess; print(sys.version); print({n:m.version(n) for n in (""pyslang"",""cmarkgfm"",""html5lib"",""wavedrom"",""PyYAML"")}); p=pathlib.Path(""$EARLIER_SCRATCH/round3/bin/sv2v""); print(""converter bytes"",p.stat().st_size,""sha256"",hashlib.sha256(p.read_bytes()).hexdigest()); subprocess.run([""$VALIDATION_TOOLS/pinned-verilator-5.050/verilator"",""--version""],check=True)'"	completed
+diff-working	0	0.034	1564041216	$ROOT	git diff --check	completed
+doc-generator	0	0.515	1297727488	$ROOT	python3 scripts/gen_toc.py docs/testing/726_STREAM_COUNTERS.md docs/testing/MILAN_V12_AUDIT_2026-08-16.md docs/reference/REGISTER_MAP.md sw/firmware/ctrl/aecp/README.md	completed
+docs-00	0	0.214	1576656896	$ROOT	python3 scripts/gen_hdl_reference.py --selftest	completed
+docs-01	0	2.221	1913978880	$ROOT	python3 scripts/gen_hdl_reference.py --output $SCRATCH/milan-hdl-reference	completed
+docs-02	0	4.574	1903546368	$ROOT	python3 scripts/docs_check.py	completed
+docs-03	0	3.323	1934639104	$ROOT	python3 scripts/check_em_dash.py --base c6bd08c6	completed
+docs-04	0	0.064	1241518080	$ROOT	python3 scripts/check_doc_style.py	completed
+docs-05	0	0.064	1257046016	$ROOT	python3 scripts/check_doc_style.py --selftest	completed
+docs-06	0	0.315	1272864768	$ROOT	python3 scripts/check_gptp_docs.py	completed
+docs-07	0	0.315	1334800384	$ROOT	python3 scripts/check_gptp_docs.py --selftest	completed
+docs-08	0	0.515	1385717760	$ROOT	python3 docs/DOC_MAP.gen.py --check	completed
+docs-09	0	0.715	1180295168	$ROOT	python3 docs/DOC_MAP.gen.py --selftest	completed
+docs-10	0	0.515	1152745472	$ROOT	python3 docs/diagrams/timesync_chain.gen.py --check	completed
+docs-11	0	0.665	1150386176	$ROOT	python3 docs/diagrams/timesync_chain.gen.py --selftest	completed
+docs-12	0	0.164	1106448384	$ROOT	python3 scripts/check_solution_docs.py	completed
+docs-13	0	2.821	1130172416	$ROOT	python3 scripts/check_solution_docs.py --selftest	completed
+docs-14	0	0.616	1120546816	$ROOT	python3 docs/diagrams/submodule_boundaries.gen.py --check	completed
+docs-15	0	0.766	1156997120	$ROOT	python3 docs/diagrams/submodule_boundaries.gen.py --selftest	completed
+docs-16	0	0.665	1143357440	$ROOT	python3 scripts/check_submodule_docs.py	completed
+docs-17	0	0.064	1108217856	$ROOT	python3 scripts/check_submodule_docs.py --selftest	completed
+docs-18	0	0.164	1108537344	$ROOT	python3 scripts/gen_wavedrom.py --selftest	completed
+docs-19	0	0.315	1108975616	$ROOT	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check	completed
+docs-20	0	0.415	1108746240	$ROOT	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check	completed
+docs-21	0	0.415	1108586496	$ROOT	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check	completed
+docs-22	0	0.666	1134264320	$ROOT	python3 scripts/check_diagram_pngs.py	completed
+docs-23	0	13.889	1160568832	$ROOT	python3 scripts/check_diagram_pngs.py --selftest	completed
+docs-24	0	1.116	1132347392	$ROOT	python3 scripts/check_feature_status.py --self-test	completed
+docs-25	0	0.715	1118564352	$ROOT	python3 docs/traceability/gen_module_matrix.py --check	completed
+docs-26	0	0.315	1109590016	$ROOT	python3 scripts/check_gptp_docs.py --with-submodule	completed
+docs-27	0	0.565	1117257728	$ROOT	make -C gptp-processor docs	completed
+docs-28	0	0.114	1112965120	$ROOT	python3 scripts/measure_control_flow.py --selftest	completed
+docs-29	0	0.064	1113681920	$ROOT	python3 scripts/measure_cohesion.py --selftest	completed
+docs-30	0	18.798	1406185472	$ROOT	python3 scripts/check_baremetal_only.py --check	completed
+docs-31	0	7.785	1143869440	$ROOT	python3 scripts/check_baremetal_only.py --selftest	completed
+docs-32	0	1.518	1182707712	$ROOT	python3 scripts/ci_rv32_sdk_selftest.py	completed
+docs-33	0	1.918	1199706112	$ROOT	python3 sw/builder/test_firmware_compiler.py --selftest	completed
+docs-34	0	414.243	3519631360	$ROOT	python3 sw/builder/test_firmware_compiler.py --absent --audit $SCRATCH/rv32-absent.jsonl	completed
+docs-35	124	570.002	4583190528	$ROOT	python3 $SCRATCH/pinned_container.py -u sw/builder/test_builder.py --require-rv32	incomplete foreground observer; actual container exit 0 in builder-complete.json
+docs-36	0	2.67	1576894464	$ROOT	python3 scripts/check_nvm_record_space.py	completed
+docs-37	0	48.219	1335271424	$ROOT	python3 scripts/check_nvm_record_space.py --self-test	completed
+docs-38	0	0.816	1291567104	$ROOT	python3 scripts/check_nvm_capture.py	completed
+docs-39	0	71.949	1944461312	$ROOT	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test	completed
+docs-40	0	0.114	1300209664	$ROOT	python3 scripts/check_soc_sources.py	completed
+docs-41	0	0.214	1300172800	$ROOT	python3 scripts/check_soc_sources.py --selftest	completed
+docs-42	0	2.119	1312727040	$ROOT	python3 sw/litex/iob_pack_selftest.py	completed
+docs-43	0	1.517	1313882112	$ROOT	python3 scripts/check_rtl_source_lists.py	completed
+docs-44	0	2.82	1332092928	$ROOT	python3 scripts/check_rtl_source_lists.py --selftest	completed
+docs-45	0	0.465	1302355968	$ROOT	python3 scripts/measure_naming.py --check	completed
+docs-46	0	0.465	1302216704	$ROOT	python3 scripts/measure_naming.py --selftest	completed
+docs-47	0	2.82	1594892288	$ROOT	python3 scripts/check_port_contracts.py	completed
+docs-48	0	3.22	1907613696	$ROOT	python3 scripts/check_port_contracts.py --selftest	completed
+docs-49	0	1.517	1917091840	$ROOT	python3 scripts/measure_fail_fast.py --check	completed
+docs-50	0	1.517	1847799808	$ROOT	python3 scripts/measure_fail_fast.py --selftest	completed
+docs-51	0	1.667	1866555392	$ROOT	python3 scripts/check_todo_ownership.py	completed
+docs-52	0	1.717	1865285632	$ROOT	python3 scripts/check_todo_ownership.py --selftest	completed
+docs-53	0	9.333	2062647296	$ROOT	python3 scripts/measure_test_evidence.py --check	completed
+docs-54	0	9.434	1885712384	$ROOT	python3 scripts/measure_test_evidence.py --selftest	completed
+docs-55	0	0.465	1859223552	$ROOT	python3 scripts/check_hygiene.py --check	completed
+docs-56	0	0.465	1457135616	$ROOT	python3 scripts/check_hygiene.py --selftest	completed
+docs-57	0	0.365	1552224256	$ROOT	python3 scripts/check_sv_idiom.py	completed
+docs-58	0	0.365	1584947200	$ROOT	python3 scripts/check_sv_idiom.py --selftest	completed
+docs-59	0	1.518	1870319616	$ROOT	python3 scripts/check_cpp_idiom.py	completed
+docs-60	0	1.619	1875750912	$ROOT	python3 scripts/check_cpp_idiom.py --selftest	completed
+docs-61	0	4.674	1961074688	$ROOT	python3 scripts/check_py_idiom.py	completed
+docs-62	0	4.623	1965948928	$ROOT	python3 scripts/check_py_idiom.py --selftest	completed
+docs-63	0	0.265	1860829184	$ROOT	python3 scripts/check_sh_idiom.py	completed
+docs-64	0	0.265	1464188928	$ROOT	python3 scripts/check_sh_idiom.py --selftest	completed
+docs-65	0	0.214	1551441920	$ROOT	python3 scripts/ci_events.py --check	completed
+docs-66	0	19.204	1878102016	$ROOT	python3 scripts/ci_events.py --selftest	completed
+docs-67	0	4.473	1863659520	$ROOT	sudo -n docker run --rm --network none --read-only --user 1000:1000 -e TMPDIR=/scratch -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/packages/lib/python3.12/site-packages -v $DEPENDENCIES:/packages:ro -v $ROOT:/candidate:ro -v $SCRATCH/act:/scratch -v $VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu:/runtime:ro -w /candidate catthehacker/ubuntu:full-latest /runtime/bin/python3.12 scripts/act_ci.py --selftest	completed
+docs-68	0	0.114	1566126080	$ROOT	python3 scripts/check_doc_paths.py	completed
+docs-69	0	0.415	1566515200	$ROOT	python3 scripts/check_archive.py	completed
+docs-70	0	0.064	1572315136	$ROOT	python3 scripts/check_archive.py --selftest	completed
+docs-71	0	0.916	1864785920	$ROOT	python3 scripts/gen_toc.py --selftest	completed
+docs-72	0	3.671	2121039872	$ROOT	python3 scripts/gen_toc.py --verify-anchors	completed
+docs-73	0	5.173	2147086336	$ROOT	python3 scripts/gen_toc.py --check	completed
+docs-74	0	0.114	1851318272	$ROOT	python3 avdecc/gen_aem_store.py --self-test	completed
+docs-75	0	13.047	1911975936	$ROOT	python3 scripts/check_sweep_shape.py --self-test	completed
+docs-76	0	0.465	1576611840	$ROOT	python3 scripts/check_deploy_shape.py --self-test	completed
+docs-77	0	47.826	3030888448	$ROOT	python3 scripts/check_entity_shape.py --self-test	completed
+f1-clean1	0	28.821	888225792	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work $EARLIER_SCRATCH/standing-clean-1	completed
+f1-clean8	0	43.598	888225792	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --work $EARLIER_SCRATCH/standing-clean-8	completed
+f1-cpp	0	1.517	478203904	$ROOT	python3 scripts/check_cpp_idiom.py	completed
+f1-evidence	0	9.233	506896384	$ROOT	python3 scripts/measure_test_evidence.py --check	completed
+f1-f5-clean1	0	16.993	2215759872	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 1 --work $EARLIER_SCRATCH/f5-1	completed
+f1-frames1	0	61.78	1882857472	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --output-condition frames-only --work $EARLIER_SCRATCH/review-round2/frames-only-1	completed
+f1-frames8	0	85.692	3707543552	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --output-condition frames-only --work $EARLIER_SCRATCH/review-round2/frames-only-8	completed
+f1-grid	0	89.138	2157273088	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --variant fixed-grid --work $SCRATCH/plant-grid	completed
+f1-py	0	4.672	506896384	$ROOT	python3 scripts/check_py_idiom.py	completed
+f2-after	0	29.27	356085760	$ROOT	env 'MAKEFLAGS= -w' python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work $EARLIER_SCRATCH/standing-clean-1	completed
+f2-before	1	0.766	371367936	$ROOT	env 'MAKEFLAGS= -w' python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work $SCRATCH/f2-before	expected original-defect reproduction
+f2-idiom	0	4.673	1787789312	$ROOT	python3 scripts/check_py_idiom.py	completed
+f2-recursive	0	239.358	2595532800	$ROOT	make -j8 -C tb/verilator/milan_dp counters	completed
+f5-clean-1	0	19.564	3605860352	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant clean --shape 1 --work $EARLIER_SCRATCH/f5-1	completed
+f5-clean-8	0	19.656	3605336064	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant clean --shape 8 --work $EARLIER_SCRATCH/f5-8	completed
+f5-fixed-grid-1	0	18.802	2408656896	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant fixed-grid --shape 1 --work $EARLIER_SCRATCH/f5-fixed-grid	completed
+f5-late-1	0	18.799	3734806528	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant late --shape 1 --work $EARLIER_SCRATCH/f5-late	completed
+f5-rate-1	0	19.002	3753156608	$ROOT	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant rate --shape 1 --work $EARLIER_SCRATCH/f5-rate	completed
+final-inherited	0	62.143	4543868928	$ROOT	env 'MAKEFLAGS= -w' python3 tb/verilator/milan_dp/stream_counters.py --shape 1	completed
+final-recursive	0	243.636	4627447808	$ROOT	make -j8 -C tb/verilator/milan_dp counters	completed
+grader	0	0.615	1929342976	$ROOT	python3 tb/tools/torture_campaign.py --self-test	completed
+head-diff	0	0.065	1627496448	$ROOT	git diff --check c6bd08c6 HEAD	completed
+head-docs	0	5.68	1707900928	$ROOT	python3 scripts/docs_check.py	completed
+head-em-dash	0	4.876	1707909120	$ROOT	python3 scripts/check_em_dash.py --base c6bd08c6	completed
+head-paths	0	0.165	1627496448	$ROOT	python3 scripts/check_doc_paths.py	completed
+head-style	0	0.115	1630932992	$ROOT	python3 scripts/check_doc_style.py	completed
+head-toc	0	6.582	1708171264	$ROOT	python3 scripts/gen_toc.py --check	completed
+lint	0	30.989	3508305920	$ROOT	python3 scripts/lint_rtl.py --check --jobs 2	completed
+no-git-docs	0	4.573	1634750464	$ROOT	python3 $SCRATCH/no-git/scripts/docs_check.py	completed
+no-git-feature	0	1.166	1634750464	$ROOT	python3 $SCRATCH/no-git/scripts/check_feature_status.py	completed
+plant-aaf-reset	0	56.379	2114748416	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant aaf-reset --work $EARLIER_SCRATCH/plant-aaf-reset	completed
+plant-crf-reset	0	55.741	2146762752	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant crf-reset --work $EARLIER_SCRATCH/plant-crf-reset	completed
+plant-late	0	62.448	1588043776	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant late --work $EARLIER_SCRATCH/plant-late	completed
+plant-rate	0	62.025	1597562880	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant rate --work $EARLIER_SCRATCH/plant-rate	completed
+plant-rx-interval	0	55.125	1986519040	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-interval --work $EARLIER_SCRATCH/plant-rx-interval	completed
+plant-rx-saturation	0	55.983	2017644544	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-saturation --work $EARLIER_SCRATCH/plant-rx-saturation	completed
+plant-tx-interval	0	56.572	2096132096	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-interval --work $EARLIER_SCRATCH/plant-tx-interval	completed
+plant-tx-nodirty	0	95.427	3580633088	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-nodirty --work $EARLIER_SCRATCH/plant-tx-nodirty	completed
+plant-tx-reset	0	56.134	2042200064	$ROOT	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-reset --work $EARLIER_SCRATCH/plant-tx-reset	completed
+shift-1-0	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=0 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-1-1000000	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=1000000 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-1-200	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=200 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-1-300	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=300 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-1-800	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=800 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-1-900	0			$EARLIER_SCRATCH/standing-clean-1/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=900 $EARLIER_SCRATCH/standing-clean-1/obj/stream_counters	completed
+shift-8-0	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=0 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+shift-8-1000000	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=1000000 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+shift-8-200	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=200 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+shift-8-300	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=300 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+shift-8-800	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=800 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+shift-8-900	0			$EARLIER_SCRATCH/standing-clean-8/tb/verilator/milan_dp	COUNTERS_WINDOW_SHIFT=900 $EARLIER_SCRATCH/standing-clean-8/obj/stream_counters	completed
+source-pp	0	0.266	1551798272	$ROOT	python3 scripts/pp_srcs.py --check --selftest	completed
+source-strict-corrected	0	1.517	1536569344	$ROOT	python3 scripts/check_rtl_source_lists.py	completed
+source-strict	2	0.064	1507221504	$ROOT	python3 scripts/check_rtl_source_lists.py --strict	CLI usage error; corrected default command passed in source-strict-corrected
+wire	0	0.265	1612857344	$ROOT	python3 scripts/check_wire_accountability.py --self-test	completed
+builder-complete	0	192.209		$ROOT	python3 -u sw/builder/test_builder.py --require-rv32	actual job exit 0; 19 optional NOT RUN arms
