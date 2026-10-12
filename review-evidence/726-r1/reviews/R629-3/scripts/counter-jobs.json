@@ -1,0 +1,153 @@
+[
+  {
+    "name": "frames-only-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "{packet}/scratch/frames-only-1"
+    ]
+  },
+  {
+    "name": "uncertain-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--output-condition",
+      "uncertain",
+      "--work",
+      "{packet}/scratch/uncertain-1"
+    ]
+  },
+  {
+    "name": "frames-only-8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "{packet}/scratch/frames-only-8"
+    ]
+  },
+  {
+    "name": "uncertain-8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--output-condition",
+      "uncertain",
+      "--work",
+      "{packet}/scratch/uncertain-8"
+    ]
+  },
+  {
+    "name": "tx-nodirty",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-nodirty",
+      "--work",
+      "{packet}/scratch/tx-nodirty"
+    ]
+  },
+  {
+    "name": "tx-interval",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-interval",
+      "--work",
+      "{packet}/scratch/tx-interval"
+    ]
+  },
+  {
+    "name": "rx-interval",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rx-interval",
+      "--work",
+      "{packet}/scratch/rx-interval"
+    ]
+  },
+  {
+    "name": "tx-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "tx-reset",
+      "--work",
+      "{packet}/scratch/tx-reset"
+    ]
+  },
+  {
+    "name": "aaf-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "aaf-reset",
+      "--work",
+      "{packet}/scratch/aaf-reset"
+    ]
+  },
+  {
+    "name": "crf-reset",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "crf-reset",
+      "--work",
+      "{packet}/scratch/crf-reset"
+    ]
+  },
+  {
+    "name": "rx-saturation",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rx-saturation",
+      "--work",
+      "{packet}/scratch/rx-saturation"
+    ]
+  },
+  {
+    "name": "late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "late",
+      "--work",
+      "{packet}/scratch/late"
+    ]
+  },
+  {
+    "name": "rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--variant",
+      "rate",
+      "--work",
+      "{packet}/scratch/rate"
+    ]
+  }
+]

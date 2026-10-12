@@ -1,0 +1,66 @@
+[
+  {
+    "name": "f5-1-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "clean",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-clean"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 18.675
+  },
+  {
+    "name": "f5-8-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "8",
+      "--variant",
+      "clean",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-8-clean"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 18.586
+  },
+  {
+    "name": "f5-1-late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "late",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-late"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 20.395
+  },
+  {
+    "name": "f5-1-rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "rate",
+      "--work",
+      "$REVIEWS/726-r629-3-packet/scratch/f5-1-rate"
+    ],
+    "cwd": "$REVIEWS/r629-3-726",
+    "rc": 0,
+    "elapsed_s": 20.268
+  }
+]

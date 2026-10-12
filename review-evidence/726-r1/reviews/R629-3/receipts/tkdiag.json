@@ -1,0 +1,33 @@
+{
+  "name": "tkdiag",
+  "argv": [
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "--cc",
+    "--exe",
+    "--build",
+    "-j",
+    "2",
+    "--top-module",
+    "tkdiag_tb_top",
+    "-Wall",
+    "-Wno-fatal",
+    "-Wno-DECLFILENAME",
+    "-Wno-UNUSEDSIGNAL",
+    "-Wno-WIDTHEXPAND",
+    "-Wno-WIDTHTRUNC",
+    "-Wno-UNUSEDPARAM",
+    "-Wno-GENUNNAMED",
+    "-CFLAGS",
+    "-std=c++17 -O2 -Wall -Wextra",
+    "--Mdir",
+    "$REVIEWS/726-r629-3-packet/scratch/tkdiag/obj",
+    "$REVIEWS/r629-3-726/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+    "$REVIEWS/r629-3-726/hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+    "$REVIEWS/r629-3-726/tb/verilator/tkdiag/tkdiag_tb_top.sv",
+    "$REVIEWS/r629-3-726/tb/verilator/tkdiag/sim_main.cpp",
+    "-o",
+    "unit"
+  ],
+  "rc": 0,
+  "elapsed_s": 5.777
+}

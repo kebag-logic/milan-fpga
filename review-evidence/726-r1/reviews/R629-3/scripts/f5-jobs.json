@@ -1,0 +1,54 @@
+[
+  {
+    "name": "f5-1-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "clean",
+      "--work",
+      "{packet}/scratch/f5-1-clean"
+    ]
+  },
+  {
+    "name": "f5-8-clean",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "8",
+      "--variant",
+      "clean",
+      "--work",
+      "{packet}/scratch/f5-8-clean"
+    ]
+  },
+  {
+    "name": "f5-1-late",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "late",
+      "--work",
+      "{packet}/scratch/f5-1-late"
+    ]
+  },
+  {
+    "name": "f5-1-rate",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--variant",
+      "rate",
+      "--work",
+      "{packet}/scratch/f5-1-rate"
+    ]
+  }
+]
