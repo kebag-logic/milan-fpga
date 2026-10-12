@@ -1,0 +1,200 @@
+{"local_rx": 1791780542.596636, "line": {"type": "start", "mode": "agent", "argv": ["agent", "<ctl-if>", "<peer-eid>", "<peer-mac>"], "t": 1791780543.64894}}
+{"local_rx": 1791780542.596784, "line": {"type": "agent-ready", "t": 1791780543.649018}}
+{"local_tx": 1791780542.596809, "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}}
+{"local_rx": 1791780542.597144, "line": {"type": "req", "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}, "t": 1791780543.649734}}
+{"local_rx": 1791780542.597511, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23713, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.123, "payload": "000500000205022001006000", "role": "dut", "what": "format-dut-5-0", "t_tx": 1791780543.64976, "t_rx": 1791780543.649896, "t": 1791780543.649898}}
+{"local_rx": 1791780542.597569, "line": {"type": "done", "op": "fmt", "t": 1791780543.649919}}
+{"local_tx": 1791780542.597589, "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}}
+{"local_rx": 1791780542.597832, "line": {"type": "req", "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}, "t": 1791780543.65042}}
+{"local_rx": 1791780542.598014, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23714, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.163, "payload": "000600000205022001006000", "role": "peer", "what": "format-peer-6-0", "t_tx": 1791780543.650453, "t_rx": 1791780543.650624, "t": 1791780543.650625}}
+{"local_rx": 1791780542.598048, "line": {"type": "done", "op": "fmt", "t": 1791780543.650643}}
+{"local_tx": 1791780542.598066, "req": {"op": "fmt", "who": "peer", "dir": "in", "idx": 0}}
+{"local_rx": 1791780542.59828, "line": {"type": "req", "req": {"op": "fmt", "who": "peer", "dir": "in", "idx": 0}, "t": 1791780543.650904}}
+{"local_rx": 1791780542.598497, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23715, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.184, "payload": "000500000205022002006000", "role": "peer", "what": "format-peer-5-0", "t_tx": 1791780543.650921, "t_rx": 1791780543.651109, "t": 1791780543.651111}}
+{"local_rx": 1791780542.59854, "line": {"type": "done", "op": "fmt", "t": 1791780543.651125}}
+{"local_tx": 1791780542.598556, "req": {"op": "clk", "who": "dut"}}
+{"local_rx": 1791780542.59872, "line": {"type": "req", "req": {"op": "clk", "who": "dut"}, "t": 1791780543.651357}}
+{"local_rx": 1791780542.598826, "line": {"cmd": "GET_CLOCK_SOURCE", "seq": 23716, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.077, "payload": "0024000000000000", "role": "dut", "what": "clock-dut", "t_tx": 1791780543.651372, "t_rx": 1791780543.651453, "t": 1791780543.651454}}
+{"local_rx": 1791780542.598852, "line": {"type": "done", "op": "clk", "t": 1791780543.65147}}
+{"local_tx": 1791780542.598868, "req": {"op": "clk", "who": "peer"}}
+{"local_rx": 1791780542.599017, "line": {"type": "req", "req": {"op": "clk", "who": "peer"}, "t": 1791780543.65166}}
+{"local_rx": 1791780542.599262, "line": {"cmd": "GET_CLOCK_SOURCE", "seq": 23717, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.179, "payload": "0024000000015868", "role": "peer", "what": "clock-peer", "t_tx": 1791780543.651673, "t_rx": 1791780543.651857, "t": 1791780543.651858}}
+{"local_rx": 1791780542.599295, "line": {"type": "done", "op": "clk", "t": 1791780543.651873}}
+{"local_tx": 1791780542.599312, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780542.59947, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780543.652107}}
+{"local_rx": 1791780542.599552, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "0000000000000000", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "rx-state-dut-0", "t_tx": 1791780543.652121, "t_rx": 1791780543.652182, "t": 1791780543.652184}}
+{"local_rx": 1791780542.59959, "line": {"type": "done", "op": "rx", "t": 1791780543.652198}}
+{"local_tx": 1791780542.599609, "req": {"op": "rx", "who": "dut", "idx": 1}}
+{"local_rx": 1791780542.599762, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 1}, "t": 1791780543.652405}}
+{"local_rx": 1791780542.599843, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "0000000000000000", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 1, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "rx-state-dut-1", "t_tx": 1791780543.652419, "t_rx": 1791780543.652475, "t": 1791780543.652476}}
+{"local_rx": 1791780542.599869, "line": {"type": "done", "op": "rx", "t": 1791780543.65249}}
+{"local_tx": 1791780542.599883, "req": {"op": "rx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780542.60003, "line": {"type": "req", "req": {"op": "rx", "who": "peer", "idx": 0}, "t": 1791780543.652673}}
+{"local_rx": 1791780542.600254, "line": {"status": 0, "stream_id": "0200000000010000", "controller": "<controller-eid>", "talker": "020000fffe000001", "listener": "<peer-eid>", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f000dd85", "conn_count": 1, "flags": "0x0082", "vlan": 2, "what": "rx-state-peer-0", "t_tx": 1791780543.652685, "t_rx": 1791780543.652864, "t": 1791780543.652865}}
+{"local_rx": 1791780542.600289, "line": {"type": "done", "op": "rx", "t": 1791780543.652877}}
+{"local_tx": 1791780542.600305, "req": {"op": "rx", "who": "peer", "idx": 8}}
+{"local_rx": 1791780542.600461, "line": {"type": "req", "req": {"op": "rx", "who": "peer", "idx": 8}, "t": 1791780543.653096}}
+{"local_rx": 1791780542.600605, "line": {"status": 0, "stream_id": "0200000000010001", "controller": "<controller-eid>", "talker": "020000fffe000001", "listener": "<peer-eid>", "talker_uid": 1, "listener_uid": 8, "dmac": "91e0f000dd86", "conn_count": 1, "flags": "0x0082", "vlan": 2, "what": "rx-state-peer-8", "t_tx": 1791780543.653107, "t_rx": 1791780543.653237, "t": 1791780543.653238}}
+{"local_rx": 1791780542.600629, "line": {"type": "done", "op": "rx", "t": 1791780543.65325}}
+{"local_tx": 1791780542.600643, "req": {"op": "map", "act": "get", "dtype": 14, "didx": 0}}
+{"local_rx": 1791780542.600811, "line": {"type": "req", "req": {"op": "map", "act": "get", "dtype": 14, "didx": 0}, "t": 1791780543.65345}}
+{"local_rx": 1791780542.600902, "line": {"cmd": "GET_AUDIO_MAP", "seq": 23722, "status": "SUCCESS", "cdl": 56, "rtt_ms": 0.065, "payload": "000e000000000001000400000000000000000000000000010001000000000002000200000000000300030000", "role": "dut", "what": "map-dut-0x000e-0-0", "t_tx": 1791780543.653467, "t_rx": 1791780543.653536, "t": 1791780543.653537}}
+{"local_rx": 1791780542.600925, "line": {"type": "done", "op": "map", "t": 1791780543.65355}}
+{"local_tx": 1791780542.601013, "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}}
+{"local_rx": 1791780542.60119, "line": {"type": "req", "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}, "t": 1791780543.653814}}
+{"local_rx": 1791780542.603482, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23723, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.142, "payload": "000600000205022001006000", "role": "peer", "what": "format-peer-6-0", "t_tx": 1791780543.653832, "t_rx": 1791780543.653978, "t": 1791780543.653979}}
+{"local_rx": 1791780542.603522, "line": {"type": "done", "op": "fmt", "t": 1791780543.653991}}
+{"local_tx": 1791780542.603539, "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}}
+{"local_rx": 1791780542.606141, "line": {"type": "req", "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}, "t": 1791780543.65636}}
+{"local_rx": 1791780542.606191, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23724, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.085, "payload": "000500000205022001006000", "role": "dut", "what": "format-dut-5-0", "t_tx": 1791780543.656379, "t_rx": 1791780543.656468, "t": 1791780543.65647}}
+{"local_rx": 1791780542.606231, "line": {"type": "done", "op": "fmt", "t": 1791780543.656485}}
+{"local_tx": 1791780542.606288, "req": {"op": "bind", "t": "<peer-eid>", "tu": 0, "l": "020000fffe000001", "lu": 0}}
+{"local_rx": 1791780542.60728, "line": {"type": "req", "req": {"op": "bind", "t": "<peer-eid>", "tu": 0, "l": "020000fffe000001", "lu": 0}, "t": 1791780543.659127}}
+{"local_rx": 1791780542.607331, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 1, "flags": "0x0000", "vlan": 0, "what": "bind", "t_tx": 1791780543.659147, "t_rx": 1791780543.659209, "t": 1791780543.65921}}
+{"local_rx": 1791780542.607365, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 1, "flags": "0x0002", "vlan": 0, "what": "rx-state-after", "t_tx": 1791780543.659226, "t_rx": 1791780543.659294, "t": 1791780543.659295}}
+{"local_rx": 1791780542.607389, "line": {"type": "done", "op": "bind", "t": 1791780543.659308}}
+{"local_tx": 1791780542.607444, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780542.609347, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780543.66136}}
+{"local_rx": 1791780542.609392, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780543.661377, "t_rx": 1791780543.661447, "t": 1791780543.661449}}
+{"local_rx": 1791780542.60942, "line": {"type": "done", "op": "rx", "t": 1791780543.661465}}
+{"local_tx": 1791780542.609437, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780542.609646, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780543.662256}}
+{"local_rx": 1791780542.609889, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0000", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780543.662276, "t_rx": 1791780543.662493, "t": 1791780543.662495}}
+{"local_rx": 1791780542.609921, "line": {"type": "done", "op": "tx", "t": 1791780543.662511}}
+{"local_tx": 1791780542.609936, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780542.610128, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780543.662745}}
+{"local_rx": 1791780542.610304, "line": {"cmd": "GET_COUNTERS", "seq": 23729, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.119, "payload": "0005000000000fff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780543.662762, "t_rx": 1791780543.662887, "t": 1791780543.662888}}
+{"local_rx": 1791780542.610342, "line": {"type": "done", "op": "counters", "t": 1791780543.662905}}
+{"local_tx": 1791780544.610525, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780544.611294, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780545.663755}}
+{"local_rx": 1791780544.611369, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780545.663831, "t_rx": 1791780545.663946, "t": 1791780545.663949}}
+{"local_rx": 1791780544.611409, "line": {"type": "done", "op": "rx", "t": 1791780545.663994}}
+{"local_tx": 1791780544.611428, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780544.611623, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780545.664244}}
+{"local_rx": 1791780544.61181, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780545.664262, "t_rx": 1791780545.664411, "t": 1791780545.664412}}
+{"local_rx": 1791780544.611869, "line": {"type": "done", "op": "tx", "t": 1791780545.664427}}
+{"local_tx": 1791780544.611883, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780544.612059, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780545.664688}}
+{"local_rx": 1791780544.612251, "line": {"cmd": "GET_COUNTERS", "seq": 23732, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.124, "payload": "0005000000000fff00000001000000000000000000000000000000000000000000003b630000000000000000000000000000000000001f300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780545.664707, "t_rx": 1791780545.664838, "t": 1791780545.66484}}
+{"local_rx": 1791780544.612285, "line": {"type": "done", "op": "counters", "t": 1791780545.664857}}
+{"local_tx": 1791780546.612465, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780546.613222, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780547.665688}}
+{"local_rx": 1791780546.613295, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780547.665754, "t_rx": 1791780547.665872, "t": 1791780547.665876}}
+{"local_rx": 1791780546.613327, "line": {"type": "done", "op": "rx", "t": 1791780547.665914}}
+{"local_tx": 1791780546.613347, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780546.613545, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780547.666156}}
+{"local_rx": 1791780546.613696, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780547.666172, "t_rx": 1791780547.66631, "t": 1791780547.666312}}
+{"local_rx": 1791780546.613722, "line": {"type": "done", "op": "tx", "t": 1791780547.666326}}
+{"local_tx": 1791780546.613738, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780546.613907, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780547.666535}}
+{"local_rx": 1791780546.614082, "line": {"cmd": "GET_COUNTERS", "seq": 23735, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.125, "payload": "0005000000000fff000000010000000000000000000000000000000000000000000079f20000000000000000000000000000000000005db00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780547.666553, "t_rx": 1791780547.666685, "t": 1791780547.666686}}
+{"local_rx": 1791780546.614115, "line": {"type": "done", "op": "counters", "t": 1791780547.666704}}
+{"local_tx": 1791780548.614287, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780548.615051, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780549.667523}}
+{"local_rx": 1791780548.615183, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780549.667588, "t_rx": 1791780549.667676, "t": 1791780549.66768}}
+{"local_rx": 1791780548.61525, "line": {"type": "done", "op": "rx", "t": 1791780549.667698}}
+{"local_tx": 1791780548.61527, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780548.615496, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780549.668098}}
+{"local_rx": 1791780548.615732, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780549.668117, "t_rx": 1791780549.668339, "t": 1791780549.66834}}
+{"local_rx": 1791780548.615758, "line": {"type": "done", "op": "tx", "t": 1791780549.668355}}
+{"local_tx": 1791780548.615771, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780548.615957, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780549.668581}}
+{"local_rx": 1791780548.616131, "line": {"cmd": "GET_COUNTERS", "seq": 23738, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.127, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000000b8820000000000000000000000000000000000009c300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780549.668598, "t_rx": 1791780549.668733, "t": 1791780549.668735}}
+{"local_rx": 1791780548.616156, "line": {"type": "done", "op": "counters", "t": 1791780549.668752}}
+{"local_tx": 1791780550.616357, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780550.617171, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780551.669619}}
+{"local_rx": 1791780550.617325, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780551.669682, "t_rx": 1791780551.66978, "t": 1791780551.669784}}
+{"local_rx": 1791780550.617371, "line": {"type": "done", "op": "rx", "t": 1791780551.669803}}
+{"local_tx": 1791780550.617398, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780550.617648, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780551.670237}}
+{"local_rx": 1791780550.617905, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780551.670254, "t_rx": 1791780551.67049, "t": 1791780551.670492}}
+{"local_rx": 1791780550.617946, "line": {"type": "done", "op": "tx", "t": 1791780551.670509}}
+{"local_tx": 1791780550.617966, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780550.618182, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780551.670783}}
+{"local_rx": 1791780550.618356, "line": {"cmd": "GET_COUNTERS", "seq": 23741, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.129, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000000f713000000000000000000000000000000000000daaf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780551.670798, "t_rx": 1791780551.670933, "t": 1791780551.670935}}
+{"local_rx": 1791780550.618401, "line": {"type": "done", "op": "counters", "t": 1791780551.670951}}
+{"local_tx": 1791780552.618606, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780552.619359, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780553.671821}}
+{"local_rx": 1791780552.619533, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780553.67197, "t_rx": 1791780553.672097, "t": 1791780553.672101}}
+{"local_rx": 1791780552.619592, "line": {"type": "done", "op": "rx", "t": 1791780553.672183}}
+{"local_tx": 1791780552.619612, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780552.619862, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780553.672463}}
+{"local_rx": 1791780552.620256, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780553.672537, "t_rx": 1791780553.672786, "t": 1791780553.672788}}
+{"local_rx": 1791780552.620294, "line": {"type": "done", "op": "tx", "t": 1791780553.672831}}
+{"local_tx": 1791780552.620308, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780552.620537, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780553.67314}}
+{"local_rx": 1791780552.620774, "line": {"cmd": "GET_COUNTERS", "seq": 23744, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.139, "payload": "0005000000000fff000000010000000000000000000000000000000000000000000135a6000000000000000000000000000000000001192f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780553.673208, "t_rx": 1791780553.673359, "t": 1791780553.673362}}
+{"local_rx": 1791780552.620848, "line": {"type": "done", "op": "counters", "t": 1791780553.673454}}
+{"local_tx": 1791780554.621033, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780554.621802, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780555.674178}}
+{"local_rx": 1791780554.621847, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 1, "flags": "0x0002", "vlan": 2, "what": "rx-state-dut-0", "t_tx": 1791780555.674237, "t_rx": 1791780555.674338, "t": 1791780555.674341}}
+{"local_rx": 1791780554.621875, "line": {"type": "done", "op": "rx", "t": 1791780555.674358}}
+{"local_tx": 1791780554.621893, "req": {"op": "tx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780554.622081, "line": {"type": "req", "req": {"op": "tx", "who": "peer", "idx": 0}, "t": 1791780555.674703}}
+{"local_rx": 1791780554.62232, "line": {"status": 0, "stream_id": "<peer-eid>", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "0000000000000000", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f0008522", "conn_count": 0, "flags": "0x0080", "vlan": 2, "what": "tx-state-peer-0", "t_tx": 1791780555.674746, "t_rx": 1791780555.674905, "t": 1791780555.674907}}
+{"local_rx": 1791780554.622349, "line": {"type": "done", "op": "tx", "t": 1791780555.674925}}
+{"local_tx": 1791780554.622362, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780554.622533, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780555.675161}}
+{"local_rx": 1791780554.622729, "line": {"cmd": "GET_COUNTERS", "seq": 23747, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.122, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000001743600000000000000000000000000000000000157af0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780555.675202, "t_rx": 1791780555.675332, "t": 1791780555.675333}}
+{"local_rx": 1791780554.622762, "line": {"type": "done", "op": "counters", "t": 1791780555.675352}}
+{"local_tx": 1791780554.62284, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780554.623018, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780555.675643}}
+{"local_rx": 1791780554.623235, "line": {"cmd": "GET_COUNTERS", "seq": 23748, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.132, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000001743a00000000000000000000000000000000000157af0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780555.675687, "t_rx": 1791780555.675825, "t": 1791780555.675827}}
+{"local_rx": 1791780554.62326, "line": {"type": "done", "op": "counters", "t": 1791780555.675845}}
+{"local_tx": 1791780554.623302, "req": {"op": "counters", "who": "peer", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780554.623472, "line": {"type": "req", "req": {"op": "counters", "who": "peer", "dtype": 5, "idx": 0}, "t": 1791780555.676099}}
+{"local_rx": 1791780554.62365, "line": {"cmd": "GET_COUNTERS", "seq": 23749, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.12, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000165a6af000000000000000000000000000000000165a6af0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "peer", "what": "counters-peer-5-0", "t_tx": 1791780555.676141, "t_rx": 1791780555.676266, "t": 1791780555.676268}}
+{"local_rx": 1791780554.623669, "line": {"type": "done", "op": "counters", "t": 1791780555.676283}}
+{"local_tx": 1791780579.121168, "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780579.122033, "line": {"type": "req", "req": {"op": "counters", "who": "dut", "dtype": 5, "idx": 0}, "t": 1791780580.174474}}
+{"local_rx": 1791780579.12249, "line": {"cmd": "GET_COUNTERS", "seq": 23750, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.348, "payload": "0005000000000fff000000010000000000000000000000000000000000000000000471cf00000000000000000000000000000000000464ed0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "dut", "what": "counters-dut-5-0", "t_tx": 1791780580.174628, "t_rx": 1791780580.174996, "t": 1791780580.175002}}
+{"local_rx": 1791780579.122538, "line": {"type": "done", "op": "counters", "t": 1791780580.175072}}
+{"local_tx": 1791780579.122605, "req": {"op": "counters", "who": "peer", "dtype": 5, "idx": 0}}
+{"local_rx": 1791780579.122879, "line": {"type": "req", "req": {"op": "counters", "who": "peer", "dtype": 5, "idx": 0}, "t": 1791780580.175462}}
+{"local_rx": 1791780579.123145, "line": {"cmd": "GET_COUNTERS", "seq": 23751, "status": "SUCCESS", "cdl": 148, "rtt_ms": 0.182, "payload": "0005000000000fff0000000100000000000000000000000000000000000000000168a448000000000000000000000000000000000168a4480000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "role": "peer", "what": "counters-peer-5-0", "t_tx": 1791780580.175511, "t_rx": 1791780580.1757, "t": 1791780580.175702}}
+{"local_rx": 1791780579.123184, "line": {"type": "done", "op": "counters", "t": 1791780580.175756}}
+{"local_tx": 1791780579.123293, "req": {"op": "unbind", "t": "<peer-eid>", "tu": 0, "l": "020000fffe000001", "lu": 0}}
+{"local_rx": 1791780579.123578, "line": {"type": "req", "req": {"op": "unbind", "t": "<peer-eid>", "tu": 0, "l": "020000fffe000001", "lu": 0}, "t": 1791780580.176126}}
+{"local_rx": 1791780579.123661, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "<peer-eid>", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "unbind", "t_tx": 1791780580.17615, "t_rx": 1791780580.176233, "t": 1791780580.176235}}
+{"local_rx": 1791780579.123765, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "0000000000000000", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "rx-state-after", "t_tx": 1791780580.17629, "t_rx": 1791780580.176348, "t": 1791780580.176351}}
+{"local_rx": 1791780579.123789, "line": {"type": "done", "op": "unbind", "t": 1791780580.176369}}
+{"local_tx": 1791780580.123961, "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}}
+{"local_rx": 1791780580.124829, "line": {"type": "req", "req": {"op": "fmt", "who": "dut", "dir": "in", "idx": 0}, "t": 1791780581.177254}}
+{"local_rx": 1791780580.125012, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23754, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.104, "payload": "000500000205022001006000", "role": "dut", "what": "format-dut-5-0", "t_tx": 1791780581.177468, "t_rx": 1791780581.177588, "t": 1791780581.177593}}
+{"local_rx": 1791780580.125081, "line": {"type": "done", "op": "fmt", "t": 1791780581.177668}}
+{"local_tx": 1791780580.125102, "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}}
+{"local_rx": 1791780580.125387, "line": {"type": "req", "req": {"op": "fmt", "who": "peer", "dir": "out", "idx": 0}, "t": 1791780581.177935}}
+{"local_rx": 1791780580.125657, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23755, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.247, "payload": "000600000205022001006000", "role": "peer", "what": "format-peer-6-0", "t_tx": 1791780581.177958, "t_rx": 1791780581.178215, "t": 1791780581.178217}}
+{"local_rx": 1791780580.125685, "line": {"type": "done", "op": "fmt", "t": 1791780581.178289}}
+{"local_tx": 1791780580.125697, "req": {"op": "fmt", "who": "peer", "dir": "in", "idx": 0}}
+{"local_rx": 1791780580.125921, "line": {"type": "req", "req": {"op": "fmt", "who": "peer", "dir": "in", "idx": 0}, "t": 1791780581.178515}}
+{"local_rx": 1791780580.12613, "line": {"cmd": "GET_STREAM_FORMAT", "seq": 23756, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.112, "payload": "000500000205022002006000", "role": "peer", "what": "format-peer-5-0", "t_tx": 1791780581.178573, "t_rx": 1791780581.178693, "t": 1791780581.178696}}
+{"local_rx": 1791780580.126163, "line": {"type": "done", "op": "fmt", "t": 1791780581.17872}}
+{"local_tx": 1791780580.126174, "req": {"op": "clk", "who": "dut"}}
+{"local_rx": 1791780580.126414, "line": {"type": "req", "req": {"op": "clk", "who": "dut"}, "t": 1791780581.17901}}
+{"local_rx": 1791780580.126576, "line": {"cmd": "GET_CLOCK_SOURCE", "seq": 23757, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.069, "payload": "0024000000000000", "role": "dut", "what": "clock-dut", "t_tx": 1791780581.179072, "t_rx": 1791780581.179149, "t": 1791780581.179151}}
+{"local_rx": 1791780580.126609, "line": {"type": "done", "op": "clk", "t": 1791780581.179176}}
+{"local_tx": 1791780580.126629, "req": {"op": "clk", "who": "peer"}}
+{"local_rx": 1791780580.126848, "line": {"type": "req", "req": {"op": "clk", "who": "peer"}, "t": 1791780581.179457}}
+{"local_rx": 1791780580.127154, "line": {"cmd": "GET_CLOCK_SOURCE", "seq": 23758, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.176, "payload": "0024000000015868", "role": "peer", "what": "clock-peer", "t_tx": 1791780581.179515, "t_rx": 1791780581.179701, "t": 1791780581.179703}}
+{"local_rx": 1791780580.127187, "line": {"type": "done", "op": "clk", "t": 1791780581.179731}}
+{"local_tx": 1791780580.127222, "req": {"op": "rx", "who": "dut", "idx": 0}}
+{"local_rx": 1791780580.127443, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 0}, "t": 1791780581.180043}}
+{"local_rx": 1791780580.127612, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "0000000000000000", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 0, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "rx-state-dut-0", "t_tx": 1791780581.180105, "t_rx": 1791780581.180175, "t": 1791780581.180177}}
+{"local_rx": 1791780580.127651, "line": {"type": "done", "op": "rx", "t": 1791780581.180203}}
+{"local_tx": 1791780580.127666, "req": {"op": "rx", "who": "dut", "idx": 1}}
+{"local_rx": 1791780580.127898, "line": {"type": "req", "req": {"op": "rx", "who": "dut", "idx": 1}, "t": 1791780581.180497}}
+{"local_rx": 1791780580.12806, "line": {"status": 0, "stream_id": "0000000000000000", "controller": "<controller-eid>", "talker": "0000000000000000", "listener": "020000fffe000001", "talker_uid": 0, "listener_uid": 1, "dmac": "000000000000", "conn_count": 0, "flags": "0x0000", "vlan": 0, "what": "rx-state-dut-1", "t_tx": 1791780581.180566, "t_rx": 1791780581.180632, "t": 1791780581.180634}}
+{"local_rx": 1791780580.128093, "line": {"type": "done", "op": "rx", "t": 1791780581.180661}}
+{"local_tx": 1791780580.128104, "req": {"op": "rx", "who": "peer", "idx": 0}}
+{"local_rx": 1791780580.128314, "line": {"type": "req", "req": {"op": "rx", "who": "peer", "idx": 0}, "t": 1791780581.180917}}
+{"local_rx": 1791780580.128654, "line": {"status": 0, "stream_id": "0200000000010000", "controller": "<controller-eid>", "talker": "020000fffe000001", "listener": "<peer-eid>", "talker_uid": 0, "listener_uid": 0, "dmac": "91e0f000dd85", "conn_count": 1, "flags": "0x0082", "vlan": 2, "what": "rx-state-peer-0", "t_tx": 1791780581.180983, "t_rx": 1791780581.181211, "t": 1791780581.181214}}
+{"local_rx": 1791780580.128684, "line": {"type": "done", "op": "rx", "t": 1791780581.181241}}
+{"local_tx": 1791780580.128698, "req": {"op": "rx", "who": "peer", "idx": 8}}
+{"local_rx": 1791780580.128919, "line": {"type": "req", "req": {"op": "rx", "who": "peer", "idx": 8}, "t": 1791780581.181517}}
+{"local_rx": 1791780580.129128, "line": {"status": 0, "stream_id": "0200000000010001", "controller": "<controller-eid>", "talker": "020000fffe000001", "listener": "<peer-eid>", "talker_uid": 1, "listener_uid": 8, "dmac": "91e0f000dd86", "conn_count": 1, "flags": "0x0082", "vlan": 2, "what": "rx-state-peer-8", "t_tx": 1791780581.181579, "t_rx": 1791780581.181709, "t": 1791780581.181712}}
+{"local_rx": 1791780580.129176, "line": {"type": "done", "op": "rx", "t": 1791780581.181792}}
+{"local_tx": 1791780580.129191, "req": {"op": "map", "act": "get", "dtype": 14, "didx": 0}}
+{"local_rx": 1791780580.129448, "line": {"type": "req", "req": {"op": "map", "act": "get", "dtype": 14, "didx": 0}, "t": 1791780581.182019}}
+{"local_rx": 1791780580.129565, "line": {"cmd": "GET_AUDIO_MAP", "seq": 23763, "status": "SUCCESS", "cdl": 56, "rtt_ms": 0.084, "payload": "000e000000000001000400000000000000000000000000010001000000000002000200000000000300030000", "role": "dut", "what": "map-dut-0x000e-0-0", "t_tx": 1791780581.18205, "t_rx": 1791780581.182143, "t": 1791780581.182146}}
+{"local_rx": 1791780580.129618, "line": {"type": "done", "op": "map", "t": 1791780581.18222}}
