@@ -1,0 +1,89 @@
+[
+  {
+    "name": "selftest",
+    "command": [
+      "python3",
+      "-I",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.69
+  },
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.265
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 25.541
+  },
+  {
+    "name": "slot-proof",
+    "command": [
+      "bash",
+      "scripts/act_slot_proof.sh",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 26.197
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.65
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.831
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 19.704
+  }
+]

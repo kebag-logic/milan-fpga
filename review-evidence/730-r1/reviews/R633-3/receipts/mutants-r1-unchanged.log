@@ -1,0 +1,24 @@
+M01_slot_spacing_no_staging	KILLED	rc=1	fail_arms=10	FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and
+M02_job_ranges_start_on_staging	KILLED	rc=1	fail_arms=3	FAIL the normal validation path prints the resolved base and enters its Docker boundary
+M03_overlap_guard_removed	KILLED	rc=1	fail_arms=1	FAIL a staging range planted on the first job range is refused before any container moves
+M04_sum_replaced_by_max	KILLED	rc=1	fail_arms=1	FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+M05_max_parallel_ignored	KILLED	rc=1	fail_arms=2	FAIL a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+M06_expression_max_parallel_defaulted	KILLED	rc=1	fail_arms=5	FAIL an expression max-parallel is refused: the concurrency cannot be derived
+M07_too_wide_not_refused	KILLED	rc=1	fail_arms=1	FAIL a replay deriving 5 concurrent containers is refused: the slot has 4 ranges
+M08_no_free_on_die	INVALID	rc=-1	fail_arms=0	anchor not unique
+M09_held_ranges_ignored	INVALID	rc=-1	fail_arms=0	anchor not unique
+M10_no_label_filter	KILLED	rc=1	fail_arms=1	FAIL the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its o
+M11_owner_check_removed	KILLED	rc=1	fail_arms=1	FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, ne
+M12_monitor_not_stopped_on_raise	INVALID	rc=-1	fail_arms=0	anchor not unique
+M13_reader_not_joined	KILLED	rc=1	fail_arms=11	FAIL a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+M14_act_outside_monitor	KILLED	rc=1	fail_arms=2	FAIL a two-workflow run leases both, and starts the CPU-range monitor, gates, spawns, stops the monitor, cleans containers, then reconciles volumes, once per wo
+M15_plan_without_ranges	KILLED	rc=1	fail_arms=3	FAIL each workflow's CPU-range monitor is handed the run's derived job ranges
+M16_problems_fail_the_workflow	KILLED	rc=1	fail_arms=2	FAIL with a container left on the staging range and act exiting 0, each workflow prints its CPU-range summary and one warning per problem, and the verdict follo
+M17_problems_never_printed	KILLED	rc=1	fail_arms=2	FAIL with a container left on the staging range and act exiting 0, each workflow prints its CPU-range summary and one warning per problem, and the verdict follo
+M18_interrupt_move_not_required	SURVIVED	rc=0	fail_arms=0	act-ci: interrupted by SIGHUP after cleanup
+M19_ended_early_not_reported	KILLED	rc=1	fail_arms=1	FAIL an event stream that ended before act is reported as a problem, not a verdict
+M20_slot0_small_host_refused	INVALID	rc=-1	fail_arms=0	anchor not unique
+M21_range_three_wide	KILLED	rc=1	fail_arms=10	FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and
+M22_ranges_checked_after_slot_entry	KILLED	rc=1	fail_arms=6	FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and
+M23_report_skipped	KILLED	rc=1	fail_arms=2	FAIL with a container left on the staging range and act exiting 0, each workflow prints its CPU-range summary and one warning per problem, and the verdict follo
+C24_free_on_destroy_only_control	INVALID	rc=-1	fail_arms=0	anchor not unique

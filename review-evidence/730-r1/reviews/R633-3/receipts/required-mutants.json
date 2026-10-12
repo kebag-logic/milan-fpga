@@ -1,0 +1,31 @@
+{
+  "K12": {
+    "killed": true,
+    "failed_arms": [
+      "FAIL a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed",
+      "FAIL with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it",
+      "FAIL with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order"
+    ]
+  },
+  "K13": {
+    "killed": true,
+    "failed_arms": [
+      "FAIL a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed",
+      "FAIL with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it",
+      "FAIL with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order",
+      "FAIL a reader still running when its bounded wait (patched to 0.05 s) expires is held for, not abandoned: the hold is printed and recorded, and the join returns only once the reader has ended"
+    ]
+  },
+  "K32": {
+    "killed": true,
+    "failed_arms": [
+      "FAIL the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its own"
+    ]
+  },
+  "K36": {
+    "killed": true,
+    "failed_arms": [
+      "FAIL with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it"
+    ]
+  }
+}
