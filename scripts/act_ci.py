@@ -115,6 +115,23 @@ CONTAINER_MEMORY = "16g"
 #: one job per host CPU. A replica-shape decision, as above; the hosted
 #: runner gives every job its own machine.
 CONCURRENT_JOB_LIMIT = 1
+#: act 0.2.89's own matrix width when a job names no ``strategy.max-parallel``
+#: (pkg/model/workflow.go, Strategy.GetMaxParallel); a job without a matrix
+#: runs one container. A fact of the pinned act, like SUPPORTED_ACT_VERSION,
+#: not of any workflow.
+ACT_DEFAULT_MAX_PARALLEL = 4
+#: The job ranges each replay slot is spaced for (#730): CONCURRENT_JOB_LIMIT
+#: jobs of a stage at once, each ACT_DEFAULT_MAX_PARALLEL legs wide. A run
+#: uses only as many as its replayed workflows derive
+#: (replay_container_concurrency); the spacing stays fixed so that a slot's
+#: CPUs remain a function of its number alone, and a replay deriving more is
+#: refused rather than sharing CPUs.
+SLOT_JOB_RANGES = CONCURRENT_JOB_LIMIT * ACT_DEFAULT_MAX_PARALLEL
+#: The container events the CPU-range monitor reads. For one job container
+#: the daemon emits them in this order or with ``start`` before ``update``:
+#: ``create`` and ``start`` from act, ``update`` from the monitor's own
+#: assignment, ``die`` and ``destroy`` when act stops and removes it.
+JOB_CPU_RANGE_EVENTS = ("create", "update", "start", "die", "destroy")
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 ACT_TOOLCACHE_SEED_SUFFIX = "-toolcache-seed"
@@ -2019,6 +2036,59 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                         "unaudited remote actions can execute through the host "
                         "Docker daemon"
                     )
+
+
+def job_container_width(job: Mapping[str, object], where: str) -> int:
+    """The job containers act 0.2.89 runs at once for one job: one, or its matrix's max-parallel.
+
+    act runs min(max-parallel, legs) of a matrix job's legs at once, and never
+    fewer than one. The leg count is not read, so a matrix job's width is that
+    number's upper bound. A strategy or max-parallel this cannot read as act
+    does (anything but a mapping, a literal decimal integer) is a Refusal.
+    """
+    strategy = job.get("strategy")
+    if strategy is None:
+        return 1
+    if not isinstance(strategy, dict):
+        raise Refusal(
+            f"{where} has a strategy that is not a mapping; its concurrency cannot "
+            "be derived"
+        )
+    if "matrix" not in strategy:
+        return 1
+    raw = strategy.get("max-parallel")
+    if raw is None:
+        return ACT_DEFAULT_MAX_PARALLEL
+    if not isinstance(raw, str) or re.fullmatch(r"[0-9]{1,6}", raw) is None:
+        raise Refusal(
+            f"{where} max-parallel {raw!r} is not a literal integer; its "
+            "concurrency cannot be derived"
+        )
+    return max(1, int(raw))
+
+
+def replay_container_concurrency(root: pathlib.Path, workflows: Sequence[str]) -> int:
+    """The most job containers act runs at once in any of `workflows`, derived from the workflows themselves.
+
+    act starts at most CONCURRENT_JOB_LIMIT jobs of one stage at once and runs
+    each job job_container_width wide, so no stage runs more containers than
+    its CONCURRENT_JOB_LIMIT widest jobs together, and the widest jobs of the
+    whole workflow bound every one of its stages.
+    """
+    most = 0
+    for workflow in workflows:
+        relative = WORKFLOWS[workflow]
+        jobs = load_workflow(root, relative).get("jobs")
+        if not isinstance(jobs, dict) or not jobs:
+            raise Refusal(f"workflow has no jobs mapping: {relative}")
+        widths = []
+        for job_id, job in jobs.items():
+            if not isinstance(job, dict):
+                raise Refusal(f"workflow {relative} has a malformed job")
+            widths.append(job_container_width(job, f"workflow {relative} job {job_id}"))
+        widths.sort(reverse=True)
+        most = max(most, sum(widths[:CONCURRENT_JOB_LIMIT]))
+    return most
 
 
 def parse_action_reference(spec: str) -> RemoteAction | None:
@@ -4529,7 +4599,7 @@ def replay_slot(
         acquire_replay_slot(lease, context=context, scratch=scratch, host=host)
         print(
             f"act-ci: slot {slot.number}: own daemon {slot.docker_host}, "
-            f"data-root {slot.data_root}, CPUs {container_cpuset(slot.number)}, "
+            f"data-root {slot.data_root}, staging CPUs {container_cpuset(slot.number)}, "
             f"memory {SLOT_MEMORY_MAX}, uplinks {','.join(lease.uplinks)}",
             flush=True,
         )
@@ -4549,19 +4619,30 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
     return isolated_command_prefix(act_binary, use_sudo, env)
 
 
-def container_cpuset(slot: int = 0) -> str:
-    """The `--cpuset-cpus` range one job container of `slot` gets.
+def slot_cpu_base(slot: int) -> int:
+    """The first CPU of `slot`'s block: a staging range, then SLOT_JOB_RANGES job ranges.
 
-    Slot 0 keeps `0-<n-1>` for n = min(host CPUs, CONTAINER_CPU_LIMIT). An
-    isolated slot N owns CONTAINER_CPU_LIMIT CPUs of its own from
-    N * CONTAINER_CPU_LIMIT, so no two slots schedule onto one CPU; a host
-    without those CPUs is a Refusal.
+    Every range is CONTAINER_CPU_LIMIT wide, so the blocks of two slots never
+    meet, whatever either one replays.
+    """
+    return ReplaySlot(slot).number * (SLOT_JOB_RANGES + 1) * CONTAINER_CPU_LIMIT
+
+
+def container_cpuset(slot: int = 0) -> str:
+    """The `--cpuset-cpus` range every job container of `slot` is created on: the slot's staging range.
+
+    act gives every job container the same options word, so this is the range
+    each one starts on until the CPU-range monitor moves it to a job range of
+    its own (job_cpu_ranges). Slot 0 keeps `0-<n-1>` for n = min(host CPUs,
+    CONTAINER_CPU_LIMIT). An isolated slot N's staging range is the first
+    CONTAINER_CPU_LIMIT CPUs of its block (slot_cpu_base), so no two slots
+    schedule onto one CPU; a host without those CPUs is a Refusal.
     """
     host_cpus = os.cpu_count() or 1
     if ReplaySlot(slot).number == 0:
         bound = min(host_cpus, CONTAINER_CPU_LIMIT)
         return f"0-{bound - 1}"
-    first = slot * CONTAINER_CPU_LIMIT
+    first = slot_cpu_base(slot)
     last = first + CONTAINER_CPU_LIMIT - 1
     if last >= host_cpus:
         raise Refusal(
@@ -4569,6 +4650,79 @@ def container_cpuset(slot: int = 0) -> str:
             f"{host_cpus}"
         )
     return f"{first}-{last}"
+
+
+def cpu_range_overlaps(named: Sequence[tuple[str, str]]) -> list[str]:
+    """Each CPU two `(owner, "first-last")` ranges share, as `<owner> and <owner> share CPU <n>`; [] if disjoint."""
+    holders: dict[int, str] = {}
+    shared: list[str] = []
+    for owner, text in named:
+        first, last = (int(part) for part in text.split("-"))
+        for cpu in range(first, last + 1):
+            if cpu in holders:
+                shared.append(f"{holders[cpu]} and {owner} share CPU {cpu}")
+            else:
+                holders[cpu] = owner
+    return shared
+
+
+def job_cpu_ranges(slot: int, concurrency: int) -> tuple[str, ...]:
+    """The CPU ranges `slot`'s `concurrency` concurrent job containers move to, one each, after its staging range.
+
+    Each is CONTAINER_CPU_LIMIT wide, so a leg's ``nproc`` stays the hosted
+    runner's count. A replay deriving more concurrent containers than
+    SLOT_JOB_RANGES is a Refusal: its slot has no range for them. So is an
+    isolated slot on a host without the last range's CPUs. Slot 0 on such a
+    host gets no job ranges, and its containers stay together on the staging
+    range, exactly as before #730.
+    """
+    if not 1 <= concurrency <= SLOT_JOB_RANGES:
+        raise Refusal(
+            f"the replayed workflows run up to {concurrency} job containers at "
+            f"once, but a replay slot has {SLOT_JOB_RANGES} CPU ranges for them "
+            f"(CONCURRENT_JOB_LIMIT {CONCURRENT_JOB_LIMIT} x act's default "
+            f"max-parallel {ACT_DEFAULT_MAX_PARALLEL})"
+        )
+    host_cpus = os.cpu_count() or 1
+    base = slot_cpu_base(slot)
+    last = base + (concurrency + 1) * CONTAINER_CPU_LIMIT - 1
+    if last >= host_cpus:
+        if ReplaySlot(slot).number == 0:
+            return ()
+        raise Refusal(
+            f"replay slot {slot} needs CPUs {base}-{last} for {concurrency} "
+            f"concurrent job container(s), but this host has {host_cpus}"
+        )
+    ranges = tuple(
+        f"{first}-{first + CONTAINER_CPU_LIMIT - 1}"
+        for first in range(
+            base + CONTAINER_CPU_LIMIT, last + 1, CONTAINER_CPU_LIMIT
+        )
+    )
+    shared = cpu_range_overlaps(
+        [("staging", container_cpuset(slot))]
+        + [(f"job range {index}", text) for index, text in enumerate(ranges)]
+    )
+    if shared:
+        raise Refusal(f"replay slot {slot}'s CPU ranges overlap: {shared[0]}")
+    return ranges
+
+
+def describe_job_cpu_ranges(slot: int, concurrency: int, ranges: Sequence[str]) -> str:
+    """The run's one line on its job containers' CPUs: the staging range, then a range each, or why there is none."""
+    staging = container_cpuset(slot)
+    if not ranges:
+        return (
+            f"act-ci: job container CPUs: up to {concurrency} at once, all on "
+            f"--cpuset-cpus={staging}; this host has {os.cpu_count() or 1} CPUs, "
+            "too few for a range each beside it"
+        )
+    return (
+        f"act-ci: job container CPUs: up to {concurrency} at once (max-parallel, "
+        f"CONCURRENT_JOB_LIMIT {CONCURRENT_JOB_LIMIT}); each created on "
+        f"--cpuset-cpus={staging}, then moved to a free one of "
+        + " ".join(f"--cpuset-cpus={text}" for text in ranges)
+    )
 
 
 def build_act_command(
@@ -5148,12 +5302,257 @@ def execute_act_boundary(
     return result.returncode
 
 
+@dataclass
+class JobCpuRanges:
+    """Which owned job container holds which CPU range, kept from the daemon's own event order (#730).
+
+    act 0.2.89 gives every job container one options word, so each is created
+    on its slot's staging range. `observe` reads one ``docker events`` line:
+    at an owned container's ``create`` it moves that container to the lowest
+    range no live container holds, and at its ``die`` or ``destroy`` it frees
+    that range. A ``start`` read before the container's own ``update`` means
+    it started on the staging range. Only the monitor's reader thread calls
+    `observe`; the main thread reads the record once that thread is joined.
+    """
+
+    boundary: DockerBoundary
+    ranges: tuple[str, ...]
+    assign: Callable[[str, str], subprocess.CompletedProcess[str]]
+    held: dict[str, int] = field(default_factory=dict)
+    awaiting_update: set[str] = field(default_factory=set)
+    created: int = 0
+    moved: int = 0
+    most_at_once: int = 0
+    started_on_staging: int = 0
+    problems: list[str] = field(default_factory=list)
+
+    def parse(self, line: str) -> tuple[str, str] | None:
+        """(action, container ID) of one owned container's event line; anything else is recorded as a problem."""
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            self.problems.append(f"unreadable Docker event line {line.strip()[:80]!r}")
+            return None
+        actor = event.get("Actor") if isinstance(event, dict) else None
+        action = event.get("Action") if isinstance(event, dict) else None
+        container_id = actor.get("ID") if isinstance(actor, dict) else None
+        attributes = actor.get("Attributes") if isinstance(actor, dict) else None
+        if (
+            not isinstance(event, dict)
+            or event.get("Type") != "container"
+            or action not in JOB_CPU_RANGE_EVENTS
+            or not isinstance(container_id, str)
+            or not DOCKER_ID_RE.fullmatch(container_id)
+            or not isinstance(attributes, dict)
+        ):
+            self.problems.append(f"malformed Docker event line {line.strip()[:80]!r}")
+            return None
+        if attributes.get(DOCKER_OWNER_LABEL) != self.boundary.token:
+            self.problems.append(
+                f"Docker reported container {container_id[:12]}, which this boundary does not own"
+            )
+            return None
+        return action, container_id
+
+    def place(self, container_id: str) -> None:
+        """Move a newly created container to the lowest free range; none free, or a failed move, is a problem."""
+        self.created += 1
+        if container_id in self.held:
+            return
+        taken = set(self.held.values())
+        free = [index for index in range(len(self.ranges)) if index not in taken]
+        if not free:
+            self.problems.append(
+                f"{len(self.held) + 1} job containers ran at once, more than the "
+                f"{len(self.ranges)} CPU range(s) derived; container {container_id[:12]} "
+                "stayed on the staging range"
+            )
+            return
+        target = self.ranges[free[0]]
+        try:
+            result = self.assign(container_id, target)
+        except Refusal as exc:
+            self.problems.append(f"cannot move job container {container_id[:12]} to {target}: {exc}")
+            return
+        if result.returncode != 0:
+            if "No such container" in (result.stderr or ""):
+                return
+            detail = (result.stderr or "").strip().splitlines()
+            self.problems.append(
+                f"cannot move job container {container_id[:12]} to {target}"
+                + (f": {detail[-1]}" if detail else "")
+            )
+            return
+        self.held[container_id] = free[0]
+        self.awaiting_update.add(container_id)
+        self.moved += 1
+        self.most_at_once = max(self.most_at_once, len(self.held))
+
+    def observe(self, line: str) -> None:
+        """Apply one event line in the daemon's order."""
+        event = self.parse(line)
+        if event is None:
+            return
+        action, container_id = event
+        if action == "create":
+            self.place(container_id)
+        elif action == "update":
+            self.awaiting_update.discard(container_id)
+        elif action == "start":
+            if container_id in self.awaiting_update or container_id not in self.held:
+                self.started_on_staging += 1
+        else:
+            self.held.pop(container_id, None)
+            self.awaiting_update.discard(container_id)
+
+    def summary(self) -> str:
+        """What the run's job containers got, in one line."""
+        return (
+            f"{self.created} job container(s) created, {self.moved} moved to a range of "
+            f"their own, at most {self.most_at_once} at once; "
+            f"{self.started_on_staging} started on the staging range before the move"
+        )
+
+
+def read_job_cpu_events(process: subprocess.Popen[str], record: JobCpuRanges) -> None:
+    """Feed every line of the event stream to `record` until it ends; a reader failure is recorded, never raised."""
+    try:
+        for line in process.stdout or ():
+            if line.strip():
+                record.observe(line)
+    except Exception as exc:
+        record.problems.append(f"the CPU-range monitor stopped reading events: {exc}")
+
+
+def stop_job_cpu_range_monitor(
+    process: subprocess.Popen[str],
+    reader: threading.Thread | None,
+    record: JobCpuRanges,
+    *,
+    context: CommandContext,
+    seams: ProcessSeams,
+) -> None:
+    """End the event stream's whole process group, then join its reader, before the Docker boundary can unwind."""
+    with blocked_cleanup_signals():
+        ended_early = process.poll() is not None
+        seams.terminate_group(
+            process,
+            use_sudo=context.use_sudo,
+            primary=Refusal("the CPU-range monitor is stopping"),
+        )
+        if reader is not None and reader.ident is not None:
+            reader.join(timeout=DOCKER_COMMAND_TIMEOUT + 10)
+            if reader.is_alive():
+                record.problems.append("the CPU-range monitor survived its bounded shutdown")
+                # Each move is bounded on its own; never let Docker teardown
+                # overlap a move still in flight.
+                reader.join()
+        if process.stdout is not None:
+            process.stdout.close()
+        if ended_early:
+            record.problems.append(
+                f"the Docker event stream ended before act did (exit {process.returncode}); "
+                "containers created after it stayed on the staging range"
+            )
+
+
+@contextlib.contextmanager
+def job_cpu_range_monitor(
+    boundary: DockerBoundary,
+    ranges: Sequence[str],
+    *,
+    context: CommandContext,
+    seams: ProcessSeams = ProcessSeams(),
+) -> Iterator[JobCpuRanges]:
+    """Move each owned job container to a CPU range of its own while the body runs act (#730).
+
+    One ``docker events`` stream, filtered to this boundary's ownership label
+    and replayed from a second before it starts, feeds a reader thread that
+    calls JobCpuRanges.observe. The stream runs in its own process group. On
+    every exit, that group is walked down the containment ladder until it is
+    provably gone and the reader is joined, before the caller can reach the
+    Docker boundary's teardown. With no ranges nothing starts. A move is a
+    replica-shape decision like CONTAINER_CPU_LIMIT: a container left on the
+    staging range keeps the same ``nproc``, so the record's problems are
+    printed, never turned into a verdict.
+    """
+
+    def assign(container_id: str, cpus: str) -> subprocess.CompletedProcess[str]:
+        """Move one owned container to `cpus` through the run's own Docker CLI prefix."""
+        return run_docker(
+            ["container", "update", f"--cpuset-cpus={cpus}", container_id],
+            context=context,
+            description="job container CPU-range move",
+            check=False,
+        )
+
+    record = JobCpuRanges(boundary, tuple(ranges), assign)
+    if not ranges:
+        yield record
+        return
+    command = [
+        *docker_prefix(context.use_sudo, context.env),
+        "events",
+        "--since",
+        str(int(time.time()) - 1),
+        "--format",
+        "{{json .}}",
+        "--filter",
+        "type=container",
+        "--filter",
+        f"label={DOCKER_OWNER_LABEL}={boundary.token}",
+        *(word for name in JOB_CPU_RANGE_EVENTS for word in ("--filter", f"event={name}")),
+    ]
+    process: subprocess.Popen[str] | None = None
+    reader: threading.Thread | None = None
+    try:
+        try:
+            with deferred_cleanup_signal_delivery():
+                process = seams.popen(
+                    command,
+                    cwd=context.cwd,
+                    env=dict(context.env),
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+        except OSError as exc:
+            raise Refusal(f"cannot start the CPU-range monitor: {exc}") from exc
+        reader = threading.Thread(
+            target=read_job_cpu_events,
+            args=(process, record),
+            name="act-ci-cpu-range-monitor",
+            daemon=True,
+        )
+        start_cleanup_thread_or_refuse(reader, "CPU-range monitor")
+        yield record
+    finally:
+        if process is not None:
+            stop_job_cpu_range_monitor(process, reader, record, context=context, seams=seams)
+
+
+def report_job_cpu_ranges(workflow: str, record: JobCpuRanges) -> None:
+    """Print what `workflow`'s job containers got, and each problem as a warning; nothing for a run without ranges."""
+    if not record.ranges:
+        return
+    print(f"act-ci: {workflow}: CPU ranges: {record.summary()}", flush=True)
+    for problem in record.problems:
+        print(
+            f"act-ci: WARNING: {workflow}: CPU ranges: {problem}",
+            file=sys.stderr,
+            flush=True,
+        )
+
+
 @dataclass(frozen=True)
 class WorkflowPlan:
     """What one validation run executes: the selection it came from, and how each workflow is launched.
 
-    The five travel together from `run_validation` into the helpers it hoists,
-    so a reader checks one value rather than five more keywords.
+    The six travel together from `run_validation` into the helpers it hoists,
+    so a reader checks one value rather than six more keywords. `cpu_ranges`
+    are the job ranges the slot's concurrent job containers move to, one each
+    (job_cpu_ranges); none keeps every container on the staging range.
     """
 
     workflows: Sequence[str]
@@ -5161,6 +5560,7 @@ class WorkflowPlan:
     job_volume_scope: Mapping[str, str]
     prefix: Sequence[str]
     dry_run: bool
+    cpu_ranges: tuple[str, ...] = ()
 
 
 def check_run_integrity(
@@ -5219,13 +5619,17 @@ def execute_workflows(
             minutes; prove the lease is still empty at the spawn."""
             require_act_job_volumes_absent(boundary, context=context)
 
-        result = execute_act_boundary(
-            command,
-            run=run,
-            context=context,
-            integrity_check=integrity_check,
-            seams=SpawnSeams(pre_spawn=lease_gate),
-        )
+        with job_cpu_range_monitor(
+            boundary, plan.cpu_ranges, context=context
+        ) as moved:
+            result = execute_act_boundary(
+                command,
+                run=run,
+                context=context,
+                integrity_check=integrity_check,
+                seams=SpawnSeams(pre_spawn=lease_gate),
+            )
+        report_job_cpu_ranges(workflow, moved)
         observed_volumes: list[str] = []
         leftovers = cleanup_owned_containers(
             boundary,
@@ -5275,6 +5679,8 @@ def run_validation(
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         validate_workflow_sandbox(layout.checkout, workflows)
         job_volume_scope = workflow_job_volume_scope(layout.checkout, workflows)
+        concurrency = replay_container_concurrency(layout.checkout, workflows)
+        cpu_ranges = job_cpu_ranges(slot.number, concurrency)
         initialize_required_submodules(layout.checkout, layout.home)
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
@@ -5301,6 +5707,7 @@ def run_validation(
                 f"recorded base oid {pr.base_sha}), draft={str(pr.draft).lower()}"
             )
             print("act-ci: credentials=none docker-socket=none caches=ephemeral")
+            print(describe_job_cpu_ranges(slot.number, concurrency, cpu_ranges))
             materialize_workflow_actions(layout, workflows, dry_run=dry_run)
             plan = WorkflowPlan(
                 workflows=workflows,
@@ -5308,6 +5715,7 @@ def run_validation(
                 job_volume_scope=job_volume_scope,
                 prefix=prefix,
                 dry_run=dry_run,
+                cpu_ranges=cpu_ranges,
             )
             with temporary_docker_boundary(
                 planned_boundary,
@@ -5663,6 +6071,25 @@ def selftest_validation_transcript(
 
 
 
+def cpu_range_monitor_stand_in(
+    log: list[tuple[str, ...]],
+) -> Callable[..., contextlib.AbstractContextManager[JobCpuRanges]]:
+    """A job_cpu_range_monitor stand-in that starts nothing and records ("cpus-on", *ranges), then ("cpus-off",)."""
+
+    @contextlib.contextmanager
+    def monitor(
+        boundary: DockerBoundary, ranges: Sequence[str], **_kwargs: object
+    ) -> Iterator[JobCpuRanges]:
+        """Record the monitor around its body, however the body ends."""
+        log.append(("cpus-on", *ranges))
+        try:
+            yield JobCpuRanges(boundary, tuple(ranges), lambda *_args: docker_completed([]))
+        finally:
+            log.append(("cpus-off",))
+
+    return monitor
+
+
 def workflow_control_fakes(
     resolved: ValidatedRun,
     log: list[tuple[str, ...]],
@@ -5750,6 +6177,7 @@ def workflow_control_fakes(
             ("gate",)
         ),
         "execute_act_boundary": execute,
+        "job_cpu_range_monitor": cpu_range_monitor_stand_in(log),
         "cleanup_owned_containers": containers,
         "cleanup_act_job_volumes": volumes,
     }
@@ -5812,25 +6240,30 @@ def selftest_workflow_order(
             resolved, shipping_root, leftover_volumes=()
         )
     )
-    ordered = ["gate", "spawn", "containers", "volumes"]
+    ordered = ["cpus-on", "gate", "spawn", "cpus-off", "containers", "volumes"]
     check(
-        "a two-workflow run leases both, and gates, spawns, cleans containers, "
-        "then reconciles volumes, once per workflow in that order",
+        "a two-workflow run leases both, and starts the CPU-range monitor, gates, "
+        "spawns, stops the monitor, cleans containers, then reconciles volumes, "
+        "once per workflow in that order",
         clean_rc == RC_OK
         and clean_message == ""
         and "act-ci: docs: PASS" in clean_output
         and "act-ci: elaborate: PASS" in clean_output
         and [entry[0] for entry in clean_log] == ordered + ordered
-        and clean_log[1] == ("spawn", "docs.yml")
-        and clean_log[5] == ("spawn", "elaborate.yml")
+        and clean_log[2] == ("spawn", "docs.yml")
+        and clean_log[8] == ("spawn", "elaborate.yml")
         and clean_leased == ("act-docs-", "act-elaborate-"),
+    )
+    check(
+        "each workflow's CPU-range monitor is handed the run's derived job ranges",
+        clean_log[0] == clean_log[6] == ("cpus-on", *job_cpu_ranges(0, 1)),
     )
     check(
         "volumes observed on a workflow's containers reach that workflow's "
         "reconciliation",
-        len(clean_log) == 8
-        and clean_log[3] == ("volumes", "act-docs-observed-" + "0" * 64)
-        and clean_log[7] == ("volumes", "act-docs-observed-" + "0" * 64),
+        len(clean_log) == 12
+        and clean_log[5] == ("volumes", "act-docs-observed-" + "0" * 64)
+        and clean_log[11] == ("volumes", "act-docs-observed-" + "0" * 64),
     )
     leftover_rc, leftover_message, _leftover_output, _leftover_log, _l = (
         run_workflow_control(
@@ -6403,6 +6836,400 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
     )
 
 
+def write_concurrency_workflow(root: pathlib.Path, workflow: str, jobs: str) -> None:
+    """Write `workflow`'s file under `root` with the given ``jobs:`` body, indented two spaces."""
+    path = root / WORKFLOWS[workflow]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"name: {workflow}\non: pull_request\njobs:\n{jobs}", encoding="utf-8")
+
+
+def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Arms: a replay's concurrent job containers come from max-parallel and CONCURRENT_JOB_LIMIT (#730)."""
+    check = tally.check
+    refused = tally.refused
+    matrix = {"matrix": {"shard": ["0", "1", "2", "3", "4"]}}
+    check(
+        "a job without a matrix runs one container, with or without a strategy or a max-parallel",
+        job_container_width({}, "j") == 1
+        and job_container_width({"strategy": {"fail-fast": "false"}}, "j") == 1
+        and job_container_width({"strategy": {"max-parallel": "3"}}, "j") == 1,
+    )
+    check(
+        f"a matrix job runs act's default {ACT_DEFAULT_MAX_PARALLEL} wide, or its literal "
+        "max-parallel, never below one, as act 0.2.89 does",
+        job_container_width({"strategy": matrix}, "j") == ACT_DEFAULT_MAX_PARALLEL
+        and job_container_width({"strategy": {**matrix, "max-parallel": "2"}}, "j") == 2
+        and job_container_width({"strategy": {**matrix, "max-parallel": "0"}}, "j") == 1
+        and job_container_width({"strategy": {**matrix, "max-parallel": "9"}}, "j") == 9,
+    )
+    for label, strategy in (
+        ("a strategy that is not a mapping", "fail-fast"),
+        ("an expression max-parallel", {**matrix, "max-parallel": "${{ inputs.width }}"}),
+        ("a negative max-parallel", {**matrix, "max-parallel": "-1"}),
+        ("a fractional max-parallel", {**matrix, "max-parallel": "1.5"}),
+        ("a seven-digit max-parallel", {**matrix, "max-parallel": "1234567"}),
+        ("a list max-parallel", {**matrix, "max-parallel": ["2"]}),
+    ):
+        refused(
+            f"{label} is refused: the concurrency cannot be derived",
+            lambda strategy=strategy: job_container_width({"strategy": strategy}, "j"),
+        )
+    plain = "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n"
+    jobs = (
+        f"  wide:\n{plain}    strategy:\n      matrix:\n        n: [1, 2, 3, 4, 5]\n"
+        f"  narrow:\n{plain}    strategy:\n      max-parallel: 2\n      matrix:\n        n: [1, 2, 3]\n"
+        f"  single:\n{plain}"
+    )
+    with tempfile.TemporaryDirectory(prefix="act-ci-concurrency-") as raw:
+        root = pathlib.Path(raw)
+        write_concurrency_workflow(root, "rtl-full", jobs)
+        write_concurrency_workflow(root, "docs", f"  only:\n{plain}")
+        derived: dict[int, int] = {}
+        for limit in (1, 2, 3):
+            with mock.patch.object(sys.modules[__name__], "CONCURRENT_JOB_LIMIT", limit):
+                derived[limit] = replay_container_concurrency(root, ("docs", "rtl-full"))
+    check(
+        "a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together "
+        "(4, then 4+2, then 4+2+1), the most of any selected workflow",
+        derived == {1: 4, 2: 6, 3: 7},
+    )
+    shipping = {name: replay_container_concurrency(shipping_root, (name,)) for name in WORKFLOWS}
+    check(
+        f"every shipping workflow derives 1 to {SLOT_JOB_RANGES} concurrent containers, and "
+        "rtl-full's matrix legs run more than one at once",
+        all(1 <= each <= SLOT_JOB_RANGES for each in shipping.values())
+        and shipping["rtl-full"] > 1,
+    )
+
+
+def max_concurrency_cpu_layout() -> list[tuple[str, str]]:
+    """Every slot's staging range and SLOT_JOB_RANGES job ranges, on a host with exactly the CPUs they need.
+
+    The disjointness proof (#730) reads this: every slot from 0 to SLOT_LIMIT
+    running its most job containers at once, which no host refuses or
+    narrows, so a CPU shared here is shared in some real replay.
+    """
+    host_cpus = slot_cpu_base(SLOT_LIMIT) + (SLOT_JOB_RANGES + 1) * CONTAINER_CPU_LIMIT
+    named: list[tuple[str, str]] = []
+    with mock.patch.object(os, "cpu_count", return_value=host_cpus):
+        for number in range(SLOT_LIMIT + 1):
+            named.append((f"slot {number} staging", container_cpuset(number)))
+            named.extend(
+                (f"slot {number} job range {index}", text)
+                for index, text in enumerate(job_cpu_ranges(number, SLOT_JOB_RANGES))
+            )
+    return named
+
+
+def selftest_cpu_layout_disjoint(tally: SelftestTally) -> None:
+    """Arms: at the most concurrency, no two ranges share a CPU in or across slots; planted overlaps are caught."""
+    check = tally.check
+    refused = tally.refused
+    layout = max_concurrency_cpu_layout()
+    widths = {int(text.split("-")[1]) - int(text.split("-")[0]) + 1 for _owner, text in layout}
+    check(
+        f"every slot 0-{SLOT_LIMIT} running {SLOT_JOB_RANGES} job containers at once: "
+        f"{(SLOT_LIMIT + 1) * (SLOT_JOB_RANGES + 1)} ranges, each {CONTAINER_CPU_LIMIT} CPUs "
+        "wide, no CPU shared within or across slots",
+        len(layout) == (SLOT_LIMIT + 1) * (SLOT_JOB_RANGES + 1)
+        and widths == {CONTAINER_CPU_LIMIT}
+        and cpu_range_overlaps(layout) == [],
+    )
+    check(
+        "the overlap finder names the shared CPU of a planted pair and passes adjacent ranges",
+        cpu_range_overlaps([("a", "0-3"), ("b", "3-6")]) == ["a and b share CPU 3"]
+        and cpu_range_overlaps([("a", "0-3"), ("b", "4-7")]) == [],
+    )
+    with mock.patch.object(
+        sys.modules[__name__], "slot_cpu_base", lambda slot: slot * CONTAINER_CPU_LIMIT
+    ):
+        across = cpu_range_overlaps(max_concurrency_cpu_layout())
+    check(
+        "planted overlap across slots: the pre-#730 spacing of one range per slot puts slot 0's "
+        "job ranges on slot 1's CPUs, and the proof fails",
+        "slot 0 job range 0 and slot 1 staging share CPU 4" in across,
+    )
+
+    def shared_ranges(slot: int, concurrency: int) -> tuple[str, ...]:
+        """The pre-#730 shape: every concurrent container on the slot's one range."""
+        return (container_cpuset(slot),) * concurrency
+
+    with mock.patch.object(sys.modules[__name__], "job_cpu_ranges", shared_ranges):
+        planted = max_concurrency_cpu_layout()
+    legs = [(owner, text) for owner, text in planted if owner.startswith("slot 0 job range")]
+    check(
+        "planted overlap within a slot: every leg on the slot's one range, as before #730, "
+        "fails the proof, leg against leg",
+        "slot 0 staging and slot 0 job range 0 share CPU 0" in cpu_range_overlaps(planted)
+        and "slot 0 job range 0 and slot 0 job range 1 share CPU 0" in cpu_range_overlaps(legs),
+    )
+    with mock.patch.object(os, "cpu_count", return_value=128), mock.patch.object(
+        sys.modules[__name__], "container_cpuset", lambda slot=0: "4-7"
+    ):
+        refused(
+            "a staging range planted on the first job range is refused before any container moves",
+            lambda: job_cpu_ranges(0, 1),
+        )
+
+
+def selftest_job_cpu_ranges(tally: SelftestTally) -> None:
+    """Arms: each slot's job ranges follow its staging range, a host without them refuses, and slot 0 falls back."""
+    check = tally.check
+    refused = tally.refused
+    with mock.patch.object(os, "cpu_count", return_value=128):
+        slot0 = (container_cpuset(0), job_cpu_ranges(0, SLOT_JOB_RANGES), job_cpu_ranges(0, 1))
+        slot3 = (container_cpuset(3), job_cpu_ranges(3, SLOT_JOB_RANGES))
+        line = describe_job_cpu_ranges(3, 4, slot3[1])
+    check(
+        "slot 0 stages on 0-3 and gives four concurrent containers 4-7, 8-11, 12-15, 16-19; "
+        "one container gets 4-7 alone",
+        slot0 == ("0-3", ("4-7", "8-11", "12-15", "16-19"), ("4-7",)),
+    )
+    check(
+        "slot 3 stages on 60-63 and gives four concurrent containers 64-67 to 76-79",
+        slot3 == ("60-63", ("64-67", "68-71", "72-75", "76-79")),
+    )
+    check(
+        "the run prints the staging range and every job range as --cpuset-cpus words",
+        line
+        == "act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT "
+        f"{CONCURRENT_JOB_LIMIT}); each created on --cpuset-cpus=60-63, then moved to a free one "
+        "of --cpuset-cpus=64-67 --cpuset-cpus=68-71 --cpuset-cpus=72-75 --cpuset-cpus=76-79",
+    )
+    for bad in (0, SLOT_JOB_RANGES + 1):
+        refused(
+            f"a replay deriving {bad} concurrent containers is refused: the slot has "
+            f"{SLOT_JOB_RANGES} ranges",
+            lambda bad=bad: job_cpu_ranges(0, bad),
+        )
+    with mock.patch.object(os, "cpu_count", return_value=39):
+        text = refusal_text(lambda: job_cpu_ranges(1, SLOT_JOB_RANGES))
+    with mock.patch.object(os, "cpu_count", return_value=40):
+        exact = job_cpu_ranges(1, SLOT_JOB_RANGES)
+    check(
+        "slot 1 with four concurrent containers needs CPU 39: a 39-CPU host refuses it, a "
+        "40-CPU host gives it exactly 24-27 to 36-39",
+        "needs CPUs 20-39 for 4 concurrent job container(s), but this host has 39" in text
+        and exact == ("24-27", "28-31", "32-35", "36-39"),
+    )
+    with mock.patch.object(os, "cpu_count", return_value=19):
+        fallback = (job_cpu_ranges(0, SLOT_JOB_RANGES), job_cpu_ranges(0, 1))
+        fallback_line = describe_job_cpu_ranges(0, SLOT_JOB_RANGES, fallback[0])
+    with mock.patch.object(os, "cpu_count", return_value=20):
+        enough = job_cpu_ranges(0, SLOT_JOB_RANGES)
+    check(
+        "slot 0 on a host without CPU 19 keeps every container on 0-3, as before #730, and "
+        "says so; one container still gets 4-7; a 20-CPU host gets all four ranges",
+        fallback == ((), ("4-7",))
+        and fallback_line.startswith("act-ci: job container CPUs: up to 4 at once, all on --cpuset-cpus=0-3;")
+        and enough == ("4-7", "8-11", "12-15", "16-19"),
+    )
+
+
+def docker_event_line(action: str, container_id: str, token: str) -> str:
+    """One ``docker events --format '{{json .}}'`` line about a container whose owner label is `token`."""
+    actor = {"ID": container_id, "Attributes": {DOCKER_OWNER_LABEL: token, "name": "act-job"}}
+    return json.dumps({"Type": "container", "Action": action, "Actor": actor}) + "\n"
+
+
+def selftest_job_cpu_record(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the monitor's record gives each live container a free range of its own, in the daemon's event order."""
+    check = tally.check
+    token = docker.boundary.token
+    moves: list[tuple[str, str]] = []
+    replies: dict[str, subprocess.CompletedProcess[str]] = {}
+
+    def assign(container_id: str, cpus: str) -> subprocess.CompletedProcess[str]:
+        """Record one move; answer with the planted reply for that container, else success."""
+        moves.append((container_id[:1], cpus))
+        return replies.get(container_id, docker_completed([]))
+
+    ranges = ("4-7", "8-11", "12-15", "16-19")
+    record = JobCpuRanges(docker.boundary, ranges, assign)
+    ids = {name: name * 64 for name in "abcdef"}
+    for name in "abcd":
+        record.observe(docker_event_line("create", ids[name], token))
+        record.observe(docker_event_line("update", ids[name], token))
+        record.observe(docker_event_line("start", ids[name], token))
+    check(
+        "four concurrent containers move to four different ranges, lowest first, before starting",
+        moves == [("a", "4-7"), ("b", "8-11"), ("c", "12-15"), ("d", "16-19")]
+        and record.most_at_once == 4
+        and record.started_on_staging == 0
+        and record.problems == [],
+    )
+    record.observe(docker_event_line("create", ids["e"], token))
+    check(
+        "a fifth live container gets no range and is reported, never doubled onto a held one",
+        len(moves) == 4
+        and record.problems[-1].startswith("5 job containers ran at once, more than the 4"),
+    )
+    record.observe(docker_event_line("die", ids["b"], token))
+    record.observe(docker_event_line("destroy", ids["b"], token))
+    record.observe(docker_event_line("destroy", ids["e"], token))
+    record.observe(docker_event_line("create", ids["f"], token))
+    record.observe(docker_event_line("start", ids["f"], token))
+    record.observe(docker_event_line("update", ids["f"], token))
+    check(
+        "a leg's die frees its range for the next leg; a start read before the move's update "
+        "counts as started on the staging range",
+        moves[-1] == ("f", "8-11")
+        and record.started_on_staging == 1
+        and record.held == {ids["a"]: 0, ids["f"]: 1, ids["c"]: 2, ids["d"]: 3},
+    )
+    quiet = JobCpuRanges(docker.boundary, ranges, assign)
+    replies[ids["a"]] = docker_completed([], 1, stderr="Error: No such container: a\n")
+    replies[ids["b"]] = docker_completed([], 1, stderr="Error: cpuset busy\n")
+    for line in (
+        docker_event_line("create", ids["a"], token),
+        docker_event_line("create", ids["b"], token),
+        docker_event_line("create", ids["c"], "f" * 32),
+        docker_event_line("exec_start", ids["c"], token),
+        docker_event_line("create", "C" * 64, token),
+        "not json\n",
+    ):
+        quiet.observe(line)
+    check(
+        "a container gone before its move is skipped; a failed move, a foreign owner, an "
+        "unexpected action or ID, and an unreadable line are each a problem, never a move",
+        quiet.held == {}
+        and quiet.moved == 0
+        and len(quiet.problems) == 5
+        and quiet.problems[0] == f"cannot move job container {ids['b'][:12]} to 4-7: Error: cpuset busy"
+        and "does not own" in quiet.problems[1]
+        and quiet.problems[4].startswith("unreadable Docker event line"),
+    )
+    check(
+        "the record's summary counts what the run's containers got",
+        record.summary()
+        == "6 job container(s) created, 5 moved to a range of their own, at most 4 at once; "
+        "1 started on the staging range before the move",
+    )
+
+
+class FakeEventStream:
+    """A ``docker events`` stand-in: stdout replays fixed lines; poll() reports `exited`, None while running."""
+
+    def __init__(self, lines: Sequence[str], exited: int | None = None) -> None:
+        self.stdout = io.StringIO("".join(lines))
+        self.pid = 424242
+        self.returncode = exited
+
+    def poll(self) -> int | None:
+        """The stand-in's exit status, or None while it is meant to be running."""
+        return self.returncode
+
+
+def drive_job_cpu_monitor(
+    docker: DockerFixture,
+    ranges: Sequence[str],
+    stream: FakeEventStream,
+    body: Callable[[], None],
+) -> tuple[list[tuple[Sequence[str], dict[str, object]]], list[str], JobCpuRanges | None, str]:
+    """Run job_cpu_range_monitor around `body` with a fake stream; (spawns, terminations, record, outcome)."""
+    spawns: list[tuple[Sequence[str], dict[str, object]]] = []
+    terminations: list[str] = []
+    moved: list[JobCpuRanges] = []
+
+    def popen(command: Sequence[str], **kwargs: object) -> FakeEventStream:
+        """Record the spawn and hand back the fake stream."""
+        spawns.append((command, kwargs))
+        return stream
+
+    def terminate(process: FakeEventStream, *, use_sudo: bool, primary: BaseException) -> None:
+        """Record the containment walk the monitor asks for."""
+        terminations.append(f"{process.pid}:{use_sudo}:{primary}")
+
+    def run_docker_stand_in(arguments: Sequence[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        """Answer every move with success."""
+        return docker_completed(arguments)
+
+    outcome = "returned"
+    with mock.patch.multiple(
+        sys.modules[__name__], run_docker=run_docker_stand_in, require_tool=fake_host_tool
+    ):
+        try:
+            with job_cpu_range_monitor(
+                docker.boundary,
+                ranges,
+                context=docker.context,
+                seams=ProcessSeams(popen=popen, terminate_group=terminate),
+            ) as record:
+                moved.append(record)
+                body()
+        except RuntimeError as exc:
+            outcome = f"raised {exc}"
+    return spawns, terminations, (moved[0] if moved else None), outcome
+
+
+def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the monitor streams only its own containers' events and is contained and joined on every exit."""
+    check = tally.check
+    token = docker.boundary.token
+    lines = [docker_event_line("create", "a" * 64, token), docker_event_line("update", "a" * 64, token)]
+    stream = FakeEventStream(lines)
+    spawns, terminations, record, outcome = drive_job_cpu_monitor(
+        docker, ("4-7",), stream, lambda: None
+    )
+    command, kwargs = spawns[0] if spawns else ([], {})
+    tail = list(command[list(command).index("events"):]) if "events" in command else []
+    check(
+        "the monitor streams container events from a second before act, filtered to this "
+        "boundary's owner label and the five actions it reads, in a session of its own",
+        len(spawns) == 1
+        and tail[:2] == ["events", "--since"]
+        and tail[3:] == [
+            "--format", "{{json .}}", "--filter", "type=container",
+            "--filter", f"label={DOCKER_OWNER_LABEL}={token}",
+            *(word for name in JOB_CPU_RANGE_EVENTS for word in ("--filter", f"event={name}")),
+        ]
+        and kwargs.get("start_new_session") is True
+        and kwargs.get("stdout") == subprocess.PIPE,
+    )
+    check(
+        "after its body the monitor walks the stream's group down the containment ladder once, "
+        "joins its reader with every line applied, and closes the pipe",
+        outcome == "returned"
+        and terminations == ["424242:False:the CPU-range monitor is stopping"]
+        and record is not None
+        and record.moved == 1
+        and record.problems == []
+        and stream.stdout.closed,
+    )
+
+    def fail() -> None:
+        """A body that fails the way an interrupted act boundary does."""
+        raise RuntimeError("act boundary failed")
+
+    _spawns, failed_terminations, _record, failed = drive_job_cpu_monitor(
+        docker, ("4-7",), FakeEventStream(lines), fail
+    )
+    check(
+        "a body that raises still has the stream contained before the exception reaches the "
+        "Docker boundary",
+        failed == "raised act boundary failed" and len(failed_terminations) == 1,
+    )
+    _spawns, _terminations, early, _outcome = drive_job_cpu_monitor(
+        docker, ("4-7",), FakeEventStream([], exited=1), lambda: None
+    )
+    check(
+        "an event stream that ended before act is reported as a problem, not a verdict",
+        early is not None
+        and early.problems
+        == [
+            "the Docker event stream ended before act did (exit 1); containers created after "
+            "it stayed on the staging range"
+        ],
+    )
+    none_spawned, none_terminated, empty, _outcome = drive_job_cpu_monitor(
+        docker, (), FakeEventStream(lines), lambda: None
+    )
+    check(
+        "a run without job ranges starts no monitor and moves nothing",
+        none_spawned == [] and none_terminated == [] and empty is not None and empty.moved == 0,
+    )
+
+
 def selftest_act_command_refusals(tally: SelftestTally, docker: DockerFixture) -> None:
     """Arms: an unfit port or boundary cannot produce an act command."""
     refused = tally.refused
@@ -6681,6 +7508,7 @@ def drive_validation_with_actions(
         temporary_docker_boundary=recording_boundary,
         allocate_tcp_port=lambda: 43211,
         execute_act_boundary=act_for_actions,
+        job_cpu_range_monitor=cpu_range_monitor_stand_in([]),
         cleanup_owned_containers=lambda *_args, **_kwargs: 0,
         cleanup_act_job_volumes=lambda *_args, **_kwargs: [],
         materialize_workflow_actions=materialize_with_fake_git,
@@ -11264,14 +12092,14 @@ def selftest_slot_selection(tally: SelftestTally) -> None:
         "--slot-root with slot 0 is refused: the default daemon has no slot root",
         lambda: select_slot(0, pathlib.Path("/srv/slots"), use_sudo=True),
     )
-    with mock.patch.object(os, "cpu_count", return_value=8):
+    with mock.patch.object(os, "cpu_count", return_value=24):
         check(
-            "slot 1 owns CPUs 4-7 on an 8-CPU host",
+            "slot 1 stages on CPUs 20-23 on a 24-CPU host",
             select_slot(1, None, use_sudo=True).number == 1
-            and container_cpuset(1) == "4-7",
+            and container_cpuset(1) == "20-23",
         )
         refused(
-            "slot 2 on an 8-CPU host is refused: CPUs 8-11 do not exist",
+            "slot 2 on a 24-CPU host is refused: CPUs 40-43 do not exist",
             lambda: select_slot(2, None, use_sudo=True),
         )
     slot = ReplaySlot(5, pathlib.Path("/srv/slots"))
@@ -11306,28 +12134,24 @@ def selftest_slot_selection(tally: SelftestTally) -> None:
             "10.231.5.0/24",
         ),
     )
-    with mock.patch.object(os, "cpu_count", return_value=4 * (SLOT_LIMIT + 1)):
-        names: list[str] = []
-        cpus: list[set[int]] = []
-        for number in range(SLOT_LIMIT + 1):
-            each = ReplaySlot(number)
-            first, last = (int(part) for part in container_cpuset(number).split("-"))
-            cpus.append(set(range(first, last + 1)))
-            if each.isolated:
-                names.extend(
-                    str(value)
-                    for value in (
-                        each.name, each.netns_path, each.runtime_directory,
-                        each.docker_host, each.daemon_unit, each.uplink_unit,
-                        each.uplink_pidfile, each.slice_unit, each.nft_table,
-                        each.lock_path, each.data_root, each.address_pool,
-                    )
-                )
+    names: list[str] = []
+    for number in range(1, SLOT_LIMIT + 1):
+        each = ReplaySlot(number)
+        names.extend(
+            str(value)
+            for value in (
+                each.name, each.netns_path, each.runtime_directory,
+                each.docker_host, each.daemon_unit, each.uplink_unit,
+                each.uplink_pidfile, each.slice_unit, each.nft_table,
+                each.lock_path, each.data_root, each.address_pool,
+            )
+        )
     check(
-        "no two slots share a namespace, unit, socket, slice, table, lock, data-root, "
-        "address pool or CPU, and one slot's names are identical every time",
+        "no two slots share a namespace, unit, socket, slice, table, lock, data-root "
+        "or address pool, no CPU is shared even at the most concurrency "
+        "(max_concurrency_cpu_layout), and one slot's names are identical every time",
         len(names) == len(set(names)) == 12 * SLOT_LIMIT
-        and sum(len(each) for each in cpus) == len(set().union(*cpus))
+        and cpu_range_overlaps(max_concurrency_cpu_layout()) == []
         and ReplaySlot(7).lock_path == ReplaySlot(7).lock_path,
     )
 
@@ -11693,11 +12517,11 @@ def selftest_slot_act_command(tally: SelftestTally, docker: DockerFixture) -> No
         f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
     )
     check(
-        "an isolated slot's act command differs from slot 0's only in its own CPUs",
+        "an isolated slot's act command differs from slot 0's only in its own staging CPUs",
         slot_command[:options] == default_command[:options]
         and slot_command[options + 1 :] == default_command[options + 1 :]
         and slot_command[options]
-        == default_command[options].replace("--cpuset-cpus=0-3", "--cpuset-cpus=8-11"),
+        == default_command[options].replace("--cpuset-cpus=0-3", "--cpuset-cpus=40-43"),
     )
     docker_calls: list[Sequence[str]] = []
 
@@ -12467,14 +13291,14 @@ def selftest_slot_guards(tally: SelftestTally, layout: RunLayout) -> None:
             "host command",
             f"{component} must be a real directory" in outcome and host.keys == [],
         )
-    with mock.patch.object(os, "cpu_count", return_value=11):
+    with mock.patch.object(os, "cpu_count", return_value=43):
         text = refusal_text(lambda: container_cpuset(2))
-    with mock.patch.object(os, "cpu_count", return_value=12):
+    with mock.patch.object(os, "cpu_count", return_value=44):
         exact = container_cpuset(2)
     check(
-        "slot 2 needs CPU 11: an 11-CPU host (CPUs 0-10) refuses it, a 12-CPU host "
-        "gives it exactly 8-11",
-        "needs CPUs 8-11, but this host has 11" in text and exact == "8-11",
+        "slot 2 stages on CPU 43 at most: a 43-CPU host (CPUs 0-42) refuses it, a 44-CPU "
+        "host gives it exactly 40-43",
+        "needs CPUs 40-43, but this host has 43" in text and exact == "40-43",
     )
     with tempfile.TemporaryDirectory(prefix="act-ci-slot-path-") as raw:
         scratch = pathlib.Path(raw)
@@ -12543,8 +13367,90 @@ def selftest_slot_validation_path(
         and events == ["slot-enter-2-2", "boundary-enter-2", "boundary-exit", "slot-exit"]
         and "/usr/bin/nsenter --net=/run/netns/milan-act-slot-2 -- /usr/bin/env -i "
         "DOCKER_HOST=unix:///run/milan-act-slot-2/docker.sock" in transcript.getvalue()
-        and "--cpuset-cpus=8-11" in transcript.getvalue(),
+        and "--cpuset-cpus=40-43 --memory=" in transcript.getvalue()
+        and "each created on --cpuset-cpus=40-43, then moved to a free one of "
+        "--cpuset-cpus=44-47\n" in transcript.getvalue(),
     )
+
+
+def dry_run_transcript(
+    resolved: ValidatedRun, workflow: str, slot: ReplaySlot, shipping_root: pathlib.Path
+) -> tuple[int | None, str]:
+    """(rc, printed text) of a --dry-run of `workflow` from `shipping_root` in `slot` on a 128-CPU host.
+
+    The real run_validation reads the shipping workflow file. Only GitHub,
+    git, the slot's daemon and the Docker boundary are stood in, so nothing
+    starts, pulls or seeds; an isolated slot runs under --sudo, as it must.
+    """
+
+    def materialize(_run: ValidatedRun, layout: RunLayout) -> pathlib.Path:
+        """Copy the shipping workflow file into the run's checkout."""
+        target = layout.checkout / WORKFLOWS[workflow]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((shipping_root / WORKFLOWS[workflow]).read_bytes())
+        return layout.checkout
+
+    @contextlib.contextmanager
+    def no_daemon(_selected: ReplaySlot, **_kwargs: object) -> Iterator[None]:
+        """Enter the slot without starting its daemon."""
+        yield
+
+    @contextlib.contextmanager
+    def no_boundary(planned: DockerBoundary, **_kwargs: object) -> Iterator[DockerBoundary]:
+        """Yield the planned boundary populated, without creating or seeding anything."""
+        yield replace(
+            planned, network_id="a" * 64, gateway="172.18.0.1",
+            toolcache_owned=True, toolcache_seeded=True,
+        )
+
+    transcript = io.StringIO()
+    rc: int | None = None
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        materialize_remote_head=materialize,
+        validate_checkout=lambda *_args, **_kwargs: None,
+        initialize_required_submodules=lambda *_args, **_kwargs: None,
+        require_live_pull_request=lambda *_args, **_kwargs: None,
+        inspect_docker_boundary=lambda *_args, **_kwargs: None,
+        replay_slot=no_daemon,
+        temporary_docker_boundary=no_boundary,
+        allocate_tcp_port=lambda: 43210,
+        require_tool=fake_host_tool,
+    ), mock.patch.object(os, "cpu_count", return_value=128):
+        with contextlib.redirect_stdout(transcript):
+            try:
+                rc = run_validation(
+                    resolved,
+                    (workflow,),
+                    shipping_root,
+                    launch=LaunchOptions("/trusted/act", slot.isolated, True, slot),
+                )
+            except Refusal as exc:
+                print(f"act-ci: REFUSED: {exc}")
+    return rc, transcript.getvalue()
+
+
+def selftest_dry_run_cpu_ranges(
+    tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path
+) -> None:
+    """Arm: a dry run of the shipping rtl-full prints every concurrent container's range, in slot 0 and slot 3."""
+    check = tally.check
+    for slot, staging, ranges in (
+        (ReplaySlot(0), "0-3", ("4-7", "8-11", "12-15", "16-19")),
+        (ReplaySlot(3), "60-63", ("64-67", "68-71", "72-75", "76-79")),
+    ):
+        concurrency = replay_container_concurrency(shipping_root, ("rtl-full",))
+        rc, printed = dry_run_transcript(resolved, "rtl-full", slot, shipping_root)
+        moved_to = " ".join(f"--cpuset-cpus={each}" for each in ranges[:concurrency])
+        check(
+            f"a slot-{slot.number} dry run of the shipping rtl-full prints its "
+            f"{concurrency} concurrent containers' own ranges after staging on {staging}, "
+            "and an act command created on the staging range",
+            rc == RC_OK
+            and f"each created on --cpuset-cpus={staging}, then moved to a free one of "
+            f"{moved_to}\n" in printed
+            and f"--cpuset-cpus={staging} --memory={CONTAINER_MEMORY}" in printed,
+        )
 
 
 def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -12582,6 +13488,10 @@ def selftest_run_directory_stages(
             docker = selftest_docker_fixture(first)
             selftest_act_command(tally, docker)
             selftest_container_cpu_bound(tally, docker)
+            selftest_job_cpu_ranges(tally)
+            selftest_cpu_layout_disjoint(tally)
+            selftest_job_cpu_record(tally, docker)
+            selftest_job_cpu_monitor(tally, docker)
             selftest_container_memory_bound(tally, docker)
             selftest_act_command_refusals(tally, docker)
             selftest_action_materialisation(tally, docker)
@@ -12681,6 +13591,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_fetch_window(tally, fixture, resolved)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)
+    selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
     selftest_workflow_order(tally, resolved, shipping_root)
     selftest_action_launch_order(tally, resolved, shipping_root)
     selftest_trusted_runner(tally, fixture, resolved)
@@ -12727,6 +13638,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         selftest_workflow_reader(tally, git_fixture.repo)
 
     selftest_shipping_workflows(tally, shipping_root)
+    selftest_job_concurrency(tally, shipping_root)
 
     failures = tally.failures
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
@@ -13474,8 +14386,18 @@ def run_interrupt_probe(
         )
         command.append("--pull=false")
         monitor = InterruptMonitor(context=context, boundary=boundary)
-        interrupt_live_act(command, monitor)
+        cpu_ranges = job_cpu_ranges(
+            boundary.slot, replay_container_concurrency(layout.checkout, (workflow,))
+        )
+        with job_cpu_range_monitor(boundary, cpu_ranges, context=context) as moved:
+            interrupt_live_act(command, monitor)
         reaped.set()
+        report_job_cpu_ranges(workflow, moved)
+        if cpu_ranges and (moved.moved < 1 or moved.problems):
+            raise Refusal(
+                "interrupt self-test's CPU-range monitor did not move the live job "
+                "container to a range of its own"
+            )
     require_act_job_volumes_reclaimed(
         monitor.observed_job_volumes,
         job_volume_scope,
