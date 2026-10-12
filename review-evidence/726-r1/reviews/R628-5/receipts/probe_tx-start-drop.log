@@ -1,0 +1,10 @@
+# cmd: python3 -I $PACKET/scripts/probe_counters.py $CHECKOUT tx-start-drop 1 $PACKET/scratch/probe_tx-start-drop
+# cwd: $CHECKOUT
+# start: 2026-10-13T00:32:26+02:00
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+PROBE tx-start-drop shape=1 condition=uncertain: ESCAPED (clean run passed)
+PROBE tx-start-drop failing groups: {}
+# end: 2026-10-13T00:33:52+02:00 rc=0

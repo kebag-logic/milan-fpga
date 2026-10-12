@@ -1,0 +1,8 @@
+# cmd: python3 -I $PACKET/scripts/probe_counters.py $CHECKOUT crf-guard 1 $PACKET/scratch/probe_crf-guard
+# cwd: $CHECKOUT
+# start: 2026-10-13T00:32:26+02:00
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+PROBE crf-guard shape=1 condition=uncertain: DETECTED/FAILED: clean/run.log: rc=1, ['  [FAIL] [726 CADENCE] consecutive gaps and final wait bounded by measured service got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] consecutive gaps and final wait bounded by measured service got=0x0 exp=0x1']
+PROBE crf-guard failing groups: {'CADENCE': 2}
+# end: 2026-10-13T00:33:55+02:00 rc=0
