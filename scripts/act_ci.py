@@ -273,6 +273,52 @@ class TerminationRequest(BaseException):
         self.signum = signum
         super().__init__(signal.Signals(signum).name)
 
+    @staticmethod
+    @contextlib.contextmanager
+    def delivered_after(
+        released: Iterable[int], primary: BaseException | None, cleanup: str
+    ) -> Iterator[None]:
+        """Run `cleanup` inside its caller's hold of the cleanup signals, then deliver one held meanwhile (#730).
+
+        The exit restores `released`, the mask from before the hold, so a
+        signal held during the cleanup is raised there and nowhere earlier.
+        Round 3's first failure still wins: a `primary` already propagating
+        into the cleanup is kept, and the signal is printed beside it.
+        Without one the signal propagates with its conventional exit status,
+        and a failure of the cleanup itself, which it displaces, is printed
+        beside it.
+        """
+        failure: BaseException | None = None
+        try:
+            yield
+        except BaseException as exc:
+            failure = exc
+            raise
+        finally:
+            try:
+                signal.pthread_sigmask(signal.SIG_SETMASK, released)
+            except BaseException as delivered:
+                beside = delivered if primary is not None else failure
+                try:
+                    if beside is delivered:
+                        print(
+                            f"act-ci: {cleanup} was interrupted ({type(delivered).__name__}: "
+                            f"{delivered}); the failure already propagating is kept",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                    elif beside is not None:
+                        print(
+                            f"act-ci: {cleanup} also failed: {type(beside).__name__}: {beside}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                except Exception:
+                    # Diagnostics have no authority to replace what propagates.
+                    pass
+                if primary is None:
+                    raise
+
 
 @dataclass
 class _CleanupSignalLatch:
@@ -5277,22 +5323,31 @@ def execute_act_boundary(
     ``seams.pre_spawn`` runs after every other pre-spawn check and immediately
     before the process starts; the lease gate lives there so no round trip
     separates its inventory from act's first mount.
+
+    act stays interruptible inside a caller's hold of the cleanup signals,
+    the CPU-range monitor's: they are unblocked for the whole boundary, so a
+    held one is delivered on entry, and the hold is restored by one call
+    before this returns or raises (#730).
     """
-    require_live_pull_request(run.pr, run.repository, seams.query)
-    integrity_check()
-    if seams.pre_spawn is not None:
-        seams.pre_spawn()
+    held = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
     try:
-        result = seams.run_process(
-            command,
-            context=replace(context, env=dict(context.env)),
-            check=False,
-        )
-    except OSError as exc:
-        raise Refusal(f"cannot start act: {exc}") from exc
-    require_live_pull_request(run.pr, run.repository, seams.query)
-    integrity_check()
-    return result.returncode
+        require_live_pull_request(run.pr, run.repository, seams.query)
+        integrity_check()
+        if seams.pre_spawn is not None:
+            seams.pre_spawn()
+        try:
+            result = seams.run_process(
+                command,
+                context=replace(context, env=dict(context.env)),
+                check=False,
+            )
+        except OSError as exc:
+            raise Refusal(f"cannot start act: {exc}") from exc
+        require_live_pull_request(run.pr, run.repository, seams.query)
+        integrity_check()
+        return result.returncode
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, held)
 
 
 @dataclass
@@ -5604,15 +5659,14 @@ def job_cpu_range_monitor(
     and replayed from a second before it starts, feeds a reader thread that
     calls JobCpuRanges.observe; it moves and reads containers through the
     run's own Docker CLI prefix, each command bounded. The stream runs in its
-    own process group. On every exit, even one where that containment raised,
-    the group is walked down the containment ladder and the reader is joined
-    and proven ended before the caller can reach the Docker boundary's
-    teardown. An interrupt or failure already propagating then propagates
-    unchanged, with a failed cleanup printed beside it (#730). With no ranges
-    nothing starts. A move is a replica-shape
-    decision like CONTAINER_CPU_LIMIT: a container left on the staging range
-    keeps the same ``nproc``, so the record's problems are printed, never
-    turned into a verdict.
+    own process group. One call masks the cleanup signals before the body
+    starts, and act's boundary reopens them for act alone. They stay masked
+    until stop_job_cpu_range_monitor has contained the group, proven the
+    reader ended and closed its pipe, on every exit; only then is a signal
+    held meanwhile delivered, under round 3's first-failure precedence (#730).
+    With no ranges nothing starts. A container left on the staging range
+    keeps the same ``nproc`` (CONTAINER_CPU_LIMIT), so the record's problems
+    are printed, never turned into a verdict.
     """
 
     def assign(container_id: str, cpus: str) -> subprocess.CompletedProcess[str]:
@@ -5653,6 +5707,9 @@ def job_cpu_range_monitor(
     process: subprocess.Popen[str] | None = None
     reader: threading.Thread | None = None
     primary: BaseException | None = None
+    released = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    with blocked_cleanup_signals():
+        held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
     try:
         try:
             with deferred_cleanup_signal_delivery():
@@ -5667,6 +5724,8 @@ def job_cpu_range_monitor(
                 )
         except OSError as exc:
             raise Refusal(f"cannot start the CPU-range monitor: {exc}") from exc
+        # Held from here, by one C call, so the body's end has no unmasked point.
+        signal.pthread_sigmask(signal.SIG_BLOCK, held)
         reader = threading.Thread(
             target=read_job_cpu_events,
             args=(process, record),
@@ -5679,10 +5738,11 @@ def job_cpu_range_monitor(
         primary = exc
         raise
     finally:
-        if process is not None:
-            stop_job_cpu_range_monitor(
-                process, reader, record, context=context, seams=seams, primary=primary
-            )
+        with TerminationRequest.delivered_after(released, primary, "CPU-range monitor cleanup"):
+            if process is not None:
+                stop_job_cpu_range_monitor(
+                    process, reader, record, context=context, seams=seams, primary=primary
+                )
 
 
 def report_job_cpu_ranges(workflow: str, record: JobCpuRanges) -> None:
@@ -7680,7 +7740,7 @@ def drive_job_cpu_monitor(
         return docker_completed(arguments, stdout=cpus.get(arguments[-1], "0-3") + "\n")
 
     def monitored() -> int:
-        """The body inside the monitor, as execute_workflows runs act."""
+        """The body inside the monitor, as execute_workflows runs act: in act's boundary's signal window."""
         with job_cpu_range_monitor(
             docker.boundary,
             ranges,
@@ -7688,7 +7748,11 @@ def drive_job_cpu_monitor(
             seams=ProcessSeams(popen=popen, terminate_group=terminate),
         ) as record:
             moved.append(record)
-            body()
+            held = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+            try:
+                body()
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, held)
         return RC_OK
 
     outcome = "returned"
