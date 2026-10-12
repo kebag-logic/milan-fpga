@@ -1,0 +1,19 @@
+PASS M2 historical comparison and current-record pass are separately stated
+FAIL M5 missing historical-record qualifier or lane-scoped no-re-record sentence
+PASS M6 historical comparison and current-record pass are separately stated
+FAIL unqualified current-record identity:
+The base route equals the `route-1x1` record in every gated figure.
+CONTEXT 27: - **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
+CONTEXT 76: | `route-1x1` | 50,267 | 54,413 | 15,779 | 74 | 27 | 87.5 | 14 | +0.299 / +0.031 |
+CONTEXT 317: The [current ledger](#ledger) starts from the committed 50,267 record.
+CONTEXT 656: At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+CONTEXT 657: [#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it twice, now at 50,013 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
+CONTEXT 691: | Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+CONTEXT 696: The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
+CONTEXT 943: | Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+CONTEXT 978: | 0 | Recorded baseline | -- | 50,267 | 50,267 | 50,267 |
+CONTEXT 1036: Thus: `50,267 - 3,910 - 4,600 - 3,800 = 37,957`.
+CONTEXT 1088: | Base route at dev `e8454e27` | 50,267 | 54,413 | 15,779 | 74 / 27 | +0.299 / +0.031 |
+CONTEXT 1125: | 0, complete | M0 | Adopted processor pin and current three-endpoint record | [#661](https://github.com/kebag-logic/milan-fpga/issues/661), [#682](https://github.com/kebag-logic/milan-fpga/issues/682), [#686](https://github.com/kebag-logic/milan-fpga/issues/686), [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) present at assigned dev | Already in 50,267 | Reuse committed record; do not subtract old lane deltas |
+NOTE: retained planning-baseline residue is reviewed in its dated section, not asserted as the live gate record.
+RESULT: FAIL

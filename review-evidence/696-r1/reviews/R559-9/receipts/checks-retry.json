@@ -1,0 +1,36 @@
+{
+  "started_utc": "2026-10-12T05:40:40.480744+00:00",
+  "results": [
+    {
+      "name": "toc_check",
+      "argv": [
+        "$REVIEWS/696-r559-9-packet/scratch/venv/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "elapsed_s": 4.979
+    },
+    {
+      "name": "toc_anchors",
+      "argv": [
+        "$REVIEWS/696-r559-9-packet/scratch/venv/bin/python",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "elapsed_s": 3.625
+    },
+    {
+      "name": "em_dash",
+      "argv": [
+        "$REVIEWS/696-r559-9-packet/scratch/venv/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "c6bd08c6f52632c6d33d834ce842ac3cf63f29cc"
+      ],
+      "rc": 0,
+      "elapsed_s": 3.373
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+PASS: exactly two lane commits, automatic merge tree 4650fd5d9d5c940bc6788491229dc808cf866962
+PASS: subsequent change is exactly three removed and three added plan lines
+PASS: all 16 other PR-delta paths are byte/mode/object-identical to aa980479
+docs/design/AREA_BUDGET.md 100644 blob 4c098e09b3312cdf1c4f6df087e24a1a414a60b5 UNCHANGED
+docs/design/MAAP_FABRIC.md 100644 blob 77de72998b1db0fa888bcc422f27ff7457087e07 UNCHANGED
+docs/design/MARK_II_AREA_PLAN.md 100644 blob 08e0565be6774b01bc7e8920eea05289597abc0b MERGED PLAN
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md 100644 blob 2be675df8f69a78ac6f4901f721c97de9fe14a14 UNCHANGED
+docs/findings/README.md 100644 blob 1a9674e9bc14cd5c04a930ee9634541b5a3d202d UNCHANGED
+hdl/ieee1722/maap/KL_maap.sv 100644 blob 746be52d3e043f4ff4f16ee6f590f984b069118e UNCHANGED
+hdl/ieee1722/maap/doc/KL_maap/KL_maap.md 100644 blob fa5f70dd0a6fc9efcc5e39b5f196679596def00e UNCHANGED
+hdl/milan/milan_datapath.sv 100644 blob e0ad4691045cbcc5c4bab92adebdbe979d5e1fba UNCHANGED
+sw/firmware/ctrl/maap/README.md 100644 blob 2e55c34604d352b6341fc70bd57748055d0b9320 UNCHANGED
+sw/firmware/ctrl/test/maap_differential.py 100644 blob 684f238839867477ed6a339e911132afebbe924d UNCHANGED
+sw/firmware/ctrl/test/test_maap_differential.cpp 100644 blob af9ae46141fcc86adcfe42d0b57939db7ccaf003 UNCHANGED
+syn/ooc/pp_resource_baseline.json 100644 blob af98405d156079445b3939c9453ecd6f0af7bffc UNCHANGED
+tb/verilator/maap/Makefile 100644 blob 4c71e9fb022c9bccd1541f560dff3b1f39c73b37 UNCHANGED
+tb/verilator/maap/integration.mk 100644 blob 0d005fd0d7e8a51373767415760d9d2b8cd8efd3 UNCHANGED
+tb/verilator/maap/mutants.py 100644 blob 085989b73764269884bf09861173d01c1f62f2f7 UNCHANGED
+tb/verilator/maap/sim_integration.cpp 100644 blob e02f65f70fb35b3780702257f89ac37a0bdb97d9 UNCHANGED
+tb/verilator/maap/sim_main.cpp 100644 blob 9dfc863ac6df92577feeeab717fc0647fdd3878f UNCHANGED
+PASS: parent tracked blob bytes, modes and index: 1297
+PASS: required submodule protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a tracked blobs 562
+PASS: required submodule gptp-processor 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 tracked blobs 104
+PASS: required submodule third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce tracked blobs 214
+RECORD route-1x1 {"BRAM_TILE": 87.5, "CARRY4": 3397, "DSP": 14, "FF": 54306, "LUT": 50013, "RAMB18": 27, "RAMB36": 74, "SLICE": 15753, "WHS_ns": 0.017, "WNS_ns": 0.233}
+RECORD ooc-1x1 {"BRAM_TILE": 17.5, "CARRY4": 1494, "DSP": 8, "FF": 19779, "LUT": 23179, "RAMB18": 3, "RAMB36": 16, "WHS_ns": 0.159, "WNS_ns": -3.562}
+RECORD ooc-8x8 {"BRAM_TILE": 23.5, "CARRY4": 1889, "DSP": 8, "FF": 27380, "LUT": 30135, "RAMB18": 5, "RAMB36": 21, "WHS_ns": 0.159, "WNS_ns": -2.278}
+PASS: exact checkout and required gitlinks verified
