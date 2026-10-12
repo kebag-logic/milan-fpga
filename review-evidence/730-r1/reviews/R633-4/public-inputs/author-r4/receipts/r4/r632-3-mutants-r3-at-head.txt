@@ -1,0 +1,94 @@
+Q01 KILLED rc=1 fails=4 - primary never recorded: a cleanup failure replaces an interrupt or body failure
+    FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+    FAIL a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+Q02 KILLED rc=1 fails=5 - with a primary, the first cleanup failure is not printed beside it
+    FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+    FAIL a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order
+Q03 KILLED rc=1 fails=5 - with a primary, the first cleanup failure is raised in its place
+    FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+    FAIL a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order
+Q04 KILLED rc=1 fails=3 - with no primary, the raised cleanup failure is also printed
+    FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is what it raises
+    FAIL a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed
+    FAIL with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it
+Q05 KILLED rc=1 fails=6 - cleanup failures printed on stdout, not stderr
+    FAIL a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+    FAIL a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+    FAIL with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it
+    FAIL with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order
+Q06 SURVIVED rc=0 fails=0 - a failure closing the event pipe is swallowed
+Q07 KILLED rc=1 fails=1 - a poll failure is not recorded as a problem
+    FAIL a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+Q08 KILLED rc=1 fails=1 - an early-ended stream is not reported
+    FAIL an event stream that ended before act is reported as a problem, not a verdict
+Q09 KILLED rc=1 fails=1 - a removed container that had moved is counted as removed before its move
+    FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the staging range, reported
+Q10 KILLED rc=1 fails=4 - the peak number of held ranges is never raised
+    FAIL four concurrent containers move to four different ranges, lowest first, each seen there by docker inspect
+    FAIL a container that died keeps its range until it is removed: after create, update, start and die of A, then create, update and start of B, A starts again on its own range and never shares one with B
+    FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the staging range, reported
+    FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once; a start whose crea
+Q11 SURVIVED rc=0 fails=0 - a container left without a range is not marked staging
+Q12 KILLED rc=1 fails=1 - an inspect saying No such container is a Refusal (a gone holder never frees its range)
+    FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the staging range, reported
+Q13 SURVIVED rc=0 fails=0 - an off-target read of a moved container is not warned
+Q14 KILLED rc=1 fails=1 - a move reported failed but seen on target is not warned
+    FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+Q15 SURVIVED rc=0 fails=0 - a destroy of an unknown container is placed
+Q16 KILLED rc=1 fails=1 - a container's ID shape is not checked
+    FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once; a start whose crea
+Q17 KILLED rc=1 fails=9 - the free list picks the highest free range
+    FAIL four concurrent containers move to four different ranges, lowest first, each seen there by docker inspect
+    FAIL a container that died keeps its range until it is removed: after create, update, start and die of A, then create, update and start of B, A starts again on its own range and never shares one with B
+    FAIL a destroy frees the range for the next container
+    FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the staging range, reported
+    FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move; a repeated create moves once; a start whose crea
+    FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+    FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+    FAIL a move and a read that both time out keep the range reserved, never seen there
+    FAIL a move the daemon refused keeps its range reserved and is reported
+Q18 KILLED rc=1 fails=1 - a strategy without a matrix counts as act's default width
+    FAIL a job without a matrix runs one container, with or without a strategy or a max-parallel
+Q19 KILLED rc=1 fails=1 - max-parallel 0 is not raised to act's floor of one
+    FAIL a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+Q20 KILLED rc=1 fails=1 - an unbounded digit string is accepted
+    FAIL a seven-digit max-parallel is refused: the concurrency cannot be derived
+Q21 KILLED rc=1 fails=1 - a non-mapping strategy is read as no strategy
+    FAIL a strategy that is not a mapping is refused: the concurrency cannot be derived
+Q22 KILLED rc=1 fails=5 - a job without a strategy runs act's default width
+    FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+    FAIL each workflow's CPU-range monitor is handed the run's derived job ranges
+    FAIL a job without a matrix runs one container, with or without a strategy or a max-parallel
+    FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+Q23 KILLED rc=1 fails=2 - a workflow's concurrency is its widest job only, ignoring CONCURRENT_JOB_LIMIT
+    FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+Q24 KILLED rc=1 fails=1 - a replay's concurrency is the last workflow's, not the most
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+Q25 KILLED rc=1 fails=3 - the plan line names slot 0's staging range on every slot
+    FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+    FAIL a slot-3 dry run of the shipping rtl-full prints its 4 concurrent containers' own ranges after staging on 60-63, and an act command created on the staging range
+    FAIL the run prints the staging range and every job range as --cpuset-cpus words
+Q26 KILLED rc=1 fails=4 - the overlap check never reports a shared CPU
+    FAIL the overlap finder names the shared CPU of a planted pair and passes adjacent ranges
+    FAIL planted overlap across slots: the pre-#730 spacing of one range per slot puts slot 0's job ranges on slot 1's CPUs, and the proof fails
+    FAIL planted overlap within a slot: every leg on the slot's one range, as before #730, fails the proof, leg against leg
+    FAIL a staging range planted on the first job range is refused before any container moves
+Q27 KILLED rc=1 fails=1 - the monitor starts its stream even with no ranges
+    FAIL a run without job ranges starts no monitor and moves nothing
+Q28 SURVIVED rc=0 fails=0 - the events stream's stderr is a pipe nobody reads
+Q29 SURVIVED rc=0 fails=0 - the derivation reads the trusted runner's workflows, not the materialized checkout
+Q30 KILLED rc=1 fails=0 - a reader's own failure stops the run instead of being recorded
+    tail: OSError: read failed
+mutants: 30, killed 24, survived ['Q06', 'Q11', 'Q13', 'Q15', 'Q28', 'Q29'], bad anchors []

@@ -1,0 +1,198 @@
+[
+  {
+    "name": "ci-events-check",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.267
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 26.829
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 5.181
+  },
+  {
+    "name": "py-idiom-selftest",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.28
+  },
+  {
+    "name": "baremetal-check",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 22.564
+  },
+  {
+    "name": "baremetal-selftest",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.234
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.728
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "toc",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "/packet/scratch/markdown/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.776
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "/packet/scratch/markdown/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 4.222
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "/packet/scratch/markdown/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "dc4d06cb"
+    ],
+    "rc": 0,
+    "seconds": 3.525
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "git",
+      "diff",
+      "--check",
+      "dc4d06cb",
+      "HEAD"
+    ],
+    "rc": 128,
+    "seconds": 0.016
+  },
+  {
+    "name": "offline-dryrun",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-3/scripts/offline_dryrun.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.517
+  }
+]

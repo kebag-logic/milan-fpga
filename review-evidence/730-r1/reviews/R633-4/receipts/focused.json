@@ -1,0 +1,122 @@
+[
+  {
+    "name": "selftest",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.337
+  },
+  {
+    "name": "r633-r1-unchanged",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-1/probe_cpu_ranges.py",
+      "/work"
+    ],
+    "rc": 1,
+    "seconds": 0.367
+  },
+  {
+    "name": "r633-r1-compatible",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_cpu_ranges_compat.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.466
+  },
+  {
+    "name": "r633-r2-lifecycle-unchanged",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_lifecycle.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.722
+  },
+  {
+    "name": "r633-r2-monitor-unchanged",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/public-inputs/reviews/R633-2/probe_monitor.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 1.973
+  },
+  {
+    "name": "r632-r3-probe-unchanged",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_r3.py",
+      "/work",
+      "300"
+    ],
+    "rc": 0,
+    "seconds": 1.119
+  },
+  {
+    "name": "r632-r2-shutdown-unchanged",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_shutdown.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 3.93
+  },
+  {
+    "name": "slot-proof-selftest",
+    "command": [
+      "sh",
+      "$REVIEWS/730-r633-4-packet/scripts/reviewer_sandbox.sh",
+      "$REVIEWS/r633-4-730",
+      "$REVIEWS/730-r633-4-packet",
+      "bash",
+      "scripts/act_slot_proof.sh",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 26.04
+  }
+]
