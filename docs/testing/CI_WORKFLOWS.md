@@ -42,7 +42,8 @@ pull-request update and on every push to `dev`. It produces one stable
 - the mailbox publication census, `publication-census` (#665), when RTL or
   its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
-  (#665), when RTL or its tooling changes: the GoogleTest suites of
+  and three mutation jobs (#665, #716), for relevant changes.
+  They run the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
   two freestanding RV32 object builds, the tally listener's planted failure and
   crash, and the line and branch coverage ratchet with its planted cases
@@ -55,16 +56,13 @@ pull-request update and on every push to `dev`. It produces one stable
   The RV32 self-test plants header, ABI, and runtime-dependency defects.
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
-  The job also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
-  It runs no capture: the TSN stack boundary is `firmware-boundary`'s.
+  Each of the four jobs also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+  None runs a capture: the TSN stack boundary is `firmware-boundary`'s.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
   The job runs the tally listener's planted cases.
-  Its budget is the job's own 45 minutes, which its suites alone fill past 60%.
-  On a hosted runner at dev `8b61b709`, this lane's base, the job took 1963 s (job 114029646010), 73% of 2700 s.
-  On the runner's Ubuntu 24.04 with four CPUs, a replica of its steps at this lane's head took 1986 s.
-  The control gate took 1686 s of that, its mutation campaigns the most of it.
+  The four jobs' budgets are in the table below (#716).
 - the TSN stack boundary over the compiles of every builder it judges but
   those that need Verilator, `firmware-boundary` (#697), when RTL or its
   tooling changes. The step is
@@ -114,8 +112,50 @@ pull-request update and on every push to `dev`. It produces one stable
   A replica of the step took 486 s on four CPUs of a shared host, where `5b4f6fbe`'s took 452 s, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
   Of that, the bench took 58 s, the differential 143 s and the wire comparison at both references 215 s; the judgement and its controls took the rest.
 
+Firmware work uses four independent jobs, each requiring `changes`.
+The `rtl-fast` aggregate requires every job's result.
+Failures and cancellations remain failures.
+Each job retains the same relevance condition.
+
+`firmware-unit` runs normal suites, saved-state tests, and RV32 controls.
+It also runs the tally checks and complete coverage ratchet.
+`firmware-control-mutants` runs the complete control mutation table.
+`firmware-aecp-mutants` runs the complete AECP mutation table.
+`firmware-srp-mutants` runs both SRP campaigns and pin controls.
+The normal shard includes the SRP wire comparator self-test.
+Both SRP interface campaigns retain F-INT's publication mutants.
+The aggregate also requires the separate `publication-census` job.
+It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
+All jobs verify the same pinned SDK.
+Only that authenticated SDK is cached; builds remain fresh.
+
+| Job | Timeout | Hosted acceptance ceiling | Prediction ceiling |
+|---|---|---|---|
+| `firmware-unit` | 45 min | 1890 s | 1620 s |
+| `firmware-control-mutants` | 45 min | 1890 s | 1620 s |
+| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |
+| `firmware-srp-mutants` | 45 min | 1890 s | 1620 s |
+
+Acceptance requires ten consecutive hosted runs within each 70% ceiling.
+Before review, four-CPU measurements must predict each job below 60%.
+Scale them using the original job's hosted-to-local ratio.
+Include checkout, installation, cache, and completion overhead.
+Issue #716 records measurements and the hosted acceptance table.
+
+The control driver's `--shard INDEX/4` selects complete phases.
+Its default invocation remains complete and ordered.
+Every sharded run checks the live default invocation inventory.
+Omitted or duplicated invocations fail, including newly discovered suites.
+The self-test plants both defects and a future suite.
+Coverage remains one unsplit measurement, with unchanged suites and thresholds.
+No coverage artifacts cross job boundaries.
+The generated command census retains each command's conditions.
+`ci_events.py` rejects differences after removing only shard arguments.
+It also pins every worker and its 45-minute timeout.
+
 A change containing only documentation skips the Verilator and Yosys setup
-jobs, `publication-census`, `firmware-unit`, `firmware-boundary` and `firmware-verilator`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module
@@ -2404,6 +2444,20 @@ python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
 ```
+
+The hosted control phases can also run separately:
+
+```sh
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+python3 scripts/ci_events.py --firmware-census
+```
+
+Run all four phases to reproduce the complete control gate.
+Shard arguments cannot combine with coverage or mutation slicing.
 
 ## Failure and cancellation semantics
 

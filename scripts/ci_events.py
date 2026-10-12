@@ -126,6 +126,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import itertools
 import pathlib
 import re
@@ -593,6 +594,8 @@ INHERITED_STEP_ENV = {
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
+                             "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+                             "FIRMWARE_SRP_MUTANTS_RESULT",
                              "PUBLICATION_CENSUS_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
@@ -1258,6 +1261,12 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
+FIRMWARE_JOBS = (FIRMWARE_UNIT_JOB, "firmware-control-mutants",
+                 "firmware-aecp-mutants", "firmware-srp-mutants")
+FIRMWARE_JOB_IF = "${{ needs.changes.outputs.rtl == 'true' }}"
+FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
+                        "Run the control mutation campaign", "Run the AECP mutation campaign",
+                        "Run both SRP mutation campaigns and pin controls")
 #: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
 #: run by its builds (ctrl_configs.BUILDERS), not its suites.
 FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
@@ -2484,6 +2493,20 @@ RTL_STEP_LISTS = {
          )},
     ),
 }
+# Preserve the pre-split recipe as the command census's source (#716).
+# Only shard arguments change. Setup may repeat, but every command and guard
+# survives in the union. Runtime dispatch separately proves suite ownership.
+FIRMWARE_BASE_STEPS = RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_UNIT_JOB)]
+for firmware_index, firmware_job in enumerate(FIRMWARE_JOBS):
+    firmware_command = FIRMWARE_BASE_STEPS[6]["run"][-1] + f" --shard {firmware_index}/4"
+    if firmware_index == 0:
+        firmware_steps = list(FIRMWARE_BASE_STEPS)
+        firmware_steps[6] = {**firmware_steps[6], "run": (*firmware_steps[6]["run"][:-1], firmware_command)}
+    else:
+        firmware_steps = [*FIRMWARE_BASE_STEPS[:3], *FIRMWARE_BASE_STEPS[4:6],
+                          {"name": FIRMWARE_PHASE_STEPS[firmware_index], "run": (firmware_command,)}]
+    RTL_STEP_LISTS[(RTL_FAST, firmware_job)] = tuple(firmware_steps)
+
 #: The other four jobs of the two RTL files, recorded in the same shape so
 #: that whether a job is pinned is a COMPARISON and never a claim: the gate
 #: job (item 4, #209), the physical leg, the fast selector and the fast
@@ -3633,6 +3656,47 @@ def check_fast_ooc_sh_selftest(c: Contract, wf: YamlMap) -> None:
            "setup, proving nothing)")
 
 
+def firmware_census(wf: YamlMap) -> list[dict[str, str]]:
+    """Generate every firmware command with its job and step conditions."""
+    rows = []
+    for jid in FIRMWARE_JOBS:
+        job = jobs(wf).get(jid, {})
+        for step in steps(job):
+            run = step.get("run", "")
+            if isinstance(run, (tuple, list)):
+                run = "\n".join(run)
+            for line in normalize_script(run):
+                rows.append({"job": jid, "step": step.get("name", ""), "command": line,
+                             "job_if": str(job.get("if", "success()")),
+                             "step_if": str(step.get("if", "success()"))})
+    return rows
+
+
+def firmware_commands(rows: list[dict[str, str]]) -> set[tuple[str, str, str]]:
+    """Collapse repeated setup; only the four new shard arguments are ignored."""
+    return {(re.sub(r" --shard [0-3]/4$", "", row["command"]), row["job_if"], row["step_if"])
+            for row in rows}
+
+
+def firmware_baseline_census() -> list[dict[str, str]]:
+    """Render the original job's recorded commands through the same generator."""
+    return firmware_census({"jobs": {FIRMWARE_UNIT_JOB: {
+        "if": FIRMWARE_JOB_IF, "steps": list(FIRMWARE_BASE_STEPS)}}})
+
+
+def check_firmware_layout(c: Contract, wf: YamlMap, policy: str) -> None:
+    """Hold the unchanged command population and all four documented budgets."""
+    want = firmware_commands(firmware_baseline_census())
+    got = firmware_commands(firmware_census(wf))
+    c.item(got == want, RTL_FAST,
+           f"firmware command census differs: missing={sorted(want - got)}, added={sorted(got - want)}")
+    for jid in FIRMWARE_JOBS:
+        c.item(jobs(wf).get(jid, {}).get("timeout-minutes") == 45, RTL_FAST,
+               f"firmware job `{jid}` timeout must remain 45 minutes")
+        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
+        c.item(row in policy, POLICY, f"firmware budget row must state `{row}`")
+
+
 def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
     public name, the selector, the verdict, the ooc.sh self-test and the
@@ -4222,6 +4286,7 @@ def check(parsed: World) -> Contract:
     check_ownership_step(c, parsed[RTL_FULL])
     check_aggregate_scripts(c, parsed[RTL_FULL])
     check_rtl_fast(c, parsed[RTL_FAST])
+    check_firmware_layout(c, parsed[RTL_FAST], parsed[POLICY])
     check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
@@ -7844,9 +7909,10 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
 #: The fast firmware jobs' steps whose builders must refuse, never skip, a missing RV32 compiler.
 RV32_REQUIRED_STEPS = {
     FIRMWARE_UNIT_JOB: (
-        ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+        ("test_ctrl_firmware.py", FIRMWARE_PHASE_STEPS[0]),
         ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"),
     ),
+    **{jid: (("test_ctrl_firmware.py", step),) for jid, step in zip(FIRMWARE_JOBS[1:], FIRMWARE_PHASE_STEPS[1:])},
     FIRMWARE_BOUNDARY_JOB: (
         ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
     ),
@@ -7858,7 +7924,8 @@ def _rv32_sdk_arms() -> list[Arm]:
     arms = []
     for path, jid, count in ((DOCS, "docs-check", 50),
                              (ELABORATE, "elaborate", 20),
-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9),
+                             *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
+                               for job in FIRMWARE_JOBS),
                              (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
@@ -7985,6 +8052,27 @@ def _rtl_script_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _firmware_layout_arms() -> list[Arm]:
+    """The new census and budget checks must catch their own planted defects."""
+    arms = [
+        ("firmware command census omission",
+         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "run", "true"),
+         "firmware command census differs"),
+        ("firmware command census condition",
+         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "if", False),
+         "firmware command census differs"),
+    ]
+    for jid in FIRMWARE_JOBS:
+        arms.append((f"firmware {jid} timeout raised",
+                     _m_job_key_any(RTL_FAST, jid, "timeout-minutes", 46),
+                     f"firmware job `{jid}` timeout must remain 45 minutes"))
+        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
+        arms.append((f"firmware {jid} budget absent",
+                     lambda w, row=row: w.__setitem__(POLICY, w[POLICY].replace(row, "")),
+                     f"firmware budget row must state `{row}`"))
+    return arms
+
+
 def _mutations(pristine: World) -> list[Arm]:
     """(name, mutate(parsed_world), expected finding fragment), every arm.
 
@@ -8010,6 +8098,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _aggregate_script_arms()
             + _docs_builder_arms()
             + _rv32_sdk_arms()
+            + _firmware_layout_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()
@@ -8661,6 +8750,8 @@ def main(argv: Sequence[str]) -> int:
                       help="the live tree against the contract")
     mode.add_argument("--selftest", action="store_true",
                       help="mutation arms over in-memory copies")
+    mode.add_argument("--firmware-census", action="store_true",
+                      help="generate original and current firmware commands with their conditions")
     mode.add_argument("--require-target-sha", action="store_true",
                       help="verify every shard's TARGET_SHA record")
     mode.add_argument("--require-default-branch", action="store_true",
@@ -8682,6 +8773,17 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument("roots", nargs="*",
                         help="shard evidence directories (--require-target-sha)")
     args = parser.parse_args(argv[1:])
+    if args.firmware_census:
+        try:
+            parsed = parse_world(read_tree(args.root))
+        except CannotRun as exc:
+            print(f"ci_events: cannot run: {exc}")
+            return RC_CANNOT_RUN
+        before = firmware_baseline_census()
+        after = firmware_census(parsed[RTL_FAST])
+        preserved = firmware_commands(before) == firmware_commands(after)
+        print(json.dumps({"before": before, "after": after, "preserved": preserved}, indent=2))
+        return RC_OK if preserved else RC_FINDING
     if args.check:
         return run_check(args.root)
     if args.selftest:
