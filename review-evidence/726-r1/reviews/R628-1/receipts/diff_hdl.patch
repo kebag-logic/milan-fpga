@@ -1,0 +1,486 @@
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
+index 75051cac0..a708eff96 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
+@@ -15,18 +15,17 @@
+                 Consumes the per-frame pulse bundle from avtp_stream_parser
+                 (which already matched the bound stream_id).
+ 
+-                NOT the shipping Milan counter engine: Milan v1.2 Table 5.6
+-                defines SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+-                UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+-                FRAMES_RX as OBSERVATION-INTERVAL counters (<= 1 s), and the
+-                engine GET_COUNTERS serves - KL_avtp_rx_monitor_ctx - commits
+-                them per interval. THIS module keeps every counter per-frame
+-                ON PURPOSE: aaf_audio_loop's "FRAMES_RX == talker frames"
+-                loop-integrity identity and the tsn_fuzz cosim model need a
+-                frame-accurate probe, which an interval counter structurally
+-                cannot be (torture_campaign.py CounterSemanticError). Lock/
+-                settle/mismatch/format verdict logic here remains the ctx
+-                engine's per-stream contract.
++                This is a per-frame verification probe. The shipping counter
++                engine is KL_avtp_rx_monitor_ctx. Its FRAMES_RX also counts
++                each accepted AVTPDU, with coalesced publication and 32-bit
++                wrap (IEEE 1722.1-2021 Table 7.157; #726 ruling 6125741685,
++                2026-10-12). Its six anomaly counters retain Milan v1.2
++                Table 5.6 observation intervals; this probe counts those
++                per frame for the loop-integrity and parser tests.
++                Lock, settle, mismatch and format verdicts keep the same
++                per-stream contract. The shipping producer reports healthy
++                counter changes under ruling 6126028604; its notification
++                scheduler retains the Milan 5.4.5.2 Table 5.22 rate limit.
+ 
+                 Contract byte-extracted from the module-avb reference code
+                 (stream.c handle_aaf_packet + cmd-get-counters.c):
+@@ -87,7 +86,7 @@
+ //! Single-sink STREAM_INPUT counter engine in the IEEE 1722.1-2021
+ //! Table 7-153 PER-FRAME reading — the TBs' frame-accurate instrument and
+ //! the per-PDU verdict reference, NOT the shipping Milan engine (Milan
+-//! v1.2 Table 5.6 interval semantics live in `KL_avtp_rx_monitor_ctx`).
++//! v1.2 Table 5.6 anomaly intervals live in `KL_avtp_rx_monitor_ctx`).
+ //! MEDIA_LOCKED/UNLOCKED (first-valid-PDU lock / 100 ms silence unlock),
+ //! STREAM_INTERRUPTED (>= 2 PDUs lost), SEQ_NUM_MISMATCH (8-PDU settle
+ //! window after every (re)lock), TIMESTAMP_UNCERTAIN (tu bit),
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index 448d49790..3a76db591 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -24,20 +24,16 @@
+                 * MEDIA_LOCKED / MEDIA_UNLOCKED / STREAM_INTERRUPTED are
+                   EVENT counters ("incremented each time ...") - they RMW
+                   the RAM at the event, as before.
++                * FRAMES_RX counts every accepted AVTPDU, with 32-bit wrap.
++                  The interval commit publishes the accumulated packet total.
++                  IEEE 1722.1-2021 Table 7.157 and #726 ruling 6125741685
++                  (2026-10-12) govern this counter.
+                 * SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+-                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+-                  FRAMES_RX are OBSERVATION-INTERVAL counters ("incremented
+-                  at the end of every observation interval during which
+-                  ..."), interval <= 1 s. A per-PDU verdict only SETS a
+-                  per-stream seen flag; the interval tick pends the stream
+-                  and the walker commits +1 per flagged counter through the
+-                  normal serial RMW walk. N frame events inside one
+-                  interval therefore move each counter by AT MOST ONE -
+-                  the per-frame reading is IEEE 1722.1-2021 Table 7-153's,
+-                  not Milan's, and serving it read 8000x high at class A.
+-                  The tick derives from CLK_FREQ_HZ_P (IVAL_CYC_P default =
+-                  one second, the clause ceiling), the same derivation as
+-                  the talker's KL_talker_diag_ctx tick.
++                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP and EARLY_TIMESTAMP
++                  retain observation-interval semantics. The interval is
++                  at most one second. Each PDU verdict sets a per-stream
++                  seen flag; the walker adds one per flagged anomaly at
++                  the commit. IVAL_CYC_P defaults to CLK_FREQ_HZ_P.
+                 * a flag set in the tick cycle itself is harvested INTO the
+                   closing interval (the talker-side boundary rule); events
+                   landing between a tick and its drain ride the closing
+@@ -96,7 +92,7 @@
+ //! Shared Milan STREAM_INPUT monitor (docs/overview/ARCHITECTURE.md):
+ //! one engine, N listener contexts in the LCTX RAM (CNT region in Table
+ //! 7-157 offset order), serial RMW walk per lock/unlock/interrupt event,
+-//! Milan Table 5.6 observation-interval commit for the seven interval
++//! Milan Table 5.6 observation-interval commit for the six anomaly
+ //! counters (seen flags -> tick -> walk), per-stream ms-tick silence
+ //! watchdog in flops, stream-0 legacy outputs via write-through shadows.
+ //! PDU bundles wait and are served from one 4-entry ring, and GET_COUNTERS
+@@ -183,19 +179,15 @@ module KL_avtp_rx_monitor_ctx #(
+   //! Milan 1.3 5.3.8.10 additions: per-frame tv-bit tallies (1722.1-2021
+   //! Table 7-157 offsets 24/28, "increments on receipt" - a per-frame
+   //! definition, kept per-frame). TV + TNV = total accepted PDUs; the
+-  //! identity TV + TNV == FRAMES_RX holds only under 1722.1's per-frame
+-  //! FRAMES_RX reading, NOT under Milan Table 5.6's interval reading
+-  //! served here (the torture campaign's tv_plus_tnv_identity() encodes
+-  //! exactly this split).
++  //! identity TV + TNV == FRAMES_RX holds after the pending packet batch
++  //! has committed; the per-frame TV/TNV updates can precede that commit.
+   output wire [31:0] cnt_ts_valid_o,
+   output wire [31:0] cnt_ts_not_valid_o,
+   output logic        media_locked_o,    //! stream-0 lock state (level)
+-  //! per-context counter-change pulses (Milan 5.4.5 Table 5.22): bit s =
+-  //! context s committed an EVENT its GET_COUNTERS push law cares about.
+-  //! FRAMES_RX alone stays excluded (task #21: a healthy stream closes an
+-  //! interval every second forever), and so does a healthy TV tally (gh
+-  //! #60 F4 option (c) - see the M_PDEC_S site). Was the stream-0 scalar;
+-  //! sinks 1..N-1 could never arm their own Table 5.22 push (gh #60 F2).
++  //! Per-context counter-change pulses (Milan 5.4.5.2 Table 5.22).
++  //! Every changed counter, including healthy TV/TNV and FRAMES_RX,
++  //! marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12).
++  //! Coalescing and one-second spacing belong to the notification scheduler.
+   output logic [N_LISTENERS_P-1:0] dirty_p_o,
+   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
+   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
+@@ -319,7 +311,7 @@ module KL_avtp_rx_monitor_ctx #(
+   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+ 
+   //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
+-  //! CNT-column format (only the seven interval columns are ever set, so
++  //! CNT-column format (only the six anomaly columns and FRAMES_RX are ever set, so
+   //! synthesis prunes the rest) + the per-stream commit-pending bit
+   logic [11:0]              iv_seen_r [N_LISTENERS_P];
+   logic [N_LISTENERS_P-1:0] iv_pend_r;
+@@ -329,14 +321,12 @@ module KL_avtp_rx_monitor_ctx #(
+   //! right after the PDU walk - counts stay exact, media frames never wait
+   logic [11:0]       iv_res_list_r;
+   logic [IDXW_C-1:0] iv_res_s_r;
+-  //! USER 2026-08-05 FRAMES_RX law: count FRAMES, publish COALESCED at the
+-  //! interval commit - the visible counter advances by the interval's frame
+-  //! total (~8000/s at class A) instead of Table 5.6's +1-per-interval. Both
+-  //! readings are Milan-legal (the interval is implementation-specific,
+-  //! <= 1 s); this one matches the ecosystem/peer and restores 1722.1's
+-  //! TV+TNV == FRAMES_RX identity. Saturating 16-bit/stream (8000/s legit).
+-  logic [15:0] frx_acc_r [N_LISTENERS_P];
+-  logic [15:0] frx_add_r;
++  //! FRAMES_RX counts every accepted AVTPDU, with publication coalesced at
++  //! the interval commit (#726 ruling 6125741685, 2026-10-12). Both the
++  //! accumulator and the committed counter wrap at 32 bits. A 16-bit
++  //! saturating batch would silently lose accepted packets above 65,535.
++  logic [31:0] frx_acc_r [N_LISTENERS_P];
++  logic [31:0] frx_add_r;
+ 
+   logic [N_LISTENERS_P-1:0] locked_sh_r;     //! media_locked mirror (w8[12])
+   logic [7:0] chans_sh_r [N_LISTENERS_P];    //! wire_chans mirror (w8[21:14])
+@@ -647,7 +637,7 @@ module KL_avtp_rx_monitor_ctx #(
+           eng_we_w    = 1'b1;
+           eng_waddr_w = laddr(ev_s_r, W_CNT0_C | 5'(inc_next_w));
+           //! FRAMES_RX commits the interval's FRAME TOTAL (coalesced law,
+-          //! USER 2026-08-05); every other Table 5.6 counter keeps +1
++          //! #726); every other Table 5.6 counter keeps +1
+           eng_wdata_w = ram_q_r + ((5'(inc_next_w) == 5'(C_FRX_C))
+                                    ? 32'(frx_add_r) : 32'd1);
+         end
+@@ -956,11 +946,9 @@ module KL_avtp_rx_monitor_ctx #(
+             ev_s_r     <= iv_s_w;
+             inc_list_r <= iv_seen_r[iv_s_w];
+             frx_add_r  <= frx_acc_r[iv_s_w];
+-            //! FRAMES_RX alone must NOT arm the Table 5.22 push: a
+-            //! healthy stream closes an interval every second forever
+-            //! (task #21). The anomaly bits (TU/LT/ET/SM/MR/UF) still arm,
+-            //! for EVERY context (gh #60 F2 - the index is in hand).
+-            if ((iv_seen_r[iv_s_w] & ~(12'b1 << C_FRX_C)) != '0)
++            //! Every updated counter marks the descriptor dirty (#726).
++            //! Only the scheduler limits Table 5.22 notifications.
++            if (iv_seen_r[iv_s_w] != '0)
+               dirty_p_o[iv_s_w] <= 1'b1;
+             mst_r      <= M_INC_S;
+           end
+@@ -991,19 +979,8 @@ module KL_avtp_rx_monitor_ctx #(
+             chans_sh_r[ev_s_r] <= p_chans_w;
+             sil_ms_r[ev_s_r]   <= '0;
+             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
+-            //! gh #60 F4 option (c): TV joins the FRAMES_RX dirty
+-            //! exclusion. This site used to arm on EVERY accepted PDU, so
+-            //! a healthy stream pushed GET_COUNTERS 1/s forever off its
+-            //! own TV tally - the exact healthy-path cadence the task-21
+-            //! narrowing removed for FRAMES_RX (TV is its per-frame
+-            //! sibling: both tick on routine traffic, and the value still
+-            //! rides every payload the anomalies send). TNV stays armed:
+-            //! an accepted PDU WITHOUT a valid timestamp is an anomaly.
+-            //! The per-event walk arms (ML via lock_now_w, SI via the
+-            //! lost-PDU rule) keep their pulses.
+-            if (!cur_w.tv || lock_now_w ||
+-                (seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)))
+-              dirty_p_o[ev_s_r] <= 1'b1;
++            //! TV/TNV changes also notify, including healthy traffic.
++            dirty_p_o[ev_s_r] <= 1'b1;
+             monst_r <= monst_next_w;
+             //! TV/TNV live in flops (below), NOT in this serial walk: a
+             //! 12th RMW step per accepted PDU delayed the next verdict
+@@ -1178,17 +1155,17 @@ module KL_avtp_rx_monitor_ctx #(
+         begin
+           iv_seen_r[s] <= iv_set_w[s];
+           iv_pend_r[s] <= 1'b0;
+-          frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
++          frx_acc_r[s] <= {31'd0, iv_set_w[s][C_FRX_C]};
+         end
+         else begin
+           if (iv_go_w && (32'(iv_s_w) == s)) begin
+             iv_seen_r[s] <= iv_set_w[s];
+-            frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
++            frx_acc_r[s] <= {31'd0, iv_set_w[s][C_FRX_C]};
+           end
+           else begin
+             iv_seen_r[s] <= iv_seen_r[s] | iv_set_w[s];
+-            if (iv_set_w[s][C_FRX_C] && (frx_acc_r[s] != 16'hFFFF))
+-              frx_acc_r[s] <= frx_acc_r[s] + 16'd1;
++            if (iv_set_w[s][C_FRX_C])
++              frx_acc_r[s] <= frx_acc_r[s] + 32'd1;
+           end
+           if (iv_tick_r && ((iv_seen_r[s] | iv_set_w[s]) != '0))
+             iv_pend_r[s] <= 1'b1;
+diff --git a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+index db5c8a726..cd27ee190 100644
+--- a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+@@ -29,14 +29,12 @@
+                   The level is the COMPOSED admission gate (ACMP+lwSRP+MAAP
+                   terms), i.e. "is this talker licensed and emitting", not a
+                   bare enable bit.
+-                * MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are
+-                  OBSERVATION-INTERVAL counts ("incremented at the end of
+-                  every observation interval during which ..."), interval
+-                  <= 1 s, and all three "reset to 0 each time the Talker
+-                  starts streaming". FRAMES_TX therefore advances at 1/s
+-                  while streaming - NOT at the frame rate; a controller
+-                  reading the raw frame total where the clause defines an
+-                  interval count reads a number 8000x off.
++                * FRAMES_TX counts every transmitted Stream Data AVTPDU,
++                  wrapping at 32 bits (IEEE 1722.1-2021 Table 7.159).
++                  Issue #726 ruling 6125741685 (2026-10-12) resolves the
++                  ambiguous Table 5.4 observation wording this way.
++                  MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their
++                  observation-interval law. All three reset at each start.
+                 * TIMESTAMP_UNCERTAIN qualifies tu BY TRANSMISSION: "the tu
+                   bit has been set in any of the TRANSMITTED Stream Data
+                   AVTPDUs" - a set tu with no PDU sent counts nothing, which
+@@ -66,12 +64,10 @@
+                 into seen_*_r would lose it outright: the tick's whole-vector
+                 clear is a later nonblocking assignment than the per-bit fold,
+                 so it wins, and the strobe is one cycle wide and never comes
+-                back. That cost nothing for FRAMES_TX at 8 kPDU/s (the closing
+-                interval holds 7999 other frames) but silently dropped SPARSE
+-                events - a lone tu-stamped PDU, a single mr toggle - from both
+-                intervals. Same rule at a start edge: the three counters zero
+-                per Table 5.4, and this cycle's event survives into the fresh
+-                interval rather than being erased with them.
++                back. This matters for sparse interval events: a lone
++                tu-stamped PDU or a single mr toggle must survive the boundary. Same rule at a start edge: the three counters reset
++                per Table 5.4. A simultaneous transmitted PDU is the first
++                count of the new run; its MR/TU flags enter the fresh interval.
+ 
+                 The read side is an indexed combinational port: the AECP
+                 response builder presents the descriptor_index it is
+@@ -86,8 +82,8 @@
+ */
+ 
+ //! Per-talker Milan Table 5.4 counters: START/STOP edges of the composed
+-//! streaming gate, interval-based MEDIA_RESET / TIMESTAMP_UNCERTAIN /
+-//! FRAMES_TX with reset-on-start, indexed combinational read port.
++//! streaming gate, interval-based MEDIA_RESET / TIMESTAMP_UNCERTAIN,
++//! per-AVTPDU FRAMES_TX with reset-on-start, indexed read port.
+ 
+ `default_nettype none
+ 
+@@ -123,12 +119,11 @@ module KL_talker_diag_ctx #(
+   output logic [31:0]        rd_ftx_o,
+ 
+   //! one-cycle per-context pulse the cycle a Table 5.4 counter is WRITTEN
+-  //! (START/STOP edge or an interval-close increment) - the Milan 5.4.5
++  //! (START/STOP edge, transmitted AVTPDU or interval-close increment) - the Milan 5.4.5
+   //! Table 5.22 unsolicited GET_COUNTERS trigger ("sent when one of the
+   //! counters is updated"). The 1/s-per-descriptor restriction belongs to
+-  //! a notification scheduler, but the current root leaves this pulse
+-  //! unconsumed. This port only states the raw fact. A start edge zeroing the three
+-  //! interval counters rides the SAME pulse as its START increment.
++  //! the notification scheduler. A start edge resetting the three
++  //! reset-on-start counters also reports its START increment.
+   output logic [N_CTX_P-1:0] dirty_p_o
+ );
+ 
+@@ -167,9 +162,6 @@ module KL_talker_diag_ctx #(
+   logic [31:0] mreset_r [N_CTX_P] /* verilator public_flat_rw */;
+   logic [31:0] tuiv_r   [N_CTX_P] /* verilator public_flat_rw */;
+   logic [31:0] ftx_r    [N_CTX_P] /* verilator public_flat_rw */;
+-  logic [N_CTX_P-1:0] seen_f_r;    //! >=1 PDU transmitted this interval
+-  //! FRAMES_TX is a 32-bit wrapping counter. It advances by one for each
+-  //! observation interval that contains at least one transmitted frame.
+   logic [N_CTX_P-1:0] seen_tu_r;   //! ... with tu set
+   logic [N_CTX_P-1:0] seen_mr_r;   //! ... with mr toggled
+   logic [N_CTX_P-1:0] strm_q_r;    //! streaming level, for the edge
+@@ -205,7 +197,6 @@ module KL_talker_diag_ctx #(
+         tuiv_r[c]   <= '0;
+         ftx_r[c]    <= '0;
+       end
+-      seen_f_r  <= '0;
+       seen_tu_r <= '0;
+       seen_mr_r <= '0;
+       strm_q_r  <= '0;
+@@ -213,9 +204,13 @@ module KL_talker_diag_ctx #(
+       dirty_p_o <= '0;
+     end else begin
+       dirty_p_o <= '0;
+-      //! PDU events fold into the current interval's flags
+-      seen_f_r  <= seen_f_r  | ev_f_w;
+-      for (int c = 0; c < N_CTX_P; c++)
++      //! Count each transmitted PDU; MR/TU fold into interval flags.
++      for (int c = 0; c < N_CTX_P; c++) begin
++        if (ev_f_w[c]) begin
++          ftx_r[c] <= ftx_r[c] + 32'd1;
++          dirty_p_o[c] <= 1'b1;
++        end
++      end
+       seen_tu_r <= seen_tu_r | ev_tu_w;
+       seen_mr_r <= seen_mr_r | ev_mr_w;
+       //! remember the mr this context just put on the wire
+@@ -228,45 +223,33 @@ module KL_talker_diag_ctx #(
+       //! nonblocking assignment, and the strobe never returns)
+       if (tick_p_r) begin
+         for (int c = 0; c < N_CTX_P; c++) begin
+-          if (seen_f_r[c]  | ev_f_w[c]) begin
+-            //! Table 5.4 interval semantics: +1 PER OBSERVATION INTERVAL
+-            //! with frames, never the frame total - the header's "8000x
+-            //! off" note was live on silicon 2026-08-06 (the pushed
+-            //! counter read 11M raw frames; tkdiag T3 pinned it at desk,
+-            //! task #21 round)
+-            ftx_r[c]  <= ftx_r[c] + 32'd1;
+-          end
+           if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
+           if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
+           //! Table 5.22 triggers whenever any counter is updated. This raw
+-          //! source therefore includes FRAMES_TX interval closes as well as
+-          //! anomaly counters. Per-controller coalescing and the 1/s limit
++          //! source includes anomaly counters. Per-controller coalescing and the 1/s limit
+           //! belong to the notification scheduler, never to this producer.
+-          if ((seen_f_r[c]  | ev_f_w[c]) |
+-              (seen_tu_r[c] | ev_tu_w[c]) |
++          if ((seen_tu_r[c] | ev_tu_w[c]) |
+               (seen_mr_r[c] | ev_mr_w[c]))
+             dirty_p_o[c] <= 1'b1;
+         end
+-        seen_f_r  <= '0;
+         seen_tu_r <= '0;
+         seen_mr_r <= '0;
+       end
+ 
+       //! streaming edges: START/STOP count the SAME level so the clause
+       //! invariant (START == STOP or STOP+1) holds structurally; a start
+-      //! zeroes the three interval counters per Table 5.4
++      //! resets the three per-run counters per Table 5.4
+       strm_q_r <= streaming_i;
+       for (int c = 0; c < N_CTX_P; c++) begin
+         if (streaming_i[c] && !strm_q_r[c]) begin : g_start
+           start_r[c]  <= start_r[c] + 32'd1;
+           mreset_r[c] <= '0;
+           tuiv_r[c]   <= '0;
+-          ftx_r[c]    <= '0;
++          ftx_r[c]    <= {31'd0, ev_f_w[c]};
+           //! and the pending flags: a stop->start inside one interval must
+           //! not carry the pre-stop activity into the fresh counters - but
+           //! THIS cycle's event belongs to the stream that just started, so
+           //! it survives the wipe instead of being erased with the history
+-          seen_f_r[c]  <= ev_f_w[c];
+           seen_tu_r[c] <= ev_tu_w[c];
+           seen_mr_r[c] <= ev_mr_w[c];
+           dirty_p_o[c] <= 1'b1;
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 666ec09e5..53037b3de 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -55,7 +55,10 @@
+                 * cnt_locked / cnt_unlocked / cnt_intr (STREAM_INTERRUPTED)
+                   are EVENT counters ("incremented each time ...") - per
+                   event.
+-                * pdu_count (FRAMES_RX), fmt_err (UNSUPPORTED_FORMAT),
++                * pdu_count (FRAMES_RX) counts each accepted AVTPDU,
++                  with 32-bit wrap, per IEEE 1722.1-2021 Table 7.157.
++                  Issue #726 ruling 6125741685 (2026-10-12) applies.
++                * fmt_err (UNSUPPORTED_FORMAT),
+                   seq_err (SEQ_NUM_MISMATCH), mr_cnt (MEDIA_RESET), tu_cnt
+                   (TIMESTAMP_UNCERTAIN), late_cnt (LATE_TIMESTAMP) and
+                   early_cnt (EARLY_TIMESTAMP) are OBSERVATION-INTERVAL
+@@ -230,7 +233,7 @@ module KL_crf_rx #(
+   //! CSR ABI is untouched: CRF_STATUS 0x74C serves documented TRUNCATED
+   //! slices ({pdu[15:0], fmt[7:0], seq[7:0]}), the AECP wire serves the
+   //! full width.
+-  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
++  output logic [31:0] pdu_count_o,        //! FRAMES_RX: each accepted AVTPDU
+   output logic [31:0] fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
+   output logic [31:0] seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
+   //! MEDIA_RESET / TIMESTAMP_UNCERTAIN / LATE_TIMESTAMP / EARLY_TIMESTAMP:
+@@ -248,9 +251,9 @@ module KL_crf_rx #(
+   //! GET_COUNTERS row (gh #60 F2). Fires on: a lock/unlock event, a
+   //! STREAM_INTERRUPTED event, any of the SIX anomaly interval commits
+   //! (UF/SM/MR/TU/LT/ET), and the bind-rise wipe (the zeroed tallies are
+-  //! themselves a wire-visible change). NEVER on a healthy FRAMES_RX
+-  //! interval - the task-21 exclusion, verbatim: a healthy stream closes
+-  //! an interval every second forever and must not push forever.
++  //! themselves a wire-visible change), and every healthy FRAMES_RX update.
++  //! #726 ruling 6126028604 (2026-10-12) restores routine refresh events.
++  //! Milan 5.4.5.2 Table 5.22 spacing belongs to the scheduler.
+   output logic        dirty_p_o,
+   //! one-cycle pulse: the RECEIVED mr level TOGGLED on an accepted PDU of
+   //! the followed stream (the same w_ev_mr_w event MEDIA_RESET counts,
+@@ -373,7 +376,7 @@ module KL_crf_rx #(
+ 
+   //! this cycle's Table 5.6 interval-flag events. The engine keeps settle /
+   //! lock / delta / rate per-PDU (measurement is not a counter); only the
+-  //! three interval counters' increments move to the tick commit. FRX = the
++  //! anomaly counters' increments move to the tick commit. FRX = the
+   //! accepted PDU itself (w_acc), UF = a matched-but-rejected PDU, SM = an
+   //! accepted PDU with a non-sequential sequence_num.
+   wire w_ev_uf_w = w_hit && !w_fmt_ok;
+@@ -418,7 +421,7 @@ module KL_crf_rx #(
+   logic [IVALW_C-1:0] iv_div_r;
+   logic               iv_tick_r;
+   //! interval seen flags, one per Table 5.6 observation-interval counter
+-  logic               iv_frx_r, iv_uf_r, iv_sm_r;
++  logic               iv_uf_r, iv_sm_r;
+   logic               iv_mr_r, iv_tu_r, iv_lt_r, iv_et_r;
+ 
+   always_ff @(posedge clk_i) begin : iv_tick_gen
+@@ -458,7 +461,7 @@ module KL_crf_rx #(
+       prev_ts_ns_r <= '0; prev_tu_r <= 1'b0;
+       rate_seeded_r <= 1'b0; rate_valid_r <= 1'b0;
+       prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0; en_q <= 1'b0;
+-      iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
++      iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
+       iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
+     end else begin
+       en_q <= en_i;
+@@ -481,9 +484,11 @@ module KL_crf_rx #(
+       //! itself violates 5.3.8.10's "wraps back to zero" - the old
+       //! fmt_err/seq_err peg at 255 froze the instrument after 4 min 15 s
+       //! of persistent fault).
++      if (w_acc) begin
++        pdu_count_o <= pdu_count_o + 32'd1;
++        dirty_p_o <= 1'b1;
++      end
+       if (iv_tick_r) begin
+-        if (iv_frx_r || w_acc)
+-          pdu_count_o <= pdu_count_o + 32'd1;
+         if (iv_uf_r || w_ev_uf_w)
+           fmt_err_o <= fmt_err_o + 32'd1;
+         if (iv_sm_r || w_ev_sm_w)
+@@ -492,13 +497,12 @@ module KL_crf_rx #(
+         if (iv_tu_r || w_ev_tu_w) tu_cnt_o    <= tu_cnt_o    + 32'd1;
+         if (iv_lt_r || w_ev_lt_w) late_cnt_o  <= late_cnt_o  + 32'd1;
+         if (iv_et_r || w_ev_et_w) early_cnt_o <= early_cnt_o + 32'd1;
+-        //! the SIX anomaly commits arm the Table 5.22 push; a healthy
+-        //! FRAMES_RX interval (iv_frx alone) never does (task-21 rule)
++        //! Anomaly commits also mark this descriptor dirty. The scheduler
++        //! owns the Table 5.22 per-descriptor rate limit (#726).
+         if ((iv_uf_r || w_ev_uf_w) || (iv_sm_r || w_ev_sm_w) ||
+             (iv_mr_r || w_ev_mr_w) || (iv_tu_r || w_ev_tu_w) ||
+             (iv_lt_r || w_ev_lt_w) || (iv_et_r || w_ev_et_w))
+           dirty_p_o <= 1'b1;
+-        iv_frx_r <= 1'b0;
+         iv_uf_r  <= 1'b0;
+         iv_sm_r  <= 1'b0;
+         iv_mr_r  <= 1'b0;
+@@ -506,7 +510,6 @@ module KL_crf_rx #(
+         iv_lt_r  <= 1'b0;
+         iv_et_r  <= 1'b0;
+       end else begin
+-        iv_frx_r <= iv_frx_r | w_acc;
+         iv_uf_r  <= iv_uf_r  | w_ev_uf_w;
+         iv_sm_r  <= iv_sm_r  | w_ev_sm_w;
+         iv_mr_r  <= iv_mr_r  | w_ev_mr_w;
+@@ -570,8 +573,8 @@ module KL_crf_rx #(
+           //! count itself commits at the interval tick (w_ev_uf_w above)
+           settle_r  <= '0;
+         end else begin
+-          //! FRAMES_RX / SEQ_NUM_MISMATCH commit at the interval tick
+-          //! (w_acc / w_ev_sm_w above); a discontinuity still breaks the
++          //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
++          //! counts this accepted PDU above. A discontinuity breaks the
+           //! settle run per-PDU
+           if (have_seq_r && (seq_i != exp_seq_r)) begin
+             settle_r  <= '0;
+@@ -672,7 +675,6 @@ module KL_crf_rx #(
+         //! the interval SEEN flags belong to the dead era too: a flag raised
+         //! before the bind would commit +1 into a just-zeroed counter at the
+         //! next tick and hand the new binding a phantom event
+-        iv_frx_r <= 1'b0;
+         iv_uf_r  <= 1'b0;
+         iv_sm_r  <= 1'b0;
+         iv_mr_r  <= 1'b0;

@@ -1,0 +1,12 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+Traceback (most recent call last):
+  File "$PACKET/scratch/probe-tx-saturate/tb/verilator/milan_dp/stream_counters.py", line 174, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/probe-tx-saturate/tb/verilator/milan_dp/stream_counters.py", line 167, in main
+    run(args.shape, args.variant, args.work.resolve(), verilator)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/probe-tx-saturate/tb/verilator/milan_dp/stream_counters.py", line 155, in run
+    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 TX] restart and wrap follow wire          got=0x5 exp=0x40', '  [FAIL] [726 TX] restart and wrap follow wire          got=0x5 exp=0x9']

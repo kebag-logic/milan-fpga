@@ -1,0 +1,49 @@
+== $PACKET/scratch/work/clean-1/run.log
+  row-windows total=40 graded=24
+  graded by (type, notifications): {('IN', 1): 12, ('OUT', 1): 12}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 3, ('IN', 0, 1): 1, ('IN', 1, 0): 1, ('IN', 1, 1): 3, ('OUT', 0, 1): 4, ('OUT', 1, 1): 4}
+  min gap ms=1000.996 max gap ms=1001.867 over 8 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 0
+  max service cycles=3263 (ms=3.263)
+== $PACKET/scratch/work/clean-8/run.log
+  row-windows total=180 graded=108
+  graded by (type, notifications): {('IN', 1): 54, ('OUT', 1): 54}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 16, ('IN', 0, 1): 2, ('IN', 1, 0): 2, ('IN', 1, 1): 16, ('OUT', 0, 1): 18, ('OUT', 1, 1): 18}
+  min gap ms=1000.982 max gap ms=1012.029 over 36 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 0
+  max service cycles=14058 (ms=14.058)
+== $PACKET/scratch/work/before-1/run.log
+  row-windows total=40 graded=24
+  graded by (type, notifications): {('IN', 0): 12, ('OUT', 1): 12}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 3, ('IN', 0, 1): 1, ('IN', 1, 0): 1, ('IN', 1, 1): 3, ('OUT', 0, 1): 4, ('OUT', 1, 1): 4}
+  min gap ms=1000.918 max gap ms=1001.867 over 4 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 4
+  max service cycles=3263 (ms=3.263)
+== $PACKET/scratch/work/before-8/run.log
+  row-windows total=180 graded=108
+  graded by (type, notifications): {('IN', 0): 54, ('OUT', 1): 54}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 16, ('IN', 0, 1): 2, ('IN', 1, 0): 2, ('IN', 1, 1): 16, ('OUT', 0, 1): 18, ('OUT', 1, 1): 18}
+  min gap ms=1001.000 max gap ms=1012.029 over 18 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 18
+  max service cycles=14058 (ms=14.058)
+== $PACKET/scratch/work/probe-tx-nodirty/run.log
+  row-windows total=40 graded=24
+  graded by (type, notifications): {('IN', 1): 12, ('OUT', 1): 12}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 3, ('IN', 0, 1): 1, ('IN', 1, 0): 1, ('IN', 1, 1): 3, ('OUT', 0, 1): 4, ('OUT', 1, 1): 4}
+  min gap ms=1000.996 max gap ms=1001.867 over 8 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 0
+  max service cycles=3263 (ms=3.263)
+== $PACKET/scratch/work/probe-tu0/run.log
+  row-windows total=40 graded=24
+  graded by (type, notifications): {('IN', 1): 12, ('OUT', 1): 12}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 3, ('IN', 0, 1): 1, ('IN', 1, 0): 1, ('IN', 1, 1): 3, ('OUT', 0, 1): 4, ('OUT', 1, 1): 4}
+  min gap ms=1000.996 max gap ms=1001.867 over 8 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 0
+  max service cycles=3263 (ms=3.263)
+== $PACKET/scratch/work/probe-tx-nodirty-tu0/run.log
+  row-windows total=40 graded=24
+  graded by (type, notifications): {('IN', 1): 12, ('OUT', 0): 12}
+  startup windows 0/1 by (type, window, n): {('IN', 0, 0): 3, ('IN', 0, 1): 1, ('IN', 1, 0): 1, ('IN', 1, 1): 3, ('OUT', 0, 1): 4, ('OUT', 1, 0): 4}
+  min gap ms=1001.000 max gap ms=5000.000 over 8 rows with >=2 notifications
+  rows with <2 notifications (gap undefined): 0
+  max service cycles=3263 (ms=3.263)
