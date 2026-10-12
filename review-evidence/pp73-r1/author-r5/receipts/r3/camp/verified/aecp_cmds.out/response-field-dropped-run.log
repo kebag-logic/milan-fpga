@@ -1,0 +1,8 @@
+FAIL:  decode: GET_CLOCK_SOURCE: GCLKS answered SUCCESS at cdl 18, the table's response is 20
+FAIL:  decode: GET_CLOCK_SOURCE: inside GET_DYNAMIC_INFO its GCLKS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record
+FAIL:  decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 18, the table's response is 20
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0017 GCLKS: observed {"answers": {"0": "18"}, "cdls": "16-100", "floor": 16}, recorded {"answers": {"0": "20"}, "cdls": "16-100", "floor": 16} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: gdi members 0x0017: observed {"GCLKS": "10:aggregate cdl 12", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"}, recorded {"GCLKS": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs ucode.hex (generated): observed "a999d56a2cee387b45017c8859fb1414e43f808d5831f210648f867f089f2909", recorded "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: unsolicited PP_UNS_CLKS_C: observed {"GCLKS": ["0x0016:18"]}, recorded {"GCLKS": ["0x0016:20"]} (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 176 checks: 172 PASS, 4 FAIL

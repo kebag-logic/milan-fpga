@@ -1,0 +1,25 @@
+--- resume-record
++++ head-record
+@@ -24,9 +24,12 @@
+       "hdl/aecp/KL_aecp_resp_buf.sv": "45dbe0d0b1d2f0bc9f640ff73939de9f4f55ec5568e4d71ec07725254b91c4ea",
+       "hdl/aecp/KL_aecp_engine.sv": "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d",
+       "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+-      "tb/aecp_cmds/sim_main.cpp": "6c1ea82ff657d5524d58be8672434d978fa26e768947647e5767d858a3de97e0",
++      "tb/aecp_cmds/sim_main.cpp": "7dfd29cf53d97c4cf393368c85b3b2c93f7c3aa832eb30a58b9efe0ab554c37d",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+       "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
++      "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
++      "hdl/aecp/desc/model_rules.py": "b5ccdc449c63ec4e24ec6390ceffdfaf1c9ed61a0cf3e0d123f045008b12abd9",
++      "tb/common/verilator_harness.hpp": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9",
+       "ucode.hex (generated)": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+     }
+   },
+@@ -53,7 +56,7 @@
+       }},
+       {"opcodes": "0x0004", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+-        "RDESC": {"floor": 20, "cdls": "20, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
++        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
+         "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+         "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
+         "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},

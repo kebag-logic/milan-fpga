@@ -1,0 +1,2384 @@
+== clean
+== mem: an opcode renumbered in the table only ('engine: GET_SAMPLING_RATE', '0x001E')
+  decode: GET_SAMPLING_RATE: the table's entries name BADARG, which the engine never dispatches AEM 0x001E to (tb/aecp_cmds/decode.json)
+  decode: GET_SAMPLING_RATE: the table's entries name GSRATE, which the engine never dispatches AEM 0x001E to (tb/aecp_cmds/decode.json)
+  decode: GET_SAMPLING_RATE: the table's entries name TIZ4NS, which the engine never dispatches AEM 0x001E to (tb/aecp_cmds/decode.json)
+  decode: GET_SAMPLING_RATE: the engine dispatches AEM 0x001E to NOTIMPL, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  decode: GET_SAMPLING_RATE: NOTIMPL answered NOT_IMPLEMENTED, which is not in the table's status set
+  decode: AEM 0x0015 is no table command and the engine dispatches it to BADARG, not only NOTIMPL
+  decode: AEM 0x0015 is no table command and the engine dispatches it to GSRATE, not only NOTIMPL
+  decode: AEM 0x0015 is no table command and the engine dispatches it to TIZ4NS, not only NOTIMPL
+  decode: GET_SAMPLING_RATE: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+  decode: 0x0015: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+  engine: GET_SAMPLING_RATE: the table says opcode 0x001E, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x0015
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0015, which no table command carries
+  F06.14: row 0x001E GET_SAMPLING_RATE is missing (run --write)
+  F06.14: row 0x0015 GET_SAMPLING_RATE is not in the table
+  8.1: GET_SAMPLING_RATE (AEM 0x001E) is served and section 8.1 does not list it
+  8.1: section 8.1 lists AEM 0x0015 and the table serves no such command
+== mem: a size changed in the doc table only ('F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size',)
+  F06.14: row 0x0015 GET_SAMPLING_RATE, column Resp. size, reads '36 B (cdl 24)' where the table gives '32 B (cdl 20)'
+== mem: an OP_*_C changed in the RTL only ('engine: GET_SAMPLING_RATE', 'OP_GET_SAMP_RATE_C = 0x001E')
+  engine: GET_SAMPLING_RATE: the table says opcode 0x0015, hdl/aecp/KL_aecp_engine.sv OP_GET_SAMP_RATE_C = 0x001E
+== mem: a command missing from the table ('OP_GET_AS_PATH_C = 0x0028 and the table has no command',)
+  decode: AEM 0x0028 is no table command and the engine dispatches it to BADARG, not only NOTIMPL
+  decode: AEM 0x0028 is no table command and the engine dispatches it to GASP, not only NOTIMPL
+  decode: the engine's PP_UNS_ASP_C job answers 0x0028 with GASP, which is no table command's notification
+  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_AS_PATH_C = 0x0028 and the table has no command for it
+  engine: UPC_GASP_C is claimed by no command, notification body or shared entry of the table
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0028, which no table command carries
+  F06.14: 41 rows where the table generates 40
+  F06.14: row 0x0028 GET_AS_PATH is not in the table
+  8.1: section 8.1 lists AEM 0x0028 and the table serves no such command
+== mem: a command missing from the table, as the engine decodes it ('decode: AEM 0x0028 is no table command', 'GASP')
+  decode: AEM 0x0028 is no table command and the engine dispatches it to BADARG, not only NOTIMPL
+  decode: AEM 0x0028 is no table command and the engine dispatches it to GASP, not only NOTIMPL
+  decode: the engine's PP_UNS_ASP_C job answers 0x0028 with GASP, which is no table command's notification
+  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_AS_PATH_C = 0x0028 and the table has no command for it
+  engine: UPC_GASP_C is claimed by no command, notification body or shared entry of the table
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x0028, which no table command carries
+  F06.14: 41 rows where the table generates 40
+  F06.14: row 0x0028 GET_AS_PATH is not in the table
+  8.1: section 8.1 lists AEM 0x0028 and the table serves no such command
+== mem: an OP_*_C written in another form ('OP_GET_AS_PATH_C is not written',)
+  engine: OP_GET_AS_PATH_C is not written `localparam logic [15:0] OP_GET_AS_PATH_C = 16'hXXXX;`, so its opcode cannot be held to the table
+  engine: GET_AS_PATH: the table names OP_GET_AS_PATH_C and hdl/aecp/KL_aecp_engine.sv declares no such constant
+== mem: a GDI_*_C the table does not document ('GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such',)
+  decode: 0x0048: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+  engine: hdl/aecp/KL_aecp_engine.sv declares GDI_GET_MEM_LEN_C = 0x0048 and the table documents no such GET_DYNAMIC_INFO member
+  F06.14: 41 rows where the table generates 40
+  F06.14: row 0x0048 GET_MEMORY_OBJECT_LENGTH is not in the table
+== mem: a success arm redirected to another program (R608-1 q1, as recorded) ("decode: SET_CLOCK_SOURCE: the table's entries name SCLKS",)
+  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+== mem: a success arm redirected to another program, the other line ('decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS',)
+  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to GCLKS, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+== mem: a decode keyed on another opcode (R608-1 q2, as recorded) ('decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS',)
+  decode: SET_CLOCK_SOURCE: the table's entries name BADARG4, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: the table's entries name SCLKS, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: the table's entries name TIZ4NS, which the engine never dispatches AEM 0x0016 to (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: the engine dispatches AEM 0x0016 to NOTIMPL, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  decode: SET_CLOCK_SOURCE: NOTIMPL answered NOT_IMPLEMENTED, which is not in the table's status set
+  decode: GET_CLOCK_SOURCE: the table's entries name BADARG, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)
+  decode: GET_CLOCK_SOURCE: the table's entries name GCLKS, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)
+  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to BADARG4, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  decode: GET_CLOCK_SOURCE: the engine dispatches AEM 0x0017 to SCLKS, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+== mem: an entry the engine cannot dispatch to ('GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C',)
+  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)
+  engine: GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C, so the engine cannot dispatch to it
+== mem: an entry the engine never dispatches the command to ("decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN",)
+  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)
+== mem: an engine entry no command claims ('UPC_NSUPP1_C is claimed by no command',)
+  decode: SET_CONTROL: the engine dispatches AEM 0x0018 to NSUPP1, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  decode: GET_CONTROL: the engine dispatches AEM 0x0019 to NSUPP1, which is not one of the table's entries (tb/aecp_cmds/decode.json)
+  engine: UPC_NSUPP1_C is claimed by no command, notification body or shared entry of the table
+== mem: a command cdl off the engine's decode floor ("decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20",)
+  decode: GET_SAMPLING_RATE: the shortest AEM 0x0015 the engine dispatches to GSRATE is cdl 16, the table's command cdl is 20
+== mem: a decode floor moved in the engine (as recorded) ('decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016', 'is cdl 16')
+  decode: SET_CLOCK_SOURCE: the shortest AEM 0x0016 the engine dispatches to SCLKS is cdl 16, the table's command cdl is 20
+== mem: a declared floor dropped from the table ('decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024', "the table's command cdl is 16")
+  decode: REGISTER_UNSOLICITED_NOTIFICATION: the shortest AEM 0x0024 the engine dispatches to REGUN is cdl 12, the table's command cdl is 16
+== mem: a per-record command accepted between records (as recorded) ('decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24',)
+  decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl 24, which is no 20 + 8·N
+== mem: a response the bench saw at another size (as recorded) ('decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24',)
+  decode: SET_CLOCK_SOURCE: SCLKS answered SUCCESS at cdl 24, the table's response is 20
+== mem: a response the bench saw at the command's length on a fixed rule (as recorded) ("decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length",)
+  decode: GET_COUNTERS: GCTRS answered SUCCESS at the command's own length, and the table's response is no echo
+== mem: a status the bench saw outside the set (as recorded) ('decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES',)
+  decode: GET_CONFIGURATION: GCFG answered NO_RESOURCES, which is not in the table's status set
+== mem: a program that sent no frame (as recorded) ('decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame',)
+  decode: GET_CONFIGURATION: AEM 0x0007 dispatched to GCFG sent no frame
+== mem: a command answered without a program (as recorded) ('decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program',)
+  decode: ENTITY_AVAILABLE: the engine answers AEM 0x0002 without a program, the table says its response is program-built
+== mem: a command the bench saw dropped (as recorded) ('decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped',)
+  decode: ENTITY_AVAILABLE: the bench saw AEM 0x0002 dropped at cdl 12
+== mem: a served command the sweep never sent (as recorded) ('decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000',)
+  decode: GET_MILAN_INFO: tb/aecp_cmds/decode.json has no MVU 0x0000: the sweep never sent it
+== mem: an unserved opcode decoded (as recorded) ('decode: AEM 0x0003 is no table command', 'GCFG')
+  decode: AEM 0x0003 is no table command and the engine dispatches it to GCFG, not only NOTIMPL
+== mem: another message type decoded as AEM (as recorded) ('decode: AVC 0x0016 is no table command', 'SCLKS')
+  decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS, not only NOTIMPL
+== mem: an engine source changed after the sweep ('decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv', 'sweep this engine with make -C tb/aecp_cmds record')
+  decode: tb/aecp_cmds/decode.json was swept from another hdl/aecp/KL_aecp_engine.sv (sha256 4fd2385ca43e, this tree's is 13185a054f1c): sweep this engine with make -C tb/aecp_cmds record
+== mem: the bench changed after the sweep ('decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp',)
+  decode: tb/aecp_cmds/decode.json was swept from another tb/aecp_cmds/sim_main.cpp (sha256 fd38ef0ab557, this tree's is 3490f722f755): sweep this engine with make -C tb/aecp_cmds record
+== mem: the ROM changed after the sweep ('decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated)',)
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 96b293c6283f): sweep this engine with make -C tb/aecp_cmds record
+== mem: a trial that never ended (as recorded) ('decode: tb/aecp_cmds/decode.json: 1 trials never ended',)
+  decode: tb/aecp_cmds/decode.json: 1 trials never ended
+== mem: a record of another schema ("decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0'",)
+  decode: tb/aecp_cmds/decode.json declares 'aecp-decode-record/0', this gate reads 'aecp-decode-record/1'
+== mem: a record without its parts ('decode: tb/aecp_cmds/decode.json is not a decode record',)
+  decode: tb/aecp_cmds/decode.json is not a decode record: KeyError('gdi')
+== mem: a GET_DYNAMIC_INFO member the engine refuses (as recorded) ('decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member',)
+  decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+== mem: a GET_DYNAMIC_INFO flag changed in the table ('decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO',)
+  decode: GET_NAME: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+== mem: a GET_DYNAMIC_INFO record length changed (as recorded) ('decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes',)
+  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record is 132 bytes, the table's response is cdl 148 (136 bytes)
+== mem: a GET_DYNAMIC_INFO member that never runs its program (as recorded) ('decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG',)
+  decode: GET_CONFIGURATION: inside GET_DYNAMIC_INFO the engine never dispatches it to GCFG
+== mem: a GET_DYNAMIC_INFO record dispatched outside the entries (as recorded) ('decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS',)
+  decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS, which is not one of its entries
+== mem: GET_DYNAMIC_INFO's empty aggregate at another size (as recorded) ('decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16',)
+  decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 16, the table's response is SUCCESS at 12 + records
+== mem: a GET_DYNAMIC_INFO record that voids the aggregate (as recorded) ('decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12',)
+  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record
+== mem: GET_DYNAMIC_INFO's response cdl changed in the table ('decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12',)
+  decode: GET_DYNAMIC_INFO: its engine-built answer answered SUCCESS at cdl 12, the table's response is 16 + records
+  decode: GET_DYNAMIC_INFO: with no record the engine answers 0:cdl 12, the table's response is SUCCESS at 16 + records
+== mem: an unsolicited job carrying another command_type (as recorded) ('decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers',)
+  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0007 with GCFG, the table says 0x0006 with GCFG
+  decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG, which is no table command's notification
+== mem: an unsolicited job no table command claims (as recorded) ("decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG",)
+  decode: SET_CONFIGURATION: the PP_UNS_CFG_C job answers 0x0007 with GCFG, the table says 0x0006 with GCFG
+  decode: the engine's PP_UNS_CFG_C job answers 0x0007 with GCFG, which is no table command's notification
+== mem: an unsolicited body changed in the table ('decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers',)
+  decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers 0x0016 with GCLKS, the table says 0x0016 with GSRATE
+  decode: the engine's PP_UNS_CLKS_C job answers 0x0016 with GCLKS, which is no table command's notification
+== mem: an unsolicited kind the engine does not run ('decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job',)
+  decode: SET_CLOCK_SOURCE: the engine runs no PP_UNS_CLOCK_C job
+  decode: the engine's PP_UNS_CLKS_C job answers 0x0016 with GCLKS, which is no table command's notification
+  notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_CLKS_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_CLOCK_C
+== mem: an unsolicited job at another size (as recorded) ('decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24',)
+  decode: SET_CLOCK_SOURCE: its unsolicited GCLKS is cdl 24, the table's response is 20
+== mem: an unsolicited arm no command claims ("decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB",)
+  decode: the engine's PP_UNS_AVB_C job answers 0x0027 with GAVB, which is no table command's notification
+  F06.14: row 0x0027 GET_AVB_INFO, column Notif, reads 'event: async triggers' where the table gives '—'
+== mem: a hazard class changed in the top ('classifier: SET_NAME: the table says NAME_WR', '0x0010 STREAM_CFG')
+  classifier: SET_NAME: the table says NAME_WR, hdl/top/protocol_processor_top.sv hz_classify gives 0x0010 STREAM_CFG
+== mem: a hazard class changed in the table ('classifier: GET_COUNTERS: the table says MAP_CFG',)
+  classifier: GET_COUNTERS: the table says MAP_CFG, hdl/top/protocol_processor_top.sv hz_classify gives 0x0029 RO_SNAPSHOT
+  F06.14: row 0x0029 GET_COUNTERS, column Class, reads 'RO_SNAPSHOT' where the table gives 'MAP_CFG'
+== mem: a classified opcode no command carries ('hz_classify names 0x004B',)
+  decode: AEM 0x004B is no table command and the engine dispatches it to BADARG, not only NOTIMPL
+  decode: AEM 0x004B is no table command and the engine dispatches it to engine, not only NOTIMPL
+  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_DYNAMIC_INFO_C = 0x004B and the table has no command for it
+  classifier: hdl/top/protocol_processor_top.sv hz_classify names 0x004B, which no table command carries
+  F06.14: 41 rows where the table generates 40
+  F06.14: row 0x004B GET_DYNAMIC_INFO is not in the table
+  8.1: section 8.1 lists AEM 0x004B and the table serves no such command
+== mem: a hazard code changed in pp_pkg ('classifier: hazard class IDENTIFY is 8 in the table and 9',)
+  classifier: hazard class IDENTIFY is 8 in the table and 9 in hdl/common/pp_pkg.sv
+== mem: a lock flag changed in the table ('rom: SET_CONTROL: the table says lock false',)
+  scoreboard: hdl/packet_engine/KL_pp_scoreboard.sv hz_is_lockprot is ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG'], the table's lock-protected commands are ['CFG_BARRIER', 'CLOCK_CFG', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG']
+  F06.14: row 0x0018 SET_CONTROL, column Lock-prot., reads 'yes' where the table gives 'no'
+  rom: SET_CONTROL: the table says lock false, its programs do reach CHECK_LOCK
+== mem: CHECK_LOCK dropped from a program ('rom: SET_CLOCK_SOURCE: the table says lock true', 'never reach CHECK_LOCK')
+  rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is in the table's status set and no path of its programs can answer it
+  rom: SET_CLOCK_SOURCE: the table says lock true, its programs never reach CHECK_LOCK
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 83ff9f820109): sweep this engine with make -C tb/aecp_cmds record
+== mem: the scoreboard's lock-protected set changed ('scoreboard:', 'hz_is_lockprot')
+  scoreboard: hdl/packet_engine/KL_pp_scoreboard.sv hz_is_lockprot is ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'STREAM_CFG'], the table's lock-protected commands are ['CFG_BARRIER', 'CLOCK_CFG', 'IDENTIFY', 'MAP_CFG', 'NAME_WR', 'STREAM_CFG']
+== mem: a notification class changed in the table ('rom: SET_SAMPLING_RATE: its programs enqueue notification class [5]',)
+  notify: SET_SAMPLING_RATE: class 8 is PP_UNS_CLKS_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_SRATE_C
+  notify: hdl/aecp/KL_aecp_notify.sv maps class 5 to PP_UNS_SRATE_C and no table command enqueues it
+  F06.14: row 0x0014 SET_SAMPLING_RATE, column Notif, reads 'class 5: success with state change, requester excluded' where the table gives 'class 8: success with state change, requester excluded'
+  rom: SET_SAMPLING_RATE: its programs enqueue notification class [5], the table says [8]
+== mem: a NOTIFY_ENQ class changed in a program ('rom: SET_CONTROL: its programs enqueue notification class [2]',)
+  rom: SET_CONTROL: its programs enqueue notification class [2], the table says [4]
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 87510fae3bad): sweep this engine with make -C tb/aecp_cmds record
+== mem: the notify block's class map changed ('notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C',)
+  notify: SET_CLOCK_SOURCE: class 8 is PP_UNS_SRATE_C in hdl/aecp/KL_aecp_notify.sv, the table says PP_UNS_CLKS_C
+== mem: a status dropped from the table ('rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered',)
+  F06.14: row 0x0016 SET_CLOCK_SOURCE, column Status set, reads 'SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED' where the table gives 'SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED'
+  rom: SET_CLOCK_SOURCE: status ENTITY_LOCKED is answered by a path of its programs and missing from the table's status set
+== mem: a status the programs cannot answer ('rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table',)
+  F06.14: row 0x0002 ENTITY_AVAILABLE, column Status set, reads 'SUCCESS' where the table gives 'SUCCESS, NO_RESOURCES'
+  rom: ENTITY_AVAILABLE: status NO_RESOURCES is in the table's status set and no path of its programs can answer it
+== mem: a refusal status changed in a program ('rom: SET_CONFIGURATION: status NO_RESOURCES is answered',)
+  rom: SET_CONFIGURATION: status NO_RESOURCES is answered by a path of its programs and missing from the table's status set
+  rom: SET_CONFIGURATION: status STREAM_IS_RUNNING is in the table's status set and no path of its programs can answer it
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 46ab702caddb): sweep this engine with make -C tb/aecp_cmds record
+== mem: a status code changed in ucpu_pkg ('status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9',)
+  status: NO_RESOURCES is 8 in the table and ST_NO_RESOURCES_C = 9 in hdl/aecp/ucpu_pkg.sv
+== mem: a response size changed in the table ('rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20',)
+  decode: GET_CLOCK_SOURCE: GCLKS answered SUCCESS at cdl 20, the table's response is 24
+  decode: GET_CLOCK_SOURCE: TIZ4NS answered NOT_SUPPORTED at cdl 20, the table's response is 24
+  decode: GET_CLOCK_SOURCE: inside GET_DYNAMIC_INFO its GCLKS record is 8 bytes, the table's response is cdl 24 (12 bytes)
+  decode: GET_CLOCK_SOURCE: inside GET_DYNAMIC_INFO its TIZ4NS record is 8 bytes, the table's response is cdl 24 (12 bytes)
+  F06.14: row 0x0017 GET_CLOCK_SOURCE, column Resp. size, reads '32 B (cdl 20)' where the table gives '36 B (cdl 24)'
+  rom: GET_CLOCK_SOURCE: E_GCLKS answers SUCCESS at cdl 20, the table's response is 24
+  rom: GET_CLOCK_SOURCE: E_GCLKS answers NO_SUCH_DESCRIPTOR at cdl 20, the table's response is 24
+  rom: GET_CLOCK_SOURCE: E_GCLKS answers BAD_ARGUMENTS at cdl 20, the table's response is 24
+  rom: GET_CLOCK_SOURCE: E_TIZ4NS answers NOT_SUPPORTED at cdl 20, the table's response is 24
+== mem: a field dropped from a program ('rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl',)
+  rom: GET_STREAM_INFO: E_GSTRI answers SUCCESS at cdl 60, the table's response is 68
+  rom: GET_STREAM_INFO: E_GSTRI answers NO_SUCH_DESCRIPTOR at cdl 60, the table's response is 68
+  rom: GET_STREAM_INFO: its unsolicited body E_GSTRI is cdl 60, the table's response is 68
+  rom: GET_STREAM_INFO: its unsolicited body E_GSTRI is cdl 60, the table's response is 68
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 34fa014533fb): sweep this engine with make -C tb/aecp_cmds record
+== mem: GET_AUDIO_MAP's response cdl 20, F06.14 regenerated ('rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N', "the table's response is 20 + 8·N")
+  decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+  decode: GET_AUDIO_MAP: GAMAPO answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24 + 8·N, never 20 + 8·N: no path builds the variable part
+== mem: GET_AUDIO_MAP's response cdl 28, F06.14 regenerated ('rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N', "the table's response is 28 + 8·N")
+  decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+  decode: GET_AUDIO_MAP: GAMAPO answered NOT_SUPPORTED at cdl 24, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 28 + 8·N
+  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24 + 8·N, never 28 + 8·N: no path builds the variable part
+== mem: a header field NOPed in E_GAMAP ('rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22',)
+  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 22 + 8·N, the table's response is 24 + 8·N
+  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 22 + 8·N, never 24 + 8·N: no path builds the variable part
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 1819347eef1d): sweep this engine with make -C tb/aecp_cmds record
+== mem: a header field NOPed in E_GAVB ('rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28',)
+  rom: GET_AVB_INFO: E_GAVB answers SUCCESS at cdl 28 + 4·N, the table's response is 32 + 4·N
+  rom: GET_AVB_INFO: E_GAVB answers NO_SUCH_DESCRIPTOR at cdl 28 + 4·N, the table's response is 32 + 4·N
+  rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 28 + 4·N, never 32 + 4·N: no path builds the variable part
+  rom: GET_AVB_INFO: its unsolicited body E_GAVB is cdl 28 + 4·N, the table's response is 32 + 4·N
+  rom: GET_AVB_INFO: its unsolicited body E_GAVB is cdl 28 + 4·N, the table's response is 32 + 4·N
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is ea8f181f8126): sweep this engine with make -C tb/aecp_cmds record
+== mem: a header field NOPed in E_GASP ('rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14',)
+  rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 14 + 8·N, the table's response is 16 + 8·N
+  rom: GET_AS_PATH: E_GASP answers NO_SUCH_DESCRIPTOR at cdl 14 + 8·N, the table's response is 16 + 8·N
+  rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 14 + 8·N, never 16 + 8·N: no path builds the variable part
+  rom: GET_AS_PATH: its unsolicited body E_GASP is cdl 14 + 8·N, the table's response is 16 + 8·N
+  rom: GET_AS_PATH: its unsolicited body E_GASP is cdl 14 + 8·N, the table's response is 16 + 8·N
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is fc404ab4559f): sweep this engine with make -C tb/aecp_cmds record
+== mem: a header field NOPed in E_RDESC ('rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy',)
+  rom: READ_DESCRIPTOR: E_RDESC answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  rom: READ_DESCRIPTOR: E_RDESCENT answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  rom: READ_DESCRIPTOR: E_RDESCAU answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  rom: READ_DESCRIPTOR: E_RDESCCD answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  rom: READ_DESCRIPTOR: E_RDESCSI answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  rom: READ_DESCRIPTOR: E_RDESCSO answers SUCCESS at cdl 14 + a copy (its copy starting at 14), the table's response is 16 + descriptor
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 7209ab40f0f4): sweep this engine with make -C tb/aecp_cmds record
+== mem: the record APPEND NOPed in E_GAMAP ('rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24', 'no path builds the variable part')
+  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24, never 24 + 8·N: no path builds the variable part
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is db8fce4bc059): sweep this engine with make -C tb/aecp_cmds record
+== mem: the record APPEND NOPed in E_GAVB ('rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32',)
+  rom: GET_AVB_INFO: its programs answer SUCCESS only at cdl 32, never 32 + 4·N: no path builds the variable part
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is cda3489e8191): sweep this engine with make -C tb/aecp_cmds record
+== mem: the record APPEND NOPed in E_GASP ('rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16',)
+  rom: GET_AS_PATH: its programs answer SUCCESS only at cdl 16, never 16 + 8·N: no path builds the variable part
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is d536fbe31586): sweep this engine with make -C tb/aecp_cmds record
+== mem: a per-record response read as a fixed one ("rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8·N, the table's response is 16",)
+  rom: GET_AS_PATH: E_GASP answers SUCCESS at cdl 16 + 8·N, the table's response is 16
+  rom: GET_AS_PATH: E_GASP answers NO_SUCH_DESCRIPTOR at cdl 16 + 8·N, the table's response is 16
+  rom: GET_AS_PATH: its unsolicited body E_GASP is cdl 16 + 8·N, the table's response is 16
+  rom: GET_AS_PATH: its unsolicited body E_GASP is cdl 16 + 8·N, the table's response is 16
+== mem: an echo row's response off its command size ("schema: ACQUIRE_ENTITY: an echo response is the command's own size",)
+  schema: ACQUIRE_ENTITY: an echo response is the command's own size: response cdl 32, command cdl 28
+== mem: an echo row's command off its response size ("schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size",)
+  schema: ADD_AUDIO_MAPPINGS: an echo response is the command's own size: response cdl 20 + 8·N, command cdl 24 + 8·N
+== mem: an unsolicited body of another size ('unsolicited body E_STRMUNS is cdl 12',)
+  rom: START_STREAMING: its unsolicited body E_STRMUNS is cdl 12, the table's response is 16
+  rom: STOP_STREAMING: its unsolicited body E_STRMUNS is cdl 12, the table's response is 16
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 3b49af4e8993): sweep this engine with make -C tb/aecp_cmds record
+== mem: a path into the ROM fill ('rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word',)
+  rom: ENTITY_AVAILABLE: a path from E_EAVL runs into ROM word 2047, which no program placed (the fill)
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 12600a91b10d): sweep this engine with make -C tb/aecp_cmds record
+== mem: section 8.1 missing a served command ('8.1: ENTITY_AVAILABLE (AEM 0x0002) is served',)
+  8.1: ENTITY_AVAILABLE (AEM 0x0002) is served and section 8.1 does not list it
+== mem: a row missing from F06.14 ('F06.14: row 0x0029 GET_COUNTERS is missing',)
+  F06.14: 40 rows where the table generates 41
+  F06.14: row 0x0029 GET_COUNTERS is missing (run --write)
+== mem: two commands on one opcode ("schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's",)
+  schema: STOP_STREAMING: opcode 0x0022 is also START_STREAMING's
+== mem: a status the table does not define ('schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes',)
+  schema: GET_NAME: status ENTITY_ACQUIRED is not in status_codes
+== mem: a status code off IEEE Table 7-141 (no RTL constant holds it) ('schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12',)
+  schema: status STREAM_IS_RUNNING is 13 in the table, IEEE 1722.1-2021 Table 7-141 gives 12
+== mem: a status code that is not an integer ('schema: status NO_RESOURCES: code must be an integer',)
+  schema: status NO_RESOURCES: code must be an integer
+== mem: a common status the table does not define ('schema: common_status AEM: status BUSY is not in status_codes',)
+  schema: common_status AEM: status BUSY is not in status_codes
+== mem: an unserved program that is no shared entry ("schema: unserved 'NOTIMPL2' is no shared entry",)
+  schema: unserved 'NOTIMPL2' is no shared entry
+== mem: a table of another schema ("schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2'",)
+  schema: hdl/aecp/ucode/aecp_commands.json declares 'aecp-command-table/2', this gate reads 'aecp-command-table/1'
+== mem: an empty part of the table ('schema: status_codes, hazard_classes or commands is empty',)
+  schema: status_codes, hazard_classes or commands is empty
+== mem: a command without a field ('schema: GET_NAME: missing hazard',)
+  schema: GET_NAME: missing hazard
+== mem: a command listed twice ('schema: GET_NAME is listed twice',)
+  schema: GET_NAME is listed twice
+  schema: GET_NAME: opcode 0x0011 is also GET_NAME's
+== mem: a message type that is neither AEM nor MVU ("schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU",)
+  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AAU' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+== mem: the MVU row the generator reads, gone ('schema: GET_MILAN_INFO: no command with message MVU',)
+  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AAU' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+== mem: a message type without its common statuses ("schema: GET_MILAN_INFO: message 'MVU' has no common_status row",)
+  schema: GET_MILAN_INFO: message 'MVU' has no common_status row
+== mem: an opcode not written 0xHHHH ("schema: GET_NAME: opcode '0x11' is not 0xHHHH",)
+  schema: GET_NAME: opcode '0x11' is not 0xHHHH
+== mem: a hazard class the table does not define ('schema: GET_NAME: hazard NAME_RD is not in hazard_classes',)
+  schema: GET_NAME: hazard NAME_RD is not in hazard_classes
+== mem: a flag that is not true or false ('schema: GET_NAME: lock, gdi and oversize must be true or false',)
+  schema: GET_NAME: lock, gdi and oversize must be true or false
+== mem: a size without an integer cdl ('schema: GET_NAME: response has no integer cdl',)
+  schema: GET_NAME: response has no integer cdl
+== mem: a per-record size without its unit ('schema: GET_AS_PATH: response per must be an integer with its unit',)
+  schema: GET_AS_PATH: response per must be an integer with its unit
+== mem: a floor at or above the command cdl ('schema: ACQUIRE_ENTITY: command floor must be',)
+  schema: ACQUIRE_ENTITY: command floor must be a command's integer from 12 below its cdl
+== mem: an entry listed twice ('schema: GET_NAME: entries must be a non-empty list of names without repeats',)
+  schema: GET_NAME: entries must be a non-empty list of names without repeats
+== mem: a notification without its body ('schema: SET_NAME: notify must be null or carry class, kind and body',)
+  schema: SET_NAME: notify must be null or carry class, kind and body
+== mem: an unserved F06.14 row short of a cell ("schema: documented row '0x0003': needs",)
+  schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells
+== mem: an unserved F06.14 row without its name (R609-1 S2) ("schema: documented row '0x0003': needs",)
+  schema: documented row '0x0003': needs an opcode, a name, a section of ('aem', 'mvu', 'gdi', 'tail') and 10 cells
+== mem: a constant the engine does not declare ('engine: GET_NAME: the table names OP_GET_NAMES_C', 'declares no such constant')
+  engine: GET_NAME: the table names OP_GET_NAMES_C and hdl/aecp/KL_aecp_engine.sv declares no such constant
+  engine: hdl/aecp/KL_aecp_engine.sv decodes OP_GET_NAME_C = 0x0011 and the table has no command for it
+== mem: a GDI_*_C renumbered in the table ('engine: GET_VIDEO_FORMAT: the table says 0x000C', 'GDI_GET_VIDEO_FMT_C = 0x000B')
+  decode: GET_VIDEO_FORMAT: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+  decode: 0x000B: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+  engine: GET_VIDEO_FORMAT: the table says 0x000C, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B
+  F06.14: row 0x000C GET_VIDEO_FORMAT is missing (run --write)
+  F06.14: row 0x000B GET_VIDEO_FORMAT is not in the table
+== mem: a GDI_*_C the engine does not declare ('engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C',)
+  engine: hdl/aecp/KL_aecp_engine.sv declares GDI_GET_VIDEO_FMT_C = 0x000B and the table documents no such GET_DYNAMIC_INFO member
+  engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C and hdl/aecp/KL_aecp_engine.sv declares no such constant
+== mem: a hazard code pp_pkg adds ('classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not',)
+  classifier: hdl/common/pp_pkg.sv declares PP_HZ_SPARE and the table does not
+== mem: a non-AEM command off the classifier's default ("classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default",)
+  classifier: GET_MILAN_INFO: a non-AEM command takes the classifier's default RO_SNAPSHOT, not MAP_CFG
+  F06.14: row MVU 0x0000 GET_MILAN_INFO, column Class, reads 'RO_SNAPSHOT' where the table gives 'MAP_CFG'
+== mem: a class the notify block maps and does not queue ('notify:', 'class 9 (START_STREAMING) is in one only')
+  notify: hdl/aecp/KL_aecp_notify.sv queues classes [1, 2, 3, 4, 5, 7, 8] and maps [1, 2, 3, 4, 5, 7, 8, 9]: class 9 (START_STREAMING) is in one only
+  notify: hdl/aecp/KL_aecp_notify.sv queues classes [1, 2, 3, 4, 5, 7, 8] and maps [1, 2, 3, 4, 5, 7, 8, 9]: class 9 (STOP_STREAMING) is in one only
+== mem: a class off the notify block's map whose kind another class carries ('notify: SET_NAME: class 6 is not in', "its kind PP_UNS_NAME_C is another class's")
+  notify: SET_NAME: class 6 is not in hdl/aecp/KL_aecp_notify.sv's map, yet its kind PP_UNS_NAME_C is another class's
+  notify: hdl/aecp/KL_aecp_notify.sv maps class 7 to PP_UNS_NAME_C and no table command enqueues it
+  F06.14: row 0x0010 SET_NAME, column Notif, reads 'class 7: naming trigger' where the table gives 'class 6: naming trigger'
+  rom: SET_NAME: its programs enqueue notification class [7], the table says [6]
+== mem: a class the notify block maps and no command enqueues ('notify:', 'maps class 10 to PP_UNS_STRM_C and no table command enqueues it')
+  notify: hdl/aecp/KL_aecp_notify.sv maps class 10 to PP_UNS_STRM_C and no table command enqueues it
+== mem: a ucpu_pkg status the table does not name ('status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it',)
+  status: hdl/aecp/ucpu_pkg.sv declares ST_NO_RESOURCES_C and the table has no status for it
+== mem: an engine-built status on a program-built response ('rom: GET_NAME: engine_status is only for an engine-built response',)
+  rom: GET_NAME: engine_status is only for an engine-built response
+== mem: an entry the generator never placed ('rom: ENTITY_AVAILABLE: entry EAVL is no placed program',)
+  rom: ENTITY_AVAILABLE: entry EAVL is no placed program in hdl/aecp/ucode/gen_ucode.py
+  rom: ENTITY_AVAILABLE: status SUCCESS is in the table's status set and no path of its programs can answer it
+== mem: a status code the table does not know set in a program ('rom: SET_CONFIGURATION: a path sets status 13, which the table does not know',)
+  rom: SET_CONFIGURATION: a path sets status 13, which the table does not know
+  rom: SET_CONFIGURATION: status STREAM_IS_RUNNING is in the table's status set and no path of its programs can answer it
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is c4ae0d50e58f): sweep this engine with make -C tb/aecp_cmds record
+== mem: a notification body the generator never placed ('rom: START_STREAMING: notification body STRMUNS is no placed program',)
+  rom: START_STREAMING: notification body STRMUNS is no placed program
+  rom: STOP_STREAMING: notification body STRMUNS is no placed program
+== mem: F06.14's header changed ('F06.14: the header is not',)
+  F06.14: the header is not | Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |
+== mem: a row repeated in F06.14 ('F06.14: 42 rows where the table generates 41',)
+  F06.14: 42 rows where the table generates 41
+== mem: a row in F06.14 the table does not generate ('F06.14: row 0x0029 GET_COUNTER is not in the table',)
+  F06.14: row 0x0029 GET_COUNTERS is missing (run --write)
+  F06.14: row 0x0029 GET_COUNTER is not in the table
+== mem: an F06.14 row with an extra cell ('F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12',)
+  F06.14: row 0x0029 GET_COUNTERS has 13 cells, not 12
+== mem: F06.14 rows out of order ('F06.14: the rows are out of the generated order',)
+  F06.14: the rows are out of the generated order (run --write)
+== mem: section 8.1 listing a command the engine does not serve ('8.1: section 8.1 lists AEM 0x0003 and the table serves no such command',)
+  8.1: section 8.1 lists AEM 0x0003 and the table serves no such command
+== mem: a parsed block renamed (a stale pattern) ('gate refused', 'hz_classify', 'the pattern has gone stale')
+  (gate refused: hdl/top/protocol_processor_top.sv hz_classify: 'always_comb\s+begin\s*:\s*hz_classify\b' not found - the pattern has gone stale)
+== mem: a parsed block with no end ('gate refused', 'hdl/aecp/KL_aecp_notify.sv emit_pick: no ')
+  (gate refused: hdl/aecp/KL_aecp_notify.sv emit_pick: no '\bendcase\b' after 'unique\s+case\s*\(\s*cmdq_class_r\s*\[[^\]]*\]\s*\)')
+== mem: the engine's entries written in another form ('gate refused', 'hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing')
+  (gate refused: hdl/aecp/KL_aecp_engine.sv: a pattern parsed nothing)
+== mem: hz_classify's opcode case written in another form ('gate refused', "hz_classify's default or its opcode case is not parseable")
+  (gate refused: hdl/top/protocol_processor_top.sv: hz_classify's default or its opcode case is not parseable)
+== mem: hz_classify's opcode labels written in another form ('gate refused', "hz_classify's opcode case parsed nothing")
+  (gate refused: hdl/top/protocol_processor_top.sv: hz_classify's opcode case parsed nothing)
+== mem: pp_pkg's hazard codes written in another form ('gate refused', 'no PP_HZ_* enum parsed')
+  (gate refused: hdl/common/pp_pkg.sv: no PP_HZ_* enum parsed)
+== mem: hz_is_lockprot naming a class without its alias ('gate refused', 'hz_is_lockprot is not parseable')
+  (gate refused: hdl/packet_engine/KL_pp_scoreboard.sv: hz_is_lockprot is not parseable)
+== mem: the notify block's queued classes written in another form ('gate refused', 'the command-class map is not parseable')
+  (gate refused: hdl/aecp/KL_aecp_notify.sv: the command-class map is not parseable)
+== mem: ucpu_pkg's status codes written in another form ('gate refused', 'no ST_*_C parsed')
+  (gate refused: hdl/aecp/ucpu_pkg.sv: no ST_*_C parsed)
+== mem: F06.14's end marker gone ('gate refused', 'the F06.14 markers are missing')
+  (gate refused: docs/architecture/06_aecp_engine.md: the F06.14 markers are missing; restore them, then run --write)
+== mem: section 8.1's heading renamed ('gate refused', "section 8.1's table is not parseable")
+  (gate refused: docs/architecture/06_aecp_engine.md: section 8.1's table is not parseable)
+== file: a table that is not JSON ('gate refused', 'hdl/aecp/ucode/aecp_commands.json is not JSON')
+  (gate refused: hdl/aecp/ucode/aecp_commands.json is not JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1))
+== file: a decode record that is not JSON ('gate refused', 'tb/aecp_cmds/decode.json is not JSON')
+  (gate refused: tb/aecp_cmds/decode.json is not JSON: Expecting value: line 1 column 2 (char 1))
+== file: an input that cannot be read ('gate refused', 'cannot read an input')
+  (gate refused: cannot read an input: [Errno 2] No such file or directory: '/tmp/aecp-commands-selftest-XXXXXXXX/docs/architecture/06_aecp_engine.md')
+== file: a decode record that cannot be read ('gate refused', 'cannot read an input')
+  (gate refused: cannot read an input: [Errno 2] No such file or directory: '/tmp/aecp-commands-selftest-XXXXXXXX/tb/aecp_cmds/decode.json')
+== file: a swept input that cannot be read ('gate refused', 'cannot read an input')
+  (gate refused: cannot read an input: [Errno 2] No such file or directory: '/tmp/aecp-commands-selftest-XXXXXXXX/tb/aecp_cmds/sim_main.cpp')
+== file: a generator that does not run ('gate refused', 'hdl/aecp/ucode/gen_ucode.py did not generate')
+  (gate refused: hdl/aecp/ucode/gen_ucode.py did not generate: RuntimeError('planted'))
+== file: a generator of another shape ('gate refused', 'hdl/aecp/ucode/gen_ucode.py defines no occupied')
+  (gate refused: hdl/aecp/ucode/gen_ucode.py defines no occupied: the generator's shape has changed under this gate)
+== file: a message type the generator cannot read, in the file (R608-1 p5e) ("schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU",)
+  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AAU' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+== file: a message type the generator cannot read, in the file (R608-1 p5) ('schema: GET_MILAN_INFO: no command with message MVU',)
+  schema: GET_MILAN_INFO: message 'AA' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AA' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+== file: an entry the generator never placed, in the file (R608-1 p8) ("decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2",)
+  decode: GET_CLOCK_SOURCE: the table's entries name SCFGRUN2, which the engine never dispatches AEM 0x0017 to (tb/aecp_cmds/decode.json)
+  engine: GET_CLOCK_SOURCE: entry SCFGRUN2 has no UPC_SCFGRUN2_C, so the engine cannot dispatch to it
+== file: a status code row the generator reads, gone from the file ('schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes',)
+  schema: SET_CONFIGURATION: status STREAM_IS_RUNNING is not in status_codes
+  schema: SET_STREAM_FORMAT: status STREAM_IS_RUNNING is not in status_codes
+  schema: SET_STREAM_INFO: status STREAM_IS_RUNNING is not in status_codes
+== file: a status code the generator reads, not an integer in the file ('schema: status NO_RESOURCES: code must be an integer',)
+  schema: status NO_RESOURCES: code must be an integer
+== file: a status code changed in the file only ('schema: status NO_RESOURCES is 9 in the table',)
+  schema: status NO_RESOURCES is 9 in the table, IEEE 1722.1-2021 Table 7-141 gives 8
+== file: the MVU row the generator reads, renamed in the file ('schema: GET_MILAN_INFO: no command with message MVU',)
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+== gen: the generator: an entry it never placed ('GET_CLOCK_SOURCE: entries names SCFGRUN2', 'placed no E_SCFGRUN2')
+  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_CLOCK_SOURCE: entries names SCFGRUN2, and gen_ucode.py placed no E_SCFGRUN2 program)
+== gen: the generator: a status code row it reads, gone ('status_codes gives no integer code for STREAM_IS_RUNNING',)
+  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for STREAM_IS_RUNNING, which gen_ucode.py's programs set)
+== gen: the generator: a status code it reads, not an integer ('status_codes gives no integer code for BAD_ARGUMENTS',)
+  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: status_codes gives no integer code for BAD_ARGUMENTS, which gen_ucode.py's programs set)
+== gen: the generator: the MVU row it reads, gone ('GET_MILAN_INFO: no command with message MVU',)
+  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)
+== gen: the generator: the MVU opcode it reads, not hexadecimal ('GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode',)
+  (hdl/aecp/ucode/gen_ucode.py did not generate: aecp_commands.json: GET_MILAN_INFO: no command with message MVU and an 0xHHHH opcode, which gen_ucode.py reads as its command_type)
+== observed
+rc 0
+aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL
+== canonical
+{
+  "schema": "aecp-decode-record/1",
+  "about": [
+    "SPDX-License-Identifier: CERN-OHL-W-2.0",
+    "What KL_aecp_engine decodes and dispatches, observed by tb/aecp_cmds (issue #73). Regenerate with: make -C tb/aecp_cmds record. The suite holds a fresh sweep to this file; scripts/check_aecp_commands.py (make check) holds aecp_commands.json to it.",
+    "decode: per message bucket, groups of opcodes the engine treats alike; per program (the E_<name> the uCPU was handed): floor = the shortest cdl it was dispatched at, cdls = every swept cdl it was dispatched at, answers = status code -> the response cdls seen ('echo' = always the command's own cdl). 'engine' = answered without a program.",
+    "gdi: GET_DYNAMIC_INFO with one record of each command_type: members -> the program each record ran and the aggregate's status:record length (copied = a record answered by copying its data); refused -> the program that refused the whole command; empty -> the aggregate with no record.",
+    "unsolicited: per job kind, the program and the response's command_type:cdl."
+  ],
+  "sweep": {
+    "trials": 585760,
+    "timeouts": 0,
+    "opcodes": "0x0000-0x007F on every bucket; MVU: command_type 0x0000-0x007F",
+    "cdl": "12-100 with descriptor_type @24; 16, 24, 96 running; the other templates at their own lengths (tb/aecp_cmds/sim_main.cpp); every program replayed down to 12",
+    "descriptor_types": "0x0000-0x0028, 0xFFFF",
+    "build": "EN_IDENTIFY_NOTIF_P = 1 (the IDENTIFY_NOTIFICATION job has its program)",
+    "inputs": {
+      "hdl/common/pp_pkg.sv": "6cd0a143e3a33ba9995c536d8f82ed9b3a33fc6ca15d024f405a4c94ed110f86",
+      "hdl/aecp/ucpu_pkg.sv": "030d9dd714eddd4ff1f49e6480f752b4563025e951a966bfb7a4c3b95e956f9c",
+      "hdl/aecp/KL_aecp_ucpu.sv": "568201acb0c7efe9691981c83e9b9b52ba698801aee95f8d762c80dcb0159596",
+      "hdl/aecp/KL_aecp_desc_store.sv": "5addf2254aa6ba85b40ddcc18048a3a3655c42ca3a72fae45f383e660112ca1f",
+      "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+      "hdl/aecp/KL_aecp_nvm_writer.sv": "7c21ee4a9ff137d355a45fecdc596e79b8ed577566d642f2f5c664f739e10a7e",
+      "hdl/aecp/KL_aecp_resp_buf.sv": "45dbe0d0b1d2f0bc9f640ff73939de9f4f55ec5568e4d71ec07725254b91c4ea",
+      "hdl/aecp/KL_aecp_engine.sv": "4fd2385ca43edbbb355e0f8c80d1869af7e2017a19e78225709dd97554e4662d",
+      "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+      "tb/aecp_cmds/sim_main.cpp": "fd38ef0ab5576b1c9bccb28aa21526c2df97dd078477a18b0ab17eb367f3e54d",
+      "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+      "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
+      "ucode.hex (generated)": "518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8"
+    }
+  },
+  "decode": {
+    "ADDRESS_ACCESS": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "AEM": [
+      {"opcodes": "0x0000", "programs": {
+        "NSUPPE": {"floor": 12, "cdls": "12-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0001", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-27", "answers": {"7": "echo"}},
+        "LOCKEN": {"floor": 28, "cdls": "28-100", "answers": {"0": "28"}},
+        "NSUPPE": {"floor": 28, "cdls": "28", "answers": {"11": "28"}}
+      }},
+      {"opcodes": "0x0002", "programs": {
+        "EAVL": {"floor": 12, "cdls": "12-100", "answers": {"0": "32"}}
+      }},
+      {"opcodes": "0x0003, 0x0005, 0x000A-0x000D, 0x0012-0x0013, 0x001A-0x0021, 0x002A, 0x002E-0x004A, 0x004C-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12-100", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x0004", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+        "RDESC": {"floor": 20, "cdls": "20, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
+        "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+        "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
+        "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},
+        "RDESCSI": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}},
+        "RDESCSO": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}}
+      }},
+      {"opcodes": "0x0006", "programs": {
+        "SCFG": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}},
+        "SCFGBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "SCFGRUN": {"floor": 16, "cdls": "16, 24, 96", "answers": {"12": "16"}}
+      }},
+      {"opcodes": "0x0007", "programs": {
+        "GCFG": {"floor": 12, "cdls": "12-100", "answers": {"0": "16"}}
+      }},
+      {"opcodes": "0x0008", "programs": {
+        "SFBAD": {"floor": 12, "cdls": "12-23", "answers": {"7": "24"}},
+        "SFMTI": {"floor": 24, "cdls": "24-100", "answers": {"7": "24"}},
+        "SFMTO": {"floor": 24, "cdls": "24-100", "answers": {"7": "24"}},
+        "SFRUN": {"floor": 24, "cdls": "24, 96", "answers": {"12": "24"}},
+        "TIZ8NS": {"floor": 24, "cdls": "24-100", "answers": {"11": "24"}}
+      }},
+      {"opcodes": "0x0009", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSFMT": {"floor": 16, "cdls": "16-100", "answers": {"0": "24"}},
+        "TIZ8NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "24"}}
+      }},
+      {"opcodes": "0x000E", "programs": {
+        "BADARG": {"floor": 96, "cdls": "96", "answers": {"7": "96"}},
+        "NSUPPE": {"floor": 96, "cdls": "96-100", "answers": {"11": "echo"}},
+        "SIBAD": {"floor": 12, "cdls": "12-95", "answers": {"7": "96"}},
+        "SINFO": {"floor": 96, "cdls": "96", "answers": {"0": "96"}},
+        "SIRUN": {"floor": 96, "cdls": "96", "answers": {"12": "96"}}
+      }},
+      {"opcodes": "0x000F", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSTRI": {"floor": 16, "cdls": "16-100", "answers": {"0": "68"}},
+        "NSUPPE": {"floor": 16, "cdls": "16-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0010", "programs": {
+        "NAMEBAD": {"floor": 12, "cdls": "12-83, 85-100", "answers": {"7": "84"}},
+        "SNAME": {"floor": 84, "cdls": "84", "answers": {"0": "84", "2": "84", "7": "84"}}
+      }},
+      {"opcodes": "0x0011", "programs": {
+        "GNAME": {"floor": 20, "cdls": "20-100", "answers": {"0": "84", "2": "84", "7": "84"}},
+        "NAMEBAD": {"floor": 12, "cdls": "12-19", "answers": {"7": "84"}}
+      }},
+      {"opcodes": "0x0014", "programs": {
+        "BADARG4": {"floor": 12, "cdls": "12-19", "answers": {"7": "20"}},
+        "SSRATE": {"floor": 20, "cdls": "20-100", "answers": {"7": "20"}},
+        "TIZ4NS": {"floor": 20, "cdls": "20-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0015", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GSRATE": {"floor": 16, "cdls": "16-100", "answers": {"0": "20"}},
+        "TIZ4NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0016", "programs": {
+        "BADARG4": {"floor": 12, "cdls": "12-19", "answers": {"7": "20"}},
+        "SCLKS": {"floor": 20, "cdls": "20-100", "answers": {"0": "20", "7": "20"}},
+        "TIZ4NS": {"floor": 20, "cdls": "20-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0017", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GCLKS": {"floor": 16, "cdls": "16-100", "answers": {"0": "20"}},
+        "TIZ4NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "20"}}
+      }},
+      {"opcodes": "0x0018", "programs": {
+        "BADARG1": {"floor": 12, "cdls": "12-16", "answers": {"7": "17"}},
+        "NSUPP1": {"floor": 17, "cdls": "17-100", "answers": {"11": "17"}},
+        "SCTRL": {"floor": 17, "cdls": "17-100", "answers": {"0": "17", "7": "17"}}
+      }},
+      {"opcodes": "0x0019", "programs": {
+        "BADARG1": {"floor": 12, "cdls": "12-15", "answers": {"7": "17"}},
+        "GCTRL": {"floor": 16, "cdls": "16-100", "answers": {"0": "17"}},
+        "NSUPP1": {"floor": 16, "cdls": "16-100", "answers": {"11": "17"}}
+      }},
+      {"opcodes": "0x0022", "programs": {
+        "STRMBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "STRMNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "16"}},
+        "STRT": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}}
+      }},
+      {"opcodes": "0x0023", "programs": {
+        "STOP": {"floor": 16, "cdls": "16-100", "answers": {"0": "16"}},
+        "STRMBAD": {"floor": 12, "cdls": "12-15", "answers": {"7": "16"}},
+        "STRMNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "16"}}
+      }},
+      {"opcodes": "0x0024", "programs": {
+        "REGUN": {"floor": 12, "cdls": "12-100", "answers": {"0": "echo"}}
+      }},
+      {"opcodes": "0x0025", "programs": {
+        "DEREG": {"floor": 12, "cdls": "12-100", "answers": {"0": "echo"}}
+      }},
+      {"opcodes": "0x0026", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "echo"}}
+      }},
+      {"opcodes": "0x0027", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GAVB": {"floor": 16, "cdls": "16-100", "answers": {"0": "32"}},
+        "NSUPPE": {"floor": 16, "cdls": "16-100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x0028", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GASP": {"floor": 16, "cdls": "16-100", "answers": {"0": "16", "2": "16"}}
+      }},
+      {"opcodes": "0x0029", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+        "GCTRS": {"floor": 16, "cdls": "16-100", "answers": {"0": "148"}},
+        "GCTRSNS": {"floor": 16, "cdls": "16-100", "answers": {"11": "148"}}
+      }},
+      {"opcodes": "0x002B", "programs": {
+        "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+        "GAMAP": {"floor": 20, "cdls": "20-100", "answers": {"11": "24"}},
+        "GAMAPO": {"floor": 20, "cdls": "20-100", "answers": {"11": "24"}},
+        "NOTIMPL": {"floor": 20, "cdls": "20-100", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x002C", "programs": {
+        "AMADD": {"floor": 20, "cdls": "20, 28, 36", "answers": {"11": "echo"}},
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100"}},
+        "NSUPPE": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x002D", "programs": {
+        "AMREMOVE": {"floor": 20, "cdls": "20, 28, 36", "answers": {"11": "echo"}},
+        "BADARG": {"floor": 12, "cdls": "12-100", "answers": {"7": "20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100"}},
+        "NSUPPE": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"11": "echo"}}
+      }},
+      {"opcodes": "0x004B", "programs": {
+        "BADARG": {"floor": 13, "cdls": "13-100", "answers": {"7": "echo"}},
+        "engine": {"floor": 12, "cdls": "12", "answers": {"0": "12"}}
+      }}
+    ],
+    "AVC": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "EXTENDED": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 24, "cdls": "24, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "MVU": [
+      {"opcodes": "0x0000", "programs": {
+        "MVUINFO": {"floor": 20, "cdls": "20, 24, 32, 100", "answers": {"0": "32"}},
+        "NOTIMPL": {"floor": 12, "cdls": "12-19", "answers": {"1": "echo"}}
+      }},
+      {"opcodes": "0x0001-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12, 19-20, 24, 32, 100", "answers": {"1": "echo"}}
+      }}
+    ],
+    "MVU/wrong-protocol-id": [
+      {"opcodes": "0x0000-0x007F", "programs": {
+        "NOTIMPL": {"floor": 12, "cdls": "12, 19-20, 24, 32, 100", "answers": {"1": "echo"}}
+      }}
+    ]
+  },
+  "gdi": {
+    "members": {
+      "0x0007": {"GCFG": "0:4", "copied": "0:4"},
+      "0x0009": {"GSFMT": "0:12", "TIZ8NS": "0:12", "copied": "0:0, 0:2, 0:4"},
+      "0x000B": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x000D": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x000F": {"GSTRI": "0:56", "copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0011": {"GNAME": "0:72", "copied": "0:0, 0:2, 0:4"},
+      "0x0013": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0015": {"GSRATE": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"},
+      "0x0017": {"GCLKS": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"},
+      "0x001D": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x0029": {"GCTRS": "0:136", "GCTRSNS": "0:136", "copied": "0:0, 0:2, 0:4"},
+      "0x0048": {"copied": "0:0, 0:2, 0:4, 0:8"},
+      "0x004A": {"copied": "0:0, 0:2, 0:4, 0:8"}
+    },
+    "refused": {
+      "BADARG": "0x0000-0x0006, 0x0008, 0x000A, 0x000C, 0x000E, 0x0010, 0x0012, 0x0014, 0x0016, 0x0018-0x001C, 0x001E-0x0028, 0x002A-0x0047, 0x0049, 0x004B-0x007F"
+    },
+    "empty": {
+      "engine": "0:cdl 12"
+    }
+  },
+  "unsolicited": {
+    "PP_UNS_DEREG_C": {"UNSOK": ["0x0025:12"]},
+    "PP_UNS_LOCK_C": {"LOCKUNS": ["0x0001:28"]},
+    "PP_UNS_STRI_C": {"GSTRI": ["0x000F:68"]},
+    "PP_UNS_AVB_C": {"GAVB": ["0x0027:32"]},
+    "PP_UNS_ASP_C": {"GASP": ["0x0028:16"]},
+    "PP_UNS_AMAP_C": {"UNSOK": ["0x002C:20", "0x002D:20"]},
+    "PP_UNS_CTRS_C": {"GCTRS": ["0x0029:148"]},
+    "PP_UNS_SRATE_C": {"GSRATE": ["0x0014:20"]},
+    "PP_UNS_NAME_C": {"GNAME": ["0x0010:84"]},
+    "PP_UNS_CFG_C": {"GCFG": ["0x0006:16"]},
+    "PP_UNS_SFMT_C": {"GSFMT": ["0x0008:24"]},
+    "PP_UNS_SINFO_C": {"SINFOUNS": ["0x000E:96"]},
+    "PP_UNS_CTRL_C": {"GCTRL": ["0x0018:17"]},
+    "PP_UNS_CLKS_C": {"GCLKS": ["0x0016:20"]},
+    "PP_UNS_STRM_C": {"STRMUNS": ["0x0022:16", "0x0023:16"]},
+    "PP_UNS_IDENT_C": {"IDNOTIF": ["0x0026:16"]}
+  }
+}
+== write
+rc 0
+aecp commands: rewrote F06.14 in docs/architecture/06_aecp_engine.md
+<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+# 06 — AECP Engine (AEM + Milan Vendor Unique)
+
+## 1. Role and scope
+
+Executes supported AEM and MVU commands and refuses unimplemented types per F06.14.
+Owns the controller registry + unsolicited
+notification machinery, the lock manager, the GET_COUNTERS read path (the counters
+themselves are the integrator's, §6.6) and the identify handler. This is the
+microcoded part of the processor: ~24 mandatory commands with per-command validation
+chains and variable-size responses justify a µsequencer over per-command FSMs
+([review §4](../00_MILAN_COMPLIANCE_REVIEW.md)).
+
+## 2. External contract
+
+Consumes: AECP queue (AEM_COMMAND, VENDOR_UNIQUE_COMMAND); timer expiries on the
+shared expiry bus (`T-NOTIF-MONITOR`, `T-LOCK-UNLOCK`, `T-NOTIF-TIMELIMITED`, and
+`T-IDENT-*` with `P-EN-IDENTIFY-NOTIFICATION`); `identify_button_i` with the same
+parameter; events routed for notification triggers; snapshot reads of ACMP sink
+records ([05 §5](05_acmp_engine.md)) and the class-D dictionary
+([F02.10](02_interfaces.md#fig-02-statusdict)). There are no MGMT-origin transactions in
+this build ([03 §5](03_packet_engine.md#5-origins-originator-and-event-router)).
+Produces: solicited responses; unsolicited responses (IDENTIFY_NOTIFICATION among them)
+as engine-internal SELF jobs, and CONTROLLER_AVAILABLE through the originator;
+entity-model overlay writes + NVM completion marks; the applied settings as levels
+for the integrator (stream formats, presentation offsets, the clock source; no
+`avtp` or `mclk` op exists, [02 §4.4, §4.5](02_interfaces.md)). The engine also
+contains the D3 saved-state writer
+(NVM manager 1, [07 §5.3](07_memory_maps.md#fig-07-nvmflow)), which persists and restores
+the scalar overlay rows.
+
+## 3. PDU handling
+
+<a id="fig-06-aecpdu"></a>**F06.10 — AECPDU + AEM header** (`u` = 1 only on unsolicited
+responses; `cr` = 1 implies `u` = 1 — entity-requests-controller, unused here; lanes
+bottom→top = wire order, `@n` byte offsets authoritative)
+
+![fig-06-aecpdu](../diagrams/wavedrom/fig-06-aecpdu.svg)
+
+<details>
+<summary>WaveDrom source (editable)</summary>
+
+```wavedrom
+{"reg": [
+  {"bits": 8,  "name": "subtype @0 = 0xFB"},
+  {"bits": 1,  "name": "h=0"},
+  {"bits": 3,  "name": "ver=0"},
+  {"bits": 4,  "name": "message_type @1 (0 AEM_CMD, 1 AEM_RESP, 6 VU_CMD, 7 VU_RESP)"},
+  {"bits": 5,  "name": "status @2"},
+  {"bits": 11, "name": "control_data_length"},
+  {"bits": 64, "name": "target_entity_id @4"},
+  {"bits": 64, "name": "controller_entity_id @12"},
+  {"bits": 16, "name": "sequence_id @20"},
+  {"bits": 1,  "name": "u @22 (0x80)"},
+  {"bits": 1,  "name": "cr (0x40)"},
+  {"bits": 14, "name": "command_type @22[5:0],@23"}
+], "config": {"bits": 192, "lanes": 6, "hspace": 950}}
+```
+
+</details>
+
+<a id="fig-06-mvu"></a>**F06.11 — MVU header + GET_MILAN_INFO response** (MVU commands:
+0x0000 GET_MILAN_INFO, 0x0001/2 SET/GET_SYSTEM_UNIQUE_ID, 0x0003/4
+SET/GET_MEDIA_CLOCK_REFERENCE_INFO, the latter two pairs waived per §6.9;
+padding never counted in cdl; lanes bottom→top =
+wire order, `@n` byte offsets authoritative)
+
+![fig-06-mvu](../diagrams/wavedrom/fig-06-mvu.svg)
+
+<details>
+<summary>WaveDrom source (editable)</summary>
+
+```wavedrom
+{"reg": [
+  {"bits": 32, "name": "subtype 0xFB / msg_type 6-7 / status / cdl @0..@3"},
+  {"bits": 64, "name": "target_entity_id @4"},
+  {"bits": 64, "name": "controller_entity_id @12", "type": 2},
+  {"bits": 16, "name": "sequence_id @20", "type": 2},
+  {"bits": 48, "name": "protocol_id @22 = 00-1B-C5-0A-C1-00"},
+  {"bits": 1,  "name": "r=0"},
+  {"bits": 15, "name": "mvu_command_type @28[6:0],@29"},
+  {"bits": 16, "name": "reserved @30"},
+  {"bits": 32, "name": "protocol_version @32 = 1"},
+  {"bits": 32, "name": "features_flags @36 (REDUNDANCY 0x1 = 0, TALKER_DYN_MAPPINGS 0x2)"},
+  {"bits": 32, "name": "certification_version @40 (0 if uncertified)"}
+], "config": {"bits": 352, "lanes": 11, "hspace": 950}}
+```
+
+</details>
+
+Oversize rule (Δ8): Milan §5.4.1 lets the responses of READ_DESCRIPTOR, GET_AVB_INFO,
+GET_AS_PATH, GET_AUDIO_MAP and ADD/REMOVE_AUDIO_MAPPINGS exceed cdl 524, up to a full
+frame. What this engine does with that permission, command by command (issue #50):
+
+The ceiling is the response buffer, exactly the `16 + LINE_BYTES_P` bytes the integrator
+reserves ([07 §3.3.2](07_memory_maps.md#sec-resp-memory)): 592 at the default 576-byte line, so cdl 592, a 580-byte payload and a 618-byte frame. The
+engine asks for the oversize TX slot (`txs_oversize_o`) whenever the frame is longer
+than a 576-byte standard slot ([03 §7](03_packet_engine.md)), for whichever command
+built it.
+
+- **READ_DESCRIPTOR** copies the whole descriptor (cdl 16 + L, frame 42 + L for an
+  L-byte descriptor), and a descriptor may fill the line. A descriptor of 509 to 534
+  bytes answers above cdl 524 from a standard slot, and one of 535 to 576 bytes from
+  the oversize slot.
+- **GET_AUDIO_MAP** emits its records with the Δ8 `APPEND` (§8, `cnd` D8), which
+  fills the response buffer instead of stopping at cdl 524. A page of M mappings is
+  cdl 24 + 8·M and a 50 + 8·M-byte frame: above cdl 524 from 63 records, the
+  oversize slot from 66, and at most `P-MAP-SUBSET-CH-MAX` = 71 records
+  ([F01.5](01_overview.md#fig-01-params)), cdl 592. A page the face reports above 71
+  answers `NO_RESOURCES` with `number_of_mappings` 0 and no record, so the count
+  never names a record the response does not carry (§6.5). Milan §5.4.2.26 permits
+  subsets of up to 176 channels; this build carries 71, and `KL_aecp_engine` refuses
+  to elaborate a line below 576 bytes (`P-DESC-LINE-BYTES`,
+  [F01.5](01_overview.md#fig-01-params)), whose reservation could not hold the page.
+- **GET_AVB_INFO and GET_AS_PATH** keep the plain `APPEND`, which skips any record
+  that would end past cdl 524. Their faces never come near it: GET_AS_PATH serves at
+  most eight ClockIdentities (cdl 80) and GET_AVB_INFO one 4-byte msrp_mapping per SR
+  class (cdl 32 + 4·k, §6.10), so they stay in a standard slot.
+- **ADD/REMOVE_AUDIO_MAPPINGS** mirror their command, which §9.2.2.6 caps at cdl 524
+  (below), so they never exceed it.
+
+Everything else, including GET_DYNAMIC_INFO, is capped at cdl 524: its getters run
+as a batch, in which even the Δ8 `APPEND` stops at 524 (§7.4.76.1).
+
+The exception is response-only. IEEE 1722.1-2021 9.2.2.6 still caps every
+command at cdl 524. An ADD/REMOVE_AUDIO_MAPPINGS command uses 20 + 8N octets,
+so N is at most 63; a 64-record command returns `BAD_ARGUMENTS` without a
+store mutation.
+
+## 4. Internal blocks
+
+<a id="fig-06-blocks"></a>**F06.1 — AECP engine internals**
+
+```mermaid
+flowchart LR
+  q["AECP queue"] --> demux{"message_type"}
+  demux -- AEM_COMMAND --> aemdec["AEM decoder (u/cr, command_type)"]
+  demux -- VU_COMMAND --> mvudec["MVU sub-decoder (protocol_id match)"]
+  demux -- other --> ni["NOT_IMPLEMENTED responder"]
+  aemdec --> disprom[["dispatch ROM: µPC, hazard class+key, min-cdl, resp-size id, lock flag, GDI flag, notif flag, profile valid"]]
+  mvudec --> disprom
+  disprom --> ucpu["µCPU: µPC + µcode ROM + 16×64b regs + ALU + cursors"]
+  ucpu <--> model["entity-model store (07)"]
+  ucpu <--> gather["snapshot gather bus: ACMP records · F02.10 dictionary · counters · lock"]
+  ucpu --> rb["response builder (+ size ROM)"]
+  ucpu --> notifq["notification trigger queue"]
+  notifq --> fan["fan-out engine"]
+  reg[("controller registry")] <--> fan
+  mon["registry monitor (T-NOTIF-MONITOR)"] --> ca["CONTROLLER_AVAILABLE via originator"]
+  lockm["lock manager (T-LOCK-UNLOCK)"] <--> ucpu
+  ctrs["ctr read face: the integrator's counters"] <--> ucpu
+  idh["identify handler (T-IDENT-*)"] --> fan
+  d3["D3 saved-state writer (NVM manager 1)"] -. "own: dispatch hold" .-> disprom
+  d3 <-- "state bus 2:1 (bus)" --> model
+  ucpu -. "accepted changing write (snoop)" .-> d3
+  d3 -. "format judge: Milan-info kind 0 sel 15" .-> gather
+```
+
+**The D3 writer's faces inside the engine** (`KL_aecp_nvm_writer`; the parent D3
+contract §5.1):
+
+- **State bus.** A 2:1 selection in front of the dynamic-state store and the descriptor
+  store picks the writer while its `bus` is 1: from reset to the restore terminal, and
+  in service only for one row's latch. The µCPU's contract is unchanged.
+- **Dispatch hold (`own`).** While 1, no command is taken from the queue and no
+  unsolicited work starts. It is 1 from reset to the restore terminal (for ever in
+  CLOSED), and in service from ACQUIRE to the end of one latch; the writer takes the bus
+  only once no program is in flight, so a program never loses the bus mid-run.
+- **Change snoop.** The dynamic-state store's accepted write that changes a persisted
+  row's `{value, valid}` projection (selectors 0 to 5), taken only while the µCPU drives
+  the bus: a restore write is never a change, and IDENTIFY (selector 7) is excluded. A
+  user name's is the descriptor store's accepted name-lane write, taken the same way,
+  the record named by the lane address's entry; the engine's `name_wr_o` is the same
+  gated pulse, so the writer's own restore of a name pulses neither.
+- **Format judge.** During the restore the writer drives the Milan-info gather face,
+  kind 0 selector 15 with `gsi_prop_fmt_o`, and reads bit 0 (supported), the same
+  integrator verdict SET_STREAM_FORMAT uses. The other value rules are the SET programs'
+  own (§6.4), read through the same descriptor-store regions.
+- **Name capture and replay.** The writer reads and writes a name over the same state
+  bus with the name table selected: in service, the entry's eight lanes in one ACQUIRE;
+  in the restore, a saved name's eight lanes, only after the image is proven and only
+  for an ordinal below the image's name count (store region 0xA). The CONTROL
+  descriptor's name is a persisted user name; IDENTIFY's value is not.
+- **No map face.** The writer neither reads nor applies a channel map: the maps are
+  the integrator's to persist ([07 §5.1](07_memory_maps.md#51-persisted-vs-volatile-normative-set-req-per-001002),
+  the manager's ruling on issue #83), so GET_AUDIO_MAP and the edit face stay the
+  commands' own (§6.5).
+- **Roll-back.** `rb_rst` resets the dynamic-state store and the descriptor store
+  together, never the integrator's map plane; the descriptor-memory guard and its debt
+  keep the hard reset only.
+
+## 5. Command lifecycle
+
+<a id="fig-06-lifecycle"></a>**F06.2 — Lifecycle with scoreboard**
+
+```mermaid
+stateDiagram-v2
+    [*] --> MATCHED: target_entity_id = own (else drop)
+    MATCHED --> CLASSIFIED: dispatch ROM lookup (unknown opcode -> NOT_IMPLEMENTED echo)
+    CLASSIFIED --> WAIT_SB: key busy (03 section 6)
+    WAIT_SB --> EXECUTE: admitted
+    CLASSIFIED --> EXECUTE: admitted
+    EXECUTE --> COMMIT: validation passed, state written atomically
+    EXECUTE --> RESPOND_ERR: validation failed (status per chain)
+    COMMIT --> RESPOND: solicited response enqueued (budget T-AECP-RESP)
+    RESPOND --> NOTIFY: triggers enqueued, requester excluded
+    RESPOND_ERR --> [*]
+    NOTIFY --> [*]
+```
+
+Policies:
+
+- **Never `IN_PROGRESS`** — every command completes within `T-AECP-RESP`; this
+  is mandatory for GET_DYNAMIC_INFO coexistence (IEEE §7.4.76.2) and deletes the
+  `T-AECP-INPROG` re-send machinery ([review §8](../00_MILAN_COMPLIANCE_REVIEW.md) item 7).
+- Duplicate `sequence_id` from the same controller: commands are idempotently
+  re-executed (safe: reads) or answered from the last-response cache for state-changing
+  classes — one cached response per controller suffices with single-issue execution.
+- Scoreboard classes/keys are assigned by the dispatch ROM; the table lives in
+  [03 §6](03_packet_engine.md) (single source).
+- **Dispatch waits for the D3 writer.** No command reaches CLASSIFIED while the
+  writer holds dispatch: from reset to the restore's COMPLETE or DEFAULTS terminal
+  (queued commands are then served in order), never after CLOSED, and briefly in
+  service for a row latch ([03 §6](03_packet_engine.md) rule d).
+
+## 6. Command set
+
+<a id="fig-06-cmdtable"></a>**F06.14 — Command master table** (Milan mandate; hazard
+class per [03 §6](03_packet_engine.md); GDI = allowed inside GET_DYNAMIC_INFO;
+n/i = not implemented → echo command, status `NOT_IMPLEMENTED` — the response-size
+rule that satisfies IEEE §9.3.5.3.3 for **every** opcode 0x0000–0x0068).
+
+This table records both the target contract and current realization. A row
+marked **n/i today** is not dispatched by the current engine and returns the
+`NOT_IMPLEMENTED` echo. Section 8.1 is the authoritative realized inventory.
+
+The rows are generated from the command model `hdl/aecp/ucode/aecp_commands.json`
+(issue #73): edit the model, then run `python3 scripts/check_aecp_commands.py --write`.
+`make check` fails on any row that differs from the model (09 §7). Sizes are
+`control_data_length` (cdl, the offset-from-@12 length) and AECPDU octets (12 + cdl).
+The class is the one the top's F03.7 classifier presents. Notif names the notification
+class a command's µprogram enqueues (`NOTIFY_ENQ`), or the engine event that pushes it.
+The status set is the command's own: every AEM command can also answer
+`ENTITY_MISBEHAVING` (the deadline kill of 03 §6 rule (e), and a failed response
+memory), and every MVU command `NOT_IMPLEMENTED` for the same two.
+
+<!-- BEGIN F06.14: generated from hdl/aecp/ucode/aecp_commands.json by scripts/check_aecp_commands.py --write; edit the table, not these rows -->
+| Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0x0000 | ACQUIRE_ENTITY | shall, **never succeeds** (Δ7) | any | RO_SNAPSHOT | no | no | no | — | 28 | 40 B echo (cdl 28); owner_id 0 | NOT_SUPPORTED |
+| 0x0001 | LOCK_ENTITY | shall | ENTITY only (Δ10); the lock itself, so not lock-protected | LOCK_OP | no | no | no | event: on lock/unlock/auto | 28 | 40 B (cdl 28) | SUCCESS, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0002 | ENTITY_AVAILABLE | shall | — | RO_SNAPSHOT | no | no | no | — | 12 | 44 B (cdl 32); 2021 form w/ flags + acquired/locked IDs | SUCCESS |
+| 0x0003 | CONTROLLER_AVAILABLE | responder: n/i (not a controller); **originator**: §7 | — | — | — | — | — | — | — | 24 B echo (cdl 12) | NOT_IMPLEMENTED |
+| 0x0004 | READ_DESCRIPTOR | shall | allowed while locked | RO_SNAPSHOT | no | no | yes | — | 20 | 28 + descriptor B (cdl 16 + descriptor; failure stub cdl 20); the stub is §7.4.5's {type, index} | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+| 0x0006 | SET_CONFIGURATION | shall | STREAM_IS_RUNNING guard §6.4 | CFG_BARRIER (assigned by the top's classifier, [03 §6](03_packet_engine.md)) | yes | no | no | class 1: success with state change, requester excluded | 16 | 28 B (cdl 16) | SUCCESS, ENTITY_LOCKED, BAD_ARGUMENTS, STREAM_IS_RUNNING |
+| 0x0007 | GET_CONFIGURATION | shall | — | RO_SNAPSHOT | no | yes | no | — | 12 | 28 B (cdl 16) | SUCCESS, NO_SUCH_DESCRIPTOR |
+| 0x0008 | SET_STREAM_FORMAT | shall | per stream, both directions; §6.4 chain | STREAM_CFG | yes | no | no | class 2: success with state change, requester excluded | 24 | 36 B (cdl 24) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED, STREAM_IS_RUNNING |
+| 0x0009 | GET_STREAM_FORMAT | shall | — | RO_SNAPSHOT | no | yes | no | — | 16 | 36 B (cdl 24) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x000E | SET_STREAM_INFO | shall | **output only** (Δ11); §6.3 | STREAM_CFG | yes | no | no | class 3: success with state change, requester excluded | 96 | 108 B echo (cdl 96) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED, STREAM_IS_RUNNING |
+| 0x000F | GET_STREAM_INFO | shall | Milan 80-B form §6.2 | RO_SNAPSHOT | no | yes | no | event: async triggers | 16 | 80 B (cdl 68) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0010 | SET_NAME | shall | every named descriptor; ENTITY indices 0 and 1, all others index 0 | NAME_WR | yes | no | no | class 7: naming trigger | 84 | 96 B (cdl 84); current 64-B name | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS |
+| 0x0011 | GET_NAME | shall | every named descriptor; ENTITY indices 0 and 1, all others index 0 | RO_SNAPSHOT | no | yes | no | — | 20 | 96 B (cdl 84); current 64-B name | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+| 0x0014 | SET_SAMPLING_RATE | shall | per AUDIO_UNIT; §6.4 | CLOCK_CFG | yes | no | no | class 5: success with state change, requester excluded | 20 | 32 B (cdl 20) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0015 | GET_SAMPLING_RATE | shall | — | RO_SNAPSHOT | no | yes | no | — | 16 | 32 B (cdl 20) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0016 | SET_CLOCK_SOURCE | shall | per CLOCK_DOMAIN | CLOCK_CFG | yes | no | no | class 8: success with state change, requester excluded | 20 | 32 B (cdl 20) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0017 | GET_CLOCK_SOURCE | shall | — | RO_SNAPSHOT | no | yes | no | — | 16 | 32 B (cdl 20) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0018 | SET_CONTROL | shall (identify) | value 0/255 | IDENTIFY | yes | no | no | class 4: success with state change, requester excluded | 17 | 29 B (cdl 17); one LINEAR_UINT8 value | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0019 | GET_CONTROL | shall (identify) | — (variable-size, so not a GET_DYNAMIC_INFO member) | RO_SNAPSHOT | no | no | no | — | 16 | 29 B (cdl 17); one LINEAR_UINT8 value | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0022 | START_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: Table 5.22 started/stopped | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
+| 0x0023 | STOP_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: Table 5.22 started/stopped | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
+| 0x0024 | REGISTER_UNSOLICITED_NOTIFICATION | shall | §7; accepts 2013 no-flags form | REGISTRY_OP | no | no | no | — | 16 | 28 B echo (cdl 16); w/ flags | SUCCESS, NO_RESOURCES |
+| 0x0025 | DEREGISTER_UNSOLICITED_NOTIFICATION | shall | §7 | REGISTRY_OP | no | no | no | event: auto-deregister → targeted | 12 | 24 B echo (cdl 12) | SUCCESS |
+| 0x0026 | IDENTIFY_NOTIFICATION | unsolicited-only | as command → `BAD_ARGUMENTS` echo (IEEE §7.4.39.2, the opcode-specific rule — it governs over §9.3.5.3.3's fallback) | RO_SNAPSHOT | no | no | no | event: is one | 16 | 28 B echo (cdl 16); the unsolicited response | BAD_ARGUMENTS |
+| 0x0027 | GET_AVB_INFO | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async triggers | 16 | 44 + 4·N B (cdl 32 + 4·N, N msrp mappings) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x0028 | GET_AS_PATH | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async trigger | 16 | 28 + 8·N B (cdl 16 + 8·N, N path entries) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+| 0x0029 | GET_COUNTERS | shall | §6.6 | RO_SNAPSHOT | no | yes | no | event: async (`T-CTR-NOTIF`) | 16 | 160 B (cdl 148) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x002B | GET_AUDIO_MAP | shall (dynamic ports) | §6.5 | RO_SNAPSHOT | no | no | yes | — | 20 | 32 + 8·N B (cdl 20 + 8·N, N mappings) | SUCCESS, NOT_IMPLEMENTED, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NO_RESOURCES, NOT_SUPPORTED |
+| 0x002C | ADD_AUDIO_MAPPINGS | shall (dynamic ports) | §6.5 | MAP_CFG | yes | no | yes | class 6: success with state change, requester excluded | 20 + 8·N | 32 + 8·N B echo (cdl 20 + 8·N, N mappings); mirrors request | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x002D | REMOVE_AUDIO_MAPPINGS | shall (dynamic ports) | §6.5 | MAP_CFG | yes | no | yes | class 6: success with state change, requester excluded | 20 + 8·N | 32 + 8·N B echo (cdl 20 + 8·N, N mappings); mirrors request | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+| 0x004B | GET_DYNAMIC_INFO | shall | two-pass iterator §6.7; exactly the 13 fixed getters | MAP_CFG at admission, no-descriptor key (assigned by the top's classifier, 03 §6); records RO | no | no | no | — | 12 + records, at most 524 | 24 + records B (cdl 12 + records, at most 524); the engine's aggregate, whole records only | SUCCESS, BAD_ARGUMENTS |
+| MVU 0x0000 | GET_MILAN_INFO | shall | §6.9 | RO_SNAPSHOT | no | no | no | — | 20 | 44 B (cdl 32) | SUCCESS |
+| MVU 0x0001/0x0002 | SET/GET_SYSTEM_UNIQUE_ID | recommended, **waived for October; not implemented** | owner decision and Milan §5.4.4.2/.3: §6.9 | n/i | — | — | — | — | 28 / 20 | command-length echo | NOT_IMPLEMENTED |
+| MVU 0x0003/0x0004 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | recommended, **waived for October; not implemented** | owner decision and Milan §5.4.4.4/.5, §7.6: §6.9 | n/i | — | — | — | — | 92 / 20 | command-length echo | NOT_IMPLEMENTED |
+| 0x000B | GET_VIDEO_FORMAT | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| 0x000D | GET_SENSOR_FORMAT | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| 0x0013 | GET_ASSOCIATION_ID | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| 0x001D | GET_SIGNAL_SELECTOR | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| 0x0048 | GET_MEMORY_OBJECT_LENGTH | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| 0x004A | GET_STREAM_BACKUP | n/i | — | RO_SNAPSHOT | no | yes | no | — | — | echo standalone | NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI |
+| all others 0x0005–0x0068, 0x3FFF | — | n/i | — | — | — | no: any of these inside a batch ⇒ `BAD_ARGUMENTS`, §7.4.76.2 | — | — | — | echo | NOT_IMPLEMENTED |
+<!-- END F06.14 -->
+
+### 6.1 READ_DESCRIPTOR
+
+Command: `configuration_index @24`, `descriptor_type @28`, `descriptor_index @30`.
+Assembly from image + overlay by the model store ([07 §3](07_memory_maps.md)) — the
+µprogram resolves the address via `DESC_ADDR`, streams via `COPY_BUFFER`. Failure →
+status (`NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` for a bad config index) with the 4-byte
+{type, index} stub (IEEE §7.4.5). Permitted while locked or acquired.
+
+**Current values** (issue #82). A descriptor's `current_*` field is the value its GET
+returns, so after a SET the descriptor must carry what the SET stored, not the image's
+default. The payload walk captures `descriptor_type` at @28, and at that seam the engine
+re-dispatches four types to a program that copies the image around the field and
+builds the field from the dynamic-state row the SET (or the D3 restore) wrote:
+
+| Type | Program | Field | Row (and the GET that reads it) |
+|---|---|---|---|
+| ENTITY | `E_RDESCENT` | `current_configuration` @310 | `SEL_CFG` (GET_CONFIGURATION) |
+| AUDIO_UNIT, configuration 0 | `E_RDESCAU` | `current_sampling_rate` @136 | `SEL_RATE` (GET_SAMPLING_RATE) |
+| CLOCK_DOMAIN, configuration 0 | `E_RDESCCD` | `clock_source_index` @70 | `SEL_CLKSRC` (GET_CLOCK_SOURCE) |
+| STREAM_INPUT / STREAM_OUTPUT, configuration 0 | `E_RDESCSI` / `E_RDESCSO`, then `E_RDESCSF` | `current_format` @74 | `SEL_FMTIN` / `SEL_FMTOUT` (GET_STREAM_FORMAT reads the Milan-info face, which serves the published row once it is valid: the settings fold) |
+
+A row no SET or restore has written leaves the descriptor to `E_RDESC`, whole: the
+image is the current value then, the GETs' own rule. A STREAM's GET reads the
+integrator's face even then, and the face need not agree with the image before a SET;
+the descriptor overlays only the processor's own row, so it never takes a value the
+processor did not store. Configuration 0 because that is where the GET/SET family
+locates (its literal locate key); another configuration's descriptor keeps its image
+bytes. The rest of the field's 8-byte lane is built from the image lane, and the
+descriptor's tail rides `COPY_BUFFER` TAIL (`cnd[0]`: the count is the descriptor
+length less a lane-aligned start, since the µISA has no subtract). A descriptor too
+short to hold the field's lane is served whole from the image. `tb/pp_top` section AX
+(RD0 to RD2) grades each type byte-exact before and after its SET, against the value
+the GET returns after it; RD3 does the same after a power cycle, with every row
+written back by the D3 restore and no SET since the reset; RD4 serves an 80-byte
+STREAM_OUTPUT with a set row as its image, whole. Only the STREAM guard can be
+reached that way: SET_STREAM_FORMAT is judged by the integrator's face, while a
+sampling rate or clock source (set or restored) is judged against the AUDIO_UNIT's
+own list and the CLOCK_DOMAIN's own count, which a descriptor short of the lane does
+not hold.
+
+<a id="sec-06-stri"></a>
+### 6.2 GET_STREAM_INFO — the Milan 80-byte response and its data lineage
+
+**Realization status (`E_GSTRI` + the internal/external gather)**: implemented for
+STREAM_INPUT and STREAM_OUTPUT: the Milan §5.4.2.10 80-byte response (cdl 68) with
+flags_ex and the pbsta/acmpsta byte. Existence is the descriptor store's (a locate
+miss answers NO_SUCH_DESCRIPTOR carrying the full, zero-valued body without
+requesting gather data). The engine's Milan-info gather uses `gsi_kind` 0, word
+selectors 0..7 = flags / stream_format / stream_id / msrp_accumulated_latency /
+{dest_mac, failure_code} / failure_bridge_id / {vlan, flags_ex} / {pbsta, acmpsta}.
+For STREAM_INPUT, the top serves selectors 5 and 7 internally from SRP and
+the committed ACMP listener record, and replaces selector 4's failure-code
+byte with SRP's code. Selector 4 still asks the integrator for the destination
+MAC. Selectors 5 and 7 produce **no external request for an input** and ignore
+external wait/data. For input selector 6, the top replaces bits [63:48] with
+the addressed sink's full 16-bit settled `stream_vlan_id`, or zero while
+unsettled (also zero for an out-of-range sink index), under Milan §5.3.8.9 and
+§5.4.2.10. Bits [47:0], including `flags_ex` and the reserved halfword, still
+come from `gsi_data_i`; selector 6 raises the external request and honors
+`gsi_wait_i`. The integrator's selector-6 VLAN bits are unused for inputs.
+There are no added top-level ports. All remaining input fields, all output
+words, and all validity flags remain integrator-owned; an unwired external
+face clears those fields and flags while the internal fields still report
+their state owners. Selector 15 of the same kind is SET_STREAM_FORMAT's verdict word:
+while that command is in flight the engine presents the PROPOSED format on
+`gsi_prop_fmt`, and the integrator answers bit 0 = supported for the addressed
+stream, bit 1 = every channel an existing audio mapping references survives it.
+The integrator is also expected to FOLD the published settings face into its
+selector 1 answers for both directions (a valid SEL_FMTIN/SEL_FMTOUT row is the
+current format) and its selector 3 answer for the OUTPUT direction only (a valid
+SEL_PTOFF row is the accumulated latency; an input's latency stays the SRP
+registrars' fact and never folds), which is what keeps a GET after a SET reading
+the value the SET stored. The verdict answer is read with CHECK_ARG at byte
+width against the literal 3: the LOW BYTE must be exactly 0x03 to pass, so an
+integrator must answer the two defined bits ALONE -- any other bit set in the
+low byte refuses the command. The published rows -- every presentation offset
+and both format directions, each value beside its valid bit -- are the
+`aecp_pt_offset` / `aecp_fmt_in` / `aecp_fmt_out` port groups on
+`protocol_processor_top`; `KL_aecp_dyn_state`'s banner is their authority. Non-stream targets refuse NOT_SUPPORTED with the command echoed;
+short commands BAD_ARGUMENTS; a wedged face voids to ENTITY_MISBEHAVING. The Table
+5.22 notification class is live for the events the fabric observes; the
+STREAM_INPUT trigger set and its one-frame rule are stated once, in
+[§7](#7-registry-notifications-liveness-identify), and the per-field update
+events are F06.13's.
+
+<a id="fig-06-streaminfo"></a>**F06.12 — Response payload @24..@79** (Milan Fig 5.1,
+renames Δ6; legacy controllers ignore @72+, Milan controllers detect the extension via
+`control_data_length`; lanes bottom→top = wire order, `@n` byte offsets authoritative)
+
+![fig-06-streaminfo](../diagrams/wavedrom/fig-06-streaminfo.svg)
+
+<details>
+<summary>WaveDrom source (editable)</summary>
+
+```wavedrom
+{"reg": [
+  {"bits": 16, "name": "descriptor_type @24"},
+  {"bits": 16, "name": "descriptor_index @26"},
+  {"bits": 32, "name": "flags @28 (masks below)"},
+  {"bits": 64, "name": "stream_format @32"},
+  {"bits": 64, "name": "stream_id @40"},
+  {"bits": 32, "name": "msrp_accumulated_latency @48"},
+  {"bits": 48, "name": "stream_dest_mac @52"},
+  {"bits": 8,  "name": "msrp_failure_code @58"},
+  {"bits": 8,  "name": "reserved @59"},
+  {"bits": 64, "name": "msrp_failure_bridge_id @60"},
+  {"bits": 16, "name": "stream_vlan_id @68"},
+  {"bits": 16, "name": "reserved @70"},
+  {"bits": 32, "name": "flags_ex @72 (REGISTERING 0x00000001)"},
+  {"bits": 3,  "name": "pbsta @76[7:5]"},
+  {"bits": 5,  "name": "acmpsta @76[4:0]"},
+  {"bits": 24, "name": "reserved @77"}
+], "config": {"bits": 448, "lanes": 14, "hspace": 950}}
+```
+
+</details>
+
+> ⚠ Bit tables in Milan and IEEE 1722.1 are **MSB-first** (bit 31 ⇔ mask `0x00000001`).
+> The **hex mask column is authoritative**; never derive shifts from bit-number columns.
+
+`flags` masks and validity — **Stream Input**: STREAM_FORMAT_VALID `0x80000000`
+always · STREAM_ID_VALID `0x40000000`, STREAM_DEST_MAC_VALID `0x10000000`,
+STREAM_VLAN_ID_VALID `0x02000000` **iff settled** · MSRP_ACC_LAT_VALID `0x20000000`
+iff registering a matching talker attribute (= `flags_ex.REGISTERING`) ·
+MSRP_FAILURE_VALID `0x08000000` = REGISTERING_FAILED `0x00000040` (registering
+matching Talker **Failed**) · BOUND `0x04000000` · FAST_CONNECT `0x00000002` **= 1 iff
+bound** (Milan-required legacy signal) · SAVED_STATE `0x00000004` recommended = bound ·
+STREAMING_WAIT `0x00000008` = bound ∧ stopped. **Stream Output**: FAST_CONNECT /
+SAVED_STATE / STREAMING_WAIT / BOUND always 0 · MSRP_ACC_LAT_VALID always 1
+(field = presentation-time offset) · REGISTERING_FAILED = declaring ∧ registering
+Listener **Asking Failed** · {REGISTERING=1 ∧ REGISTERING_FAILED=0 ∧
+MSRP_FAILURE_VALID=0} ⇔ **streaming**.
+
+<a id="fig-06-lineage"></a>**F06.13 — Field lineage (input rows; output analogous)**
+
+| Field / flag | Owner record | Signal ([F02.10](02_interfaces.md#fig-02-statusdict)) | Update event | Async notif (Table 5.22) |
+|---|---|---|---|---|
+| stream_format | integrator face word 1, folding the published SET_STREAM_FORMAT row when valid | - | SET_STREAM_FORMAT | via command trigger |
+| BOUND, STREAMING_WAIT | ACMP sink record, published binding/started view folded by the integrator | — | listener-SM commits; a started/stopped change under a live binding, including a re-bind that flips STREAMING_WAIT | yes (input) |
+| pbsta, acmpsta | ACMP sink record, internal selector 7 | `pbsta[sink]`, `acmpsta[sink]` | changed record write, including preload | yes (input) |
+| stream_id / DA + their *_VALID flags | sink record (settled), published view folded by the integrator into selectors 2 / 4 and validity flags | — | A15 / A8 | yes |
+| stream_vlan_id / STREAM_VLAN_ID_VALID | full settled VLAN internally in selector 6 [63:48], zero while unsettled; validity flag remains integrator-owned | — | A15 / A8 | yes |
+| msrp_accumulated_latency | srp | `acc_latency[sink]` + `P-INTERNAL-INGRESS-DELAY-NS` | committed per-sink latch change on a registering Talker attribute, including a latency-only refresh; unchanged refresh is silent | yes (input), §5.4.5.2 / Table 5.22 |
+| REGISTERING (flags_ex), REGISTERING_FAILED | srp | `tk_reg_state[sink]` | TK_ATTR events | yes |
+| msrp_failure_code / bridge | SRP listener registrar, internal selector 4 byte / selector 5 | `msrp_fail_*` | TK_ATTR(Failed), a changed FailureInformation under a registered Failed (notification strobe only, [10 §6.4](10_srp_engine.md)), replacement or withdrawal | yes |
+
+Reads: the top reads the input failure code, bridge ID, full settled VLAN and
+committed probing/ACMP byte LIVE from their owners at the selector 4, 5, 6 and 7
+beats; there is no sample-and-hold copy. Selector 6 [63:48] comes from the
+addressed sink's stored 16-bit VLAN only while its committed status is
+PROBING_COMPLETED, otherwise zero. Its lower 48 bits, including `flags_ex`,
+and the request/wait handshake remain external; output selector 6 is wholly
+integrator-owned. The SRP bridge is the registrar's raw latch and is gated
+once, after the top's index mux, on the addressed sink's registered FAILED.
+The integrator answers its fields one beat at a time the same way.
+**Coherence bound**: one gather spans a few cycles (longer only while the
+integrator holds a beat, bounded by the gather watchdog), so an owner change
+that lands inside it can mix pre- and post-change beats in that one response.
+Every such change is itself a notification trigger whose pending bit is set
+after the change, so that change's own unsolicited response follows, gathered
+after it, with coherent values. The same gather and builder serve solicited,
+unsolicited and GET_DYNAMIC_INFO responses. The listener status view copies
+only the two fields from the record RAM write bus; it has no independent
+state transitions. Notifications compare committed values, so an unchanged
+write produces no new status event. Failure information is zero whenever
+the SRP registrar is not registering a matching Talker Failed attribute.
+
+#### 6.2.1 GET_NAME and SET_NAME
+
+Both responses carry the fixed IEEE Figures 7-39 and 7-40 body:
+`descriptor_type`, `descriptor_index`, `name_index`, `configuration_index`, then
+exactly 64 name octets. `GET_NAME` has an 8-byte command body and `SET_NAME` has a
+72-byte command body. Both responses therefore use control_data_length 84.
+
+The descriptor store translates the semantic selector through region `0xB`.
+ENTITY exposes `entity_name` at index 0 and `group_name` at index 1. Every other
+named descriptor exposes `object_name` at index 0. A missing descriptor returns
+`NO_SUCH_DESCRIPTOR`; an unsupported semantic index or configuration returns
+`BAD_ARGUMENTS` with the complete fixed response body.
+
+`SET_NAME` checks the entity lock before changing any byte. A rejected locked
+write returns `ENTITY_LOCKED` and the current name, not the rejected command
+name. A successful change writes all eight 64-bit lanes, returns the new current
+name, pulses `aecp_name_wr_o` once per accepted changed lane, and emits the group-7
+completion mark and the notification. Repeating the same value performs no write and
+emits none of them. The accepted name-lane write is the name group's persistence
+trigger in the saved-state contract; the mark is only a completion notification. The
+D3 writer saves the changed entry as record `0x80` + its ordinal and writes it back at
+the next boot, after the image walk ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)).
+
+The writable name table is also patched into the currently located descriptor
+line. A later locate refreshes its line from the table after the image fetch.
+Consequently `SET_NAME`, `GET_NAME`, and `READ_DESCRIPTOR` expose one value.
+
+### 6.3 Direction asymmetries (Δ11)
+
+| Command | Stream Input | Stream Output |
+|---|---|---|
+| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | the shape is 1722.1-2021 Figure 7-40's COMPLETE 84-byte payload (cdl 96, the ip block included) - Milan v1.2 references the 2021 edition, so the 2013 60-byte command is a TRUNCATED command, refused `BAD_ARGUMENTS` at the full 2021 response length. The one supported sub-command is **MSRP_ACC_LAT_VALID alone**: writes the presentation-time offset to the dynamic store's SEL_PTOFF row (0..0x7FFFFFFF ns; bit 31 set answers `BAD_ARGUMENTS`); **any other flag combination, including none, refuses the whole command `NOT_SUPPORTED`**; a STREAMING output refuses `STREAM_IS_RUNNING` before the sub-command is examined; success answers the command echo, which is exactly §5.4.2.9's required body (same flag, same latency; the ip fields are echoed, never interpreted). Every narrowing is an engine dispatch route off registered walk fields; the µprogram is CHECK_LOCK, locate, WRITE_ST, NVM mark, echo |
+| START/STOP_STREAMING | **implemented** (issues #78 and #97): a bound input changes state, while an unbound or repeated-state request is a confirmed no-op. The state lives only on the ACMP binding record. Success waits for the record write or no-op examination, and a bounded pending request fails safely if the record walker cannot start it | **implemented**: `NOT_SUPPORTED`, because a talker streams whenever reserved (Δ14) and Section 5.3.7.3 excludes stopping a Stream Output. Every non-input type takes the same arm |
+
+### 6.4 Validation chains (order matters; first failure responds)
+
+| Command | Chain |
+|---|---|
+| SET_CONFIGURATION | any input bound ∨ any output streaming ⇒ `STREAM_IS_RUNNING` (**at dispatch, so it outranks the lock** - see below) → lock → index valid ⇒ commit → NVM mark (review §8 item 1). **No scoreboard barrier is drained today**: the current top admits a new AEM transaction only when its single AECP engine is idle, which orders SET_CONFIGURATION against both configuration read views. A future parallel AEM execution path must select `PP_HZ_CFG_BARRIER` before it can preserve that property. |
+| SET_STREAM_FORMAT (**implemented**, Milan §5.4.2.7) | length (cdl 24 and the walked payload) → type ∈ {STREAM_INPUT, STREAM_OUTPUT} → **per-descriptor running at dispatch** (bound input ∨ streaming output ⇒ `STREAM_IS_RUNNING`, outranking the lock like SET_CONFIGURATION's reduction and for the same reason) → lock → locate → the integrator's ONE-GATHER verdict on the proposed format (kind 0 selector 15 against `gsi_prop_fmt`): supported-for-this-stream AND every mapping-referenced channel survives, anything less ⇒ `BAD_ARGUMENTS` → WRITE_ST to SEL_FMTIN/SEL_FMTOUT + NVM mark → echo the format now in force. Every refusal after the length gate carries the CURRENT format read through GET_STREAM_FORMAT's own face word, so the two can never disagree. The supported set and the mapping reduction live integrator-side (the builder's always-live shapes; the map machinery that already validates every edit), not in a µcode walk over the image |
+| SET_SAMPLING_RATE | lock (`ENTITY_LOCKED` carrying the current rate, §6.8) → locate (no such AUDIO_UNIT ⇒ `NO_SUCH_DESCRIPTOR`) → rate ∈ AUDIO_UNIT list (`E_SSRATE` + `E_SSRWALK`; issue #51): the rate is compared, as the whole 32-bit word including the pull field, with entries 0..`sampling_rates_count`-1 of the located descriptor's list, read at `sampling_rates_offset` 144. **Precondition, part of the image contract** ([07 §3.1 L10](07_memory_maps.md#31-descriptor-tree)): offset 144 and at most 8 entries. A state-port address is an immediate, so any other offset refuses every rate and an entry past the eighth is never accepted; both fail closed. A rate the list does not hold ⇒ `BAD_ARGUMENTS` carrying the CURRENT rate (the value GET_SAMPLING_RATE reads), with nothing stored, marked or notified. `BAD_ARGUMENTS` rather than `NOT_SUPPORTED` because Table 7-141 keeps `NOT_SUPPORTED` for a target that is not supported (an AUDIO_UNIT that exists is supported; its argument is not), and review §8 item 3 reads Milan's "UNSUPPORTED" as `NOT_SUPPORTED` for the mapping clause below only → mappings whose stream rate ≠ new rate while port has neither SRC bit ⇒ may `NOT_SUPPORTED` (Milan §5.4.2.13 — "UNSUPPORTED" typo, review §8 item 3; this MAY is not implemented) → commit + NVM |
+| SET_CLOCK_SOURCE | lock (`ENTITY_LOCKED` carrying the current index, §6.8) → locate (no such CLOCK_DOMAIN ⇒ `NO_SUCH_DESCRIPTOR`) → source ∈ CLOCK_DOMAIN list, tested as `clock_source_index` < the located domain's `clock_sources_count` (`E_SCLKS`; milan-fpga #389). **Precondition, part of the image contract**: the processor requires the domain's `clock_sources` list to be the identity permutation 0..count-1 ([07 §3.1 L6](07_memory_maps.md#31-descriptor-tree)); that is what makes the bound equal the membership test of IEEE 1722.1-2021 §7.2.32 (`clock_sources`, the indices `clock_source_index` may be set to). A sparse or permuted list would have unlisted indices accepted and listed ones refused. An index at or past the count ⇒ `BAD_ARGUMENTS` (IEEE 1722.1-2021 Table 7-141) carrying the CURRENT index (the value GET_CLOCK_SOURCE reads; §7.4.23.1), with nothing stored, marked or notified → commit + NVM; the committed index is the `aecp_clk_src_index_o` level, on which the integrator switches its media clock ([02 §4.5](02_interfaces.md)) |
+| SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, then commit, pulsing the accepted lane writes and emitting the completion mark and notification only when changed |
+
+"NVM mark" in these chains is the completion effect (`aecp_nvm_stb_o` /
+`aecp_nvm_mark_o`, [02 §8.1](02_interfaces.md#81-what-the-integrator-reads-while-a-commit-is-outstanding)).
+It is never a persistence trigger: the accepted `WRITE_ST` that changes the row selects
+the record for the D3 writer ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)), and the
+restore judges a saved value by the same rule the chain applies.
+
+**Two notes on SET_CONFIGURATION, both decisions rather than accidents.**
+
+*Precedence.* The `STREAM_IS_RUNNING` reduction is taken at **dispatch**, before
+`E_SCFG` runs, so a foreign controller addressing a locked entity that also has
+a running stream is answered `STREAM_IS_RUNNING` and never reaches the
+program's `CHECK_LOCK`. Milan §5.4.2.5 and IEEE §7.4.7.2 each state their
+refusal without ordering it against the other, so either answer conforms. The
+order is pinned by a check (`tb/pp_top`, W17n) so it cannot drift silently.
+
+*One current-configuration source.* The command **stores** the index, and both
+`GET_CONFIGURATION` (§7.4.8) and `READ_DESCRIPTOR(ENTITY)` overlay that dynamic
+value. This preserves §7.4.8.2 equivalence on multi-configuration images as well
+as on the shipping one-configuration image. The descriptor image remains
+read-only: `E_RDESCENT` copies the first 310 ENTITY bytes unchanged and appends
+the dynamic `current_configuration` word. Before the first successful SET, the
+word comes from the image. The W18 regression grades both a successful non-zero
+SET and a rejected SET, including the GET and READ_DESCRIPTOR views.
+
+### 6.5 Audio-map operations (Milan §5.4.2.26–.28)
+
+**Realization status (2026-08-17).** GET_AUDIO_MAP serves both directions:
+the STREAM_PORT_OUTPUT half re-dispatches to `E_GAMAPO` (a two-word stub swapping
+the emitted type constant into `E_GAMAP`'s shared tail), and the integrator's
+`amap_*` face routes on `amap_desc_type_o`. The render-side map RAM answers the
+input direction, the capture-side readback (the 0x0017 round) the output
+direction. Same paging law, same stubs, same existence authority (the image).
+ADD/REMOVE_AUDIO_MAPPINGS stage every row, validate the whole command, recheck
+at commit, and use the root transaction face to update the live map atomically.
+
+- **A Stream Port Output that HAS AUDIO_MAP descriptor(s)** (`number_of_maps`
+  > 0 in its STREAM_PORT_OUTPUT descriptor — a static map) **answers all three
+  commands with `NOT_SUPPORTED`** (Milan §5.4.2.26/.27/.28). Every Stream Port
+  Input, and every Stream Port Output with no Audio Map, shall implement all
+  three — Milan §5.3.3.7 forbids AUDIO_MAPs on STREAM_PORT_INPUT precisely
+  because inputs must support dynamic mapping, and IEEE §7.2.13's dynamic-map
+  convention is `number_of_maps` = 0. The root integrator owns this decision at
+  transaction phase 0. Its generated dynamic-port masks come from the same
+  entity shape that emits each descriptor's `number_of_maps`, so the processor
+  cannot accept an edit for a port that the model advertises as static. The
+  processor's descriptor store is not the authority for this integration rule.
+- Channel space of each **dynamically mapped** stream port is **partitioned at model-build time** into fixed
+  subsets ≤ `P-MAP-SUBSET-CH-MAX`; `number_of_maps` always reports the partition
+  count N regardless of dynamic content; `GET_AUDIO_MAP(map_index = P)` returns all and
+  only the dynamic mappings of subset P. Milan §5.4.2.26 allows subsets of up to 176
+  channels; this build's `P-MAP-SUBSET-CH-MAX` is 71, the page one response buffer
+  carries whole (§3: above cdl 524 from 63 records, the oversize slot from 66), and
+  `E_GAMAP` answers a page the face reports above it `NO_RESOURCES` with
+  `number_of_mappings` 0, never a count its records do not carry (issue #50).
+- `ADD_AUDIO_MAPPINGS`: **all-or-nothing**. Any invalid mapping returns
+  `BAD_ARGUMENTS` and adds nothing (`MAP_VALID` primitive). Invalid means it references a channel absent from
+  the current format; or references a streaming output under the reference
+  integrator's phase-4 validation law; input-port conflict rule: same cluster channel from two different
+  stream channels in one command ⇒ `BAD_ARGUMENTS`; conflict with an *existing* mapping
+  may be rejected the same way or accepted with an automatic REMOVE notification sent
+  **before** the ADD response.
+- `REMOVE_AUDIO_MAPPINGS`: ignores duplicate rows in one command, refuses an
+  absent mapping, and applies the streaming-output restriction above.
+- Input maps are changeable **any time, even while bound** (Milan §5.3.10.1).
+- Every successful ADD or REMOVE that changes the mapping sends the same
+  unsolicited response to every registered controller except the requester and
+  emits the group-6 completion mark. A confirmed no-op succeeds without a
+  notification or mark. The mark is a completion notification, not a persistence
+  trigger. The maps' records are the integrator's: it saves a port's set from the
+  accepted phase-5 commit beat, restores it and resets it on a D3 roll-back
+  ([07 §5.1](07_memory_maps.md#51-persisted-vs-volatile-normative-set-req-per-001002),
+  the manager's ruling on issue #83); the processor neither writes nor restores one.
+- Phase 1 acceptance is the commit reservation and point of no return. The
+  integrator must reserve every resource needed for the complete transaction
+  before accepting it. Phase 5 record writes and phase 2 finish then complete
+  without back-pressure; `amap_edit_wait_i` is ignored on those phases. This
+  prevents a watchdog expiry between live writes from exposing a partial map.
+- Every solicited response is rebuilt in Figure 7-71 form. Its reserved word is
+  zero, its `number_of_mappings` names the complete records actually emitted,
+  and even an `ENTITY_MISBEHAVING` timeout retains at least the eight-byte fixed
+  body. A malformed command count is never reflected as though it described
+  records that are absent from the response.
+
+<a id="sec-06-counters"></a>
+### 6.6 GET_COUNTERS and the integrator's counters
+
+**Strictness upgrade (2026-08-15, the bench probe round)** — the SUCCESS-empty-mask
+answer is now said only about a REAL object of a SUPPORTED type: `E_GCTRS` opens
+with the store locate (the same RGN_LOCATE `E_GAMAP` opens with), so a
+descriptor_index the image lacks refuses Table 7-141's NO_SUCH_DESCRIPTOR ("A
+descriptor with the descriptor_type and descriptor_index specified does not exist")
+carrying the fixed Figure 7-67 body all-zero, with the counters face never
+consulted; and a descriptor_type outside the supported set {STREAM_INPUT,
+STREAM_OUTPUT, AVB_INTERFACE, CLOCK_DOMAIN} refuses NOT_SUPPORTED ("the command is implemented
+but the target of the command is not supported"), off the registered A_PLD-exit
+re-dispatch. ENTITY (Table 7-150: nothing but ENTITY_SPECIFIC bits) lands on
+that arm. The integrator's wrong-object guard on the face stays as the second line of
+defense. §7.4.42 defines no separate error form, so every status carries the
+fixed 160-byte response — **including NOT_SUPPORTED** (the r49a bench round): the
+reference stack reflects ONLY NOT_IMPLEMENTED at command length ("If status is
+NotImplemented, we expect a reflected message (using Command length)" —
+la_avdecc protocolAemPayloads.cpp checkResponsePayload) and sizes every other
+non-success answer against the response form, so the earlier command-sized
+NOT_SUPPORTED echo here was exactly its "Incorrect payload size" complaint.
+`E_GCTRSNS` sets the status and falls into the miss arm's zero-body emitter.
+The NOT_IMPLEMENTED echo stays command-sized, as both texts want.
+
+**Heal before answer (same round, silicon r49a/w3a).** The store used to answer
+an invalid-image locate from the parked state and re-arm its header probe after,
+so the first wire command after a late image load was always sacrificed (a first
+READ_DESCRIPTOR answering BAD_ARGUMENTS through the parked configurations_count,
+a first GET_COUNTERS answering NO_SUCH_DESCRIPTOR through the parked locate).
+The order is now walk-then-answer for both entries — the locate AND the
+RGN_NCFG pseudo-register read — with the µCPU stalled through the bounded walk;
+an absent bridge still degrades to the fault answer inside the memory watchdog.
+See KL_aecp_desc_store's banner.
+
+Response: `descriptor_type @24`, `descriptor_index @26`, `counters_valid @28`,
+32 × u32 block @32 (cdl 148). `counters_valid` bit N (MSB-first) ⇔ block offset 4·N.
+
+**Who keeps the counters** (owner decision 2026-09-19, processor issues #44 and #79):
+the integrator, behind the `ctr_*` read face
+([02 §4.6](02_interfaces.md#sec-02-ctr)); this repository keeps no bank
+([07 F07.10](07_memory_maps.md#fig-07-ctrmap)). Each counter is 32-bit and wraps, the
+interval counters commit at the integrator's own observation interval
+(`T-CTR-OBSERVE`, at most 1 s), and every reset rule belongs to the bank that applies
+it. The contract per descriptor type, every rule of F06.15 below included, is the
+[integrator guide §7.1](../guides/integrator.md#counters-face).
+
+<a id="fig-06-counters"></a>**F06.15 — The counter banks the integrator keeps** (Milan
+v1.2 §5.4.2.25 Tables 5.13 to 5.17; IEEE 1722.1-2021 Tables 7-152 to 7-159)
+
+> ⚠ Masks authoritative (MSB-first tables). **Δ9**: the STREAM_OUTPUT masks below are
+> Milan Table 5.17 and *differ from IEEE Tables 7-158/159*. The processor carries
+> whichever layout the integrator's face answers; a plain-IEEE integrator answers that
+> one bank in the IEEE layout.
+
+| Bank | Counter | Mask | Semantics / reset rule |
+|---|---|---|---|
+| AVB_INTERFACE | LINK_UP | 0x00000001 | `link_up_i` down→up; invariant UP = DOWN or DOWN+1 |
+| | LINK_DOWN | 0x00000002 | `link_up_i` up→down |
+| | GPTP_GM_CHANGED | 0x00000020 | grandmaster identity changes since boot; a domain-only `gm_change_i` does not count |
+| | FRAMES_TX / FRAMES_RX / RX_CRC_ERROR | 0x04/0x08/0x10 | optional |
+| CLOCK_DOMAIN | LOCKED / UNLOCKED | 0x01 / 0x02 | invariant LOCKED = UNLOCKED or +1 |
+| STREAM_INPUT | MEDIA_LOCKED / MEDIA_UNLOCKED | 0x01 / 0x02 | invariant; **whole bank resets on not-bound→bound**, never on unbind |
+| | STREAM_INTERRUPTED | 0x04 | any interruption except a controller unbind |
+| | SEQ_NUM_MISMATCH / MEDIA_RESET / TIMESTAMP_UNCERTAIN | 0x08 / 0x10 / 0x20 | per observation interval |
+| | UNSUPPORTED_FORMAT / LATE_TIMESTAMP / EARLY_TIMESTAMP / FRAMES_RX | 0x100 / 0x200 / 0x400 / 0x800 | per observation interval |
+| STREAM_OUTPUT | STREAM_START / STREAM_STOP | 0x01 / 0x02 | invariant START = STOP or +1 |
+| | MEDIA_RESET | **0x04** (Δ9) | resets on stream start |
+| | TIMESTAMP_UNCERTAIN | **0x08** (Δ9) | resets on stream start |
+| | FRAMES_TX | **0x10** (Δ9) | resets on stream start |
+
+**The push.** The integrator's change strobe (`ctr_change_i` with
+`ctr_change_desc_type_i` and `ctr_change_desc_index_i`, one served descriptor per cycle)
+is wired from `protocol_processor_top` to the notification block's `ev_ctr_*`
+(`KL_aecp_notify`): one pending bit per descriptor it keeps a slot for (every Stream
+Input and Stream Output index of the shape, AVB_INTERFACE 0 and CLOCK_DOMAIN 0, and
+with `P-N-AVB-INTERFACES` at 2 AVB_INTERFACE 1 as well: the AVB_INTERFACE counters are
+keyed per interface),
+repeats coalesced, and at most one unsolicited GET_COUNTERS per descriptor per
+`T-CTR-NOTIF` (Milan Table 5.22), throttled per descriptor and gathered through the face
+when it is emitted, so it carries the counts of that moment. A strobe without a slot is
+ignored. Graded in `tb/pp_top` U9 and K13 to K17 (K17: a strobe for AVB_INTERFACE 1,
+CLOCK_DOMAIN 1 or a stream index past the shape pushes nothing), under load in ST (§7);
+at two interfaces in `tb/aecp_notify` CK (AVB_INTERFACE 1 has a window of its own, and
+AVB_INTERFACE 2 pushes nothing).
+
+**Who decides the mask.** The masks above are what a *complete* PAAD-AE owes;
+what a given build may claim is what its fabric measures, and the engine carries
+whatever `counters_valid` the integrator's `ctr_*` face returns rather than a
+constant of its own. The bar that matters for the Milan badge is
+Milan v1.2 §5.3.8.10 with Table 5.16 (mask `0x00000F3F`: MEDIA_LOCKED,
+MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET,
+TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP,
+FRAMES_RX), served **for each Stream Input** of the current configuration with no
+CRF exemption; la_avdecc's controller checks exactly that set
+(`s_MilanMandatoryStreamInputCounters`) and drops the Milan compatibility flag
+when a STREAM_INPUT answer misses one bit of it. TIMESTAMP_VALID and
+TIMESTAMP_NOT_VALID (bits 6 and 7, block offsets 24 and 28) are **IEEE
+1722.1-2021's**, not Milan's: they are Table 7-156 bits #25 and #24 at Table
+7-157 offsets 24 and 28, and la_avdecc's Milan mandatory set — whose own
+comment cites Milan 1.3 clause 5.3.8.10 — omits them. They are an IEEE counter
+pair Milan declines to compel, so they sit outside that gate either way: a sink
+that keeps them claims `0x00000FFF` and one that does not claims `0x00000F3F`,
+two honest answers rather than one blanket one. (An earlier revision of this
+paragraph called them "Milan 1.3's addition", which reads as though a later
+Milan revision would make them mandatory. Nothing in Milan asks for them.)
+
+### 6.7 GET_DYNAMIC_INFO iterator
+
+<a id="fig-06-gdi"></a>**F06.7 — Two-pass execution (IEEE §7.4.76)**
+
+```mermaid
+flowchart TB
+  s["parse tuples: len(2) rsv(2) status(1) rsv(1) cmd(2) data - end by cdl"] --> scan{"pre-scan: every cmd in the 13 of IEEE 7.4.76.2?"}
+  scan -- no --> ba["respond BAD_ARGUMENTS - process nothing (a non-member opcode, never an unimplemented member)"]
+  scan -- yes --> loop["for each tuple: dispatch its µprogram in sub-command mode"]
+  loop --> app{"appending this element exceeds cdl 524?"}
+  app -- yes --> skip["skip element (not appended) - continue"]
+  app -- no --> add["append tuple w/ per-element info_status + data"]
+  skip --> nxt{"more?"}
+  add --> nxt
+  nxt -- yes --> loop
+  nxt -- no --> tx["respond (never oversize, never IN_PROGRESS)"]
+```
+
+GDI-allowed set is a dispatch-ROM flag carrying **exactly the 13 commands IEEE
+1722.1-2021 §7.4.76.2 enumerates** — GET_CONFIGURATION, GET_STREAM_FORMAT,
+GET_VIDEO_FORMAT, GET_SENSOR_FORMAT, GET_STREAM_INFO, GET_NAME,
+GET_ASSOCIATION_ID, GET_SAMPLING_RATE, GET_CLOCK_SOURCE, GET_SIGNAL_SELECTOR,
+GET_COUNTERS, GET_MEMORY_OBJECT_LENGTH, GET_STREAM_BACKUP — and **the gate is
+list membership, not implementation**: a batch whose every command is in this
+list is ACCEPTED even when some members are not implemented by this profile;
+each unimplemented member is answered with a per-element `info_status` of
+`NOT_SUPPORTED` (§7.4.76.1). Only a command **outside** the list (GET_CONTROL,
+GET_AVB_INFO, GET_AS_PATH, GET_AUDIO_MAP and every other variable-size or
+non-GET opcode) makes the whole batch `BAD_ARGUMENTS`.
+
+**Realization status (2026-08-17): implemented.** `KL_aecp_engine` retains the
+RX slot and performs the required full-list pre-scan before dispatching any
+record. Implemented members run the same getter µprogram used by their
+standalone command, with `KL_aecp_ucpu` starting at the aggregate response
+cursor and suppressing its private header. Permitted but unimplemented members
+copy their command-specific data with record status `NOT_SUPPORTED`. A result
+that would take the aggregate cdl above 524 is omitted, and scanning continues
+with the next input record. A command-side `info_status` other than `SUCCESS`
+is a per-record `BAD_ARGUMENTS`; it is not a whole-list error because the field
+does not prevent the next record from being parsed. The only whole-list
+rejections are structural truncation, record overrun, an oversized command,
+and a command type outside the fixed-get whitelist.
+
+The response length selected by the batch decoder is checked against the
+getter's actual response cursor before the record status is patched. A mismatch
+voids the aggregate with `ENTITY_MISBEHAVING`, preventing a later getter edit
+from shifting following records or exposing stale response memory. Four-byte
+`COPY_BUF` operations write only their first word, so a sampling-rate image hit
+cannot touch the next record header. The engine and µCPU share
+`ucpu_pkg::RESP_CAP_C`, and elaboration fails if the configured response buffer
+is smaller than that limit. The engine never emits `IN_PROGRESS`.
+
+### 6.8 ACQUIRE / LOCK
+
+**Realization status (2026-08-15)** — LANDED per the Milan rulings: ACQUIRE_ENTITY
+answers NOT_SUPPORTED with the command echoed (Milan §5.4.2.1's systematic refusal;
+the echo IS §7.4.1.1's response, since a command carries owner_id 0 and a
+never-acquirable PAAD answers owner_id 0 — `E_NSUPPE`). LOCK_ENTITY is real
+(`E_LOCKEN` + the lock half of `KL_aecp_notify`): one holder eid + held bit + one
+shared-timer slot; UNLOCK flag (a query when free — SUCCESS/locked_id 0 — and
+ENTITY_LOCKED naming the holder from anyone else, which is the same answer a foreign
+LOCK gets); non-ENTITY targets refuse NOT_SUPPORTED off a walk-time all-zero check of
+@36..@39 (the bytes live past the capture registers, so the walk keeps the comparison,
+not the bytes); truncated commands refuse BAD_ARGUMENTS; the 60 s window re-arms on
+the holder's re-lock and expiry auto-unlocks with the Table 5.22 notification. The
+ACMP listener's 5.5.2.4 gate and the engine's CHECK_LOCK read the SAME published
+lock state. State-change notifications (took/released/expired) go to registered
+controllers except the requester, per-entry sequence_id incrementing.
+
+- **ACQUIRE_ENTITY (Δ7)**: a 3-µop constant program — echo fields, `owner_id` = 0,
+  status `NOT_SUPPORTED`. No acquire state, no CONTROLLER_AVAILABLE contention flow,
+  no PERSISTENT handling. (`CONTROLLER_AVAILABLE` origination exists solely for the
+  registry, §7.)
+- **LOCK_ENTITY**:
+
+<a id="fig-06-lock"></a>**F06.8 — Lock lifecycle**
+
+```mermaid
+stateDiagram-v2
+    UNLOCKED --> LOCKED: LOCK(flags=0) desc=ENTITY / locked_id = controller, arm T-LOCK-UNLOCK
+    LOCKED --> LOCKED: LOCK by owner / re-arm (keep-alive); respond locked_id
+    LOCKED --> UNLOCKED: LOCK(UNLOCK 0x1) by owner / respond
+    LOCKED --> LOCKED: LOCK by other / respond ENTITY_LOCKED + locked_id
+    LOCKED --> UNLOCKED: T-LOCK-UNLOCK expiry / unsolicited LOCK_ENTITY notification (Table 5.22)
+    UNLOCKED --> UNLOCKED: LOCK(UNLOCK) / respond (lock-state query idiom)
+    LOCKED --> LOCKED: LOCK desc != ENTITY / NOT_SUPPORTED (Δ10)
+```
+
+<a id="fig-06-lockset"></a>**F06.9 — Lock-protected set** (checked via `CHECK_LOCK`; a
+different controller receives `ENTITY_LOCKED` — Milan leaves the code unspecified,
+review §8 item 2; ACMP uses `CONTROLLER_NOT_AUTHORIZED`): SET_CONFIGURATION,
+SET_STREAM_FORMAT, SET_STREAM_INFO, SET_NAME, SET_SAMPLING_RATE, SET_CLOCK_SOURCE,
+SET_CONTROL, START/STOP_STREAMING, ADD/REMOVE_AUDIO_MAPPINGS, ACMP
+BIND_RX/UNBIND_RX, and **MGMT-origin state changes** (front-panel equivalence,
+Milan §5.4.2.x "in any other way").
+The waived MVU SETs (§6.9) take the unsupported-command path without a lock check;
+`tb/pp_top` M4L pins their byte-exact refusal under another controller's lock.
+
+**The locked refusal carries the value in force** (issue #53). Milan §5.4.2.13,
+§5.4.2.15 and §5.4.2.17 add the refusal ("shall not accept a SET_SAMPLING_RATE /
+SET_CLOCK_SOURCE / SET_CONTROL command from a different controller") and say nothing
+of its body, so the body is the command's own: IEEE 1722.1-2021 §7.4.21.1, §7.4.23.1
+and §7.4.25.1 each state "The response always contains the current value, that is it
+contains the new value if the command succeeds or the old value if it fails". An
+`ENTITY_LOCKED` answer is a failure, so it is the full response form (cdl 20, 20 and
+17) carrying the current rate, clock-source index or IDENTIFY value: the dynamic row
+once a controller or the restore has written it, the image's value before (the
+IDENTIFY value has no image arm, Milan §5.3.12), never zero and never the rejected
+argument. This is the rule SET_NAME, SET_CONFIGURATION and SET_STREAM_FORMAT already
+followed, and the one the end-station test plan's es-4.18 checks on SET_NAME. The
+three programs therefore locate the target and read the value before `CHECK_LOCK`;
+nothing is written before it, and a locate miss still meets the lock before it
+answers `NO_SUCH_DESCRIPTOR` (a foreign controller is told `ENTITY_LOCKED`; with no
+descriptor there is no value, so that body is zero). The same shared tail answers
+SET_CONTROL's out-of-range `BAD_ARGUMENTS` with the value in force.
+`tb/pp_top` section AX (LK1 to LK6) grades each byte-exact on an unset and a set
+row, proves the refusal writes, marks and notifies nothing, and serves the holder;
+LK3b and LK3c grade the out-of-range refusal the same way while IDENTIFY holds 255.
+
+### 6.9 MVU commands
+
+**October release waiver (owner decision 2026-09-23).**
+SET/GET_SYSTEM_UNIQUE_ID and SET/GET_MEDIA_CLOCK_REFERENCE_INFO are recommended
+and deliberately not implemented. Milan v1.2 §5.4.4.2–§5.4.4.5 (printed pp. 58–61)
+and §7.6 (printed p. 115) each introduce the feature with
+“Note: Support for this feature is a recommendation for Milan compliant PAADs.
+This recommendation will become a requirement in a future revision of this specification.”
+(Spelling normalized.)
+Those notes qualify the implementation language that follows; they do not make
+either pair a mandatory feature of this release. The
+[owner decision](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089)
+records this product choice; the parent requirement FR-MVU-02 is SHOULD.
+Implementation moves to [P4](https://github.com/kebag-logic/milan-fpga/issues/416)
+if the conformance lab requires it or a targeted Milan revision makes it mandatory.
+Processor issues
+[#55](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/55),
+[#56](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/56)
+and [#77](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/77)
+are resolved by recording this waiver and the tested fallback, not by adding support.
+
+| Command | Current behavior |
+|---|---|
+| GET_MILAN_INFO (0x0000, shall) | implemented: F06.11, SUCCESS, 44-B AECPDU / cdl 32; protocol_version 1, features_flags 0, certification_version 0 (microcode constants). A response whose memory fails, and one past its deadline (§8.1), answers MVU status 1 `NOT_IMPLEMENTED` with the command echoed, the only failure code Table 5.19 defines. The per-configuration compliance gate and certification register are not implemented (§8.1) |
+| SET/GET_SYSTEM_UNIQUE_ID (0x0001/0x0002, rec) | waived; VU response with MVU status 1 `NOT_IMPLEMENTED`, echoing the command body and length; no ID storage, SET validation, persistence or notification |
+| SET/GET_MEDIA_CLOCK_REFERENCE_INFO (0x0003/0x0004, rec) | waived; VU response with MVU status 1 `NOT_IMPLEMENTED`, echoing the command body and length; no priority/name storage, default-priority interface, SET validation, persistence or notification |
+| any other MVU type | VU response, MVU status 1 `NOT_IMPLEMENTED` |
+| wrong `protocol_id` | VU response echoing the protocol_id, status `NOT_IMPLEMENTED` |
+
+The status is Milan Table 5.19's unsupported-command response. For complete
+command forms, the current engine reflects the following lengths; it does not
+build the larger successful GET response. Padding is excluded from cdl.
+
+| Command type | Command format | Response AECPDU bytes | Response cdl | Ethernet bytes, untagged, excluding FCS |
+|---|---|---|---|---|
+| 0x0001 SET_SYSTEM_UNIQUE_ID | Figure 5.5 | 40 | 28 | 60 |
+| 0x0002 GET_SYSTEM_UNIQUE_ID | Figure 5.3 | 32 | 20 | 60 |
+| 0x0003 SET_MEDIA_CLOCK_REFERENCE_INFO | Figure 5.6 | 104 | 92 | 118 |
+| 0x0004 GET_MEDIA_CLOCK_REFERENCE_INFO | Figure 5.7 | 32 | 20 | 60 |
+
+The full protocol_id, r/command_type, sequence ID and command-specific bytes are
+preserved. Response message_type is 7 (`VENDOR_UNIQUE_RESPONSE`); source and
+destination MAC addresses reverse. This is the command-reflection policy of
+§8.2, exercised by [`tb/pp_top`](../../tb/pp_top/README.md) M4 for all four types.
+M3 and the reserved command type 0x0005 in M4 keep generic refusal covered.
+M1/M2 pin `features_flags` to zero. Milan Table 5.20 defines only REDUNDANCY
+and TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING: there is no feature bit for either
+waived pair, so this field advertises neither pair and is not a command-support
+bitmap. The reserved `P-EN-MVU-SUID` / `P-EN-MVU-MCR` names in
+[F01.5](01_overview.md#fig-01-params) have no RTL consumer or enable setting.
+
+<a id="sec-06-gsi"></a>
+### 6.10 GET_AVB_INFO / GET_AS_PATH and the Milan-info face
+
+**Realization status (2026-08-15, `E_GAVB`/`E_GASP` + the shared `gsi_*` face).**
+The two gPTP read commands ride the SAME selector-coded gather face GET_STREAM_INFO
+introduced (`gsi_kind` 1 and 2), because the answers are integrator truth: the
+elected grandmaster, asCapable, the SRP class-A domain and the link state live in
+the fabric, not in a command parser. Word tables (each one `BUILD_FLD` wide):
+
+| kind | sel | word | lands at |
+|---|---|---|---|
+| 1 AVB | 0 | gptp_grandmaster_id (qword) | @28 |
+| 1 AVB | 1 | {propagation_delay[31:0], domain[7:0], flags[7:0], msrp_mappings_count[15:0]} | @36..@43 |
+| 1 AVB | 8 | msrp_mapping[`gsi_ord`] {traffic_class, priority, vlan_id} (dword) | @44 + 4k |
+| 2 ASP | 0 | {48'0, path count} | @26 |
+| 2 ASP | 8 | path_sequence[`gsi_ord`] ClockIdentity (qword) | @28 + 8k |
+
+Selector bit 3 marks the record-class words; the engine's shared ordinal counter
+(the audio-map record counter, reused) numbers them. Existence comes from the
+descriptor store's AVB_INTERFACE locate — GET_AS_PATH's command carries only the
+index (§7.4.41.1), so the engine packs the locate key with the AVB_INTERFACE
+constant. Both emit count-many records: a zero-count face answers an EMPTY list
+(cdl 32 / 16) — absent, never invented.
+
+**Honesty contract** (what the processor accepts from an integrator): the engine
+does not synthesize network state. The face supplies propagation_delay and a
+counted path of up to eight ClockIdentity entries. A consumer may publish zero
+when no propagation-delay measurement or grandmaster is available. The response
+builder serves exactly those words. `gsi_avb_chg_i` reports a change in an
+integrator-owned GET_AVB_INFO word, while `gsi_asp_chg_i` independently reports a
+path change, including a tail change with an unchanged grandmaster. Connecting
+the live measurements, the atomic PathTrace store, and both strobes is the
+consumer integration's responsibility and is not implemented in this repository.
+
+## 7. Registry, notifications, liveness, identify
+
+**Realization status (2026-08-18, `hdl/aecp/KL_aecp_notify.sv`)**: the registry, the
+ENTITY lock and the emission walk are landed as one block beside the engine: 16-row
+LUTRAM table {EID, MAC, seq} + valid/TL flags, walked one row per cycle (single
+comparator, never a bank; the monitor's per-command match reads a LUTRAM identity
+index, see Storage below); REGISTER refresh preserves the row's sequence_id (Milan
+§5.4.2.21 initializes it "if a new entry is created"); overflow answers `NO_RESOURCES`
+directly. The CONTROLLER_AVAILABLE **eviction probe of the same clause is a MAY and is
+not attempted**. TIME_LIMITED expiry (300 s, timer-service slots `regmon + i`) removes
+the row and emits the targeted DEREGISTER notification with u = 1 and the entry's own
+sequence_id. The F06.5 arcs through PROBING are implemented: every valid command from
+a registered tuple draws an independent 30 to 60 second interval; this includes
+the six defined command message types for AEM, Address Access, AVC, MVU, HDCP APM,
+and Extended, while reserved types do not re-arm it. Expiry originates
+CONTROLLER_AVAILABLE through the shared inflight tracker; any matching response status
+re-arms the monitor; and one failed retry removes the row and emits targeted
+DEREGISTER. Either DEREGISTER waits for a running notification round to end, so a
+row removed between two of its jobs never changes the notification the round's
+remaining controllers receive (issue #158). A valid command that arrives while a
+probe is active cancels that probe and starts a fresh monitor interval.
+TIME_LIMITED expiry also cancels an active
+probe before its row is cleared, preventing a late result from changing a new
+controller that later reuses the row. Cancellation before issue releases any
+partially built TX slot and unlocks the shared writer. Emission jobs run
+through the engine one at a time (same µprograms, buffer and builder as solicited
+answers; `LANE_AECP_UNS`). Successful state-changing commands retain their response
+kind and requester exclusion in a bounded queue. GET_COUNTERS changes are coalesced
+per served descriptor, and a descriptor's next round begins no sooner than one second
+after its previous round's last send (issue #148): the stamp follows the clock while a
+job waits for the engine and the TX slot, so each controller's notifications of one
+descriptor are a second apart. With `P-N-AVB-INTERFACES` at 2 (issue #69) each row also
+stores the port, the AVB interface its REGISTER arrived on (the command's ingress
+interface, which the top latches where the engine takes the command), and REGISTER and
+DEREGISTER walk for the whole {EID, MAC, port} tuple; at 1 the field is not generated.
+The depth is then `P-N-CONTROLLERS` rows per interface: row r is {index, port}, and a
+REGISTER claims a row of its own port. A row's index is its CA owner and its timer
+owner-tag entry, which hold `P-N-CONTROLLERS` values, so the rows of one index take turns
+at the availability probe, and none starts for a few cycles after any cancel, while a
+cancelled exchange's last report can still arrive. The availability monitor matches
+{EID, MAC} on any interface: one command from a controller registered on both supersedes
+the probe of each of its rows, and each is cancelled, one per cycle, while a superseded
+probe's late response or failure touches nothing
+([REQ-SCP-003](../00_MILAN_COMPLIANCE_REVIEW.md#fig-00-matrix)).
+
+At one interface, a TIME_LIMITED drain can cancel one row's probe in the same
+cycle that another controller's command supersedes its probe. The drain keeps
+priority on the single cancellation face; the command's cancellation remains
+pending until sent, using the same per-row pending-drain rule as the count-two
+path. A failure report for a row whose command cancellation remains pending is
+ignored, including the cycle that emits that deferred cancel; it cannot remove
+the live row or queue its DEREGISTER. An uncontended command still cancels in its own cycle. `tb/aecp_notify`
+SC1 grades both row orders and detects a control that drops the pending cancel
+(issue #167). SC2 presents the commanding owner's failure one cycle after the
+coincidence and detects removal of the pending-cancel report guard. The count-two
+CA1b path is unchanged.
+
+**Storage (issue #232, 2026-10-03).** Each array of `KL_aecp_notify` and the
+primitive it is built for. The measured mapping, before and after, is recorded on
+milan-fpga #232.
+
+| Structure | Shape | Built for | Why |
+|---|---|---|---|
+| Row table `rows_r` {EID, MAC, seq} | `P-N-CONTROLLERS` × `P-N-AVB-INTERFACES` × 128 bits | distributed RAM, read at the walk (or drain), the probe's pick and the write index | no reader sees every row at once |
+| Port `g_port.port_r`, at two interfaces only | `P-N-CONTROLLERS` × 2 × 1 bit | distributed RAM | written with the row a REGISTER claims or refreshes, read by the walk's compare alone |
+| Cancel-pending bits and settle count `g_ca_turns`, at two interfaces only | 1 bit per row, and 2 bits | flops | every superseded probe's cancel waits its cycle; the settle and the probe flags decide whose turn an index's CA owner is |
+| Cancel-pending bits `g_ca_own.cx_wait_r`, at one interface | 1 bit per row | flops | retains a command's cancel when a TIME_LIMITED drain occupies the output |
+| Identity index | `P-N-CONTROLLERS` × `P-N-AVB-INTERFACES` rows × 19 six-bit chunks, one 64 × 1 memory each | distributed RAM | the monitor's "any valid AECP cmd from this controller" (F06.5) matches every row in the command's own cycle without a comparator per row; a REGISTER rewrites its row's index over the row write's own cycle and the cycle after it, while that row is matched by one comparator against the write port's read. The index's correctness relies on its configuration-time zero content (an explicit `initial`), as the ROM images rely on `$readmemh`; `rst_n` leaves both the index and `rows_r` as they are |
+| valid, TIME_LIMITED, parked expiry, monitor and probe flags | 1 bit per row each | flops | the expiry intake, the monitor and the walk read and write them in one cycle |
+| Command-notification queue `cmdq_*` | `P-NOTIF-QUEUE-DEPTH` (16) × 132 bits | distributed RAM | one write pointer, one read pointer; the pointers and count are the reset state |
+| GET_COUNTERS stamps `ctr_last_r` | (streams in + out + 1 + P-N-AVB-INTERFACES) × 32 bits | flops, no reset | `ctr_sent_r` is each stamp's valid bit; the one-second window reads every stamp against `now_ms_i` in every cycle |
+
+Exhaustion is defined for each. A REGISTER into a full table answers `NO_RESOURCES`
+(above). While anything is pending or emitting, `amap_busy_o` holds the engine's
+next command, so the queue holds at most the pushes of the command that was running
+when it was empty; a push into a full queue would be dropped and counted
+(`cmdq_drop_r`, which no port reads). The counter, stream-info, AVB-info, AS-path,
+lock and map classes coalesce into one pending bit per class or descriptor.
+
+**Identify (lane C6, 2026-09-30).** Both directions are landed. Controller to entity:
+SET/GET_CONTROL on the IDENTIFY control (Milan §5.4.2.17/§5.4.2.18, §5.3.12; volatile
+0/255, published on `aecp_identify_o`; `tb/pp_top` W12/W13). Entity to controller:
+IDENTIFY_NOTIFICATION origination (IEEE §7.4.39, §7.5.1 and Figure 7-142; Milan
+§5.4.5.4), built only with `P-EN-IDENTIFY-NOTIFICATION` (default 0: no sequencer, no
+area, `identify_button_i` not read). With it, a press of the 2FF-synchronised
+`identify_button_i` sends three u = 1 IDENTIFY_NOTIFICATION responses to
+91-E0-F0-01-00-01 with controller_entity_id 90-E0-F0-FF-FE-01-00-01 and descriptor
+CONTROL / `identify_index_i`, all at identifySequenceID (0 from reset, +1 per burst),
+each due `T-IDENT-BURST` after the previous one left the processor (its last byte to
+the MAC; IDENT-BURST singleton), so a busy lane or a stalled MAC delays the rest of a
+burst and never shortens a gap; while the button is held the next burst starts
+`T-IDENT-REARM` after the previous one's first frame (IDENT-REARM) and no sooner than
+`T-IDENT-BURST` after its third, and a release returns to WAITING without cutting a
+burst short. **No press is lost.** WAITING answers `identifyButtonPressed` (Figure
+7-142), and the gap after a third frame only delays the answer: a press seen while that
+gap runs is latched. So is a new press after a release inside a burst, read as a new
+IDENTIFY entry rather than left for the 1 s timeout a level sampled only after
+txIdentify would wait for (a deliberate reading of Figure 7-142). Either way, the burst
+the press is owed starts when the gap ends, `T-IDENT-BURST` after the running burst's
+third frame left, however soon the button is let go; a press made while a burst is
+already owed adds none (ID3, ID8). Graded on the wire in
+the `tb/pp_top` third build (section ID) and silent at 0 (section ID0); the command
+form keeps its `BAD_ARGUMENTS` (A6, ID4). **What identify work remains:** none in this
+repository. Adopting it is the integrator's: a debounced board button on
+`identify_button_i` and the parameter set to 1 (the parent ties the pin to 0 until it
+has one).
+
+**Verification categories.** The RND and STORM suites of [09 §3](09_verification.md)
+exist for this section: `tb/pp_top` RN (seeded REGISTER/DEREGISTER/LOCK/SET churn from
+20 controllers against an independent registry and lock model), ST (fan-out to all 16
+rows, GET_COUNTERS churn above 1 Hz on five descriptors, solicited deadlines under the
+load) and NP (a byte-exact push at a second controller for every command class of
+[F06.14](#fig-06-cmdtable) that notifies).
+
+Registry entry ([F07.7](07_memory_maps.md#fig-07-regrec)): {controller EID, MAC, port,
+next unsolicited `sequence_id` (init 0), TIME_LIMITED deadline, monitor deadline,
+probe state}. **No duplicate {EID, MAC, port} tuples; ≥ 16 entries per AVB interface;
+volatile** (cleared by power cycle), Δ12. The landed table holds `P-N-CONTROLLERS`
+entries per AVB interface: at two interfaces each interface has rows of its own
+(REQ-SCP-003).
+
+<a id="fig-06-regsm"></a>**F06.5 — Registry-entry lifecycle**
+
+```mermaid
+stateDiagram-v2
+    EMPTY --> REGISTERED: REGISTER cmd / dup-check, seq=0, arm T-NOTIF-MONITOR + T-NOTIF-TIMELIMITED if flag
+    REGISTERED --> REGISTERED: any valid AECP cmd from this controller / re-arm T-NOTIF-MONITOR
+    REGISTERED --> REGISTERED: TIME_LIMITED re-REGISTER / re-arm both
+    REGISTERED --> PROBING: T-NOTIF-MONITOR expiry / originate CONTROLLER_AVAILABLE (1 retry)
+    PROBING --> REGISTERED: any response (any status) / re-arm T-NOTIF-MONITOR
+    PROBING --> EMPTY: no response / remove + unsolicited DEREGISTER to that controller only
+    REGISTERED --> EMPTY: DEREGISTER cmd / remove
+    REGISTERED --> EMPTY: T-NOTIF-TIMELIMITED expiry / remove + targeted DEREGISTER notification
+```
+
+Registration overflow (Milan §5.4.2.21): the probe sweep is optional. This
+implementation does not run the sweep and returns the mandatory `NO_RESOURCES` result
+when the table is full. It never evicts a controller that may still be responding.
+
+<a id="fig-06-fanout"></a>**F06.4 — Unsolicited fan-out**
+
+```mermaid
+sequenceDiagram
+    participant CTRL as CTRL (requester)
+    participant AECP
+    participant NOTIF
+    participant CTRLB as CTRL B
+    participant CTRLC as CTRL C
+    CTRL->>AECP: SET_SAMPLING_RATE
+    AECP->>AECP: commit (atomic)
+    AECP-->>CTRL: response SUCCESS (solicited, u=0)
+    AECP->>NOTIF: trigger {SET_SAMPLING_RATE resp, exclude=CTRL}
+    NOTIF->>NOTIF: coalesce same-key pending triggers
+    NOTIF-->>CTRLB: unsolicited response u=1, seq = B.seq++, unicast B.mac on B.port
+    NOTIF-->>CTRLC: unsolicited response u=1, seq = C.seq++, unicast C.mac on C.port
+    Note over NOTIF: counters-class triggers additionally gated by T-CTR-NOTIF
+```
+
+Trigger classes: (1) every successful state-changing command (regenerated as the
+corresponding response, requester excluded: the body is the command's own response
+format from current state, so an unsolicited SET_STREAM_INFO carries 1722.1-2021
+Figure 7-40's complete 84-byte body, MSRP_ACC_LAT_VALID with the presentation-time
+offset in force, never Milan's GET_STREAM_INFO form, which §5.4.2.10 substitutes for the
+GET response alone); (2) MGMT/front-panel-equivalent changes while unlocked — read-only
+objects use the GET_ form (IEEE §7.5.2). **MGMT-origin changes are not supported by
+this build**: nothing outside ATDECC can change command-settable state (no MGMT
+producer, [03 §5](03_packet_engine.md#5-origins-originator-and-event-router)), so Milan
+§5.4.5.2's non-ATDECC duty has no trigger here; (3) async
+Table 5.22 set: GET_STREAM_INFO field changes (input/output splits per F06.13),
+GET_AVB_INFO (GM, prop delay, domain, asCapable, class-A prio/VID), GET_AS_PATH,
+GET_COUNTERS (`T-CTR-NOTIF`-limited), LOCK_ENTITY auto-unlock, targeted DEREGISTER.
+**STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+pbsta/acmpsta compare off the listener record write bus pushes only on a
+committed byte change, as on bind, unbind, settle or teardown. A discovered
+retry (A12, then the A5 delay expiry) retains the status and pushes nothing
+(Milan v1.2 §5.5.3.5.30 step 2, §5.5.3.5.10, Table 5.22). A retry with the
+talker gone (A17) changes the status to PASSIVE/0 and pushes (§5.5.3.5.30
+step 1). A repeated double probe timeout that leaves the status unchanged
+pushes nothing.
+
+The committed started/stopped change under a live binding also pushes
+(`act_strt_chg_o`: the §5.5.3.5.6 re-bind short-circuit, and a re-bind to
+another talker from a bound state). For a re-bind to another talker from
+PRB_W_RESP that changes started/stopped, with no retained status the byte
+stays ACTIVE/0, so `act_strt_chg_o` is the only push. With a retained status,
+both listener terms fire on the same record write and their OR sends one
+frame.
+
+The other triggers are the SRP registration and unregistration events; SRP's committed
+per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+latency-only Talker refresh, with no pulse for an unchanged value); and SRP's
+FailureInformation change strobe. Both change strobes feed only this notification (no
+Listener re-declaration, no event-router or ACMP event, [10 §6.4](10_srp_engine.md)).
+The SRP change strobes register on the attribute latch write alongside any
+registration event; the per-sink OR therefore raises one event even if several
+fields change together. No GET_COUNTERS rate limit applies to GET_STREAM_INFO.
+The two listener terms register off the same record write, so a walk that
+moves both pushes one frame. A START/STOP_STREAMING's own change is excluded:
+the command sends its opcode-specific unsolicited response instead.
+Coalescing merges same-key pending triggers (safe: notifications carry current full
+state); LOCK/DEREGISTER events are never coalesced. Ordering: notification after
+commit and after the solicited response ([03 §6](03_packet_engine.md) rule a).
+
+<a id="fig-06-liveness"></a>**F06.6 — Liveness probe**
+
+```mermaid
+sequenceDiagram
+    participant NOTIF
+    participant ORIG as originator
+    participant CTRLB as CTRL B
+    Note over NOTIF: T-NOTIF-MONITOR(B) expires after controller silence
+    NOTIF->>ORIG: CONTROLLER_AVAILABLE -> B (inflight, T-AECP-TIMEOUT)
+    ORIG->>CTRLB: CONTROLLER_AVAILABLE
+    Note over ORIG: timeout - one retry (exact duplicate)
+    ORIG->>CTRLB: CONTROLLER_AVAILABLE (retry)
+    CTRLB-->>ORIG: response (any status)
+    ORIG->>NOTIF: alive - re-arm T-NOTIF-MONITOR(B)
+    Note over NOTIF: no response instead: remove B + targeted unsolicited DEREGISTER
+```
+
+<a id="fig-06-identify"></a>**F06.16 — Identify flows**
+
+```mermaid
+sequenceDiagram
+    participant CTRL
+    participant AECP
+    participant DEV as device indicator
+    CTRL->>AECP: SET_CONTROL identify = 255
+    AECP->>DEV: identify_active = 1
+    AECP-->>CTRL: response + unsolicited to others
+    Note over AECP: value stays 255 until SET_CONTROL 0 (reset default 0)
+    Note over AECP,DEV: button variant (P-EN-IDENTIFY-NOTIFICATION, default 0)
+    DEV->>AECP: identify_button_i pressed (2FF, debounced by the integrator)
+    AECP-->>CTRL: IDENTIFY_NOTIFICATION x3, each T-IDENT-BURST after the previous one left, all at identifySequenceID
+    Note over AECP: multicast 91-E0-F0-01-00-01, controller_entity_id 90-E0-F0-FF-FE-01-00-01, u = 1, CONTROL identify_index_i
+    AECP-->>CTRL: still held after T-IDENT-REARM from the first frame: the next burst, identifySequenceID + 1
+    DEV->>AECP: released: WAITING (a running burst still ends)
+    Note over AECP: a new press inside a burst or in the T-IDENT-BURST gap after it is latched, its burst starts when that gap ends
+```
+
+## 8. µcode architecture
+
+Dispatch ROM entry (per opcode), **48 bits** (`P-DISPATCH-ROM-W`, F01.5): {µPC
+entry 11, hazard class 4 + key-extractor select 4, min-cdl 11, response-size id
+7, lock flag 1, GDI flag 1, notif flag 1, per-profile valid 2, reserved 6}.
+µCPU: µPC, µcode ROM (`P-UCODE-ROM-DEPTH` × `P-UCODE-ROM-W` = 2048 × **48 b**
+— measured as 3 RAMB36; the datapath LUT count is re-measured per change and
+lives in [`syn/ooc/README.md`](../../syn/ooc/README.md), not here),
+16 × 64-bit operand registers, response/iteration cursors, 32-bit ALU / 64-bit
+moves, status register. **FAIL_SAFE entry**: a fixed µPC holds the
+forced-respond arm (`SET_STATUS` best-current → `BUILD_HEADER` →
+`SEND_RESPONSE` → `END`); the deadline engine preempts a running µprogram by
+redirecting the sequencer there, so a command retires with a response in every
+outcome ([03 §6](03_packet_engine.md) rule (e), IEEE §9.3.2.6). Realized through
+the `E_DLKILL` arm in front of it (§8.1, "The deadline kill").
+
+**µISA (29 operations)** — revised from the original document
+([review §4](../00_MILAN_COMPLIANCE_REVIEW.md); dropped ops targeted objects that do
+not exist in a Milan PAAD):
+
+| Group | Ops | Notes |
+|---|---|---|
+| Flow | `NOP`, `BRANCH`, `BRANCH_IF_STATUS`, `END` | |
+| Data | `MOVE`, `COMPARE`, `SET_MASKED` | flag-word assembly |
+| Model | `DESC_ADDR`, `READ_STATE`, `WRITE_STATE`, `NAME_RD`, `NAME_WR`, `COPY_BUFFER` | image+overlay via [07 §3](07_memory_maps.md); `COPY_BUFFER` with `cnd` TAIL copies a descriptor's tail, its length less a lane-aligned start (§6.1) |
+| Checks | `CHECK_LOCK`, `CHECK_ARG`, `MAP_VALIDATE` | first failure sets status + branches |
+| Gather | `GATHER_EXT`, `READ_COUNTERS` | atomic snapshots (§6.2, §6.6) |
+| Iterate | `ITER_OPEN`, `ITER_NEXT`, `APPEND_RESP` | GDI + list responses; APPEND has skip-on-overflow semantics: it skips a field that would end past cdl 524, or, with `cnd` D8 (the Milan §5.4.1 record loop, §3) and outside a GET_DYNAMIC_INFO batch, past the response buffer (`RESP_D8_CAP_BYTES_P`, 592) |
+| Effects | `COMMIT`, `NVM_MARK`, `NOTIFY_ENQ` | commit is the atomicity point |
+| Respond | `SET_STATUS`, `SET_LENGTH`, `BUILD_HEADER`, `BUILD_FIELD`, `SEND_RESPONSE` | |
+
+Dropped from the original sketch: `ALLOCATE/RELEASE_CONNECTION`,
+`UPDATE_ENTITY_TABLE`, `WRITE_DESCRIPTOR`, `CHECK_ACQUIRE` (no such objects/flows in
+Milan). These are target exemplars; only commands listed as real in Section 8.1
+are current µprograms:
+
+```text
+GET_SAMPLING_RATE:                    SET_SAMPLING_RATE:
+  DESC_ADDR  AUDIO_UNIT[idx]            CHECK_LOCK
+  BRANCH_IF_STATUS fail                 DESC_ADDR  AUDIO_UNIT[idx]
+  READ_STATE r1 <- current_rate         CHECK_ARG  rate in sampling_rates[]
+  SET_STATUS SUCCESS                    CHECK_ARG  SRC rule (may NOT_SUPPORTED)
+  BUILD_HEADER; BUILD_FIELD r1          WRITE_STATE current_rate <- arg
+  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate  (completion only)
+                                        SET_STATUS SUCCESS
+ACQUIRE_ENTITY:                         BUILD_HEADER; BUILD_FIELD
+  SET_STATUS NOT_SUPPORTED              SEND_RESPONSE
+  BUILD_HEADER (echo, owner_id=0)       NOTIFY_ENQ  {resp, excl=requester}
+  SEND_RESPONSE; END                    END
+
+GET_DYNAMIC_INFO (as built):
+  pre-scan every tuple        ; exact 13-command whitelist
+  reject whole list           ; BAD_ARGUMENTS, no getter processed
+  load one complete tuple     ; command data remains in the retained RX slot
+  dispatch ordinary getter    ; aggregate cursor, private header suppressed
+  patch per-record status     ; same status the standalone getter produced
+  skip if result exceeds 524  ; continue with the following tuple
+  seal one aggregate response ; never IN_PROGRESS
+```
+
+In the SET_SAMPLING_RATE exemplar, the accepted `WRITE_STATE` that changes the row is
+what selects the AUDIO_UNIT's sampling-rate record for the D3 writer
+([07 §5.3](07_memory_maps.md#fig-07-nvmflow)). `NVM_MARK` remains a completion effect
+on `aecp_nvm_stb_o` / `aecp_nvm_mark_o`, with no record-selection authority.
+
+Sizing: ~35 programs × ~25 µops ⇒ `P-UCODE-ROM-DEPTH` = 2048 with ~2× margin, at `P-UCODE-ROM-W` = 48 b per µop (encoding: `hdl/aecp/ucpu_pkg.sv`).
+The dispatch ROM + response-size ROM + µcode are the artifacts generated from the
+single-source command model ([09 §1](09_verification.md)). Of the three, only the µcode
+exists. It takes its status codes and the MVU command_type from the command table
+`hdl/aecp/ucode/aecp_commands.json`, which also generates F06.14. The hand-written
+µprograms are held to the table by `make check` `aecpcmd`, and so are the engine's
+hand-written decode and dispatch, through what `tb/aecp_cmds` observes the engine do
+(09 §8.10). The table's `entries` record the programs the engine dispatches each command
+to; they select nothing in the engine.
+
+### 8.1 Realization status (`hdl/aecp/KL_aecp_engine.sv`)
+
+`KL_aecp_engine` pops the AECP dispatch queue, runs `KL_aecp_ucpu` against
+`KL_aecp_desc_store` ([07 §3.3](07_memory_maps.md)) and emits the response on TX lane
+0. What it answers **today**:
+
+| Opcode | Answer |
+|---|---|
+| 0x0000 ACQUIRE_ENTITY | Milan refusal: `NOT_SUPPORTED`, owner zero, and the full command response form |
+| 0x0001 LOCK_ENTITY | real lock, unlock, owner query, keep-alive, and expiry behavior |
+| 0x0002 ENTITY_AVAILABLE | real flags and current owner state |
+| 0x0004 READ_DESCRIPTOR | real: SUCCESS + `configuration_index`/reserved/descriptor, the descriptor carrying the current value a SET or the restore stored, which its GET then returns (ENTITY, and configuration 0's AUDIO_UNIT, CLOCK_DOMAIN and STREAMs, §6.1; issue #82) and reaching cdl 592 through the oversize slot (§3); `NO_SUCH_DESCRIPTOR` on a locate miss and `BAD_ARGUMENTS` on a bad configuration index, both with the §7.4.5 4-byte {type, index} stub |
+| 0x0006 SET_CONFIGURATION | real lock-protected **store**, with `STREAM_IS_RUNNING` while any Stream Input is bound or Stream Output is streaming. The value is recorded and republished; it does not yet re-point the served descriptor set - see the note under §6.4 |
+| 0x0007 GET_CONFIGURATION | real current configuration read |
+| 0x0008 SET_STREAM_FORMAT | real lock-protected per-stream store for both directions, with the Milan §5.4.2.7 refusals: per-descriptor `STREAM_IS_RUNNING` (bound input / streaming output, judged at dispatch off the indexed vectors), and one integrator gather that rules on the proposed format (supported set + mapping-channel survival) answering `BAD_ARGUMENTS`; every refusal carries the CURRENT format through GET_STREAM_FORMAT's own face word. The value is stored, published on the settings face and folded into the served current format; it does not yet re-shape the wire framers - the SET_CONFIGURATION precedent |
+| 0x0009 GET_STREAM_FORMAT | real current Stream Input or Stream Output format read |
+| 0x000E SET_STREAM_INFO | real for Stream Outputs, Milan §5.4.2.9's single sub-command: MSRP_ACC_LAT_VALID alone writes the presentation-time offset (bit 31 `BAD_ARGUMENTS`), any other flags refuse whole `NOT_SUPPORTED`, a streaming output refuses `STREAM_IS_RUNNING`, a Stream Input refuses `NOT_SUPPORTED`, and success answers the command echo §5.4.2.9 requires. The offset is stored, published per row and folded into GET_STREAM_INFO's latency word |
+| 0x000F GET_STREAM_INFO | real Milan Figure 5.1 response from the integrator state face |
+| 0x0010 / 0x0011 SET/GET_NAME | real for every named descriptor (ENTITY names 0 and 1, every other type name 0): the fixed 72-byte body carrying the current name in force at cdl 84 on every arm; SET_NAME is lock-protected, refused `ENTITY_LOCKED` with the current name, writes only a changed name and notifies (§6.2.1) |
+| 0x0014 / 0x0015 SET/GET_SAMPLING_RATE | real lock-protected per-Audio Unit dynamic state; SET accepts only a rate the located AUDIO_UNIT's `sampling_rates` list holds and refuses any other `BAD_ARGUMENTS` carrying the current rate (§6.4) |
+| 0x0016 / 0x0017 SET/GET_CLOCK_SOURCE | real lock-protected per-Clock Domain dynamic state |
+| 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+| 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester; the generic Table 5.22 started-state event is suppressed for that same command so it does not duplicate the push. |
+| 0x0024 / 0x0025 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | real bounded controller registry |
+| 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face |
+| 0x0028 GET_AS_PATH | real gPTP path response from the integrator state face |
+| 0x0029 GET_COUNTERS | real for STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE and CLOCK_DOMAIN: SUCCESS + `descriptor_type`/`descriptor_index`/`counters_valid` + all 32 quadlets (payload 136, cdl 148), the values coming from the integrator's counter face; `BAD_ARGUMENTS` on a command short of §7.4.42.1's four bytes |
+| 0x002B GET_AUDIO_MAP | real for both Stream Port directions: SUCCESS + the §7.4.44.2 fixed part + 8-byte records (payload 12 + 8·M, cdl 24 + 8·M), geometry and records from the integrator's audio-map face; `BAD_ARGUMENTS` on `map_index` ≥ `number_of_maps` (§7.4.44.1) or a command short of §7.4.44.1's eight bytes; `NO_SUCH_DESCRIPTOR` where the descriptor store misses the locate; a page of up to `P-MAP-SUBSET-CH-MAX` (71) records served whole, above cdl 524 and through the oversize slot where it needs them (§3's oversize rule); `NO_RESOURCES` with `number_of_mappings` 0 and no record for a page above it (issue #50) |
+| 0x002C ADD_AUDIO_MAPPINGS | real atomic whole-command validation and commit for dynamic Stream Port Input and Output targets; static targets return `NOT_SUPPORTED`; every success emits the required unsolicited response |
+| 0x002D REMOVE_AUDIO_MAPPINGS | real atomic whole-command validation and commit with duplicate-safe removal; static targets return `NOT_SUPPORTED`; every success emits the required unsolicited response |
+| 0x004B GET_DYNAMIC_INFO | real two-pass batch execution: exact fixed-get whitelist, whole-command `BAD_ARGUMENTS` before processing on a forbidden member, ordinary getter results with per-record status, `NOT_SUPPORTED` plus copied command data for legal unimplemented members, and silent skip with continued processing when a result would exceed cdl 524 |
+| 0x0026 IDENTIFY_NOTIFICATION | `BAD_ARGUMENTS`, using the opcode-specific §7.4.39.2 rule over §9.3.5.3.3; originated only as the unsolicited response of §7.5.1, with `P-EN-IDENTIFY-NOTIFICATION` (§7) |
+| MVU 0x0000 GET_MILAN_INFO | real: SUCCESS + the Figure 5.4 body, `protocol_version` 1, `features_flags` 0, `certification_version` 0 (§6.9 and the honesty note below); AECPDU 44 B, cdl 32 |
+| everything else, all message types | `NOT_IMPLEMENTED` with the command **echoed** (F06.14 / §9.3.5.3.3) |
+
+**GET_COUNTERS keeps no counters, and that is the design.** The events Milan
+Tables 5.1, 5.4, 5.6 and 5.7 count happen in the integrator's datapath (the link,
+gPTP, the media clock, the stream talkers and listeners), so the engine owns
+the §7.4.42.2 block layout and asks a `ctr_*` read face for one quadlet at a
+time: `ctr_word_o` 0..31 is the block quadlet at block byte 4·n, and
+`ctr_word_o` = 32 is `counters_valid` itself, so one face carries both the
+values and the claim about them. The µprogram (`E_GCTRS`, `gen_ucode.py`) opens
+with the store locate (§6.6). The hit path is 17 µops: the locate, its
+`BR_STATUS`, then the mask and the 32 quadlets (eight four-beat `READ_CTRS`) with
+no further branch. On a miss, `BR_STATUS` takes an 11-µop arm that lays the same
+fixed body with a zero mask and a zero block from an iterator loop, never asking
+the face. `E_GCTRSNS` (two
+µops) sets NOT_SUPPORTED and falls into that arm for a type outside the kept
+set, ENTITY among them (Table 7-150 has nothing but ENTITY_SPECIFIC bits, none
+Milan-mandatory; §6.6). For a real object of a kept type that this build
+measures nothing for, §7.4.42.2 already gives the honest answer:
+`counters_valid` = 0 means "no quadlet here", where a mask of ones over a block
+of zeros would be a lie.
+
+`ctr_wait_i` is asserted to **hold**, not to grant, so an unwired face answers 0
+immediately and the response carries an empty mask rather than hanging. A face
+that holds forever is bounded by `MEM_TIMEOUT_CYC_P` and voids the response
+through the ENTITY_MISBEHAVING rebuild: the µCPU it would otherwise stall is the
+same one READ_DESCRIPTOR runs on, and losing the descriptor path is worse than
+losing a counter read.
+
+Measured cost of the whole opcode inside `KL_aecp_engine`, yosys 0.66
+`synth_xilinx -family xc7 -flatten`, against the commit it lands on:
+**+174 LUT, +17 flip-flops**, with block RAM, distributed RAM and CARRY4
+essentially unchanged — the 2048-word µcode ROM absorbed `E_GCTRS` in its fill,
+so the 32-quadlet block costs no memory at all.
+
+The flip-flop figure is exact and accounted for: a 13-bit timeout counter, its
+sticky fault bit and the per-command "this is a counters command" bit are 15 of
+the 17. Tying `ctr_wait_i` to a constant — an integrator whose counters answer
+combinationally — folds the timeout counter away entirely; **measured**, the same
+build drops to 1,799 flops.
+
+The LUT figure deserves less confidence than that, and the reason is measured
+rather than asserted: on the same instrument the preceding GET_MILAN_INFO change
+measured **−32 LUT** (a functional addition that came out smaller), and this same
+GET_COUNTERS change measured **+70** when applied to the tree before it. Read it
+as "of order a hundred", not as a number. Vivado —
+[`syn/ooc`](../../syn/ooc/README.md)'s instrument of record, which put
+`KL_aecp_ucpu` at 1,070 LUT where yosys puts it at 1,122 — has not been run
+against this change, and at the shipping build's occupancy a three-seed sweep is
+the only thing that settles whether it fits.
+
+**GET_AUDIO_MAP keeps no mappings, and that is the same design.** Milan §5.3.3.9
+makes every Milan Stream Port Input dynamic ("The Stream Port Input of a
+Configuration shall not contain any AUDIO_MAP descriptor"), so a controller can
+ONLY see an input's mappings through 0x002B - a NOT_IMPLEMENTED there is "no
+mappings at all" to a strict la_avdecc, which then fails enumeration of a
+device whose STREAM_PORT_INPUTs carry `number_of_maps` = 0. The mappings
+themselves live in the integrator's routing fabric (on the reference platform,
+the render crossbar's map RAM), so the engine owns §7.4.44.2's layout and asks
+an `amap_*` read face - the counters bargain again - one word at a time:
+`amap_sel_o` 0 is the port's `number_of_maps`, 1 is
+`{number_of_maps, number_of_mappings}` for the page `amap_map_index_o`, 2 is
+mapping record `amap_rec_o` of that page as one big-endian §7.4.44.2.1 qword.
+Both faces share ONE gather bus routed **by command** (`amap_r`), never by
+selector value, so each owns the whole selector space while its command is in
+flight.
+
+The authority split is the honest part (`E_GAMAP`, 21 µops):
+
+- **Existence is the descriptor store's.** The µprogram opens with a
+  `DESC_ADDR` locate of `STREAM_PORT_INPUT[index]` in the same image
+  READ_DESCRIPTOR serves, so GET_AUDIO_MAP answers `NO_SUCH_DESCRIPTOR` for
+  exactly the indices READ_DESCRIPTOR answers it for - one authority, no
+  drift between the image and the fabric's idea of its ports.
+- **The page rule is the µprogram's.** §7.4.44.1: "If the map_index is beyond
+  the range of available maps then it returns a BAD_ARGUMENT status" - one
+  `CHECK_ARG map_index < number_of_maps`, the bound coming from the face.
+- **The partition and the records are the integrator's.** Milan §5.4.2.26
+  fixes the partition per Configuration ("disjoint subsets whose size does
+  not exceed 176 ... This partitioning shall be fixed for a given
+  Configuration") and demands "always return N in the number_of_maps field
+  ... no matter the actual count of dynamic mappings" - the face serves N,
+  each page's count, and each record; the µprogram's ITER/APPEND loop (0-trip
+  safe: tested before the body) emits exactly `number_of_mappings` records.
+
+There is ONE emit path for all three statuses, and the face's wrong-object
+guard is what makes that possible: a page the store has no data for (unknown
+port, out-of-range map_index) answers `number_of_mappings` = 0, so the
+BAD_ARGUMENTS and NO_SUCH_DESCRIPTOR stubs carry the full 12-byte fixed part
+over an empty page by the same wire the success path uses - a controller that
+deserializes on every status gets a well-formed frame at every status. The
+record ordinal (`amap_rec_o`) is an engine-side counter, one increment per
+completed record gather, reset with the command, so the face stays a
+stateless {port, page, ordinal} → record lookup.
+
+`amap_wait_i` is the same HOLD `ctr_wait_i` is, bounded by the same (now
+shared) watchdog with the same ENTITY_MISBEHAVING void on expiry, and an
+unwired face is the same safe state: `number_of_maps` answers 0 and every
+GET_AUDIO_MAP resolves against the descriptor image alone.
+
+**Both Stream Port directions are served.** Milan §5.4.2.26 requires
+GET_AUDIO_MAP on every Stream Port Input and Stream Port Output with no static
+map. STREAM_PORT_INPUT enters `E_GAMAP` directly. The registered type gate
+sends STREAM_PORT_OUTPUT through `E_GAMAPO`, which substitutes the output type
+and joins the same response program. The integrator selects its mapping store
+from `amap_desc_type_o`. Any other descriptor type keeps the NOT_IMPLEMENTED
+echo. ADD_AUDIO_MAPPINGS (0x002C) and REMOVE_AUDIO_MAPPINGS (0x002D) reuse the
+same descriptor type gate, then stage a full-page transaction through the
+fabric's mapping acceptance law.
+
+Measured cost of the whole opcode inside `KL_aecp_engine`, yosys 0.66
+`synth_xilinx -family xc7 -flatten`, against the commit it lands on:
+**+70 LUT, +9 flip-flops** (2,727 → 2,797 LUT; 1,813 → 1,822 FF), with block
+RAM (5 RAMB36E1), distributed RAM (54 RAM32M) and the MUXF7/F8 counts
+unchanged and CARRY4 moving 192 → 194 - the µcode ROM absorbed `E_GAMAP` in
+its fill, so the 21-µop program costs no memory. The flop figure is exact and
+accounted for: the 8-bit record ordinal plus the `amap_r` discriminator ARE
+the 9; the shared watchdog reuses the counters timeout counter, so the wedge
+guard costs nothing new. Read the LUT figure as "of order a hundred" for the
+reasons the GET_COUNTERS paragraph above already measured; Vivado has not
+been run against this change.
+
+Delta 7 ACQUIRE_ENTITY is distinguished from the generic fallback. It returns
+`NOT_SUPPORTED`, preserves the command form, and carries the required zero
+`owner_id`. LOCK_ENTITY and ENTITY_AVAILABLE take their own registered paths.
+
+**The deadline kill (issue #81; [03 §6](03_packet_engine.md) rule (e)).** The
+top reads the transaction deadline at admission and raises `dl_kill_i` once it
+passes. The engine then asserts the µCPU's `preempt_i`, and the µCPU redirects
+its sequencer to `E_DLKILL` (µPC 6, two words in front of `E_FAILSAFE`) at the
+next instruction boundary, exactly like a taken branch, with the response
+cursor back at 12. `E_DLKILL` keeps a refusal status the program already chose
+and turns a SUCCESS it had not finished building into ENTITY_MISBEHAVING (IEEE
+Table 7-141 status 10), then falls into `E_FAILSAFE` (BUILD_HEADER,
+SEND_RESPONSE, END), which is unchanged. Two rules keep it from ever
+half-committing:
+
+- an op that is waiting on its face (a state read, a gather, a response-buffer
+  write) is never cut; the redirect waits for it to retire, and every such wait
+  is watchdog-bounded;
+- once a program has retired an effect op (WRITE_STATE, NAME_WR, COMMIT,
+  NVM_MARK, NOTIFY_ENQ, SEND_RESPONSE) it is never redirected: it has changed
+  state or sent its answer, and it ends with its own response. The three
+  commands whose change rides a gather face instead (REGISTER/DEREGISTER and
+  LOCK_ENTITY on the registry face, ADD/REMOVE_AUDIO_MAPPINGS on the edit face,
+  whose phase-1 acceptance is its point of no return) are never preempted.
+
+A preempted command of any message type but AEM_COMMAND (Milan Vendor
+Unique, ADDRESS_ACCESS, AV/C, HDCP APM, EXTENDED) answers `NOT_IMPLEMENTED`
+with the command echoed: status 10 is AEM's (IEEE Table 7-141), and
+`NOT_IMPLEMENTED` is the one failure code every AECP message type shares (IEEE
+Table 9-2; for MVU, Milan v1.2 §5.4.3.3 Table 5.19 defines no other). A
+response the response memory voids gets the same answer for such a command,
+in a TX slot sized for the echo when the slot was granted. The trade-off this
+makes for GET_MILAN_INFO is deliberate: it is implemented and mandatory, and a
+controller may read its NOT_IMPLEMENTED as a device that is not a PAAD-AE. It
+is answered so only when it was still waiting or running at
+`T-BUDGET-AECP-WC`, behind a slow face (`tb/pp_top` DL3), or when its response
+memory failed (DL8). Its own program is short and watchdog-bounded (TB4), so
+exempting MVU from the preempt would usually still answer SUCCESS inside
+`T-AECP-RESP`, but nothing but that program's length would then bound it: rule
+(e)'s bound is kept the same for every command instead. A
+preempted GET_DYNAMIC_INFO getter voids the aggregate, and past the deadline no
+further record runs: the batch answers ENTITY_MISBEHAVING, empty, through the
+same void its shape check uses. The engine reports the forced response's
+hand-off to TX lane 0 on `dl_queued_o`, the scoreboard's `kill_resp_queued_i`.
+`tb/ucpu` P20 grades the redirect and `tb/pp_top` section DL the whole seam,
+the three never-preempted commands included (DL6, DL10)
+([09 §8.3](09_verification.md#83-the-aecp-deadline-and-the-hazard-classes-issues-81-57-84)).
+
+**Dispatch decision (this section specifies a ROM; the tree ships none).** §4 names a
+dispatch ROM and §8 fixes its 48-bit entry, but no ROM and no generator for it exist.
+Its hazard class and key half is realized in `protocol_processor_top`: the F03.7
+classifier answers the normalizer's seam per opcode, and every class reaches the
+scoreboard ([03 §6](03_packet_engine.md), issue #84). The engine uses a two-stage
+direct decode for the rest. The timing-sensitive pop stage
+selects READ_DESCRIPTOR, GET_COUNTERS, GET_AUDIO_MAP, and opcode-specific
+BAD_ARGUMENTS paths. Registered discriminator bits select the remaining implemented
+AEM programs at the payload-walk exit, after all operand bytes have settled. A ROM
+becomes the right shape once the hazard class, minimum length, response-size id,
+lock/GDI/notify flags and per-profile valid bits have consumers. When it lands it
+replaces both decode stages and nothing else. Its per-opcode content, other than the
+per-profile valid bits, already has one source: the command table behind F06.14
+(09 §8.10). Today both decode stages are hand-written. The table holds them through
+what `tb/aecp_cmds` observes: the programs each opcode is dispatched to, the shortest
+command accepted (the minimum length), the GET_DYNAMIC_INFO members and the
+unsolicited map. `aecpcmd` holds their constants and the classifier.
+
+**The MVU sub-decode is a SECOND decode, and it has to be.** §4's block diagram draws
+the MVU sub-decoder beside the AEM decoder, both feeding the dispatch ROM, which reads
+as though one lookup at pop could serve both. It cannot. A Milan Vendor Unique command
+carries no AEM `command_type`: Milan §5.4.3.2 puts a 48-bit `protocol_id` at @22..@27
+and the MVU `command_type` at @28..@29, so the [03 §4](03_packet_engine.md) record's
+`opcode` — which `KL_pp_rx_validator` fills from @22..@23 — holds the first two bytes of
+that protocol_id and *nothing that identifies the command*. The bytes that do identify it
+are read by the engine's payload walk, so the pop-time decode stands (an MVU command
+starts out heading for the generic echo) and the walk's exit overrides it once
+`protocol_id`, the r field and `command_type` are all settled. The match demands the
+whole 48-bit id: the Avnu OUI-36 is shared with any future Avnu protocol, and only the
+low 16 bits separate MVU's 0x100 from them.
+
+**What it cost, measured.** The instrument of record for this project is Vivado
+post-synthesis hierarchical utilization ([10 §2](../10_RESOURCE_AND_EFFORT.md)), and
+this measurement is NOT it — it is yosys 0.66, `synth_xilinx -family xc7 -flatten`,
+`KL_aecp_engine` out of context, taken on the same tree immediately before and after the
+change. On that second instrument the whole feature — sub-decode, µPC entry and
+µprogram — costs **+31 estimated logic cells (2,014 → 2,045), +7 flip-flops (1,789 →
+1,796) and ZERO additional block RAM (5 RAMB36 before and after)**. Re-take it on
+Vivado before quoting it in an area record.
+
+Two of those seven flops are the design's own new state: the walk keeps the two byte
+COMPARISONS of @26..@27 rather than the two bytes, and rebuilding the same tree with
+`pid_lo_r` deleted moves the count by exactly 2. That choice is not only smaller — it is
+what makes a walk that stops early *unable* to look like a match, where two stale bytes
+could. The block-RAM zero is the reason the whole thing is affordable at 99.9 % slice
+occupancy: the µprogram lands in the 2048 × 48 ROM that was already instantiated with
+about 1,290 words unused, so a new command costs microcode, not memory.
+
+The raw LUT counts moved in the OTHER direction (2,618 → 2,586 LUT cells alongside
+119 → 116 MUXF7), and that is a mapping artefact, not a saving: adding two arms to the
+payload walk's `unique case` re-balanced the whole decode between LUTs and the slice's
+dedicated F7/F8 muxes. A variant built with `pid_lo_r` removed lands at 2,658 LUT cells
+and 160 MUXF7 — higher than either. This is exactly why the logic-cell estimate is
+quoted above and the LUT column is not.
+
+**GET_MILAN_INFO's `features_flags` is 0 and that is a claim, not a default.**
+Milan Table 5.20 defines exactly two bits. REDUNDANCY (0x00000001) asserts Milan §8
+seamless redundancy, which needs a second AVB interface this PAAD does not have
+(`P-N-AVB-INTERFACES` = 1, one AVB_INTERFACE descriptor).
+TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING (0x00000002) asserts §5.3.9.1 map changes while a
+Stream Output streams. This build keeps that flag clear and refuses ADD or REMOVE
+against a running Stream Output. `certification_version` is 0
+because §5.4.4.1 reserves it for a Milan certification actually passed. An overclaimed
+flag sends a controller down a path the gateware cannot serve; the flag moves when
+the root integrator's running-output policy changes, together with the
+corresponding microcode feature constant. All three fields are microcode constants
+today rather than §6.9's `certification_version` *register*: a register buys a runtime
+write path for a value that changes when the bitstream does, and the profile parameters
+that would drive `features_flags` are elaboration-time by the same rule the rest of the
+shape follows.
+
+**What GET_MILAN_INFO does NOT yet honour.** §6.9's per-configuration compliance gate
+(§5.4.4.1's recommendation that a PAAD-AE whose active configuration is non-compliant
+should not reply at all) is not implemented: this build always replies. The model
+metadata that would carry the flag does not exist, and §5.4.4.1 marks the behaviour a
+recommendation "in a future revision".
+
+**Header ownership.** `BUILD_HEADER` writes a compact {target_eid, seq, status} record
+into response bytes 0..11 and the cursor starts at 12; that record is *not* the 24-byte
+AECPDU header. The engine synthesises the wire header from the [03 §4](03_packet_engine.md)
+transaction plus `resp_status_o`, so response byte 12+k is AECPDU byte 24+k and
+`resp_len - 12` is the payload length. `control_data_length` is 12 + payload — the
+offset-from-@12 convention F06.14 uses throughout ("GET_COUNTERS 160 B, cdl 148").
+
+**Response-buffer byte order** (unstated above, and it has to be stated): `rb_wdata`
+carries a field value right-justified with a low-contiguous `rb_wstrb` giving its
+width, and those bytes are placed **big-endian** at `rb_addr`, the 1722.1 wire order of
+every AEM field. The rule must live in the buffer because the µISA has no byte-swap
+operation.
+
+**The response-buffer face is flow controlled**: `rb_ready` low HOLDS the E stage
+with the same write still presented — operand registers, the beat counter `eseq`, the
+cursor and the status all keep their value, and the beat counter in particular must
+NOT advance, because it is what selects the write the buffer just declined. This is
+what lets the buffer live anywhere, including the integrator's main memory
+([03 §7.1](03_packet_engine.md)), where closing a lane costs a memory round trip. A
+buffer that can always take a write ties `rb_ready` high and nothing about the
+pipeline changes. Write addresses are **non-decreasing from byte 12** within one
+response — `BUILD_HEADER` owns 0..11 and every `BUILD_FIELD`/`APPEND`/`COPY_BUFFER`
+advances the cursor — and a memory-backed buffer relies on that to keep one open lane
+instead of the whole 592 bytes.
+
+### 8.2 How a NOT_IMPLEMENTED response is sized, and who decides
+
+§9.3.5.3.3 says an unimplemented command "shall be responded to with a correctly sized
+response", and never says which size. (§9.3.5.3.3 is `processCommand`, and its own
+opening sentence scopes it to "an AEM Command other than ACQUIRE_ENTITY and
+LOCK_ENTITY". It is cited throughout this section as the SIZING rule, which is what it
+gives; it does not govern those two opcodes' behaviour, and nothing here should be read
+as saying it does.)
+
+**The mandatory core trio is answered.** ACQUIRE_ENTITY returns the Milan Delta 7
+`NOT_SUPPORTED` response with zero `owner_id`. LOCK_ENTITY implements the ENTITY-only
+lock, unlock, competing-controller refusal, and timeout behavior through
+`KL_aecp_notify`. ENTITY_AVAILABLE builds the 2021 response form with flags plus the
+acquired and locked controller IDs. The generic NOT_IMPLEMENTED sizing below applies
+only to commands outside the served inventory. For those commands, two readings exist:
+the length of the command being answered, or the length the standard gives that
+opcode's own RESPONSE (§7.4.78.2's GET_MAX_TRANSIT_TIME response is 12 octets where
+its command is 4).
+
+**This engine reflects the command**, so `control_data_length` is 12 + the command's
+payload, the payload is the command's own bytes read back out of its RX slot, and a
+frame under the 60-octet Ethernet minimum is zero padded without touching the length
+field. The reflected reading is the one the reference stack implements on BOTH sides:
+la_avdecc answers an unhandled command by reflecting it verbatim (`localEntityImpl.ipp`,
+"Reflect back the command, and return a NotImplemented error code"), and its controller
+checks a NOT_IMPLEMENTED payload for EQUALITY with the command's length
+(`protocolAemPayloads.cpp` `checkResponsePayload`). The response reading also fails on
+its own terms: it would make a NOT_IMPLEMENTED GET_COUNTERS 136 octets, which that same
+controller rejects, and it needs a per-opcode response-size table for opcodes the
+engine by definition does not implement.
+
+Measured on the AX7101 on 2026-08-14, 17 opcodes spanning command payloads of 0, 4, 8
+and 16 octets: every answer carried exactly 12 + the command's payload, the command's
+own bytes, and 60 octets on the wire. `tb/pp_top` A5b holds that (and is
+mutation-proven against a self-consistent wrong length).
+
+**Auditing this is a length sweep, not an opcode table.** The emitted length comes from
+the received `control_data_length` trimmed by the committed RX slot, and never from the
+opcode, so "is opcode X sized correctly" has one answer for all of them and the only
+axis worth sweeping is length. §9.2.2.6 caps `control_data_length` at 524, so the
+largest legal command payload is 512; the response-buffer ceiling here is 580 and the
+RX-slot ceiling is 552 (`RX_SLOT_BYTES_P` 576 less the 24-octet AECPDU header), both
+above it, so no legal command can be trimmed. Measured on the board: 72, 256 and 512
+octet commands all came back reflected exactly (`control_data_length` 84, 268, 524), and
+so did an over-legal 520. At the other end the arithmetic saturates rather than wraps:
+a command whose `control_data_length` is 11, below the 12-octet AEM floor, is answered
+with 12 and no payload (a length that low is malformed on arrival and a controller
+rejects it on its own deserialization), and 0 or 4 never reach this block at all because
+the validator drops them.
+
+**Where a controller still complains, and why the wire does not move.** Hive 4.3.1
+logged `Received an invalid non-success GET_MAX_TRANSIT_TIME AEM response (Incorrect
+payload size)` against a correct 4-octet reflection. The cause is in the controller: for
+GET_MAX_TRANSIT_TIME la_avdecc passes `AecpAemSetMaxTransitTimeCommandPayloadSize` (12)
+where its own check wants the GET command's length (4, §7.4.78.1). It is a class and not
+one opcode. The same substitution puts a SET command's length into the GET check for
+GET_CONFIGURATION, GET_STREAM_FORMAT, GET_NAME, GET_SAMPLING_RATE, GET_CLOCK_SOURCE,
+GET_MEMORY_OBJECT_LENGTH and GET_MAX_TRANSIT_TIME, and a MIN size is compared with `!=`
+for GET_DYNAMIC_INFO, SET_CONTROL, ADD/REMOVE_AUDIO_MAPPINGS and START_OPERATION. Eight
+of those were reproduced on the wire against this DUT. Hive only trips over
+GET_MAX_TRANSIT_TIME while enumerating because it takes formats, names, rates and clock
+sources from descriptors instead of commands, and it processes the answer anyway (its
+build sets `IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES`). Emitting 12 octets for that one
+opcode would please this controller, break the rule for the nine opcodes it currently
+accepts, and cost a response-size table on a part with 17 free slices.
+
+**The same question for a descriptor tail.** Hive also logged `Remaining bytes in buffer
+for READ_AVB_INTERFACE_DESCRIPTOR RESPONSE: 4` against the 102-octet AVB_INTERFACE this
+device serves. IEEE 1722.1-2021 Table 7-13 ends that descriptor at `base_control`, offset
+100, length 2, so 102 is the 2021 length, and Milan v1.2 §5.3.3.5 requires exactly
+"the format specified in [ATDECC, Clause 7.2.8]" with no length carve-out.
+la_avdecc stops at `port_number`
+(`AecpAemReadAvbInterfaceDescriptorResponsePayloadSize` = 8 + 94), which is the 2013
+length, and the read still reports Success because the trailing 4 octets are surplus
+rather than missing. We are right and the controller lags: the descriptor does not
+change.
+
+The AUDIO_CLUSTER descriptor is **not** a parallel case, and an earlier revision of
+this paragraph got it backwards in a way worth recording, because the wrong version
+turned an open defect into a correctness argument. 1722.1-2013 Table 7.27 ends
+AUDIO_CLUSTER at `format`, offset 86 length 1, for 87 octets. 1722.1-2021 Table 7-27
+**adds** `aes3_data_type_reference` (offset 87, length 1) and `aes3_data_type`
+(offset 88, length 2), for **90**. 2021 made it LONGER. The board serves 87, which is
+the 2013 length, and la_avdecc's constant agrees with 87 only because it is also
+2013. So AVB_INTERFACE is a controller lagging the standard while AUDIO_CLUSTER is
+this device lagging it: opposite directions, and only the first of them is
+somebody else's to fix.
+
+## 9. Timing
+
+Owns `T-AECP-RESP`, `T-NOTIF-MONITOR`,
+`T-NOTIF-TIMELIMITED`, `T-LOCK-UNLOCK`, `T-CTR-NOTIF`,
+`T-IDENT-BURST`, `T-IDENT-REARM` (`T-CTR-OBSERVE` is the integrator's, §6.6); the
+originator applies `T-AECP-TIMEOUT` to CONTROLLER_AVAILABLE inflight. Values: [F08.1](08_timing.md#fig-08-constants);
+budgets: [08 §4](08_timing.md).
+
+## 10. Milan deltas
+
+Δ6 (GET_STREAM_INFO), Δ7 (ACQUIRE), Δ8 (oversize), Δ9 (output counter masks),
+Δ10 (lock scope), Δ11 (direction rules), Δ12 (registry tuple + per-controller seq) —
+master table [F01.4](01_overview.md#fig-01-deltas).
+
+## 11. Parameterization
+
+`P-N-CONTROLLERS`, `P-CA-POOL`, `P-NOTIF-QUEUE-DEPTH`, `P-UCODE-ROM-DEPTH`,
+`P-EN-IDENTIFY-NOTIFICATION`, `P-MAP-SUBSET-CH-MAX`, `P-INTERNAL-INGRESS-DELAY-NS`.
+
+`MILAN_FEATURES_FLAGS.TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING` is the F01.5
+microcode constant (§8.1).
+
+`P-EN-MVU-SUID` and `P-EN-MVU-MCR` are reserved names only in F01.5;
+neither is an RTL parameter (§6.9).
+
+## 12. Cross-references
+
+Covers REQ-AEM-001…026, REQ-MVU-001…005, REQ-NOT-001…005 and the counter rows of
+REQ-NET-004. Storage: [07 §3–§4](07_memory_maps.md); ACMP state consumed via
+[05 §5](05_acmp_engine.md); verification categories DIR/RND/STORM/TOL
+([09 §3](09_verification.md)).
+== after write
+  decode: GET_AUDIO_MAP: GAMAP answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+  decode: GET_AUDIO_MAP: GAMAPO answered NOT_SUPPORTED at cdl 24, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAP answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers SUCCESS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NOT_SUPPORTED at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_SUCH_DESCRIPTOR at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers BAD_ARGUMENTS at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: E_GAMAPO answers NO_RESOURCES at cdl 24 + 8·N, the table's response is 20 + 8·N
+  rom: GET_AUDIO_MAP: its programs answer SUCCESS only at cdl 24 + 8·N, never 20 + 8·N: no path builds the variable part

@@ -1,0 +1,4 @@
+FAIL:  decode: MVU/wrong-protocol-id 0x0000 is no table command and the engine dispatches it to MVUINFO, not only NOTIMPL
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode MVU/wrong-protocol-id 0x0000 MVUINFO: observed {"answers": {"0": "32"}, "cdls": "20, 24, 32, 100", "floor": 20}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "df5411053a38beb79206a56df7e392e40d1f791d431833d7fef3956b8c3544e7", recorded "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 177 checks: 175 PASS, 2 FAIL

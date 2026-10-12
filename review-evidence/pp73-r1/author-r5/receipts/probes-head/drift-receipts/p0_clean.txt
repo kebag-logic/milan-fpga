@@ -1,0 +1,8 @@
+probe: p0_clean
+expect: rc 0
+command: python3 -B scripts/check_aecp_commands.py
+rc: 0
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+aecp commands: 31 commands, 84 entries walked and observed, F06.14 41 rows, OK
+--- stderr

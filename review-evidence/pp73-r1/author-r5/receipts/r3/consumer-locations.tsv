@@ -1,0 +1,63 @@
+field	status	consumer locations	check	scope
+about	held to nothing			Explanatory prose; no consumer validates its assertions.
+commands	held to nothing			Container: shape is schema-checked; value claims belong to the individual fields below.
+commands[].clause	held to nothing			Specification citation prose; no semantic citation check.
+commands[].command	held to nothing			Command-size container; each leaf is classified below.
+commands[].command.cdl	held	scripts/aecp_gate/record.py:283; scripts/aecp_gate/table.py:116	command floor or echo equality	Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.
+commands[].command.floor	held	scripts/aecp_gate/record.py:283	declared floor	Explicit shorter accepted floor for echo commands.
+commands[].command.max	held to nothing			GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling.
+commands[].command.per	held	scripts/aecp_gate/record.py:283	accepted-offset gcd	Exact gcd of accepted offsets for both mapping echo commands.
+commands[].command.plus	held to nothing			Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated.
+commands[].command.unit	held to nothing			Rendering label for N records; existence is schema-checked, wording is not behavior.
+commands[].doc	held to nothing			F06.14 rendering data; no semantic validation of the prose.
+commands[].doc.class	held to nothing			F06.14 rendering prose; changes regenerate text without validating the assertion.
+commands[].doc.mandate	held to nothing			F06.14 rendering prose; changes regenerate text without validating the assertion.
+commands[].doc.scope	held to nothing			F06.14 rendering prose; changes regenerate text without validating the assertion.
+commands[].doc.size	held to nothing			F06.14 rendering prose; changes regenerate text without validating the assertion.
+commands[].engine_status	held to nothing			Held to nothing: engine-built status exemptions are trusted; their exact set and reachability are not independently held.
+commands[].entries	held	scripts/aecp_gate/record.py:255; scripts/aecp_gate/record.py:283	dispatch entries	Every dispatched program and first-entry decode floor in the observed population.
+commands[].gdi	held	scripts/aecp_gate/record.py:394	GDI membership	Observed GET_DYNAMIC_INFO membership.
+commands[].hazard	held	scripts/aecp_gate/rtl.py:185	command hazard	Top-level classifier hazard name.
+commands[].lock	held	scripts/aecp_gate/rom.py:375; scripts/aecp_gate/rtl.py:210	lock protection	ROM CHECK_LOCK reachability and scoreboard class membership.
+commands[].message	held	scripts/aecp_gate/record.py:341; scripts/aecp_gate/table.py:96	message dispatch	AEM/MVU dispatch identity, within the observed sweep.
+commands[].name	held to nothing			Identity and diagnostic label; uniqueness is checked, but spelling is not an engine invariant (except the required MVU identity).
+commands[].notify	held	scripts/aecp_gate/rom.py:375; scripts/aecp_gate/record.py:423	notification presence	Presence of the notification contract.
+commands[].notify.body	held	scripts/aecp_gate/record.py:423; scripts/aecp_gate/rom.py:375	unsolicited body	Observed unsolicited dispatch and ROM body length.
+commands[].notify.class	held	scripts/aecp_gate/rom.py:375; scripts/aecp_gate/rtl.py:219	notification class	Enqueued notification class; null means an engine event.
+commands[].notify.doc	held to nothing			F06.14 notification prose; no semantic validation.
+commands[].notify.kind	held	scripts/aecp_gate/rtl.py:219; scripts/aecp_gate/record.py:423	notification kind	Notification kind mapping and observed unsolicited job.
+commands[].opcode	held	scripts/aecp_gate/rtl.py:155; scripts/aecp_gate/record.py:341	opcode	Engine constant and observed command_type, within the sweep.
+commands[].oversize	held to nothing			Held to nothing: F06.14 rendering input; no gate derives the oversize flag from response size or the Milan list.
+commands[].response	held to nothing			Response-size container; each leaf is classified below.
+commands[].response.cdl	held	scripts/aecp_gate/rom.py:315; scripts/aecp_gate/record.py:310; scripts/aecp_gate/table.py:116	response size	ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).
+commands[].response.echo	held	scripts/aecp_gate/record.py:310; scripts/aecp_gate/rom.py:315	echo response	Observed command-length responses and ROM echo rule.
+commands[].response.engine	held	scripts/aecp_gate/record.py:255	engine-built answer	Engine-built aggregate versus dispatched program.
+commands[].response.max	held to nothing			GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling.
+commands[].response.per	held	scripts/aecp_gate/rom.py:315; scripts/aecp_gate/table.py:116; scripts/aecp_gate/record.py:283	response record step	ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.
+commands[].response.plus	held to nothing			Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated.
+commands[].response.stub	held	scripts/aecp_gate/rom.py:315; scripts/aecp_gate/record.py:310	failure stub	Fixed failure response length.
+commands[].response.unit	held to nothing			Rendering label for N records; existence is schema-checked, wording is not behavior.
+commands[].rtl	held	scripts/aecp_gate/rtl.py:155	opcode constant	Declared engine constant identity.
+commands[].status	held	scripts/aecp_gate/rom.py:345; scripts/aecp_gate/record.py:310	command status set	ROM path statuses and observed answers, conditional on the trusted common_status and engine_status exemptions.
+common_status	held to nothing			Status exemptions trusted by the ROM and decode checks; reachability from a shared path only is not checked.
+common_status.AEM	held to nothing			Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses.
+common_status.MVU	held to nothing			Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses.
+documented	held to nothing			Includes six semantic unimplemented GDI members; individual fields below distinguish semantics from identity and rendering.
+documented[].cells	held to nothing			F06.14 rendering cells; cell count is checked, their prose is not machine semantics.
+documented[].gdi	held	scripts/aecp_gate/record.py:394	unimplemented GDI membership	Optional semantic membership flag for the six unimplemented GDI members.
+documented[].name	held to nothing			Identity and diagnostic label, also rendered; required by schema, spelling has no behavioral consumer.
+documented[].opcode	held	scripts/aecp_gate/rtl.py:129; scripts/aecp_gate/record.py:394	unimplemented GDI opcode	Semantic input for the six unimplemented GDI members; other documented rows use opcode as rendering text only.
+documented[].rtl	held	scripts/aecp_gate/rtl.py:129	unimplemented GDI constant	Optional semantic constant name for the six unimplemented GDI members.
+documented[].section	held to nothing			F06.14 rendering group and sort order; schema checks the allowed groups, not semantic placement.
+echo_entries	held to nothing			Trusted shared echo exceptions in size checks; membership is not independently held.
+fields	held	scripts/aecp_gate/fields.py:36	export registry	Sibling registry filename.
+hazard_classes	held to nothing			Container: shape is schema-checked; value claims belong to the individual fields below.
+hazard_classes.*	held	scripts/aecp_gate/rtl.py:185	hazard class code	Hazard code by name.
+schema	held	scripts/aecp_gate/table.py:168	schema tag	Export schema tag.
+shared_entries	held to nothing			Shared-entry inventory keys are checked for missing claims only; added claims are not independently held.
+shared_entries.*	held to nothing			Diagnostic explanations of shared program names; wording is not checked and adding a key only widens the inventory.
+status_codes	held to nothing			Container: shape is schema-checked; value claims belong to the individual fields below.
+status_codes.*	held to nothing			Container: shape is schema-checked; value claims belong to the individual fields below.
+status_codes.*.code	held	scripts/aecp_gate/table.py:76; scripts/aecp_gate/rtl.py:243	IEEE status code	IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.
+status_codes.*.rtl	held	scripts/aecp_gate/rtl.py:243	status constant	Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL constant.
+unserved	held	scripts/aecp_gate/record.py:356	unserved program	Default program for every unserved opcode in the observed population.

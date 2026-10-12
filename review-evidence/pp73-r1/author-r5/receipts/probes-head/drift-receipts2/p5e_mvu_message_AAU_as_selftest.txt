@@ -1,0 +1,10 @@
+probe: p5e_mvu_message_AAU_as_selftest
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  schema: GET_MILAN_INFO: message 'AAU' is neither AEM nor MVU
+  schema: GET_MILAN_INFO: message 'AAU' has no common_status row
+  schema: GET_MILAN_INFO: no command with message MVU, whose opcode hdl/aecp/ucode/gen_ucode.py reads as its command_type
+--- stderr

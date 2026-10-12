@@ -1,0 +1,16 @@
+probe: p7_generator_status_source
+expect: rc 1, rom finding for SET_CONFIGURATION status
+command: python3 -B scripts/check_aecp_commands.py
+rc: 1
+F06.14 doc bytes unchanged by the run: True
+--- stdout
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  rom: SET_CONFIGURATION: status NO_RESOURCES is answered by a path of its programs and missing from the table's status set
+  rom: SET_CONFIGURATION: status STREAM_IS_RUNNING is in the table's status set and no path of its programs can answer it
+  rom: SET_STREAM_FORMAT: status NO_RESOURCES is answered by a path of its programs and missing from the table's status set
+  rom: SET_STREAM_FORMAT: status STREAM_IS_RUNNING is in the table's status set and no path of its programs can answer it
+  rom: SET_STREAM_INFO: status NO_RESOURCES is answered by a path of its programs and missing from the table's status set
+  rom: SET_STREAM_INFO: status STREAM_IS_RUNNING is in the table's status set and no path of its programs can answer it
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 518b900c4a56, this tree's is 69f0a7782886): sweep this engine with make -C tb/aecp_cmds record
+--- stderr

@@ -1,0 +1,10 @@
+documented[].gdi=False; regenerated F06.14 matches; semantic findings:
+  decode: 0x000B: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+documented[].rtl='GDI_GET_VIDEO_FORMAT_C'; regenerated F06.14 matches; semantic findings:
+  engine: hdl/aecp/KL_aecp_engine.sv declares GDI_GET_VIDEO_FMT_C = 0x000B and the table documents no such GET_DYNAMIC_INFO member
+  engine: GET_VIDEO_FORMAT: the table names GDI_GET_VIDEO_FORMAT_C and hdl/aecp/KL_aecp_engine.sv declares no such constant
+documented[].opcode='0x007E'; regenerated F06.14 matches; semantic findings:
+  decode: GET_VIDEO_FORMAT: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+  decode: 0x000B: the engine runs a record of it inside GET_DYNAMIC_INFO and the table says it is no member
+  engine: GET_VIDEO_FORMAT: the table says 0x007E, hdl/aecp/KL_aecp_engine.sv GDI_GET_VIDEO_FMT_C = 0x000B
+PASS: all three documented fields are consumed as machine semantics
