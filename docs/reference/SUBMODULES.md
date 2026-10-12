@@ -237,6 +237,11 @@ Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 tsn-c-stack uses HTTPS and needs no credentials.
 
+The pin is not on `main`: tsn-c-stack merges by squash.
+Its tag `milan-fpga-697-pin-405dc683` keeps it reachable.
+
+That `main` also changes `src/adp.c`, which this firmware has not taken.
+
 It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
