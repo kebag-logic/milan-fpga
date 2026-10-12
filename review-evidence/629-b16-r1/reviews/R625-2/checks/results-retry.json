@@ -1,0 +1,33 @@
+[
+  {
+    "name": "toc-check",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.898
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.526
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c20c85bd"
+    ],
+    "rc": 0,
+    "seconds": 3.115
+  }
+]

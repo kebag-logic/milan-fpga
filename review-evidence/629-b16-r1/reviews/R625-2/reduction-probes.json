@@ -1,0 +1,158 @@
+{
+  "controls": [
+    {
+      "control": "Shortened tap overlap changes attribution",
+      "result": "PASS",
+      "observed": {
+        "frames_a": 1000000,
+        "frames_b": 1637980,
+        "seconds": 20.8333,
+        "whole_blocks": [
+          0,
+          19
+        ],
+        "partial_degraded": [],
+        "degraded_inside": 19,
+        "degraded_inside_runs": [
+          [
+            0,
+            18
+          ]
+        ],
+        "degraded_beyond": 112,
+        "degraded_beyond_runs": [
+          [
+            28,
+            31
+          ],
+          [
+            43,
+            44
+          ],
+          [
+            46,
+            54
+          ],
+          [
+            74,
+            85
+          ],
+          [
+            88,
+            92
+          ],
+          [
+            109,
+            112
+          ],
+          [
+            132,
+            142
+          ],
+          [
+            150,
+            170
+          ],
+          [
+            178,
+            180
+          ],
+          [
+            192,
+            203
+          ],
+          [
+            206,
+            208
+          ],
+          [
+            216,
+            229
+          ],
+          [
+            232,
+            238
+          ],
+          [
+            247,
+            251
+          ]
+        ]
+      }
+    },
+    {
+      "control": "Synthetic poll decodes signed trim and rates",
+      "result": "PASS",
+      "observed": {
+        "rc": 0,
+        "trim": [
+          -6,
+          -6
+        ],
+        "rate": [
+          11,
+          11
+        ]
+      }
+    },
+    {
+      "control": "Changed raw bytes refused before output",
+      "result": "PASS",
+      "observed": {
+        "rc": 2,
+        "output_written": false
+      }
+    },
+    {
+      "control": "Planted post-lock step is exposed and old summary rejected",
+      "result": "PASS",
+      "observed": {
+        "rc": 1,
+        "steps": [
+          {
+            "polls": [
+              6,
+              7
+            ],
+            "after_set_s": [
+              2.0,
+              3.1
+            ],
+            "after_binds_s": [
+              2.5,
+              3.6
+            ],
+            "dups": [
+              162,
+              164
+            ],
+            "skips": [
+              0,
+              0
+            ],
+            "servo": [
+              "LOCKED",
+              "LOCKED"
+            ],
+            "span": "window-start..window-end"
+          }
+        ]
+      }
+    },
+    {
+      "control": "Source extraction preserves changed class, level and hashes",
+      "result": "PASS",
+      "observed": {
+        "rc": 0,
+        "differ": 1,
+        "meter": [
+          -30,
+          -30,
+          -30
+        ],
+        "hash_bound": true
+      }
+    }
+  ],
+  "all_pass": true
+}

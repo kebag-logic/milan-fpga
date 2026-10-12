@@ -1,0 +1,120 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "<markdown-python>",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.976
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.052
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.089
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "<markdown-python>",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "seconds": 0.065
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c20c85bd"
+    ],
+    "rc": 2,
+    "seconds": 0.862
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "<markdown-python>",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.08
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "c20c85bd",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.005
+  },
+  {
+    "name": "alignment-controls",
+    "command": [
+      "<python>",
+      "<evidence>/tools/align_b16.py",
+      "control",
+      "synth",
+      "-",
+      "-",
+      "<packet>/checks/alignment-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 4.697
+  },
+  {
+    "name": "tap-controls",
+    "command": [
+      "<python>",
+      "<evidence>/tools/tone_points_b16.py",
+      "control",
+      "<packet>/checks/tap-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 2.212
+  },
+  {
+    "name": "grade-controls",
+    "command": [
+      "<python>",
+      "<evidence>/tools/b9_thdn.py",
+      "controls",
+      "<packet>/checks/grade-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 83.384
+  },
+  {
+    "name": "b0-receipt",
+    "command": [
+      "<python>",
+      "-I",
+      "<evidence>/tools/r2_b0_receipt.py",
+      "<evidence>",
+      "<packet>/checks/b0-recomputed.json"
+    ],
+    "rc": 0,
+    "seconds": 0.031
+  }
+]
