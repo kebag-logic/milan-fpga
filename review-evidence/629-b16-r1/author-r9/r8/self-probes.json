@@ -1,0 +1,2738 @@
+{
+ "note": "Lane B16 round 8: further forms against the check, each on an altered copy, rounds 5 to 7 first; offline, no bench action",
+ "unchanged_page_rc": 0,
+ "detected": 108,
+ "expected_pass": 30,
+ "ruled": [
+  "a comment after a backslash",
+  "a tag in a code span",
+  "an autolink",
+  "an unclosed tag",
+  "angle brackets around a link target"
+ ],
+ "met": 138,
+ "probes": [
+  {
+   "probe": "descriptor index, unit after a line break",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\nppm.",
+   "where": "para",
+   "lines": [
+    3735,
+    3736
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3735 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in bold",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 **ppm**.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in code",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 `ppm`.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in brackets",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 (ppm).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after an HTML entity",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&nbsp;ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after an HTML comment",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7<!-- -->ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- -->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a thin space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a zero-width space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7​ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit after a backslash space",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\ ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, unit in capitals",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 PPM.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, per mille",
+   "from": "round 5",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 ‰.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel index pair, unit after",
+   "from": "round 5",
+   "inserted": "The residual sat at channels 2 and 7 s.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "step index, unit after",
+   "from": "round 5",
+   "inserted": "The residual settled by step 7 s.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "round index, glued unit",
+   "from": "round 5",
+   "inserted": "The residual settled by round 7s.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "list-item index, unit after a line break",
+   "from": "round 5",
+   "inserted": "The residual sat at\n7. ppm",
+   "where": "para",
+   "lines": [
+    3735,
+    3736
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3736 7  | s sign, a leading point or an exponent. The residual sat at 7. ppm The token pattern is unchanged and now only finds the"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "lane name before a unit",
+   "from": "round 5",
+   "inserted": "The residual was B16 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "review name before a unit",
+   "from": "round 5",
+   "inserted": "The residual was R624-4 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 624",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -4"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause number before a unit",
+   "from": "round 5",
+   "inserted": "The residual was Milan v1.2 Table 5.4 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 5.4",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1.2"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "issue number before a unit",
+   "from": "round 5",
+   "inserted": "The residual was #629 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 629"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "fullwidth digit",
+   "from": "round 5",
+   "inserted": "The residual was ７ ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ７"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "vulgar fraction",
+   "from": "round 5",
+   "inserted": "The residual was ½ ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ½"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "superscript exponent",
+   "from": "round 5",
+   "inserted": "The residual was 10⁻⁶ of the rate.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 10  | The residual was 10⁻⁶ of the rate. Every stage at the path's floor. See B16c: a",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 ⁶"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "Unicode minus, new figure",
+   "from": "round 5",
+   "inserted": "The floor was −130.00 dB.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 −130.00"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number in a quoted mention, unit after",
+   "from": "round 5",
+   "inserted": "The residual was \"7.25\" ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7.25  | The residual was \"7.25\" ppm. Every stage at the path's floor. See B16c: attributio"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number word zero before a unit",
+   "from": "round 5",
+   "inserted": "The residual was zero ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 zero"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "number word before a unit",
+   "from": "round 5",
+   "inserted": "The residual was seven ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 seven"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "hex word before a unit",
+   "from": "round 5",
+   "inserted": "The residual was 0x7 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0x7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "fraction before a unit",
+   "from": "round 5",
+   "inserted": "The residual was 1/2 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1/2"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "range, second end",
+   "from": "round 5",
+   "inserted": "The residual stayed in 2-9 s.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2  | The residual stayed in 2-9 s. Every stage at the path's floor. See B16c: attribution",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -9"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "thin-space thousands",
+   "from": "round 5",
+   "inserted": "The run held 1 234 frames.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1  | The run held 1 234 frames. Every stage at the path's floor. See B16c: attr",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 234"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "percent glued",
+   "from": "round 5",
+   "inserted": "The residual was 7%.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "path in code naming no file",
+   "from": "round 5",
+   "inserted": "See `summary/bcrf/c-b9-grade7.json`.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 9",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "link target off the repository",
+   "from": "round 5",
+   "inserted": "See [the note](https://example.com/7ppm).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "link target to no heading",
+   "from": "round 5",
+   "inserted": "See [the round](#b16-round-7-ppm).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "page marker not in the list",
+   "from": "round 5",
+   "inserted": "<!-- b16-725 -->",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- b16-725 -->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "identifier glued to a unit",
+   "from": "round 5",
+   "inserted": "The residual sat at McASP0s.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, small hyphen-minus (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7﹣ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, fullwidth hyphen-minus (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7－ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, em dash (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7—ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, closing bracket (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, apostrophe (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7' ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, en dash",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7–ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, figure dash",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7‒ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, minus sign",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7−ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, slash (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7/ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, single quotes (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 'ppm'.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index in brackets (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual was (CLOCK_DOMAIN 7) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, dBm (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 dBm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, degrees",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7°.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a dash set off by spaces, then a unit",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 -- ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, escaped hyphen",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\-ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, entity space, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&#32;furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a word no list names",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The decode found STREAM_INPUT 2 events.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel index, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The playback logged channel 3 underruns.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 3"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "channel pair, a count noun (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The listener made channels 0 and 4 drops.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 4"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "step index, a word",
+   "from": "round 6",
+   "inserted": "The lock took step 7 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "round index, a word",
+   "from": "round 6",
+   "inserted": "The lock took round 7 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "lane name, a word",
+   "from": "round 6",
+   "inserted": "The lock took lane B16 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "review name, a word",
+   "from": "round 6",
+   "inserted": "The lock took R624-5 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 624",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -5"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "operator, a word",
+   "from": "round 6",
+   "inserted": "The lock took [A603] furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 603"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "serial port, a word",
+   "from": "round 6",
+   "inserted": "The lock took McASP0 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 0"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "hash name, a word",
+   "from": "round 6",
+   "inserted": "The lock took SHA-256 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -256"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "issue number, a word",
+   "from": "round 6",
+   "inserted": "The lock took #629 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 629"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause number, a word",
+   "from": "round 6",
+   "inserted": "The lock took IEEE 1722.1 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1722.1"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "clause pair, a word",
+   "from": "round 6",
+   "inserted": "The lock took Milan v1.2 Table 5.4 furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 5.4",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1.2"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index into a claimed measurement (a range)",
+   "from": "round 6",
+   "inserted": "CRF sink +10.60 to CLOCK_DOMAIN 7 to +10.65 ppm",
+   "where": "sub",
+   "lines": [
+    3174,
+    3174
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3174 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "entity digits before a unit",
+   "from": "round 6",
+   "inserted": "The residual was &#55;&#48; ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 70"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a comment shown in a code span",
+   "from": "round 6",
+   "inserted": "See `<!-- 7 ppm -->`.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a comment holding a blank line, inside a paragraph",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7<!--\n\n-->ppm.",
+   "where": "para",
+   "lines": [
+    3735,
+    3737
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3735 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a code literal before a unit",
+   "from": "round 6",
+   "inserted": "See `pts1` milliseconds.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, full stop, a unit (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual was CLOCK_DOMAIN 7. ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a full stop ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "channel pair, full stop, a unit (R625-5)",
+   "from": "round 6",
+   "inserted": "The residual was channels 7 to 8. ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a full stop ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, comma, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7, furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a comma ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, colon, a unit (R624-5-S1)",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7: ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a colon ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, a dash set off by spaces, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 -- furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a dash set off by spaces ends the identifier's phrase",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, possessive, a word",
+   "from": "round 6",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7's furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a possessive is on the list",
+   "met": true
+  },
+  {
+   "probe": "a code literal before a word",
+   "from": "round 6",
+   "inserted": "See `pts1` furlongs.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a code literal ends with its code word",
+   "met": true
+  },
+  {
+   "probe": "an open and a closing tag",
+   "from": "round 7",
+   "inserted": "See <b>this</b>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <b>",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </b>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a closing tag alone",
+   "from": "round 7",
+   "inserted": "See </b>this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </b>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a tag in capitals",
+   "from": "round 7",
+   "inserted": "See <SPAN>this</SPAN>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <SPAN>",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </SPAN>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a self-closing tag",
+   "from": "round 7",
+   "inserted": "See <br/>this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <br/>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a tag with an attribute",
+   "from": "round 7",
+   "inserted": "See <span title=\"this\">that</span>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <span title=\"this\">",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </span>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a comment",
+   "from": "round 7",
+   "inserted": "See <!-- this -->.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- this -->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "the short comment <!-->",
+   "from": "round 7",
+   "inserted": "See <!-->this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "the short comment <!--->",
+   "from": "round 7",
+   "inserted": "See <!--->this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!--->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a processing instruction",
+   "from": "round 7",
+   "inserted": "See <?x this?>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <?x this?>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a declaration",
+   "from": "round 7",
+   "inserted": "See <!X this>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!X this>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a CDATA section",
+   "from": "round 7",
+   "inserted": "See <![CDATA[this]]>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <![CDATA[this]]>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an autolink",
+   "from": "round 7, ruled in round 8",
+   "inserted": "See <https://example.com/>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a link, read on its text, which holds no digit",
+   "met": true
+  },
+  {
+   "probe": "a tag in a code span",
+   "from": "round 7, ruled in round 8",
+   "inserted": "See `<b>this</b>`.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "code is text a reader sees: the tag is shown as written",
+   "met": true
+  },
+  {
+   "probe": "a comment after a backslash",
+   "from": "round 7, ruled in round 8",
+   "inserted": "See \\<!-- this -->.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "the backslash makes the comment text, shown as written",
+   "met": true
+  },
+  {
+   "probe": "an unclosed tag",
+   "from": "round 7, ruled in round 8",
+   "inserted": "See <b this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "not a tag: the parser yields it as text",
+   "met": true
+  },
+  {
+   "probe": "a tag in a link label",
+   "from": "round 7",
+   "inserted": "See [<b>this</b>](#b16-round-6-the-closed-list).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <b>",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </b>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "angle brackets around a link target",
+   "from": "round 7, ruled in round 8",
+   "inserted": "See [this](<#b16-round-6-the-closed-list>).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a target that resolves is not read",
+   "met": true
+  },
+  {
+   "probe": "a generator's marker inside a line",
+   "from": "round 7",
+   "inserted": "See <!-- solution-cpu-contract:start -->.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- solution-cpu-contract:start -->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a tag in a fenced block",
+   "from": "round 7",
+   "inserted": "```text\n<b>this</b>\n```",
+   "where": "end",
+   "lines": [
+    4274,
+    4276
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 code_block ```text"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an HTML block",
+   "from": "round 7",
+   "inserted": "<div>\nthis\n</div>",
+   "where": "end",
+   "lines": [
+    4274,
+    4276
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <div>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a generator's marker with a space after it",
+   "from": "round 7",
+   "inserted": "<!-- solution-cpu-contract:start --> ",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <!-- solution-cpu-contract:start -->"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a generator's marker as its own line",
+   "from": "round 7",
+   "inserted": "<!-- solution-cpu-contract:start -->",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a line equal byte for byte to a marker a repository generator writes",
+   "met": true
+  },
+  {
+   "probe": "an entity-escaped tag",
+   "from": "round 7",
+   "inserted": "See &lt;b&gt;this&lt;/b&gt;.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "an entity is not markup",
+   "met": true
+  },
+  {
+   "probe": "a less-than sign before a space",
+   "from": "round 7",
+   "inserted": "See a < b.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "not markup",
+   "met": true
+  },
+  {
+   "probe": "a fullwidth less-than sign",
+   "from": "round 7",
+   "inserted": "See ＜b＞this.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "not markup",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'or so', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 or so ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'or more', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 or more ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'and a half', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 and a half ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'to some', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 to some ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "channel index, 'or so', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat on channel 1 or so dB.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'of', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 of ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "descriptor index, 'and', a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7 and ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "R624-6-S1: a word of the closed list, then words that hold no number",
+   "met": true
+  },
+  {
+   "probe": "a list marker before a unit (R624-6-S1)",
+   "from": "round 7",
+   "inserted": "7. ppm",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a list marker ends with a full stop",
+   "met": true
+  },
+  {
+   "probe": "an image between a descriptor index and its unit",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7![](x.png) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 image ![](x.png)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an image described by a full stop",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7![.](x.png) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 image ![.](x.png)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an empty link between a number and its unit",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7[](#b16c-attribution) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an empty link titled with a word of the closed list",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7[](#b16c-attribution \"and\") ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure as a link's text before a unit",
+   "from": "round 8",
+   "inserted": "The residual was [7](#b16c-attribution) ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "strong emphasis on the unit",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7**ppm**.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an entity for a space",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&#32;ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an entity for a soft hyphen",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7&shy;ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an autolink holding a figure before a unit",
+   "from": "round 8",
+   "inserted": "See https://example.com/7 ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "an autolink in angle brackets holding a digit",
+   "from": "round 8",
+   "inserted": "See <https://example.com/7>.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a link whose target names no heading",
+   "from": "round 8",
+   "inserted": "See [this](#b16-round-99).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": false,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16",
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 -99"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in an image's description",
+   "from": "round 8",
+   "inserted": "See ![7 ppm](x.png).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 image ![7 ppm](x.png)"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in struck text",
+   "from": "round 8",
+   "inserted": "See ~~7 ppm~~.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 strikethrough ~~7 ppm~~"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in a footnote",
+   "from": "round 8",
+   "inserted": "See this[^n].\n\n[^n]: 7 ppm.",
+   "where": "end",
+   "lines": [
+    4274,
+    4276
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 footnote_reference [^n]",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4276 footnote_definition 7 ppm."
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in a fenced code block",
+   "from": "round 8",
+   "inserted": "```text\n7 ppm\n```",
+   "where": "end",
+   "lines": [
+    4274,
+    4276
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 code_block ```text"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in a raw HTML block",
+   "from": "round 8",
+   "inserted": "<div>\n7 ppm\n</div>",
+   "where": "end",
+   "lines": [
+    4274,
+    4276
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 html_block <div>"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in a task list item",
+   "from": "round 8",
+   "inserted": "- [ ] 7 ppm",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": true,
+   "measurement": false,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 tasklist - [ ] 7 ppm"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a hard line break between a number and its unit",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\\nppm.",
+   "where": "end",
+   "lines": [
+    4274,
+    4275
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a soft line break between a number and its unit",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\nppm.",
+   "where": "end",
+   "lines": [
+    4274,
+    4275
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a measurement in a setext heading",
+   "from": "round 8",
+   "inserted": "Drift 7 ppm\n---",
+   "where": "end",
+   "lines": [
+    4274,
+    4275
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a measurement in a block quote",
+   "from": "round 8",
+   "inserted": "> Drift 7 ppm",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 1,
+   "detected": true,
+   "markup": false,
+   "measurement": true,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4274 7"
+   ],
+   "expect": "detect",
+   "why_pass": "",
+   "met": true
+  },
+  {
+   "probe": "a figure in a link's title",
+   "from": "round 8",
+   "inserted": "See [this](#b16c-attribution \"7 ppm\").",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a link's title is not text: a tooltip",
+   "met": true
+  },
+  {
+   "probe": "a figure in a reference definition",
+   "from": "round 8",
+   "inserted": "[d]: #b16c-attribution \"7 ppm\"",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a definition renders nothing",
+   "met": true
+  },
+  {
+   "probe": "a figure in a footnote nothing cites",
+   "from": "round 8",
+   "inserted": "[^z]: 7 ppm.",
+   "where": "end",
+   "lines": [
+    4274,
+    4274
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a footnote nothing cites renders nothing",
+   "met": true
+  },
+  {
+   "probe": "a visible exclamation mark after an identifier",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7!ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a mark a reader sees ends the phrase (round 6's closed list)",
+   "met": true
+  },
+  {
+   "probe": "an escaped exclamation mark before a link",
+   "from": "round 8",
+   "inserted": "The residual sat at CLOCK_DOMAIN 7\\![x](#b16c-attribution)ppm.",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "the escape makes the mark text a reader sees",
+   "met": true
+  },
+  {
+   "probe": "a link to a heading of the page",
+   "from": "round 8",
+   "inserted": "See [this](#b16-round-7-no-markup).",
+   "where": "row",
+   "lines": [
+    3011,
+    3011
+   ],
+   "rc": 0,
+   "detected": false,
+   "markup": false,
+   "measurement": false,
+   "named": [],
+   "expect": "pass",
+   "why_pass": "a target that resolves",
+   "met": true
+  }
+ ]
+}

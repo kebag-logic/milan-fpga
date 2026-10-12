@@ -1,0 +1,88 @@
+{
+ "note": "Lane B16 round 9: R624-6-ROW3200-POLLS's published probe, R624-6/probe_row3200_polls.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at cb5ff79f; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_row3200_polls.py",
+ "probe_sha256": "13a323fd7a4609309fb900b2c654d8bcbacaf21e8646a4b703e709990bb5c3e5",
+ "page_commit": "cb5ff79f1f69117efba353484851eceb620e5c92",
+ "exit": 0,
+ "reading": {
+  "row3200_polls_detected": true,
+  "rows": [
+   [
+    "471",
+    "3008",
+    "596",
+    "OK"
+   ],
+   [
+    "626",
+    "3174",
+    "596",
+    "OK"
+   ],
+   [
+    "627",
+    "3174",
+    "595",
+    "MISMATCH"
+   ],
+   [
+    "671",
+    "3200",
+    "596",
+    "OK"
+   ],
+   [
+    "672",
+    "3200",
+    "bcrf 595, baaf 596",
+    "MISMATCH"
+   ]
+  ]
+ },
+ "results": {
+  "rc": 1,
+  "rows": [
+   {
+    "row": "471",
+    "line": "3008",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "596",
+    "status": "OK"
+   },
+   {
+    "row": "626",
+    "line": "3174",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "596",
+    "status": "OK"
+   },
+   {
+    "row": "627",
+    "line": "3174",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json",
+    "recomputed": "595",
+    "status": "MISMATCH"
+   },
+   {
+    "row": "671",
+    "line": "3200",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "recomputed": "596",
+    "status": "OK"
+   },
+   {
+    "row": "672",
+    "line": "3200",
+    "shown": "596",
+    "receipt": "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+    "recomputed": "bcrf 595, baaf 596",
+    "status": "MISMATCH"
+   }
+  ],
+  "row3200_polls_detected": true
+ }
+}

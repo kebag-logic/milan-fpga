@@ -1,0 +1,196 @@
+{
+ "note": "Lane B16 round 5: R624-4's published probe, R624-4/tools/probe_escape_forms.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at 36190193; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_escape_forms.py",
+ "probe_sha256": "5c2dbc691e469d236227bc90d4d131ad1fc116f0b002813c02beef2374ae3c26",
+ "page_commit": "3619019350936d5af851933df0b5444ef8387e69",
+ "exit": 0,
+ "probes": 8,
+ "detected": 8,
+ "results": [
+  {
+   "probe": "control_plain",
+   "inserted": "The measured residual was 7.25 ppm.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7.25\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1920,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13212,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 3,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "glued_integer_s",
+   "inserted": "The residual settled in 26s.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t26\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1919,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13211,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 2,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "glued_integer_dB",
+   "inserted": "The residual sat 10dB above the floor.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t10\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1919,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13211,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 2,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "glued_integer_ms",
+   "inserted": "The probe answered after 300ms.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t300\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1919,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13212,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 3,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "glued_decimal_ppm",
+   "inserted": "The measured residual was 7.25ppm.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7.25\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1920,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13212,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 3,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "leading_dot_ppm",
+   "inserted": "The measured residual was .5 ppm.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t.5\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1919,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13210,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 1,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "range_hyphen_second_end",
+   "inserted": "The residual stayed under 2.585-9.99 s.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t2.585\tUNCOVERED",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t-9.99\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1920,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13216,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 7,
+    "uncovered": 2,
+    "uncovered_measurements": 1
+   }
+  },
+  {
+   "probe": "unicode_minus_dB",
+   "inserted": "The floor was \u2212130.00 dB.",
+   "rc": 1,
+   "detected": true,
+   "uncovered": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t\u2212130.00\tUNCOVERED"
+   ],
+   "summary": {
+    "lines": 1571,
+    "tokens": 1920,
+    "rows": 1749,
+    "rows_ok": 1749,
+    "rows_bad": 0,
+    "by_category": 1098,
+    "digits": 13214,
+    "digits_by_row": 11037,
+    "digits_by_category": 2172,
+    "digits_uncovered": 5,
+    "uncovered": 1,
+    "uncovered_measurements": 1
+   }
+  }
+ ]
+}
