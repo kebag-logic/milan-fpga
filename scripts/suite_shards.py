@@ -636,7 +636,9 @@ def head_selftest() -> int:
     except (OSError, ValueError) as exc:
         print(f"  FAIL head: {exc}")
         return 1
-    for problem in problems:
+    # Table problems leave nothing to predict; otherwise each problem is a
+    # worker over the bound, printed once on its own worker's line.
+    for problem in problems if not load else ():
         print(f"  FAIL head: {problem}")
     for worker, value in enumerate(load):
         print(f"  {'ok  ' if value <= bound else 'FAIL'} head worker "
@@ -647,14 +649,23 @@ def head_selftest() -> int:
 
     # The run-time half is the workflow's ownership step: tsn-gen and
     # Yosys/sv2v are installed on workers 1 and 3, and worker 4 must run
-    # milan_dp alone, so a rule that moves any of them must fail here.
+    # milan_dp alone, so a rule that moves any of them must fail here. The
+    # balance alone can put a suite on its owner by chance, so each
+    # specialized suite is also planted as the lightest and the heaviest.
     owners, _ = balance(suites, len(load))
     landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 4}
     got = {suite: owners.get(suite) for suite in landmarks}
     alone = dedicated_alone(suites, len(load), DEDICATED_SUITES, SUITE_SECONDS)
-    ok = got == landmarks and alone
+    specialized = ("tsn_fuzz", "chmap_capture")
+    held = all(
+        balance(suites, len(load),
+                {**SUITE_SECONDS, **dict.fromkeys(specialized, planted)}
+                )[0][suite] == landmarks[suite]
+        for planted in (1, max(SUITE_SECONDS.values()) + 1)
+        for suite in specialized)
+    ok = got == landmarks and alone and held
     print(f"  {'ok  ' if ok else 'FAIL'} specialized owners {got}, "
-          f"milan_dp alone={alone}")
+          f"milan_dp alone={alone}, held at any planted duration={held}")
     return (0 if ok else 1) + planted_selftest(suites, workflow, load, bound)
 
 
