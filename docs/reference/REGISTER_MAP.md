@@ -150,7 +150,7 @@ they are not discovered by surprise:
    talker start; RX resets on not-bound to bound and survives unbind.
    Healthy counter updates also mark their descriptor dirty. See the
    [counter measurements](../testing/726_STREAM_COUNTERS.md) for the
-   per-recipient window check and service-delay bound.
+   per-recipient spacing check and consecutive-gap service bound.
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the bare-metal

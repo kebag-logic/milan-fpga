@@ -225,8 +225,13 @@ TX resets at each talker start; RX resets on not-bound to bound, preserving unbi
 The [counter evidence](726_STREAM_COUNTERS.md) measures every served stream
 at the shipping and largest shapes through the simulated MAC transmit endpoint.
 Milan 5.4.5.2 Table 5.22 spacing stays in the existing scheduler.
-The [window ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6126028604)
-allows only the measured service delay beyond 1000 ms between notifications.
+The [corrected cadence ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6132483068)
+requires spacing and consecutive gaps bounded by measured service.
+The fixture grades every gap from its first notification.
+The bound is 1000 ms plus that descriptor's service.
+The scheduler's completion stamp causes drift across fixed bins.
+Empty bins are not startup exclusions or refresh failures.
+Measurement-start shifts through one second preserve the verdict.
 Physical comparison remains a merge-turn check.
 
 The declared CRF Media Clock Input was a separate mandatory gap at this audit:

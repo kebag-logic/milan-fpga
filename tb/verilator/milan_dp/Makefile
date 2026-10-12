@@ -675,11 +675,12 @@ counters-f5:
 	python3 stream_counter_f5.py --shape 8
 
 counters-mutants:
-	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty; do \
+	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid; do \
 	  VERILATOR=$(VERILATOR) python3 stream_counters.py --variant $$variant; \
 	done
 	python3 stream_counter_f5.py --variant late
 	python3 stream_counter_f5.py --variant rate
+	python3 stream_counter_f5.py --variant fixed-grid
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

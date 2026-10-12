@@ -57,7 +57,7 @@ FRAMES_TX/RX snapshots carry per-AVTPDU 32-bit totals.
 TX resets at talker start; RX resets on not-bound to bound and retains unbind totals.
 The observation port supplies those values; the protocol core does not recount packets.
 Every counter update, including healthy traffic, must call `aecp_changed()` with the COUNTERS event (bit 3, value 8).
-The [window check](../../../../tb/verilator/milan_dp/stream_counter_f5.py)
+The [gap check](../../../../tb/verilator/milan_dp/stream_counter_f5.py)
 uses this unchanged core and mailbox adapter, two registered recipients,
 and a two-millisecond transmit stall at both descriptor shapes.
 See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.

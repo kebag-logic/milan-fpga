@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Included inside NxnDatapathHarness. #726: MAC packet census, counter resets,
-// 32-bit wrap, and per-descriptor/recipient notification windows. The descriptor
+// 32-bit wrap, and per-descriptor/recipient notification gaps. The descriptor
 // image, parser, counters, arbiter, processor and response-memory path are real.
 // Protocol time uses 1000 cycles/ms; the clock parameter remains 50 MHz.
-// Window 0 and 1 record startup; windows 2 through 4 grade steady traffic.
+// Grade every consecutive gap from the first captured notification onward.
 // Service time runs from dirty-and-eligible to the final recipient's MAC tail.
     void counter_feed(int s,uint8_t seq) {
         const uint64_t ts=phc_now_ns()+2000000;
@@ -35,6 +35,7 @@
         const char* omitted_check = std::getenv("COUNTERS_OMIT_CHECK");
         std::array<long,ncounter> service_begin{};
         std::array<long,ncounter> service_max{};
+        long measurement_end_cyc=0;
         bool counter_watch_on=false;
     } counter_state;
     void counter_check(const char* group,const char* what,unsigned long got,unsigned long expected) {
@@ -84,6 +85,7 @@
         }
         counter_setup();
         counter_measure();
+        counter_state.measurement_end_cyc=uns_log_cycle;
         counter_state.counter_watch_on=false;
         axi_write(A_AAF_CTRL,0x00020002);axi_write(A_CRFT_CTRL,0);
         for(int t=0;t<5000;++t)gsi_tick();
@@ -152,43 +154,103 @@
                 counter_check("OUTPUT_CONDITION","TU counter stays zero",tu,0);
                 counter_check("OUTPUT_CONDITION","MR counter stays zero",mr,0);
                 counter_check("OUTPUT_CONDITION","only initial start",starts,1);
-                counter_check("OUTPUT_CONDITION","no stop during windows",stops,0);
+                counter_check("OUTPUT_CONDITION","no stop during measurement",stops,0);
                 counter_check("OUTPUT_CONDITION","all wire tu bits clear",counter_state.wire_tu[s],0);
                 counter_check("OUTPUT_CONDITION","wire mr remains at reset",counter_state.wire_mr[s],0);
             }
         }
     }
 
+    struct CounterGaps {
+        unsigned count=0;
+        long min_cyc=10000L*kMsCycTb;
+        long max_cyc=0;
+        long tail_cyc=0;
+        bool refresh=false;
+        bool spacing=true;
+    };
+
+    CounterGaps counter_gaps(const std::vector<long>& times,long start_cyc,long service_cyc) const {
+        constexpr long second_cyc=1000L*kMsCycTb;
+        CounterGaps result;
+        long last=-1;
+        for(const long at:times) {
+            if(at<start_cyc || at>=counter_state.measurement_end_cyc) continue;
+            if(last>=0) {
+                result.min_cyc=std::min(result.min_cyc,at-last);
+                result.max_cyc=std::max(result.max_cyc,at-last);
+            }
+            ++result.count;
+            last=at;
+        }
+        result.tail_cyc=counter_state.measurement_end_cyc-(last>=0 ? last : start_cyc);
+        result.spacing=result.min_cyc>=second_cyc;
+        // Two observations prevent silence from satisfying a gap check vacuously.
+        // The tail catches a final missing notification after the last full gap.
+        result.refresh=result.count>=2 && result.max_cyc<=second_cyc+service_cyc
+            && result.tail_cyc<=second_cyc+service_cyc;
+        return result;
+    }
+
+    void counter_phase_check(const std::vector<long>& times,long service_cyc,int ty,int s,int r) {
+        constexpr long second_cyc=1000L*kMsCycTb;
+        const auto reference=counter_gaps(times,0,service_cyc);
+        bool stable=true;
+        // Exhaust every discrete start through one second, including event edges.
+        for(long start_cyc=0;start_cyc<=second_cyc;++start_cyc) {
+            const auto shifted=counter_gaps(times,start_cyc,service_cyc);
+            stable &= shifted.refresh==reference.refresh && shifted.spacing==reference.spacing;
+            if(start_cyc==0 || start_cyc==kMsCycTb/5 || start_cyc==3*kMsCycTb/10 ||
+               start_cyc==4*kMsCycTb/5 || start_cyc==9*kMsCycTb/10 || start_cyc==second_cyc)
+                printf("PHASE,%d,%d,%d,%ld,%d,%d\n",ty,s,r,start_cyc,shifted.refresh,shifted.spacing);
+        }
+        counter_check("PHASE","all measurement starts through one second preserve verdict",stable,1);
+    }
+
+    std::vector<long> counter_notification_times(int ty,int s,int r) {
+        std::vector<long> times;
+        for(size_t j=0;j<uns_log.size();++j) {
+            const auto& f=uns_log[j];
+            const auto& ctl=r ? CTL_B : CTL_A;
+            if(uns_log_when[j]>=counter_state.measurement_end_cyc || f.size()<46 ||
+               !aecp_is_unsolicited(f) || notify_cmd(f)!=0x29 ||
+               gsi_be(f,38,2)!=unsigned(ty) || gsi_be(f,40,2)!=unsigned(s) ||
+               memcmp(f.data()+26,ctl.eid,8)!=0) continue;
+            times.push_back(uns_log_when[j]);
+            printf("NOTE,%d,%d,%d,%ld\n",ty,s,r,uns_log_when[j]);
+        }
+        return times;
+    }
+
     void counter_notifications() {
-        constexpr long counter_second = 1000L * kMsCycTb;
+        constexpr long second_cyc=1000L*kMsCycTb;
+        long start_cyc=0;
+        if(const char* shift=std::getenv("COUNTERS_WINDOW_SHIFT")) {
+            char* end=nullptr;
+            start_cyc=std::strtol(shift,&end,10);
+            ck("[726] measurement start is within one second",
+               end!=shift && *end=='\0' && start_cyc>=0 && start_cyc<=second_cyc,1);
+            if(end==shift || *end!='\0' || start_cyc<0 || start_cyc>second_cyc) return;
+        }
         printf("shape,type,index,recipient,window,notifications,min_gap_ms,max_gap_ms\n");
-        for (int ty : {5,6}) for(int s=0;s<=kNstreamsTb;++s)
-          for(int r=0;r<2;++r) {
-            std::array<int,5> bins{};
-            long last=-1;
-            long ming=10*counter_second;
-            long maxg=0;
-            for(size_t j=0;j<uns_log.size();++j) {
-                const auto& f=uns_log[j];const auto& ctl=r ? CTL_B : CTL_A;
-                if(f.size()<46 || !aecp_is_unsolicited(f) || notify_cmd(f)!=0x29 ||
-                   gsi_be(f,38,2)!=unsigned(ty) || gsi_be(f,40,2)!=unsigned(s) ||
-                   memcmp(f.data()+26,ctl.eid,8)!=0) continue;
-                const long at=uns_log_when[j];
-                if(at/counter_second<5) ++bins[at/counter_second];
-                if(last>=0) {ming=std::min(ming,at-last);maxg=std::max(maxg,at-last);}
-                last=at;
-            }
-            const char* cadence=ty==6 && COUNTERS_FRAMES_ONLY_TB ? "OUTPUT_CADENCE" : "CADENCE";
-            for(int b=2;b<5;++b) {
-                counter_check(cadence,"every complete steady window notified",bins[b]>=1,1);
-                counter_check("RATE","no duplicate in a complete steady window",bins[b]<=1,1);
-            }
-            counter_check("RATE","minimum spacing",ming>=counter_second,1);
+        for(int ty:{5,6}) for(int s=0;s<=kNstreamsTb;++s) for(int r=0;r<2;++r) {
+            const auto times=counter_notification_times(ty,s,r);
             const int slot=(ty==5 ? 0 : kNstreamsTb+1)+s;
-            counter_check(cadence,"gap bounded by measured service",maxg<=counter_second+counter_state.service_max[slot],1);
-            for(int b=0;b<5;++b) printf("%d,%d,%d,%d,%d,%d,%.5f,%.5f\n",kNstreamsTb,ty,s,r,b,bins[b],
-              ming/double(kMsCycTb),maxg/double(kMsCycTb));
-          }
+            const long service_cyc=counter_state.service_max[slot];
+            const auto gaps=counter_gaps(times,start_cyc,service_cyc);
+            const char* cadence=ty==6 && COUNTERS_FRAMES_ONLY_TB ? "OUTPUT_CADENCE" : "CADENCE";
+            counter_check("RATE","minimum consecutive spacing from first notification",gaps.spacing,1);
+            counter_check(cadence,"consecutive gaps and final wait bounded by measured service",gaps.refresh,1);
+            counter_phase_check(times,service_cyc,ty,s,r);
+            printf("GAPS,%d,%d,%d,%d,%ld,%u,%.5f,%.5f,%.5f,%.5f\n",kNstreamsTb,ty,s,r,
+                   start_cyc,gaps.count,gaps.min_cyc/double(kMsCycTb),gaps.max_cyc/double(kMsCycTb),
+                   gaps.tail_cyc/double(kMsCycTb),service_cyc/double(kMsCycTb));
+            // Fixed bins are retained as descriptive measurements, never graded.
+            std::array<int,5> bins{};
+            for(const long at:times) ++bins[at/second_cyc];
+            for(int b=0;b<5;++b) printf("%d,%d,%d,%d,%d,%d,%.5f,%.5f\n",kNstreamsTb,ty,s,r,b,
+                bins[b],gaps.min_cyc/double(kMsCycTb),gaps.max_cyc/double(kMsCycTb));
+        }
     }
 
     std::array<uint32_t,kNstreamsTb> counter_receive_resets() {

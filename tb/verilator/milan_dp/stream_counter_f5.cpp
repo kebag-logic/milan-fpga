@@ -5,11 +5,68 @@
 #include <map>
 #include <tuple>
 
-TEST_F(Mailbox, StreamCounterWindows)
+namespace {
+struct F5CounterGaps {
+    size_t count=0;
+    uint32_t min_ms=5000;
+    uint32_t max_ms=0;
+    uint32_t tail_ms=0;
+    bool refresh=false;
+    bool spacing=true;
+};
+
+F5CounterGaps f5_counter_gaps(const std::vector<uint32_t>& times,uint32_t start_ms)
+{
+    F5CounterGaps result;
+    uint32_t last=0;
+    for(const uint32_t at:times) {
+        if(at<start_ms || at>=5000) continue;
+        if(result.count) {
+            result.min_ms=std::min(result.min_ms,at-last);
+            result.max_ms=std::max(result.max_ms,at-last);
+        }
+        ++result.count;
+        last=at;
+    }
+    result.tail_ms=5000-(result.count ? last : start_ms);
+    result.spacing=result.min_ms>=1000;
+    result.refresh=result.count>=2 && result.max_ms<=1003 && result.tail_ms<=1003;
+    return result;
+}
+
+void f5_check_counter_gaps(const std::vector<uint32_t>& times,unsigned type,unsigned index,unsigned recipient)
 {
     const char* omitted=std::getenv("COUNTERS_OMIT_CHECK");
-    const bool cadence=!omitted || std::strcmp(omitted,"CADENCE")!=0;
-    const bool rate=!omitted || std::strcmp(omitted,"RATE")!=0;
+    const auto gaps=f5_counter_gaps(times,0);
+    if(!omitted || std::strcmp(omitted,"RATE")!=0) {
+        EXPECT_TRUE(gaps.spacing)<<"[F5 RATE] Milan 5.4.5.2 Table 5.22 spacing";
+    }
+    if(!omitted || std::strcmp(omitted,"CADENCE")!=0) {
+        EXPECT_TRUE(gaps.refresh)<<"[F5 CADENCE] every gap and final wait <= 1000 ms plus 2 ms stall and one service pass";
+    }
+    bool stable=true;
+    for(uint32_t start_ms=0;start_ms<=1000;++start_ms) {
+        const auto shifted=f5_counter_gaps(times,start_ms);
+        stable &= shifted.refresh==gaps.refresh && shifted.spacing==gaps.spacing;
+    }
+    if(!omitted || std::strcmp(omitted,"PHASE")!=0) {
+        EXPECT_TRUE(stable)<<"[F5 PHASE] measurement starts through one second preserve verdict";
+    }
+    printf("F5_GAPS,%u,%u,%u,%zu,%u,%u,%u\n",type,index,recipient,gaps.count,gaps.min_ms,gaps.max_ms,gaps.tail_ms);
+    unsigned bins[5]{};
+    for(const auto at:times) {
+        ASSERT_LT(at,5000u);
+        ++bins[at/1000];
+        printf("F5_NOTE,%u,%u,%u,%u\n",type,index,recipient,at);
+    }
+    // Fixed bins describe the capture; they never decide its verdict.
+    for(unsigned window=0;window<5;++window)
+        printf("F5,%u,%u,%u,%u,%u,%u,%u\n",type,index,recipient,window,bins[window],gaps.min_ms,gaps.max_ms);
+}
+} // namespace
+
+TEST_F(Mailbox, StreamCounterGaps)
+{
     receive(36,{},CTLR);receive(36,{},CTLR+1);
     std::vector<std::pair<unsigned,unsigned>> streams;
     for(auto&d:descriptors)if(d.type==5 || d.type==6)streams.emplace_back(d.type,d.index);
@@ -35,23 +92,6 @@ TEST_F(Mailbox, StreamCounterWindows)
         mbx_model_advance_ms(&fabric,1);
     }
     for(auto [type,index]:streams)for(uint64_t recipient:{CTLR,CTLR+1}){
-        auto&times=departures[{type,index,recipient}];
-        if(cadence){EXPECT_GE(times.size(),5u)<<"[F5 CADENCE] recipient total "<<type<<":"<<index;}
-        unsigned bins[5]{};
-        uint32_t min_gap=5000;
-        uint32_t max_gap=0;
-        for(size_t n=0;n<times.size();++n){
-            ASSERT_LT(times[n],5000u);++bins[times[n]/1000];
-            if(n){min_gap=std::min(min_gap,times[n]-times[n-1]);
-                  max_gap=std::max(max_gap,times[n]-times[n-1]);}
-        }
-        for(unsigned window=0;window<5;++window){
-            if(cadence){EXPECT_GE(bins[window],1u)<<"[F5 CADENCE] window "<<type<<":"<<index;}
-            if(rate){EXPECT_LE(bins[window],1u)<<"[F5 RATE] window "<<type<<":"<<index;}
-            printf("F5,%u,%u,%u,%u,%u,%u,%u\n",type,index,
-                   unsigned(recipient-CTLR),window,bins[window],min_gap,max_gap);
-        }
-        if(rate){EXPECT_GE(min_gap,1000u)<<"[F5 RATE] Milan 5.4.5.2 Table 5.22 spacing";}
-        if(cadence){EXPECT_LE(max_gap,1003u)<<"[F5 CADENCE] 1000 ms plus 2 ms stall and one service pass";}
+        f5_check_counter_gaps(departures[{type,index,recipient}],type,index,unsigned(recipient-CTLR));
     }
 }

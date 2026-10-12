@@ -26,7 +26,7 @@ DP = "hdl/milan/milan_datapath.sv"
 GROUPS = {"tx-interval": "TX", "rx-interval": "RX", "tx-reset": "TX_RESET",
           "aaf-reset": "RX_RESET", "crf-reset": "RX_RESET",
           "rx-saturation": "RX", "late": "CADENCE", "rate": "RATE",
-          "tx-nodirty": "OUTPUT_CADENCE"}
+          "tx-nodirty": "OUTPUT_CADENCE", "fixed-grid": "PHASE"}
 
 
 def replace_once(text: str, old: str, new: str) -> str:
@@ -107,6 +107,29 @@ def plant(variant: str, work: Path, output_condition: str) -> dict[str, str]:
     return paths
 
 
+def fixture_source(variant: str, work: Path) -> Path:
+    """Restore the superseded grid grader in an isolated fixture for the phase control."""
+    if variant != "fixed-grid":
+        return HERE / "sim_nxn.cpp"
+    header = replace_once((HERE / "stream_counters.hpp").read_text(),
+                          "result.refresh=result.count>=2 && result.max_cyc<=second_cyc+service_cyc\n"
+                          "            && result.tail_cyc<=second_cyc+service_cyc;", """
+        (void)service_cyc;
+        std::array<int,5> bins{};
+        for(const long at:times) {
+            const long relative=at-start_cyc;
+            if(relative>=0 && relative<5*second_cyc) ++bins[relative/second_cyc];
+        }
+        result.refresh=bins[2]>=1 && bins[3]>=1 && bins[4]>=1;""")
+    (work / "stream_counters.hpp").write_text(header)
+    source = (HERE / "sim_nxn.cpp").read_text().replace(
+        '#include "../../common/verilator_harness.hpp"',
+        '#include "' + str(ROOT / "tb/common/verilator_harness.hpp") + '"')
+    staged = work / "sim_nxn.cpp"
+    staged.write_text(source)
+    return staged
+
+
 def run(shape: int, variant: str, work: Path, verilator: str, output_condition: str) -> None:
     """Build the requested shape and require clean or attributable detection/escape results."""
     work.mkdir(parents=True, exist_ok=True)
@@ -141,7 +164,7 @@ def run(shape: int, variant: str, work: Path, verilator: str, output_condition: 
     replacements = plant(variant, work, output_condition)
     sources = [replacements.get(s, s) for s in sources]
     with (work / "build.log").open("w") as log:
-        subprocess.run([verilator, *flags, *sources, str(HERE / "sim_nxn.cpp"),
+        subprocess.run([verilator, *flags, *sources, str(fixture_source(variant, work)),
                         "-o", "stream_counters"], cwd=work, stdout=log,
                        stderr=subprocess.STDOUT, check=True)
     for script, output in (("protocol-processor/hdl/acmp/rom/gen_ltn_rom.py", "ltn_rom.hex"),
@@ -175,6 +198,8 @@ def run(shape: int, variant: str, work: Path, verilator: str, output_condition: 
         elif result.returncode != 0 or failures or "RESULT: PASS" not in text:
             raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
         print(f"{shape}x{shape} {variant} {output_condition} {name}: rc={result.returncode}, failures={len(failures)}")
+        if variant == "clean":
+            print(next(line for line in text.splitlines() if "RESULT: PASS" in line))
 
 
 def main() -> None:
