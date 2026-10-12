@@ -1,0 +1,46 @@
+PASS 1x1_tdm8_i1 rom banks hold the need
+PASS 1x1_tdm8_i1 sram banks hold the need
+PASS SPLIT_CONTROL_MEMORY table row 1x1_tdm8_i1: | 96,624 | 45,776 | 35.5 | 34 / 2 | 35.0 | 128 / 8 | 35 |
+PASS 1x1_tdm8_i1 planned 35.5 and mapped 35.0 within 56 RAMB36
+PASS 1x1_tdm8_i1 flat span 142256 B within 224 KiB (229,376 B); decimal 224,000 B: True
+PASS 1x1_tdm8_i2 rom banks hold the need
+PASS 1x1_tdm8_i2 sram banks hold the need
+PASS SPLIT_CONTROL_MEMORY table row 1x1_tdm8_i2: | 98,056 | 57,152 | 38.0 | 37 / 1 | 37.5 | 89 / 7 | 38 |
+PASS 1x1_tdm8_i2 planned 38.0 and mapped 37.5 within 56 RAMB36
+PASS 1x1_tdm8_i2 flat span 155056 B within 224 KiB (229,376 B); decimal 224,000 B: True
+PASS 8x8_i1 rom banks hold the need
+PASS 8x8_i1 sram banks hold the need
+PASS SPLIT_CONTROL_MEMORY table row 8x8_i1: | 110,344 | 86,336 | 48.5 | 46 / 2 | 47.0 | 417 / 42 | 48 |
+PASS 8x8_i1 planned 48.5 and mapped 47.0 within 56 RAMB36
+PASS 8x8_i1 flat span 196144 B within 224 KiB (229,376 B); decimal 224,000 B: True
+PASS 8x8_i2 rom banks hold the need
+PASS 8x8_i2 sram banks hold the need
+PASS SPLIT_CONTROL_MEMORY table row 8x8_i2: | 111,848 | 112,464 | 55.0 | 53 / 2 | 54.0 | 266 / 34 | 55 |
+PASS 8x8_i2 planned 55.0 and mapped 54.0 within 56 RAMB36
+PASS 8x8_i2 flat span 223776 B within 224 KiB (229,376 B); decimal 224,000 B: True
+PASS fill range 97.2-99.8
+PASS largest leaves 2 tiles as mapped
+PASS planned headroom 4096 B, with slack 5064 B
+PASS ce10328c planned figures 35.0 / 38.0 / 48.5 / 54.5
+PASS .text +1792, .bss +264
+PASS rom banks 4 -> 5
+PASS MARK_II_AREA_PLAN firmware row | M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
+PASS MARK_II_AREA_PLAN M2 row total 125
+PASS MARK_II_AREA_PLAN release row total 114
+PASS MARK_II_AREA_PLAN arithmetic = 125
+PASS MARK_II_AREA_PLAN 3.5 over before release
+PASS MARK_II_AREA_PLAN 7.5 below after release
+PASS MARK_II_AREA_PLAN BIOS kept 143 / 132
+PASS MARK_II_AREA_PLAN partial 131, 9.5 over
+PASS AREA_BUDGET firmware row | M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
+PASS AREA_BUDGET M2 row total 125
+PASS AREA_BUDGET release row total 114
+PASS AREA_BUDGET arithmetic = 125
+PASS AREA_BUDGET 3.5 over before release
+PASS AREA_BUDGET 7.5 below after release
+PASS AREA_BUDGET BIOS kept 143 / 132
+PASS AREA_BUDGET partial 131, 9.5 over
+PASS MARK_II all-BRAM 126 / 115
+PASS all-BRAM headroom 6.5
+PASS SPLIT page 114 after release
+RESULT: PASS (0 failed)
