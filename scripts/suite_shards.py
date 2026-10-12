@@ -76,7 +76,9 @@ its old entry goes.
 """
 
 import argparse
+import os
 import re
+import subprocess
 import sys
 import tempfile
 from collections.abc import Collection, Mapping, Sequence
@@ -840,8 +842,31 @@ def head_selftest() -> int:
     ok = got == landmarks and alone and held
     print(f"  {'ok  ' if ok else 'FAIL'} specialized owners {got}, "
           f"milan_dp alone={alone}, held at any planted duration={held}")
-    return ((0 if ok else 1) + planted_selftest(suites, workflow, load, bound)
+    shards = [select_suites(suites, index, len(load)) for index in range(len(load))]
+    return ((0 if ok else 1) + seeded_selftest(shards)
+            + planted_selftest(suites, workflow, load, bound)
             + provisional_selftest(driver))
+
+
+def seeded_selftest(shards: Sequence[Sequence[str]]) -> int:
+    """Prove each worker gets the same list in its own process: every
+    `--shard I/N` list printed under hash seeds 1 and 2 is the one selected
+    here. Comparing two selections in one process cannot see a split that
+    follows the process's hash seed."""
+    total = len(shards)
+    printed = []
+    for seed in ("1", "2"):
+        runs = [subprocess.run([sys.executable, str(HERE), "--suite-root",
+                                str(SUITE_ROOT), "--shard", f"{index}/{total}"],
+                               capture_output=True, text=True, check=False,
+                               env={**os.environ, "PYTHONHASHSEED": seed})
+                for index in range(total)]
+        printed.append([run.stdout.split() if run.returncode == 0 else None
+                        for run in runs])
+    ok = all(lists == [list(shard) for shard in shards] for lists in printed)
+    print(f"  {'ok  ' if ok else 'FAIL'} the {total} --shard lists printed under "
+          "hash seeds 1 and 2 are the ones selected here")
+    return 0 if ok else 1
 
 
 def selftest() -> int:
