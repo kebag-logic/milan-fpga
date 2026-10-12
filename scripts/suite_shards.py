@@ -784,6 +784,14 @@ def head_selftest() -> int:
     """Hold this tree's table to its inventory and rtl.yml's bound, prove
     the specialized owners, and plant each defect; the number of failures."""
     if not in_checkout():
+        # A copy may skip only where there is nothing to read, so a test
+        # that wrongly says "not a checkout" in a checkout fails instead.
+        beside = [str(path.relative_to(ROOT))
+                  for path in (WORKFLOW, SUITE_ROOT, DRIVER) if path.exists()]
+        if beside:
+            print(f"  FAIL head: {HERE.name} would skip its head arms with "
+                  f"{', '.join(beside)} beside it")
+            return 1
         print(f"  skip head arms: {HERE.name} is not scripts/suite_shards.py "
               "of a checkout, so there is no inventory or rtl.yml to read")
         return 0
