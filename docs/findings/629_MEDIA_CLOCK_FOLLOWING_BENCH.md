@@ -28,7 +28,9 @@ source by the maintainer's exception, it graded B-CRF and B-AAF at the path's
 floor with no discontinuity; see [B16c: the resume](#b16c-the-resume). Its
 second findings round corrected figures against their receipts and published
 reduced receipts; see
-[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts). Its third
+added a check that recomputes every figure from its receipt; see
+[B16, round 3: figures check](#b16-round-3-figures-check).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -73,7 +75,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
-- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with one route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the #629 acceptance, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0 graded by THD+N and SNR with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the #629 acceptance, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found.
 
 ## Identity and setup
 
@@ -2298,7 +2300,8 @@ lane stopped at step 2. After the manager's ruling it resumed as B16b; see
 [B16b: the resume](#b16b-the-resume). After the second ruling it resumed as
 B16c; see [B16c: the resume](#b16c-the-resume). The second findings round,
 documents only, is in
-[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), and the third
+in [B16, round 3: figures check](#b16-round-3-figures-check).
 
 | Item | Verdict | Evidence |
 |---|---|---|
@@ -2306,7 +2309,7 @@ documents only, is in
 | Tool controls | PASS | Lanes B6 and B9's byte-equal to lane B15's; the tap decode 8 of 8 and the full-value alignment 6 of 6, both with new controls. See [B16: the controls](#b16-the-controls) |
 | Step 2, the loopback as the positive reference | TONE ABSENT; no stream formed. STOP | Two runs. The peer's listener never resolved its own talker's stream, and its digital output read exact zero. See [B16: the loopback](#b16-the-loopback) |
 | Where this setup and the working loopback differ | At the bind | The peer sends its probe for its own talker to the network, twice, 200 ms apart, and no answer arrives. Lane B15's `pts1` failed at the same step. See [B16: the loopback](#b16-the-loopback) |
-| The tone source, read only | Playing, routed as lane B15 read, plus one change | The tone left it on the outputs the documented wiring uses, as in lane B15. It now also leaves on a second pair of outputs, which lane B15 read silent. See [B16: the tone source, read only](#b16-the-tone-source-read-only) |
+| The tone source, read only | Playing, routed as lane B15 read, and to a second pair | The tone left it on the outputs the documented wiring uses, as in lane B15. It now also leaves on a second pair of outputs, which lane B15 read silent. See [B16: the tone source, read only](#b16-the-tone-source-read-only) |
 | Step 3, the talker stream with the loopback carrying the tone | NOT RUN | No loopback carried the tone. The peer's talker sent no PDU on its link in either run |
 | Step 4, Direction B end to end; B0, B-CRF, B-AAF | NOT RUN | The lane stopped at step 2 |
 | A DUT fix | Not applicable | No DUT stage was reached |
@@ -2327,7 +2330,7 @@ publication is the manager's; see [B16: artifact hashes](#b16-artifact-hashes).
 | Clock sources of #629 | CLOCK_SOURCE 0 INTERNAL; 1 INPUT_STREAM on STREAM_INPUT 1; 2 INPUT_STREAM on STREAM_INPUT 0; CLOCK_SOURCE 3 answers NO_SUCH_DESCRIPTOR; CLOCK_DOMAIN 0 lists 0, 1 and 2 and reads 0 |
 | UART grader | 10 of 10 |
 | ADP | The DUT with entity model `001bc5c1935893e1` |
-| Identity gate | PASS, 05:45:07 to 05:45:13 CEST |
+| Identity gate | PASS, 05:45:06 to 05:45:12 CEST |
 
 The gate is lane B15's (`identity_b16.sh`, `identity_b15.py`), unchanged but
 for its environment and staging. The flash record is the manager's.
@@ -2352,7 +2355,7 @@ As found, at 05:45 CEST, the bench was in lane B15's end state:
 
 **The tone.** Lane B15's: lane B9's loop (`b9_tone.py`, 997 Hz and 9,973 Hz
 at -20 dBFS), SHA-256 `d9684a8f...`, played into the reference peer's talker
-inputs through the authorised tone source, from 05:55:38 to 06:02:00 CEST. The
+inputs through the authorised tone source, from 05:55:37 to 06:01:59 CEST. The
 lane only started and stopped that playback, read the source's state twice and
 read its meters passively. No instrument setting was written.
 
@@ -2370,8 +2373,8 @@ read its meters passively. No instrument setting was written.
 
 | Run | Window, CEST | Captures | Purpose |
 |---|---|---|---|
-| `loop1` | 05:56:31 to 05:57:31 | Taps 30.6 s and the external capture 22 s, from 05:56:45 | The loopback, as assigned |
-| `loop2` | 05:59:18 to 06:00:29 | Taps 52.5 s from 05:59:19, before the bind; the external capture 16 s from 05:59:36 | The same, with the bind's ACMP exchange on record |
+| `loop1` | 05:56:30 to 05:57:30 | Taps 30.6 s and the external capture 22 s, from 05:56:45 | The loopback, as assigned |
+| `loop2` | 05:59:18 to 06:00:28 | Taps 52.5 s from 05:59:19, before the bind; the external capture 16 s from 05:59:36 | The same, with the bind's ACMP exchange on record |
 
 `loop2` was added after `loop1`. `loop1`'s taps started after the bind, so
 they held none of its messages.
@@ -2421,13 +2424,13 @@ the controller's UNBIND_RX command:
 | 299.6 | The peer, to the network | PROBE_TX command, again | The same | No response |
 
 Milan's PROBE_TX is IEEE 1722.1's CONNECT_TX. No PROBE_TX response and no
-further probe appear in the remaining 49 s of the capture.
+further probe appear in the rest of the capture, 49.6 s after the second probe.
 
 So the peer resolves its own talker over the network, as for any talker, and
 nothing answers. A switch does not send a frame back out of the port it
 arrived on, and the peer evidently does not answer its own probe internally. Its
 listener therefore never learns the stream, never declares it, and the talker
-never starts. Neither tap holds one PDU of the peer's talker stream in either
+never starts. Neither tap holds a PDU of the peer's talker stream in either
 run:
 
 <!-- b16-points -->
@@ -2443,10 +2446,10 @@ run:
 With no tone at any point, there is no frequency, SNR or THD+N to fit, and no
 point carries the talker for step 3's tap to decode.
 
-Lane B15's `pts1` bound the same listener to the same talker and read the
-same: rx state flags `0x0002`, stream ID 0, counters 0, output zero. Lane B15
+Lane B15's `pts1` bound the same listener to the same talker, and lane B15
+records the same: its counters stayed 0 and its output read exact zero. Lane B15
 attributed it to the switch not reflecting the talker's frames. Its tap did
-not cover the bind. This lane's record places the failure one step earlier:
+not cover the bind. This lane's record places the failure a step earlier:
 the stream is never started, because the listener's probe goes unanswered.
 
 So the loopback the maintainer reports working is not this bind on this
@@ -2459,14 +2462,14 @@ routing was read read-only.
 ### B16: the tone source, read only
 
 The tone source's state was read before the playback and again at its end,
-at 05:48 and 06:01 CEST. The two reads are identical. Its level meters were
+at 05:47 and 06:01 CEST. The two reads are identical. Its level meters were
 read passively while the tone played. Nothing was written.
 
 The read method changed from lane B15's. Another client of the source's
 control service held the reply port that lane B15's read binds. This lane
 observed the service's replies passively on the host instead, binding no port.
-Each state read sent one request, the service's documented state read, as
-lane B15's did.
+Each state read sent the service's documented state read request, as lane
+B15's did.
 
 | Source outputs | Before the output level setting | Output level setting | Leaving the source | Lane B15 |
 |---|---|---|---|---|
@@ -2477,7 +2480,7 @@ lane B15's did.
 The playback reads -20.0 dBFS, so it reaches the documented pair at 0 dB, as
 the owner's condition requires. The second pair is new: lane B15 read it
 silent with the same output setting. So the route from the playback to that
-pair changed between the two lanes, outside this lane. The documented wiring
+pair changed after lane B15, outside this lane. The documented wiring
 does not include that pair, and the lane did not change it.
 
 The two state reads hold 2,262 entries each, all equal. The reduced receipt
@@ -2519,7 +2522,7 @@ form, so nothing downstream of the source was graded on a tone.
 | Reference peer | Its STREAM_INPUT 0 bound to the DUT's AAF talker at `0205022002006000`, its STREAM_INPUT 8 to the DUT's CRF talker, its CLOCK_DOMAIN on the source on that CRF input, never set; all as found |
 | Census, start against end | 45 of 46 entries equal; the other is the DUT's live propagation delay, 387 to 377 ns |
 | DUT saved state | NVM image seq 276, 42 commits, `pend=0`, `VD_OK`, unchanged: the DUT was not bound |
-| The tone | Stopped by its process ID at 06:02:00 CEST; the playback closed |
+| The tone | Stopped by its process ID at 06:01:59 CEST; the playback closed |
 | SoC board | Same boot; the to-host leg running with the process ID it had as found, never stopped; the from-host leg dead, as found; McASP playback closed; USB function configured |
 | Controller host | No task process; staging removed |
 | Tap host | No capture file left |
@@ -2600,13 +2603,13 @@ The manager [ruled on the STOP](https://github.com/kebag-logic/milan-fpga/issues
 on 2026-10-12. Lane B15's four-point capture was to run with the DUT's
 listener bound to the peer's talker. If the tone was present at the peer's
 talker, step 4 followed: B0, B-CRF and B-AAF graded by THD+N and SNR, with
-every loss attributed to a stage. Operator [A603] resumed at 06:20 CEST on the
-same image, branch and head, `694d7da6`.
+every loss attributed to a stage. Operator [A603] resumed on the same image,
+branch and head, `694d7da6`; the first bench action was at 06:22:23 CEST.
 
 | Item | Verdict | Evidence |
 |---|---|---|
 | Identity gate, dev `5603c353`, again | PASS | 06:22:29 to 06:22:34 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16 left it: census 45 of 46 entries equal, the other the DUT's live propagation delay |
-| (a) The peer's talker stream on the peer's link | TONE PRESENT | 997 Hz on channel 0 and 9,973 Hz on channel 1 in every run, at -14.14 dBFS before 06:29 CEST and -14.10 dBFS after. See [B16b: the four points](#b16b-the-four-points) |
+| (a) The peer's talker stream on the peer's link | TONE PRESENT | 997 Hz on channel 0 and 9,973 Hz on channel 1 in every run, at -14.14 dBFS to 06:28:50 CEST and -14.10 dBFS from 06:31:51. See [B16b: the four points](#b16b-the-four-points) |
 | (b) The same stream on the DUT's link | TONE PRESENT | Equal to (a), 0 sequence gaps on both taps |
 | (c) The DUT's TDM output on McASP0 | TONE PRESENT | Equal to (a) and (b) sample for sample: 480,000 of 480,000 frames in three runs, and the 34.1 s the taps cover in B0, 0 slips |
 | (d) The positive control at the external capture | PRESENT | Lane B6's loop through the DUT's talker and the peer's listener, at -1.00 dBFS with THD+N at the loop's floor. B0 holds no discontinuity in 303.8 s. `pts2` holds two 2-frame repeats that neither tap carries |
@@ -2702,12 +2705,14 @@ Point (d), the peer's digital output at the external capture:
 | Run | The peer's output | Verdict |
 |---|---|---|
 | `pts1`, `pts3` | Its two channels at a constant -1 LSB: the DUT's talker carries its idle TDM input, and these modes play nothing into it | No control in this mode |
-| `pts2` | Lane B6's loop at -1.00 dBFS, 997.0000 Hz and 9,973.0000 Hz, 0.000 ppm; THD+N -146.06 dB and -145.99 dB, the loop's floor, in 13 of 16 blocks. Block 2 holds the playback's start. Blocks 6 and 12 each hold a repeat of 2 frames, at 6.131 s and 12.113 s, net -4 frames over 665,599 decoded frames, 0 torn | PRESENT |
-| `b0-2` | The loop as in `pts2`, at the floor in 305 of 306 blocks; block 2 holds the playback's start. 0 discontinuities and 0 torn in 14,583,286 decoded frames; `b0` likewise in 14,583,189 | PRESENT |
+| `pts2` | Lane B6's loop at -1.00 dBFS, 997.0000 Hz and 9,973.0000 Hz, 0.000 ppm; THD+N -146.06 dB and -145.99 dB, the loop's floor, in 11 of the 13 blocks wholly inside the playback. Of the 16 blocks, 0 and 1 precede the playback and block 2 holds its start. Blocks 6 and 12 each hold a repeat of 2 frames, at 6.131 s and 12.113 s, net -4 frames over 665,599 decoded frames, 0 torn | PRESENT |
+| `b0-2` | The loop as in `pts2`, at the floor in all 303 blocks wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start. 0 discontinuities and 0 torn in 14,583,286 decoded frames; `b0` likewise in 14,583,189 | PRESENT |
 
 In `pts2` both taps carry the DUT's AAF talker with the same loop at -1.00
-dBFS, THD+N -146.06 dB and -145.99 dB, at the floor in every block but the
-playback's first and last. So `pts2`'s two repeats at (d) are not on the wire.
+dBFS, THD+N -146.06 dB and -145.99 dB, at the floor in all 15 blocks wholly
+inside the playback. Of each tap's 23 blocks, 0 to 2 and 20 to 22 hold no
+playback, and blocks 3 and 19 hold its start and end. So `pts2`'s two repeats
+at (d) are not on the wire.
 They arose after it: in the peer's listener, its output or the external
 capture. They stopped with the tone source's change, below. The decode is lane
 B6's (`dloop_b16.py`, with a planted control).
@@ -2741,26 +2746,30 @@ The later state read caught 1,255 of the 2,262 entries the first held. Of the
   reads caught: the first caught two messages for each address and the second
   one, which the first also caught. All of them are at minus infinity.
 
-So two settings changed: the clock setting and that output's level. The
-reduced receipt `r2/source-receipt.json` carries these counts and classes; see
-[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts). The clock
-setting accounts for the change at (a):
+So, among the 1,255 entries both reads hold, two settings changed: the clock
+setting and that output's level. The later read did not catch the other
+1,007. The reduced receipt `r2/source-receipt.json` carries these counts and
+classes; see [B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+The clock setting accounts for the change at (a):
 
 | Runs | Tone at (a) | Offset against the stream | THD+N at (c), event-free blocks within 3 dB of the median | Phase drift at (c) | Discontinuities at (d) |
 |---|---|---|---|---|---|
-| `pts1`, `pts2`, to 06:28:50 | -14.1353 dBFS | +6.94 to +6.96 ppm | -109.68 and -111.26 dB at 997 Hz; -89.83 and -91.51 dB at 9,973 Hz | +3.00 frames in 10 s, smooth | Two 2-frame repeats in 13.9 s, `pts2` |
-| `b0`, `b0-2`, `pts3`, from 06:31:52 | -14.1035 dBFS | 0.000 ppm | `pts3`: -123.98 dB on both tones; `b0-2`: -123.98 dB at 997 Hz and -123.95 dB at 9,973 Hz | 0.0000 frames in 10 s, `pts3`; 0.0005 in 300 s, `b0-2` | None in 303.8 s, `b0` and `b0-2` |
+| `pts1`, `pts2`, to 06:28:50 | -14.1353 dBFS | +6.94 to +6.96 ppm | -109.68 and -111.26 dB at 997 Hz; -89.83 and -91.51 dB at 9,973 Hz | +3.00 and +3.01 frames in 10 s, smooth | Two 2-frame repeats in 13.9 s, `pts2` |
+| `b0`, `b0-2`, `pts3`, from 06:31:51 | -14.1035 dBFS | 0.000 ppm | `pts3`: -123.98 dB on both tones; `b0-2`: -123.98 dB at 997 Hz and -123.95 dB at 9,973 Hz | 0.0000 frames in 10 s, `pts3`; 0.0005 in 300 s, `b0-2` | None in 303.8 s, `b0` and `b0-2` |
 
 The change fell between `pts2`'s last tap frame at 06:28:50 and `b0`'s first
-at 06:31:52. `pts3`, without the CRF bind, reads as `b0-2`, so the CRF bind
+at 06:31:51. `pts3`, without the CRF bind, reads as `b0-2`, so the CRF bind
 did not cause it. In both states `b9_thdn.py` finds no discontinuity at (c) in
-any run. The +6.95 ppm tone advanced smoothly against the stream, so it was
-resampled upstream of the peer's talker, not slipped.
+any run. The tone at +6.94 to +6.96 ppm advanced smoothly against the stream,
+so it was resampled upstream of the peer's talker, not slipped.
 
-The playback's own log, kept privately, records five underruns, 0.43 to 1.63
-s each, between about 06:45:27 and 06:46:38 CEST, while this host graded
-`b0-2` offline. No capture window holds one: `b0-2` ended at 06:43:09 and
-`pts3`'s taps started at 06:49:14. Lane B16's playback logged none.
+The operator's record of the tone's stop (`HANDOFF.md`, step b17) notes five
+underruns in the playback's log, from 06:45:27 to 06:46:38 CEST, while this
+host graded `b0-2` offline. That log was not retained: lane B16c's playback
+overwrote it, so these figures rest on that record alone. No capture window
+falls in that interval: `b0-2` ended at 06:43:09 and `pts3`'s taps started at
+06:49:14. Lane B16's playback log, retained privately, holds no underrun
+(`r3/playback-logs.json`).
 
 ### B16b: B0
 
@@ -2795,10 +2804,10 @@ inference:
 
 | Stage | Loss shown directly, inside the taps' 34.1 s | Beyond the taps, by inference only | Evidence |
 |---|---|---|---|
-| The tone source and the peer's path into its talker | The path's floor at -124 dB; 23 degraded blocks at (c), down to -100.61 dB and -80.63 dB (block 7); before 06:29, the +6.95 ppm offset with a floor 13 to 34 dB higher, in `pts1` and `pts2`, whose whole 10 s at (c) the taps cover | The other 108 degraded blocks at (c), down to -100.47 dB and -80.48 dB (block 224) | Inside: (a) holds each of them, and (c) equals (a). Beyond: the blocks are assigned upstream by their kind, as the 23 inside, with no discontinuity at (c); (a)'s own 39 blocks reach -102.55 dB and -82.58 dB |
+| The tone source and the peer's path into its talker | The path's floor at -124 dB; 23 degraded blocks at (c), down to -100.61 dB and -80.63 dB (block 7); to 06:28:50, the +6.94 to +6.96 ppm offset with a floor 13 to 34 dB higher, in `pts1` and `pts2`, whose whole 10 s at (c) the taps cover | The other 108 degraded blocks at (c), down to -100.47 dB and -80.48 dB (block 224) | Inside: (a) holds each of them, and (c) equals (a). Beyond: the blocks are assigned upstream by their kind, as the 23 inside, with no discontinuity at (c); (a)'s own 39 blocks reach -102.55 dB and -82.58 dB |
 | The network, (a) to (b) | None | Not observed: the taps end | 0 sequence gaps on either tap over 40 s; (a) and (b) both equal (c) over the same recorded frames |
 | The DUT's listener, map and TDM render, (b) to (c) | None | That the DUT added none of the 108 is inference. Measured over all 300 s: no discontinuity and 0.0005 frames of phase drift | Sample-exact over 34.1 s; the idle channels 2 and 3 carried as received |
-| The DUT's talker, the peer's listener and its output: the positive control | None in B0 | Measured over the whole window | 0 discontinuities in 14,583,286 decoded frames, 0 net steps; 305 of 306 blocks at the loop's floor. `pts2`'s two repeats lay after the wire and ended with the tone source's change |
+| The DUT's talker, the peer's listener and its output: the positive control | None in B0 | Measured over the whole window | 0 discontinuities in 14,583,286 decoded frames, 0 net steps; all 303 blocks wholly inside the playback at the loop's floor. `pts2`'s two repeats lay after the wire and ended with the tone source's change |
 
 The DUT renders the stream sample for sample in every frame this lane
 compared: 3,077,452 against (a) and 3,077,980 against (b), over the four
@@ -2952,15 +2961,16 @@ reference peer's clock source to its internal source over ATDECC: a
 SET_CLOCK_SOURCE on the peer's CLOCK_DOMAIN, read back with GET_CLOCK_SOURCE.
 After the case the peer returns to following its CRF input, as found, and that
 is read back too. Every other part of the clock-source rule stands. Operator
-[A603] resumed at 07:32 CEST on the same image and branch, at head `0d4ff919`.
+[A603] resumed on the same image and branch, at head `0d4ff919`. After the
+offline dry run below, the first bench action was at 07:48:07 CEST.
 
 | Item | Verdict | Evidence |
 |---|---|---|
 | Identity gate, dev `5603c353`, again | PASS | 07:48:16 to 07:48:22 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was as lane B16b left it: census 45 of 46 entries equal, the other the DUT's live propagation delay |
 | Tool controls | PASS | The new run mode, dry-run offline against stand-ins in 8 of 8 scenarios, and its wrapper's deadline path. See [B16c: method](#b16c-method) |
 | The peer's clock source, the ruling's exception | Set and restored, each read back | Set to INTERNAL before each case's binds, and returned to its CRF input after the DUT's binds were undone. See [B16c: clock-source record](#b16c-clock-source-record) |
-| B-CRF: the DUT follows the peer's CRF talker | Graded | Servo LOCKED 2.7 to 3.2 s after the set and at all 596 polls of the window. THD+N -123.98 dB at 997 Hz and -123.97 dB at 9,973 Hz, median over 300 one-second blocks, all 300 at the path's floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN. See [B16c: B-CRF and B-AAF](#b16c-b-crf-and-b-aaf) and [B16c: the following record](#b16c-the-following-record) |
-| B-AAF: the DUT follows the peer's AAF talker | Graded | Servo LOCKED 6.7 to 7.2 s after the set and at all 596 polls of the window. THD+N -123.98 dB and -123.97 dB, all 300 blocks at the floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN |
+| B-CRF: the DUT follows the peer's CRF talker | Graded | Servo LOCKED 2.585 to 3.161 s after the set and at all 596 polls of the window. THD+N -123.98 dB at 997 Hz and -123.97 dB at 9,973 Hz, median over 300 one-second blocks, all 300 at the path's floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN. See [B16c: B-CRF and B-AAF](#b16c-b-crf-and-b-aaf) and [B16c: the following record](#b16c-the-following-record) |
+| B-AAF: the DUT follows the peer's AAF talker | Graded | Servo LOCKED 6.602 to 7.180 s after the set and at all 596 polls of the window. THD+N -123.98 dB and -123.97 dB, all 300 blocks at the floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN |
 | The four points | TONE PRESENT at (a), (b) and (c); (d) PRESENT | (c) equals (a) and (b) sample for sample over the 34.2 to 34.3 s the taps cover in both cases. (d), lane B6's loop through the DUT's talker and the peer's listener: 0 discontinuities and 0 net steps in each case |
 | Attribution | No loss in the network or the DUT | Every stage at the path's floor. See [B16c: attribution](#b16c-attribution) |
 | A DUT fix | Not needed | No DUT stage loses or alters the tone |
@@ -3004,8 +3014,8 @@ stopped by its process ID for each case and restarted with its recorded line.
 
 | Run | Locked, CEST | The peer set to INTERNAL | Binds | The DUT's set | Window at McASP0 | Teardown |
 |---|---|---|---|---|---|---|
-| `bcrf` | 07:50:00 to 07:56:15 | 07:50:12.4 | 07:50:17.6 | CLOCK_SOURCE 1, 07:50:29.8 | 07:50:56 to 07:55:56, from 26 s after the set | 07:56:00.0 to 07:56:04.1 |
-| `baaf` | 07:56:52 to 08:03:07 | 07:57:04.1 | 07:57:09.3 | CLOCK_SOURCE 2, 07:57:21.5 | 07:57:47 to 08:02:47, from 26 s after the set | 08:02:51.8 to 08:02:55.8 |
+| `bcrf` | 07:50:00 to 07:56:15 | 07:50:12.3 | 07:50:17.5 | CLOCK_SOURCE 1, 07:50:29.7 | 07:50:55 to 07:55:55, from 26 s after the set | 07:56:00.0 to 07:56:04.0 |
+| `baaf` | 07:56:52 to 08:03:07 | 07:57:04.1 | 07:57:09.3 | CLOCK_SOURCE 2, 07:57:21.5 | 07:57:47 to 08:02:47, from 26 s after the set | 08:02:51.7 to 08:02:55.7 |
 
 **Before any bench action** the two modes ran offline against stand-ins for
 the controller agent, the DUT's console, the SoC board, the tap host and the
@@ -3108,11 +3118,11 @@ B6's loop, which McASP0 played into the DUT's TDM input:
 
 | Run | Decoded frames | Skips | Repeats | Net steps | Torn | Level and THD+N, both tones | Blocks at the loop's floor |
 |---|---|---|---|---|---|---|---|
-| `bcrf` | 14,583,391 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 305 of 306; block 2 holds the playback's start |
-| `baaf` | 14,585,924 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 305 of 306; block 2 holds the playback's start |
+| `bcrf` | 14,583,391 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 303 of the 303 wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start |
+| `baaf` | 14,585,924 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 303 of the 303 wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start |
 
 So there were 0 net steps between the DUT's TDM clock and the peer's output
-over 303.8 s in each case. One frame in 14.58 million would be 0.07 ppm.
+over 303.8 s and 303.9 s. One frame in 14.58 million would be 0.07 ppm.
 
 ### B16c: the following record
 
@@ -3123,8 +3133,14 @@ carry each poll figure below; see
 
 | Case | Set to LOCKED | Servo at the window's polls | Trim | The followed stream's rate against gPTP | AAF meter in the window | `SLIP_TDM` | DUT CLOCK_DOMAIN LOCKED / UNLOCKED, before the window and near its end |
 |---|---|---|---|---|---|---|---|
-| B-CRF | 2.66 to 3.16 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | CRF sink +10.60 to +10.65 ppm | Not selected: `AAFM_STAT` 0 | 0, static | 23 / 22 and 23 / 22 |
-| B-AAF | 6.68 to 7.18 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | AAF meter +10.60 to +10.63 ppm; the CRF sink, not followed, +10.59 to +10.65 ppm | `AAFM_STAT` `0x001e0007` at every poll: locked, rate valid, enabled, 0 history restarts, largest deviation 30 ns | 0, static | 24 / 23 and 24 / 23 |
+| B-CRF | 2.585 to 3.161 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | CRF sink +10.60 to +10.65 ppm | Not selected: `AAFM_STAT` 0 | 0, static | 23 / 22 and 23 / 22 |
+| B-AAF | 6.602 to 7.180 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | AAF meter +10.60 to +10.63 ppm; the CRF sink, not followed, +10.59 to +10.65 ppm | `AAFM_STAT` `0x001e0007` at every poll: locked, rate valid, enabled, 0 history restarts, largest deviation 30 ns | 0, static | 24 / 23 and 24 / 23 |
+
+Each poll records only its own start and end. Its servo read, the second of
+its five console reads, falls between them. So each lock bracket runs from
+the start of the last poll that read ACQUIRE to the end of the first that read
+LOCKED: polls 44 and 45 in B-CRF, 52 and 53 in B-AAF. The `SLIP_LB` brackets
+below use the same rule.
 
 The servo word read `0x...0034` while LOCKED, as lane B7 read it, and
 `0x...0074` while the fine-PS actuator was busy: 580 and 16 of the window's
@@ -3143,7 +3159,7 @@ For B CRF the row says "As B6". Lane B6's pass rule has four terms (see
 
 | Lane B6's term | B-CRF | B-AAF | Evidence |
 |---|---|---|---|
-| The DUT's servo reads LOCKED | Met | Met | LOCKED at 596 of 596 window polls; 2.66 to 3.16 s and 6.68 to 7.18 s after the set |
+| The DUT's servo reads LOCKED | Met | Met | LOCKED at 596 of 596 window polls; 2.585 to 3.161 s and 6.602 to 7.180 s after the set |
 | The counted frame-rate ratio within 0.5 ppm of zero | Met | Met | 0 net steps at (d) in 14,583,391 and 14,585,924 frames: below one frame in 14.58 million, 0.07 ppm. At (c) 0.0000 ppm |
 | The timed ratio's interval holds zero | NOT RUN | NOT RUN | This mode ran no timing sampler at McASP0, so no timed ratio exists |
 | 0 listener discontinuities on the tone path | Met | Met | 0 at (c) over 300 s and 0 at (d) |
@@ -3157,9 +3173,10 @@ replaces the timed ratio, so the term stays open.
 which it appears, against the DUT's set. In each case five steps fell in the
 12.2 s between the binds and the DUT's set, all with the servo IDLE: from 0.1
 s after the binds to 1.4 s before the set. Then the DUT was on INTERNAL and
-the peer on its own clock, so the ring absorbed the difference between the
-two clocks. The rest fell in ACQUIRE, the servo reading ACQUIRE at both polls
-of each:
+the peer on its own clock. The steps are consistent with the ring absorbing
+the two clocks' difference and, for the first, with the one slip per bind
+that lane B16b counted; the receipts do not separate the two. The rest fell
+in ACQUIRE, the servo reading ACQUIRE at both polls of each:
 
 - B-CRF: one step, between 2.08 and 2.66 s after the set;
 - B-AAF: two steps, between 2.08 and 2.65 s and between 5.10 and 5.68 s after
@@ -3186,10 +3203,10 @@ CRF input, and not at the set to INTERNAL.
 
 | Stage | Loss | Evidence |
 |---|---|---|
-| The tone source and the peer's path into its talker | None beyond the path's floor | (a) at -123.98 dB median, worst block -123.93 dB, on both tones in both cases |
+| The tone source and the peer's path into its talker | None beyond the path's floor | At (a), medians are -123.98/-123.97 dB for B-CRF and -123.98/-123.98 dB for B-AAF (997/9,973 Hz); every worst block is -123.93 dB. |
 | The network, (a) to (b) | None | 0 sequence gaps on either tap; (a) and (b) both equal (c) over the same recorded frames |
 | The DUT's listener, its media-clock recovery, map and TDM render, (b) to (c) | None | Sample-exact over 34.2 to 34.3 s. Over 300 s: no discontinuity, every block at the floor, phase drift below 0.000001 frames |
-| The DUT's talker, the peer's listener and its output: the positive control | None | 0 discontinuities and 0 net steps in 14.58 million decoded frames each; 305 of 306 blocks at the loop's floor |
+| The DUT's talker, the peer's listener and its output: the positive control | None | 0 discontinuities and 0 net steps in 14.58 million decoded frames each; all 303 blocks wholly inside the playback at the loop's floor |
 
 The DUT renders the stream sample for sample in every frame compared:
 3,289,015 against (a) and 3,290,863 against (b).
@@ -3203,10 +3220,11 @@ There 131 of the 300 blocks at (c) sat off the floor. Inside the taps' 34.1 s,
 own 39 blocks reach -102.6 dB and -82.6 dB. The other 108 lie beyond the taps
 and are assigned to the peer's talker stream by inference only. In B-CRF and
 B-AAF the peer ran on its internal source, and no block at (a) or (c) left the
-floor. As read, the tone source's state was the same for B0 and for both cases
-here. One run of each, at different times, does not show that the peer's clock
-source causes the degraded blocks. The peer's internals are not observable
-over ATDECC.
+floor. In the entries the reads around them both hold (618 between lane
+B16b's last read and B16c's first, 668 within B16c), the tone source's state
+read the same for B0 and for both cases here. One run of each, at different
+times, does not show that the peer's clock source causes the degraded blocks.
+The peer's internals are not observable over ATDECC.
 
 ### B16c: the tone source, read only
 
@@ -3228,7 +3246,8 @@ the meter levels; see
 Lane B9's tone monitor read the playback RUNNING at every 0.2 s read of both
 cases, 1,805 and 1,803 reads. It saw one trigger time and a monotonic hardware
 pointer: no restart and no underrun (each case's `tone-summary` in its
-`events.jsonl`). The playback's own log, kept privately, holds none either.
+`events.jsonl`). The playback's own log, retained privately, holds no underrun
+either (`r3/playback-logs.json`).
 
 ### B16c: bench as left
 
@@ -3280,7 +3299,10 @@ McASP0's timing sampler, or a recorded decision.
   McASP0. The counted ratio at (d) stands in for it as evidence only; no
   recorded decision replaces the term.
 - The peer's internal source is both cases' reference. Its rate is recorded
-  through the DUT's meters, +10.6 ppm against gPTP, not graded.
+  through the DUT's meters, +10.59 to +10.65 ppm against gPTP, not graded.
+- The servo's status carried bit 4, DRP config mismatch, at every ACQUIRE and
+  LOCKED poll in both cases, as in lanes B6 and B7. It is recorded, not
+  analysed.
 - B0 with the peer on its internal source was not run, so Direction B has no
   INTERNAL mismatch control on this image.
 - The degraded blocks of B0 and their absence here come from one run each.
@@ -3376,8 +3398,11 @@ The receipts:
   lists every `SLIP_LB` step with its two polls' times and servo states. The
   trace beside each receipt holds every poll's eight raw words and its time
   against the DUT's set, so the extrema can be checked without the raw file.
-  Its LOCKED brackets equal the run's own, 2.657 to 3.161 s and 6.68 to 7.18
-  s.
+  It recomputes the run's own LOCKED brackets, 2.657 to 3.161 s and 6.68 to
+  7.18 s. Those open at the end of the last poll that read ACQUIRE. That poll
+  read the state before it ended, so round 3 opens each bracket at the poll's
+  start instead, 2.585 s and 6.602 s; see
+  [B16, round 3: figures check](#b16-round-3-figures-check).
 - **The tone source's reads.** `r2_source_b16.py` reads the twelve retained
   reads, four per lane, and a class map. The map says which of the source's
   controls are meters, which meter belongs to which role and which class a
@@ -3445,3 +3470,105 @@ The round's files in the packet:
 | `r2/source-receipt.json` | 21,276 | `1afbce9cdd27468394bf33265c45f1bb1d1e7a46091e15a715950a2ba4406912` |
 | `r2/b0-2-receipt.json` | 2,484 | `8bcab8394d2f8d02890c76ce9bf5f864f53cf195ae4c58bec8bee055c3aba6f7` |
 | `controls/r2-controls.json` (6 of 6 PASS) | 1,984 | `dc6f67634197b22e7f30225758d4221f697833472997b0b05a8174d94956b437` |
+
+### B16, round 3: figures check
+
+Two reviews of round 2,
+[R624-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119878041)
+and [R625-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119899949),
+found more figures that did not equal their receipts. Neither alleged a DUT
+defect or reversed a bench verdict. Under the manager's
+[round 3 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6119906508),
+operator [A603] corrected the text above and added a figures check to the lane
+packet, documents only. Nothing on the bench was touched.
+
+**The check.** `tools/check_b16_figures.py` is in the packet, not the tree. It
+holds one row per quoted figure in this section, in this page's introduction
+and Contents entry on lane B16, and in lane B16's part of the page's row in
+the [findings index](README.md). A row gives the document line, the figure as shown,
+the receipt, the key into it and the displayed precision. The receipt is a
+packet file, a repository file, or this page at an earlier commit, for a
+figure that a round superseded. The check recomputes each figure from its
+receipt, rounds it to the displayed precision and fails on any mismatch.
+Receipts are read as exact decimals and rounded half up: `pts3`'s SNR at (a),
+stored as 122.475 dB, shows as 122.48. Clock times are cut to the last digit
+shown, as a clock shows them: lane B16b's identity gate ended at 06:22:34.993
+and shows as 06:22:34.
+
+The check also reads every number, time, date, hash and number word in that
+text. Each must be claimed by a row or fall in a named identifier category:
+descriptor and channel indices, step and list ordinals, tone names, commit
+names, citations, links, and units such as "24-bit". A figure added without a
+row fails the check.
+
+At this head the check passes. All of its rows equal their receipts, and no
+token is left uncovered. Its output is in the packet: `r3/figures-rows.tsv`,
+one line per row with the recomputed value, and `r3/figures-coverage.tsv`,
+every token that a category covers. Their SHA-256 and the check's own are in
+the packet's `MANIFEST.sha256`, not on this page. The check holds this page's
+figures, so this page cannot also hold the check's hash.
+
+Its controls ran on altered copies (`controls/r3-controls.json`, 5 of 5 PASS,
+from `tools/r3_check_controls.py`). Each of these fails the check and is named
+in its output: a figure changed on the page, a value changed in a receipt, a
+figure added without a row, a row pointing at the wrong line, and a clock time
+rounded instead of cut.
+
+The reviews' findings:
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R625-2-F1: B16c's attribution at (a) | -123.98 dB median, worst block -123.93 dB, on both tones in both cases | -123.98/-123.97 dB for B-CRF and -123.98/-123.98 dB for B-AAF (997/9,973 Hz); every worst block -123.93 dB | `summary/bcrf/a-peer-tap.json`, `summary/baaf/a-peer-tap.json` |
+| R624-2-F1: the positive control's floor at (d) | 305 of 306 blocks; `pts2` 13 of 16 | All 303 blocks wholly inside the playback; `pts2` 11 of 13, blocks 6 and 12 holding its repeats. Blocks 0 and 1 precede the playback and block 2 holds its start | `summary/b0-2/d-extcap-pair.json` and those of `bcrf`, `baaf` and `pts2` |
+| R624-2-F1: the taps in `pts2` | At the floor in every block but the playback's first and last | All 15 blocks wholly inside the playback | `summary/pts2/ctl-dut-talker-dut-tap.json`, `summary/pts2/ctl-dut-talker-peer-tap.json` |
+| R624-2-F2: B16c's LOCKED brackets | 2.66 to 3.16 s and 6.68 to 7.18 s, from the end of the last poll that read ACQUIRE | 2.585 to 3.161 s and 6.602 to 7.180 s, from that poll's start | `r2/bcrf-poll-trace.tsv`, `r2/baaf-poll-trace.tsv` and their receipts |
+| R624-2-R1: the tone source's state | Two settings changed; the state was the same for B0 and both cases | Each narrowed to the entries both reads hold: 1,255 in lane B16b; 618 and 668 around B16c | `r2/source-receipt.json` |
+| R624-2-R2: the five `SLIP_LB` steps before the set | The ring absorbed the clocks' difference | Consistent with that and, for the first, with one slip per bind; the receipts do not separate the two | `r2/bcrf-poll-receipt.json`, `r2/baaf-poll-receipt.json` |
+| R624-2-S1: the servo status bit 4 | Not stated | Recorded in [B16c: limits](#b16c-limits) | `r2/bcrf-poll-trace.tsv`, `r2/baaf-poll-trace.tsv` |
+
+The check's own findings, each corrected above:
+
+| Where | Was | Now | Receipt |
+|---|---|---|---|
+| B16: the identity gate | 05:45:07 to 05:45:13 | 05:45:06 to 05:45:12 | `identity/lock-window.txt` |
+| B16: the tone | From 05:55:38 to 06:02:00 | From 05:55:37 to 06:01:59: the first status read less the frames played, and the stop action's start | `runs/tone-start.txt`, `runs/tone-stop.txt` |
+| B16: `loop1` and `loop2` | 05:56:31 to 05:57:31; `loop2` to 06:00:29 | 05:56:30 to 05:57:30; `loop2` to 06:00:28 | `runs/loop1-lock.txt`, `runs/loop2-lock.txt` |
+| B16: the tap after the probes | The remaining 49 s | 49.6 s after the second probe | `summary/loop2/acmp-peer-tap.json`, `runs/loop2/events.jsonl` |
+| B16: lane B15's `pts1` | Flags `0x0002` and stream ID 0, from lane B15's packet | Only what lane B15's section records: counters 0 and output exact zero | [B15: the controls](#b15-the-controls) |
+| B16: the state reads | At 05:48 and 06:01 | At 05:47 and 06:01 | `r2/source-receipt.json` |
+| B16b: the resume | At 06:20, the operator's note | The first bench action, 06:22:23 | `soc/b16b-precheck-status.log` |
+| B16b: the tone's level at (a) | -14.14 dBFS before 06:29 and -14.10 dBFS after | To 06:28:50 and from 06:31:51, the last and first tap frames | `summary/pts2/a-peer-tap.json`, `summary/b0/a-peer-tap.json` |
+| B16b: phase drift before the change | +3.00 frames in 10 s | +3.00 and +3.01 frames | `summary/pts1/c-b9-grade.json`, `summary/pts2/c-b9-grade.json` |
+| B16b: the offset before the change | +6.95 ppm | +6.94 to +6.96 ppm | The point summaries of `pts1` and `pts2` |
+| B16b: the playback's underruns | Five, 0.43 to 1.63 s each, from the private log | Five, from 06:45:27 to 06:46:38, cited to the operator's record; that log was overwritten and is not retained | `HANDOFF.md` step b17; `r3/playback-logs.json` |
+| B16c: the resume | At 07:32, the operator's note | The first bench action, 07:48:07 | `soc/b16c-precheck-status.log` |
+| B16c: the run table | `bcrf` 07:50:12.4, 07:50:17.6, 07:50:29.8, a window from 07:50:56 to 07:55:56, a teardown to 07:56:04.1; `baaf`'s teardown 08:02:51.8 to 08:02:55.8 | 07:50:12.3, 07:50:17.5, 07:50:29.7, from 07:50:55 to 07:55:55, to 07:56:04.0; 08:02:51.7 to 08:02:55.7 | `runs/bcrf/events.jsonl`, `runs/baaf/events.jsonl` |
+| B16c: (d)'s decoded span | 303.8 s in each case | 303.8 s and 303.9 s | `summary/bcrf/d-loop-decode.json`, `summary/baaf/d-loop-decode.json` |
+| B16c: the peer's rate | +10.6 ppm | +10.59 to +10.65 ppm | `r2/bcrf-poll-receipt.json`, `r2/baaf-poll-receipt.json` |
+
+Six number words with no receipt were reworded: "plus one change", "one PDU",
+"one step earlier", "one request", "the two lanes" and "one route".
+
+The playback's two retained logs are now listed in the packet's
+`RAW-ARTIFACTS.json` under `playback/`, their sizes withheld because each log
+names the tone source's device. `tools/r3_playback_logs.py` reduces them to
+`r3/playback-logs.json`: per log its SHA-256, its modification time, the lines
+that report an underrun and its exit line. Lane B16b's log is not retained.
+
+| Log | Modified, CEST | Underrun lines | SHA-256 |
+|---|---|---|---|
+| `b16-tone-play.log`, lane B16's | 06:02:00 | 0 | `dab353b5ead02cb68b5ecebc757786c48b7672e6f93a37a152e37aedf9dfe43b` |
+| `b16c-tone-play.log`, lane B16c's | 08:03:53 | 0 | `dab353b5ead02cb68b5ecebc757786c48b7672e6f93a37a152e37aedf9dfe43b` |
+
+The two logs are byte-equal: each holds the playback's setup, the stop
+signal and the exit line, and nothing else.
+
+The round's files in the packet:
+
+<!-- b16-r3-evidence -->
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r3_playback_logs.py` (the playback-log receipt) | 1,990 | `27334c6d3106f9305187deef6196a7dcb7e14b10d6fbea08f721029766dcf595` |
+| `r3/playback-logs.json` | 795 | `68e905288cf0c01c385a995bf66edc78e6323e041de99c1e0f1f3e4b360f64fe` |
+| `tools/r3_check_controls.py` (the check's controls) | 6,541 | `85fc57876334b823cd349a9752bf12581bbb22f9f5c5b2a4d6f68ab948a54157` |
+| `controls/r3-controls.json` (5 of 5 PASS) | 1,579 | `6b6f8bc7b99e5ec6843a7c385e681b4bcf4b89b1b56d84dcc10a88889ce6cc05` |
