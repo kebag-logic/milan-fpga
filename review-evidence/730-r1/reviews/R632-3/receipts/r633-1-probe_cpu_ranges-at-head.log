@@ -1,0 +1,21 @@
+source_sha256=5a9f4aa0d5917bc6acaa51ac904bf7c13ce5a7f90620e31a262cdc20796e90bf
+Selected definitions: JobCpuRanges, Refusal, container_cpuset, cpu_range_overlaps, describe_job_cpu_ranges, job_container_width, job_cpu_ranges, replay_container_concurrency, slot_cpu_base, stop_job_cpu_range_monitor
+All collaborators inert; no candidate module import or entrypoint.
+PASS shipping workflow derivation: {"docs": 1, "elaborate": 1, "rtl-fast": 1, "rtl-full": 4}
+PASS maximum static disjointness: {"ranges": 320}
+PASS planted overlap detected: ["slot-0-job-0 and planted-overlap share CPU 4", "slot-0-job-0 and planted-overlap share CPU 5", "slot-0-job-0 and planted-overlap share CPU 6", "slot-0-job-0 and planted-overlap share CPU 7"]
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7 --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67 --cpuset-cpus=68-71 --cpuset-cpus=72-75 --cpuset-cpus=76-79
+PASS unreadable max-parallel refused: "${{ inputs.width }}"
+PASS unreadable max-parallel refused: "-1"
+PASS unreadable max-parallel refused: "1.5"
+PASS unreadable max-parallel refused: ["2"]
+PASS unreadable max-parallel refused: "1234567"
+PASS too-wide max-parallel refused: "5"
+Traceback (most recent call last):
+  File "$REVIEWS/730-r632-3-packet/scripts/prior/r633-1-probe_cpu_ranges.py", line 225, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/730-r632-3-packet/scripts/prior/r633-1-probe_cpu_ranges.py", line 152, in main
+    record = m.JobCpuRanges(boundary, cpus, daemon.assign)
+TypeError: JobCpuRanges.__init__() missing 1 required positional argument: 'read_cpus'
