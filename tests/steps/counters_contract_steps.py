@@ -341,18 +341,13 @@ def step_cc_tvtnv(context: Context, tv: int, tnv: int, frx: int) -> None:
 
 @then("the tv-tnv verdict is {want}")
 def step_cc_tv_verdict(context: Context, want: str) -> None:
-    """PASS under the per-frame identity, INFO under the Milan interval
-    reading, FAIL only where neither reading can hold.
-    """
+    """The ruled per-AVTPDU identity passes; interval-rate RX fails."""
     assert context.cc_tv[0] == want, context.cc_tv
 
 
 @then('the reading in force is "{reading}"')
 def step_cc_tv_reading(context: Context, reading: str) -> None:
-    """The check must NAME the reading it concluded: asserting the 1722.1
-    identity against a Milan interval counter files conformance as an 8000x
-    defect.
-    """
+    """Name the observed shape separately from its conformance verdict."""
     assert context.cc_tv[1]["reading"] == reading, context.cc_tv
 
 
@@ -404,10 +399,7 @@ def step_cc_rate(context: Context, rate: float) -> None:
 
 @then("the rate is consistent with the {reading} reading")
 def step_cc_rate_band(context: Context, reading: str) -> None:
-    """The clause bounds the interval from ABOVE only, so 200/s is a lawful
-    5 ms interval; an earlier table called it the defect and a unit test
-    cemented that.
-    """
+    """Retain diagnostic rate bands without granting counter conformance."""
     assert context.cc_rate == reading, \
         f"classified as {context.cc_rate}, expected {reading} " \
         f"({context.cc_reading['why']})"
@@ -425,9 +417,7 @@ def step_cc_rate_interval(context: Context, secs: float) -> None:
 
 @then("the reading refusal cites the 1 second ceiling")
 def step_cc_rate_ceiling(context: Context) -> None:
-    """An interval over one second is the ONLY non-conformant interval, so the
-    refusal must name that ceiling rather than merely landing on "neither".
-    """
+    """The historical interval classifier names its ceiling explicitly."""
     why = context.cc_reading["why"]
     assert "less than or equal to 1 s" in why, why
     assert context.cc_reading["band"] == "neither", context.cc_reading
@@ -801,10 +791,7 @@ def step_cc_window_add(context: Context, counter: str, delta: int) -> None:
 
 @then("the interval-ceiling verdict is {verdict}")
 def step_cc_ceiling(context: Context, verdict: str) -> None:
-    """FRAMES_RX ticks in every interval any frame arrived in, so no
-    per-interval counter can out-tick it - true whatever the implementation's
-    interval is, which is what makes this checkable without a rate band.
-    """
+    """Retain the anomaly-to-packet sanity check alongside packet-law grading."""
     got, detail = tc.check_interval_ceiling(
         context.cc_before, context.cc_after,
         window_s=getattr(context, "cc_window_s", 30.0))
