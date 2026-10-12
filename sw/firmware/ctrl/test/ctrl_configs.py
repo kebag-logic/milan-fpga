@@ -159,6 +159,8 @@ OUTSIDE = {
     "sw/firmware/ctrl/test/ctrl_image_runtime.py": "compiles the bare-metal runtime from picolibc's and "
                                                    "compiler-rt's sources outside the checkout, no firmware or stack "
                                                    "source",
+    "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py": "proves the control gate's four-job dispatch (#716) with "
+                                                          "every arm and campaign a stand-in; it compiles nothing",
     "sw/mailbox/gen_mailbox.py": "writes the mailbox contract; it compiles nothing",
     "sw/mailbox/mailbox_emit.py": "writes the mailbox contract's text; it compiles nothing",
     "sw/mailbox/publication_census.py": "counts the datapath's reads of the mailbox's publication block in the "
