@@ -1,0 +1,76 @@
+[
+  {
+    "name": "unchanged",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 0,
+    "stdout": "{\"lines\": 1853, \"tokens\": 2049, \"rows\": 1834, \"rows_ok\": 1834, \"rows_bad\": 0, \"by_category\": 1271, \"digits\": 14531, \"digits_by_row\": 11910, \"digits_by_category\": 2621, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:39\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:84\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2312\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3992\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4003\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4089\t7\tstep or round index",
+      "README.md:15\t7\tstep or round index"
+    ]
+  },
+  {
+    "name": "single_line_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and\n3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 1,
+    "stdout": "{\"lines\": 1853, \"tokens\": 2050, \"rows\": 1834, \"rows_ok\": 1834, \"rows_bad\": 0, \"by_category\": 1271, \"digits\": 14532, \"digits_by_row\": 11910, \"digits_by_category\": 2621, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 7 (a measurement: only a row can claim it) (an identifier followed by '<', not on the closed list) | of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and 3 carry -1 to 0 LSB at every poi\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 <!-- --> (refused: no HTML in the covered text; write plain Markdown)\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:39\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:84\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2312\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3992\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4003\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4089\t7\tstep or round index",
+      "README.md:15\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tUNCOVERED"
+    ]
+  },
+  {
+    "name": "multiline_comment",
+    "old": "The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and\n3 carry -1 to 0 LSB",
+    "new": "The tone sits in channels 0 and 1 of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!--\n-->ppm. Channels 2 and 3 carry -1 to 0 LSB",
+    "line": 3108,
+    "rc": 1,
+    "stdout": "{\"lines\": 1853, \"tokens\": 2050, \"rows\": 1834, \"rows_ok\": 1833, \"rows_bad\": 1, \"by_category\": 1271, \"digits\": 14532, \"digits_by_row\": 11909, \"digits_by_category\": 2621, \"digits_uncovered\": 2, \"uncovered\": 2, \"uncovered_measurements\": 2, \"refused_identifiers\": 3, \"markup\": 1}\nBAD 564\t3108\tChannels \u00ab2\u00bb and\t-\td#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 7 (a measurement: only a row can claim it) (an identifier followed by '<', not on the closed list) | of the peer's talker stream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and 3 carry -1 to 0 LSB at every poi\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109 2 (a measurement: only a row can claim it) (an identifier followed by 'carry', not on the closed list) | tream. The residual was CLOCK_DOMAIN 7<!-- -->ppm. Channels 2 and 3 carry -1 to 0 LSB at every point, and McASP0's channe\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108 <!-- (refused: no HTML in the covered text; write plain Markdown)\n",
+    "stderr": "",
+    "additional_category_rows": [
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:39\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:84\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2312\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2616\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2715\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3040\t7\tlist-item index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3095\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3109\t7\tchannel index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3992\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4003\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4089\t7\tstep or round index",
+      "README.md:15\t7\tstep or round index",
+      "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3108\t7\tUNCOVERED"
+    ]
+  }
+]

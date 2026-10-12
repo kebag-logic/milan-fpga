@@ -1,0 +1,370 @@
+{
+  "head": "295ba9d7f7dfed65e95002478ed6d55ccc14e580",
+  "jobs": 8,
+  "results": [
+    {
+      "name": "controls-r3",
+      "command": "{python} -I {packet}/tools/r3_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/controls-r3 {review}/receipts/controls-r3.json",
+      "rc": 0
+    },
+    {
+      "name": "controls-r4",
+      "command": "{python} -I {packet}/tools/r4_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/controls-r4 {review}/receipts/controls-r4.json",
+      "rc": 0
+    },
+    {
+      "name": "controls-r5",
+      "command": "{python} -I {packet}/tools/r5_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/controls-r5 {review}/receipts/controls-r5.json",
+      "rc": 0
+    },
+    {
+      "name": "controls-r6",
+      "command": "{python} -I {packet}/tools/r6_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/controls-r6 {review}/receipts/controls-r6.json",
+      "rc": 0
+    },
+    {
+      "name": "controls-r7",
+      "command": "{python} -I {packet}/tools/r7_check_controls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/controls-r7 {review}/receipts/controls-r7.json",
+      "rc": 0
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check c20c85bd 295ba9d7f7dfed65e95002478ed6d55ccc14e580",
+      "rc": 0
+    },
+    {
+      "name": "doc-paths",
+      "command": "{python} scripts/check_doc_paths.py",
+      "rc": 0
+    },
+    {
+      "name": "doc-style",
+      "command": "{python} scripts/check_doc_style.py",
+      "rc": 0
+    },
+    {
+      "name": "docs-check",
+      "command": "{python} scripts/docs_check.py",
+      "rc": 0
+    },
+    {
+      "name": "em-dash",
+      "command": "{python} scripts/check_em_dash.py --base c20c85bd",
+      "rc": 0
+    },
+    {
+      "name": "evidence-mapping",
+      "command": "{python} -I {packet}/tools/r7_evidence_receipt.py {repo} fa974c3f1f9a1ef3a461ebb3b090b1915faaf251 295ba9d7f7dfed65e95002478ed6d55ccc14e580 {review}/receipts/evidence-mapping.json",
+      "rc": 0
+    },
+    {
+      "name": "figures",
+      "command": "{python} -I {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/receipts/figures-rows.tsv {review}/receipts/figures-coverage.tsv --repo {repo} --show 200",
+      "rc": 0
+    },
+    {
+      "name": "r624-4",
+      "command": "{python} -I {packet}/tools/review-probes/probe_escape_forms.py {repo} {packet} {review}/scratch/campaigns/r624-4/scratch {review}/scratch/campaigns/r624-4/out.json",
+      "rc": 0,
+      "probe_sha256": "5c2dbc691e469d236227bc90d4d131ad1fc116f0b002813c02beef2374ae3c26",
+      "published_path": "R624-4/tools/probe_escape_forms.py",
+      "reading": {
+        "forms": 8,
+        "detected": 8
+      }
+    },
+    {
+      "name": "r624-5-escapes",
+      "command": "{python} -I {packet}/tools/review-probes/probe_r624_5_escapes.py {repo} {packet} {review}/scratch/campaigns/r624-5-escapes/scratch {review}/scratch/campaigns/r624-5-escapes/out.json",
+      "rc": 0,
+      "probe_sha256": "c7ea04fb719dc0ef8d3e277cffd7c9b843304443f7dbf2cc97935163351b4b26",
+      "published_path": "R624-5/scripts/probe_r624_5_escapes.py",
+      "reading": {
+        "forms": 25,
+        "detected": 21,
+        "id_forms": 19,
+        "id_detected": 18,
+        "not_detected": [
+          "id+ colon",
+          "word: a million frames",
+          "word: thousands of frames",
+          "word: a dozen slips"
+        ]
+      }
+    },
+    {
+      "name": "r624-5-row3200",
+      "command": "{python} -I {packet}/tools/review-probes/probe_row3200.py {repo} {packet} {review}/scratch/campaigns/r624-5-row3200/scratch {review}/scratch/campaigns/r624-5-row3200/out.json",
+      "rc": 0,
+      "probe_sha256": "11188752c3a8b4c9607102bc243163cb617edcde41db8a3125eb66cb8f15409d",
+      "published_path": "R624-5/scripts/probe_row3200.py",
+      "reading": {
+        "row3200_insensitive": false,
+        "row3200": [
+          [
+            "671",
+            "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+            "bcrf 595, baaf 596",
+            "MISMATCH"
+          ],
+          [
+            "672",
+            "r2/bcrf-poll-receipt.json; r2/baaf-poll-receipt.json",
+            "596",
+            "OK"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "r624-6-escapes",
+      "command": "{python} -I {packet}/tools/review-probes/probe_r624_6_escapes.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {repo} {review}/scratch/campaigns/r624-6-escapes/scratch {review}/scratch/campaigns/r624-6-escapes/out.json",
+      "rc": 0,
+      "probe_sha256": "f4c9d523e6ea15f87e160768c61dc5229f51306dd1f4429984e7e380a27facc2",
+      "published_path": "R624-6/probe_r624_6_escapes.py",
+      "reading": {
+        "forms": 37,
+        "expect_fail": 26,
+        "fail_detected": 22,
+        "not_meeting": [
+          "of-unit",
+          "and-unit",
+          "possessive-unit",
+          "list-item-7"
+        ],
+        "any_statuses": {
+          "table-cell-colon": 0,
+          "full-stop": 0,
+          "abbr-title-attr": 1,
+          "link-ref-title": 1,
+          "table-two-cells": 0,
+          "words-hundred": 1,
+          "or-so-unit": 0,
+          "or-more-unit": 0,
+          "and-a-half-unit": 0,
+          "to-some-unit": 0,
+          "channel-or-so-dB": 0
+        }
+      }
+    },
+    {
+      "name": "r624-6-row3200-polls",
+      "command": "{python} -I {packet}/tools/review-probes/probe_row3200_polls.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {repo} {review}/scratch/campaigns/r624-6-row3200-polls/work {review}/scratch/campaigns/r624-6-row3200-polls/out.json",
+      "rc": 0,
+      "probe_sha256": "13a323fd7a4609309fb900b2c654d8bcbacaf21e8646a4b703e709990bb5c3e5",
+      "published_path": "R624-6/probe_row3200_polls.py",
+      "reading": {
+        "row3200_polls_detected": true,
+        "rows": [
+          [
+            "471",
+            "3008",
+            "596",
+            "OK"
+          ],
+          [
+            "626",
+            "3174",
+            "596",
+            "OK"
+          ],
+          [
+            "627",
+            "3174",
+            "595",
+            "MISMATCH"
+          ],
+          [
+            "671",
+            "3200",
+            "596",
+            "OK"
+          ],
+          [
+            "672",
+            "3200",
+            "bcrf 595, baaf 596",
+            "MISMATCH"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "r625-3",
+      "command": "{python} -I {packet}/tools/review-probes/probe_figure_coverage.py {repo} {packet} {review}/scratch/campaigns/r625-3",
+      "rc": 0,
+      "probe_sha256": "f4c4d91bdfea9b6428e3e5a587ba87577003cc9e67ba08c852149d2ec3cddb32",
+      "published_path": "R625-3/scripts/probe_figure_coverage.py and R625-4/probe_figure_coverage.py",
+      "reading": {
+        "forms": 7,
+        "detected": 7
+      }
+    },
+    {
+      "name": "r625-4",
+      "command": "{python} -I {packet}/tools/review-probes/probe_coverage.py {repo} {packet} {review}/scratch/campaigns/r625-4",
+      "rc": 0,
+      "probe_sha256": "e8749cbecfe73ef6f07261d1416122094d51745954a62fa6851d4e0521dfd0fb",
+      "published_path": "R625-4/probe_coverage.py",
+      "reading": {
+        "forms": 12,
+        "detected": 12
+      }
+    },
+    {
+      "name": "r625-5-comment",
+      "command": "{python} -I {packet}/tools/review-probes/probe_comment_separator.py {repo} {packet} {review}/scratch/campaigns/r625-5-comment",
+      "rc": 0,
+      "probe_sha256": "d799fce3787e5577d916b931b895e093cec8e74b76bd64b2691febae27009735",
+      "published_path": "R625-5/probe_comment_separator.py",
+      "reading": {
+        "statuses": [
+          0,
+          1,
+          1
+        ],
+        "names": [
+          "unchanged",
+          "single_line_comment",
+          "multiline_comment"
+        ]
+      }
+    },
+    {
+      "name": "r625-6-followers",
+      "command": "{python} -I {packet}/tools/review-probes/probe_followers.py {repo} {packet} {review}/scratch/campaigns/r625-6-followers",
+      "rc": 0,
+      "probe_sha256": "6703a34616f606f2be81d943646a1022fd6e8070d273f4aaaa459cf29a0e451b",
+      "published_path": "R625-6/scripts/probe_followers.py",
+      "reading": {
+        "forms": 22,
+        "statuses": {
+          "unchanged": 0,
+          "plain_furlongs": 1,
+          "code_descriptor_furlongs": 1,
+          "code_lane_furlongs": 1,
+          "code_directory_furlongs": 0,
+          "code_directory_word": 0,
+          "code_directory_ms": 0,
+          "code_commit_furlongs": 0,
+          "code_hashfield_furlongs": 0,
+          "code_packet_furlongs": 0,
+          "code_file_furlongs": 0,
+          "code_directory_comment": 1,
+          "code_directory_entity": 0,
+          "literal_descriptor_comment": 1,
+          "link_identifier_furlongs": 1,
+          "identifier_bold_unit": 1,
+          "identifier_tag_unit": 1,
+          "identifier_word_after_and": 0,
+          "identifier_adjacent_unlisted": 1,
+          "unbound_digit": 1,
+          "malformed_comment": 1,
+          "html_code_comment": 1
+        },
+        "markup": {
+          "code_directory_comment": [
+            "<!-- -->"
+          ],
+          "literal_descriptor_comment": [
+            "<!-- -->"
+          ],
+          "identifier_tag_unit": [
+            "<span>",
+            "</span>"
+          ],
+          "malformed_comment": [
+            "<!-->",
+            "<!-- -->"
+          ],
+          "html_code_comment": [
+            "<code>",
+            "<!-- -->",
+            "</code>"
+          ]
+        }
+      }
+    },
+    {
+      "name": "r625-6-rendered",
+      "command": "{python} -I {packet}/tools/review-probes/probe_rendered_comment.py {repo} {packet} {review}/scratch/campaigns/r625-6-rendered",
+      "rc": 1,
+      "probe_sha256": "22c38feb3cd3cac780bf5a2f299716b125047c9703df0b60dbe54beccc3aed57",
+      "published_path": "R625-6/scripts/probe_rendered_comment.py",
+      "reading": {
+        "versions": {
+          "cmarkgfm": "2025.10.22",
+          "html5lib": "1.1"
+        },
+        "statuses": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "names": [
+          "unchanged",
+          "plain",
+          "ordinary_comment",
+          "short_comment",
+          "short_dash_comment",
+          "short_comment_unknown_unit"
+        ],
+        "markup": [
+          [],
+          [],
+          [
+            "<!-- -->"
+          ],
+          [
+            "<!-->",
+            "<!-- -->"
+          ],
+          [
+            "<!--->",
+            "<!-- -->"
+          ],
+          [
+            "<!-->",
+            "<!-- -->"
+          ]
+        ],
+        "uncovered": [
+          [],
+          [
+            "7"
+          ],
+          [
+            "7"
+          ],
+          [
+            "7"
+          ],
+          [
+            "7"
+          ],
+          [
+            "7"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "self-probes-r7",
+      "command": "{python} -I {packet}/tools/r7_self_probes.py {packet}/tools/check_b16_figures.py {repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md {packet} {review}/scratch/campaigns/self-probes-r7 {review}/receipts/self-probes-r7.json",
+      "rc": 0
+    },
+    {
+      "name": "toc-anchors",
+      "command": "{python} scripts/gen_toc.py --verify-anchors",
+      "rc": 0
+    },
+    {
+      "name": "toc-check",
+      "command": "{python} scripts/gen_toc.py --check",
+      "rc": 0
+    }
+  ]
+}
