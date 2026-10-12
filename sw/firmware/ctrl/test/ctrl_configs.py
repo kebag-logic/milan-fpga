@@ -72,8 +72,8 @@ from ctrl_capture import Capture, Expansion, Invocation
 
 #: The boundary gate's own modules: never a builder.
 GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_capture.py", "ctrl_configs.py", "ctrl_pin.py",
-                                          "ctrl_pin_env.py", "ctrl_plants.py", "ctrl_shim.py", "ctrl_expand.py",
-                                          "ctrl_runs.py"))
+                                          "ctrl_pin_env.py", "ctrl_pin_store.py", "ctrl_plants.py", "ctrl_shim.py",
+                                          "ctrl_expand.py", "ctrl_runs.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
 CONFIGS = ROOT / "configs"
 #: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures

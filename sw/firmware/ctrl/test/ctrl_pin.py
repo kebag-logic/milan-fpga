@@ -56,10 +56,12 @@ on the runner's CPython 3.12.3 not _posixsubprocess.fork_exec, which
 subprocess calls just after raising its own event from Python (CPython 3.14
 audits fork_exec itself). What Git itself starts is outside the hook, and so
 is code that runs before the hook is installed (ctrl_build.py's top, above
-the helper). Two routes within the model are open, for a decision: a forged
-tree object in the stack's object store, which Git reads for ls-tree -r
-without checking its hash; and a program the repository's own configuration
-names (core.fsmonitor), which Git starts when it reads the index.
+the helper). Every object the proof reads, the pinned commit and each tree
+under it, is read raw and hashed here against its id (ctrl_build.stored), so
+a forged or corrupt object is refused by its place; no blob is read
+(ctrl_pin_store.py holds its controls). One route within the model is open,
+for a decision: a program the repository's own configuration names
+(core.fsmonitor), which Git starts when it reads the index.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
 text, beside the hook's own check of them (exercised: the pin proof run from
@@ -123,7 +125,8 @@ of its two settings, and with the builtins a hook could look up rebound, by
 the setting's name. The helper's environment the caller's again, with a
 variable added (GIT_DIR), and with a key or a value that is not a plain str,
 are refused at the helper's line, the variable by its name. The
-inherited-environment controls follow (ctrl_pin_env.py). The MAAP
+inherited-environment controls follow (ctrl_pin_env.py), then those of the
+object store (ctrl_pin_store.py), R585-12's forged src/ tree among them. The MAAP
 differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
@@ -153,6 +156,7 @@ from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STA
                         stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
 from ctrl_pin_env import inherited_arms
+from ctrl_pin_store import store_arms
 import fw_gtest
 
 #: This module's code is the pin proof's: under the audit hook from here on, as ctrl_build.py's is (THE HOOK).
@@ -183,13 +187,14 @@ VOCABULARY = {"os": frozenset({"walk", "readlink"}), "hashlib": frozenset({"new"
               "stat": frozenset({"S_ISLNK", "S_ISDIR", "S_ISREG", "S_IXUSR"}), "pathlib": frozenset({"Path"}),
               "argparse": frozenset({"ArgumentParser"})}
 #: The builtins the pin proof may name (and its module's own file name).
-BUILTINS = frozenset({"Exception", "dict", "filter", "int", "len", "list", "print", "sorted", "str", "tuple",
-                      "__file__"})
-#: The attributes of its own values the pin proof may use: of paths, text, maps, the helper's answer, a hash, a
-#: file's status and the command line's parser and arguments.
-ATTRIBUTES = frozenset({"add_argument", "as_posix", "encode", "get", "hexdigest", "is_symlink", "join", "keys",
-                        "lstat", "parent", "parents", "parse_args", "read_bytes", "relative_to", "resolve",
-                        "returncode", "split", "st_mode", "stack_pin", "stderr", "stdout", "strip"})
+BUILTINS = frozenset({"Exception", "bytes", "dict", "filter", "int", "len", "list", "print", "sorted", "str",
+                      "tuple", "__file__"})
+#: The attributes of its own values the pin proof may use: of paths, text, bytes, lists, maps, the helper's answer,
+#: a hash, a file's status and the command line's parser and arguments.
+ATTRIBUTES = frozenset({"add_argument", "append", "as_posix", "decode", "encode", "get", "hex", "hexdigest",
+                        "is_symlink", "join", "keys", "lstat", "parent", "parents", "parse_args", "partition", "pop",
+                        "raw", "read_bytes", "relative_to", "resolve", "returncode", "split", "st_mode", "stack_pin",
+                        "stderr", "stdout", "strip"})
 
 #: A target make's database does not hold: asked for so make prints the database and runs nothing.
 NO_GOAL = "ctrl-pin-no-such-goal"
@@ -239,7 +244,7 @@ PROOF_RUN_TIMEOUT_S = 300
 #: Where the pin proof's controls plant in ctrl_build.py: the pin check's reads (of HEAD, of the pinned tree, of
 #: the gitlink), the decision's first function, the helper's own import, and the helper environment's settings.
 HEAD_READ = 'head = git(stack, "rev-parse", "HEAD")'
-TREE_READ = 'tree = git(stack, "ls-tree", "-r", "-t", "-z", "--full-tree", pin)'
+TREE_READ = "want = pinned_tree(stack, pin, algorithm)"
 ENTRY_READ = 'entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()'
 GITLINK_DEF = "\n\ndef stack_gitlink("
 HELPER_IMPORT = "    import subprocess\n"
@@ -906,7 +911,8 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
     executable, and at another revision; and, by the edited source's name, the clone whose src/ tree or whose
     pinned commit is replaced by one holding the edit, the clone with a graft file beside the edit, and the clone
     whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The pin proof
-    runs to its verdict under its audit hook, and ends in the hook's refusal with each plant of HOOK_PLANTS.
+    runs to its verdict under its audit hook, and ends in the hook's refusal with each plant of HOOK_PLANTS. The
+    controls of the inherited environment (ctrl_pin_env.py) and of the object store (ctrl_pin_store.py) hold.
     The MAAP differential (both modes) and the AECP lane's arms, campaign and wire comparison refuse an edited
     clone before building it; every Makefile builder's target that reaches the stack refuses a poisoned one on
     the pin check.
@@ -969,6 +975,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
              lambda: aecp("aecp_wire.py", "--reference", str(PP), "--verilator", "false"), edited + "include/wire.h")]
     texts = {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}
     arms += inherited_arms(clone.path, pin, work, lambda stack, env: proof_run(texts, stack, env))
+    arms += store_arms(clone.path, pin, work, edited)
     clone.fresh()
     arms += bench_arms(makefiles, clone.path, work, edited)
     bad = 0
@@ -979,7 +986,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
         ok = accepted if not needle else (not accepted and needle in detail)
         print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
         bad += not ok
-    for scratch in (clone.path, work / "aecp-out", work / "bench", work / "unpinned", work / "inherited"):
+    for scratch in (clone.path, *(work / d for d in ("aecp-out", "bench", "unpinned", "inherited", "store"))):
         shutil.rmtree(scratch, ignore_errors=True)
     (work / "adp.c").unlink(missing_ok=True)
     return bad, len(arms)

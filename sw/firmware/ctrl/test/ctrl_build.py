@@ -196,11 +196,13 @@ def git_env() -> dict[str, str]:
 
 @dataclass(frozen=True)
 class GitRun:
-    """What one git command of the pin proof printed, and its exit status."""
+    """What one git command of the pin proof printed, and its exit status: its output as text, and as the bytes
+    Git wrote (`raw`: an object read raw holds bytes no text keeps)."""
 
     returncode: int
     stdout: str
     stderr: str
+    raw: bytes = b""
 
 
 #: The Git program the pin proof runs: the one PATH names when this module is loaded (None: PATH names none). The
@@ -378,9 +380,11 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
     (this one and ctrl_pin.py) that names a process-launch facility, and the only one whose process the pin
     proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it."""
     import subprocess
-    res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT, input=stdin, capture_output=True,
-                         check=False, env=git_env(), encoding="utf-8", errors="surrogateescape")
-    return GitRun(res.returncode, res.stdout, res.stderr)
+    res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT,
+                         input=None if stdin is None else stdin.encode(errors="surrogateescape"), capture_output=True,
+                         check=False, env=git_env())
+    return GitRun(res.returncode, res.stdout.decode(errors="surrogateescape"),
+                  res.stderr.decode(errors="surrogateescape"), res.stdout)
 
 
 def stack_gitlink(root: Path = ROOT) -> str:
@@ -422,12 +426,54 @@ def on_disk(stack: Path, algorithm: str) -> dict[str, tuple[str, str, str]]:
     return found
 
 
+#: The type of a tree's entry, by the mode the tree records it with (any other mode: a blob's).
+KINDS = {"40000": "tree", "160000": "commit"}
+
+
+def stored(stack: Path, kind: str, oid: str, algorithm: str, place: str) -> bytes:
+    """The object `oid` of the stack's store, `place` in the pin, as git gives it raw (cat-file), hashed here as
+    git hashes a `kind` object and equal to its id. Git checks the hash of no object cat-file prints, nor of a
+    tree below the one ls-tree is given, so a forged or corrupt object is refused here, by its place."""
+    res = git(stack, "cat-file", kind, oid)
+    if res.returncode:
+        raise Refusal(f"cannot read the pinned tree of {stack}: {place} ({kind} {oid[:8]}): {res.stderr.strip()}")
+    held = hashlib.new(algorithm, b"%s %d\0" % (kind.encode(), len(res.raw)) + res.raw).hexdigest()
+    if held != oid:
+        raise Refusal(f"tsn-c-stack's object store holds a forged or corrupt object: {place} ({kind} {oid[:8]}) "
+                      f"hashes to {held[:8]}, not to its id, so nothing under it can be compared")
+    return res.raw
+
+
+def pinned_tree(stack: Path, pin: str, algorithm: str) -> dict[str, tuple[str, str, str]]:
+    """Every entry of the pinned commit's tree, as on_disk gives the checkout's (mode, type, blob id; a tree's
+    entries are compared, not its id), parsed here from the pinned commit and every tree under it, each read
+    raw and equal to its id (stored). No blob is read: the checkout's files are hashed from their own bytes."""
+    head, _, _ = stored(stack, "commit", pin, algorithm, "the pinned commit").partition(b"\n")
+    word, _, root = head.decode(errors="surrogateescape").partition(" ")
+    if word != "tree":
+        raise Refusal(f"the pinned commit {pin[:8]} of tsn-c-stack names no tree")
+    want, trees, size = {}, [("", root)], len(pin) // 2
+    while trees:
+        prefix, oid = trees.pop()
+        data = stored(stack, "tree", oid, algorithm, f"the pinned {prefix} tree" if prefix else "the pinned root tree")
+        while data:
+            meta, _, data = data.partition(b"\0")
+            mode, _, name = meta.decode(errors="surrogateescape").partition(" ")
+            child, data, kind = data[:size].hex(), data[size:], KINDS.get(mode, "blob")
+            want[prefix + name] = (f"{mode:0>6}", kind, "" if kind == "tree" else child)
+            if kind == "tree":
+                trees.append((f"{prefix}{name}/", child))
+    return want
+
+
 def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
     """Refuse a stack checkout that is not at the recorded gitlink, or that is not the gitlink's whole tree:
     the same paths, each of the same type and mode, every file and symbolic link hashed as git hashes a blob
     and equal to the tree's. git reads the real objects only (git_env), so a replacement or a graft changes
-    nothing it reads; and the index is never consulted, so an edit hidden from `git status` (assume-unchanged,
-    skip-worktree) is refused like any other: every gate builds the pinned stack or none."""
+    nothing it reads; every object the proof reads, the pinned commit and each of its trees, is hashed here and
+    equal to its id (pinned_tree), so a forged or corrupt one is refused; and the index is never consulted, so
+    an edit hidden from `git status` (assume-unchanged, skip-worktree) is refused like any other: every gate
+    builds the pinned stack or none."""
     pin = pin or stack_gitlink()
     top = git(stack, "rev-parse", "--show-toplevel")
     if top.returncode or Path(top.stdout.strip()).resolve() != stack.resolve():
@@ -436,14 +482,9 @@ def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
     if head != pin:
         raise Refusal(f"tsn-c-stack at {head or 'no HEAD'} is not the pinned {pin}")
     algorithm = git(stack, "rev-parse", "--show-object-format").stdout.strip()
-    tree = git(stack, "ls-tree", "-r", "-t", "-z", "--full-tree", pin)
-    if tree.returncode or algorithm not in hashlib.algorithms_available:
-        raise Refusal(f"cannot read the pinned tree {pin[:8]} of {stack}: {tree.stderr.strip()}")
-    want = {}
-    for entry in filter(None, tree.stdout.split("\0")):
-        meta, name = entry.split("\t", 1)
-        mode, kind, oid = meta.split()
-        want[name] = (mode, kind, "" if kind == "tree" else oid)
+    if algorithm not in hashlib.algorithms_available:
+        raise Refusal(f"cannot hash the objects of {stack}: no hash {algorithm or 'named'}")
+    want = pinned_tree(stack, pin, algorithm)
     found = on_disk(stack, algorithm)
     differ = sorted(name for name in want.keys() | found.keys() if want.get(name) != found.get(name))
     if differ:

@@ -76,6 +76,20 @@ class Scene:
         """EDITED with a line added, as text, from the pinned blob: the clone itself is left as it is."""
         return answer(self.stack, "cat-file", "blob", f"{self.pin}:{EDITED}") + "\n"
 
+    def remade(self, tree: str, name: str, oid: str) -> str:
+        """A tree written into the clone's objects: `tree` with its entry `name` holding `oid` instead."""
+        entries = [f"{meta.rsplit(' ', 1)[0]} {oid}\t{entry}" if entry == name else f"{meta}\t{entry}"
+                   for meta, entry in (e.split("\t", 1) for e in filter(None, answer(self.stack, "ls-tree", "-z", tree)
+                                                                        .split("\0")))]
+        return answer(self.stack, "mktree", "-z", stdin="\0".join(entries) + "\0").strip()
+
+    def edited_src(self) -> tuple[str, str]:
+        """The pinned src/ tree, and a tree written into the clone's objects that is it but for EDITED's blob,
+        which holds the edit (edited)."""
+        blob = answer(self.stack, "hash-object", "-w", "--stdin", stdin=self.edited()).strip()
+        src = answer(self.stack, "rev-parse", f"{self.pin}:src").strip()
+        return src, self.remade(src, Path(EDITED).name, blob)
+
     def recorder(self) -> str:
         """The recorder program, in this control's own directory."""
         program = self.own / "recorder"
@@ -137,12 +151,7 @@ def unstored(scene: Scene) -> None:
 
 def swapped(scene: Scene) -> dict[str, str]:
     """Under another replacement base, the pinned src/ tree replaced by one holding the edit."""
-    blob = answer(scene.stack, "hash-object", "-w", "--stdin", stdin=scene.edited()).strip()
-    src = answer(scene.stack, "rev-parse", f"{scene.pin}:src").strip()
-    entries = [f"{meta}\t{name}" if name != "adp.c" else f"{meta.rsplit(' ', 1)[0]} {blob}\t{name}"
-               for meta, name in (e.split("\t", 1) for e in filter(None, answer(scene.stack, "ls-tree", "-z", src)
-                                                                    .split("\0")))]
-    new = answer(scene.stack, "mktree", "-z", stdin="\0".join(entries) + "\0").strip()
+    src, new = scene.edited_src()
     answer(scene.stack, "update-ref", f"refs/swap/{src}", new)
     return {"GIT_REPLACE_REF_BASE": "refs/swap/"}
 
