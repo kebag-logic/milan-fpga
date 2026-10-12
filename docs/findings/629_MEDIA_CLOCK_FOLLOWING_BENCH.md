@@ -3741,12 +3741,15 @@ longer number, such as a figure after a minus sign the pattern does not read.
 **A measurement is never an identifier.** A number followed by a unit is a
 measurement, and no category covers its digits: only a row. Between number and
 unit may stand nothing, any run of spaces or line breaks (non-breaking, thin
-and zero-width ones too), a hyphen, emphasis or code marks, a double quote, an
-opening bracket, or an HTML entity, tag or comment. Units are read in either
-case: percent, dB and dBFS, ppm and ppb, seconds and their fractions, minutes,
-hours, Hz, frames, samples, blocks, bytes, bits, LSB, polls, PDUs, packets,
-steps, slips, repeats, skips, discontinuities, entries and reads, with the rest
-of the list in the check. The word zero before a unit counts as a number.
+and zero-width ones too), a soft, non-breaking or plain hyphen, emphasis or
+code marks, a backslash, a double quote, an opening bracket, or an HTML entity,
+tag or comment. A number quoted on its own is a mention: its closing quote does
+not join it to a unit, and as no category takes a quoted number, it needs a row
+either way. Units are read in either case: percent, dB and dBFS, ppm and ppb,
+seconds and their fractions, minutes, hours, Hz, frames, samples, blocks,
+bytes, bits, LSB, polls, PDUs, packets, steps, slips, repeats, skips,
+discontinuities, entries and reads, with the rest of the list in the check. The
+word zero before a unit counts as a number.
 
 A link's target is an address, not text. Its digits are covered when it
 resolves: an anchor of a heading on this page, or an issue, pull request or
