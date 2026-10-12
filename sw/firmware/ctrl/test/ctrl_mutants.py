@@ -26,7 +26,7 @@ import ctrl_arms
 import fw_gtest
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
-from ctrl_mutant import ADP_C, Mutant
+from ctrl_mutant import ACMP_C, ADP_C, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -585,33 +585,33 @@ MUTANTS += (
            "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
     # ACMP: the binding published after the response that promises it, the
     # end-of-entry publication skipped, wrong fields, the port unguarded
-    Mutant("pub-acmp-after-the-response", "acmp/acmp.c", ACMP_TRANSMIT,
+    Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,
            "\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\tpublish(a);\n\t\treturn SENT;\n"
            "\t}\n\tpublish(a);",
            "acmp", A31, "A31 the binding is published before the BIND_RX response",
            (("acmp", B10, "B10 BINDING is written before the BIND_RX response's TX_HEAD commit"),)),
-    Mutant("pub-acmp-skipped-at-the-end-of-an-entry", "acmp/acmp.c", "\tpublish(a);\n\trearm(a);", "\trearm(a);",
+    Mutant("pub-acmp-skipped-at-the-end-of-an-entry", ACMP_C, "\tpublish(a);\n\trearm(a);", "\trearm(a);",
            "acmp", A31, "A31 a PROBE_TX_RESPONSE that settles publishes the stream",
            (("acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
              "A31 acmp_open publishes each restored binding"),
             ("acmp", B10, "B10 a PROBE_TX_RESPONSE that settles publishes its stream"))),
-    Mutant("pub-acmp-talker-for-the-stream", "acmp/acmp.c", ACMP_PUB_STREAM,
+    Mutant("pub-acmp-talker-for-the-stream", ACMP_C, ACMP_PUB_STREAM,
            "uint64_t stream = settled ? s->binding.talker_entity_id : 0u;",
            "acmp", A31, "A31 the stream_id the response carried"),
-    Mutant("pub-acmp-stream-held-past-settlement", "acmp/acmp.c", ACMP_PUB_STREAM,
+    Mutant("pub-acmp-stream-held-past-settlement", ACMP_C, ACMP_PUB_STREAM,
            "uint64_t stream = s->bound ? (settled ? s->stream.stream_id : s->published_stream) : 0u;",
            "acmp", "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
            "A31 TMR_NO_TK publishes the sink without its stream"),
-    Mutant("pub-acmp-every-sink-every-entry", "acmp/acmp.c", ACMP_PUB_MOVED, "if (true) {",
+    Mutant("pub-acmp-every-sink-every-entry", ACMP_C, ACMP_PUB_MOVED, "if (true) {",
            "acmp", "AcmpCore.A31OnlyAMovedTripleIsPublished",
            "A31 a re-bind to the same talker, a registration, a start of a started sink and a discovery move"),
-    Mutant("pub-acmp-port-unguarded", "acmp/acmp.c",
+    Mutant("pub-acmp-port-unguarded", ACMP_C,
            "\ta->in_port = true;\n\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);\n"
            "\ta->in_port = false;",
            "\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);",
            "acmp", "AcmpCore.A31ACallBackFromThePublishPortIsRefused",
            "A31 an UNBIND_RX and a poll from inside the publish port"),
-    Mutant("pub-acmp-reset-forgets-the-port", "acmp/acmp.c",
+    Mutant("pub-acmp-reset-forgets-the-port", ACMP_C,
            "\ts->published_bound = published_bound;\n\ts->published_started = published_started;\n"
            "\ts->published_stream = published_stream;",
            "\t(void)published_bound;\n\t(void)published_started;\n\t(void)published_stream;",
@@ -629,17 +629,17 @@ MUTANTS += (
     # the BIND_RX response that echoes it and after the notifier, on the
     # bound field, its move skipped; the adapter rewriting an unmoved stream
     # (SID_VALID drops for three writes) or dropping SID_VALID
-    Mutant("pub-acmp-started-after-the-response", "acmp/acmp.c", ACMP_REBIND,
+    Mutant("pub-acmp-started-after-the-response", ACMP_C, ACMP_REBIND,
            "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
            "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
-    Mutant("pub-acmp-started-after-the-report", "acmp/acmp.c", ACMP_FINISH,
+    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH,
            ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
            "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
-    Mutant("pub-acmp-started-from-bound", "acmp/acmp.c",
+    Mutant("pub-acmp-started-from-bound", ACMP_C,
            "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",
            "p_publish(a, s->interface, k, s->bound, s->bound, stream, moved);",
            "acmp", A31S, "A31 a bind with STREAMING_WAIT is published bound and stopped"),
-    Mutant("pub-acmp-started-move-skipped", "acmp/acmp.c", ACMP_PUB_MOVED,
+    Mutant("pub-acmp-started-move-skipped", ACMP_C, ACMP_PUB_MOVED,
            "if (s->bound != s->published_bound || moved) {",
            "acmp", A31S, "A31 a re-bind to the same talker without STREAMING_WAIT publishes once"),
     Mutant("pub-acmp-adapter-rewrites-the-stream", "acmp/acmp_mbx.c", "\tif (stream_moved) {",
