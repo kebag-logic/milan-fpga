@@ -1,0 +1,5 @@
+FAIL:  decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine never dispatches it to GSRATE
+FAIL:  decode: GET_SAMPLING_RATE: inside GET_DYNAMIC_INFO the engine dispatches it to GCLKS, which is not one of its entries
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: gdi members 0x0015: observed {"GCLKS": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"}, recorded {"GSRATE": "0:8", "TIZ4NS": "0:8", "copied": "0:0, 0:2, 0:4"} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "1b48bcee6e2753d4ef5d21c0d011bb8a3186b8cf0dcb549c6fe3c77cf45298e2", recorded "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6" (make -C tb/aecp_cmds record)
+aecp_cmds: 585760 trials swept; 176 checks: 174 PASS, 2 FAIL

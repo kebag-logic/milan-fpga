@@ -1,0 +1,38 @@
+Use a fresh copy of this packet, with no scratch directory, and an isolated source
+clone detached at 4bee75b2e647507a71ece50359fceb135c334757. Source fixes are not needed.
+Python 3, git, make, the repository documentation dependencies and the scoped
+5.050 compiler are required. Public downloads use authenticated read-only gh API.
+REVIEW_VERILATOR can override the compiler path. The script verifies its version
+and limits each compilation to two workers. Campaigns use --jobs 2, guards use
+--jobs 4, and make uses -j16. Foreground Python supervisors wait for every child.
+All generated trees and temporary files are under packet/scratch.
+
+With SOURCE set to that clone, run these foreground commands from packet:
+  python3 scripts/run_campaigns.py "$SOURCE"
+  python3 scripts/fetch_public.py
+  python3 -B scripts/audit_delta.py "$SOURCE"
+  python3 -B scripts/echo_and_rom.py "$SOURCE"
+  python3 -B scripts/round4_controls.py "$SOURCE"
+  python3 scripts/verify_wrapper.py
+  python3 -B scripts/integrity.py "$SOURCE" receipts/integrity.json
+
+run_campaigns starts independent checks concurrently, each with its own log and
+return-code receipt. audit_delta regenerates the command references, recalculates
+trace records, checks actual published execution evidence and records every plant's
+named diagnostic. echo_and_rom uses the head-built observer executable with a
+freshly generated shortened ROM, reruns the sweep, and exercises all three echo
+cases, including after re-recording. The executable reads its ROM at startup.
+round4_controls disables only one membership/SUCCESS check per scratch tree and
+requires the corresponding self-test failure; it also checks legal membership.
+
+The original run also executed the optimized self-test:
+  TMPDIR="$PACKET/scratch/tmp" python3 -O -B "$SOURCE/scripts/check_aecp_commands.py" --selftest
+and the current PR field-reference gate with --pr-body receipts/pr174-body.md.
+reconcile_public.py extracts public findings only after independent-verdict.md
+has been written. It is not an input to the independent review.
+
+Do not publish scratch. Verify the original published set with:
+  sha256sum -c MANIFEST.sha256
+Rerunning creates new environment-dependent logs; do not mistake them for the
+original hashed receipts. Full processor, parent, synthesis and builder banks are
+not invoked by these scripts.

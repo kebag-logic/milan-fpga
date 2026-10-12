@@ -1,0 +1,484 @@
+[
+  {
+    "side": "head",
+    "campaign": "aecp_dispatch",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/aecp_dispatch_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/aecp_dispatch.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "aecp_dispatch",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/aecp_dispatch_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/aecp_dispatch.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "aecp",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/aecp_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/aecp.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "aecp",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/aecp_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/aecp.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "ctr",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/ctr_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/ctr.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "ctr",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/ctr_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/ctr.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "notify",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/notify_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/notify.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "notify",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/notify_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/notify.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "gsi",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/gsi_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/gsi.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "gsi",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/gsi_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/gsi.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "d3",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/d3_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/d3.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "acmp",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/acmp_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/acmp.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "acmp",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/acmp_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/acmp.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "name_wr",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/name_wr_mutant.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/name_wr.out"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "name_wr",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/name_wr_mutant.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/name_wr.out"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "d3",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/pp_top/d3_mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/d3.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "name_state",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/name_state/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/name_state.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "name_state",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/name_state/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/name_state.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "maap",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/maap/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/maap.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "maap",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/maap/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/maap.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "adp_engine",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/adp_engine/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/adp_engine.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "adp_engine",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/adp_engine/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/adp_engine.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "srp_admission",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/srp_admission/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/srp_admission.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "srp_admission",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/srp_admission/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/srp_admission.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "acmp_talker",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/acmp_talker/retry_mutants.py",
+      "--logs",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/acmp_talker.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "acmp_talker",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/acmp_talker/retry_mutants.py",
+      "--logs",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/acmp_talker.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "srp_top",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/srp_top/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/srp_top.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "desc_mem_guard",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/desc_mem_guard/mutate.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/desc_mem_guard.out"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "desc_mem_guard",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/desc_mem_guard/mutate.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/desc_mem_guard.out"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "srp_top",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/srp_top/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/srp_top.out",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "desc_store",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/desc_store/lint_suppression.py",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "desc_store",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/desc_store/lint_suppression.py",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "nvm_figures",
+    "rc": 0,
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "nvm_figures",
+    "rc": 0,
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ]
+  },
+  {
+    "side": "base",
+    "campaign": "elab_guards",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/elab_guards/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/base/elab_guards.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  },
+  {
+    "side": "head",
+    "campaign": "elab_guards",
+    "rc": 0,
+    "command": [
+      "python3",
+      "tb/elab_guards/mutants.py",
+      "--output",
+      "$VALIDATION_STORAGE/pp73-a595/r5/camp/head/elab_guards.out",
+      "--verilator",
+      "$VALIDATION_STORAGE/pp73-a595/r5/bin/verilator",
+      "--jobs",
+      "2"
+    ]
+  }
+]

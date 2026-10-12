@@ -1,0 +1,43 @@
+[
+  {
+    "probe": "echo-hide",
+    "codes": {
+      "write": 1,
+      "record": 2,
+      "gate": 1,
+      "suite": 2
+    },
+    "required_failure_words": [
+      "schema: echo_entries: EAVL",
+      "nor listed in shared_entries"
+    ]
+  },
+  {
+    "probe": "echo-control",
+    "codes": {
+      "write": 0,
+      "record": 2,
+      "gate": 1,
+      "suite": 2
+    },
+    "required_failure_words": [
+      "decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12",
+      "response is 32",
+      "rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12"
+    ]
+  },
+  {
+    "probe": "echo-hide-explicit-shared",
+    "codes": {
+      "write": 0,
+      "record": 2,
+      "gate": 1,
+      "suite": 2
+    },
+    "required_failure_words": [
+      "decode: ENTITY_AVAILABLE: EAVL answered SUCCESS at cdl 12",
+      "response is 32",
+      "rom: ENTITY_AVAILABLE: E_EAVL answers SUCCESS at cdl 12"
+    ]
+  }
+]

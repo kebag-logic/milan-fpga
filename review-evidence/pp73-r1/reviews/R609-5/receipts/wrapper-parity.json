@@ -1,0 +1,60 @@
+[
+  {
+    "observation": "obj_dir/observed.json",
+    "identical": true,
+    "runs": [
+      {
+        "command": [
+          "python3",
+          "-B",
+          "../../scripts/check_aecp_commands.py",
+          "--observed",
+          "obj_dir/observed.json"
+        ],
+        "rc": 0,
+        "stdout": "aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "check_observed.py",
+          "obj_dir/observed.json"
+        ],
+        "rc": 0,
+        "stdout": "aecp_cmds: 585760 trials swept; 176 checks: 176 PASS, 0 FAIL\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "observation": "obj_dir/no-such-observation.json",
+    "identical": true,
+    "runs": [
+      {
+        "command": [
+          "python3",
+          "-B",
+          "../../scripts/check_aecp_commands.py",
+          "--observed",
+          "obj_dir/no-such-observation.json"
+        ],
+        "rc": 2,
+        "stdout": "",
+        "stderr": "AECP COMMAND GATE: REFUSED - the sweep's output obj_dir/no-such-observation.json cannot be read: [Errno 2] No such file or directory: 'obj_dir/no-such-observation.json'\n"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "check_observed.py",
+          "obj_dir/no-such-observation.json"
+        ],
+        "rc": 2,
+        "stdout": "",
+        "stderr": "AECP COMMAND GATE: REFUSED - the sweep's output obj_dir/no-such-observation.json cannot be read: [Errno 2] No such file or directory: 'obj_dir/no-such-observation.json'\n"
+      }
+    ]
+  }
+]

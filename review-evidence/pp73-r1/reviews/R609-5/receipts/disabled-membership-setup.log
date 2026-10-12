@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/check_aecp_commands.py", line 208, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/check_aecp_commands.py", line 180, in main
+    return selftest(args.root)
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/selftest.py", line 255, in selftest
+    bad += missed(what, words, in_memory(base, fn))
+                               ~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/selftest.py", line 241, in in_memory
+    return on_copy(base, _mutated)
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/selftest.py", line 231, in on_copy
+    return fn(inp)
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/selftest.py", line 240, in _mutated
+    return check(inp)
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/gate.py", line 33, in check
+    found, _, _, entries_ok = check_record(t, inp.record)
+                              ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/record.py", line 482, in check_record
+    entries_ok &= _served(t, c, groups, where, ck)
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/record.py", line 352, in _served
+    _answers(t, c, progs, at, ck)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp73-r609-5-packet/scratch/disabled-membership/scripts/aecp_gate/record.py", line 314, in _answers
+    echo_shared = set(t.get("echo_entries", []))
+TypeError: 'NoneType' object is not iterable
