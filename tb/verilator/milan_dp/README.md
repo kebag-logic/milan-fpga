@@ -21,6 +21,11 @@ Only these two values are accepted, independently of make flags.
 Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
 The mutation driver starts only after every ordinary simulation succeeds.
 
+`run` then invokes `make counters`: four temporary `stream_counters.py`
+elaborations (shapes 1 and 8, `uncertain` and `frames-only`) under `TMPDIR`,
+each printing `RESULT: PASS`.
+See [the stream counter measurements](../../../docs/testing/726_STREAM_COUNTERS.md).
+
 Six `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
 `obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
 Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
