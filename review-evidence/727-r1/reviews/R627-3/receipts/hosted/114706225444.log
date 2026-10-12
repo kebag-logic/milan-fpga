@@ -1,0 +1,515 @@
+Verilator shard 1/5	UNKNOWN STEP	﻿2026-10-12T07:26:07.4438354Z Current runner version: '2.337.0'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4464517Z ##[group]Runner Image Provisioner
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4465501Z Hosted Compute Agent
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4466110Z Version: 20261002.596
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4466778Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4467562Z Build Date: 2026-10-02T22:28:27Z
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4468485Z Worker ID: {2064ce7d-37bb-4c6a-9eb3-e1cbc05fff1f}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4469300Z Region: westus2
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4469922Z Cloud: Azure
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4470449Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4472247Z ##[group]Operating System
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4472908Z Ubuntu
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4473508Z 24.04.5
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4474016Z LTS
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4474487Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4475556Z ##[group]Runner Image
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4476164Z Image: ubuntu-24.04
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4476763Z Version: 20261004.327.1
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4478285Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4479977Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4480948Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4482189Z ##[group]GITHUB_TOKEN Permissions
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4484308Z Contents: read
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4485030Z Metadata: read
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4485719Z Packages: read
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4486263Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4489071Z Secret source: Actions
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4490079Z Cache mode: write
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4491172Z Prepare workflow directory
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4902908Z Prepare all required actions
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.4953911Z Getting action download info
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.8741880Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:07.9745680Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.0710685Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.2902815Z Complete job name: Verilator shard 1/5
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3729154Z ##[group]Run actions/checkout@v4
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3730030Z with:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3730480Z   repository: kebag-logic/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3734494Z   token: ***
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3734921Z   ssh-strict: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3735350Z   ssh-user: git
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3735786Z   persist-credentials: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3736258Z   clean: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3736701Z   sparse-checkout-cone-mode: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3737205Z   fetch-depth: 1
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3737620Z   fetch-tags: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3738271Z   show-progress: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3738741Z   lfs: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3739140Z   submodules: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3739572Z   set-safe-directory: true
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3740066Z   allow-unsafe-pr-checkout: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3740815Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3741228Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3741739Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3742302Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.3742911Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4787454Z Syncing repository: kebag-logic/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4790598Z ##[group]Getting Git version info
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4791812Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4793534Z [command]/usr/bin/git version
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4876731Z git version 2.55.0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4906206Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4927074Z Temporarily overriding HOME='<home-path>/work/_temp/a7a0fbe8-fbf4-4fa6-b26c-8f8e9ee1f5d1' before making global git config changes
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4929041Z Adding repository directory to the temporary git global config as a safe directory
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.4933476Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5006900Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5009515Z ##[group]Initializing the repository
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5015048Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5150039Z hint: Using 'master' as the name for the initial branch. This default branch name
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5152163Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5154026Z hint: to use in all of your new repositories, which will suppress this warning,
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5155571Z hint: call:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5156450Z hint:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5157409Z hint: 	git config --global init.defaultBranch <name>
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5158922Z hint:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5160154Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5162003Z hint: 'development'. The just-created branch can be renamed via this command:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5163446Z hint:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5164284Z hint: 	git branch -m <name>
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5165332Z hint:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5166509Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5168811Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5193922Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5250454Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5251974Z ##[group]Disabling automatic garbage collection
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5254232Z [command]/usr/bin/git config --local gc.auto 0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5303188Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5304832Z ##[group]Setting up auth
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5338826Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5398081Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5847506Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.5887305Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6120232Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6160680Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6388845Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6432143Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6433221Z ##[group]Fetching the repository
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:08.6442516Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c6bd08c6f52632c6d33d834ce842ac3cf63f29cc:refs/remotes/origin/dev
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2402986Z From https://github.com/kebag-logic/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2405185Z  * [new ref]         c6bd08c6f52632c6d33d834ce842ac3cf63f29cc -> origin/dev
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2410253Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2412534Z ##[group]Determining the checkout info
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2415983Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2417634Z [command]/usr/bin/git sparse-checkout disable
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2476886Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2519471Z ##[group]Checking out the ref
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.2520388Z [command]/usr/bin/git checkout --progress --force -B dev refs/remotes/origin/dev
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4439367Z Switched to a new branch 'dev'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4444471Z branch 'dev' set up to track 'origin/dev'.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4457444Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4504696Z [command]/usr/bin/git log -1 --format=%H
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4533478Z c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4795463Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.4799077Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5080079Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5081218Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5082103Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5083183Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5084405Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5085814Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5424548Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5432055Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5438910Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:10.5462260Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:11.1242052Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.1868892Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.7996988Z Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.8746479Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.8949021Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9007788Z ##[group]Run set -euo pipefail
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9008527Z ^[[36;1mset -euo pipefail^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9008851Z ^[[36;1mhead="$(git rev-parse HEAD)"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9009281Z ^[[36;1mif [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9009940Z ^[[36;1m  echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9010462Z ^[[36;1m  exit 1^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9010709Z ^[[36;1mfi^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9010986Z ^[[36;1mmkdir -p "$RUNNER_TEMP/suite-logs"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9011450Z ^[[36;1mprintf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9011891Z ^[[36;1mecho "target_sha=$GITHUB_SHA"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9078286Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9078599Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9078845Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9079136Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9079503Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9079927Z   TARGET_SHA: c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9080279Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9192783Z target_sha=c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9288812Z ##[group]Run actions/cache@v4
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9289233Z with:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9289508Z   path: /opt/verilator
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9289795Z   key: verilator-v5.050-Linux
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9290100Z   enableCrossOsArchive: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9290401Z   fail-on-cache-miss: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9290685Z   lookup-only: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9290939Z   save-always: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9291178Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9291406Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9291696Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9292025Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:12.9292374Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:13.0364628Z (node:2311) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:13.0365556Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:13.2875564Z Cache hit for: verilator-v5.050-Linux
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:13.3037026Z (node:2311) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:14.5829276Z Received 4194304 of 92153557 (4.6%), 4.0 MBs/sec
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.4310010Z Received 92153557 of 92153557 (100.0%), 47.5 MBs/sec
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.4312732Z Cache Size: ~88 MB (92153557 B)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.4355622Z [command]/usr/bin/tar -xf <home-path>/work/_temp/03a3b05c-2ec2-4e14-999d-e8873b377e04/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6207602Z Cache restored successfully
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6331730Z Cache restored from key: verilator-v5.050-Linux
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6488361Z ##[group]Run echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6488837Z ^[[36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6489193Z ^[[36;1m/opt/verilator/bin/verilator --version^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6489639Z ^[[36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6552391Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6552650Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6552883Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6553136Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6553407Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.6553728Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:15.9737129Z Verilator 5.050 2026-07-01 rev v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0301996Z Verilator 5.050 2026-07-01 rev v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0343694Z ##[group]Run set -euo pipefail
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0344045Z ^[[36;1mset -euo pipefail^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0344348Z ^[[36;1mpython3 scripts/suite_shards.py --selftest^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0344768Z ^[[36;1mscripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0345157Z ^[[36;1m  > "$RUNNER_TEMP/owned-suites"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0345445Z ^[[36;1mecho "Shard $SHARD owns:"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0345751Z ^[[36;1msed 's/^/  /' "$RUNNER_TEMP/owned-suites"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0346079Z ^[[36;1mcase "$SHARD" in^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0346387Z ^[[36;1m  1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0346807Z ^[[36;1m  3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0347217Z ^[[36;1m  4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0347543Z ^[[36;1mesac^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0413160Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0413420Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0413656Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0413902Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0414171Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0414486Z   SHARD: 1
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0414671Z   SHARDS: 5
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0414854Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0848518Z   ok    1 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0849614Z   ok    2 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0850299Z   ok    4 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0850913Z   ok    5 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0851510Z   ok    7 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0852114Z   ok   23 shard(s): complete=True disjoint=True deterministic=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0852736Z   ok    2 shard(s): dedicated alone=True hashed owners unchanged=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0853379Z   ok    4 shard(s): dedicated alone=True hashed owners unchanged=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0853960Z   ok    5 shard(s): dedicated alone=True hashed owners unchanged=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0854463Z   ok    7 shard(s): dedicated alone=True hashed owners unchanged=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0854963Z   ok   23 shard(s): dedicated alone=True hashed owners unchanged=True
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0855711Z   ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0857057Z   ok   five-worker runtime landmarks: {'milan_dp': 4, 'pp_shadow': 1, 'mmcm_servo': 2, 'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_gm_steps': 3}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0858187Z   ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0858763Z   ok   reject ''
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0859004Z   ok   reject '1'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0859244Z   ok   reject '-1/4'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0859493Z   ok   reject '01/4'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0859743Z   ok   reject '4/4'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0859983Z   ok   reject '5/4'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0860220Z   ok   reject '0/0'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0860461Z   ok   reject 'a/4'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.0860702Z selftest: PASS
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2095406Z Shard 1 owns:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2108943Z   aaf_latency_taps
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2109295Z   avtp_rxmon
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2109568Z   capture_coherence
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2109817Z   cbs
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2110036Z   cdc
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2110275Z   clkvalid
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2110503Z   controller_rate
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2110752Z   crf_rx
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2110972Z   datapath
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2111198Z   fw_service_budget
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2111451Z   gptp_plane
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2111720Z   gptp_shadow
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2111987Z   lat_history_ring
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2112281Z   maap
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2112550Z   mac_rmon
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2112810Z   media_nco
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2113053Z   mmcm_servo_autorepair
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2113317Z   nvm_cosim
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2113886Z   pair_fill
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2114118Z   pcmlpf
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2114346Z   pp_shadow
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2114599Z   tcam_csr
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2114923Z   tsn_fuzz
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2122450Z tsn_fuzz
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2219314Z ##[group]Run set -euo pipefail
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2219660Z ^[[36;1mset -euo pipefail^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2219930Z ^[[36;1mgit clone --filter=blob:none \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2220362Z ^[[36;1m  https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2220856Z ^[[36;1mgit -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2221254Z ^[[36;1mgit -C "$RUNNER_TEMP/tsn-gen" submodule update \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2221636Z ^[[36;1m  --init --depth 1 --recursive external/rapidyaml^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2222069Z ^[[36;1mcmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2222532Z ^[[36;1m  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2222908Z ^[[36;1mcmake --build "$RUNNER_TEMP/tsn-gen/build" \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2223243Z ^[[36;1m  --target packet_gen --parallel^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2223647Z ^[[36;1mtest -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2224089Z ^[[36;1mecho "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2289011Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2289276Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2289476Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2289739Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2290015Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2290340Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:16.2386645Z Cloning into '<home-path>/work/_temp/tsn-gen'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1840511Z Note: switching to 'deca300c9eb4863fa13383b45ba6cb6fd0828671'.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1841039Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1841400Z You are in 'detached HEAD' state. You can look around, make experimental
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1842268Z changes and commit them, and you can discard any commits you make in this
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1843099Z state without impacting any branches by switching back to a branch.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1843597Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1843945Z If you want to create a new branch to retain commits you create, you may
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1844698Z do so (now or later) by using -c with the switch command. Example:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1845142Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1845315Z   git switch -c <new-branch-name>
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1845895Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1846056Z Or undo this operation with:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1846327Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1846467Z   git switch -
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1846692Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1846933Z Turn off this advice by setting config variable advice.detachedHead to false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1847244Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.1847523Z HEAD is now at deca300 Merge pull request #13 from kebag-logic/12-strict-media-ptp-tx-flags
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.2068273Z Submodule 'external/rapidyaml' (https://github.com/biojppm/rapidyaml.git) registered for path 'external/rapidyaml'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:18.2093647Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:19.8517714Z From https://github.com/biojppm/rapidyaml
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:19.8518802Z  * branch            e65999dc4d65368e1b3eb770e28d775885b0f525 -> FETCH_HEAD
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:19.9914235Z Submodule path 'external/rapidyaml': checked out 'e65999dc4d65368e1b3eb770e28d775885b0f525'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:19.9938545Z Submodule 'extern/c4core' (https://github.com/biojppm/c4core) registered for path 'external/rapidyaml/ext/c4core'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:19.9964781Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1514209Z From https://github.com/biojppm/c4core
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1514934Z  * branch            6c876ec05a4387c25068cdbd58724828dad1d217 -> FETCH_HEAD
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1885574Z Submodule path 'external/rapidyaml/ext/c4core': checked out '6c876ec05a4387c25068cdbd58724828dad1d217'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1906508Z Submodule 'cmake' (https://github.com/biojppm/cmake) registered for path 'external/rapidyaml/ext/c4core/cmake'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1912771Z Submodule 'extern/debugbreak' (https://github.com/biojppm/debugbreak) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1918699Z Submodule 'src/c4/ext/fast_float' (https://github.com/fastfloat/fast_float) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.1944810Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/cmake'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.4752516Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:21.7667102Z Cloning into '<home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/fast_float'...
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:22.7149317Z From https://github.com/biojppm/cmake
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:22.7150055Z  * branch            b8e95acb1bdd564e47ac57d903a483604d90cbfa -> FETCH_HEAD
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:22.7242674Z Submodule path 'external/rapidyaml/ext/c4core/cmake': checked out 'b8e95acb1bdd564e47ac57d903a483604d90cbfa'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:22.7339298Z Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak': checked out '328e4abca3384cbd0a69e70f263cc7b2794bff09'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.4201828Z From https://github.com/fastfloat/fast_float
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.4202574Z  * branch            d28a3320c2de0963b6e469b8ca3bbc36496de684 -> FETCH_HEAD
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.4332853Z Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float': checked out 'd28a3320c2de0963b6e469b8ca3bbc36496de684'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.6532965Z -- The CXX compiler identification is GNU 13.3.0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.6704422Z -- Detecting CXX compiler ABI info
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.7634897Z -- Detecting CXX compiler ABI info - done
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.7809747Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.7816341Z -- Detecting CXX compile features
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.7825165Z -- Detecting CXX compile features - done
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8063416Z -- ryml: using C++ standard: C++17
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8088814Z -- ryml: importing subproject c4core (SUBDIRECTORY)... <home-path>/work/_temp/tsn-gen/external/rapidyaml/ext/c4core
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8140059Z -- c4core: using C++ standard: C++17
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8256817Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8258071Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8259173Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8259638Z   command to set the policy and suppress this warning.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8259998Z Call Stack (most recent call first):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8260430Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8260975Z   external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8261576Z This warning is for project developers.  Use -Wno-dev to suppress it.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8262096Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8503425Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8505120Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8506402Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8507443Z   command to set the policy and suppress this warning.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8508472Z Call Stack (most recent call first):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8509502Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8510893Z   external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8511685Z This warning is for project developers.  Use -Wno-dev to suppress it.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8512059Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8539658Z -- ryml: -----> target ryml PUBLIC incorporating lib c4core
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8655310Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8656311Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8657439Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8658447Z   command to set the policy and suppress this warning.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8659043Z Call Stack (most recent call first):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8659745Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8660604Z   external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8661363Z This warning is for project developers.  Use -Wno-dev to suppress it.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8661869Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8669932Z CMake Warning (dev) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8671000Z   Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8671897Z   "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8672662Z   command to set the policy and suppress this warning.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8673211Z Call Stack (most recent call first):
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8673908Z   external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8674748Z   external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8675521Z This warning is for project developers.  Use -Wno-dev to suppress it.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8676029Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.8743315Z -- Configuring done (0.4s)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9052346Z -- Generating done (0.0s)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9056859Z -- Build files have been written to: <home-path>/work/_temp/tsn-gen/build
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9296160Z [  2%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/common.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9305512Z [  4%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9339001Z [  6%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/parse.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9379223Z [  8%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node_type.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9449096Z [ 10%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/preprocess.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9499533Z [ 12%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/reference_resolver.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9503406Z [ 14%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tag.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9504918Z [ 16%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/version.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9507332Z [ 20%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tree.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9508919Z [ 18%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/base64.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9536650Z [ 27%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/language.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9538574Z [ 27%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/char_traits.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9539797Z [ 29%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/format.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9540908Z [ 29%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/error.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9773239Z [ 33%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_resource.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9839071Z [ 35%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_util.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9959197Z [ 31%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/utf.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:23.9988976Z [ 37%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/version.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:33.8371716Z [ 39%] Linking CXX static library libryml.a
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.5946338Z [ 39%] Built target ryml
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6026145Z [ 41%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/log.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6027639Z [ 43%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/validator.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6029438Z [ 45%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol_parser.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6033607Z [ 47%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6061027Z [ 50%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_if_impl.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6123255Z [ 52%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_impl.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6179440Z [ 56%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6218859Z [ 56%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/logic_registry.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6249122Z [ 58%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_service_impl.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6269260Z [ 60%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_var_impl.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:34.6288933Z [ 62%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack_builder.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.1784777Z [ 64%] Linking CXX shared library libprotocol_parser.so
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.2888968Z [ 64%] Built target protocol_parser
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.2969636Z [ 66%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/ethernet_frame_logic.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.2974077Z [ 70%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_builder.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.2996887Z [ 70%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/avtp_control_logic.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.2998820Z [ 72%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/aecp_aem_logic.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3028898Z [ 75%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_decoder.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3109067Z [ 77%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_receiver.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3139981Z [ 79%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_sender.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3199059Z [ 81%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_sender.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3258992Z [ 83%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_receiver.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3298951Z [ 85%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_sender.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3358991Z [ 87%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_receiver.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3419172Z [ 89%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/traffic_generator.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:41.3469198Z [ 91%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/session.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:43.7569029Z [ 93%] Linking CXX shared library libprotocol_logic.so
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:43.8669113Z [ 93%] Built target protocol_logic
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:45.7650038Z [ 95%] Linking CXX shared library libtraffic_gen.so
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:45.8522060Z [ 95%] Built target traffic_gen
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:45.8590733Z [ 97%] Building CXX object traffic-gen/CMakeFiles/packet_gen.dir/tools/packet_gen_main.cpp.o
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.6764975Z [100%] Linking CXX executable packet_gen
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7262402Z [100%] Built target packet_gen
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7369376Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7369891Z ^[[36;1mscripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7370258Z ^[[36;1m  --shard "1/5"^[[0m
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7431367Z shell: /usr/bin/bash -e {0}
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7431647Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7431853Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7432109Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7432387Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7432751Z   TSN_GEN_ROOT: <home-path>/work/_temp/tsn-gen
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:26:47.7433044Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:27:59.3272335Z shard: 1/5   selected suites: 23
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:28:04.7435746Z PASS     aaf_latency_taps
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:29:17.6847007Z PASS     avtp_rxmon
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:58:14.5901548Z PASS     capture_coherence
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:58:20.1041599Z PASS     cbs
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:58:25.4263493Z PASS     cdc
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:58:41.0338547Z PASS     clkvalid
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T07:58:49.2796412Z PASS     controller_rate
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:12:40.6467008Z PASS     crf_rx
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:12:46.3626258Z PASS     datapath
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:12:48.1185103Z PASS     fw_service_budget
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:25:52.0609287Z PASS     gptp_plane
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:32:24.2956402Z PASS     gptp_shadow
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:32:29.6587968Z PASS     lat_history_ring
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:35:33.7874313Z PASS     maap
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:35:44.2257771Z PASS     mac_rmon
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:36:00.3572918Z PASS     media_nco
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:36:06.1493478Z PASS     mmcm_servo_autorepair
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:49:00.6123053Z PASS     nvm_cosim
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:49:05.9209485Z PASS     pair_fill
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T08:49:11.2882549Z PASS     pcmlpf
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:10:01.6520502Z PASS     pp_shadow
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:10:07.1045834Z PASS     tcam_csr
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.0516500Z PASS     tsn_fuzz
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.0516958Z ----------------------------------------------------------------
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.0518063Z suites: 23   passed: 23   failed: 0   timed out: 0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.2994095Z checks: 197825   in-suite failures: 0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3046750Z logs: <home-path>/work/_temp/suite-logs
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3449487Z ##[group]Run actions/upload-artifact@v4
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3449787Z with:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3449989Z   name: suite-logs-1
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3450230Z   path: <home-path>/work/_temp/suite-logs
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3450519Z   if-no-files-found: error
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3450752Z   retention-days: 3
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3450963Z   compression-level: 6
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3451175Z   overwrite: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3451386Z   include-hidden-files: false
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3451617Z env:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3451807Z   VERILATOR_VERSION: v5.050
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3452050Z   YOSYS_VERSION: v0.66
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3452320Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3452665Z   TSN_GEN_ROOT: <home-path>/work/_temp/tsn-gen
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.3452954Z ##[endgroup]
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.5163149Z (node:35531) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.5164463Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.5292963Z With the provided path, there will be 32 files uploaded
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.5294353Z Artifact name is valid!
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.5295047Z Root directory input is valid!
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:07.9605148Z Beginning upload of artifact content to blob storage
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.0334691Z (node:35531) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.5165902Z Uploaded bytes 152323
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.6004082Z Finished uploading artifact content to blob storage!
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.6005348Z SHA256 digest of uploaded artifact zip is bd167a6ffc8360948c26a04e094c664072447056088cf23fe8d104ed70935980
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.6006645Z Finalizing artifact upload
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.8514829Z Artifact suite-logs-1.zip successfully finalized. Artifact ID 11737131395
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.8516046Z Artifact suite-logs-1 has been successfully uploaded! Final size is 152323 bytes. Artifact ID is 11737131395
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.8522554Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/38217650945/artifacts/11737131395
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.8706975Z Post job cleanup.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.9812024Z Cache hit occurred on the primary key verilator-v5.050-Linux, not saving cache.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.9813959Z (node:35543) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.9815586Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:08.9950311Z Post job cleanup.
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.0914535Z [command]/usr/bin/git version
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.0963187Z git version 2.55.0
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1019151Z Temporarily overriding HOME='<home-path>/work/_temp/b227470c-f84e-4be7-a63e-225fcf359cd8' before making global git config changes
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1038907Z Adding repository directory to the temporary git global config as a safe directory
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1049092Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1109648Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1141875Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1476742Z Entering 'gptp-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1545529Z Entering 'protocol-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1596604Z Entering 'third_party/verilog-axis'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1664789Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1706393Z http.https://github.com/.extraheader
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1719658Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.1767729Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2014724Z Entering 'gptp-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2058296Z Entering 'protocol-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2110730Z Entering 'third_party/verilog-axis'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2169584Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2209602Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2431600Z Entering 'gptp-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2453053Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2471380Z Entering 'protocol-processor'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2491020Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2509813Z Entering 'third_party/verilog-axis'
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2529203Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2565267Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2605422Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2640768Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.2815200Z Cleaning up orphan processes
+Verilator shard 1/5	UNKNOWN STEP	2026-10-12T09:11:09.3083720Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

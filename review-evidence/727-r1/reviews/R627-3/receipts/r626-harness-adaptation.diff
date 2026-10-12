@@ -1,0 +1,10 @@
+--- published-mutate.py
++++ driver-fixture-added.py
+@@ -162,6 +162,7 @@
+     (root / "scripts").mkdir(parents=True)
+     (root / ".github/workflows").mkdir(parents=True)
+     shutil.copy2(head / "scripts/suite_shards.py", root / "scripts/suite_shards.py")
++    shutil.copy2(head / "scripts/run_all_suites.sh", root / "scripts/run_all_suites.sh")
+     shutil.copy2(head / ".github/workflows/rtl.yml", root / ".github/workflows/rtl.yml")
+     for mk in sorted((head / "tb/verilator").glob("*/Makefile")):
+         dest = root / "tb/verilator" / mk.parent.name

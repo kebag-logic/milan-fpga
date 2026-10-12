@@ -1,0 +1,178 @@
+# Item 3 at 2c2f336979e4fdb1da444f041f37551e2c9175df: the new-suite steps followed in a disposable clone
+
+## Driver output (r3-item3.sh)
+copy 2c2f336979e4fdb1da444f041f37551e2c9175df toplevel <scratch>/copy3
+== planted, no figure
+rc=1 0-selftest
+rc=2 0-list-shard0of5
+rc=2 0-serial-sweep
+rc=2 0-preflight-only
+== step 1
+rc=0 1-edits
+rc=1 1-selftest
+== step 2
+rc=0 2-edits
+rc=0 2-selftest-3.12.3
+rc=0 2-selftest-host
+rc=0 2-ci_events-check
+rc=0 2-ci_events-selftest
+rc=0 2-list-0-of-6
+rc=0 2-list-1-of-6
+rc=0 2-list-2-of-6
+rc=0 2-list-3-of-6
+rc=0 2-list-4-of-6
+rc=0 2-list-5-of-6
+rc=0 2-list-serial
+rc=0 no suite on two workers (63 listed)
+rc=0 union equals the serial inventory (63 suites)
+rc=0 5/6 is milan_dp alone
+rc=0 tsn_fuzz on 1/6
+rc=0 chmap_capture on 3/6
+zz_new_suite on: 2-list-0-of-6.txt
+rc=0 2-preflight-only
+   preflight took 85 s; logs: check_list_hermetic.log check_merge_containment.log check_merge_review_integrity.log check_results_fresh.log suite_shards.log suite_tally.log test_suite_cancellation.log xvlog_gate.log 
+
+## The preflight-only driver: run_all_suites.sh with its last line replaced
+457c457,463
+< main "$@"
+---
+> # Verification only: main's steps up to and including the preflight.
+> parse_args "$@"
+> select_suites
+> acquire_lock
+> prepare_logs
+> run_preflight_gates
+> echo "PREFLIGHT PASSED: every gate before the first suite exited 0"
+
+## 0-selftest (planted, no figure): non-ok lines
+  FAIL head: zz_new_suite: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follows the module docstring's new-suite steps: record suite_timeout's figure for it as provisional, add a worker if one is then predicted over 60% of timeout-minutes, and replace the figure from the change's own hosted run)
+selftest: 1 FAILURE(S)
+
+## 0-list-shard0of5 (planted, no figure): non-ok lines
+usage: suite_shards.py [-h] [--suite-root SUITE_ROOT] [--shard INDEX/TOTAL]
+                       [--selftest] [--measure LOG [LOG ...]]
+                       [--physical-gptp]
+suite_shards.py: error: zz_new_suite: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follows the module docstring's new-suite steps: record suite_timeout's figure for it as provisional, add a worker if one is then predicted over 60% of timeout-minutes, and replace the figure from the change's own hosted run)
+
+## 0-serial-sweep (the real driver, unmodified): tail
+  ok   reject 'a/4'
+selftest: 1 FAILURE(S)
+ABORTING: scripts/suite_shards.py fails its own self-test, so the
+selected workers cannot be trusted to cover every suite once.
+preflight logs written: suite_shards.log suite_tally.log test_suite_cancellation.log 
+
+## 0-preflight-only: tail
+selftest: 1 FAILURE(S)
+ABORTING: scripts/suite_shards.py fails its own self-test, so the
+selected workers cannot be trusted to cover every suite once.
+
+## Step 1: suite_timeout as read
+suite_timeout() {
+  case "$1" in
+    capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
+    milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
+    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+    milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+    *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+  esac
+}
+applied scripts/suite_shards.py: Add the suite to SUITE_SECONDS at the wall clock that suite_timeout gives it (no own arm, so the `*` arm: 1800 s)
+applied scripts/suite_shards.py: Name it in PROVISIONAL_SUITES
+
+## 1-selftest: provisional and worker lines
+  ok   head provisional figures {'zz_new_suite': 1800} are what run_all_suites.sh's suite_timeout gives
+  FAIL head worker 0/5 predicted 4629 s (77.2 min), bound 4320 s
+  FAIL head worker 1/5 predicted 4628 s (77.1 min), bound 4320 s
+  FAIL head worker 2/5 predicted 4630 s (77.2 min), bound 4320 s
+  FAIL head worker 3/5 predicted 4730 s (78.8 min), bound 4320 s
+  ok   head worker 4/5 predicted 2877 s (48.0 min), bound 4320 s
+selftest: 4 FAILURE(S)
+
+## Step 2 edits
+applied .github/workflows/rtl.yml: rtl.yml: append the new last index to the verilator-shards matrix's shard, set its total to the new count
+applied .github/workflows/rtl.yml: rtl.yml: set the verilator-suites verifier's --expect to the new count
+applied .github/workflows/rtl.yml: rtl.yml: give the ownership step's milan_dp arm the new last index
+applied scripts/ci_events.py: ci_events.py: the same change to CANONICAL_OWNERSHIP_SCRIPT
+applied scripts/ci_events.py: ci_events.py: the same change to the canonical verilator-suites verifier step
+applied scripts/ci_events.py: ci_events.py self-test: _m_shard_denominator_stale's asserted shard list, restated count and planted index
+applied scripts/ci_events.py: ci_events.py self-test: _m_dedicated_worker_dropped's asserted last index
+applied scripts/ci_events.py: ci_events.py self-test: _m_dedicated_worker_reverted's asserted last index and planted count
+applied scripts/ci_events.py: ci_events.py self-test: _m_ownership_dedicated_arm_dropped's asserted arm index
+applied scripts/ci_events.py: ci_events.py self-test: _m_shard_matrix_include's planted index and count
+applied scripts/ci_events.py: ci_events.py self-test: _m_verify_expect_missing's asserted count
+applied scripts/ci_events.py: ci_events.py self-test: _m_matrix_grows_expect_stays's asserted shard list and planted index
+applied scripts/ci_events.py: ci_events.py self-test: the expected finding of 'R4 matrix grows, --expect stays'
+applied scripts/ci_events.py: ci_events.py self-test: the expected finding of '#444 the matrix and total return to four, --expect stays'
+applied scripts/suite_shards.py: this file: give the self-test's milan_dp landmark the new last index
+applied scripts/suite_shards.py: this file: one more WORKER_OVERHEAD_SECONDS entry before the last, equal to the largest one already there (115)
+ .github/workflows/rtl.yml |  8 ++++----
+ scripts/ci_events.py      | 32 ++++++++++++++++----------------
+ scripts/suite_shards.py   |  7 ++++---
+ 3 files changed, 24 insertions(+), 23 deletions(-)
+
+## 2-selftest-3.12.3
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'zz_new_suite': 1800} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 1/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 2/6 predicted 3746 s (62.4 min), bound 4320 s
+  ok   head worker 3/6 predicted 3747 s (62.5 min), bound 4320 s
+  ok   head worker 4/6 predicted 3747 s (62.5 min), bound 4320 s
+  ok   head worker 5/6 predicted 2877 s (48.0 min), bound 4320 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp': 5}, milan_dp alone=True, held at any planted duration=True
+  ok   the 6 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (aaf) is refused
+  [ok]    rtl.yml timeout-minutes 104 (bound 3744 s) is refused for a 3747 s worker
+  [ok]    and 105 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {104: 3744, 105: 3780, 120: 4320}, expected {104: 3744, 105: 3780, 120: 4320}
+  [ok]    rtl.yml at 7 workers is refused for the 6-worker overhead table
+  [ok]    milan_dp at 4240 s puts worker 5 exactly at the bound and passes
+  [ok]    milan_dp at 4241 s puts it over and is refused
+  [ok]    milan_dp_mclk grown by 2869 s to 4907 s puts a balanced worker over and is refused
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+
+## 2-selftest-host: last line
+selftest: PASS
+
+## 2-ci_events-check / --selftest: last lines
+ci_events: OK (1822 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+selftest: PASS (1822 contract items, 2530 arms)
+
+## The six lists
+0/6 (8): aaf_clock_meter cbs controller_rate crf_tx lat_history_ring nvm_cosim shaper_core zz_new_suite 
+1/6 (14): aaf_latency_taps avtp_parser cdc clkvalid crf_rx datapath follow_ring maap mbx media_nco mmcm_servo_autorepair nvm_backend tcam_csr tsn_fuzz 
+2/6 (12): avtp_rxmon avtp_stream chmap_render csr eth_tx_reset link_guard media_grid_align milan_dp_gm_steps milan_dp_mclk pair_fill ptp tdm 
+3/6 (15): aaf aaf_audio_loop aaf_latency_tap_bank aes3 chmap_capture cls fw_service_budget gptp_plane ifg mac_rmon milan_dp_render pp_shadow queues tcam tkdiag 
+4/6 (13): adp_tx capture_coherence classifier gptp_shadow gptp_txts i2spb mmcm_servo pcmlpf ptp_sync ptp_ts render_setpoint rx_filter tdm_render 
+5/6 (1): milan_dp 
+
+## 2-preflight-only
+PREFLIGHT PASSED: every gate before the first suite exited 0
