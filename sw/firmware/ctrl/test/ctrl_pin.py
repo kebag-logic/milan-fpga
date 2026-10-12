@@ -25,8 +25,8 @@ was loaded (ctrl_build.GIT), with exactly the proof's own environment
 (ctrl_build.GIT_ENVIRONMENT; under a capture, also the builders' names its
 audit hook adds, ctrl_build.CAPTURED, which Git does not read), each key and
 value a plain str, so that what Git is given is what the hook judged: GIT_NO_REPLACE_OBJECTS=1, a
-GIT_GRAFT_FILE that cannot exist, no system or global configuration, and
-nothing the proof inherits. It
+GIT_GRAFT_FILE that cannot exist, no system or global configuration,
+GIT_NO_LAZY_FETCH=1, and nothing the proof inherits. It
 refuses every thread start there too, since a thread could change a start's
 arguments after the hook has read them. It
 refuses exec, compile and an import of importlib, and the reaches into its own
@@ -59,9 +59,13 @@ is code that runs before the hook is installed (ctrl_build.py's top, above
 the helper). Every object the proof reads, the pinned commit and each tree
 under it, is read raw and hashed here against its id (ctrl_build.stored), so
 a forged or corrupt object is refused by its place; no blob is read. The
-helper gives Git core.fsmonitor=false, so no repository's own configuration
-names a program Git starts when it reads an index; ctrl_pin_store.py holds
-the controls of both.
+configuration guarantee is an allowlist (ctrl_build.STACK_CONFIG): the
+stack's own configuration may hold only the keys Git writes itself for a
+clone and a submodule, and any other is refused by its name before an object
+is read, so none can have Git start a program or fetch from a remote while
+the pin is decided. The helper also gives Git core.fsmonitor=false, for the
+superproject's index, and GIT_NO_LAZY_FETCH=1 (ctrl_build.GIT_ENVIRONMENT);
+ctrl_pin_store.py holds the controls of the store and the configuration.
 
 THE CENSUS (census). A fast lint of the two modules' syntax trees, not their
 text, beside the hook's own check of them (exercised: the pin proof run from
@@ -103,8 +107,8 @@ an edit the index hides, with a file the tree does not hold, with a symbolic
 link standing in for a file, with a file made executable, and at another
 revision. It refuses, by the edited source's name, an edit that a replacement
 of the pinned tree's src/ or of the pinned commit would make git read as
-pinned, one beside a graft file, and one a clean filter given through the
-clone's attributes turns back into the pinned bytes. The pin proof as the
+pinned, and one beside a graft file; and, by the filter's key, one a clean
+filter given through the clone's attributes turns back into the pinned bytes. The pin proof as the
 checkout holds it runs to its verdict under the hook; and the proof run under
 the hook with one bypass planted (census_arms, HOOK_PLANTS) ends, before any
 build, in the hook's refusal at the plant's line: a git command run outside
@@ -127,7 +131,7 @@ variable added (GIT_DIR), and with a key or a value that is not a plain str,
 are refused at the helper's line, the variable by its name. The
 inherited-environment controls follow (ctrl_pin_env.py), then those of the
 object store and the repositories' own configuration (ctrl_pin_store.py),
-R585-12's forged src/ tree among them. The MAAP
+R585-12's forged src/ tree and R584-12's promisor transports among them. The MAAP
 differential (both its modes) and the AECP
 lane's arms, campaign and wire comparison refuse an edited clone before
 building it. Then every target of
@@ -153,8 +157,8 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STACK, Refusal, audited, git, git_env,
-                        stack_gitlink, stack_pin)
+from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STACK, UNLISTED, Refusal, audited, git,
+                        git_env, stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
 from ctrl_pin_env import inherited_arms
 from ctrl_pin_store import store_arms
@@ -194,8 +198,8 @@ BUILTINS = frozenset({"Exception", "bytes", "dict", "filter", "int", "len", "lis
 #: a hash, a file's status and the command line's parser and arguments.
 ATTRIBUTES = frozenset({"add_argument", "append", "as_posix", "decode", "encode", "get", "hex", "hexdigest",
                         "is_symlink", "join", "keys", "lstat", "parent", "parents", "parse_args", "partition", "pop",
-                        "raw", "read_bytes", "relative_to", "resolve", "returncode", "split", "st_mode", "stack_pin",
-                        "stderr", "stdout", "strip"})
+                        "raw", "read_bytes", "relative_to", "resolve", "returncode", "rpartition", "split", "st_mode",
+                        "stack_pin", "stderr", "stdout", "strip"})
 
 #: A target make's database does not hold: asked for so make prints the database and runs nothing.
 NO_GOAL = "ctrl-pin-no-such-goal"
@@ -910,11 +914,11 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
     source, a test, a script, a CMake file or a file no gate builds edited, with an edit the index hides, with a
     header the gitlink's tree does not hold, with a symbolic link standing in for a file, with a file made
     executable, and at another revision; and, by the edited source's name, the clone whose src/ tree or whose
-    pinned commit is replaced by one holding the edit, the clone with a graft file beside the edit, and the clone
-    whose attributes give the edited source a clean filter that turns it back into the pinned bytes. The pin proof
-    runs to its verdict under its audit hook, and ends in the hook's refusal with each plant of HOOK_PLANTS. The
-    controls of the inherited environment (ctrl_pin_env.py), and of the object store and the repositories' own
-    configuration (ctrl_pin_store.py), hold.
+    pinned commit is replaced by one holding the edit, and the clone with a graft file beside the edit; and, by the
+    filter's key, the clone whose attributes give the edited source a clean filter that turns it back into the
+    pinned bytes. The pin proof runs to its verdict under its audit hook, and ends in the hook's refusal with each
+    plant of HOOK_PLANTS. The controls of the inherited environment (ctrl_pin_env.py), and of the object store and
+    the repositories' own configuration (ctrl_pin_store.py), hold.
     The MAAP differential (both modes) and the AECP lane's arms, campaign and wire comparison refuse an edited
     clone before building it; every Makefile builder's target that reaches the stack refuses a poisoned one on
     the pin check.
@@ -962,7 +966,7 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
              clone.direct, edited + "src/adp.c"),
             ("a source edited beside a graft file", clone.grafted, clone.direct, edited + "src/adp.c"),
             ("a source edited, a clean filter given through attributes turning it back into the pinned blob",
-             clone.filtered, clone.direct, edited + "src/adp.c"),
+             clone.filtered, clone.direct, UNLISTED + "filter.pin-control.clean (local)"),
             ("the pin proof as the checkout holds it, under its audit hook", lambda: None, unplanted, ""),
             *census_arms(),
             ("the MAAP differential, a core source edited", lambda: clone.append("src/maap.c"), differential,

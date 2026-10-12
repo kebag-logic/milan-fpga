@@ -18,13 +18,34 @@ edit (a new file, so no file a hard link shares is written):
   forged object, the pinned commit;
 - the pinned blob of the edited source, with the edit's: refused by the edited
   source's name, since the proof reads no blob.
-The helper gives Git core.fsmonitor=false, so no repository's own
-configuration starts a program when Git reads an index. Two controls name a
-recorder (ctrl_pin_env.RECORDER) as core.fsmonitor in a repository's own
-configuration: a superproject's, whose index's gitlink is the pin, read as the
-proof reads the checkout's (ctrl_build.stack_gitlink); and the stack clone's,
-beside an edit. Each ends in the verdict its repository earns, and the
-recorder never runs.
+Nor is a file hashed through Git: a source whose line endings the clone's
+attributes have Git convert back into the pinned blob (text) is refused by
+its name.
+The stack's own configuration may hold only Git's own bookkeeping of a
+clone and a submodule (ctrl_build.STACK_CONFIG, its allowlist), and the pin
+check refuses every other key by its name before it reads an object
+(ctrl_build.configured). One control holds each family of keys it refuses,
+each key naming a recorder (ctrl_pin_env.RECORDER) where it names a program:
+- a promisor remote whose transport is a program, beside a missing object of
+  the pin, as R584-12 and R585-13 probed it: its upload-pack
+  (remote.<name>.uploadpack), and ssh through core.sshCommand;
+- each of those four keys alone: extensions.partialClone and
+  remote.<name>.promisor beside the missing object, remote.<name>.uploadpack
+  and core.sshCommand on the pinned clone;
+- core.fsmonitor beside an edit, core.hooksPath, credential.helper, and the
+  other programs Git may start (an askpass, a pager, an editor, a textconv, a
+  signing program, an alternate refs command, a pack-objects hook);
+- an include of a file that names a program, and a work tree's own
+  configuration that does;
+- a key no Git defines, as a later Git might add.
+Each ends in the refusal naming exactly the keys it planted, and the recorder
+never runs. A clone holding a key of every family of the allowlist is
+accepted. A clean filter in the clone's own configuration is held by
+ctrl_pin.py's control. The helper also gives Git core.fsmonitor=false, which
+holds the superproject's own configuration: a superproject whose index's
+gitlink is the pin, its configuration naming the recorder as core.fsmonitor,
+is read as the proof reads the checkout's (ctrl_build.stack_gitlink), and
+the recorder never runs.
 """
 
 from __future__ import annotations
@@ -33,8 +54,8 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from ctrl_build import Refusal, stack_gitlink, stack_pin
-from ctrl_pin_env import EDITED, GITLINK, Scene, answer
+from ctrl_build import STACK_CONFIG, UNLISTED, Refusal, stack_gitlink, stack_pin
+from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer
 
 #: More objects than a fetch of the pin's history brings, so that the fetch unpacks each into a loose object
 #: rather than keep the pack it is sent.
@@ -95,6 +116,20 @@ def forged_blob(scene: Scene) -> None:
     forge(scene, answer(scene.stack, "rev-parse", f"{scene.pin}:{EDITED}").strip(), blob)
 
 
+def converted(scene: Scene) -> None:
+    """A source's line endings made CRLF, and the clone's attributes giving it the text attribute, which has Git
+    convert them back when it hashes the file, so that a hash through Git is the pinned blob (checked here, or the
+    control would prove nothing): a conversion no configuration names."""
+    source = scene.stack / EDITED
+    data = source.read_bytes()
+    if b"\r" in data:
+        raise Refusal("the line-ending control needs a source that holds no carriage return")
+    source.write_bytes(data.replace(b"\n", b"\r\n"))
+    (scene.stack / ".git/info/attributes").write_text(f"{EDITED} text\n", encoding="utf-8")
+    if answer(scene.stack, "hash-object", EDITED) != answer(scene.stack, "rev-parse", f"{scene.pin}:{EDITED}"):
+        raise Refusal("the line-ending control's conversion does not turn its edit back into the pinned blob")
+
+
 def monitored_superproject(scene: Scene) -> None:
     """A superproject whose index's gitlink is the pin, and whose own configuration names the recorder as
     core.fsmonitor."""
@@ -108,6 +143,71 @@ def monitored_stack(scene: Scene) -> None:
     """The clone's own configuration naming the recorder as core.fsmonitor, and the edit on disk."""
     answer(scene.stack, "config", "core.fsmonitor", scene.recorder())
     scene.edit()
+
+
+def keyed(scene: Scene, keys: tuple[tuple[str, str | None], ...], missing: bool = False) -> None:
+    """`keys` set in the clone's own configuration, a value None naming the recorder; first (`missing`) the clone
+    made again with every object loose (loose) and the pinned src/ tree's object removed, so that Git reading the
+    pin would fetch it from a promisor remote the keys name."""
+    if missing:
+        loose(scene)
+        src = answer(scene.stack, "rev-parse", f"{scene.pin}:src").strip()
+        (scene.stack / ".git/objects" / src[:2] / src[2:]).unlink()
+    for key, value in keys:
+        answer(scene.stack, "config", key, scene.recorder() if value is None else value)
+
+
+def hooked(scene: Scene) -> None:
+    """The clone's own configuration naming as core.hooksPath a directory whose hooks are the recorder."""
+    hooks = scene.own / "hooks"
+    hooks.mkdir()
+    for hook in ("post-checkout", "post-index-change", "reference-transaction"):
+        (hooks / hook).write_text(RECORDER, encoding="utf-8")
+        (hooks / hook).chmod(0o755)
+    answer(scene.stack, "config", "core.hooksPath", str(hooks))
+
+
+def included(scene: Scene) -> None:
+    """The clone's own configuration including (include.path) a file that names the recorder as core.fsmonitor."""
+    (scene.own / "included").write_text(f"[core]\n\tfsmonitor = {scene.recorder()}\n", encoding="utf-8")
+    answer(scene.stack, "config", "include.path", str(scene.own / "included"))
+
+
+def worktree_configured(scene: Scene) -> None:
+    """The clone's work tree given its own configuration (extensions.worktreeConfig), which names the recorder as
+    core.fsmonitor."""
+    answer(scene.stack, "config", "extensions.worktreeConfig", "true")
+    answer(scene.stack, "config", "--worktree", "core.fsmonitor", scene.recorder())
+
+
+def allowlisted(scene: Scene) -> None:
+    """A key of each family of the allowlist (ctrl_build.STACK_CONFIG) in the clone's own configuration, beside the
+    keys its clone holds, each naming what Git itself would: the clone's own work tree, a branch's remote, its
+    submodules' bookkeeping. A family the clone then holds no key of refuses the control's setup."""
+    keyed(scene, (("core.worktree", str(scene.stack)), ("branch.main.remote", "origin"),
+                  ("branch.main.merge", "refs/heads/main"), ("submodule.active", "."),
+                  ("submodule.pin-control.url", "../pin-control.git"), ("submodule.pin-control.active", "true"),
+                  ("submodule.alternateLocation", "superproject"), ("submodule.alternateErrorStrategy", "die")))
+    held = set()
+    for entry in filter(None, answer(scene.stack, "config", "--list", "--local", "-z").split("\0")):
+        key = entry.partition("\n")[0]
+        section, _, rest = key.partition(".")
+        subsection, _, variable = rest.rpartition(".")
+        held.add(f"{section}.*.{variable}" if subsection else key)
+    lacking = sorted(set(STACK_CONFIG) - held)
+    if lacking:
+        raise Refusal(f"the allowlisted configuration control's clone holds no {', '.join(lacking)}")
+
+
+def partial(name: str, url: str) -> tuple[tuple[str, str | None], ...]:
+    """The keys that make the clone a partial clone whose promisor remote is `name`, at `url`."""
+    return (("core.repositoryformatversion", "1"), ("extensions.partialClone", name), (f"remote.{name}.url", url),
+            (f"remote.{name}.promisor", "true"))
+
+
+#: The programs Git may start that no other control names, each key naming the recorder.
+HELPERS = ("core.askPass", "core.pager", "core.editor", "diff.pin-control.textconv", "gpg.program",
+           "core.alternateRefsCommand", "uploadpack.packObjectsHook")
 
 
 def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
@@ -151,6 +251,10 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
         """The pin check on the clone."""
         return stack_pin(stack, pin)
 
+    def unlisted(*keys: str) -> str:
+        """The pin check's refusal of exactly `keys` of the stack's own configuration, each with its scope."""
+        return UNLISTED + ", ".join(keys)
+
     controls = (
         ("the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit",
          forged_tree, checked, FORGED + "the pinned src/ tree"),
@@ -158,10 +262,51 @@ def store_arms(stack: Path, pin: str, work: Path, edited: str) -> list[tuple]:
          "the edit", forged_commit, checked, FORGED + "the pinned commit"),
         ("the object store, a source edited, its pinned blob's object overwritten by the edit's", forged_blob,
          checked, edited + EDITED),
+        ("the stack's attributes, a source's line endings changed, a conversion they give turning it back into the "
+         "pinned blob", converted, checked, edited + EDITED),
         ("the superproject's own configuration, a program named as core.fsmonitor, its gitlink read",
          monitored_superproject, gitlink, ""),
         ("the stack's own configuration, a program named as core.fsmonitor, a source edited", monitored_stack,
-         checked, edited + EDITED),
+         checked, unlisted("core.fsmonitor (local)")),
+        ("the stack's own configuration, a key of each family of its allowlist, the pinned clone", allowlisted,
+         checked, ""),
+        ("the stack's own configuration, a partial clone whose promisor remote's upload-pack is a program, the "
+         "pinned src/ tree's object missing",
+         lambda s: keyed(s, (*partial("origin", str(s.stack)), ("remote.origin.uploadpack", None)), True), checked,
+         unlisted("extensions.partialclone (local)", "remote.origin.promisor (local)",
+                  "remote.origin.uploadpack (local)")),
+        ("the stack's own configuration, a partial clone whose promisor remote is reached over ssh by a program "
+         "(core.sshCommand), the pinned src/ tree's object missing",
+         lambda s: keyed(s, (*partial("probe", "ssh://pin-control.invalid/stack"), ("core.sshCommand", None)), True),
+         checked, unlisted("core.sshcommand (local)", "extensions.partialclone (local)",
+                           "remote.probe.promisor (local)")),
+        ("the stack's own configuration, extensions.partialClone alone, the pinned src/ tree's object missing",
+         lambda s: keyed(s, (("core.repositoryformatversion", "1"), ("extensions.partialClone", "origin"),
+                             ("remote.origin.url", str(s.stack))), True), checked,
+         unlisted("extensions.partialclone (local)")),
+        ("the stack's own configuration, remote.<name>.promisor alone, the pinned src/ tree's object missing",
+         lambda s: keyed(s, (("remote.origin.url", str(s.stack)), ("remote.origin.promisor", "true")), True),
+         checked, unlisted("remote.origin.promisor (local)")),
+        ("the stack's own configuration, a program named as remote.<name>.uploadpack",
+         lambda s: keyed(s, (("remote.origin.uploadpack", None),)), checked,
+         unlisted("remote.origin.uploadpack (local)")),
+        ("the stack's own configuration, a program named as core.sshCommand",
+         lambda s: keyed(s, (("core.sshCommand", None),)), checked, unlisted("core.sshcommand (local)")),
+        ("the stack's own configuration, a directory of programs named as core.hooksPath", hooked, checked,
+         unlisted("core.hookspath (local)")),
+        ("the stack's own configuration, a program named as credential.helper",
+         lambda s: keyed(s, (("credential.helper", None),)), checked, unlisted("credential.helper (local)")),
+        ("the stack's own configuration, a program named by each other key Git starts one for",
+         lambda s: keyed(s, tuple((key, None) for key in HELPERS)), checked,
+         unlisted("core.alternaterefscommand (local)", "core.askpass (local)", "core.editor (local)",
+                  "core.pager (local)", "diff.pin-control.textconv (local)", "gpg.program (local)",
+                  "uploadpack.packobjectshook (local)")),
+        ("the stack's own configuration, an included file (include.path) naming a program as core.fsmonitor",
+         included, checked, unlisted("core.fsmonitor (local)", "include.path (local)")),
+        ("the stack's work tree's own configuration (extensions.worktreeConfig), a program named as core.fsmonitor",
+         worktree_configured, checked, unlisted("core.fsmonitor (worktree)", "extensions.worktreeconfig (local)")),
+        ("the stack's own configuration, a key no Git defines, as a later Git might add, naming a program",
+         lambda s: keyed(s, (("pin-control.program", None),)), checked, unlisted("pin-control.program (local)")),
     )
     return [(what, spoiled(spoil), lambda r=read, n=needle: judged(r, n), needle)
             for what, spoil, read, needle in controls]

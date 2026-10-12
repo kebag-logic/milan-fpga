@@ -183,9 +183,25 @@ NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
 #: caller's, so no variable it inherits (GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY,
 #: GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_REPLACE_REF_BASE, GIT_CONFIG_*, GIT_ATTR_*, HOME and the rest) can
 #: redirect Git's repository, object store, configuration or replacement refs. Replacement objects (refs/replace)
-#: are ignored, the graft file does not exist, and no configuration but the repository's own is read.
+#: are ignored, the graft file does not exist, no configuration but the repository's own is read, and no missing
+#: object is fetched from a promisor remote (GIT_NO_LAZY_FETCH, which Git honours from 2.45.0, as does a Git patched
+#: for CVE-2024-32465 such as Ubuntu 24.04's 2.43.0; where it is not honoured, STACK_CONFIG is the guarantee).
 GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "GIT_CONFIG_NOSYSTEM": "1",
-                   "GIT_CONFIG_GLOBAL": os.devnull}
+                   "GIT_CONFIG_GLOBAL": os.devnull, "GIT_NO_LAZY_FETCH": "1"}
+#: The one setting the helper gives Git on its command line: core.fsmonitor off, so that no repository's own
+#: configuration (the superproject's, whose index stack_gitlink reads) names a program Git starts to read an index.
+HELPER_CONFIG = "core.fsmonitor=false"
+#: The configuration the stack's own repository may hold, its allowlist (configured): the keys Git writes itself for
+#: a clone and for a submodule, `*` standing for any subsection. None names a program or a store. Every other key is
+#: refused by its name before the proof reads an object: a promisor remote and its transport (extensions.partialClone,
+#: remote.<name>.promisor, remote.<name>.uploadpack, core.sshCommand), an fsmonitor, a hooks path, a filter, a
+#: credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
+STACK_CONFIG = ("core.repositoryformatversion", "core.filemode", "core.bare", "core.logallrefupdates", "core.worktree",
+                "remote.*.url", "remote.*.fetch", "branch.*.remote", "branch.*.merge", "submodule.active",
+                "submodule.*.url", "submodule.*.active", "submodule.alternatelocation",
+                "submodule.alternateerrorstrategy")
+#: The pin check's words before the keys of the stack's own configuration it refuses, each with its scope.
+UNLISTED = "tsn-c-stack's repository holds configuration outside the pin proof's allowlist: "
 
 
 def git_env() -> dict[str, str]:
@@ -379,10 +395,9 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
     """One git command in `directory`, its output captured: the helper, the only code of the pin proof's modules
     (this one and ctrl_pin.py) that names a process-launch facility, and the only one whose process the pin
     proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it,
-    and core.fsmonitor off, so that no repository's own configuration names a program Git starts to read an
-    index."""
+    and HELPER_CONFIG, so that no repository's own configuration names a program Git starts to read an index."""
     import subprocess
-    res = subprocess.run(["git", "-c", "core.fsmonitor=false", "-C", str(directory), *args], executable=GIT,
+    res = subprocess.run(["git", "-c", HELPER_CONFIG, "-C", str(directory), *args], executable=GIT,
                          input=None if stdin is None else stdin.encode(errors="surrogateescape"), capture_output=True,
                          check=False, env=git_env())
     return GitRun(res.returncode, res.stdout.decode(errors="surrogateescape"),
@@ -468,18 +483,46 @@ def pinned_tree(stack: Path, pin: str, algorithm: str) -> dict[str, tuple[str, s
     return want
 
 
+def configured(stack: Path) -> None:
+    """Refuse the stack's repository whose configuration holds a key STACK_CONFIG does not name, by the key's name
+    and scope, before the proof reads any object of it. What is judged is all the configuration Git reads for the
+    proof's commands there, as Git lists it (config --list --show-scope), each section and variable name in lower
+    case: the repository's own and its work tree's, which may hold STACK_CONFIG's keys only, and the helper's own
+    setting (HELPER_CONFIG), the one key its command line gives. No system or global file is read (GIT_ENVIRONMENT),
+    so a key of either scope is refused too. So no key the proof does not know can have Git start a program, or
+    fetch from a remote, while the pin is decided, whatever a Git version makes of it."""
+    res = git(stack, "config", "--list", "--show-scope", "-z")
+    if res.returncode:
+        raise Refusal(f"cannot read the configuration of {stack}: {res.stderr.strip()}")
+    listed, refused = res.stdout, []
+    while listed:
+        scope, _, listed = listed.partition("\0")
+        entry, _, listed = listed.partition("\0")
+        key, _, value = entry.partition("\n")
+        section, _, rest = key.partition(".")
+        subsection, _, variable = rest.rpartition(".")
+        named = f"{section}.*.{variable}" if subsection else key
+        if not (scope in ("local", "worktree") and named in STACK_CONFIG or
+                scope == "command" and f"{key}={value}" == HELPER_CONFIG):
+            refused.append(f"{key} ({scope})")
+    if refused:
+        raise Refusal(UNLISTED + ", ".join(sorted(refused)))
+
+
 def stack_pin(stack: Path = STACK, pin: str | None = None) -> str:
     """Refuse a stack checkout that is not at the recorded gitlink, or that is not the gitlink's whole tree:
     the same paths, each of the same type and mode, every file and symbolic link hashed as git hashes a blob
-    and equal to the tree's. git reads the real objects only (git_env), so a replacement or a graft changes
-    nothing it reads; every object the proof reads, the pinned commit and each of its trees, is hashed here and
-    equal to its id (pinned_tree), so a forged or corrupt one is refused; and the index is never consulted, so
-    an edit hidden from `git status` (assume-unchanged, skip-worktree) is refused like any other: every gate
-    builds the pinned stack or none."""
+    and equal to the tree's. Its repository's configuration holds only Git's own bookkeeping (configured), so no
+    key of it names a program Git starts or a remote it fetches from; git reads the real objects only (git_env),
+    so a replacement or a graft changes nothing it reads; every object the proof reads, the pinned commit and each
+    of its trees, is hashed here and equal to its id (pinned_tree), so a forged or corrupt one is refused; and the
+    index is never consulted, so an edit hidden from `git status` (assume-unchanged, skip-worktree) is refused like
+    any other: every gate builds the pinned stack or none."""
     pin = pin or stack_gitlink()
     top = git(stack, "rev-parse", "--show-toplevel")
     if top.returncode or Path(top.stdout.strip()).resolve() != stack.resolve():
         raise Refusal(f"{stack} is not its own checkout: initialise the tsn-c-stack submodule")
+    configured(stack)
     head = git(stack, "rev-parse", "HEAD").stdout.strip()
     if head != pin:
         raise Refusal(f"tsn-c-stack at {head or 'no HEAD'} is not the pinned {pin}")

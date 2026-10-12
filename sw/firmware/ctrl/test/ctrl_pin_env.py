@@ -26,8 +26,8 @@ Each must end in the verdict the clone itself earns, and no program the
 configuration names may run. Two set what Git applies only when it hashes a
 file through its filters, which the proof never does: a clean filter given
 through GIT_CONFIG_COUNT, and one whose attribute is given through
-GIT_ATTR_SOURCE. Each would turn the edit back into the pinned blob, as the
-control checks. With every variable at once, the pinned clone is accepted.
+GIT_ATTR_SOURCE, the filter through GIT_CONFIG_COUNT. Each would turn the
+edit back into the pinned blob, as the control checks. With every variable at once, the pinned clone is accepted.
 GIT_REPLACE_REF_BASE is also held by GIT_NO_REPLACE_OBJECTS=1, so its control
 fails only if both settings are lost. A last control gives the hook's judge of
 the environment the list CPython 3.14's fork_exec gives, with a key twice.
@@ -187,14 +187,14 @@ def filter_given(scene: Scene) -> dict[str, str]:
 
 
 def attributes_given(scene: Scene) -> dict[str, str]:
-    """A tree whose .gitattributes gives the edited source the clean filter, the filter in the clone's own
-    configuration."""
+    """A tree whose .gitattributes gives the edited source the clean filter, the filter given through
+    GIT_CONFIG_COUNT (the clone's own configuration holds only what the pin check allows)."""
     blob = answer(scene.stack, "hash-object", "-w", "--stdin", stdin=f"{EDITED} filter={FILTER}\n").strip()
     tree = answer(scene.stack, "mktree", stdin=f"100644 blob {blob}\t.gitattributes\n").strip()
     size = len(answer(scene.stack, "cat-file", "blob", f"{scene.pin}:{EDITED}").encode())
-    answer(scene.stack, "config", f"filter.{FILTER}.clean", f"head -c {size}")
     scene.filtered(f"--attr-source={tree}")
-    return {"GIT_ATTR_SOURCE": tree}
+    return {"GIT_ATTR_SOURCE": tree, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": f"filter.{FILTER}.clean",
+            "GIT_CONFIG_VALUE_0": f"head -c {size}"}
 
 
 #: Each control: what it sets; the variables, from its own state (the clone's checkout and HEAD left as they
