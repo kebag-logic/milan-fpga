@@ -14,13 +14,9 @@
  *    streaming), or STREAM_START=STREAM_STOP".  NOTE what the clause does
  *    NOT say: these two carry no "Reset to 0" sentence, so they must SURVIVE
  *    a start - see T8.
- *  - MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are each "Incremented at
- *    the end of every observation interval during which ...", interval
- *    "implementation-specific and shall be less than or equal to 1 second",
- *    each followed by "Reset to 0 each time the Talker starts streaming".
- *    So they are INTERVAL counts (eight PDUs in one interval move FRAMES_TX
- *    by exactly one - a raw frame total would read 8000x off at the real
- *    frame rate) and reset-on-start is MANDATED, not a bug.
+ *  - FRAMES_TX counts each transmitted AVTPDU under the #726 ruling.
+ *    MEDIA_RESET and TIMESTAMP_UNCERTAIN retain interval semantics.
+ *    All three reset on each talker start (Milan Table 5.4).
  *  - TIMESTAMP_UNCERTAIN counts intervals in which tu was set "in any of the
  *    transmitted Stream Data AVTPDUs" - tu high with nothing sent counts
  *    nothing (the difference from the free-running CLKV_TUCNT).
@@ -75,9 +71,9 @@ class TkdiagHarness {
 
     void reset_state_zeroes_all_five();
     void start_stop_edge_counting_holds_the_invariant();
-    void frames_tx_is_an_interval_count();
+    void frames_tx_counts_each_avtpdu();
     void timestamp_uncertain_qualifies_tu_by_transmission();
-    void reset_on_start_zeroes_the_three_interval_counters();
+    void reset_on_start_zeroes_the_three_per_run_counters();
     void contexts_are_isolated_including_the_crf_context();
     void the_read_port_is_combinational_per_index();
     void start_stop_are_not_reset_by_a_start();
@@ -198,17 +194,17 @@ void TkdiagHarness::start_stop_edge_counting_holds_the_invariant() {
 }
 
 
-void TkdiagHarness::frames_tx_is_an_interval_count() {
-    printf("[T3] FRAMES_TX is an INTERVAL count, not a frame total\n");
+void TkdiagHarness::frames_tx_counts_each_avtpdu() {
+    printf("[T3] FRAMES_TX counts each AVTPDU (#726)\n");
     dut->streaming_i = 0b001; cyc(3);        // start (resets the three)
     for (int f = 0; f < 8; f++) frame(0, 0); // 8 PDUs, ONE interval
     interval(); rd(0);
-    ck("T3 8 PDUs in one interval -> FRAMES_TX 1 (not 8)", dut->rd_ftx_o, 1);
+    ck("T3 eight AVTPDUs count eight", dut->rd_ftx_o, 8);
     frame(0, 0); interval();
     frame(0, 0); interval(); rd(0);
-    ck("T3 two more active intervals -> 3", dut->rd_ftx_o, 3);
+    ck("T3 two more AVTPDUs count ten", dut->rd_ftx_o, 10);
     interval(); interval(); rd(0);
-    ck("T3 idle intervals do not count", dut->rd_ftx_o, 3);
+    ck("T3 idle intervals do not count", dut->rd_ftx_o, 10);
 }
 
 
@@ -224,8 +220,8 @@ void TkdiagHarness::timestamp_uncertain_qualifies_tu_by_transmission() {
 }
 
 
-void TkdiagHarness::reset_on_start_zeroes_the_three_interval_counters() {
-    printf("[T5] reset-on-start zeroes the three interval counters\n");
+void TkdiagHarness::reset_on_start_zeroes_the_three_per_run_counters() {
+    printf("[T5] reset-on-start zeroes the three per-run counters\n");
     frame_mr(0, 0, 1); interval(); rd(0);
     ck("T5 precondition: MEDIA_RESET is nonzero", dut->rd_mreset_o, 1);
     rd(0);
@@ -245,7 +241,7 @@ void TkdiagHarness::contexts_are_isolated_including_the_crf_context() {
     rd(0);
     ck("T6 ctx0 unmoved by ctx2 frames", dut->rd_ftx_o, 0);
     rd(2);
-    ck("T6 ctx2 counted its own interval", dut->rd_ftx_o, 1);
+    ck("T6 ctx2 counted its own AVTPDU", dut->rd_ftx_o, 1);
     ck("T6 ctx2 never started (level low) -> START 0", dut->rd_start_o, 0);
 }
 
@@ -312,7 +308,7 @@ void TkdiagHarness::every_context_reports_its_own_arithmetic() {
       ck("T9 ctx1 START 1", c1.start, 1);
       ck("T9 ctx2 START 1", c2.start, 1);
     }
-    // now restart ONLY ctx1: its three interval counters zero, the others
+    // now restart ONLY ctx1: its three per-run counters zero, the others
     // keep theirs, and only its START moves
     dut->streaming_i = 0b101; cyc(3);
     dut->streaming_i = 0b111; cyc(3);
@@ -571,7 +567,7 @@ void TkdiagHarness::the_crf_context_carries_its_own_hold() {
 
 // ---------------------------------------------------------------------
 //  T14: dirty_p_o, the Milan 5.4.5 Table 5.22 raw push source. Every
-//  counter update pulses, including a healthy FRAMES_TX interval. The
+//  counter update pulses, including a healthy FRAMES_TX increment. The
 //  separate scheduler owns per-controller coalescing and the 1/s limit.
 // ---------------------------------------------------------------------
 void TkdiagHarness::dirty_pulses_whenever_any_counter_updates() {
@@ -590,9 +586,12 @@ void TkdiagHarness::dirty_pulses_whenever_any_counter_updates() {
     //! frame at the new level scores a legitimate toggle - absorb it
     frame(0, 0);
     count_dirty(kIntervalCycles);
-    for (int f = 0; f < 3; f++) frame(0, 0); // 3 healthy PDUs, one interval
-    count_dirty(kIntervalCycles);            // crosses exactly one close
-    ck("T14 healthy FRAMES_TX close -> ONE raw pulse", dpulses[0], 1);
+    for (int f = 0; f < 3; f++) {
+        frame(0, 0);
+        ck("T14 each healthy AVTPDU pulses dirty", dut->dirty_p_o, 1);
+    }
+    count_dirty(kIntervalCycles);
+    ck("T14 healthy interval adds no delayed pulse", dpulses[0], 0);
     for (int f = 0; f < 3; f++) frame(0, 1); // 3 tu PDUs: an ACTIVE anomaly
     count_dirty(kIntervalCycles);
     ck("T14 tu interval -> ONE pulse at its close", dpulses[0], 1);
@@ -603,7 +602,7 @@ void TkdiagHarness::dirty_pulses_whenever_any_counter_updates() {
     count_dirty(kIntervalCycles);            // absorb the mr 1->0 toggle
     for (int f = 0; f < 3; f++) frame(0, 0);
     count_dirty(kIntervalCycles);
-    ck("T14 back to healthy -> FRAMES_TX raw pulse", dpulses[0], 1);
+    ck("T14 healthy PDU pulses have no delayed repeat", dpulses[0], 0);
     dut->streaming_i = 0b000;
     count_dirty(6);
     ck("T14 stop edge -> ONE pulse on ctx0", dpulses[0], 1);
@@ -780,9 +779,9 @@ int TkdiagHarness::run() {
 
     reset_state_zeroes_all_five();
     start_stop_edge_counting_holds_the_invariant();
-    frames_tx_is_an_interval_count();
+    frames_tx_counts_each_avtpdu();
     timestamp_uncertain_qualifies_tu_by_transmission();
-    reset_on_start_zeroes_the_three_interval_counters();
+    reset_on_start_zeroes_the_three_per_run_counters();
     contexts_are_isolated_including_the_crf_context();
     the_read_port_is_combinational_per_index();
     start_stop_are_not_reset_by_a_start();
