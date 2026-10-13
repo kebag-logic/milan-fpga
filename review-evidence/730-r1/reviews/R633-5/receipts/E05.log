@@ -1,0 +1,7 @@
+  ok   a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5742, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+  ok   a first SIGTERM at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5742, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 143
+  ok   a first SIGHUP at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5742, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 129
+  ok   a first signal at each of the 185 steps from the body's end through the mask's release, sent to the main thread and to the whole process, waits for the containment, the reader's join and the pipe close, and exits 128 + the signal; the steps include contextlib's exit, the cleanup entry, stop_job_cpu_range_monitor, the reader join and the release
+  ok   a first SIGTERM held at the cleanup entry, then a reap that fails: the busy reader is joined first, the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it, as for a SIGTERM that ends the body
+  FAIL a body failure, then a first SIGTERM held at the cleanup entry: the busy reader is joined first, the body's failure is what the monitor raises, and the signal is printed beside it
+failures=1 seconds=19.8
