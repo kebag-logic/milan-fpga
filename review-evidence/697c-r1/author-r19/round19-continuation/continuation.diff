@@ -1,0 +1,256 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 267ebbb05..e39ac4281 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -496,7 +496,7 @@ jobs:
+           set -euo pipefail
+           sudo apt-get update -qq
+           sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+-          python3 -m pip install --quiet pyyaml
++          python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+           dpkg-query -W libgtest-dev libgmock-dev
+           g++ --version | head -n 1
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 69f46fded..133cd4af5 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -73,6 +73,10 @@ pull-request update and on every push to `dev`. It produces one stable
+   The suite builders run by their `--build-only`: the control gate builds and links every arm's binaries and its RV32 build, the store's gate every shape's binaries and its RV32 build, and the coverage gate both gates' coverage builds.
+   None runs a binary, plants a defect or measures anything; each ends `BUILT`.
+   The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
++  The fifth builder is `sw/litex/test_ctrl_memory.py --build-only`.
++  It compiles the reset entry and links its probe.
++  The job installs `sw/litex/litex_pins.txt` for its imports.
++  This mode needs no CPU generation or SoC simulations.
+   A builder dropped from the known set is still found by text, and refuses the gate by name: a program that names the firmware's tree must be a known builder or listed with why it need not be, even where another builder still runs it.
+   So does a known builder the capture holds nothing of from a run of its own, though another builder's run compiles it, as the coverage gate's runs the control and store gates; two standing controls plant each.
+   The builders found by text that compile only in a suite, the planted-defect campaigns and the coverage reader's planted cases, are listed with what they compile there (`ctrl_configs.SUITES`).
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index b6eadcac2..033102f26 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -2447,7 +2447,7 @@ RTL_STEP_LISTS = {
+              'set -euo pipefail',
+              'sudo apt-get update -qq',
+              'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+-             'python3 -m pip install --quiet pyyaml',
++             'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
+              'dpkg-query -W libgtest-dev libgmock-dev',
+              'g++ --version | head -n 1',
+          )},
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index a47fdda84..1370032b4 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -123,6 +123,14 @@ It then runs the compile itself, waits for it, and records its exit status with
+ Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
+ Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+ A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
++The fifth capture runs `sw/litex/test_ctrl_memory.py --build-only`.
++It compiles the reset entry and links its probe.
++No SoC simulation or defect campaign runs in that capture.
++It requires RV32 and the pinned LiteX Python packages.
++`ctrl_memory.py` only reads ELFs and plans memory banks.
++`milan_soc.py` loads the prelinked control image.
++Its optional BIOS and shipping-firmware builds contain no control-stack sources.
++Both programs are classified `OUTSIDE` with those reasons.
+ The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
+ `firmware-unit` runs the suites, the store suites and the coverage ratchet with no capture.
+ A capture given (`--capture`) is judged instead, and must have been made in this checkout, its builders run here: one run in another checkout refuses the gate, since that checkout's files are none of this one's.
+@@ -148,8 +156,12 @@ The run that holds the firmware builders checks this.
+ It also runs the stack's own boundary gate, beside the rest.
+ `--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
+ Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
+-It then plants 96 defects, each refused by name, and 8 passing controls, where the firmware builders' capture is.
++It then plants 101 defects, each refused by name, and 8 passing controls, where the firmware builders' capture is.
+ Two of them are a known builder whose own run compiles nothing and a builder dropped from the known set, each one the coverage gate still runs.
++Three controls copy the M8a programs without their classifications.
++Another removes the reset-entry builder's own capture.
++A private stack include is planted in the reset entry.
++Its recorded compile must expose the forbidden dependency.
+ A control's planted builder compiles the planted copy through a capture of its own, and what it compiled is judged.
+ It compiles the copy as the builders do (the image builder's and the arms' own compile functions), in a spelling of its own, or as a replay: a compile of the run's capture run again with the copy's trees in its arguments (the SRP image builder's).
+ Among them are R584-6's N1 (a store source reaching the stack's `examples/`, as the image builder compiles it) and R585-6's Q7 (a store platform header that shadows `stdbool.h` for the stack in the image build).
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index ceb8ff73b..8509b99ae 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -98,7 +98,7 @@ class Builder:
+ 
+ 
+ #: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
+-#: four through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
++#: five through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
+ #: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
+ #: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
+ #: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
+@@ -118,6 +118,7 @@ BUILDERS = (
+               "4"),)),
+     Builder("sw/firmware/gtest/fw_coverage.py",
+             (("{python}", "sw/firmware/gtest/fw_coverage.py", "--build-only", "--jobs", "4"),)),
++    Builder("sw/litex/test_ctrl_memory.py", (("{python}", "sw/litex/test_ctrl_memory.py", "--build-only"),)),
+     Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
+     Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
+     Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
+@@ -136,6 +137,7 @@ NEEDS = {"verilator": "Verilator"}
+ #: The programs found by text that run, in the builds, only under another builder (as its module, or a program
+ #: it runs): left out where that one is, and otherwise held as any builder found by text is.
+ PART_OF = {
++    "sw/litex/ctrl_memory_probe.py": "sw/litex/test_ctrl_memory.py",
+     "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
+     # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
+     "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+@@ -145,6 +147,9 @@ PART_OF = {
+ }
+ #: The builders found by text whose compiles, if any, are none of the firmware's, each with the reason.
+ OUTSIDE = {
++    "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
++    "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
++                            "compile no control-stack source",
+     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
+     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
+     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
+diff --git a/sw/firmware/ctrl/test/ctrl_plants.py b/sw/firmware/ctrl/test/ctrl_plants.py
+index 70a1823c5..110a2a49a 100644
+--- a/sw/firmware/ctrl/test/ctrl_plants.py
++++ b/sw/firmware/ctrl/test/ctrl_plants.py
+@@ -26,6 +26,7 @@ gate's own, never a builder (ctrl_configs.GATE).
+ from __future__ import annotations
+ 
+ from dataclasses import dataclass
++from pathlib import Path
+ 
+ 
+ @dataclass(frozen=True)
+@@ -189,6 +190,19 @@ MAKE_SRC = "$(PLANT_INCLUDES) -c $(PLANT_CTRL)/adp/adp_mbx.c -o planted.o"
+ NOT_OURS = "which is neither the stack's nor the C implementation's"
+ 
+ PLANTS = (
++    *(Plant(f"an unclassified copy of {name}", "ctrl", "", "", "",
++            f"sw/firmware/ctrl/test/planted_{name} names the firmware's tree",
++            texts=((f"planted_{name}", (Path(__file__).resolve().parents[3] / "litex" / name).read_text()),))
++      for name in ("test_ctrl_memory.py", "ctrl_memory.py", "milan_soc.py")),
++    Plant("the reset-entry builder's own capture is missing", "ctrl", "", "", "",
++          "the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own",
++          alter="drop run sw/litex/test_ctrl_memory.py"),
++    Plant("the reset entry includes a private stack header in the fifth capture", "ctrl", "plat/ctrl_split_start.S",
++          '\t.section .text.start, "ax"\n',
++          f'#define TSN_PORT_STRING_H\n#include "{FROM_CTRL}"\n#undef TSN_PORT_STRING_H\n'
++          '\t.section .text.start, "ax"\n',
++          f"firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads {STRING_NAMED}",
++          replay="ctrl_split_start.S"),
+     # The stack's side: its sources and headers, as the arms and the image compile them.
+     Plant("stack source includes the mailbox HAL", "stack", "src/adp.c", "#include <assert.h>\n",
+           "#include <assert.h>\n#include \"mbx_hal.h\"\n",
+diff --git a/sw/litex/ctrl_memory_probe.py b/sw/litex/ctrl_memory_probe.py
+new file mode 100644
+index 000000000..c5354f2ab
+--- /dev/null
++++ b/sw/litex/ctrl_memory_probe.py
+@@ -0,0 +1,32 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The memory test's firmware probe, shared by its suites and build-only capture."""
++
++from pathlib import Path
++import subprocess
++
++import ctrl_memory
++
++PLAT = Path(__file__).resolve().parents[1] / "firmware/ctrl/plat"
++
++PROBE = """\
++int counter = 7;
++unsigned char nvm_stage[3344];
++int main(void) { return counter + nvm_stage[counter]; }
++"""
++
++
++def link(cc: str, tmp: Path, script: str) -> Path:
++    """The probe linked by `script` behind the reset entry."""
++    (tmp / "regions.ld").write_text(ctrl_memory.regions_ld())
++    (tmp / "probe.c").write_text(PROBE)
++    (tmp / "split.ld").write_text(script)
++    flags = ["-march=rv32i", "-mabi=ilp32"]
++    subprocess.run([cc, *flags, "-ffreestanding", "-Os", "-c", str(tmp / "probe.c"), "-o", str(tmp / "probe.o")],
++                   check=True)
++    subprocess.run([cc, *flags, "-c", str(PLAT / "ctrl_split_start.S"), "-o", str(tmp / "start.o")], check=True)
++    elf_path = tmp / "probe.elf"
++    subprocess.run([cc, *flags, "-nostdlib", "-static", "-no-pie", "-Wl,--gc-sections,--build-id=none",
++                    "-T", str(tmp / "split.ld"), f"-L{tmp}", str(tmp / "start.o"), str(tmp / "probe.o"),
++                    "-o", str(elf_path)], check=True)
++    return elf_path
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index a8cca2a37..497f1cdf0 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -50,6 +50,9 @@ block RAM the SoC builds from them. This file grades seven things:
+      rule or a property, and must turn its arm red with a named failure. A
+      mutant is graded only against an arm that passed unmutated in the same
+      run, so a failure of the environment is never counted as a kill.
++--build-only compiles and links the reset-entry probe for the boundary capture.
++It requires RV32, runs no suites and plants no defects.
++
+ """
+ from __future__ import annotations
+ 
+@@ -83,6 +86,7 @@ ROOT = HERE.parents[1]
+ sys.path.insert(0, str(HERE))
+ sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
+ import ctrl_memory  # noqa: E402
++from ctrl_memory_probe import link  # noqa: E402
+ import fw_rv32  # noqa: E402
+ import milan_soc  # noqa: E402
+ 
+@@ -522,28 +526,6 @@ def sim_arms(problems: list[str], need: int = LARGEST_NEED) -> None:
+ 
+ # ---- 4. the link ---------------------------------------------------------------------------
+ 
+-PROBE = """\
+-int counter = 7;
+-unsigned char nvm_stage[3344];
+-int main(void) { return counter + nvm_stage[counter]; }
+-"""
+-
+-
+-def link(cc: str, tmp: Path, script: str) -> Path:
+-    """The probe linked by `script` behind the reset entry."""
+-    (tmp / "regions.ld").write_text(ctrl_memory.regions_ld())
+-    (tmp / "probe.c").write_text(PROBE)
+-    (tmp / "split.ld").write_text(script)
+-    flags = ["-march=rv32i", "-mabi=ilp32"]
+-    subprocess.run([cc, *flags, "-ffreestanding", "-Os", "-c", str(tmp / "probe.c"), "-o", str(tmp / "probe.o")],
+-                   check=True)
+-    subprocess.run([cc, *flags, "-c", str(PLAT / "ctrl_split_start.S"), "-o", str(tmp / "start.o")], check=True)
+-    elf_path = tmp / "probe.elf"
+-    subprocess.run([cc, *flags, "-nostdlib", "-static", "-no-pie", "-Wl,--gc-sections,--build-id=none",
+-                    "-T", str(tmp / "split.ld"), f"-L{tmp}", str(tmp / "start.o"), str(tmp / "probe.o"),
+-                    "-o", str(elf_path)], check=True)
+-    return elf_path
+-
+ 
+ def filesz_at(data: bytes, address: int) -> int:
+     """Where the file size of the load segment carrying `address` is, read without `read_elf`."""
+@@ -967,9 +949,20 @@ def run_arm(problems: list[str], label: str, arm: Callable[[list[str]], object])
+ 
+ 
+ def main() -> int:
+-    """Every arm; exit 1 naming each failure."""
++    """Every arm, or --build-only for the boundary capture; exit 1 naming each failure."""
+     if sys.argv[1:2] == ["--soc-child"]:
+         return soc_child(Path(sys.argv[2]))
++    if sys.argv[1:] == ["--build-only"]:
++        # The boundary capture needs the link arm's sources, without running
++        # simulations or planting defects. All its links use these compile flags.
++        cc = fw_rv32.compiler()
++        if cc is None:
++            print("REFUSED: the reset-entry build needs an RV32 compiler", file=sys.stderr)
++            return 2
++        with tempfile.TemporaryDirectory(prefix="ctrl-memory-build-") as name:
++            link(cc, Path(name), (PLAT / "ctrl_split.ld").read_text())
++        print("test_ctrl_memory: BUILT (reset entry and probe; no suites run)")
++        return 0
+     problems: list[str] = []
+     print("test_ctrl_memory: the split placement's firmware memory (#640 M8a)")
+     with tempfile.TemporaryDirectory(prefix="ctrl-memory-") as name:

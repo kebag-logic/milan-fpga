@@ -1,0 +1,8 @@
+nproc=4 2026-10-11T21:18:50Z
+rc=0 2 s tally: python3 sw/firmware/gtest/tally_selftest.py
+rc=0 7 s rv32-selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0 1663 s ctrl-firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+rc=0 79 s ctrl-nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0 0 s coverage-selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+rc=0 223 s coverage-check: python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+total 1974 s 2026-10-11T21:51:44Z

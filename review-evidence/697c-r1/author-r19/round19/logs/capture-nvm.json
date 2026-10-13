@@ -1,0 +1,18 @@
+{
+  "label": "capture-nvm",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$ROUND19/capture-nvm",
+    "--",
+    "python3",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "--require-rv32",
+    "--build-only",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 101.1
+}

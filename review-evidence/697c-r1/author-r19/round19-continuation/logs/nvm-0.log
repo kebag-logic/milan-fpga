@@ -1,0 +1,29 @@
+full campaign names all 60 checks: True
+  self-test OK: no_crc_check               caught by torn_falls_back, verdict_parity; first: [FAIL] Ports/NvmBoth.torn_falls_back/model: torn newer slot: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54
+  self-test OK: pick_no_wrap               caught by newer_wins; first: [FAIL] Ports/NvmBoth.newer_wins/model: seq A 0xffffffff B 0x0: chose 0, want 1
+  self-test OK: erased_payload_end_bound   caught by codec_erased_loaded_prefix; first: [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+  self-test OK: no_ascending               caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: duplicate record id: codec 0, klj2_decode 7
+  self-test OK: room_unchecked             caught by codec_room; first: [FAIL] NvmCodec.codec_room: a container one byte longer than its room is refused VD_LEN
+  self-test OK: unread_not_counted         caught by long_container_reads; first: [FAIL] NvmModel.long_container_reads: read 1 of a container longer than the stage failing once: {'abandoned': 
+  self-test OK: header_guard_early         caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: at record 0's header's exact end, the guard passes and the header is VD_L
+  self-test OK: payload_guard_late         caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: a prefix one byte short of the last record's payload is refused VD_REC
+  self-test OK: pad_not_zero               caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: no_blank_stage             caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: stage_seq_unchecked        caught by read_alias_at_stage; first: [FAIL] NvmModel.read_alias_at_stage: every re-stage aliased: slot 0 holds seq 0x6, published 0x5, staged 0x5
+  self-test OK: unread_not_held            caught by authority_unknown, fallback_restage, read_disagreement; first: [FAIL] NvmModel.fallback_restage: both re-stages flipped: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0, 'a
+  self-test OK: blank_unconfirmed          caught by authority_unknown; first: [FAIL] NvmModel.authority_unknown: slot A at 0x1, read-alias:1:0: the slot was not read again and applied: {'a
+  self-test OK: disagreement_not_counted   caught by reads_differ_in_verdict, reads_agree_in_digest_not_length; first: [FAIL] NvmFlashMock.reads_differ_in_verdict: two refusals of different verdicts are one media fault, and the c
+  self-test OK: fault_as_refusal           caught by apply_fault_rolls_back, binding_walk; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: no_rollback                caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: settle_after_names         caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=39
+  self-test OK: bindings_in_d3_walk        caught by binding_walk, golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=2
+  self-test OK: shape_mismatch_released_unproven caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: and over an unproven model nothing is released: {'abandon
+  self-test OK: model_ready_ignored        caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: quiet_period               caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a second change extended the first-dirty window
+  self-test OK: change_of_no_record        caught by change_unknown_record; first: [FAIL] NvmModel.change_unknown_record: changes to records the shape does not have: {'abandoned': 0, 'abandoned
+  self-test OK: taken_off_by_one           caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0x0): erase 170
+  self-test OK: no_dr2b                    caught by unchanged_no_erase; first: [FAIL] Ports/NvmBoth.unchanged_no_erase/model: unchanged value: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: unbounded_attempts         caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: blankcheck_first_stretch_only caught by blankcheck_tail; first: [FAIL] Ports/NvmBoth.blankcheck_tail/model: erase-stuck:1:0:3335: want the first failure 11: {'abandoned': 0, 
+  self-test OK: commit_now_overrides_exhaustion caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: model: invariant protected=3
+  self-test OK: stale_kept                 caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: third attempt: {'abandoned': 0, 'abandoned_vd': 0, 'applied

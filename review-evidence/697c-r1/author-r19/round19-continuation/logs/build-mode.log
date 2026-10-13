@@ -1,0 +1,3 @@
+REFUSED: the reset-entry build needs an RV32 compiler
+PASS: absent RV32 refuses before any compile
+PASS: build-only and full link arm have the same two compiler argument sets: [('-march=rv32i', '-mabi=ilp32', '-c', 'ctrl_split_start.S'), ('-march=rv32i', '-mabi=ilp32', '-ffreestanding', '-Os', '-c', 'probe.c')]
