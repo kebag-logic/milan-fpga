@@ -1,0 +1,32 @@
+{
+ "rc": 0,
+ "stderr": "",
+ "phases": {
+  "body before act": {
+   "main_blocked": true,
+   "reader_blocked": true
+  },
+  "act window": {
+   "main_blocked": false,
+   "reader_blocked": true
+  },
+  "body after act": {
+   "main_blocked": true,
+   "reader_blocked": true
+  }
+ },
+ "at_exit": {
+  "stream_started": true,
+  "stream_contained": true,
+  "pipe_closed": true,
+  "reader_alive": false,
+  "blocked_now": [],
+  "pending_after": []
+ },
+ "moves": [
+  "--cpuset-cpus=4-7"
+ ],
+ "stream_child_blocks_cleanup": false,
+ "act_child_blocks_cleanup": false
+}
+masks: PASS

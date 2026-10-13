@@ -1,0 +1,11 @@
+--- pristine/scripts/act_ci.py	2026-10-13 02:21:56.000000000 +0200
++++ probe/own-mut/scripts/act_ci.py	2026-10-13 05:37:29.887000000 +0200
+@@ -5726,7 +5726,7 @@
+         except OSError as exc:
+             raise Refusal(f"cannot start the CPU-range monitor: {exc}") from exc
+         # Held from here, by one C call, so the body's end has no unmasked point.
+-        signal.pthread_sigmask(signal.SIG_BLOCK, held)
++        pass
+         reader = threading.Thread(
+             target=read_job_cpu_events,
+             args=(process, record),
