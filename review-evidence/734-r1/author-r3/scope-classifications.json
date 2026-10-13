@@ -1,0 +1,344 @@
+[
+  {
+    "workflow": "rtl.yml",
+    "case": "stale-base docs",
+    "before_hosted": {
+      "paths": [
+        "docs/note.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/note.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    },
+    "after_replay": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    }
+  },
+  {
+    "workflow": "rtl.yml",
+    "case": "stale-base RTL",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv",
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "hdl/pr.sv",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "rtl.yml",
+    "case": "submodule pointer",
+    "before_hosted": {
+      "paths": [
+        "docs/pointer.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/pointer.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "rtl.yml",
+    "case": "empty delta",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "rtl-fast.yml",
+    "case": "stale-base docs",
+    "before_hosted": {
+      "paths": [
+        "docs/note.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/note.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    },
+    "after_replay": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    }
+  },
+  {
+    "workflow": "rtl-fast.yml",
+    "case": "stale-base RTL",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv",
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "hdl/pr.sv",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "rtl-fast.yml",
+    "case": "submodule pointer",
+    "before_hosted": {
+      "paths": [
+        "docs/pointer.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/pointer.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "rtl-fast.yml",
+    "case": "empty delta",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "elaborate.yml",
+    "case": "stale-base docs",
+    "before_hosted": {
+      "paths": [
+        "docs/note.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/note.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    },
+    "after_replay": {
+      "paths": [
+        "docs/note.md"
+      ],
+      "relevant": false
+    }
+  },
+  {
+    "workflow": "elaborate.yml",
+    "case": "stale-base RTL",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv",
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "hdl/pr.sv",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "hdl/pr.sv"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "elaborate.yml",
+    "case": "submodule pointer",
+    "before_hosted": {
+      "paths": [
+        "docs/pointer.md",
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "docs/pointer.md",
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [
+        "docs/pointer.md"
+      ],
+      "relevant": true
+    }
+  },
+  {
+    "workflow": "elaborate.yml",
+    "case": "empty delta",
+    "before_hosted": {
+      "paths": [
+        "hdl/base.sv"
+      ],
+      "relevant": true
+    },
+    "before_replay": {
+      "paths": [
+        "scripts/base.py"
+      ],
+      "relevant": true
+    },
+    "after_hosted": {
+      "paths": [],
+      "relevant": true
+    },
+    "after_replay": {
+      "paths": [],
+      "relevant": true
+    }
+  }
+]

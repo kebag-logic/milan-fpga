@@ -1,0 +1,1 @@
+r3-integrity.py is withheld from this public packet: its own privacy check spells the agent-name tokens the public-evidence gate refuses. It is kept off-tree by the manager; its result is in the round-3 receipts.
