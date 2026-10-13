@@ -1,0 +1,94 @@
+git: git version 2.56.0
+parents: 26e2748f47b0d8fa533f53203264d9f31fc13c48 e81ce82f9aa3e4dcaffa5bcdf7e60f0c7cffd80c
+merge-base(L,D): c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+recorded tree: 8eb5d868bfac1973ba1d82b0665aabae07d9494c
+merge-tree automatic result (first line tree, rest conflicts):
+8eb5d868bfac1973ba1d82b0665aabae07d9494c
+merge-tree rc=0
+files changed on lane side: 17
+files changed on dev side: 57
+files changed on both sides:
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+files where merge differs from BOTH parents:
+  docs/design/AREA_BUDGET.md
+  docs/design/MARK_II_AREA_PLAN.md
+lane-side files: merge equals lane parent?
+  DIFF  docs/design/AREA_BUDGET.md
+  same  docs/design/MAAP_FABRIC.md
+  DIFF  docs/design/MARK_II_AREA_PLAN.md
+  same  docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+  same  docs/findings/README.md
+  same  hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+  same  hdl/ieee1722/maap/KL_maap.sv
+  same  hdl/milan/milan_datapath.sv
+  same  sw/firmware/ctrl/maap/README.md
+  same  sw/firmware/ctrl/test/maap_differential.py
+  same  sw/firmware/ctrl/test/test_maap_differential.cpp
+  same  syn/ooc/pp_resource_baseline.json
+  same  tb/verilator/maap/integration.mk
+  same  tb/verilator/maap/Makefile
+  same  tb/verilator/maap/mutants.py
+  same  tb/verilator/maap/sim_integration.cpp
+  same  tb/verilator/maap/sim_main.cpp
+dev-side files: merge equals dev parent?
+  same  docs/ARCHITECTURE_HW_SW_SPLIT.md
+  DIFF  docs/design/AREA_BUDGET.md
+  same  docs/design/MAILBOX_SPLIT.md
+  DIFF  docs/design/MARK_II_AREA_PLAN.md
+  same  docs/design/SPLIT_CONTROL_MEMORY.md
+  same  docs/findings/117_GPTP_SILICON_EVIDENCE.md
+  same  docs/findings/394_387_E1_SWITCH_CYCLES.md
+  same  docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+  same  docs/findings/667_TALKER_START_BENCH.md
+  same  docs/findings/B14_BENCH_5603C353.md
+  same  docs/history/v1/reference/PROTOCOL_TRACEABILITY.md
+  same  docs/litex/LITEX_SOC.md
+  same  docs/README.md
+  same  docs/reference/REGISTER_MAP.md
+  same  docs/testing/726_STREAM_COUNTERS.md
+  same  docs/testing/CI_WORKFLOWS.md
+  same  docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+  same  docs/testing/TESTING.md
+  same  .github/workflows/rtl-fast.yml
+  same  hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+  same  hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+  same  hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
+  same  hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+  same  hdl/ieee1722/crf/KL_crf_rx.sv
+  same  scripts/check_py_idiom.py
+  same  scripts/ci_events.py
+  same  scripts/ci_scope.py
+  same  scripts/measure_test_evidence_readers.py
+  same  scripts/run_litex_sims.sh
+  same  scripts/suite_shards.py
+  same  sw/firmware/ctrl/aecp/README.md
+  same  sw/firmware/ctrl/plat/ctrl_split.ld
+  same  sw/firmware/ctrl/plat/ctrl_split_start.S
+  same  sw/firmware/ctrl/README.md
+  same  sw/firmware/ctrl/test/ctrl_srp_image.py
+  same  sw/firmware/ctrl/test/test_ctrl_firmware.py
+  same  sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+  same  sw/litex/ctrl_memory.py
+  same  sw/litex/milan_soc.py
+  same  sw/litex/test_ctrl_memory.py
+  same  syn/ooc/ctrl_memory_ooc.py
+  same  tb/tools/torture_campaign.py
+  same  tb/verilator/avtp_rxmon/sim_lockstep.cpp
+  same  tb/verilator/avtp_rxmon/sim_main_nx.cpp
+  same  tb/verilator/crf_rx/sim_main.cpp
+  same  tb/verilator/milan_dp/Makefile
+  same  tb/verilator/milan_dp/README.md
+  same  tb/verilator/milan_dp/sim_crf_licence.cpp
+  same  tb/verilator/milan_dp/sim_nxn.cpp
+  same  tb/verilator/milan_dp/stream_counter_f5.cpp
+  same  tb/verilator/milan_dp/stream_counter_f5.py
+  same  tb/verilator/milan_dp/stream_counters.hpp
+  same  tb/verilator/milan_dp/stream_counters.py
+  same  tb/verilator/tkdiag/sim_main.cpp
+  same  tests/features/counters_contract_milan.feature
+  same  tests/steps/counters_contract_steps.py
+  same  tests/steps/torture_plan_steps.py
+both-side files: lane hunk set (B..L) vs (D..M), and dev hunk set (B..D) vs (L..M), content lines only:
+  docs/design/AREA_BUDGET.md lane:91742aefecd0b149 merged-over-dev:91742aefecd0b149 dev:0062af9453755015 merged-over-lane:0062af9453755015
+  docs/design/MARK_II_AREA_PLAN.md lane:74b5e1c315dfcb49 merged-over-dev:74b5e1c315dfcb49 dev:621bb02b47ca93c4 merged-over-lane:621bb02b47ca93c4
