@@ -1,0 +1,171 @@
+{
+ "results": [
+  {
+   "case": "section_entity_digit_before_unit",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301",
+   "text": " See &#55; ppm.",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it) | not form. The peer's listener, bound to its own talker, See 7 ppm. sent its probe for that talker onto the network and ne"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "section_entity_hex_digit_before_unit",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301",
+   "text": " See &#x37; ppm.",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it) | not form. The peer's listener, bound to its own talker, See 7 ppm. sent its probe for that talker onto the network and ne"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "section_half_entity_before_unit",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301",
+   "text": " See &half; ppm.",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 \u00bd (no row can claim this spelling) | not form. The peer's listener, bound to its own talker, See \u00bd ppm. sent its probe for that talker onto the network and ne"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "section_strike_text_with_figure",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301",
+   "text": " See ~~7 ppm~~.",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 strikethrough ~~7 ppm~~ (refused: a construct off the allowlist; write plain Markdown)",
+    "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph The loopback did not form. The peer's li (refused: the digits a reader sees differ from those the check read)"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "section_link_text_figure_resolving_target",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301",
+   "text": " See [7 ppm](#b16-limits).",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it) | not form. The peer's listener, bound to its own talker, See 7 ppm. sent its probe for that talker onto the network and ne"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "cell_ordered_list_like_text",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324",
+   "text": " 7. ppm",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 7  | See B16: bench as left 7. ppm"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "cell_entity_before_unit",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324",
+   "text": " &#55; ppm",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 7 (a measurement: only a row can claim it) | See B16: bench as left 7 ppm"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "index_half_entity_before_covered_part",
+   "edited": "README.md:15",
+   "text": "&half; ",
+   "expect": "pass",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+   ],
+   "bad_rows": 26,
+   "stderr_tail": "",
+   "outcome": "NOT MET"
+  },
+  {
+   "case": "index_entity_digit_in_covered_part",
+   "edited": "README.md:15",
+   "text": "; &#55; ppm",
+   "expect": "detect",
+   "stated_limit": false,
+   "rc": 1,
+   "named": [
+    "UNCOVERED README.md:15 7 (a measurement: only a row can claim it) | ntrol, lane B6's timed ratio for B-CRF and B-AAF, and #645; 7 ppm"
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "append_nested_ordered_in_bullet",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4605",
+   "text": "\n- Lock times:\n  17. ppm, the peer's offset.\n",
+   "expect": "detect",
+   "stated_limit": true,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4605 17  | Lock times: 17. ppm, the peer's offset."
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  },
+  {
+   "case": "append_quoted_ordered",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4605",
+   "text": "\n> 17. ppm, the peer's offset.\n",
+   "expect": "detect",
+   "stated_limit": true,
+   "rc": 0,
+   "named": [],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "STATED LIMIT"
+  },
+  {
+   "case": "append_emoji_keycap_shortcode",
+   "edited": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4605",
+   "text": "\nThe offset was :seven: ppm.\n",
+   "expect": "detect",
+   "stated_limit": true,
+   "rc": 1,
+   "named": [
+    "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4604 seven  | The offset was :seven: ppm."
+   ],
+   "bad_rows": 0,
+   "stderr_tail": "",
+   "outcome": "MET"
+  }
+ ]
+}

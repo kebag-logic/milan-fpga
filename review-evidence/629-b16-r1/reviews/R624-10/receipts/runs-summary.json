@@ -1,0 +1,153 @@
+{
+ "head": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+ "tree": "635001816412f045f479ec4776fe641969a48815",
+ "check_at_head": {
+  "check_sha256": "a9f36f9d9ff3bfd6c7f7ce86f64ef1ac9531f1cf594d68d3a06437f8e8d0e540",
+  "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15597, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+  "stdout_equal_published": true,
+  "rows_sha256": "ccaae4a09ddf0459b4e988fac6fe7b98253eb665b1a20b35cffc97072b2f91a1",
+  "rows_equal_published": true,
+  "coverage_sha256": "f8cc3827506305db4996450b19fcc6dcb03f276036a0da3e6a0262aa698213d7",
+  "coverage_equal_published": true
+ },
+ "control_runners": {
+  "r3": {
+   "against": "r10-rerun-r3-controls",
+   "passed": 5,
+   "total": 5,
+   "failed": [],
+   "verdicts_equal_published": true
+  },
+  "r4": {
+   "against": "r10-rerun-r4-controls",
+   "passed": 7,
+   "total": 8,
+   "failed": [
+    "a figure with its unit added as a link label"
+   ],
+   "verdicts_equal_published": true
+  },
+  "r5": {
+   "against": "r10-rerun-r5-controls",
+   "passed": 21,
+   "total": 22,
+   "failed": [
+    "a figure with its unit added as a link label"
+   ],
+   "verdicts_equal_published": true
+  },
+  "r6": {
+   "against": "r10-rerun-r6-controls",
+   "passed": 38,
+   "total": 39,
+   "failed": [
+    "a figure with its unit added as a link label"
+   ],
+   "verdicts_equal_published": true
+  },
+  "r7": {
+   "against": "r10-rerun-r7-controls",
+   "passed": 48,
+   "total": 50,
+   "failed": [
+    "a comment inside a code span",
+    "a figure with its unit added as a link label"
+   ],
+   "verdicts_equal_published": true
+  },
+  "r8": {
+   "against": "r10-rerun-r8-controls",
+   "passed": 73,
+   "total": 73,
+   "failed": [],
+   "verdicts_equal_published": true
+  },
+  "r9": {
+   "against": "r10-rerun-r9-controls",
+   "passed": 97,
+   "total": 97,
+   "failed": [],
+   "verdicts_equal_published": true
+  },
+  "r10": {
+   "against": "r10-controls",
+   "passed": 117,
+   "total": 117,
+   "failed": [],
+   "verdicts_equal_published": true
+  },
+  "r10-on-r9b": {
+   "against": "r10-controls-on-r9-check",
+   "passed": 103,
+   "total": 117,
+   "failed": 14,
+   "verdicts_equal_published": true
+  }
+ },
+ "round10_tools": {
+  "parser-extents.json": {
+   "rc": 0,
+   "sha256": "7dccc64e6c5b312f59dfd0c101fc913fa07c2ff3608f86d313b17b3a57a9049c",
+   "byte_equal_published": true
+  },
+  "layers.json": {
+   "rc": 0,
+   "sha256": "3bc430b8369db73c85c6dc8b3cab7ac5d5866ba009fa9c11ca9ebcbaf85d99d3",
+   "byte_equal_published": true
+  },
+  "reader-controls.json": {
+   "rc": 0,
+   "sha256": "a710613b6229d8089217b50090b10e1c2c2962646cd1cf1c9c6209d48308b029",
+   "byte_equal_published": true
+  },
+  "self-probes.json": {
+   "rc": 0,
+   "sha256": "51b3813e675be0999984ce1331d9b20fd788732d76e7729555cf47fb25e90521",
+   "byte_equal_published": true
+  },
+  "reader-on-r9.json": {
+   "rc": 0,
+   "sha256": "b0540879e271d2349f6c774a4eb225e40dfcd048732e837127726266ecc0139a",
+   "byte_equal_published": true
+  },
+  "evidence-receipt.json": {
+   "rc": 0,
+   "sha256": "9986bd098d2e6dd703239ee665d8b3ab49354e9feb140e50bc4a10847f971e80",
+   "byte_equal_published": true
+  },
+  "r10_figures_build.py": {
+   "rc": 0,
+   "regenerated_check_byte_equal": true
+  }
+ },
+ "gates": {
+  "diff_check": {
+   "rc": 0,
+   "last": ""
+  },
+  "doc_paths": {
+   "rc": 0,
+   "last": "doc path gate: OK (967 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)"
+  },
+  "doc_style": {
+   "rc": 0,
+   "last": "documentation style: OK (22 current documents)"
+  },
+  "docs_check": {
+   "rc": 0,
+   "last": "docs_check: 0 finding(s) across 203 md files + 1267 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+  },
+  "em_dash": {
+   "rc": 0,
+   "last": "check_em_dash: 0 finding(s) over 2341 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c20c85bd..HEAD]"
+  },
+  "toc_anchors": {
+   "rc": 0,
+   "last": "anchor check: 479 existing cross-page fragment links reproduced"
+  },
+  "toc_check": {
+   "rc": 0,
+   "last": "TOC gate: OK (143 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+  }
+ }
+}
