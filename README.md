@@ -188,7 +188,7 @@ equivalents exist on any distro. Each tier *adds* to the one above it.
 
 ```sh
 sudo pacman -S --needed gcc make python python-yaml verilator git
-git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
 ```
 
 Git must be 2.39.0 or newer: the sweep's post-merge containment self-test

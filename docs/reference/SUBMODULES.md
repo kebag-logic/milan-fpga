@@ -24,6 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/tsn-c-stack` | `405dc68310a18f669049ffc10cc23eef7300dcff` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -212,14 +213,15 @@ It does not trust checked-out heads.
 
 ## Initialize safely
 
-Firmware and root gates use these four submodules.
+Firmware and root gates use these five submodules.
 
 ```sh
 git submodule update --init \
   third_party/verilog-axis \
   protocol-processor \
   gptp-processor \
-  third_party/lwSRP
+  third_party/lwSRP \
+  third_party/tsn-c-stack
 ```
 
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
@@ -232,6 +234,19 @@ The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation an
 
 lwSRP is licensed under Apache-2.0.
 Its pinned `LICENSE` and `NOTICE` retain dependency terms.
+
+tsn-c-stack uses HTTPS and needs no credentials.
+
+The pin is not on `main`: tsn-c-stack merges by squash.
+Its tag `milan-fpga-697-pin-405dc683` keeps it reachable.
+
+That `main` also changes `src/adp.c`, which this firmware has not taken.
+
+It holds the ADP, ACMP and MAAP cores.
+
+The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
+
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/LICENSE).
 
 The unused external import uses SSH.
 
@@ -276,6 +291,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

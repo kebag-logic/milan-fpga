@@ -24,7 +24,9 @@ suites and coverage ratchet (#665 lane FT), gates on the same answer: a
 change under `sw/firmware/` is relevant whatever its suffix, the README whose
 exclusion table the ratchet reads included. That job's gates read the
 builder, the configs, scripts/ and the processor submodule as well, so no
-narrower list decides it.
+narrower list decides it. Its `firmware-boundary` and `firmware-verilator`
+jobs, which hold the TSN stack boundary over the same builders' compiles
+(#697), gate on the same answer.
 
 The list a classifier-gated workflow hands in names BOTH sides of a rename:
 each builds it with `git diff --no-renames --name-only` ([R198] N2), so
@@ -317,7 +319,7 @@ def _cases() -> list[Case]:
         # #665 lane FT: rtl-fast's `firmware-unit` runs on this answer, so
         # the bare-metal firmware, its tests, the README whose exclusion
         # table the coverage gate reads and the ratchet are all relevant.
-        (["sw/firmware/ctrl/adp/adp.c"], True),
+        (["sw/firmware/ctrl/adp/adp_mbx.c"], True),
         (["sw/firmware/ctrl_nvm/test/test_nvm_write.cpp"], True),
         (["sw/firmware/gtest/README.md"], True),
         (["docs/x.md", "sw/firmware/gtest/coverage.ratchet"], True),
@@ -330,6 +332,8 @@ def _cases() -> list[Case]:
         (["protocol-processor"], True),
         (["external"], True),
         (["third_party/verilog-axis"], True),
+        # #697: the TSN stack's cores the firmware builds move with its gitlink.
+        (["third_party/tsn-c-stack"], True),
         ([".gitmodules"], True),
         (["docs/x.md", "gptp-processor"], True),
     ]

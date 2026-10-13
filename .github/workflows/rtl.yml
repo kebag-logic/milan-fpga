@@ -158,7 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
 
       # Record the tree this worker validates beside its evidence, and refuse
       # to start on any other. The record is not a *.log, so suite_tally.py
