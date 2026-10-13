@@ -1,0 +1,21 @@
+S1 KILLED rc=1 fails=9 closing-arm-fails=9 - the round-6 fix reverted to the round-5 boundary
+    first: FAIL first SIGINT at act closing restore line 5352, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[None], masks=[s
+S2 KILLED rc=1 fails=6 closing-arm-fails=6 - the closing signal replaces the active failure
+    first: FAIL first SIGINT at act closing restore line 5357, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[Refusal('origina
+S3 KILLED rc=1 fails=6 closing-arm-fails=6 - the active failure is never recorded
+    first: FAIL first SIGINT at act closing restore line 5356, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[Refusal('origina
+S4 KILLED rc=1 fails=20 closing-arm-fails=18 - act runs with the cleanup signals still blocked (not interruptible)
+    first: FAIL inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary raises or returns
+S5 SURVIVED rc=0 fails=0 closing-arm-fails=0 - the handler does not restore the hold before its diagnostic
+    first: act-ci: interrupted by SIGHUP after cleanup
+S6 SURVIVED rc=0 fails=0 closing-arm-fails=0 - no restore at all after the handler (outer finally removed)
+    first: act-ci: interrupted by SIGHUP after cleanup
+S7 KILLED rc=1 fails=6 closing-arm-fails=6 - the closing diagnostic is not printed
+    first: FAIL first SIGINT at act closing restore line 5357, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity 
+S8 SURVIVED rc=0 fails=0 closing-arm-fails=0 - a signal that is itself the failure also prints the closing diagnostic
+    first: act-ci: act boundary closing was interrupted (TerminationRequest: SIGHUP); the failure already propagating is kept
+S9 KILLED rc=129 fails=0 closing-arm-fails=0 - both closing restores removed (the hold is never restored by the boundary)
+    first: act-ci: interrupted by SIGHUP after cleanup
+S10 KILLED rc=1 fails=3 closing-arm-fails=3 - a Refusal-only filter: a RuntimeError active failure is replaced by the signal
+    first: FAIL first SIGINT at act closing restore line 5357, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[RuntimeErro
+mutants: 10, killed 7, survived ['S5', 'S6', 'S8'], bad anchors []
