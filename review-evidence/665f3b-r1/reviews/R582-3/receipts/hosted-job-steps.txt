@@ -1,0 +1,44 @@
+== firmware-boundary success 2026-10-13T21:35:43Z 2026-10-13T21:45:25Z
+   1 success Set up job
+   2 success Run actions/checkout@v4
+   3 success Fetch RTL dependencies
+   4 success Install GoogleTest and GoogleMock and print the versions
+   5 success Cache the pinned RV32 SDK
+   6 success Install and verify the pinned RV32 SDK
+   7 success Hold the TSN stack boundary over the firmware builders' compiles
+   13 success Post Cache the pinned RV32 SDK
+   14 success Post Run actions/checkout@v4
+   15 success Complete job
+== firmware-verilator success 2026-10-13T21:35:41Z 2026-10-13T21:43:42Z
+   1 success Set up job
+   2 success Run actions/checkout@v4
+   3 success Fetch RTL dependencies
+   4 success Install GoogleTest and GoogleMock and print the versions
+   5 success Cache the pinned Verilator build
+   6 skipped Build Verilator from source on cache miss
+   7 success Put Verilator on PATH and prove the version
+   8 success Cache the pinned RV32 SDK
+   9 success Install and verify the pinned RV32 SDK
+   10 success Hold the TSN stack boundary over the Verilator builders' compiles
+   18 success Post Cache the pinned RV32 SDK
+   19 success Post Cache the pinned Verilator build
+   20 success Post Run actions/checkout@v4
+   21 success Complete job
+== firmware-unit success 2026-10-13T21:38:52Z 2026-10-13T21:50:00Z
+   1 success Set up job
+   2 success Run actions/checkout@v4
+   3 success Fetch RTL dependencies
+   4 success Install GoogleTest and GoogleMock and print the versions
+   5 success Prove the tally reads a failing and a crashing test as failures
+   6 success Cache the pinned RV32 SDK
+   7 success Install and verify the pinned RV32 SDK
+   8 success Run the control-plane firmware suites and RV32 builds
+   9 success Run the saved-state store suites and its RV32 build
+   10 success Hold the firmware coverage ratchet
+   19 success Post Cache the pinned RV32 SDK
+   20 success Post Run actions/checkout@v4
+   21 success Complete job
+== rtl-fast success 2026-10-13T21:53:11Z 2026-10-13T21:53:14Z
+   1 success Set up job
+   2 success Require every applicable fast gate to pass
+   3 success Complete job

@@ -1,0 +1,116 @@
+tracked non-submodule files: 1311; documentation-class: 177; branch-changed non-doc files scanned: 78
+== AGENTS.md [doc-class] (2 mentions)
+    scripts/ci_events.py:625: #: Public check names the merge bar reads (AGENTS.md section 7), per file.
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+== CONTRIBUTING.md [doc-class] (1 mentions)
+    scripts/ci_events.py:14: result, while CONTRIBUTING.md said "CI does not run on dev at all" after
+== LICENSES/CERN-OHL-W-2.0.txt [doc-class] (1 mentions)
+    scripts/ci_scope.py:276: (["LICENSES/CERN-OHL-W-2.0.txt"], False),
+== QUICKSTART.md [doc-class] (1 mentions)
+    scripts/ci_scope.py:366: NEW_TOP_PAGE = "QUICKSTART.md"
+== README.md [doc-class] (43 mentions)
+    .github/workflows/rtl-fast.yml:309: # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
+    .github/workflows/rtl.yml:31: # file; syn/yosys/README.md quotes it as what a local run has to match.
+    .github/workflows/rtl.yml:541: # in syn/yosys/README.md under "The result cache". Everything else
+    docs/design/MAILBOX_SPLIT.md:274: The firmware ([`sw/firmware/ctrl`](../../sw/firmware/ctrl/README.md)) has no
+    docs/design/MAILBOX_SPLIT.md:436: F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md).
+    docs/design/MAILBOX_SPLIT.md:441: ([the composition](../../sw/firmware/ctrl/README.md#the-composition)).
+    docs/design/MAILBOX_SPLIT.md:522: its header ([module page](../../sw/firmware/ctrl/README.md#the-acmp-module)):
+    docs/design/MAILBOX_SPLIT.md:1068: ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
+    docs/design/MAILBOX_SPLIT.md:1101: | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 402 checks through the Wishbone adapter and the same 402 through the AXI4
+    docs/design/MAILBOX_SPLIT.md:1109: | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP cor
+    docs/design/MAILBOX_SPLIT.md:1110: | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener,
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    ... 31 more
+== REQUIREMENTS.md [doc-class] (3 mentions)
+    docs/design/MAILBOX_SPLIT.md:166: which [product ownership](../../REQUIREMENTS.md#1-product-ownership) and
+    sw/mailbox/mailbox.yaml:578: # REQUIREMENTS.md section 1 and NFR-SCOUT-08). A frame is classified when its
+    tb/verilator/mbx/README.md:100: | Q0 | the full tuple (lane FC, [product ownership](../../../REQUIREMENTS.md#1-product-ownership)): one valid frame per table row (ADP, ACMP
+== docs/ARCHITECTURE_HW_SW_SPLIT.md [doc-class] (3 mentions)
+    sw/firmware/ctrl/README.md:19: The [split verification contract](../../../docs/ARCHITECTURE_HW_SW_SPLIT.md#6-verification-boundary)
+    sw/firmware/ctrl/mbx/mbx.h:94: // promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md, section 1).
+    sw/mailbox/mailbox.yaml:311: # the response that promises it is committed (docs/ARCHITECTURE_HW_SW_SPLIT.md,
+== docs/DOC_MAP.drawio [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:6: "source": "docs/DOC_MAP.drawio",
+== docs/DOC_MAP.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:3: "docs/DOC_MAP.png": {
+== docs/README.md [doc-class] (3 mentions)
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+    sw/firmware/gtest/fw_gtest.py:12: is a failure, never a quiet zero (README.md, "The tally").
+== docs/design/MAAP_FABRIC.md [doc-class] (1 mentions)
+    sw/firmware/ctrl/maap/README.md:215: [fabric MAAP contract](../../../../docs/design/MAAP_FABRIC.md#annex-b-contract).
+== docs/diagrams/README.md [doc-class] (3 mentions)
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+    sw/firmware/gtest/fw_gtest.py:12: is a failure, never a quiet zero (README.md, "The tally").
+== docs/diagrams/cdc_census.drawio [doc-class] (1 mentions)
+    scripts/ci_scope.py:304: (["cdc_census.drawio"], True),
+== docs/diagrams/cdc_census.svg [doc-class] (1 mentions)
+    scripts/ci_scope.py:305: (["cdc_census.svg"], True),
+== docs/diagrams/submodule_boundaries.drawio [doc-class] (4 mentions)
+    docs/diagrams/PNG_MANIFEST.json:13: "source": "docs/diagrams/submodule_boundaries.drawio",
+    docs/diagrams/submodule_boundaries.gen.py:48: SOURCE_NAME = "docs/diagrams/submodule_boundaries.drawio"
+    docs/diagrams/submodule_boundaries.gen.py:518: source = fixture / "submodule_boundaries.drawio"
+    scripts/check_submodule_docs.py:21: DRAWIO = ROOT / "docs" / "diagrams" / "submodule_boundaries.drawio"
+== docs/diagrams/submodule_boundaries.png [doc-class] (4 mentions)
+    docs/diagrams/PNG_MANIFEST.json:10: "docs/diagrams/submodule_boundaries.png": {
+    docs/diagrams/submodule_boundaries.gen.py:47: ARTIFACT_NAME = "docs/diagrams/submodule_boundaries.png"
+    docs/diagrams/submodule_boundaries.gen.py:490: candidate = Path(directory) / "submodule_boundaries.png"
+    docs/diagrams/submodule_boundaries.gen.py:519: output = fixture / "submodule_boundaries.png"
+== docs/diagrams/timesync_chain.drawio [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:20: "source": "docs/diagrams/timesync_chain.drawio",
+== docs/diagrams/timesync_chain.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:17: "docs/diagrams/timesync_chain.png": {
+== docs/diagrams/wd_axis_backpressure.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:24: "docs/diagrams/wd_axis_backpressure.png": {
+== docs/diagrams/wd_cdc_handshake.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:31: "docs/diagrams/wd_cdc_handshake.png": {
+== docs/diagrams/wd_gptp_pdelay.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:38: "docs/diagrams/wd_gptp_pdelay.png": {
+== docs/findings/README.md [doc-class] (3 mentions)
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+    sw/firmware/gtest/fw_gtest.py:12: is a failure, never a quiet zero (README.md, "The tally").
+== docs/guides/README.md [doc-class] (3 mentions)
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+    sw/firmware/gtest/fw_gtest.py:12: is a failure, never a quiet zero (README.md, "The tally").
+== docs/history/v1/README.md [doc-class] (3 mentions)
+    scripts/act_ci.py:5892: #: discarded, so verifying README.md instead of the runner itself
+    scripts/ci_scope.py:275: (["README.md", "AGENTS.md"], False),
+    sw/firmware/gtest/fw_gtest.py:12: is a failure, never a quiet zero (README.md, "The tally").
+== docs/history/v1/diagrams/timesync_chain.drawio [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:20: "source": "docs/diagrams/timesync_chain.drawio",
+== docs/history/v1/diagrams/timesync_chain.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:17: "docs/diagrams/timesync_chain.png": {
+== docs/history/v1/diagrams/wd_gptp_pdelay.png [doc-class] (1 mentions)
+    docs/diagrams/PNG_MANIFEST.json:38: "docs/diagrams/wd_gptp_pdelay.png": {
+== docs/reference/EGRESS_QUEUE_MAP.md [doc-class] (1 mentions)
+    scripts/ci_scope.py:365: NEW_PAGE = "docs/reference/EGRESS_QUEUE_MAP.md"
+== docs/reference/FR_NFR.md [doc-class] (10 mentions)
+    docs/design/MAILBOX_SPLIT.md:167: [NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
+    docs/design/MAILBOX_SPLIT.md:422: [H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP ex
+    docs/design/MAILBOX_SPLIT.md:444: [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+    docs/design/MAILBOX_SPLIT.md:446: Its [hooks](../reference/FR_NFR.md#342-control-service-test-hooks) count backlog and egress separately.
+    docs/design/MAILBOX_SPLIT.md:676: ([3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+    sw/firmware/ctrl/README.md:23: The [service budget](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+    sw/firmware/ctrl/acmp/acmp_mbx.h:41: // SERVICE LATENCY (NFR-SCOUT-03, the H-ACMP and H-DISC hooks of FR_NFR.md
+    sw/firmware/ctrl/aecp/README.md:8: [NFR-SCOUT-02/03/08](../../../../docs/reference/FR_NFR.md).
+    sw/firmware/ctrl/maap/README.md:7: The [service contract](../../../../docs/reference/FR_NFR.md#342-control-service-test-hooks)
+    sw/firmware/ctrl/test/test_acmp_mbx.cpp:15: //       the H-ACMP and H-DISC hooks of FR_NFR.md 3.4.2 on the host model;
+== docs/reference/SUBMODULES.md [doc-class] (2 mentions)
+    scripts/check_submodule_docs.py:20: REFERENCE = ROOT / "docs" / "reference" / "SUBMODULES.md"
+    scripts/check_submodule_docs.py:75: """The pin rows between the two markers in SUBMODULES.md. A missing or
+== docs/testing/726_STREAM_COUNTERS.md [doc-class] (1 mentions)
+    sw/firmware/ctrl/aecp/README.md:63: See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.
+== docs/testing/CI_WORKFLOWS.md [doc-class] (6 mentions)
+    .github/workflows/rtl.yml:14: # tip at 01:17 UTC. scripts/ci_events.py holds docs/testing/CI_WORKFLOWS.md
+    scripts/ci_events.py:7: workflow files and one page of prose, docs/testing/CI_WORKFLOWS.md, and for
+    scripts/ci_events.py:259: POLICY = "docs/testing/CI_WORKFLOWS.md"
+    scripts/ci_scope.py:274: (["docs/testing/CI_WORKFLOWS.md"], False),
+    sw/firmware/ctrl/README.md:617: The second is the `firmware-boundary` job's: every known builder but those that need Verilator (see [CI workflows](../../../docs/testing/CI_
+    sw/firmware/gtest/README.md:419: ([CI workflow policy](../../../docs/testing/CI_WORKFLOWS.md#fast-feedback))
+== docs/testing/TESTING.md [doc-class] (2 mentions)
+    tb/verilator/milan_dp/Makefile:340: # docs/testing/TESTING.md, not a reduction in what is checked.
+    tb/verilator/milan_dp/Makefile:489: # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
