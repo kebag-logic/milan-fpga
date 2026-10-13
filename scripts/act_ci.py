@@ -6201,7 +6201,7 @@ def selftest_fetch_window(
     )
 
 
-def scope_fixture_fixture_environment(root: pathlib.Path) -> dict[str, str]:
+def scope_fixture_environment(root: pathlib.Path) -> dict[str, str]:
     """Isolate fixture Git and shell children from every caller Git setting."""
     home = root / ".scope-home"
     home.mkdir(exist_ok=True)
@@ -6214,18 +6214,20 @@ def scope_fixture_fixture_environment(root: pathlib.Path) -> dict[str, str]:
                GIT_COMMITTER_NAME="Scope fixture", GIT_COMMITTER_EMAIL="scope@example.invalid",
                GIT_AUTHOR_DATE="2001-01-01T00:00:00+0000",
                GIT_COMMITTER_DATE="2001-01-01T00:00:00+0000",
-               GIT_CONFIG_COUNT="2", GIT_CONFIG_KEY_0="commit.gpgsign",
-               GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.hookspathlib.Path",
-               GIT_CONFIG_VALUE_1=os.devnull)
+               GIT_CONFIG_COUNT="4", GIT_CONFIG_KEY_0="commit.gpgsign",
+               GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.hooksPath",
+               GIT_CONFIG_VALUE_1=os.devnull, GIT_CONFIG_KEY_2="maintenance.auto",
+               GIT_CONFIG_VALUE_2="false", GIT_CONFIG_KEY_3="gc.auto",
+               GIT_CONFIG_VALUE_3="0")
     return env
 
 
 def scope_fixture_git(root: pathlib.Path, *args: str) -> str:
     """Run Git only in the disposable fixture, with no external hooks."""
     return subprocess.check_output(
-        ["git", "-c", "core.hookspathlib.Path=/dev/null", "-c", "user.name=Scope fixture",
+        ["git", "-c", "core.hooksPath=/dev/null", "-c", "user.name=Scope fixture",
          "-c", "user.email=scope@example.invalid", "-C", str(root), *args],
-        text=True, stderr=subprocess.STDOUT, env=scope_fixture_fixture_environment(root),
+        text=True, stderr=subprocess.STDOUT, env=scope_fixture_environment(root),
     ).strip()
 
 
@@ -6360,7 +6362,7 @@ def scope_fixture_execute(root: pathlib.Path, script: str, recorded: str, head: 
     with tempfile.TemporaryDirectory(prefix="scope-output-") as raw:
         work = pathlib.Path(raw)
         output = work / "output"
-        env = dict(scope_fixture_fixture_environment(root), ACT="false", EVENT_NAME="pull_request",
+        env = dict(scope_fixture_environment(root), ACT="false", EVENT_NAME="pull_request",
                    PR_BASE_SHA=recorded, PR_BASE_REF="dev",
                    PR_HEAD_SHA=head, GITHUB_SHA=checked_out, PR_DRAFT="false",
                    PUSH_BEFORE_SHA=recorded, GITHUB_OUTPUT=str(output), RUNNER_TEMP=raw)

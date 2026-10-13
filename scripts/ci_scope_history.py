@@ -28,9 +28,11 @@ def fixture_environment(root: Path) -> dict[str, str]:
                GIT_COMMITTER_NAME="Scope fixture", GIT_COMMITTER_EMAIL="scope@example.invalid",
                GIT_AUTHOR_DATE="2001-01-01T00:00:00+0000",
                GIT_COMMITTER_DATE="2001-01-01T00:00:00+0000",
-               GIT_CONFIG_COUNT="2", GIT_CONFIG_KEY_0="commit.gpgsign",
+               GIT_CONFIG_COUNT="4", GIT_CONFIG_KEY_0="commit.gpgsign",
                GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.hooksPath",
-               GIT_CONFIG_VALUE_1=os.devnull)
+               GIT_CONFIG_VALUE_1=os.devnull, GIT_CONFIG_KEY_2="maintenance.auto",
+               GIT_CONFIG_VALUE_2="false", GIT_CONFIG_KEY_3="gc.auto",
+               GIT_CONFIG_VALUE_3="0")
     return env
 
 
