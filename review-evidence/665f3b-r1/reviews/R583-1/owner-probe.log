@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate
+R583 MAAP valid=1 source DA valid=0 Listener=1 core predicate=0 DA_GATE=1
+$REVIEWS/665f3b-r583-1-packet/scratch/owner-probe/test_owner.cpp:1527: Failure
+Expected equality of these values:
+  view.da_gate & 1u
+    Which is: 1
+  0u
+    Which is: 0
+invalid source destination must close published declaration
+
+  [FAIL] AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate: invalid source destination must close published declaration
+R583 answered probe=1 invalid source DA: core predicate=0 DA_GATE=1
+$REVIEWS/665f3b-r583-1-packet/scratch/owner-probe/test_owner.cpp:1540: Failure
+Expected equality of these values:
+  view.da_gate & 1u
+    Which is: 1
+  0u
+    Which is: 0
+answered probe cannot override invalid source destination
+
+  [FAIL] AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate: answered probe cannot override invalid source destination
+[  FAILED  ] AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpMailbox.R583SourceOwnerInvalidityClosesThePublishedGate
+
+ 1 FAILED TEST
+== R583 source-owner contract: checks: 1   failures: 1 ==
+RESULT: FAIL

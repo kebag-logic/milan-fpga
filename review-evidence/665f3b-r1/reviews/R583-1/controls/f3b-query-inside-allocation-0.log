@@ -1,0 +1,3853 @@
+[==========] Running 37 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 16 tests from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+[       OK ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+[       OK ] MaapCore.ConstantsStrictTimersAndSeed (3 ms)
+[ RUN      ] MaapCore.ReverseOctetPriority
+[       OK ] MaapCore.ReverseOctetPriority (0 ms)
+[ RUN      ] MaapCore.PriorityAfterTiedOctets
+[       OK ] MaapCore.PriorityAfterTiedOctets (0 ms)
+[ RUN      ] MaapCore.RestartDrawsNewRange
+[       OK ] MaapCore.RestartDrawsNewRange (0 ms)
+[ RUN      ] MaapCore.UniformDrawRejectsIncompleteBucket
+[       OK ] MaapCore.UniformDrawRejectsIncompleteBucket (0 ms)
+[ RUN      ] MaapCore.DefendEchoAndIntersection
+[       OK ] MaapCore.DefendEchoAndIntersection (0 ms)
+[ RUN      ] MaapCore.DisjointAdjacentZeroAndDefendRange
+[       OK ] MaapCore.DisjointAdjacentZeroAndDefendRange (0 ms)
+[ RUN      ] MaapCore.MalformedAndVersionCompatibility
+[       OK ] MaapCore.MalformedAndVersionCompatibility (0 ms)
+[ RUN      ] MaapCore.InitAndPreferredRangeBounds
+[       OK ] MaapCore.InitAndPreferredRangeBounds (0 ms)
+[ RUN      ] MaapCore.ReleaseLossAndRetry
+[       OK ] MaapCore.ReleaseLossAndRetry (0 ms)
+[ RUN      ] MaapCore.BeginBeforePortOperationalRetainsRange
+[       OK ] MaapCore.BeginBeforePortOperationalRetainsRange (0 ms)
+[ RUN      ] MaapCore.LinkBounceDrawsAfterSuppliedRange
+[       OK ] MaapCore.LinkBounceDrawsAfterSuppliedRange (0 ms)
+[ RUN      ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+[       OK ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry (0 ms)
+[ RUN      ] MaapCore.QueueBoundAndWithdrawal
+[       OK ] MaapCore.QueueBoundAndWithdrawal (0 ms)
+[ RUN      ] MaapCore.ReentrantPortsAreCountedAndIgnored
+[       OK ] MaapCore.ReentrantPortsAreCountedAndIgnored (0 ms)
+[----------] 16 tests from MaapCore (3 ms total)
+
+[----------] 3 tests from MaapCsr
+[ RUN      ] MaapCsr.EveryStreamAddressAndLossGate
+[       OK ] MaapCsr.EveryStreamAddressAndLossGate (0 ms)
+[ RUN      ] MaapCsr.ShapesAndCountRefusal
+[       OK ] MaapCsr.ShapesAndCountRefusal (0 ms)
+[ RUN      ] MaapCsr.AdmissionAfterEveryDestinationWrite
+[       OK ] MaapCsr.AdmissionAfterEveryDestinationWrite (0 ms)
+[----------] 3 tests from MaapCsr (0 ms total)
+
+[----------] 18 tests from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/0
+[       OK ] AllStates/MaapCell.TableB7/0 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/1
+[       OK ] AllStates/MaapCell.TableB7/1 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/2
+[       OK ] AllStates/MaapCell.TableB7/2 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/3
+[       OK ] AllStates/MaapCell.TableB7/3 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/4
+[       OK ] AllStates/MaapCell.TableB7/4 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/5
+[       OK ] AllStates/MaapCell.TableB7/5 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/6
+[       OK ] AllStates/MaapCell.TableB7/6 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/7
+[       OK ] AllStates/MaapCell.TableB7/7 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/8
+[       OK ] AllStates/MaapCell.TableB7/8 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/9
+[       OK ] AllStates/MaapCell.TableB7/9 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/10
+[       OK ] AllStates/MaapCell.TableB7/10 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/11
+[       OK ] AllStates/MaapCell.TableB7/11 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/12
+[       OK ] AllStates/MaapCell.TableB7/12 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/13
+[       OK ] AllStates/MaapCell.TableB7/13 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/14
+[       OK ] AllStates/MaapCell.TableB7/14 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/15
+[       OK ] AllStates/MaapCell.TableB7/15 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/16
+[       OK ] AllStates/MaapCell.TableB7/16 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/17
+[       OK ] AllStates/MaapCell.TableB7/17 (0 ms)
+[----------] 18 tests from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 37 tests from 3 test suites ran. (3 ms total)
+[  PASSED  ] 37 tests.
+== ctrl MAAP Annex B: checks: 37   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (37 tests, 0 failures, exit 0)
+[==========] Running 20 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 20 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+  H-MAAP timer 0: 30 accesses, 8400 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 11400 ns from original deadline (model)
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+  H-MAAP timer 2: 57 accesses, 16700 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 20100 ns from original deadline (model)
+[  FAILED  ] MaapHost.HMaapTimerCommitsAndIntervals (0 ms)
+[ RUN      ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported (0 ms)
+[ RUN      ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport (0 ms)
+[ RUN      ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource (0 ms)
+[ RUN      ] MaapHost.DaGateListenerDeclaresWithoutProbe
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateListenerDeclaresWithoutProbe (0 ms)
+[ RUN      ] MaapHost.DaGateWithoutDemandStaysClosed
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateWithoutDemandStaysClosed: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateWithoutDemandStaysClosed (0 ms)
+[ RUN      ] MaapHost.DaGateProbeExpiresAtFifteenSeconds
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateProbeExpiresAtFifteenSeconds (0 ms)
+[ RUN      ] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapFilterTupleAndRate: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AttachRefusalsAndTimerWrap: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.ExplicitAppComposition: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.AppWaitWakesForMaapWithinBudget
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: declaration query stays outside MAAP callbacks
+  H-MAAP wake interface 0: 4800 ns from RX_HEAD (model)
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+$REVIEWS/r583-1-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:59: Failure
+Value of: i.core.in_call
+  Actual: true
+Expected: false
+declaration query stays outside MAAP callbacks
+
+  [FAIL] MaapHost.AcquiredRangeFeedsExistingCsrPath: declaration query stays outside MAAP callbacks
+[  FAILED  ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 20 tests from MaapHost (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 20 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 20 tests, listed below:
+[  FAILED  ] MaapHost.HMaapTimerCommitsAndIntervals
+[  FAILED  ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported
+[  FAILED  ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport
+[  FAILED  ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport
+[  FAILED  ] MaapHost.HMaapConflictLossAndRetry
+[  FAILED  ] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource
+[  FAILED  ] MaapHost.DaGateListenerDeclaresWithoutProbe
+[  FAILED  ] MaapHost.DaGateWithoutDemandStaysClosed
+[  FAILED  ] MaapHost.DaGateProbeExpiresAtFifteenSeconds
+[  FAILED  ] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms
+[  FAILED  ] MaapHost.HMaapFilterTupleAndRate
+[  FAILED  ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[  FAILED  ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[  FAILED  ] MaapHost.AttachRefusalsAndTimerWrap
+[  FAILED  ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[  FAILED  ] MaapHost.ExplicitAppComposition
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget
+[  FAILED  ] MaapHost.CallbackWorkAndEveryOutputCount
+[  FAILED  ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[  FAILED  ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+
+20 FAILED TESTS
+== ctrl H-MAAP mailbox: checks: 20   failures: 20 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 20 failure(s) across 20 checks, exit 1)

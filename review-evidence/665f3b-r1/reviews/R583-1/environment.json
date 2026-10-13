@@ -1,0 +1,49 @@
+{
+  "host_c_compiler": {
+    "argv": [
+      "gcc",
+      "--version"
+    ],
+    "version": [
+      "gcc (GCC) 16.2.1 20260810",
+      "Copyright (C) 2026 Free Software Foundation, Inc.",
+      "This is free software; see the source for copying conditions.  There is NO",
+      "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      ""
+    ]
+  },
+  "host_cpp_compiler": {
+    "argv": [
+      "g++",
+      "--version"
+    ],
+    "version": [
+      "g++ (GCC) 16.2.1 20260810",
+      "Copyright (C) 2026 Free Software Foundation, Inc.",
+      "This is free software; see the source for copying conditions.  There is NO",
+      "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      ""
+    ]
+  },
+  "test_framework": {
+    "argv": [
+      "pkg-config",
+      "--modversion",
+      "gtest",
+      "gmock"
+    ],
+    "version": [
+      "1.18.0",
+      "1.18.0"
+    ]
+  },
+  "scoped_simulator": {
+    "argv": [
+      "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+      "--version"
+    ],
+    "version": [
+      "Verilator 5.050 2026-07-01 rev v5.050"
+    ]
+  }
+}

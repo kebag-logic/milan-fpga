@@ -1,0 +1,46 @@
+[
+  {
+    "name": "mailbox-generator",
+    "command": [
+      "/usr/bin/python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "submodule-docs",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diagram",
+    "command": [
+      "/usr/bin/python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0
+  }
+]
