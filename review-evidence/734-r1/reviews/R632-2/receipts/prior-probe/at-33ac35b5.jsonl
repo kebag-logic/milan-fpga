@@ -1,0 +1,22 @@
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "head", "workflow": "rtl.yml", "rc": 0, "n": 2, "files": ["docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md", "docs/findings/README.md"], "rtl": "false", "stderr": ""}
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "head", "workflow": "rtl-fast.yml", "rc": 0, "n": 2, "files": ["docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md", "docs/findings/README.md"], "rtl": "false", "stderr": ""}
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "head", "workflow": "elaborate.yml", "rc": 0, "n": 2, "files": ["docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md", "docs/findings/README.md"], "rtl": "false", "stderr": ""}
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "parent", "workflow": "rtl.yml", "rc": 0, "n": 34, "files": "...", "rtl": "true", "stderr": ""}
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "parent", "workflow": "rtl-fast.yml", "rc": 0, "n": 34, "files": "...", "rtl": "true", "stderr": ""}
+{"case": "B16 hosted checkout = landed merge 6c810c45", "bodies": "parent", "workflow": "elaborate.yml", "rc": 0, "n": 34, "files": "...", "rtl": "true", "stderr": ""}
+{"case": "B16 counts", "two_dot_no_renames": 65, "two_dot_default": 64, "merge_base": ["docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md", "docs/findings/README.md"]}
+{"case": "REV", "composition_delta_vs_live_base": ["docs/a.md", "hdl/x.sv"], "merge_base(recorded,head)==recorded": true, "live_base_three_dot": ["docs/a.md", "hdl/x.sv"]}
+{"case": "REV", "bodies": "head", "workflow": "rtl.yml", "rc": 0, "n": 1, "files": ["hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV", "bodies": "head", "workflow": "rtl-fast.yml", "rc": 0, "n": 1, "files": ["hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV", "bodies": "head", "workflow": "elaborate.yml", "rc": 0, "n": 1, "files": ["hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV", "bodies": "parent", "workflow": "rtl.yml", "rc": 0, "n": 1, "files": ["docs/a.md"], "rtl": "false", "stderr": ""}
+{"case": "REV", "bodies": "parent", "workflow": "rtl-fast.yml", "rc": 0, "n": 1, "files": ["docs/a.md"], "rtl": "false", "stderr": ""}
+{"case": "REV", "bodies": "parent", "workflow": "elaborate.yml", "rc": 0, "n": 1, "files": ["docs/a.md"], "rtl": "false", "stderr": ""}
+{"case": "REV+E", "composition_delta_vs_live_base": ["docs/a.md", "hdl/x.sv"], "merge_base(recorded,head)==recorded": true, "live_base_three_dot": ["docs/a.md", "hdl/x.sv"]}
+{"case": "REV+E", "bodies": "head", "workflow": "rtl.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV+E", "bodies": "head", "workflow": "rtl-fast.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV+E", "bodies": "head", "workflow": "elaborate.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/x.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV+E", "bodies": "parent", "workflow": "rtl.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/y.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV+E", "bodies": "parent", "workflow": "rtl-fast.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/y.sv"], "rtl": "true", "stderr": ""}
+{"case": "REV+E", "bodies": "parent", "workflow": "elaborate.yml", "rc": 0, "n": 2, "files": ["docs/a.md", "hdl/y.sv"], "rtl": "true", "stderr": ""}
+{"case": "XX criss-cross", "merge_bases": 2, "rc": 0, "stdout": "b", "stderr": "warning: dc9d87a63445e214a853acea3542e39c0292b045...b4ffbe1acae4ffaec38068d6e1131aadb1696037: multiple merge bases, using 2f1126565c0c896e661a16812c79fe22cc4b03b1"}

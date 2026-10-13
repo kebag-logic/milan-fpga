@@ -1,0 +1,3 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl-fast.yml: the fast selector scope script is not the canonical form: line 10 must be 'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"' (found 'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"'); 25 line(s) expected, 25 found; this script publishes `rtl`, so an empty or false value skips both RTL consumers into the aggregate's accepted docs-only path
+ci_events: 1 finding(s) over 2021 contract item(s)

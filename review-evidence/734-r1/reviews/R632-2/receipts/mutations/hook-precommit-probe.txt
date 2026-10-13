@@ -1,0 +1,16 @@
+hook GIT_* env:
+GIT_AUTHOR_DATE=@1791916461 +0200
+GIT_AUTHOR_EMAIL=h@x.invalid
+GIT_AUTHOR_NAME=h
+GIT_CONFIG_GLOBAL=/dev/null
+GIT_CONFIG_NOSYSTEM=1
+GIT_CONFIG_PARAMETERS='user.name'='h' 'user.email'='h@x.invalid'
+GIT_EDITOR=:
+GIT_EXEC_PATH=/usr/lib/git-core
+GIT_INDEX_FILE=.git/index
+GIT_PREFIX=
+hook selftest rc=0 selftest: PASS
+branch before user commit: 4636acc7c7b7828ee6d8f32ac3a50c93818c9fd8
+HEAD now: d4b8777bf54ff1e3e13eb7aa94fd164d7f0180d4 user commit
+d4b8777bf54ff1e3e13eb7aa94fd164d7f0180d4 commit	refs/heads/work
+status:

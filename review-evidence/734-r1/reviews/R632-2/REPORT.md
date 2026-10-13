@@ -1,0 +1,213 @@
+[R632] NEGATIVE - exact head 33ac35b54648ef919227c5dd8b9abc97fa6bedbd
+
+# R632-2 internal independent re-review: issue #734 / PR #735
+
+- **Head and tree**: head `33ac35b54648ef919227c5dd8b9abc97fa6bedbd`, tree `42ffc92e382df24433ffc80333174e7d03ab4006`. Source base and live dev are both `a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0`. Round delta: `0519ff36..33ac35b5`. Full diff reviewed: `a0f39ad4..33ac35b5`, 8 files, +498/-123.
+- **Sources, in order**:
+  - AGENTS.md and CONTRIBUTING.md.
+  - docs/README.md and REQUIREMENTS.md REQ-VER-04.
+  - Issue #734: the body, the assignment (6151273761), the Round 2 decision (6151933918), and the executor's TAKEN and both REVIEW READY comments.
+  - The PR #735 body.
+  - The diff and both commits.
+  - `docs/testing/CI_WORKFLOWS.md`.
+  - The exact-head hosted logs.
+  - The author's published receipts at `872d08f8:review-evidence/734-r1/author-r2`.
+- **Independence**: the verdict and ledger were written to this file before I read the R632-1 or R633-1 reports. Their findings are resolved below.
+- **Result**: all five lenses were applied. **The round-2 BLOCKER (R632-1-F1) is resolved.** REV and REV+E are relevant in every selector, hosted and replay alike, and I found no path where a PR's own RTL change, or an RTL file or pointer restored after a merge, is classified docs-only. The verdict is NEGATIVE on two new MINOR findings, F1 and F2. Neither opens a hole in the hosted gate.
+
+## Findings
+
+### F1 MINOR - Robustness, Tests - the new history self-test runs Git with the caller's ambient environment and config, unlike every other git-fixture self-test in the tree
+
+- **Location**:
+  - `scripts/ci_scope_history.py:17-23`: the `git` helper sets only hooksPath and an identity.
+  - `scripts/ci_scope_history.py:128-146`: `execute` runs the shipping step body with `dict(os.environ, ...)`.
+  - Reached from `scripts/ci_scope.py:524`, which every scope step and the documented local gate run.
+  - Reached from `scripts/act_ci.py:6199-6230` (`selftest_scope_event`), which imports the same helpers.
+- **Authority**:
+  - The Robustness lens covers configuration-dependent behaviour.
+  - Repository precedent isolates fixture Git from the host:
+    - `scripts/check_em_dash.py:436-445`, whose docstring reads "isolated from every config of the host". It strips every `GIT_*` variable and sets `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1` and `commit.gpgsign=false`.
+    - `scripts/merge_containment_selftest_replay.py:31-37`.
+    - `scripts/act_ci.py:1135` (`git_environment`).
+- **Evidence**:
+  - **Signing**: with a global config that has `commit.gpgsign=true`, `ci_scope.py --selftest` aborts with a traceback at the fixture's first commit (rc 1). Receipt: `receipts/mutations/env-gpgsign-ci_scope.{log,rc}`.
+  - **Inherited `GIT_DIR`**: with `GIT_DIR` pointing at another repository, the self-test prints `selftest: PASS` (rc 0) but rewrites that repository. Its branch `master` moves onto fixture commits, `refs/remotes/origin/dev` is created, HEAD is detached, and its index is overwritten. Receipt: `receipts/mutations/env-gitdir-victim.txt`.
+  - **Bound on that impact**: in an ordinary non-bare pre-commit hook, Git exports only a relative `GIT_INDEX_FILE`, and the run there was harmless (`receipts/mutations/hook-precommit-probe.txt`). The rewrite needs an explicitly exported `GIT_DIR`.
+  - Hosted runners and the act container are unaffected.
+- **Impact**:
+  - A required local gate named in the PR's "How to validate" crashes for any contributor who signs commits globally.
+  - Any caller that exports `GIT_DIR` gets a PASS while the self-test silently rewrites another repository's refs and index.
+  - The same holds for the runner self-test's `selftest_scope_event` wherever it runs outside a clean container.
+- **Required outcome**:
+  - Fixture Git commands and the executed step bodies run with every inherited `GIT_*` variable removed, global and system config isolated, and signing disabled, matching the repository's existing fixture idiom.
+  - A self-test arm proves an exported `GIT_DIR` or a signing config cannot reach or break the fixture.
+- **Verification**: re-run the two receipts above. The first must pass, and in the second the target repository's refs, HEAD and index must be unchanged.
+
+### F2 MINOR - Conformance, Docs - after Round 2 the replay no longer classifies the same file set as hosted, and the difference is undisclosed
+
+- **Location**:
+  - The replay branches: `.github/workflows/rtl.yml:115-121`, `rtl-fast.yml:47-53` and `elaborate.yml:104-110`.
+  - The hosted branches: `rtl.yml:122`, `rtl-fast.yml:54` and `elaborate.yml:111`.
+  - The `scripts/act_ci.py:2376-2391` docstring.
+  - `docs/testing/CI_WORKFLOWS.md:168-196`.
+- **Authority**:
+  - Issue #734 acceptance 2: "`act_ci.py`'s replay classifies the same file set as hosted". The assignment, item 2, repeats it.
+  - The Round 2 decision prescribes merge commit vs first parent for hosted, and `merge-base(live, head)...head` for the replay.
+  - These two rules are not equal in general, and AGENTS.md section 2 requires a conflict like this to be published rather than settled privately.
+- **Evidence** (all three shipping step bodies were executed):
+  - **Identical change on dev**: the PR edits `hdl/y.sv`, and dev independently carries the identical edit. Hosted gives `["docs/c.md"]`, `rtl=false`. Replay gives `["docs/c.md","hdl/y.sv"]`, `rtl=true`. Receipt: `receipts/probe/probe-base.log`, case `identical-on-dev`.
+  - **Dev renames a page into a gate-read path**: dev renames `docs/page.md` to `docs/reference/REGISTER_MAP.md` while the PR edits the page. Hosted gives `docs/reference/REGISTER_MAP.md`, `rtl=true`. Replay gives `docs/page.md`, `rtl=false`. Receipt: `receipts/rename-divergence-r632-2.log`.
+  - The second case is the unsafe direction for the replay: local evidence skips RTL work that hosted runs.
+  - The self-test asserts `hosted = replay` only on histories where the two coincide.
+- **Impact**:
+  - The hosted gate is unaffected: it classifies exactly what landing changes, and it remains mandatory.
+  - The replay's local verdict can under-predict hosted in a base-side rename, contrary to a frozen acceptance criterion.
+  - The docs and docstring describe the two rules without stating that they can differ.
+- **Required outcome**, either:
+  - (a) the replay classifies the same merge result hosted does, for example the live tip merged with the head and compared against the live tip, with a rename-divergence control; or
+  - (b) a public manager decision that accepts the bounded difference against acceptance 2, with `CI_WORKFLOWS.md` and the `build_event` docstring stating it: the replay is a superset except under base-side renames, where hosted governs.
+- **Verification**: re-run `rename_divergence_r632_2.sh` and `probe_r632_2.py`. Under (a) both modes must agree. Under (b), the decision must be linked and the stated relation must match the receipts.
+
+### R1 RESIDUE - Docs - one stale sentence in the classifier paragraph
+
+- **Location**: `docs/testing/CI_WORKFLOWS.md:219-220`.
+- **Problem**: the page still says "An empty or unresolvable diff is also treated as RTL relevant." Lines 186-189 of the same page (correctly) say that, for a pull request, missing revisions or missing merge ancestry fail the scope step. That fail-closed behaviour is confirmed by the aggregates at `rtl-fast.yml:487-503`, `rtl.yml:397` and `rtl.yml:579`.
+- **Exact fix**: replace the sentence with "An empty diff is treated as RTL relevant; on a pull request an unresolvable revision or merge base fails the scope step, and on a push an unresolvable before-SHA falls back to every tracked file."
+
+### S1 SUGGESTION - Tests - the history self-test's wiring is not pinned
+
+- Deleting `failures += history_selftest(ROOT)` (`scripts/ci_scope.py:524`) still passes `ci_scope.py --selftest` (104 assertions instead of 180) and `ci_events.py --check`. Receipt: `receipts/mutations/w1-*`.
+- The workflow scripts themselves remain pinned by `ci_events`: the W2 and W3 reverts are caught by both gates.
+- This is retained from R632-1-F3, and the PR body lists it as open.
+
+### S2 SUGGESTION - Robustness - the hosted branch trusts the merge shape without checking it
+
+- The hosted branch classifies `GITHUB_SHA^1..GITHUB_SHA` without checking that `GITHUB_SHA^2` is `PR_HEAD_SHA`. `PR_HEAD_SHA` is already bound in the step.
+- If the checked-out sha were ever the head itself rather than a two-parent merge, only the PR's last commit would be classified. The demonstration in `receipts/ff-guard-demo-r632-2.log` turns an RTL-plus-docs PR into `rtl=false`.
+- I found no real path to this. On this PR, which can fast-forward, GitHub still built `Merge 33ac35b5 into a0f39ad4` (`receipts/hosted-rtl-fast-changes-115465534103.log:562`). A one-line guard would make the assumption explicit and fail closed.
+
+## Prior public findings at this head
+
+- **R632-1-F1 BLOCKER (REV and REV+E classified docs-only): RESOLVED.**
+  - Re-running `probe_scope.py` unchanged (sha256 `3e18e600…`, matching the R632-1 manifest) reproduces its receipt byte-for-byte. The only exception is the commit ids in the criss-cross warning, which depend on timestamps. See `receipts/prior-probe/unchanged-roundone-head.jsonl`.
+  - Its unchanged functions, run with only `HEAD` rebound to `33ac35b5` (`rerun_prior_probe_at_head.py`), give:
+    - REV `rtl=true` and REV+E `rtl=true` in all three bodies;
+    - B16 at its landed merge: two `docs/findings/` paths, `rtl=false`;
+    - two-dot counts of 65 and 64.
+  - See `receipts/prior-probe/at-33ac35b5.jsonl`.
+  - My own probe confirms the same, and adds the variants: restore inside an evil merge, fast-forward restore, merged gitlink restore, and the lane's own RTL followed by a dev merge.
+- **R632-1-F2 MINOR (contract bindings in prose): RESOLVED.**
+  - `CI_WORKFLOWS.md:663-664` and `:677-679` name `PR_BASE_REF` and `PR_HEAD_SHA` with their source expressions.
+  - `:778` says "four env bindings", and `:878-880` says "three env bindings (`EVENT_NAME`, `PR_BASE_REF`, `PR_HEAD_SHA`)".
+  - These match `ci_events.py` `DECIDE_STEP_ENV`, `INHERITED_STEP_ENV` and the carrier lists, and `ci_events --check` passes.
+- **R632-1-F3 SUGGESTION: RETAINED** as S1.
+- **R632-1 criss-cross note: RESOLVED.** The replay now uses `merge-base --all` and refuses an ambiguous base. The arms "ambiguous replay base refuses" and "arbitrary merge-base mutation rejected" pass, and so does the `ci_events` arm `#734 * ambiguous replay merge base`. Hosted uses GitHub's own merge.
+- **R633-1-D1 RESIDUE (item 5/6 lists): RESOLVED** by the same lines as R632-1-F2. "all four names" is at `:683-684`.
+
+## Executed evidence (round R632-2, exact head)
+
+**Gates**, all rc 0, in `receipts/gates/*.log` and `*.rc`, using Python 3.14.7, git 2.56.0, the hash-pinned Markdown renderer and PyYAML 6.0.3 in a scratch venv:
+- `ci_scope.py --selftest`: PASS, 180 assertions, 76 of them history arms.
+- `ci_events.py --check`: 2021 items.
+- `ci_events.py --selftest`: 2846 arms, including 15 new `#734` arms.
+- `docs_check.py` and its `--selftest`.
+- `check_doc_paths.py` and `check_doc_style.py`.
+- `gen_toc.py --check`, `--selftest` and `--verify-anchors`.
+- `check_em_dash.py --base a0f39ad4` and its `--selftest`.
+- `check_py_idiom.py` and its `--selftest`.
+- `pp_srcs.py --check` and `--selftest`.
+- `measure_test_evidence.py --check` and `--selftest`.
+
+These counts equal the executor's.
+
+**Runner contract**:
+- `act_ci.py --selftest` was not run on this host (bootstrap rule).
+- The exact-head hosted `docs-check` job (115465535949, merge `508f8706`, conclusion success) ran it inside the CI job boundary and ended `selftest: PASS`. That includes all 21 `scope event` arms (7 histories × 3 selectors, REV and REV+E among them). See `receipts/hosted-docs-check-115465535949.log:6025-6045` and `:6576`.
+- The author's containerised receipt `r2-act-final` (rc 0, sha256 `1b23e7a2…`) agrees.
+
+**Independent probe** (`probe_r632_2.py`, receipt `receipts/probe/probe-base.log`, PASS). It extracts the step bodies with a YAML parser and executes each one hosted (a GitHub-style two-parent merge) and replayed (`ACT=true`, PR head checkout, `refs/remotes/origin/dev` at the live tip). The 13 histories × 3 selectors are:
+- stale-base docs: docs-only;
+- stale-base RTL add, RTL delete, gitlink pointer, empty delta, and a rename of RTL into docs: relevant;
+- REV, REV+E, REV-evil+E, REV-ff+E, REV-gitlink and own-RTL-then-merge-dev: relevant;
+- identical-on-dev: see F2.
+
+Push behaviour also passes:
+- `rtl.yml` and `elaborate.yml` give `rtl=true` for any non-PR event.
+- `rtl-fast` diffs before to after, with `0…0` and an empty before falling back to every tracked file.
+
+Mutants:
+- hosted frozen two-dot: caught, 9 misses;
+- hosted frozen three-dot: caught, 9 misses;
+- replay frozen base: caught, 12 misses;
+- replay endpoint trees: caught, 3 misses;
+- merge-base without `--all`: not distinguishable by these histories. The candidate's own criss-cross arm and the `ci_events` arm cover it, and both pass.
+
+**B16** (`b16_r632_2.sh`, `receipts/b16-r632-2.log`):
+- Two-dot `49da9fd9 f1b2489f`: 64 paths with default renames, 65 with `--no-renames`. Merge base: 2 paths.
+- Against B16's live base `e81ce82f` (the first parent of its landed merge `6c810c45`), every selector in hosted and replay gives the two `docs/findings/` paths and `rtl=false`. The landed merge's own `^1..merge` is the same two paths.
+- Against today's dev `a0f39ad4`, where the PR has already landed, the delta is empty and every selector fails safe to `rtl=true`.
+- PR #725's recorded base is now shown as `c6bd08c6`. The issue's `49da9fd9` was used as stated.
+
+**Rule-removal controls**:
+- The candidate's history self-test rejects classifier rule removals (hdl as docs, gitlink rule, empty rule), frozen-base hosted and replay forms, and the endpoint-tree replay. I ran these: they are in the 180.
+- My scratch-copy mutations:
+  - W2 (rtl-fast hosted back to the frozen two-dot): `ci_scope` gives 7 failures and `ci_events` gives 1 finding.
+  - W3 (elaborate replay on the frozen base): 4 failures and 2 findings.
+  - W1: see S1.
+
+**Hosted at exact head** (inspected only; acceptance belongs to the manager), from `receipts/hosted-snapshot.txt`:
+- `docs` and `rtl-fast` completed with success.
+- `full-ci-gate` succeeded with `draft=false rtl=true run_full=true`, and its scope step listed exactly the 8 PR files from `merge^1..merge` (`receipts/hosted-rtl-full-gate-115466392981.log:834-843`).
+- Yosys shards 0-3 succeeded. Physical gPTP was skipped by design.
+- Still in progress at 18:42Z: Verilator shards 0-4 and `elaborate`.
+
+**Five linked images**:
+- I did not rebuild them; that needs the builder SDK.
+- The diff touches only `.github/workflows/{rtl,rtl-fast,elaborate}.yml`, `scripts/{act_ci,ci_events,ci_scope,ci_scope_history}.py` and `docs/testing/CI_WORKFLOWS.md`.
+- No build input under `sw/`, `hdl/`, `configs/`, `syn/` or `tb/` references them except in comments.
+- Gitlinks are unchanged. The author's `author-r2/image-hashes.json` reports all five byte-identical (50752, 50752, 50744, 50768 and 50776 bytes).
+
+**Commits and whitespace**: both commits have one-line messages with no trailers, and `git diff --check` is clean.
+
+## Ledger (reviewer-owned)
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F2) | Issue #734 acceptance 1-4 and Round 2 decision against `rtl.yml:98-131`, `rtl-fast.yml:36-75`, `elaborate.yml:84-114`; `act_ci.py:2376-2391`, `:1838-1909`; `receipts/probe/probe-base.log`, `b16-r632-2.log`, `rename-divergence-r632-2.log`, hosted `full-ci-gate` changed-file list | R632-2 | 33ac35b54648ef919227c5dd8b9abc97fa6bedbd |
+| RTL | CLEAN | Diff closure (no `hdl/`, `syn/`, `sw/`, `configs/`, `tb/` file; gitlinks unchanged, `receipts/index-after.txt`); scope output contract to consumers, fail-closed aggregates `rtl-fast.yml:487-503`, `rtl.yml:397`, `:579`; `fetch-depth: 0` in all three checkouts; hosted scope-step time 12-18 s under `timeout-minutes: 5` (`receipts/hosted-*.log`) | R632-2 | 33ac35b54648ef919227c5dd8b9abc97fa6bedbd |
+| Robustness | UNCLEAN (F1) | `ci_scope_history.py:17-23`, `:128-146`; `receipts/mutations/env-gpgsign-*`, `env-gitdir-*`, `hook-precommit-probe.txt`; missing/ambiguous base arms; push fallbacks in `probe-base.log`; `ff-guard-demo-r632-2.log` | R632-2 | 33ac35b54648ef919227c5dd8b9abc97fa6bedbd |
+| Tests | UNCLEAN (F1) | `ci_scope_history.py:49-259`; `ci_events.py:6418-6434` `#734` arms; `act_ci.py:6199-6230`; `receipts/gates/ci_scope_selftest.log` (180), `ci_events_selftest.log` (2846); mutants `receipts/probe/probe-*.log`, `receipts/mutations/w1-w3`; hosted runner self-test log | R632-2 | 33ac35b54648ef919227c5dd8b9abc97fa6bedbd |
+| Docs | UNCLEAN (F2) | `docs/testing/CI_WORKFLOWS.md:168-205`, `:219-220` (R1), `:660-690`, `:776-779`, `:876-881`, `:948-952`, `:1529-1540`; `act_ci.py:2376-2391` docstring; `elaborate.yml:77-80` comment; PR #735 body | R632-2 | 33ac35b54648ef919227c5dd8b9abc97fa6bedbd |
+
+## Real limits
+
+- `act_ci.py --selftest`, Docker and act were not run on the host (bootstrap rule). Runner-contract execution evidence is the exact-head hosted `docs-check` log plus the author's containerised receipt.
+- Whether act's container copy carries `refs/remotes/origin/dev` into the job was not observed. If it does not, the replay scope step fails closed, so the result is never docs-only.
+- GitHub's merge is modelled with a local three-way merge in every probe. Only this PR's own hosted runs were observed.
+- Linked images were not rebuilt; that point rests on diff closure and the author's receipt.
+- No full parent, PP, gPTP, Yosys or builder banks were run. Physical calibration was NOT RUN. Hosted runs were partly in progress at the snapshot. Gates ran on Python 3.14.7, not the executor's 3.12.3.
+
+## Pending manager duties
+
+- Publish this report.
+- Route F1 and F2 to the executor. For F2, either route the fix or record the decision against acceptance 2.
+- Carry R1 to the residue checklist.
+- Own hosted acceptance (Verilator shards and `elaborate` were still running) and the full trusted act replay.
+- Build and validate the current-dev merge candidate with the builder and native banks at the merge turn.
+- Keep the 697c-then-696 order, merge authorization, and post-merge containment.
+
+## Exact-head restoration
+
+- The review clone is unmodified: HEAD is `33ac35b5…`, the tree is `42ffc92e…`, and `git write-tree` matches.
+- `receipts/tree-integrity.txt`: all 1308 tracked blobs match in bytes and modes.
+- The index and `git submodule status` are identical before and after (`receipts/index-*.txt`, `submodules-*.txt`).
+- Gitlinks are unchanged:
+  - `protocol-processor` `2ad2f845dd583f8310075fa2380cb60a04fd091a`
+  - `gptp-processor` `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`
+  - `third_party/verilog-axis` `48ff7a7e2ef782cf778d47910cf85835c64b1bce`
+  - `external` `efeb541a…`
+  - `third_party/lwSRP` `08ee86e8…`
+- There is one worktree. All probes ran in disposable repositories under `scratch/`.
+
+R632-2 FINISHED
