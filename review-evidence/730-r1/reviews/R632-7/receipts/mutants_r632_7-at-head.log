@@ -1,0 +1,45 @@
+T01 SURVIVED rc=0 fails=0 - the derivation and the host check run after the slot is entered
+    first: act-ci: interrupted by SIGHUP after cleanup
+    probe_r632_7_lifecycle.py: rc=0 passed: probe_r632_7_lifecycle: PASS (0 failing seed(s))
+    probe_r632_7_derivation.py: rc=1 FAILED: FAIL D3 max-parallel 5 is refused before the slot is entered, before submodules and before any plan line [order=['submodules', 'slot entered', 'refused'] act-ci: REFUSED: the replayed workflows run up
+T02 SURVIVED rc=0 fails=0 - the live interrupt probe no longer requires the container's move
+    first: act-ci: interrupted by SIGHUP after cleanup
+T03 KILLED rc=1 fails=8 - the monitor prints the 'cleanup was interrupted' line for a signal with no earlier failure
+    first: FAIL a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5767, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+T04 KILLED rc=1 fails=8 - a signal held through the monitor's cleanup is swallowed when nothing else propagates
+    first: FAIL a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5766, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+T05 KILLED rc=1 fails=24 - the monitor does not hold the cleanup signals across its body
+    first: FAIL a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5766, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+T06 SURVIVED rc=0 fails=0 - the run's CPU-range report is read inside the monitor, before its reader is joined
+    first: act-ci: interrupted by SIGHUP after cleanup
+T07 KILLED rc=1 fails=2 - the monitor stops reading destroy events
+    first: FAIL a destroy frees the range for the next container
+    probe_r632_7_lifecycle.py: rc=1 FAILED: FAIL actlike: 60 seeds, {'created': 2408, 'events': 15589, 'late landings': 72, 'moved': 1487, 'peak': 4, 'staging': 27}
+    probe_r632_7_derivation.py: rc=0 passed: probe_r632_7_derivation: PASS (0 failure(s))
+T08 KILLED rc=1 fails=9 - the monitor's cleanup never restores the incoming mask (held signals never delivered)
+    first: FAIL a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5767, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+T09 SURVIVED rc=0 fails=0 - the derivation reads the trusted runner's workflows, not the PR checkout
+    first: act-ci: interrupted by SIGHUP after cleanup
+    probe_r632_7_lifecycle.py: rc=0 passed: probe_r632_7_lifecycle: PASS (0 failing seed(s))
+    probe_r632_7_derivation.py: rc=1 FAILED: FAIL D3 the PR checkout's own workflows are read: both shard jobs at max-parallel 2 plan 2 ranges in slot 3 [['act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each 
+L1 KILLED rc=1 fails=3 - probe validity: a die frees the range
+    first: FAIL a container that died keeps its range until it is removed: after create, update, start and die of A, then create, update and start of B, A starts again on its own range and never shares one with B
+    probe_r632_7_lifecycle.py: rc=1 FAILED: FAIL actlike: 60 seeds, {'created': 323, 'events': 845, 'late landings': 4, 'moved': 182, 'peak': 4, 'staging': 0}
+    probe_r632_7_derivation.py: rc=0 passed: probe_r632_7_derivation: PASS (0 failure(s))
+L2 KILLED rc=1 fails=1 - probe validity: an inspect that times out frees the range
+    first: FAIL a move and a read that both time out keep the range reserved, never seen there
+    probe_r632_7_lifecycle.py: rc=1 FAILED: FAIL actlike: 60 seeds, {'created': 971, 'events': 4729, 'late landings': 11, 'moved': 592, 'peak': 4, 'staging': 0}
+    probe_r632_7_derivation.py: rc=0 passed: probe_r632_7_derivation: PASS (0 failure(s))
+L3 KILLED rc=1 fails=2 - probe validity: an off-target move releases its range
+    first: FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+    probe_r632_7_lifecycle.py: rc=1 FAILED: FAIL actlike: 60 seeds, {'created': 1419, 'events': 8004, 'late landings': 2, 'moved': 876, 'peak': 4, 'staging': 0}
+    probe_r632_7_derivation.py: rc=0 passed: probe_r632_7_derivation: PASS (0 failure(s))
+L4 KILLED rc=1 fails=3 - probe validity: a timed-out move releases its range at once
+    first: FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+    probe_r632_7_lifecycle.py: rc=1 FAILED: FAIL actlike: 60 seeds, {'created': 978, 'events': 5130, 'moved': 586, 'peak': 4, 'staging': 47}
+    probe_r632_7_derivation.py: rc=0 passed: probe_r632_7_derivation: PASS (0 failure(s))
+L5 KILLED rc=1 fails=3 - probe validity: the derivation ignores max-parallel
+    first: FAIL a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+    probe_r632_7_lifecycle.py: rc=0 passed: probe_r632_7_lifecycle: PASS (0 failing seed(s))
+    probe_r632_7_derivation.py: rc=1 FAILED: FAIL D1 every literal shape derives act 0.2.89's width (no strategy/no matrix 1; matrix default 4; literal max-parallel floored at 1) [-:1/1; -:1/1; 7:1/1; -:4/4; 0:4/1; 1:4/1; 2:4/2; 3:4/3; 4:4/4; 02
+mutants: 14, killed 10, survived ['T01', 'T02', 'T06', 'T09'], bad anchors []

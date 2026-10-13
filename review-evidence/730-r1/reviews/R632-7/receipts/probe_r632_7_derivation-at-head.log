@@ -1,0 +1,19 @@
+  ok   D1 every literal shape derives act 0.2.89's width (no strategy/no matrix 1; matrix default 4; literal max-parallel floored at 1) [-:1/1; -:1/1; 7:1/1; -:4/4; 0:1/1; 1:1/1; 2:2/2; 3:3/3; 4:4/4; 02:2/2; 000004:4/4; 9:9/9; 999999:999999/999999]
+  ok   D1 every non-literal max-parallel and a non-mapping strategy are Refusals [[True, True, True, True, True, True, True, True, True, True, True, True]]
+  ok   D2 a run's concurrency is the most, over its workflows, of the limit's widest jobs summed [24 selections x 3 limits]
+  ok   D3 a checkout whose rtl.yml narrows max-parallel to 2 plans the shard jobs' widest (yosys 4): still 4 [rc=0]
+  ok   D3 the PR checkout's own workflows are read: both shard jobs at max-parallel 2 plan 2 ranges in slot 3 [['act-ci: job container CPUs: up to 2 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67 --cpuset-cpus=68-71']]
+  ok   D3 max-parallel 5 is refused before the slot is entered, before submodules and before any plan line [order=['refused'] act-ci: REFUSED: the replayed workflows run up to 5 job containers at once, but a replay slot has 4 CPU ranges for them (CONCURRENT_JOB_LIMIT 1 x act's default ]
+  ok   D3 an expression max-parallel is refused before the slot is entered, before submodules and before any plan line [order=['refused'] act-ci: REFUSED: workflow .github/workflows/rtl.yml job verilator-shards max-parallel '${{ github.run_number }}' is not a literal integer; its concurrency canno]
+  ok   D3 a 39-CPU host for slot 1 is refused before the slot is entered, before submodules and before any plan line [order=['refused'] act-ci: REFUSED: replay slot 1 needs CPUs 20-39 for 4 concurrent job container(s), but this host has 39]
+    slot 0 docs: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7; act command: --cpuset-cpus=0-3
+    slot 0 elaborate: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7; act command: --cpuset-cpus=0-3
+    slot 0 rtl-fast: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7; act command: --cpuset-cpus=0-3
+    slot 0 rtl-full: act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7 --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19; act command: --cpuset-cpus=0-3
+    slot 3 docs: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67; act command: --cpuset-cpus=60-63
+    slot 3 elaborate: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67; act command: --cpuset-cpus=60-63
+    slot 3 rtl-fast: act-ci: job container CPUs: up to 1 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67; act command: --cpuset-cpus=60-63
+    slot 3 rtl-full: act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67 --cpuset-cpus=68-71 --cpuset-cpus=72-75 --cpuset-cpus=76-79; act command: --cpuset-cpus=60-63
+  ok   D4 every shipping workflow's dry run in slots 0 and 3 prints its derived ranges and an act command on staging
+  ok   D5 slots 0..63: 320 ranges, each 4 CPUs (nproc 4), inside the slot's 20-CPU block, none sharing a CPU [320 ranges, 1280 CPUs]
+probe_r632_7_derivation: PASS (0 failure(s))
