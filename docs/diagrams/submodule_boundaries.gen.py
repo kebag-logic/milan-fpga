@@ -40,7 +40,7 @@ from png_artifact import (  # noqa: E402
 
 BASE = ROOT / "docs" / "diagrams" / "submodule_boundaries"
 WIDTH = 1500
-HEIGHT = 1100
+HEIGHT = 1210
 RASTER_WIDTH = 2400
 DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
 MANIFEST = ROOT / "docs" / "diagrams" / "PNG_MANIFEST.json"
@@ -100,6 +100,16 @@ ROLES = {
         "CORE SRP",
         "#FFF8E1",
         "#8D6E00",
+    ),
+    "third_party/tsn-c-stack": Role(
+        "Portable ADP, ACMP and MAAP cores",
+        "sw/firmware/ctrl/acmp/acmp_mbx.c",
+        "mailbox adapter",
+        "GoogleTest and CTest",
+        "sw/firmware/ctrl/test",
+        "CORE STACK",
+        "#E0F2F1",
+        "#00695C",
     ),
     "external": Role(
         "Historical Ethernet MAC import",
@@ -187,7 +197,8 @@ def module_positions() -> dict[str, tuple[int, int]]:
         "gptp-processor": (35, 500),
         "third_party/verilog-axis": (1045, 135),
         "external": (1045, 500),
-        "third_party/lwSRP": (540, 675),
+        "third_party/lwSRP": (290, 800),
+        "third_party/tsn-c-stack": (790, 800),
     }
 
 
@@ -244,7 +255,8 @@ def _svg_connections() -> list[str]:
         "gptp-processor": ((455, 625), (540, 500), "wrapper"),
         "third_party/verilog-axis": ((1045, 260), (960, 350), "RTL"),
         "external": ((1045, 625), (960, 535), "legacy"),
-        "third_party/lwSRP": ((750, 675), (750, 580), "C port"),
+        "third_party/lwSRP": ((650, 800), (650, 580), "C port"),
+        "third_party/tsn-c-stack": ((850, 800), (850, 580), "C cores"),
     }
     for path, (start, end, label) in connections.items():
         dash = ' stroke-dasharray="9,7"' if path == "external" else ""
@@ -308,11 +320,11 @@ def _svg_module_card(path: str, module: Submodule, x: int, y: int) -> list[str]:
 def _svg_evidence_rule() -> list[str]:
     """The closing rule: donor suites run before root integration suites."""
     return [
-        '<rect x="190" y="1000" width="1120" height="70" rx="12" '
+        '<rect x="190" y="1110" width="1120" height="70" rx="12" '
         'fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>',
-        '<text x="750" y="1028" text-anchor="middle" font-size="18" '
+        '<text x="750" y="1138" text-anchor="middle" font-size="18" '
         'font-weight="bold" fill="#263238">Evidence rule</text>',
-        '<text x="750" y="1054" text-anchor="middle" font-size="17" '
+        '<text x="750" y="1164" text-anchor="middle" font-size="17" '
         'fill="#455A64">Run donor suites before root integration suites.</text>',
         '</svg>',
     ]
@@ -374,6 +386,7 @@ def _edge_cells(module_ids: dict[str, str]) -> list[str]:
         ("third_party/verilog-axis", "RTL", False),
         ("external", "legacy", True),
         ("third_party/lwSRP", "C port", False),
+        ("third_party/tsn-c-stack", "C cores", False),
     ]
     for index, (path, label, dashed) in enumerate(edges, start=1):
         style = (
@@ -429,7 +442,7 @@ def drawio(modules: list[Submodule]) -> str:
     cells.extend(_edge_cells(module_ids))
     cells.append(_vertex_cell(
         "evidence",
-        Box(190, 1000, 1120, 70),
+        Box(190, 1110, 1120, 70),
         "<b>Evidence rule</b><br>"
         "Run donor suites before root integration suites.",
         ("#FFFFFF", "#78909C"),

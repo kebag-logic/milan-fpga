@@ -50,6 +50,9 @@ block RAM the SoC builds from them. This file grades seven things:
      rule or a property, and must turn its arm red with a named failure. A
      mutant is graded only against an arm that passed unmutated in the same
      run, so a failure of the environment is never counted as a kill.
+--build-only compiles and links the reset-entry probe for the boundary capture.
+It requires RV32, runs no suites and plants no defects.
+
 """
 from __future__ import annotations
 
@@ -83,6 +86,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
 import ctrl_memory  # noqa: E402
+from ctrl_memory_probe import link  # noqa: E402
 import fw_rv32  # noqa: E402
 import milan_soc  # noqa: E402
 
@@ -522,28 +526,6 @@ def sim_arms(problems: list[str], need: int = LARGEST_NEED) -> None:
 
 # ---- 4. the link ---------------------------------------------------------------------------
 
-PROBE = """\
-int counter = 7;
-unsigned char nvm_stage[3344];
-int main(void) { return counter + nvm_stage[counter]; }
-"""
-
-
-def link(cc: str, tmp: Path, script: str) -> Path:
-    """The probe linked by `script` behind the reset entry."""
-    (tmp / "regions.ld").write_text(ctrl_memory.regions_ld())
-    (tmp / "probe.c").write_text(PROBE)
-    (tmp / "split.ld").write_text(script)
-    flags = ["-march=rv32i", "-mabi=ilp32"]
-    subprocess.run([cc, *flags, "-ffreestanding", "-Os", "-c", str(tmp / "probe.c"), "-o", str(tmp / "probe.o")],
-                   check=True)
-    subprocess.run([cc, *flags, "-c", str(PLAT / "ctrl_split_start.S"), "-o", str(tmp / "start.o")], check=True)
-    elf_path = tmp / "probe.elf"
-    subprocess.run([cc, *flags, "-nostdlib", "-static", "-no-pie", "-Wl,--gc-sections,--build-id=none",
-                    "-T", str(tmp / "split.ld"), f"-L{tmp}", str(tmp / "start.o"), str(tmp / "probe.o"),
-                    "-o", str(elf_path)], check=True)
-    return elf_path
-
 
 def filesz_at(data: bytes, address: int) -> int:
     """Where the file size of the load segment carrying `address` is, read without `read_elf`."""
@@ -967,9 +949,20 @@ def run_arm(problems: list[str], label: str, arm: Callable[[list[str]], object])
 
 
 def main() -> int:
-    """Every arm; exit 1 naming each failure."""
+    """Every arm, or --build-only for the boundary capture; exit 1 naming each failure."""
     if sys.argv[1:2] == ["--soc-child"]:
         return soc_child(Path(sys.argv[2]))
+    if sys.argv[1:] == ["--build-only"]:
+        # The boundary capture needs the link arm's sources, without running
+        # simulations or planting defects. All its links use these compile flags.
+        cc = fw_rv32.compiler()
+        if cc is None:
+            print("REFUSED: the reset-entry build needs an RV32 compiler", file=sys.stderr)
+            return 2
+        with tempfile.TemporaryDirectory(prefix="ctrl-memory-build-") as name:
+            link(cc, Path(name), (PLAT / "ctrl_split.ld").read_text())
+        print("test_ctrl_memory: BUILT (reset entry and probe; no suites run)")
+        return 0
     problems: list[str] = []
     print("test_ctrl_memory: the split placement's firmware memory (#640 M8a)")
     with tempfile.TemporaryDirectory(prefix="ctrl-memory-") as name:

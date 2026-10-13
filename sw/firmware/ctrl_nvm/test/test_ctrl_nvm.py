@@ -33,6 +33,12 @@ COVERAGE. --coverage DIR builds every shape's suites with gcov's
 instrumentation of the store into DIR and runs them (no RV32 arm, no
 self-test); sw/firmware/gtest/fw_coverage.py reads DIR.
 
+BUILD ONLY. --build-only builds and links every shape's binaries (with
+--coverage, the coverage builds) and its RV32 arm, and runs no binary; it
+plants nothing and ends BUILT, never OK. The TSN stack boundary gate's builds
+are such runs (sw/firmware/ctrl/test/ctrl_configs.py, BUILDERS): the boundary
+needs the compiles, not the tests (#697).
+
 NEGATIVE CONTROLS. --self-test plants every defect of nvm_mutants.py into a
 copy of the tree, one at a time, at the shipping 1x1 shape (or the shape a
 defect names: a clock defect is graded at 83.333 MHz), and requires each
@@ -44,8 +50,10 @@ Usage:
     python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
     python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --config configs/endstation_ax7101_8x8.yaml
     python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --coverage <dir>
+    python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --build-only
 
-Exit 0 = every test passed (and every planted defect reddened); 1 = a
+Exit 0 = every test passed (and every planted defect reddened; with
+--build-only, every binary built); 1 = a
 finding; 2 = refused (the suite could not be built, or no RV32 compiler under
 --require-rv32).
 """
@@ -117,9 +125,10 @@ def build(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> dic
 
 
 def evidence(log: str) -> list[str]:
-    """The lines of a run worth printing: the tally, the figures and every failure."""
+    """The lines of a run worth printing: the tally, the figures and every failure (in a build-only run, that the
+    binary was not run)."""
     keep = ("==", "RESULT", "  longest", "  [FAIL]", "  verdict")
-    return [ln for ln in log.splitlines() if ln.startswith(keep)]
+    return [ln for ln in log.splitlines() if ln.startswith(keep) or ln.endswith(fw_gtest.NOT_RUN)]
 
 
 def run_shape(shape: Shape, work: Path, b: fw_gtest.Build, require_rv32: bool) -> tuple[list[str], int]:
@@ -230,7 +239,7 @@ def coverage(cfgs: list[Path], out: Path, jobs: int) -> int:
     except Refusal as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 2
-    print(f"saved-state store coverage run: {'FAIL' if failed else 'PASS'}")
+    print(f"saved-state store coverage run: {'FAIL' if failed else 'PASS' if fw_gtest.EXECUTION.run else 'BUILT'}")
     return 1 if failed else 0
 
 
@@ -245,7 +254,12 @@ def main() -> int:
                     help="refuse, rather than skip, when no RV32 compiler is present")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel builds and planted defects")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run every shape there")
+    ap.add_argument("--build-only", action="store_true",
+                    help="build and link every binary and run none (the TSN stack boundary gate's builds)")
     args = ap.parse_args()
+    if args.build_only and args.self_test:
+        ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
+    fw_gtest.EXECUTION.run = not args.build_only
     cfgs = args.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
     if args.coverage is not None:
         return coverage(cfgs, args.coverage.resolve(), args.jobs)
@@ -270,6 +284,9 @@ def main() -> int:
         print(f"FINDING: {x}")
     if findings:
         return 1
+    if args.build_only:
+        print(f"saved-state store gate (#665 F1): BUILT across {len(cfgs)} shape(s), nothing run (--build-only)")
+        return 0
     print(f"saved-state store gate (#665 F1): OK across {len(cfgs)} shape(s), {tests} tests"
           + (f", and all {len(nvm_mutants.MUTANTS)} planted defects reddened" if args.self_test else ""))
     return 0

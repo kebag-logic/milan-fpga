@@ -16,7 +16,8 @@ defines H-MAAP; host evidence does not establish target or wire timing.
 
 ## Core
 
-[`maap.c`](maap.c) implements B.3.2/Table B.7 in static storage.
+The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/src/maap.c)
+(the [submodule](../../../../third_party/tsn-c-stack), #697) implements B.3.2/Table B.7 in static storage.
 Each interface owns an INITIAL, PROBE or DEFEND state and one timer.
 ReserveAddress sends an initial PROBE, then three retransmissions.
 The last retransmission precedes ANNOUNCE and acquisition publication.
@@ -179,6 +180,8 @@ python3 sw/firmware/ctrl/test/maap_differential.py --self-test
 
 Use the repository-pinned simulator for the last command.
 Set TMPDIR to disk-backed scratch before running the gates.
+The differential first runs the shared stack pin check, in both modes.
+It refuses a `third_party/tsn-c-stack` checkout off its gitlink or differing from it.
 The differential drives shared probe, per-state conflict, loss and retry stimulus
 through the C core and the parent MAAP engine.
 Annex B is the oracle for both.

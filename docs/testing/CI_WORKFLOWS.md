@@ -56,10 +56,68 @@ pull-request update and on every push to `dev`. It produces one stable
   The RV32 self-test plants header, ABI, and runtime-dependency defects.
   These builds report objects and frames, not linked-image bounds.
   F4 initializes the public lwSRP submodule at its exact pin.
+  Each of the four jobs also initializes `third_party/tsn-c-stack`, the cores' submodule (#697).
+  None runs a capture: the TSN stack boundary is `firmware-boundary`'s.
   The control gate includes lwSRP, SRP and its mutation campaign.
   The saved-state mutation campaign remains local (see [Local commands](#local-commands)).
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
   The job runs the tally listener's planted cases.
+  The four jobs' budgets are in the table below (#716).
+- the TSN stack boundary over the compiles of every builder it judges but
+  those that need Verilator, `firmware-boundary` (#697), when RTL or its
+  tooling changes. The step is
+  `ctrl_boundary.py --require-rv32 --selftest --without verilator`, given no
+  capture: the gate runs each builder of its own known set
+  (`ctrl_configs.BUILDERS`) under one capture of its own, by its builds and
+  not its suites, and judges that capture.
+  The suite builders run by their `--build-only`: the control gate builds and links every arm's binaries and its RV32 build, the store's gate every shape's binaries and its RV32 build, and the coverage gate both gates' coverage builds.
+  None runs a binary, plants a defect or measures anything; each ends `BUILT`.
+  The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
+  The fifth builder is `sw/litex/test_ctrl_memory.py --build-only`.
+  It compiles the reset entry and links its probe.
+  The job installs `sw/litex/litex_pins.txt` for its imports.
+  This mode needs no CPU generation or SoC simulations.
+  The sixth builder runs `stream_counter_f5.py --build-only` at both shapes.
+  It compiles and links the firmware mailbox fixture without execution.
+  Its own capture remains mandatory beside the other five.
+  A builder dropped from the known set is still found by text, and refuses the gate by name: a program that names the firmware's tree must be a known builder or listed with why it need not be, even where another builder still runs it.
+  So does a known builder the capture holds nothing of from a run of its own, though another builder's run compiles it, as the coverage gate's runs the control and store gates; two standing controls plant each.
+  The builders found by text that compile only in a suite, the planted-defect campaigns and the coverage reader's planted cases, are listed with what they compile there (`ctrl_configs.SUITES`).
+  The capture (`ctrl_capture.py`): a recording wrapper on `PATH` for every compiler has the real compiler expand each invocation and list what each source's compile reads, runs the real compiler unchanged and records both with its exit status.
+  The gate judges exactly the sources the capture recorded as compiled, each by the compiler's own dependency output for that invocation: `-M` with the invocation's own arguments, directory and environment, and `-H`'s tree of what the source's own `#include` lines read.
+  It builds no include path and lists no source: it classifies each file a compile read by where it lives.
+  A compile of a firmware source reads no stack file outside `include/`, and no firmware file includes one in any compile; the firmware's sources include the saved-state store's and both images' own.
+  A compile of a stack source reads, through its own `#include` lines, only the stack's files and the C implementation's headers, and no stack file includes anything else.
+  The stack's tests reach nothing of this repository outside the submodule.
+  It refuses a missing or empty capture, a known builder the capture holds nothing of, an invocation the compiler could not expand, and a source a passing compile compiled whose dependency output failed or is incomplete, by name.
+  It runs the stack's own gate and the image builders under the capture itself.
+  The builders that need Verilator, which this job has none of, are named and left out (`--without verilator`); `firmware-verilator` judges them.
+  The stack's own boundary gate runs with gcc and clang.
+  Every Makefile target that builds against the stack has the pin check as a prerequisite.
+  Its pin controls refuse a stack off its gitlink or differing from it, in the MAAP differential and the AECP tools too.
+  Every mailbox bench target that reaches the stack refuses a poisoned one on the pin check.
+  Its controls compile planted copies through captures of their own, four at once, the hosted runner's CPU count, and the stack's own self-test runs beside them.
+  The capture's recorder is compiled C; to each compile it adds a dependency pass, a preprocessing of that compile's source.
+  The compiler's own expansion runs once for each distinct argument vector and is reused for the rest.
+  Its budget is the job's own 30 minutes.
+  On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at `0a9c5fa8` took 682 s, 38% of 1800 s.
+  Of that the builds took 614 s: the control gate's 299 s, the coverage gate's 226 s, the store's 80 s and the RV32 self-test's 9 s.
+- the same TSN stack boundary over the compiles only the builders that need
+  Verilator make, `firmware-verilator` (#697), when RTL or its tooling
+  changes: the mailbox bench at its default target, the MAAP differential
+  with its self-test, and the AECP wire comparison at each processor
+  reference it pins (`--every`: one interface at the processor's gitlink,
+  two at the merged #69 revision, each tree taken from the processor
+  submodule's own objects).
+  Each runs by its own commands (`ctrl_configs.BUILDERS`) under the gate's own capture, with the pinned Verilator from the cache `verilator-lint` shares.
+  The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it and the pin controls.
+  Those controls replay the wire comparison's and the differential's own recorded compiles on a planted copy, and drop the wire comparison's compiles from the capture.
+  It names the firmware builders and their controls as `firmware-boundary`'s.
+  Each recorded compile is judged whole, in the job that ran it.
+  Its budget is the job's own 40 minutes.
+  On a hosted runner at `5b4f6fbe`, before the dependency pass, the step took 438 s (job 114344992708) and the job 473 s, a fifth of the 40 minutes.
+  A replica of the step took 486 s on four CPUs of a shared host, where `5b4f6fbe`'s took 452 s, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
+  Of that, the bench took 58 s, the differential 143 s and the wire comparison at both references 215 s; the judgement and its controls took the rest.
 
 Firmware work uses four independent jobs, each requiring `changes`.
 The `rtl-fast` aggregate requires every job's result.
@@ -74,6 +132,7 @@ It also runs the tally checks and complete coverage ratchet.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
 The aggregate also requires the separate `publication-census` job.
+It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
 
@@ -102,7 +161,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs, `publication-census` and all four firmware jobs.
+jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -315,6 +374,13 @@ twins. The worker-result step is the only step that turns a failed or
 timed-out worker red: a killed suite's partial log still tallies and its SHA
 record still verifies, so on both hosted `milan_dp` timeouts only that step
 failed.
+
+Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
+suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
+come from that submodule (#697), whichever shard owns the suite. Every bench
+target that compiles against the stack has the shared pin check as a
+prerequisite, so a checkout off the gitlink or differing from it is refused,
+never built, whichever target runs.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -1730,14 +1796,14 @@ otherwise complete local head-tree run.
 
 Before any candidate-directed network operation, the runner parses the exact
 committed `.gitmodules` blob and requires the trusted name/path/URL pairs with
-no duplicate or extra configuration. It also requires the matching five
+no duplicate or extra configuration. It also requires the matching six
 gitlink paths. Git disables every transport by default and enables only HTTPS;
 the inactive SSH-only `external` entry must match the trusted manifest but is
 never fetched. Only then, and only after selected workflows pass their static
-sandbox scan, does the temporary checkout initialize the four allowlisted
+sandbox scan, does the temporary checkout initialize the five allowlisted
 public pinned dependencies (`third_party/verilog-axis`, `protocol-processor`,
-`gptp-processor`, and `third_party/lwSRP`). This gives act's checkout copier
-the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
+`gptp-processor`, `third_party/lwSRP`, and `third_party/tsn-c-stack`). This
+gives act's checkout copier the submodule-path parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
 The runner then populates the per-run action cache itself, serially, before
@@ -2637,7 +2703,8 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them. F4 fetches the pinned lwSRP submodule and installs the pinned SDK before
+them, and the TSN stack boundary as `firmware-boundary` and `firmware-verilator`
+run it together. F4 fetches the pinned lwSRP and tsn-c-stack submodules and installs the pinned SDK before
 the required RV32 control build and its `--self-test` mutation campaign.
 The saved-state campaign remains a local `--self-test` addition, and the
 tally listener's campaign uses `--mutants`
@@ -2646,6 +2713,7 @@ tally listener's campaign uses `--mutants`
 ```sh
 python3 sw/firmware/gtest/tally_selftest.py --mutants
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16

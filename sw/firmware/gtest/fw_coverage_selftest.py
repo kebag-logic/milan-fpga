@@ -106,6 +106,17 @@ class Planted:
                  self.root.parent / "elsewhere/x.c")
         return [f"measured {rel}" for rel in merged_of(*(doc(str(p)) for p in paths))]
 
+    def stack_scope(self) -> list[str]:
+        """The TSN stack's sources and public headers are measured; its tests, examples and scripts never are
+        (#697)."""
+        stack = self.root / "third_party/tsn-c-stack"
+        measured = ("src/x.c", "include/x.h")
+        never = ("tests/t.cpp", "examples/p.c", "scripts/s.c")
+        got = merged_of(*(doc(str(stack / rel)) for rel in measured + never))
+        want = {f"third_party/tsn-c-stack/{rel}" for rel in measured}
+        return ([f"measured {rel}" for rel in sorted(set(got) - want)] +
+                [f"did not measure {rel}" for rel in sorted(want - set(got))])
+
     def moved_out(self) -> list[str]:
         """R506-1-S1's measurement: g's excluded branch is taken now and its
         line runs, while another arc and another line of g go uncovered, so
@@ -174,6 +185,7 @@ def cases(p: Planted) -> list[tuple[str, Callable[[], list[str]], str]]:
          lambda: p.verdict([p.doc(f_arcs=(1, 1)), p.doc(f_arcs=(2, 0, 1, 1))], [row()], FULL),
          "branches 4/5 fell below the recorded 5/5"),
         ("a test, a host model and a source outside the tree are not measured", p.not_firmware, ""),
+        ("the stack's sources and headers are measured, its tests and examples are not", p.stack_scope, ""),
         ("an exception edge is not a branch", p.throw_edge, ""),
         ("gcc and gcov on this host read as planted", lambda: real_gcov(p), ""),
         ("gcc: a compensating swap, the control measurement", lambda: real_swap(p, swapped=False), ""),

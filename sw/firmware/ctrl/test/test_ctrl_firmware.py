@@ -5,18 +5,22 @@
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
-model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms. The
+ADP, ACMP and MAAP cores and their own tests are the TSN stack's, from the
+pinned tsn-c-stack submodule (#697), built into the same arms:
 
   model    the mailbox suite (tb/verilator/mbx/suite.hpp, the checks the RTL
            passes through both bus adapters) run on the model, so the model
            the other arms rely on answers to the RTL's expectations;
   port     the lwSRP port layer (static pool, debug sink), the mailbox
            driver and the event loop (test_port_loop.cpp);
-  adp      the ADP core over fake ports, the adapter's tag race and every
-           response path's service-latency bound (test_adp.cpp);
+  adp      the ADP core over fake ports (the stack's tests/test_adp.cpp),
+           the adapter's tag race and every response path's service-latency
+           bound (test_adp.cpp);
   reentry_debug, reentry_release
            synchronous callbacks from every port to every entry, on the same
-           instance and another, asserting or counted and ignored respectively;
+           instance and another, asserting or counted and ignored respectively
+           (the stack's tests/test_adp_reentry.cpp);
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
@@ -33,7 +37,8 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            model: the timers on the interface's slot, the ADP channel's tap,
            every path's service cost (the H-ACMP and H-DISC hooks), owed frames
            and the response before its notification, the adp channel's
-           bound-talker table (test_acmp.cpp, test_acmp_mbx.cpp);
+           bound-talker table (the stack's tests/test_acmp.cpp,
+           test_acmp_mbx.cpp);
   acmpif2  test_acmp_mbx.cpp again, the firmware and the model compiled
            against the contract elaborated for two AVB interfaces (written by
            gen_mailbox.py into the build), so the adapter's per-interface
@@ -88,6 +93,11 @@ partitions instead. Each mode covers the entire table across its partitions.
 --coverage DIR builds the firmware with gcov's instrumentation into DIR and
 runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 
+--build-only builds and links every arm's binaries (with --coverage, the
+coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
+The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
+the boundary needs the compiles, not the tests (#697).
+
 --shard INDEX/4 schedules the complete gate across four jobs: normal suites,
 control mutants, AECP mutants, and SRP mutants with the pin controls.
 It requires --self-test and cannot narrow coverage or another partition.
@@ -99,9 +109,12 @@ Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 2/4
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
 
-Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
-2 = refused (the processor pin, a missing compiler, an extraction marker).
+Exit 0 = every arm passed and every planted defect reddened (with
+--build-only, every binary built); 1 = a finding;
+2 = refused (the processor pin, the tsn-c-stack pin or a modified stack, a
+missing compiler, an extraction marker).
 """
 
 from __future__ import annotations
@@ -123,7 +136,7 @@ import srp_pub_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
-from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+from ctrl_build import CTRL, Refusal, Tree, stack_pin  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
 
 PHASES = ("suites", "control", "aecp", "srp")
@@ -211,6 +224,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
     tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
     try:
+        print(f"tsn-c-stack at {stack_pin()}")
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
@@ -228,8 +242,13 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
         print(f"REFUSED: {exc}")
         return 2
     failed = ctrl_arms.report(outcomes)
-    print(f"test_ctrl_firmware coverage run: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware coverage run: {verdict(failed)}")
     return 1 if failed else 0
+
+
+def verdict(failed: bool) -> str:
+    """FAIL, PASS, or in a build-only run BUILT: it ran nothing, so it passed nothing."""
+    return "FAIL" if failed else "PASS" if fw_gtest.EXECUTION.run else "BUILT"
 
 
 def part(text: str) -> tuple[int, int]:
@@ -254,13 +273,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
+    ap.add_argument("--build-only", action="store_true",
+                    help="build and link every binary and run none (the TSN stack boundary gate's builds)")
     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
                     help="with --self-test: plant slice K of N of the defect table")
     args = ap.parse_args(argv)
     args.jobs = min(4, max(1, args.jobs))
+    if args.build_only and args.self_test:
+        ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
     if args.shard is not None and (not args.self_test or args.coverage is not None
                                   or args.mutation_shard is not None or args.slice != (1, 1)):
         ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
+    fw_gtest.EXECUTION.run = not args.build_only
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
@@ -277,12 +301,13 @@ def main(argv: list[str] | None = None) -> int:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+            print(f"tsn-c-stack at {stack_pin()}")
             cut_reuse(tree.reuse)
             failed = run_selected(args, tree, out)
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2
-    print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware: {verdict(failed)}")
     return 1 if failed else 0
 
 
