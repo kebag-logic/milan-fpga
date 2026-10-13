@@ -1,0 +1,33 @@
+[ok] mutant f3b-query-inside-allocation (maap): 542 check(s) failed
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+[ok] mutant f3b-composition-owner (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[ok] mutant f3b-idle-tick (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: service tick wakes an idle platform for freshness expiry
+[ok] mutant f3b-config-interval (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: mailbox composition supplies the Milan freshness interval
+[ok] mutant f3b-fresh-probe-arm (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-listener-arm (maap): 17 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant f3b-no-demand-arm (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-source-validity (acmp, acmp, acmpif2, acmpif2, maap): 35 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bListenerRequiresSourceDestination: published source predicate includes destination validity and interface
+[ok] mutant f3b-expiry-arm (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe expires at 15000 milliseconds without a Listener
+[ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+[ok] mutant pub-maap-gate-after-the-report (maap): 5 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 16 of 16 caught

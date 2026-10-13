@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$EVIDENCE/round3/integrity.py", line 64, in <module>
+    count, links = verify(root, head)
+                   ^^^^^^^^^^^^^^^^^^
+  File "$EVIDENCE/round3/integrity.py", line 52, in verify
+    assert not git(directory, "status", "--porcelain", "--ignored", "--untracked-files=all")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

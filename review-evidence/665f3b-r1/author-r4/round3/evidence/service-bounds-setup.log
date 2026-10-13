@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$WORK/bounds.py", line 6, in <module>
+    r=s.arm_service_bounds(b.Tree(b.CTRL,Path('$WORK/bounds'),Path('.')))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REPO/sw/firmware/ctrl/test/ctrl_service_bounds.py", line 94, in arm_service_bounds
+    raise Refusal("service-bound header compilation failed: " + generated.stderr + compiled.stderr)
+ctrl_build.Refusal: service-bound header compilation failed: Traceback (most recent call last):
+  File "$REPO/sw/mailbox/gen_mailbox.py", line 66, in <module>
+    from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REPO/sw/mailbox/mailbox_emit.py", line 14, in <module>
+    from mailbox_model import Channel, Constant, Contract, Field, Register, Word, constants
+  File "$REPO/sw/mailbox/mailbox_model.py", line 23, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+<command-line>: fatal error: $WORK/bounds/service-bounds/if1/mbx_contract.h: No such file or directory
+compilation terminated.
+

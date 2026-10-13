@@ -1,0 +1,19 @@
+{
+  "name": "boundary-host-split",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--without",
+    "verilator",
+    "--capture",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/capture-control",
+    "--capture",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/capture-coverage",
+    "--capture",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/capture-small"
+  ],
+  "rc": 0,
+  "seconds": 119.87
+}
