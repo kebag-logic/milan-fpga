@@ -190,6 +190,12 @@ MAKE_SRC = "$(PLANT_INCLUDES) -c $(PLANT_CTRL)/adp/adp_mbx.c -o planted.o"
 NOT_OURS = "which is neither the stack's nor the C implementation's"
 
 PLANTS = (
+    Plant("the F5 builder removed from the registry", "ctrl", "", "", "",
+          "tb/verilator/milan_dp/stream_counter_f5.py names the firmware's tree",
+          alter="forget tb/verilator/milan_dp/stream_counter_f5.py"),
+    Plant("the F5 builder's own capture is missing", "ctrl", "", "", "",
+          "the capture holds no invocation of tb/verilator/milan_dp/stream_counter_f5.py from a run of its own",
+          alter="drop run tb/verilator/milan_dp/stream_counter_f5.py"),
     *(Plant(f"an unclassified copy of {name}", "ctrl", "", "", "",
             f"sw/firmware/ctrl/test/planted_{name} names the firmware's tree",
             texts=((f"planted_{name}", (Path(__file__).resolve().parents[3] / "litex" / name).read_text()),))

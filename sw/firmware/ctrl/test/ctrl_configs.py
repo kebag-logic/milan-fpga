@@ -72,8 +72,8 @@ from ctrl_capture import Capture, Expansion, Invocation
 
 #: The boundary gate's own modules: never a builder.
 GATE = frozenset(HERE / name for name in ("ctrl_boundary.py", "ctrl_capture.py", "ctrl_configs.py", "ctrl_pin.py",
-                                          "ctrl_pin_env.py", "ctrl_pin_store.py", "ctrl_plants.py", "ctrl_shim.py",
-                                          "ctrl_expand.py", "ctrl_runs.py"))
+                                          "ctrl_pin_env.py", "ctrl_pin_store.py", "ctrl_pin_bench.py", "ctrl_plants.py",
+                                          "ctrl_shim.py", "ctrl_expand.py", "ctrl_runs.py"))
 #: The shipped configs: each a shape the image builders take (ctrl_image.py --shape, ctrl_srp_image.py --config).
 CONFIGS = ROOT / "configs"
 #: What a builder of the firmware names: its tree, or the shared builder the arms, campaigns and fixtures
@@ -98,7 +98,7 @@ class Builder:
 
 
 #: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
-#: five through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
+#: six through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
 #: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
 #: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
 #: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
@@ -119,6 +119,9 @@ BUILDERS = (
     Builder("sw/firmware/gtest/fw_coverage.py",
             (("{python}", "sw/firmware/gtest/fw_coverage.py", "--build-only", "--jobs", "4"),)),
     Builder("sw/litex/test_ctrl_memory.py", (("{python}", "sw/litex/test_ctrl_memory.py", "--build-only"),)),
+    Builder("tb/verilator/milan_dp/stream_counter_f5.py",
+            tuple(("{python}", "tb/verilator/milan_dp/stream_counter_f5.py", "--build-only", "--shape", shape,
+                   "--work", "{work}/f5-" + shape) for shape in ("1", "8"))),
     Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
@@ -147,6 +150,8 @@ PART_OF = {
 }
 #: The builders found by text whose compiles, if any, are none of the firmware's, each with the reason.
 OUTSIDE = {
+    "tb/verilator/milan_dp/Makefile": "delegates firmware builds to the separately captured F5 program; "
+                                     "its own compiler recipes build RTL harnesses",
     "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
     "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
                             "compile no control-stack source",

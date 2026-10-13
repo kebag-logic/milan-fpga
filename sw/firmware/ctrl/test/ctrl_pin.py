@@ -162,6 +162,7 @@ from pathlib import Path
 from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STACK, UNLISTED, Refusal, audited, git,
                         git_env, stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
+from ctrl_pin_bench import bench_arms
 from ctrl_pin_env import inherited_arms
 from ctrl_pin_store import store_arms
 import fw_gtest
@@ -225,6 +226,8 @@ if "--Mdir" in args and "-o" in args:
 '''
 #: The planted Makefile control: the mailbox bench's run-if2 without the pin check as its prerequisite.
 UNPINNED = (ROOT / "tb/verilator/mbx/Makefile", "run-if2: if2-gen | stack-pin\n", "run-if2: if2-gen\n", "run-if2")
+#: The counter entry points share the prerequisite, including the RTL-only counter target.
+COUNTER_TARGETS = ("counters", "counters-f5", "counters-mutants")
 #: How long one bench target may run against the poisoned clone before it is a failure.
 BENCH_TIMEOUT_S = 900
 #: The pin proof run from a census's texts in a fresh interpreter (exercised): each module compiled from its text
@@ -696,7 +699,13 @@ def makefile_findings(makefiles: list[Path], work: Path) -> list[str]:
     work.mkdir(parents=True, exist_ok=True)
     if not link.is_symlink():
         link.symlink_to(STACK, target_is_directory=True)
-    return [f for makefile in makefiles for f in stack_targets(makefile, link)[2]]
+    findings = [f for makefile in makefiles for f in stack_targets(makefile, link)[2]]
+    for makefile in makefiles:
+        if makefile.parent.name == "milan_dp":
+            defined = targets(makefile, [])
+            findings += [f"{target} lacks its required stack-pin prerequisite"
+                         for target in COUNTER_TARGETS if "stack-pin" not in defined.get(target, frozenset())]
+    return findings
 
 
 def mirror(directory: Path, into: Path) -> Path:
@@ -720,54 +729,6 @@ def mirror(directory: Path, into: Path) -> Path:
             (there / name).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(directory / name, there / name)
     return there
-
-
-def bench_arms(makefiles: list[Path], clone: Path, work: Path, edited: str) -> list[tuple]:
-    """For every target of every Makefile builder that reaches the stack in its dry run: run it in a scratch
-    copy of its directory against the clone with wire.h poisoned, with no simulator; it must refuse on the pin
-    check and never reach the poisoned header; each target that runs the pin check passes the clone
-    unpoisoned. And the planted Makefile without the pin prerequisite."""
-    simulator = work / "no_simulator.py"
-    simulator.write_text(NO_SIMULATOR, encoding="utf-8")
-
-    def poison() -> None:
-        """The clone's wire.h, which every firmware build reads, ends in an #error."""
-        wire = clone / "include/wire.h"
-        wire.write_text(wire.read_text(encoding="utf-8") + f"\n{POISON}\n", encoding="utf-8")
-
-    def bench(makefile: Path, target: str) -> tuple[bool, str]:
-        """The target run for real in a fresh scratch copy: accepted, and its verdict on the stack."""
-        copy = mirror(makefile.parent, work / "bench") / makefile.name
-        rc, out = make(copy, f"STACK_DIR={clone}", f"VERILATOR={sys.executable} -I {simulator}", target,
-                       timeout=BENCH_TIMEOUT_S)
-        said = [ln for ln in out.splitlines() if "tsn-c-stack" in ln or "PIN-POISON" in ln]
-        if "PIN-POISON" in out:
-            return True, f"exit {rc}: compiled the poisoned header: {said[-1].strip()}"
-        return rc == 0, f"exit {rc}: {said[-1].strip() if said else 'no pin verdict'}"
-
-    def unpinned() -> tuple[bool, str]:
-        """The planted Makefile, judged as the gate judges every Makefile builder."""
-        makefile, old, new, _ = UNPINNED
-        copy = mirror(makefile.parent, work / "bench") / makefile.name
-        text = copy.read_text(encoding="utf-8")
-        if text.count(old) != 1:
-            raise Refusal(f"the planted Makefile control's anchor occurs {text.count(old)} times")
-        copy.write_text(text.replace(old, new), encoding="utf-8")
-        found = makefile_findings([copy], work / "unpinned")
-        return not found, found[0] if found else "no finding"
-
-    arms = []
-    for makefile in makefiles:
-        where = makefile.relative_to(ROOT).as_posix()
-        reaching, pins, _ = stack_targets(makefile, clone)
-        arms += [(f"{where} make {pin}, the pinned clone", lambda: None, lambda m=makefile, t=pin: bench(m, t), "")
-                 for pin in pins]
-        for target in reaching:
-            arms.append((f"{where} make {target}, the stack's wire.h poisoned", poison,
-                         lambda m=makefile, t=target: bench(m, t), edited + "include/wire.h"))
-    arms.append((f"{UNPINNED[0].relative_to(ROOT).as_posix()} planted with {UNPINNED[3]} unpinned", lambda: None,
-                 unpinned, f"{UNPINNED[3]} builds against tsn-c-stack without the pin check"))
-    return arms
 
 
 @dataclass(frozen=True)
@@ -984,6 +945,16 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
     texts = {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8") for p in PROOF}
     arms += inherited_arms(clone.path, pin, work, lambda stack, env: proof_run(texts, stack, env))
     arms += store_arms(clone.path, pin, work, edited)
+    for shape, extra in (("1", ()), ("8", ()), ("1", ("--build-only",))):
+        arms.append((f"the F5 gap check shape {shape} {extra}, the stack's wire layer edited",
+                     lambda: clone.append("include/wire.h"),
+                     lambda s=shape, e=extra: tool([sys.executable, "-B",
+                         str(ROOT / "tb/verilator/milan_dp/stream_counter_f5.py"),
+                         "--stack", str(clone.path), "--shape", s, *e]), edited + "include/wire.h"))
+    arms.append(("the F5 gap check, another revision checked out",
+                 lambda: clone.answer("checkout", "--quiet", "HEAD~1"),
+                 lambda: tool([sys.executable, "-B", str(ROOT / "tb/verilator/milan_dp/stream_counter_f5.py"),
+                               "--stack", str(clone.path)]), "is not the pinned"))
     clone.fresh()
     arms += bench_arms(makefiles, clone.path, work, edited)
     bad = 0

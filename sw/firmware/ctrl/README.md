@@ -123,6 +123,9 @@ It then runs the compile itself, waits for it, and records its exit status with 
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
 Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
 A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
+The sixth capture builds both F5 gap-check shapes with `stream_counter_f5.py --build-only`.
+It links the AECP core and mailbox adapter without running tests.
+Its registry entry and independent capture each have a removal control.
 The fifth capture runs `sw/litex/test_ctrl_memory.py --build-only`.
 It compiles the reset entry and links its probe.
 No SoC simulation or defect campaign runs in that capture.
@@ -156,7 +159,7 @@ The run that holds the firmware builders checks this.
 It also runs the stack's own boundary gate, beside the rest.
 `--selftest` first compiles an unplanted copy of the firmware's tree and the stack, laid out as in the checkout, the ways the controls compile it; that base must pass.
 Those ways are the image builder's compile of every image source at both of its shapes, the arms' C compile of every firmware and stack source, and their C++ compile of the stack's tests and of the firmware's headers.
-It then plants 101 defects, each refused by name, and 8 passing controls, where the firmware builders' capture is.
+It then plants 103 defects, each refused by name, and 8 passing controls, where the firmware builders' capture is.
 Two of them are a known builder whose own run compiles nothing and a builder dropped from the known set, each one the coverage gate still runs.
 Three controls copy the M8a programs without their classifications.
 Another removes the reset-entry builder's own capture.
@@ -229,10 +232,12 @@ The census also refuses a helper environment without either setting, and `ctrl_b
 It reads the modules as written, so it does not see a rebinding by assignment or code built at run time: the guarantee is the hook's.
 So the census also runs the proof from the modules it reads, under the hook in a fresh interpreter, and names each refusal at its line.
 The gates are the host test (with its coverage), `ctrl_boundary.py`, the MAAP differential in both modes, the mailbox bench ([`tb/verilator/mbx`](../../../tb/verilator/mbx)) and both image fixtures with the submodule as their stack.
+The F5 gap check runs it before staging or compiling.
+The datapath counter targets also require it before their recipes.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-106 pin controls follow the boundary controls.
+120 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
