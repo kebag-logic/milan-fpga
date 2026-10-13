@@ -1,0 +1,15 @@
+{
+  "label": "capture-memory",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/captures/memory",
+    "--",
+    "python3",
+    "sw/litex/test_ctrl_memory.py",
+    "--build-only"
+  ],
+  "rc": 0,
+  "seconds": 1.12
+}

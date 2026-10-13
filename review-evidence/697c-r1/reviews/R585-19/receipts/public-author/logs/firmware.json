@@ -1,0 +1,15 @@
+{
+  "label": "firmware",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--jobs",
+    "4",
+    "--shard",
+    "0/4"
+  ],
+  "rc": 0,
+  "seconds": 295.18
+}
