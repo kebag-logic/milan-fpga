@@ -1,0 +1,3 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl.yml: the decision step script is not the canonical form: line 9 must be 'if [ "${ACT:-false}" = true ]; then' (found 'if true; then'); 30 line(s) expected, 30 found; this script publishes `run_full`, so a line changed here selects the no-op path with every pinned name and key still in place
+ci_events: 1 finding(s) over 2021 contract item(s)

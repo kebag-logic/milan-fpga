@@ -1,0 +1,36 @@
+B16 actual landed merge 6c810c45                     rtl.yml       hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 actual landed merge 6c810c45                     rtl-fast.yml  hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 actual landed merge 6c810c45                     elaborate.yml hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 composed on recorded base 49da9fd9               rtl.yml       hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 composed on recorded base 49da9fd9               rtl-fast.yml  hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 composed on recorded base 49da9fd9               elaborate.yml hosted n=2 rtl=false | replay n=2 rtl=false eq=True
+B16 against current dev (already merged: empty)      rtl.yml       hosted n=0 rtl=true | replay n=0 rtl=true eq=True
+B16 against current dev (already merged: empty)      rtl-fast.yml  hosted n=0 rtl=true | replay n=0 rtl=true eq=True
+B16 against current dev (already merged: empty)      elaborate.yml hosted n=0 rtl=true | replay n=0 rtl=true eq=True
+this PR against live dev                             rtl.yml       hosted n=8 rtl=true | replay n=8 rtl=true eq=True
+this PR against live dev                             rtl-fast.yml  hosted n=8 rtl=true | replay n=8 rtl=true eq=True
+this PR against live dev                             elaborate.yml hosted n=8 rtl=true | replay n=8 rtl=true eq=True
+REV real (live=D)                                    rtl.yml       hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+REV real (live=D)                                    rtl-fast.yml  hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+REV real (live=D)                                    elaborate.yml hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+REV+E real (live=E)                                  rtl.yml       hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+REV+E real (live=E)                                  rtl-fast.yml  hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+REV+E real (live=E)                                  elaborate.yml hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+evil merge restores RTL (live=E)                     rtl.yml       hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+evil merge restores RTL (live=E)                     rtl-fast.yml  hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+evil merge restores RTL (live=E)                     elaborate.yml hosted n=2 rtl=true | replay n=2 rtl=true eq=True
+dev reverted D, lane kept D (landing changes nothing rtl.yml       hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+dev reverted D, lane kept D (landing changes nothing rtl-fast.yml  hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+dev reverted D, lane kept D (landing changes nothing elaborate.yml hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+own RTL on stale base then docs (live=E)             rtl.yml       hosted n=conflict rtl=None | replay n=1 rtl=None eq=True
+own RTL on stale base then docs (live=E)             rtl-fast.yml  hosted n=conflict rtl=None | replay n=1 rtl=None eq=True
+own RTL on stale base then docs (live=E)             elaborate.yml hosted n=conflict rtl=None | replay n=1 rtl=None eq=True
+docs-only on stale base (live=E)                     rtl.yml       hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+docs-only on stale base (live=E)                     rtl-fast.yml  hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+docs-only on stale base (live=E)                     elaborate.yml hosted n=1 rtl=false | replay n=1 rtl=false eq=True
+own RTL (other file) on stale base then docs (live=E rtl.yml       hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True
+own RTL (other file) on stale base then docs (live=E rtl-fast.yml  hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True
+own RTL (other file) on stale base then docs (live=E elaborate.yml hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True
+own RTL on stale base, live=current dev              rtl.yml       hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True
+own RTL on stale base, live=current dev              rtl-fast.yml  hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True
+own RTL on stale base, live=current dev              elaborate.yml hosted n=2 rtl=true ['docs/findings/README.md', 'hdl/common/axis_mux_rr_2in_1out.sv'] | replay n=2 rtl=true eq=True

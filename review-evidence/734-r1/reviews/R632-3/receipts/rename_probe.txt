@@ -1,0 +1,9 @@
+dev renames docs page into gate-read path, PR edits page rtl.yml       hosted rtl=true ['docs/reference/REGISTER_MAP.md'] | replay rtl=true ['docs/reference/REGISTER_MAP.md'] eq=True
+dev renames docs page into gate-read path, PR edits page rtl-fast.yml  hosted rtl=true ['docs/reference/REGISTER_MAP.md'] | replay rtl=true ['docs/reference/REGISTER_MAP.md'] eq=True
+dev renames docs page into gate-read path, PR edits page elaborate.yml hosted rtl=true ['docs/reference/REGISTER_MAP.md'] | replay rtl=true ['docs/reference/REGISTER_MAP.md'] eq=True
+dev renames hdl/a.sv to hdl/b.sv, PR edits hdl/a.sv      rtl.yml       hosted rtl=true ['hdl/b.sv'] | replay rtl=true ['hdl/b.sv'] eq=True
+dev renames hdl/a.sv to hdl/b.sv, PR edits hdl/a.sv      rtl-fast.yml  hosted rtl=true ['hdl/b.sv'] | replay rtl=true ['hdl/b.sv'] eq=True
+dev renames hdl/a.sv to hdl/b.sv, PR edits hdl/a.sv      elaborate.yml hosted rtl=true ['hdl/b.sv'] | replay rtl=true ['hdl/b.sv'] eq=True
+PR renames RTL file into docs (deletion side)            rtl.yml       hosted rtl=true ['docs/a.md', 'hdl/a.sv'] | replay rtl=true ['docs/a.md', 'hdl/a.sv'] eq=True
+PR renames RTL file into docs (deletion side)            rtl-fast.yml  hosted rtl=true ['docs/a.md', 'hdl/a.sv'] | replay rtl=true ['docs/a.md', 'hdl/a.sv'] eq=True
+PR renames RTL file into docs (deletion side)            elaborate.yml hosted rtl=true ['docs/a.md', 'hdl/a.sv'] | replay rtl=true ['docs/a.md', 'hdl/a.sv'] eq=True

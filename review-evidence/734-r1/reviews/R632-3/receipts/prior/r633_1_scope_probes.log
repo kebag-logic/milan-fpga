@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "$REVIEWS/734-r632-3-packet/scratch/prior_probes/R633-1/scope_probes.py", line 40, in <module>
+    assert select["env"]["PR_BASE_SHA"] == "${{ github.event.pull_request.base.sha }}"
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'PR_BASE_SHA'

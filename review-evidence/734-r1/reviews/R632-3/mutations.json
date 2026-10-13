@@ -1,0 +1,18 @@
+[
+ ["M01_fast_hosted_twodot_frozen", ".github/workflows/rtl-fast.yml", "git diff --no-renames --name-only \"$GITHUB_SHA^1\" \"$GITHUB_SHA\"", "git diff --no-renames --name-only \"$PR_BASE_SHA\" \"$GITHUB_SHA\""],
+ ["M02_full_hosted_threedot_frozen", ".github/workflows/rtl.yml", "\"$GITHUB_SHA^1\" \"$GITHUB_SHA\"", "\"$PR_BASE_SHA...$PR_HEAD_SHA\""],
+ ["M03_elab_hosted_twodot_frozen", ".github/workflows/elaborate.yml", "\"$GITHUB_SHA^1\" \"$GITHUB_SHA\"", "\"$PR_BASE_SHA\" \"$GITHUB_SHA\""],
+ ["M04_elab_replay_no_composition", ".github/workflows/elaborate.yml", "\"refs/remotes/origin/$PR_BASE_REF\" \"$merged\"", "\"$base\" \"$PR_HEAD_SHA\""],
+ ["M05_fast_replay_endpoint_trees", ".github/workflows/rtl-fast.yml", "\"refs/remotes/origin/$PR_BASE_REF\" \"$merged\"", "\"refs/remotes/origin/$PR_BASE_REF\" \"$PR_HEAD_SHA\""],
+ ["M06_full_replay_frozen_base", ".github/workflows/rtl.yml", "git diff --no-renames --name-only \"refs/remotes/origin/$PR_BASE_REF\" \"$merged\"", "git diff --no-renames --name-only \"$PR_BASE_SHA\" \"$merged\""],
+ ["M07_fast_no_act_branch", ".github/workflows/rtl-fast.yml", "if [ \"${ACT:-false}\" = true ]; then", "if false; then"],
+ ["M08_full_always_replay", ".github/workflows/rtl.yml", "if [ \"${ACT:-false}\" = true ]; then", "if true; then"],
+ ["M09_elab_merge_base_not_all", ".github/workflows/elaborate.yml", "git merge-base --all", "git merge-base"],
+ ["M10_full_replay_no_ancestry_check", ".github/workflows/rtl.yml", "            git cat-file -e \"$base^{commit}\"\n", ""],
+ ["M11_scope_empty_safe_removed", "scripts/ci_scope.py", "not changed or ", ""],
+ ["M12_scope_submodule_rule_removed", "scripts/ci_scope.py", "is_submodule_path(clean) or ", ""],
+ ["M13_scope_hdl_as_docs", "scripts/ci_scope.py", "DOC_PREFIXES = [\"LICENSES/\"]", "DOC_PREFIXES = [\"LICENSES/\", \"hdl/\"]"],
+ ["M14_scope_history_call_removed", "scripts/ci_scope.py", "    failures += history_selftest(ROOT)\n", ""],
+ ["M15_fast_push_before_ignored", ".github/workflows/rtl-fast.yml", "git diff --no-renames --name-only \"$base\" \"$GITHUB_SHA\"", "git diff --no-renames --name-only \"$GITHUB_SHA\" \"$GITHUB_SHA\""],
+ ["M16_elab_conflict_ignored", ".github/workflows/elaborate.yml", "merged=\"$(git merge-tree --write-tree \"refs/remotes/origin/$PR_BASE_REF\" \"$PR_HEAD_SHA\")\"", "merged=\"$(git merge-tree --write-tree \"refs/remotes/origin/$PR_BASE_REF\" \"$PR_HEAD_SHA\" | head -1 || true)\""]
+]

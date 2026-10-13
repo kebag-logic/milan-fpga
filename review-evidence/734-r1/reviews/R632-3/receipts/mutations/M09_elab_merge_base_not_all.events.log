@@ -1,0 +1,4 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/elaborate.yml: the elaborate scope step script is not the canonical form: line 17 must be 'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"' (found 'base="$(git merge-base "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"'); 24 line(s) expected, 24 found; this script publishes `rtl`, so a line changed here skips every elaboration gate with every pinned key still in place
+  FAIL .github/workflows/elaborate.yml: job `elaborate` step 2 (`Decide whether this head needs an elaboration`) script is not the canonical form: line 17 must be 'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"' (found 'base="$(git merge-base "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"'); 24 line(s) expected, 24 found
+ci_events: 2 finding(s) over 2021 contract item(s)

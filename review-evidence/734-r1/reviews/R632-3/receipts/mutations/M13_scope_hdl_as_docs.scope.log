@@ -1,0 +1,208 @@
+  ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+  ok   ['README.md', 'AGENTS.md']: rtl=False
+  ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+  ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+  FAIL ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=False
+  FAIL ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=False
+  ok   ['docs/AAF_LATENCY_TAPS.md']: rtl=True
+  ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+  ok   ['docs/design/AREA_BUDGET.md']: rtl=True
+  ok   ['docs/reference/MAILBOX_CONTRACT.md']: rtl=True
+  ok   ['docs/design/SPLIT_CONTROL_MEMORY.md']: rtl=True
+  ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+  ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+  ok   ['docs/traceability/untested.budget']: rtl=True
+  ok   ['docs/notes.txt']: rtl=True
+  ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+  FAIL ['hdl/ieee1722/aaf/doc/x.svg']: rtl=False
+  ok   ['cdc_census.drawio']: rtl=True
+  ok   ['cdc_census.svg']: rtl=True
+  FAIL ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=False
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  FAIL ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=False
+  FAIL ['hdl/milan/KL_pp_shadow.sv']: rtl=False
+  ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+  ok   ['LICENSE']: rtl=True
+  ok   ['notes.rst']: rtl=True
+  FAIL ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=False
+  ok   ['requirements.txt']: rtl=True
+  FAIL ['hdl/milan/milan_datapath.sv']: rtl=False
+  ok   ['sw/firmware/ctrl/adp/adp.c']: rtl=True
+  ok   ['sw/firmware/ctrl_nvm/test/test_nvm_write.cpp']: rtl=True
+  ok   ['sw/firmware/gtest/README.md']: rtl=True
+  ok   ['docs/x.md', 'sw/firmware/gtest/coverage.ratchet']: rtl=True
+  ok   ['scripts/lint_rtl.py']: rtl=True
+  ok   ['.github/workflows/rtl.yml']: rtl=True
+  ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+  ok   []: rtl=True
+  ok   ['gptp-processor']: rtl=True
+  ok   ['protocol-processor']: rtl=True
+  ok   ['external']: rtl=True
+  ok   ['third_party/verilog-axis']: rtl=True
+  ok   ['.gitmodules']: rtl=True
+  ok   ['docs/x.md', 'gptp-processor']: rtl=True
+  ok   submodule rule names protocol-processor
+  ok   submodule rule names gptp-processor
+  ok   submodule rule names external
+  ok   submodule rule names third_party/verilog-axis
+  ok   submodule rule names .gitmodules
+  ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+  ok   gate-read page docs/design/AREA_BUDGET.md (named at syn/ooc/pp_resource_gate.py:72) is relevant
+  ok   gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:90) is relevant
+  ok   gate-read page docs/reference/MAILBOX_CONTRACT.md (named at sw/mailbox/gen_mailbox.py:77) is relevant
+  ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3209) is relevant
+  ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+  ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+  FAIL gate-read page hdl/common/KL_link_guard.sv (named at sw/litex/milan_soc.py:591) is relevant
+  FAIL gate-read page hdl/common/axi_stream_if.sv (named at sw/litex/milan_soc.py:578) is relevant
+  FAIL gate-read page hdl/common/axis_mux_rr_2in_1out.sv (named at tb/verilator/ptp_ts/sva_campaign.py:64) is relevant
+  FAIL gate-read page hdl/common/cdc_handshake.sv (named at sw/litex/milan_soc.py:587) is relevant
+  FAIL gate-read page hdl/common/cdc_pair_fifo.sv (named at sw/litex/milan_soc.py:606) is relevant
+  FAIL gate-read page hdl/common/cdc_pulse.sv (named at sw/litex/milan_soc.py:587) is relevant
+  FAIL gate-read page hdl/common/csr/gen/lwsrp_csr_defaults.svh (named at sw/builder/endstation_builder.py:5888) is relevant
+  FAIL gate-read page hdl/common/csr/milan_csr.sv (named at avdecc/aem_descriptors.py:44) is relevant
+  FAIL gate-read page hdl/common/eth_event_counter/KL_mac_rmon_events.sv (named at sw/litex/milan_soc.py:636) is relevant
+  FAIL gate-read page hdl/common/eth_event_counter/ethernet_events.sv (named at sw/litex/milan_soc.py:632) is relevant
+  FAIL gate-read page hdl/common/eth_event_counter/ethernet_events.svh (named at sw/litex/milan_soc.py:652) is relevant
+  FAIL gate-read page hdl/common/eth_event_counter/event_counter.sv (named at sw/litex/milan_soc.py:632) is relevant
+  FAIL gate-read page hdl/common/ethernet_packet_pkg.sv (named at sw/litex/milan_soc.py:578) is relevant
+  FAIL gate-read page hdl/common/gen/adp_shape_defaults.svh (named at sw/builder/endstation_builder.py:5891) is relevant
+  FAIL gate-read page hdl/common/tx_ifg_gasket.sv (named at sw/litex/milan_soc.py:590) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv (named at sw/litex/milan_soc.py:613) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv (named at sw/litex/milan_soc.py:605) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_aaf_latency_taps.sv (named at sw/litex/milan_soc.py:604) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_aaf_packetizer.sv (named at sw/litex/milan_soc.py:623) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv (named at sw/litex/milan_soc.py:597) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_chan_map_capture.sv (named at sw/litex/milan_soc.py:622) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_chan_map_render.sv (named at sw/litex/milan_soc.py:622) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_i2s_feed_mux.sv (named at sw/litex/milan_soc.py:603) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_i2s_playback.sv (named at sw/litex/milan_soc.py:598) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_lat_history_ring.sv (named at tb/verilator/lat_history_ring/Makefile:17) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_media_adv.sv (named at sw/litex/milan_soc.py:606) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_pair_blend.sv (named at sw/litex/milan_soc.py:614) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_pair_zero_fill.sv (named at sw/litex/milan_soc.py:615) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_pcm_lpf.sv (named at sw/litex/milan_soc.py:590) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_pcm_route.sv (named at sw/litex/milan_soc.py:612) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_render_setpoint.sv (named at sw/litex/milan_soc.py:621) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_tdm_capture.sv (named at sw/litex/milan_soc.py:613) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_tdm_capture_master.sv (named at sw/litex/milan_soc.py:614) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_tdm_render.sv (named at sw/litex/milan_soc.py:615) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_tdm_render_master.sv (named at sw/litex/milan_soc.py:618) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/KL_tone_gen.sv (named at sw/litex/milan_soc.py:598) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/aaf_talker_i2s.sv (named at sw/litex/milan_soc.py:597) is relevant
+  FAIL gate-read page hdl/ieee1722/aaf/doc/TEST_RESULTS.md (named at tb/verilator/gptp_shadow/test_mutant_lifecycle.py:38) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv (named at sw/litex/milan_soc.py:609) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv (named at sw/litex/milan_soc.py:610) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/KL_media_clock_restart.sv (named at sw/litex/milan_soc.py:611) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/KL_stream_table.sv (named at sw/litex/milan_soc.py:608) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/KL_talker_diag_ctx.sv (named at sw/litex/milan_soc.py:610) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/avtp_stream_parser.sv (named at sw/litex/milan_soc.py:607) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/avtp_subtype_pkg.sv (named at sw/litex/milan_soc.py:607) is relevant
+  FAIL gate-read page hdl/ieee1722/avtp/doc/TEST_RESULTS.md (named at tb/verilator/tsn_fuzz/Makefile:208) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_aaf_clock_meter.sv (named at sw/litex/milan_soc.py:629) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_crf_rx.sv (named at sw/litex/milan_soc.py:623) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_crf_tx.sv (named at sw/litex/milan_soc.py:624) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_media_grid_align.sv (named at sw/litex/milan_soc.py:631) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_media_nco.sv (named at sw/litex/milan_soc.py:630) is relevant
+  FAIL gate-read page hdl/ieee1722/crf/KL_mmcm_drp_servo.sv (named at sw/litex/milan_soc.py:630) is relevant
+  FAIL gate-read page hdl/ieee1722/maap/KL_maap.sv (named at sw/firmware/ctrl/test/maap_differential.py:31) is relevant
+  FAIL gate-read page hdl/ieee17221/adp/adp_tx_arbiter.sv (named at sw/litex/milan_soc.py:595) is relevant
+  FAIL gate-read page hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv (named at sw/litex/milan_soc.py:576) is relevant
+  FAIL gate-read page hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv (named at sw/litex/milan_soc.py:577) is relevant
+  FAIL gate-read page hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv (named at sw/litex/milan_soc.py:575) is relevant
+  FAIL gate-read page hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv (named at sw/litex/milan_soc.py:574) is relevant
+  FAIL gate-read page hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md (named at tb/verilator/gptp_shadow/test_mutant_lifecycle.py:38) is relevant
+  FAIL gate-read page hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv (named at sw/litex/milan_soc.py:588) is relevant
+  FAIL gate-read page hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv (named at sw/litex/milan_soc.py:586) is relevant
+  FAIL gate-read page hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv (named at sw/litex/milan_soc.py:586) is relevant
+  FAIL gate-read page hdl/ieee8021q/filtering/rx_mac_filter.sv (named at sw/litex/milan_soc.py:589) is relevant
+  FAIL gate-read page hdl/ieee8021q/filtering/tcam.sv (named at sw/litex/milan_soc.py:589) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/credit_based_shaper.sv (named at tb/verilator/controller_rate/Makefile:27) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/traffic_class_map.sv (named at tb/verilator/controller_rate/Makefile:27) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/traffic_classifier.sv (named at tb/verilator/controller_rate/Makefile:27) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/traffic_controller_802_1q.sv (named at tb/verilator/controller_rate/Makefile:28) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/traffic_queues.sv (named at tb/verilator/controller_rate/Makefile:28) is relevant
+  FAIL gate-read page hdl/ieee8021q/ts/traffic_shaping_core.sv (named at tb/verilator/controller_rate/Makefile:28) is relevant
+  FAIL gate-read page hdl/milan/KL_nvm_backend.sv (named at sw/builder/endstation_builder.py:2688) is relevant
+  FAIL gate-read page hdl/milan/KL_pp_maap_shim.sv (named at sw/litex/milan_soc.py:558) is relevant
+  FAIL gate-read page hdl/milan/KL_pp_shadow.sv (named at sw/builder/test_declarations.py:727) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx.sv (named at sw/litex/milan_soc.py:2625) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_axil.sv (named at tb/verilator/mbx/Makefile:34) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_evt.sv (named at sw/litex/milan_soc.py:2624) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_pkg.sv (named at sw/litex/milan_soc.py:2620) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_ring.sv (named at sw/litex/milan_soc.py:2621) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_rx.sv (named at sw/litex/milan_soc.py:2622) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_tx.sv (named at sw/litex/milan_soc.py:2623) is relevant
+  FAIL gate-read page hdl/milan/mailbox/KL_mbx_wb.sv (named at sw/litex/milan_soc.py:2626) is relevant
+  FAIL gate-read page hdl/milan/milan_datapath.sv (named at sw/builder/test_declarations.py:727) is relevant
+  ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+  ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a comment naming it names nothing
+  ok   a new reader spelt as a message naming it names nothing
+  ok   a new reader spelt as a reader docs-check runs too names nothing
+  ok   mutation: gptp-processor filed as docs-only is rejected
+  ok   mutation: protocol-processor filed as docs-only is rejected
+  ok   mutation: external filed as docs-only is rejected
+  ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+  ok   mutation: .gitmodules filed as docs-only is rejected
+  ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+  ok   mutation: LICENSE filed as docs-only is rejected
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: sw/firmware/ filed as docs-only is rejected
+  ok   mutation: sw/firmware/gtest/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+  ok   mutation: gate-read docs/design/AREA_BUDGET.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/design/AREA_BUDGET.md once the table drops it
+  ok   mutation: gate-read docs/design/SPLIT_CONTROL_MEMORY.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/design/SPLIT_CONTROL_MEMORY.md once the table drops it
+  ok   mutation: gate-read docs/reference/MAILBOX_CONTRACT.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/MAILBOX_CONTRACT.md once the table drops it
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+  ok   scope history: ambient signing and identity are isolated; victim bytes unchanged
+  ok   scope history: ambient gitdir and identity are isolated; victim bytes unchanged
+  ok   scope history: rtl.yml stale-base docs: hosted = replay = (['docs/note.md'], 'false')
+  ok   scope history: rtl.yml stale-base docs hosted frozen-base mutation rejected
+  ok   scope history: rtl.yml stale-base docs replay endpoint mutation rejected
+  ok   scope history: rtl.yml B16 shape: hosted = replay = (['docs/findings/README.md', 'docs/note.md'], 'false')
+  ok   scope history: rtl.yml B16 shape hosted frozen-base mutation rejected
+  ok   scope history: rtl.yml B16 shape replay endpoint mutation rejected
+  FAIL scope history: rtl.yml stale-base RTL: hosted = replay = (['hdl/pr.sv'], 'true')
+Traceback (most recent call last):
+  File "$REVIEWS/734-r632-3-packet/scratch/mut/M13_scope_hdl_as_docs/scripts/ci_scope.py", line 543, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$REVIEWS/734-r632-3-packet/scratch/mut/M13_scope_hdl_as_docs/scripts/ci_scope.py", line 536, in main
+    return selftest()
+  File "$REVIEWS/734-r632-3-packet/scratch/mut/M13_scope_hdl_as_docs/scripts/ci_scope.py", line 524, in selftest
+    failures += history_selftest(ROOT)
+                ~~~~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/734-r632-3-packet/scratch/mut/M13_scope_hdl_as_docs/scripts/ci_scope_history.py", line 337, in selftest
+    assert pristine.count(old) == 1, f"mutation anchor drift: {case.label}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: mutation anchor drift: stale-base RTL

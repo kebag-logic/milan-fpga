@@ -1,0 +1,22 @@
+docs_check|python3 scripts/docs_check.py
+em_dash|python3 scripts/check_em_dash.py --base a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+em_dash_selftest|python3 scripts/check_em_dash.py --selftest
+doc_style|python3 scripts/check_doc_style.py
+doc_paths|python3 scripts/check_doc_paths.py
+toc_check|python3 scripts/gen_toc.py --check
+toc_anchors|python3 scripts/gen_toc.py --verify-anchors
+toc_selftest|python3 scripts/gen_toc.py --selftest
+baremetal_check|python3 scripts/check_baremetal_only.py --check
+baremetal_selftest|python3 scripts/check_baremetal_only.py --selftest
+py_idiom|python3 scripts/check_py_idiom.py
+py_idiom_selftest|python3 scripts/check_py_idiom.py --selftest
+sh_idiom|python3 scripts/check_sh_idiom.py
+test_evidence|python3 scripts/measure_test_evidence.py --check
+test_evidence_selftest|python3 scripts/measure_test_evidence.py --selftest
+fail_fast|python3 scripts/measure_fail_fast.py --check
+naming|python3 scripts/measure_naming.py --check
+hygiene|python3 scripts/check_hygiene.py --check
+todo_ownership|python3 scripts/check_todo_ownership.py
+archive|python3 scripts/check_archive.py
+pp_srcs|python3 scripts/pp_srcs.py --check
+ci_scope_cli_docs|sh -c 'printf "docs/findings/README.md\n" | python3 scripts/ci_scope.py; printf "" | python3 scripts/ci_scope.py; printf "protocol-processor\n" | python3 scripts/ci_scope.py; printf "hdl/x.sv\n" | python3 scripts/ci_scope.py'
