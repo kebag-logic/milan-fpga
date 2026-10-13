@@ -1,0 +1,5 @@
+scripts/ci_events.py --check rc=0
+scripts/ci_events.py --selftest rc=0
+scripts/check_doc_style.py rc=0
+scripts/check_em_dash.py --base 651ccb5aea1bc4d99f356503c188947d39e0c9e4 rc=2
+scripts/docs_check.py rc=0

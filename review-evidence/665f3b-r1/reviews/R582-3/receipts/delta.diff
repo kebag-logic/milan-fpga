@@ -1,0 +1,56 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index a0b737730..c8770fe09 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -198,6 +198,10 @@ generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
+ requires the rule table in section 3 of
+ [SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
+ `ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
++`sw/firmware/ctrl/test/ctrl_service_bounds.py` runs in `firmware-unit`.
++It checks [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md) against compiled service bounds.
++Its controls reject stale figures and conclusions (#665 F3b).
++No `docs-check` step runs this check.
+ The classifier's
+ self-test, `scripts/ci_scope.py --selftest`, derives that list from the
+ Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
+diff --git a/scripts/ci_scope.py b/scripts/ci_scope.py
+index 14e733466..2f2a650c4 100644
+--- a/scripts/ci_scope.py
++++ b/scripts/ci_scope.py
+@@ -64,10 +64,12 @@ TOP_LEVEL_SUFFIXES = [".md"]
+ #: policy to the area budget's table. The mailbox contract generator's
+ #: --check compares its reference page with what it emits (#665 F0). The
+ #: split control memory test (elaborate's LiteX aggregate) holds its rule
+-#: table to ctrl_memory.RULES (#640).
++#: table to ctrl_memory.RULES (#640). ctrl_service_bounds.py (firmware-unit)
++#: checks the mailbox service figures against compiled headers (#665 F3b).
+ GATE_READ_DOCS = [
+     "docs/AAF_LATENCY_TAPS.md",
+     "docs/design/AREA_BUDGET.md",
++    "docs/design/MAILBOX_SPLIT.md",
+     "docs/design/SPLIT_CONTROL_MEMORY.md",
+     "docs/reference/MAILBOX_CONTRACT.md",
+     "docs/reference/REGISTER_MAP.md",
+@@ -287,6 +289,8 @@ def _cases() -> list[Case]:
+         (["docs/design/AREA_BUDGET.md"], True),
+         # The page the mailbox contract generator's --check compares (#665).
+         (["docs/reference/MAILBOX_CONTRACT.md"], True),
++        # The page whose service figures ctrl_service_bounds.py reads (#665).
++        (["docs/design/MAILBOX_SPLIT.md"], True),
+         # The page whose rule table the split control memory test reads (#640).
+         (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
+         # Under docs/, a generator, a manifest, a budget or other non-prose.
+diff --git a/sw/firmware/ctrl/maap/README.md b/sw/firmware/ctrl/maap/README.md
+index 5cb85a052..0fce66766 100644
+--- a/sw/firmware/ctrl/maap/README.md
++++ b/sw/firmware/ctrl/maap/README.md
+@@ -132,6 +132,9 @@ It calls no protocol core.
+ If the allocation report makes the source destination valid,
+ the gate opens on the next MAAP poll.
+ MAAP loss additionally closes the gate before its allocation report.
++Receive and link refreshes keep callback snapshots current.
++They provide freshness within the service pass.
++The same pass's MAAP poll refreshes and republishes changed gates.
+ The composition does not replace the integrator's source owner.
+ `maap_mbx_init` still refuses counts exceeding the publication block.
+ 
