@@ -1,0 +1,14 @@
+{
+  "command_rc": 0,
+  "required_elaboration": "PASS; no toolchain refusal",
+  "not_run": [
+    {
+      "gate": "11",
+      "source": "sw/builder/test_builder.py:19268",
+      "reason": "historical mf48 placement utilization report absent",
+      "scope": "legacy arty_current resource estimator calibration",
+      "unchanged_since_reviewed_head": true,
+      "source_blob": "eb800f22e109534b37bb5f8501f359498df7a7b2"
+    }
+  ]
+}

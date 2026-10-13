@@ -1,0 +1,226 @@
+[
+  {
+    "name": "maap-ooc-candidate",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "run.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/maap-ooc-candidate",
+    "rc": 0,
+    "seconds": 475.1
+  },
+  {
+    "name": "parser",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 150.6
+  },
+  {
+    "name": "candidate-route",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_integrated.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/shipping-candidate/ax7101/gateware",
+    "rc": 0,
+    "seconds": 2818.8
+  },
+  {
+    "name": "candidate-route-check",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/shipping-candidate/ax7101/gateware",
+      "--endpoint",
+      "route-1x1"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.2
+  },
+  {
+    "name": "rtl-8x8",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "rtl.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/shipping-candidate/ax8x8-rtl",
+    "rc": 0,
+    "seconds": 62.7
+  },
+  {
+    "name": "ax7101-prepare-ooc",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "$WORK/shipping-candidate/ax7101/gateware",
+      "--single-thread-synthesis",
+      "--integrated-clock",
+      "--output",
+      "$WORK/shipping-candidate/ax7101-ooc",
+      "--integrated-log",
+      "$WORK/shipping-candidate/ax7101/gateware/baseline.log"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "ax7101-ooc",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_ooc.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/shipping-candidate/ax7101-ooc",
+    "rc": 0,
+    "seconds": 1309.2
+  },
+  {
+    "name": "candidate-ooc-1x1-check",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/shipping-candidate/ax7101-ooc",
+      "--endpoint",
+      "ooc-1x1"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "ax8x8-prepare-ooc",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "$WORK/shipping-candidate/ax8x8/gateware",
+      "--single-thread-synthesis",
+      "--integrated-clock",
+      "--output",
+      "$WORK/shipping-candidate/ax8x8-ooc",
+      "--integrated-log",
+      "$WORK/shipping-candidate/ax8x8-rtl/baseline.log"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "ax8x8-ooc",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_ooc.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/shipping-candidate/ax8x8-ooc",
+    "rc": 0,
+    "seconds": 2519.0
+  },
+  {
+    "name": "candidate-ooc-8x8-check",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/shipping-candidate/ax8x8-ooc",
+      "--endpoint",
+      "ooc-8x8"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "prepare-dev",
+    "argv": [
+      "python3",
+      "$WORK/prepare_shipping.py",
+      "$WORK/dev",
+      "$WORK/shipping-dev",
+      "ax7101"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 8.0
+  },
+  {
+    "name": "dev-route",
+    "argv": [
+      "flock",
+      "$SYNTHESIS_LOCK",
+      "$SYNTHESIS_INSTALL/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "baseline_integrated.tcl",
+      "-nojournal",
+      "-log",
+      "baseline.log"
+    ],
+    "cwd": "$WORK/shipping-dev/ax7101/gateware",
+    "rc": 0,
+    "seconds": 2950.4
+  },
+  {
+    "name": "dev-route-check",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check",
+      "$WORK/shipping-dev/ax7101/gateware",
+      "--endpoint",
+      "route-1x1"
+    ],
+    "cwd": "$WORK/candidate",
+    "rc": 0,
+    "seconds": 0.2
+  }
+]

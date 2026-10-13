@@ -1,0 +1,46 @@
+PASS published manifest final-provenance.json 3bf08d993abc69881f6f9f5bc7eca549ff2077f28cd3d85d9143fe0df17d4ae0
+PASS published manifest native/final-results.json 52cdaf827c95a43ad824c3f11c29aa98874fcbc061d3bbaaf62ef8f50baae9f8
+PASS published manifest sharding-result.json eb3db434b32a6e7618417eed483560b4496957a5f7763f89b4f6572da9005410
+PASS published manifest maap-ceiling.json 3eddcedca89d581dd54aebf8be31d03307007c247e5b777db72b77c335ca3a6f
+PASS published manifest maap-campaign-result.json 800b9bb592a9a09936622e9f629c95809424f03b4001fa6b7a530503b5202ee0
+PASS published manifest resource-comparison.json cbe007eece5e9738ca00900e3a87794c78c1ce6ae1a6792b107be1a672101a46
+PASS published manifest resource-results.json 258f97cb7ee76fb6410d0c6edee5303919b0056d00d7a1b5e275698ada930e94
+PASS published manifest candidate-route-check.log 29d0c6853e60816625e01b36270d1216dce3ee87394c4627a17f3c9e8c6d7f6d
+PASS published manifest dev-route-check.log 17ccb927a0dcfe1047fb0d211ebc0f014ba14454efbb8f372bbcb5286124969a
+PASS published manifest builder-limitation.json acd31b7bb0fcf6875a52c3d1c5c4bf8b3abf7b7cde13ecb605834916308951dc
+PASS published manifest source-inputs.json d9caccd35d27a95cbe2b6459d40ef41ab453d2c2912b1787ee15f8b725c24442
+PASS published manifest shard-provenance.json 00c136c5a230def6795490422ccedc6cb0fc12fb6ee913222362a31391454fa3
+PASS published manifest native/shards/1/logs/maap.log 9d1dd18ab64e1f00c4fad457d1224f746db8549c510e9856d7387fad9459eed4
+PASS published manifest native/maap-integration.log 2fe29af6074c1c065562f0814b7d808ae1e09d66f583c9843f89fccfb7309688
+PASS published manifest native/maap-coverage.log 38d2dadd4f2427fe9d4146bbe46c11928375ae111b0470940b63d50e31f0431f
+PASS published manifest maap-ooc-candidate/util_hier_base.rpt 0856e880dc039517ce7007d55dc2dbf32a0b8f1267c33706c50413ab0d873bff
+PASS published manifest shipping-candidate/ax7101/gateware/baseline_utilization.rpt 57224696e2fbe8916b6918dc3922eda0982ee2bc7cdf76ab546a9dd4012bdb48
+PASS published manifest shipping-candidate/ax7101/gateware/alinx_ax7101_route_status.rpt c4439f3b10115262a380df016b463710544042be014f65076e483b315fbe80de
+PASS published manifest candidate-ooc-1x1-check.log 3f7f3b5ae4feef50550bb2444302541627a5af7a403de80b18bbb94cea054b00
+PASS published manifest candidate-ooc-8x8-check.log 1920b7dcb4c1c73ec60a16ba54a78b02f140b65cf410d632a965c9caadd00da8
+PASS source receipts identify requested head/tree
+PASS measured input file hashes compared with candidate checkout: 241
+PASS measured dev input hashes compared with git objects: 122
+Generated/external inputs not reproduced by reviewer: 15
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+NOT REGENERATED $WORK/shipping-candidate/ax7101/gateware/alinx_ax7101.v
+NOT REGENERATED $WORK/shipping-candidate/ax7101/gateware/alinx_ax7101.xdc
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+NOT REGENERATED $WORK/shipping-candidate/ax8x8/gateware/alinx_ax7101.v
+NOT REGENERATED $WORK/shipping-candidate/ax8x8/gateware/alinx_ax7101.xdc
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v
+NOT REGENERATED $HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+NOT REGENERATED $WORK/shipping-dev/ax7101/gateware/alinx_ax7101.v
+NOT REGENERATED $WORK/shipping-dev/ax7101/gateware/alinx_ax7101.xdc
+LIMIT: campaign summary digest does not identify the published MAAP log
+Summary log_sha256: d60eed49ed59c6d1ff3c2aadc602fef7df478276233fadecc2e39f04402943af log_bytes: 26785
+Published log_sha256: 9d1dd18ab64e1f00c4fad457d1224f746db8549c510e9856d7387fad9459eed4 log_bytes: 26543
+Use the two matching publication manifests for published bytes; no raw-log identity inferred.
+PASS author MAAP log: 186 clean checks, 63 named defects, 2 controls
+AUTHOR MEASUREMENT |   g_maap.maap_engine             |                        KL_maap |        446 |        446 |       0 |    0 |   340 |      0 |      0 |          0 |
+Author source execution only; no manager source bank is asserted.

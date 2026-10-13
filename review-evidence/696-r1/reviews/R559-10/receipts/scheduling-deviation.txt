@@ -1,0 +1,1 @@
+Initial lint command omitted --jobs; scripts/lint_rtl.py:809 defaults to os.cpu_count(), which is 128 on this host. This did not respect the requested maximum of 16 workers. Original log/rc retained in lint-initial.*. Final lint re-executed alone with --jobs 1, rc=0. Build concurrency stayed at no more than 16 compiler jobs. No source mutation or synthesis execution occurred.
