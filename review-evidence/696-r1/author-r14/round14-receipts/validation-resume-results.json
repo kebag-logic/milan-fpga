@@ -1,0 +1,65 @@
+[
+  {
+    "name": "boundary",
+    "argv": [
+      "$BUILD_ENV/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 1344.4
+  },
+  {
+    "name": "control-memory",
+    "argv": [
+      "$BUILD_ENV/bin/python3",
+      "sw/litex/test_ctrl_memory.py"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 75.0
+  },
+  {
+    "name": "firmware-shards",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 0.2
+  },
+  {
+    "name": "builder",
+    "argv": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 1234.0
+  },
+  {
+    "name": "behaviour",
+    "argv": [
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$WORK/candidate/tests",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 1.8
+  }
+]

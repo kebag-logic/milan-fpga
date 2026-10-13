@@ -1,0 +1,1935 @@
+55:   [PASS] #403 AAF reset readback is neutral         got=0x00000000 exp=0x00000000
+56:   [PASS] #403 MAAP reset readback is neutral        got=0x00000000 exp=0x00000000
+57:   [PASS] #403 reset TCAM bypass is explicit         got=0x00000001 exp=0x00000001
+58:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+59:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+60:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+61:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+62:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+63:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+64:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+65:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+66:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+67:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+68:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+69:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+70:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+71:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+72:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+73:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+75:   [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+76:   [PASS] PP_STAT tag == 0x5B (plane present)        got=0x0000005B exp=0x0000005B
+77:   [PASS] PP_DIAG clean at reset                     got=0x00000000 exp=0x00000000
+78:   [PASS] TXARB_DIAG tag == 0xA7 (window decodes)    got=0x000000A7 exp=0x000000A7
+79:   [PASS] TXARB_DIAG lanes 7:4 are a structural zero got=0x00000000 exp=0x00000000
+82:   [PASS] the restore walk terminates                restore_done set
+83:   [PASS] a build with NO backend does not report a successful restore reported not-successful
+84:   [PASS] PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face) got=0x00000000 exp=0x00000000
+85:   [PASS] PP_STAT[7] nvm_blank == 1 (the walk validated zero records) got=0x00000001 exp=0x00000001
+86:   [PASS] PP_STAT[3] restore_fail == 1 (an absent backend is not a success) got=0x00000001 exp=0x00000001
+87:   [PASS] PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried) got=0x00000000 exp=0x00000000
+88:   [PASS] the presence tag is unchanged by the verdict bits got=0x0000005B exp=0x0000005B
+89:   [PASS] PP_STAT[8] nvm_dirty == 0 (no change was accepted) got=0x00000000 exp=0x00000000
+90:   [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+91:   [PASS] PP_STAT[10] nvm_img_valid == 0 (no image was validated) got=0x00000000 exp=0x00000000
+92:   [PASS] PP_STAT[15:12] nvm_verdict == 0 (no image was offered) got=0x00000000 exp=0x00000000
+94:   [PASS] PP_NVM_SEL reads back the index            got=0x00000002 exp=0x00000002
+95:   [PASS] PP_NVM_DATA reads back the backend's word 2 (sequence) got=0xA5C30001 exp=0xA5C30001
+96:   [PASS] PP_NVM_STAT: not configured, not backed, no operation in flight got=0x00000000 exp=0x00000000
+98:   [PASS] PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence) got=0x00000001 exp=0x00000001
+99:   [PASS] PP_NVM_STAT[6] agrees with PP_STAT[6]      got=0x00000001 exp=0x00000001
+100:   [PASS] PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness got=0x00000001 exp=0x00000001
+101:   [PASS] PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records) got=0x00000001 exp=0x00000001
+102:   [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+103:   [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+105:   [PASS] side-port access completed                 ack seen
+106:   [PASS] snapshot[0] magic == 'KLPP'                got=0x4B4C5050 exp=0x4B4C5050
+107:   [PASS] snapshot[1] shape non-zero                 shape word present
+109:   [PASS] ADP DISCOVER accepted (rx_frames +1)       got=0x00000001 exp=0x00000001
+110:   [PASS] no frame lost to a full FIFO               got=0x00000000 exp=0x00000000
+112:   [PASS] 8 IPv4 frames REJECTED (rx_frames flat)    got=0x00000000 exp=0x00000000
+113:   [PASS] and none of them was counted as a drop     got=0x00000000 exp=0x00000000
+115:   [PASS] the processor SENT (tx_frames > 0)         its TX lanes produced frames
+116:   [PASS] MAC TX CARRIED them (the drain is off)     1 frame(s) egressed at the MAC boundary
+117:   [PASS] every frame in the window was a processor control PDU got=0x00000000 exp=0x00000000
+119:   [PASS] adp_next_avail_index read 0 before any advertisement got=0x00000000 exp=0x00000000
+120:   [PASS] adp_next_avail_index CHANGED (the engine drives it) index advanced with the first ENTITY_AVAILABLE
+122:   [PASS] an ADP frame reached the MAC TX boundary   1 ADPDU(s) at the MAC boundary of 3 frames
+123:   [PASS] ADPDU is 82 octets on the wire             got=0x00000052 exp=0x00000052
+124:   [PASS] ADPDU DA == 91:E0:F0:01:00:00              got=0x91E0F001 exp=0x91E0F001
+125:   [PASS] ADPDU EtherType 0x22F0 + subtype 0xFA      got=0x0022F0FA exp=0x0022F0FA
+126:   [PASS] ADPDU sv=0 version=0 message_type=ENTITY_AVAILABLE got=0x00000000 exp=0x00000000
+127:   [PASS] ADPDU control_data_length == 56            got=0x00000038 exp=0x00000038
+128:   [PASS] ADPDU entity_id == the 0x604/0x608 pair    got=0x001BC50C exp=0x001BC50C
+129:   [PASS] ADPDU entity_id low half                   got=0xAC000001 exp=0xAC000001
+130:   [PASS] ADPDU entity_model_id == the 0x60C/0x610 pair got=0x001BC544 exp=0x001BC544
+131:   [PASS] ADPDU talker_stream_sources == 0x618       got=0x00000001 exp=0x00000001
+132:   [PASS] ADPDU talker_capabilities == 0x618         got=0x00004001 exp=0x00004001
+133:   [PASS] ADPDU listener_stream_sinks == 0x61C       got=0x00000002 exp=0x00000002
+134:   [PASS] ADPDU listener_capabilities == 0x61C       got=0x00004801 exp=0x00004801
+135:   [PASS] ADPDU is byte-exact against the CSR identity group 0 differing octet(s); first at wire byte -1
+136:   [PASS] available_index strictly increases across ADPDUs got=0x00000000 exp=0x00000000
+137:   [PASS] class-D available_index >= the last one on the wire the published index tracks the wire
+139:   [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+140:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+141:   [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+142:   [PASS] every accepted request was ANSWERED        accepted == answered
+143:   [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+144:   [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+145:   [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+146:   [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+147:   [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+148:   [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+150:   [PASS] #403 declared output count                 got=0x00000001 exp=0x00000001
+151:   [PASS] #606 source 0 startup allocation was refused no block was valid at acceptance
+152:   [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x00000101
+153:   [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+154:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+155:   [PASS] every accepted request was ANSWERED        got=0x00000011 exp=0x00000011
+156:   [PASS] every response has its accepted source     got=0x00000000 exp=0x00000000
+157:   [PASS] #606 source 0 auto-acquired before first probe got=0x00000001 exp=0x00000001
+158:   [PASS] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+159:   [PASS] #606 first probe response arrived          bounded command service
+160:   [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+161:   [PASS] #606 first probe names the source SID      station MAC and source UID
+162:   [PASS] #606 first probe names the acquired destination real MAAP base plus source
+163:   [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+164:   [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+166:   [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+167:   [PASS] and it was held, not a one-cycle blip      gate held
+168:   [PASS] #403 boundary ACMP response status         got=0x00000000 exp=0x00000000
+169:   [PASS] #403 highest valid source gets base + index wire destination checked against allocator base
+170:   [PASS] #403 boundary ACMP response status         got=0x00000002 exp=0x00000002
+171:   [PASS] #403 first invalid source makes no allocator request got=0x00000000 exp=0x00000000
+173:   [PASS] the store FETCHED from descriptor memory   bursts served
+175:   [PASS] the descriptor image VALIDATED (magic+version+checksum) got=0x00000001 exp=0x00000001
+176:   [PASS] ...with no header fault                    got=0x00000000 exp=0x00000000
+177:   [PASS] L1 READ_DESCRIPTOR(ENTITY,0) was ANSWERED  an AECPDU egressed
+178:   [PASS] L1: message_type = command + 1             got=0x00000001 exp=0x00000001
+179:   [PASS] L1: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+180:   [PASS] L1: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+181:   [PASS] L1: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+182:   [PASS] L1: sequence_id echoed                     got=0x00000101 exp=0x00000101
+183:   [PASS] L1: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+184:   [PASS] L1: unicast back to the requester          got=0x02112233 exp=0x02112233
+185:   [PASS] L1: source address is the station MAC      got=0x02000000 exp=0x02000000
+186:   [PASS] L1: control_data_length = 12 + payload     got=0x00000038 exp=0x00000038
+187:   [PASS] L1: frame length matches (60-octet min)    got=0x00000052 exp=0x00000052
+188:   [PASS] L1: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+189:   [PASS] L1: configuration_index @24 echoed         got=0x00000000 exp=0x00000000
+190:   [PASS] L1: reserved @26 is zero                   got=0x00000000 exp=0x00000000
+191:   [PASS] L1: the DESCRIPTOR bytes @28 are the image's, exactly got=0x00000000 exp=0x00000000
+192:   [PASS] L2 READ_DESCRIPTOR(CONFIGURATION,1) was ANSWERED an AECPDU egressed
+193:   [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=0x00000028
+194:   [PASS] L2: frame length matches (60-octet min)    got=0x00000042 exp=0x00000042
+195:   [PASS] L2: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+196:   [PASS] L2: index 1 served at elem_off + 1*elem_stride got=0x00000000 exp=0x00000000
+197:   [PASS] L2: ...and it is NOT index 0's descriptor  got=0x00000001 exp=0x00000001
+198:   [PASS] L3 READ_DESCRIPTOR(index beyond the count) was ANSWERED an AECPDU egressed
+199:   [PASS] L3: message_type = command + 1             got=0x00000001 exp=0x00000001
+200:   [PASS] L3: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+201:   [PASS] L3: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+202:   [PASS] L3: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+203:   [PASS] L3: sequence_id echoed                     gg++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_pending
+210:   [PASS] L3: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+211:   [PASS] L3: unicast back to the requester          got=0x02112233 exp=0x02112233
+212:   [PASS] L3: source address is the station MAC      got=0x02000000 exp=0x02000000
+213:   [PASS] L3: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+214:   [PASS] L3: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+215:   [PASS] L3: status NO_SUCH_DESCRIPTOR(2)           got=0x00000002 exp=0x00000002
+216:   [PASS] L3: the IEEE 7.4.5 stub names the descriptor_type got=0x00000002 exp=0x00000002
+217:   [PASS] L3: ...and the descriptor_index            got=0x00000007 exp=0x00000007
+218:   [PASS] L3t READ_DESCRIPTOR(absent type) was ANSWERED an AECPDU egressed
+219:   [PASS] L3t: message_type = command + 1            got=0x00000001 exp=0x00000001
+220:   [PASS] L3t: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+221:   [PASS] L3t: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+222:   [PASS] L3t: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+223:   [PASS] L3t: sequence_id echoed                    got=0x00000113 exp=0x00000113
+224:   [PASS] L3t: command_type echoed, u = 0            got=0x00000004 exp=0x00000004
+225:   [PASS] L3t: unicast back to the requester         got=0x02112233 exp=0x02112233
+226:   [PASS] L3t: source address is the station MAC     got=0x02000000 exp=0x02000000
+227:   [PASS] L3t: control_data_length = 12 + payload    got=0x00000014 exp=0x00000014
+228:   [PASS] L3t: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+229:   [PASS] L3t: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+230:   [PASS] L3t: the IEEE 7.4.5 stub names the descriptor_type got=0x0000000F exp=0x0000000F
+231:   [PASS] L3t: ...and the descriptor_index           got=0x00000007 exp=0x00000007
+232:   [PASS] L4 READ_DESCRIPTOR(bad config) was ANSWERED an AECPDU egressed
+233:   [PASS] L4: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+234:   [PASS] L4: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+235:   [PASS] L4: status BAD_ARGUMENTS(7), NOT NO_SUCH_DESCRIPTOR got=0x00000007 exp=0x00000007
+236:   [PASS] L4: the stub still names the type          got=0x00000001 exp=0x00000001
+237:   [PASS] L4: ...and the index                       got=0x00000001 exp=0x00000001
+238:   [PASS] L4: configuration_index @24 is the BAD one, echoed got=0x00000005 exp=0x00000005
+239:   [PASS] L5 an unassigned opcode was ANSWERED, not dropped an AECPDU egressed
+240:   [PASS] L5: message_type = command + 1             got=0x00000001 exp=0x00000001
+241:   [PASS] L5: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+242:   [PASS] L5: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+243:   [PASS] L5: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+244:   [PASS] L5: sequence_id echoed                     got=0x00000105 exp=0x00000105
+245:   [PASS] L5: command_type echoed, u = 0             got=0x00007FFE exp=0x00007FFE
+246:   [PASS] L5: unicast back to the requester          got=0x02112233 exp=0x02112233
+247:   [PASS] L5: source address is the station MAC      got=0x02000000 exp=0x02000000
+248:   [PASS] L5: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+249:   [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+250:   [PASS] L5: status NOT_IMPLEMENTED(1)              got=0x00000001 exp=0x00000001
+251:   [PASS] L5: the command's payload is ECHOED back   got=0x00000000 exp=0x00000000
+252:   [PASS] L5b GET_COUNTERS(STREAM_INPUT 0) was ANSWERED an AECPDU egressed
+253:   [PASS] L5b: message_type = command + 1            got=0x00000001 exp=0x00000001
+254:   [PASS] L5b: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+255:   [PASS] L5b: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+256:   [PASS] L5b: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+257:   [PASS] L5b: sequence_id echoed                    got=0x00000130 exp=0x00000130
+258:   [PASS] L5b: command_type echoed, u = 0            got=0x00000029 exp=0x00000029
+259:   [PASS] L5b: unicast back to the requester    obj_pending/Vpp_pending --pending-only
+261:   [PASS] L5b: source address is the station MAC     got=0x02000000 exp=0x02000000
+262:   [PASS] L5b: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+263:   [PASS] L5b: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+264:   [PASS] L5b: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+265:   [PASS] L5b: descriptor_type echoed @0             got=0x00000005 exp=0x00000005
+266:   [PASS] L5b: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+267:   [PASS] L5b: counters_valid @4 is the twelve we keep (0xFFF) got=0x00000FFF exp=0x00000FFF
+268:   [PASS] L5b: the unclaimed quadlets 12..31 are zero got=0x00000000 exp=0x00000000
+269:   [PASS] L5b: the block is a full 32 quadlets       the frame ends at 174
+270:   [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+271:   [PASS] L5c: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+272:   [PASS] L5c: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+273:   [PASS] L5c: status NO_SUCH_DESCRIPTOR(2) - the image rules got=0x00000002 exp=0x00000002
+274:   [PASS] L5c: descriptor_index 9 echoed, not clamped to 0 got=0x00000009 exp=0x00000009
+275:   [PASS] L5c: counters_valid is EMPTY - no such sink here got=0x00000000 exp=0x00000000
+276:   [PASS] L5c: ...and the block is all zeros, not sink 0's numbers got=0x00000000 exp=0x00000000
+277:   [PASS] L5e a PADDED GET_COUNTERS was ANSWERED     an AECPDU egressed
+278:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+279:   [PASS] L5e: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+280:   [PASS] L5e: the type is @24's, NOT the padding at @28 got=0x00000005 exp=0x00000005
+281:   [PASS] L5e: the index is @26's, NOT the padding at @30 got=0x00000000 exp=0x00000000
+282:   [PASS] L5e: ...so the mask is still Stream Input 0's got=0x00000FFF exp=0x00000FFF
+283:   [PASS] L5d GET_COUNTERS(ENTITY) was ANSWERED      an AECPDU egressed
+284:   [PASS] L5d: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+285:   [PASS] L5d: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+286:   [PASS] L5d: status NOT_SUPPORTED(11) - no ENTITY counters here got=0x0000000B exp=0x0000000B
+287:   [PASS] L5d: descriptor_type ENTITY echoed         got=0x00000000 exp=0x00000000
+288:   [PASS] L5d: counters_valid ZERO in the full body  got=0x00000000 exp=0x00000000
+289:   [PASS] L5d: ...and the block is all zeros         got=0x00000000 exp=0x00000000
+290:   [PASS] L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1} got=0x00000081 exp=0x00000081
+291:   [PASS] L5e0: CHMAP_LOOP reads cluster 1 back as {en, reserved src 2} got=0x000000C2 exp=0x000000C2
+292:   [PASS] L5e GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED an AECPDU egressed
+293:   [PASS] L5e: message_type = command + 1            got=0x00000001 exp=0x00000001
+294:   [PASS] L5e: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+295:   [PASS] L5e: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+296:   [PASS] L5e: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+297:   [PASS] L5e: sequence_id echoed                    got=0x00000140 exp=0x00000140
+298:   [PASS] L5e: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+299:   [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+300:   [PASS] L5e: source address is the station MAC     got=0x02000000 exp=0x02000000
+301:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000020 exp=0x00000020
+302:   [PASS] L5e: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+303:   [PASS] L5e: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+304:   [PASS] L5e: descriptor_type echoed @0             got=0x0000000E exp=0x0000000E
+305:   [PASS] L5e: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+306:   [PASS] L5e: map_index echoed @4                   got=0x00000000 exp=0x00000000
+307:   [PASS] L5e: number_of_maps @6 is the fixed partition count got=0x00000001 exp=0x00000001
+308:   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
+309:   [PASS] L5e: reserved @10 is zero                  got=0x00000000 exp=0x00000000
+310:   [PASS] L5e: record 0 = {stream 0, ch 1, cluster 0, chan 0} got=0x00000001 exp=0x00000001
+311:   [PASS] L5e: record 0 offset half                  got=0x00000000 exp=0x00000000
+312:   [PASS] L5e2 the re-read was ANSWERED              an AECPDU egressed
+313:   [PASS] L5e2: control_data_length = 12 + payload   got=0x00000028 exp=0x00000028
+314:   [PASS] L5e2: frame length matches (60-octet min)  got=0x00000042 exp=0x00000042
+315:   [PASS] L5e2: number_of_mappings rose to 2         got=0x00000002 exp=0x00000002
+316:   [PASS] L5e2: record 1 is cluster 1's {stream 0, ch 0} got=0x00000000 exp=0x00000000
+317:   [PASS] L5e2: record 1 offset half                 got=0x00010000 exp=0x00010000
+318:   [PASS] L5f GET_AUDIO_MAP(page 1 of 1) was ANSWERED an AECPDU egressed
+319:   [PASS] L5f: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+320:   [PASS] L5f: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+321:   [PASS] L5f: status BAD_ARGUMENTS(7) - 7.4.44.1's page rule got=0x00000007 exp=0x00000007
+322:   [PASS] L5f: number_of_maps still tells the real N got=0x00000001 exp=0x00000001
+323:   [PASS] L5f: number_of_mappings 0 - an empty page, no records got=0x00000000 exp=0x00000000
+324:   [PASS] L5g GET_AUDIO_MAP(SPI 1) was ANSWERED      an AECPDU egressed
+325:   [PASS] L5g: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+326:   [PASS] L5g: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+327:   [PASS] L5g: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+328:   [PASS] L5g: descriptor_index 1 echoed, not clamped got=0x00000001 exp=0x00000001
+329:   [PASS] L5h GET_AUDIO_MAP(STREAM_PORT_OUTPUT) was ANSWERED an AECPDU egressed
+330:   [PASS] L5h: message_type = command + 1            got=0x00000001 exp=0x00000001
+331:   [PASS] L5h: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+332:   [PASS] L5h: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+333:   [PASS] L5h: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+334:   [PASS] L5h: sequence_id echoed                    got=0x00000144 exp=0x00000144
+335:   [PASS] L5h: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+336:   [PASS] L5h: unicast back to the requester         got=0x02112233 exp=0x02112233
+337:   [PASS] L5h: source address is the station MAC     got=0x02000000 exp=0x02000000
+338:   [PASS] L5h: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+339:   [PASS] L5h: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+340:   [PASS] L5h: status NO_SUCH_DESCRIPTOR(2) - the image rules the served OUTPUT side too got=0x00000002 exp=0x00000002
+341:   [PASS] L5h: the addressed type is in the fixed part got=0x0000000F exp=0x0000000F
+342:   [PASS] L6 IDENTIFY_NOTIFICATION-as-command was ANSWERED an AECPDU egressed
+343:   [PASS] L6: message_type = command + 1             got=0x00000001 exp=0x00000001
+344:   [PASS] L6: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+345:   [PASS] L6: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+346:   [PASS] L6: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+347:   [PASS] L6: sequence_id echoed                     got=0x00000106 exp=0x00000106
+348:   [PASS] L6: command_type echoed, u = 0             got=0x00000026 exp=0x00000026
+349:   [PASS] L6: unicast back to the requester          got=0x02112233 exp=0x02112233
+350:   [PASS] L6: source address is the station MAC      got=0x02000000 exp=0x02000000
+351:   [PASS] L6: control_data_length = 12 + payload     got=0x00000010 exp=0x00000010
+352:   [PASS] L6: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+353:   [PASS] L6: status BAD_ARGUMENTS(7) — 7.4.39.2 beats 9.3.5.3.3 got=0x00000007 exp=0x00000007
+354:   [PASS] L7a: a command for ANOTHER entity gets no reply got=0x00000000 exp=0x00000000
+355:   [PASS] L7b: an AECP RESPONSE arriving as input gets no reply got=0x00000000 exp=0x00000000
+356:   [PASS] L7c: ...and the AECP plane is still SERVING after both a following command answered SUCCESS
+357:   [PASS] L8 ACQUIRE_ENTITY was ANSWERED             an AECPDU egressed
+358:   [PASS] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+359:   [PASS] L8: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+360:   [PASS] L8: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+361:   [PASS] L8: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+362:   [PASS] L8: sequence_id echoed                     got=0x0000010A exp=0x0000010A
+363:   [PASS] L8: command_type echoed, u = 0             got=0x00000000 exp=0x00000000
+364:   [PASS] L8: unicast back to the requester          got=0x02112233 exp=0x02112233
+365:   [PASS] L8: source address is the station MAC      got=0x02000000 exp=0x02000000
+366:   [PASS] L8: control_data_length = 12 + payload     got=0x0000001C exp=0x0000001C
+367:   [PASS] L8: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+368:   [PASS] L8: status NOT_SUPPORTED(11), never SUCCESS got=0x0000000B exp=0x0000000B
+369:   [PASS] L8: flags remain zero                      got=0x00000000 exp=0x00000000
+370:   [PASS] L8: owner_id high remains zero             got=0x00000000 exp=0x00000000
+371:   [PASS] L8: owner_id low remains zero              got=0x00000000 exp=0x00000000
+372:   [PASS] L8: ENTITY descriptor target remains zero  got=0x00000000 exp=0x00000000
+374:   [PASS] M: with no memory, READ_DESCRIPTOR still gets an ANSWER the watchdog degraded cleanly
+375:   [PASS] M: status NO_SUCH_DESCRIPTOR(2)            got=0x00000002 exp=0x00000002
+376:   [PASS] M: control_data_length = 12 + the 8-byte stub payload got=0x00000014 exp=0x00000014
+377:   [PASS] M: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+378:   [PASS] M: the image HEALS when memory returns (no reset) SUCCESS again
+381:   [PASS] N: the buffer WROTE its lanes to main memory lane writes committed
+382:   [PASS] N: ...and READ them back to build the frame read bursts served
+383:   [PASS] N: with no memory, the command still gets an ANSWER the watchdog voided the response cleanly
+384:   [PASS] N: status ENTITY_MISBEHAVING(10)           got=0x0000000A exp=0x0000000A
+385:   [PASS] N: the response carries NO payload it could not build got=0x0000000C exp=0x0000000C
+386:   [PASS] N: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+387:   [PASS] N: ...and it is still addressed back to the requester got=0x02112233 exp=0x02112233
+388:   [PASS] N: the buffer HEALS when memory returns (no reset) SUCCESS again
+391:   [PASS] the PROCESSOR leg transmitted              processor PDUs on the wire
+392:   [PASS] the AECP leg was represented on the shared lane AECP responses on the wire
+393:   [PASS] the MAAP leg transmitted                   MAAP PDUs on the wire
+394:   [PASS] no frame on the wire was too short to classify got=0x00000000 exp=0x00000000
+395:   [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+396:   [PASS] every AVTP PDU's length matches the length it declares got=0x00000000 exp=0x00000000
+397:   [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+398:   [PASS] every MAAP PDU carried KL_maap's own DA    got=0x00000000 exp=0x00000000
+400:   [PASS] ctl_tx_mux (lane 0) never aborted a frame  got=0x00000000 exp=0x00000000
+401:   [PASS] the MAC-boundary mux (lane 3) never aborted a frame got=0x00000000 exp=0x00000000
+402:   [PASS] no TX-trunk arbiter ever stalled           got=0x00000000 exp=0x00000000
+404:   [PASS] accepted == answered across the entire run balanced
+405:   [PASS] no RELEASE_DA is reachable while every source is pinned enabled got=0x00000000 exp=0x00000000
+407:   [PASS] T: source 0's DA gate is open (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+408:   [PASS] T: source 0 declares Talkemake[1]: Entering directory '$WORK/candidate/tb/verilator/pp_shadow/obj_vid73'
+415:   [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+416:   [PASS] T Asking Failed: the engine publishes lstn_reg_state 1 got=0x00000001 exp=0x00000001
+417:   [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+418:   [PASS] T Asking Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+419:   [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+420:   [PASS] T Asking Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+422:   [PASS] T Asking Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000001 exp=0x00000001
+423:   [PASS] T Asking Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+424:   [PASS] T Asking Failed: LWSRP_STATUS[3] listener ready got=0x00000000 exp=0x00000000
+425:   [PASS] T Ready Failed: the engine publishes lstn_reg_state 3 got=0x00000003 exp=0x00000003
+426:   [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+427:   [PASS] T Ready Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+428:   [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+429:   [PASS] T Ready Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+431:   [PASS] T Ready Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000003 exp=0x00000003
+432:   [PASS] T Ready Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+433:   [PASS] T Ready Failed: LWSRP_STATUS[3] listener ready got=0x00000001 exp=0x00000001
+434:   [PASS] T Ready: the engine publishes lstn_reg_state 2 got=0x00000002 exp=0x00000002
+435:   [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+436:   [PASS] T Ready: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+437:   [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+438:   [PASS] T Ready: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+440:   [PASS] T Ready: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000002 exp=0x00000002
+441:   [PASS] T Ready: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+442:   [PASS] T Ready: LWSRP_STATUS[3] listener ready    got=0x00000001 exp=0x00000001
+443:   [PASS] T left: the engine publishes lstn_reg_state 0 got=0x00000000 exp=0x00000000
+444:   [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+445:   [PASS] T left: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+446:   [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+447:   [PASS] T left: GET_STREAM_INFO flags_ex REGISTERING got=0x00000000 exp=0x00000000
+449:   [PASS] T left: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000000 exp=0x00000000
+450:   [PASS] T left: LWSRP_STATUS[2] listener registered got=0x00000000 exp=0x00000000
+451:   [PASS] T left: LWSRP_STATUS[3] listener ready     got=0x00000000 exp=0x00000000
+453:   [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0000BB80
+455:   [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+456:   [PASS] R2b: ...and the refusal carries the CURRENT 48000 got=0x0000BB80 exp=0x0000BB80
+457:   [PASS] R3: GET_SAMPLING_RATE still reads 48000    got=0x0000BB80 exp=0x0000BB80
+458:   [PASS] R4: nothing was announced to the second controller got=0x00000000 exp=0x00000000
+460:   [PASS] R5: the media grid did not move            counted over the same window
+461:   [PASS] R6: SET_SAMPLING_RATE(96000), listed, is SUCCESS got=0x00000000 exp=0x00000000
+462:   [PASS] R6b: ...carrying the 96000 it stored       got=0x00017700 exp=0x00017700
+463:   [PASS] R7: GET_SAMPLING_RATE reads 96000          got=g++   -I.  -MMD -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+469:   [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+470:   [PASS] R8b: ...announcing 96000                   got=0x00017700 exp=0x00017700
+472:   [PASS] R9: the media grid did not move for an accepted rate either the fabric runs 48 kHz by elaboration
+474:   [PASS] U: the listener launched a probe at the named talker CONNECT_TX_COMMAND seen
+475:   [PASS] U: the sink is BOUND (0x6A4[3], the class-D record) got=0x00000001 exp=0x00000001
+476:   [PASS] U: ...and settled on the VLAN this harness named (0x6A4[27:16]) got=0x00000002 exp=0x00000002
+478:   [PASS] U armed, nothing registered: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+479:   [PASS] U armed, nothing registered: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+480:   [PASS] U armed, nothing registered: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+482:   [PASS] U Advertise: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+483:   [PASS] U Advertise: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+484:   [PASS] U Advertise: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+486:   [PASS] U Failed: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+487:   [PASS] U Failed: ACMPL_STATE[7] TalkerFailed registered got=0x00000001 exp=0x00000001
+488:   [PASS] U Failed: ACMPL_TUID[23:16] MSRP failure code got=0x00000001 exp=0x00000001
+490:   [PASS] U Advertise again: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+491:   [PASS] U Advertise again: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+492:   [PASS] U Advertise again: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+494:   [PASS] M2: the restore walk after the handover proves the image and sequences restore_done
+495:   [PASS] M2: the FIRST post-handover command was answered an AECPDU egressed
+496:   [PASS] M2: ...and SERVED, not sacrificed to the re-arm (status) got=0x00000000 exp=0x00000000
+497:   [PASS] M2: the ENTITY descriptor's cdl (12 + 4 + 40) got=0x00000038 exp=0x00000038
+498:   [PASS] M2: the served bytes are the image's (seed body @4..7) got=0xA4A5A6A7 exp=0xA4A5A6A7
+499:   [PASS] M2: the second command (GET_COUNTERS) answered an AECPDU egressed
+500:   [PASS] M2: GET_COUNTERS STREAM_INPUT 0 is SUCCESS got=0x00000000 exp=0x00000000
+501:   [PASS] M2: ...with the twelve-counter mask, not a raced zero got=0x00000FFF exp=0x00000FFF
+503:   [PASS] PP_NVM_SEL reads back the IMG_LEN index    got=0x00000001 exp=0x00000001
+504:   [PASS] PP_NVM_DATA reads back the one-byte image length got=0x00000001 exp=0x00000001
+505:   [PASS] P3: the reset retired [M2]'s walk, so this result is a NEW one got=0x00000000 exp=0x00000000
+506:   [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fail 1 done 1)
+507:   [PASS] P3: the backend refusal reaches the processor and retires the walk restore_done set
+508:   [PASS] P3: a refused image is NOT reported as a successful restore got=0x00000001 exp=0x00000001
+509:   [PASS] P3: ...and does not read blank (fail, not an empty first boot) got=0x00000000 exp=0x00000000
+510:   [PASS] P3: nothing was committed, so nothing is dirty got=0x00000000 exp=0x00000000
+511:   [PASS] P3: the shared reset retires the terminal result got=0x00000000 exp=0x00000000
+512:   [PASS] P3: a legitimate blank READ still completes after the reset restore_done set
+513:   [PASS] P3: ...and that walk is blank, not a restore got=0x00000001 exp=0x00000001
+514:   [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030002
+515:   [PASS] #400 diagnostic writes preserve Domain default got=0x0003g++ -Os  -I.  -MMD -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
+527:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+528:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+529:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+530:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+531:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+532:   [PASS] K10 unchanged no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+533:   [PASS] K10 unchanged pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+534:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+535:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+536:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+537:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+538:   [PASS] K10 unchanged live_state_changed           got=0x00000000 exp=0x00000000
+539:   [PASS] K10 unchanged sticky_pending_PP_STAT       got=0x00000000 exp=0x00000000
+540:   [PASS] K10 unchanged sticky_pending_PP_NVM_STAT   got=0x00000000 exp=0x00000000
+541:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+542:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+543:   [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+544:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+545:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+546:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+547:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+548:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+549:   [PASS] K10 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+550:   [PASS] K10 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+551:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+552:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+553:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+554:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+555:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+557:   [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+558:   [PASS] K10 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+559:   [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+560:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+561:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+562:   [PASS] K10 repeat no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+563:   [PASS] K10 repeat pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+564:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+565:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+566:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+567:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+568:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+570:   [PASS] K10 repeat live_state_changed              got=0x00000001 exp=0x00000001
+571:   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000001 exp=0x00000001
+572:   [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+573:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+574:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+575:   [PASS] K10 g++   -I.  -MMD -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+581:   [PASS] #400 network Domain adoption stays live    got=0x01030005 exp=0x01030005
+582:   [PASS] #400 adoption leaves diagnostic LWSRP VID  got=0x00000013 exp=0x00000013
+583:   [PASS] #400 adoption leaves diagnostic AAF VID    got=0x00170000 exp=0x00170000
+584:   [PASS] #400 link cycle restores generated default got=0x00030002 exp=0x00030002
+586:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+587:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+588:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+589:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+590:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+591:   [PASS] K10 unchanged no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+592:   [PASS] K10 unchanged pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+593:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+594:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+595:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+596:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+597:   [PASS] K10 unchanged live_state_changed           got=0x00000000 exp=0x00000000
+598:   [PASS] K10 unchanged sticky_pending_PP_STAT       got=0x00000000 exp=0x00000000
+599:   [PASS] K10 unchanged sticky_pending_PP_NVM_STAT   got=0x00000000 exp=0x00000000
+600:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+601:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+602:   [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+603:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+604:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+605:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+606:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+607:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+608:   [PASS] K10 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+609:   [PASS] K10 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+610:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+611:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+612:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+613:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+614:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+616:   [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+617:   [PASS] K10 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+618:   [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+619:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+620:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+621:   [PASS] K10 repeat no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+622:   [PASS] K10 repeat pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+623:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+624:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+625:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+626:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+627:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+629:   [PASS] K10 repeat live_state_changed              got=0x00000001 exp=0x00000001
+630:   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x0000g++   -I.  -MMD -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME_DIR/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_OUTPUTS=2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+640:   [PASS] #403 AAF reset readback is neutral         got=0x00000000 exp=0x00000000
+641:   [PASS] #403 MAAP reset readback is neutral        got=0x00000000 exp=0x00000000
+642:   [PASS] #403 reset TCAM bypass is explicit         got=0x00000001 exp=0x00000001
+643:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+644:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+645:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+646:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+647:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+648:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+649:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+650:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+651:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+652:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+653:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+654:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+655:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+656:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+657:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+658:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+660:   [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+661:   [PASS] PP_STAT tag == 0x5B (plane present)        got=0x0000005B exp=0x0000005B
+662:   [PASS] PP_DIAG clean at reset                     got=0x00000000 exp=0x00000000
+663:   [PASS] TXARB_DIAG tag == 0xA7 (window decodes)    got=0x000000A7 exp=0x000000A7
+664:   [PASS] TXARB_DIAG lanes 7:4 are a structural zero got=0x00000000 exp=0x00000000
+667:   [PASS] the restore walk terminates                restore_done set
+668:   [PASS] a build with NO backend does not report a successful restore reported not-successful
+669:   [PASS] PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face) got=0x00000000 exp=0x00000000
+670:   [PASS] PP_STAT[7] nvm_blank == 1 (the walk validated zero records) got=0x00000001 exp=0x00000001
+671:   [PASS] PP_STAT[3] restore_fail == 1 (an absent backend is not a success) got=0x00000001 exp=0x00000001
+672:   [PASS] PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried) got=0x00000000 exp=0x00000000
+673:   [PASS] the presence tag is unchanged by the verdict bits got=0x0000005B exp=0x0000005B
+674:   [PASS] PP_STAT[8] nvm_dirty == 0 (no change was accepted) got=0x00000000 exp=0x00000000
+675:   [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+676:   [PASS] PP_STAT[10] nvm_img_valid == 0 (no image was validated) got=0x00000000 exp=0x00000000
+677:   [PASS] PP_STAT[15:12] nvm_verdict == 0 (no image was offered) got=0x00000000 exp=0x00000000
+679:   [PASS] PP_NVM_SEL reads back the index            got=0x00000002 exp=0x00000002
+680:   [PASS] PP_NVM_DATA reads back the backend's word 2 (sequence) got=0xA5C30001 exp=0xA5C30001
+681:   [PASS] PP_NVM_STAT: not configured, not backed, no operation in flight got=0x00000000 exp=0x00000000
+683:   [PASS] PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence) got=0x00000001 exp=0x00000001
+684:   [PASS] PP_NVM_STAT[6] agrees with PP_STAT[6]      got=0x00000001 exp=0x00000001
+685:   [PASS] PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness got=0x00000001 exp=0x00000001
+686:   [PASS] PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records) got=0x00000001 exp=0x00000001
+687:   [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+688:   [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+690:   [PASS] side-port access completed                 ack seen
+691:   [PASS] snapshot[0] magic == 'KLPP'                got=0x4B4C5050 exp=0x4B4C5050
+692:   [PASS] snapshot[1] shape non-zero                 shape word present
+694:   [PASS] ADP DISCOVER accepted (rx_frames +1)       got=0x00000001 exp=0x00000001
+695:   [PASS] no frame lost to a full FIFO               got=0x00000000 exp=0x00000000
+697:   [PASS] 8 IPv4 frames REJECTED (rx_frames flat)    got=0x00000000 exp=0x00000000
+698:   [PASS] and none of them was counted as a drop     got=0x00000000 exp=0x00000000
+700:   [PASS] the processor SENT (tx_frames > 0)         its TX lanes produced frames
+701:   [PASS] MAC TX CARRIED them (the drain is off)     1 frame(s) egressed at the MAC boundary
+702:   [PASS] every frame in the window was a processor control PDU got=0x00000000 exp=0x00000000
+704:   [PASS] adp_next_avail_index read 0 before any advertisement got=0x00000000 exp=0x00000000
+705:   [PASS] adp_next_avail_index CHANGED (the engine drives it) index advanced with the first ENTITY_AVAILABLE
+707:   [PASS] an ADP frame reached the MAC TX boundary   1 ADPDU(s) at the MAC boundary of 3 frames
+708:   [PASS] ADPDU is 82 octets on the wire             got=0x00000052 exp=0x00000052
+709:   [PASS] ADPDU DA == 91:E0:F0:01:00:00              got=0x91E0F001 exp=0x91E0F001
+710:   [PASS] ADPDU EtherType 0x22F0 + subtype 0xFA      got=0x0022F0FA exp=0x0022F0FA
+711:   [PASS] ADPDU sv=0 version=0 message_type=ENTITY_AVAILABLE got=0x00000000 exp=0x00000000
+712:   [PASS] ADPDU control_data_length == 56            got=0x00000038 exp=0x00000038
+713:   [PASS] ADPDU entity_id == the 0x604/0x608 pair    got=0x001BC50C exp=0x001BC50C
+714:   [PASS] ADPDU entity_id low half                   got=0xAC000001 exp=0xAC000001
+715:   [PASS] ADPDU entity_model_id == the 0x60C/0x610 pair got=0x001BC544 exp=0x001BC544
+716:   [PASS] ADPDU talker_stream_sources == 0x618       got=0x00000001 exp=0x00000001
+717:   [PASS] ADPDU talker_capabilities == 0x618         got=0x00004001 exp=0x00004001
+718:   [PASS] ADPDU listener_stream_sinks == 0x61C       got=0x00000002 exp=0x00000002
+719:   [PASS] ADPDU listener_capabilities == 0x61C       got=0x00004801 exp=0x00004801
+720:   [PASS] ADPDU is byte-exact against the CSR identity group 0 differing octet(s); first at wire byte -1
+721:   [PASS] available_index strictly increases across ADPDUs got=0x00000000 exp=0x00000000
+722:   [PASS] class-D available_index >= the last one on the wire the published index tracks the wire
+724:   [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+725:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+726:   [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+727:   [PASS] every accepted request was ANSWERED        accepted == answered
+728:   [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+729:   [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+730:   [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+731:   [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+732:   [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+733:   [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+735:   [PASS] #403 declared output count                 got=0x00000001 exp=0x00000001
+736:   [PASS] #606 source 0 startup allocation was refused no block was valid at acceptance
+737:   [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x00000101
+738:   [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+739:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+740:   [PASS] every accepted request was ANSWERED        got=0x00000011 exp=0x00000011
+741:   [PASS] every response has its accepted source     got=0x00000000 exp=0x00000000
+742:   [PASS] #606 source 0 auto-acquired before first probe got=0x00000001 exp=0x00000001
+743:   [PASS] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+744:   [PASS] #606 first probe response arrived          bounded command service
+745:   [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+746:   [PASS] #606 first probe names the source SID      station MAC and source UID
+747:   [PASS] #606 first probe names the acquired destination real MAAP base plus source
+748:   [PASS] #606 first probe names the configured VID  got=0x00000049 exp=0x00000049
+749:   [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+751:   [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+752:   [PASS] and it was held, not a one-cycle blip      gate held
+753:   [PASS] #403 boundary ACMP response status         got=0x00000000 exp=0x00000000
+754:   [PASS] #403 highest valid source gets base + index wire destination checked against allocator base
+755:   [PASS] #403 boundary ACMP response status         got=0x00000002 exp=0x00000002
+756:   [PASS] #403 first invalid source makes no allocator request got=0x00000000 exp=0x00000000
+758:   [PASS] the store FETCHED from descriptor memory   bursts served
+760:   [PASS] the descriptor image VALIDATED (magic+version+checksum) got=0x00000001 exp=0x00000001
+761:   [PASS] ...with no header fault                    got=0x00000000 exp=0x00000000
+762:   [PASS] L1 READ_DESCRIPTOR(ENTITY,0) was ANSWERED  an AECPDU egressed
+763:   [PASS] L1: message_type = command + 1             got=0x00000001 exp=0x00000001
+764:   [PASS] L1: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+765:   [PASS] L1: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+766:   [PASS] L1: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+767:   [PASS] L1: sequence_id echoed                     got=0x00000101 exp=0x00000101
+768:   [PASS] L1: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+769:   [PASS] L1: unicast back to the requester          got=0x02112233 exp=0x02112233
+770:   [PASS] L1: source address is the station MAC      got=0x02000000 exp=0x02000000
+771:   [PASS] L1: control_data_length = 12 + payload     got=0x00000038 exp=0x00000038
+772:   [PASS] L1: frame length matches (60-octet min)    got=0x00000052 exp=0x00000052
+773:   [PASS] L1: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+774:   [PASS] L1: configuration_index @24 echoed         got=0x00000000 exp=0x00000000
+775:   [PASS] L1: reserved @26 is zero                   got=0x00000000 exp=0x00000000
+776:   [PASS] L1: the DESCRIPTOR bytes @28 are the image's, exactly got=0x00000000 exp=0x00000000
+777:   [PASS] L2 READ_DESCRIPTOR(CONFIGURATION,1) was ANSWERED an AECPDU egressed
+778:   [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=0x00000028
+779:   [PASS] L2: frame length matches (60-octet min)    got=0x00000042 exp=0x00000042
+780:   [PASS] L2: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+781:   [PASS] L2: index 1 served at elem_off + 1*elem_stride got=0x00000000 exp=0x00000000
+782:   [PASS] L2: ...and it is NOT index 0's descriptor  got=0x00000001 exp=0x00000001
+783:   [PASS] L3 READ_DESCRIPTOR(index beyond the count) was ANSWERED an AECPDU egressed
+784:   [PASS] L3: message_type = command + 1             got=0x00000001 exp=0x00000001
+785:   [PASS] L3: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+786:   [PASS] L3: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+787:   [PASS] L3: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+788:   [PASS] L3: sequence_id echoed                     got=0x00000103 exp=0x00000103
+789:   [PASS] L3: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+790:   [PASS] L3: unicast back to the requester          got=0x02112233 exp=0x02112233
+791:   [PASS] L3: source address is the station MAC      got=0x02000000 exp=0x02000000
+792:   [PASS] L3: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+793:   [PASS] L3: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+794:   [PASS] L3: status NO_SUCH_DESCRIPTOR(2)           got=0x00000002 exp=0x00000002
+795:   [PASS] L3: the IEEE 7.4.5 stub names the descriptor_type got=0x00000002 exp=0x00000002
+796:   [PASS] L3: ...and the descriptor_index            got=0x00000007 exp=0x00000007
+797:   [PASS] L3t READ_DESCRIPTOR(absent type) was ANSWERED an AECPDU egressed
+798:   [PASS] L3t: message_type = command + 1            got=0x00000001 exp=0x00000001
+799:   [PASS] L3t: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+800:   [PASS] L3t: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+801:   [PASS] L3t: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+802:   [PASS] L3t: sequence_id echoed                    got=0x00000113 exp=0x00000113
+803:   [PASS] L3t: command_type echoed, u = 0            got=0x00000004 exp=0x00000004
+804:   [PASS] L3t: unicast back to the requester         got=0x02112233 exp=0x02112233
+805:   [PASS] L3t: source address is the station MAC     got=0x02000000 exp=0x02000000
+806:   [PASS] L3t: control_data_length = 12 + payload    got=0x00000014 exp=0x00000014
+807:   [PASS] L3t: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+808:   [PASS] L3t: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+809:   [PASS] L3t: the IEEE 7.4.5 stub names the descriptor_type got=0x0000000F exp=0x0000000F
+810:   [PASS] L3t: ...and the descriptor_index           got=0x00000007 exp=0x00000007
+811:   [PASS] L4 READ_DESCRIPTOR(bad config) was ANSWERED an AECPDU egressed
+812:   [PASS] L4: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+813:   [PASS] L4: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+814:   [PASS] L4: status BAD_ARGUMENTS(7), NOT NO_SUCH_DESCRIPTOR got=0x00000007 exp=0x00000007
+815:   [PASS] L4: the stub still names the type          got=0x00000001 exp=0x00000001
+816:   [PASS] L4: ...and the index                       got=0x00000001 exp=0x00000001
+817:   [PASS] L4: configuration_index @24 is the BAD one, echoed got=0x00000005 exp=0x00000005
+818:   [PASS] L5 an unassigned opcode was ANSWERED, not dropped an AECPDU egressed
+819:   [PASS] L5: message_type = command + 1             got=0x00000001 exp=0x00000001
+820:   [PASS] L5: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+821:   [PASS] L5: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+822:   [PASS] L5: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+823:   [PASS] L5: sequence_id echoed                     got=0x00000105 exp=0x00000105
+824:   [PASS] L5: command_type echoed, u = 0             got=0x00007FFE exp=0x00007FFE
+825:   [PASS] L5: unicast back to the requester          got=0x02112233 exp=0x02112233
+826:   [PASS] L5: source address is the station MAC      got=0x02000000 exp=0x02000000
+827:   [PASS] L5: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+828:   [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+829:   [PASS] L5: status NOT_IMPLEMENTED(1)              got=0x00000001 exp=0x00000001
+830:   [PASS] L5: the command's payload is ECHOED back   got=0x00000000 exp=0x00000000
+831:   [PASS] L5b GET_COUNTERS(STREAM_INPUT 0) was ANSWERED an AECPDU egressed
+832:   [PASS] L5b: message_type = command + 1            got=0x00000001 exp=0x00000001
+833:   [PASS] L5b: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+834:   [PASS] L5b: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+835:   [PASS] L5b: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+836:   [PASS] L5b: sequence_id echoed                    got=0x00000130 exp=0x00000130
+837:   [PASS] L5b: command_type echoed, u = 0            got=0x00000029 exp=0x00000029
+838:   [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+839:   [PASS] L5b: source address is the station MAC     got=0x02000000 exp=0x02000000
+840:   [PASS] L5b: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+841:   [PASS] L5b: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+842:   [PASS] L5b: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+843:   [PASS] L5b: descriptor_type echoed @0             got=0x00000005 exp=0x00000005
+844:   [PASS] L5b: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+845:   [PASS] L5b: counters_valid @4 is the twelve we keep (0xFFF) got=0x00000FFF exp=0x00000FFF
+846:   [PASS] L5b: the unclaimed quadlets 12..31 are zero got=0x00000000 exp=0x00000000
+847:   [PASS] L5b: the block is a full 32 quadlets       the frame ends at 174
+848:   [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+849:   [PASS] L5c: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+850:   [PASS] L5c: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+851:   [PASS] L5c: status NO_SUCH_DESCRIPTOR(2) - the image rules got=0x00000002 exp=0x00000002
+852:   [PASS] L5c: descriptor_index 9 echoed, not clamped to 0 got=0x00000009 exp=0x00000009
+853:   [PASS] L5c: counters_valid is EMPTY - no such sink here got=0x00000000 exp=0x00000000
+854:   [PASS] L5c: ...and the block is all zeros, not sink 0's numbers got=0x00000000 exp=0x00000000
+855:   [PASS] L5e a PADDED GET_COUNTERS was ANSWERED     an AECPDU egressed
+856:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+857:   [PASS] L5e: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+858:   [PASS] L5e: the type is @24's, NOT the padding at @28 got=0x00000005 exp=0x00000005
+859:   [PASS] L5e: the index is @26's, NOT the padding at @30 got=0x00000000 exp=0x00000000
+860:   [PASS] L5e: ...so the mask is still Stream Input 0's got=0x00000FFF exp=0x00000FFF
+861:   [PASS] L5d GET_COUNTERS(ENTITY) was ANSWERED      an AECPDU egressed
+862:   [PASS] L5d: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+863:   [PASS] L5d: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+864:   [PASS] L5d: status NOT_SUPPORTED(11) - no ENTITY counters here got=0x0000000B exp=0x0000000B
+865:   [PASS] L5d: descriptor_type ENTITY echoed         got=0x00000000 exp=0x00000000
+866:   [PASS] L5d: counters_valid ZERO in the full body  got=0x00000000 exp=0x00000000
+867:   [PASS] L5d: ...and the block is all zeros         got=0x00000000 exp=0x00000000
+868:   [PASS] L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1} got=0x00000081 exp=0x00000081
+869:   [PASS] L5e0: CHMAP_LOOP reads cluster 1 back as {en, reserved src 2} got=0x000000C2 exp=0x000000C2
+870:   [PASS] L5e GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED an AECPDU egressed
+871:   [PASS] L5e: message_type = command + 1            got=0x00000001 exp=0x00000001
+872:   [PASS] L5e: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+873:   [PASS] L5e: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+874:   [PASS] L5e: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+875:   [PASS] L5e: sequence_id echoed                    got=0x00000140 exp=0x00000140
+876:   [PASS] L5e: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+877:   [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+878:   [PASS] L5e: source address is the station MAC     got=0x02000000 exp=0x02000000
+879:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000020 exp=0x00000020
+880:   [PASS] L5e: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+881:   [PASS] L5e: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+882:   [PASS] L5e: descriptor_type echoed @0             got=0x0000000E exp=0x0000000E
+883:   [PASS] L5e: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+884:   [PASS] L5e: map_index echoed @4                   got=0x00000000 exp=0x00000000
+885:   [PASS] L5e: number_of_maps @6 is the fixed partition count got=0x00000001 exp=0x00000001
+886:   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
+887:   [PASS] L5e: reserved @10 is zero                  got=0x00000000 exp=0x00000000
+888:   [PASS] L5e: record 0 = {stream 0, ch 1, cluster 0, chan 0} got=0x00000001 exp=0x00000001
+889:   [PASS] L5e: record 0 offset half                  got=0x00000000 exp=0x00000000
+890:   [PASS] L5e2 the re-read was ANSWERED              an AECPDU egressed
+891:   [PASS] L5e2: control_data_length = 12 + payload   got=0x00000028 exp=0x00000028
+892:   [PASS] L5e2: frame length matches (60-octet min)  got=0x00000042 exp=0x00000042
+893:   [PASS] L5e2: number_of_mappings rose to 2         got=0x00000002 exp=0x00000002
+894:   [PASS] L5e2: record 1 is cluster 1's {stream 0, ch 0} got=0x00000000 exp=0x00000000
+895:   [PASS] L5e2: record 1 offset half                 got=0x00010000 exp=0x00010000
+896:   [PASS] L5f GET_AUDIO_MAP(page 1 of 1) was ANSWERED an AECPDU egressed
+897:   [PASS] L5f: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+898:   [PASS] L5f: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+899:   [PASS] L5f: status BAD_ARGUMENTS(7) - 7.4.44.1's page rule got=0x00000007 exp=0x00000007
+900:   [PASS] L5f: number_of_maps still tells the real N got=0x00000001 exp=0x00000001
+901:   [PASS] L5f: number_of_mappings 0 - an empty page, no records got=0x00000000 exp=0x00000000
+902:   [PASS] L5g GET_AUDIO_MAP(SPI 1) was ANSWERED      an AECPDU egressed
+903:   [PASS] L5g: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+904:   [PASS] L5g: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+905:   [PASS] L5g: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+906:   [PASS] L5g: descriptor_index 1 echoed, not clamped got=0x00000001 exp=0x00000001
+907:   [PASS] L5h GET_AUDIO_MAP(STREAM_PORT_OUTPUT) was ANSWERED an AECPDU egressed
+908:   [PASS] L5h: message_type = command + 1            got=0x00000001 exp=0x00000001
+909:   [PASS] L5h: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+910:   [PASS] L5h: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+911:   [PASS] L5h: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+912:   [PASS] L5h: sequence_id echoed                    got=0x00000144 exp=0x00000144
+913:   [PASS] L5h: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+914:   [PASS] L5h: unicast back to the requester         got=0x02112233 exp=0x02112233
+915:   [PASS] L5h: source address is the station MAC     got=0x02000000 exp=0x02000000
+916:   [PASS] L5h: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+917:   [PASS] L5h: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+918:   [PASS] L5h: status NO_SUCH_DESCRIPTOR(2) - the image rules the served OUTPUT side too got=0x00000002 exp=0x00000002
+919:   [PASS] L5h: the addressed type is in the fixed part got=0x0000000F exp=0x0000000F
+920:   [PASS] L6 IDENTIFY_NOTIFICATION-as-command was ANSWERED an AECPDU egressed
+921:   [PASS] L6: message_type = command + 1             got=0x00000001 exp=0x00000001
+922:   [PASS] L6: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+923:   [PASS] L6: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+924:   [PASS] L6: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+925:   [PASS] L6: sequence_id echoed                     got=0x00000106 exp=0x00000106
+926:   [PASS] L6: command_type echoed, u = 0             got=0x00000026 exp=0x00000026
+927:   [PASS] L6: unicast back to the requester          got=0x02112233 exp=0x02112233
+928:   [PASS] L6: source address is the station MAC      got=0x02000000 exp=0x02000000
+929:   [PASS] L6: control_data_length = 12 + payload     got=0x00000010 exp=0x00000010
+930:   [PASS] L6: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+931:   [PASS] L6: status BAD_ARGUMENTS(7) — 7.4.39.2 beats 9.3.5.3.3 got=0x00000007 exp=0x00000007
+932:   [PASS] L7a: a command for ANOTHER entity gets no reply got=0x00000000 exp=0x00000000
+933:   [PASS] L7b: an AECP RESPONSE arriving as input gets no reply got=0x00000000 exp=0x00000000
+934:   [PASS] L7c: ...and the AECP plane is still SERVING after both a following command answered SUCCESS
+935:   [PASS] L8 ACQUIRE_ENTITY was ANSWERED             an AECPDU egressed
+944:   [PASS] #403 AAF reset readback is neutral         got=0x00000000 exp=0x00000000
+945:   [PASS] #403 MAAP reset readback is neutral        got=0x00000000 exp=0x00000000
+946:   [PASS] #403 reset TCAM bypass is explicit         got=0x00000001 exp=0x00000001
+947:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+948:   [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+949:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+950:   [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+951:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+952:   [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+953:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+954:   [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+955:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+956:   [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+957:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+958:   [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+959:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+960:   [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+961:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+962:   [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+964:   [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+965:   [PASS] PP_STAT tag == 0x5B (plane present)        got=0x0000005B exp=0x0000005B
+966:   [PASS] PP_DIAG clean at reset                     got=0x00000000 exp=0x00000000
+967:   [PASS] TXARB_DIAG tag == 0xA7 (window decodes)    got=0x000000A7 exp=0x000000A7
+968:   [PASS] TXARB_DIAG lanes 7:4 are a structural zero got=0x00000000 exp=0x00000000
+971:   [PASS] the restore walk terminates                restore_done set
+972:   [PASS] a build with NO backend does not report a successful restore reported not-successful
+973:   [PASS] PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face) got=0x00000000 exp=0x00000000
+974:   [PASS] PP_STAT[7] nvm_blank == 1 (the walk validated zero records) got=0x00000001 exp=0x00000001
+975:   [PASS] PP_STAT[3] restore_fail == 1 (an absent backend is not a success) got=0x00000001 exp=0x00000001
+976:   [PASS] PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried) got=0x00000000 exp=0x00000000
+977:   [PASS] the presence tag is unchanged by the verdict bits got=0x0000005B exp=0x0000005B
+978:   [PASS] PP_STAT[8] nvm_dirty == 0 (no change was accepted) got=0x00000000 exp=0x00000000
+979:   [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+980:   [PASS] PP_STAT[10] nvm_img_valid == 0 (no image was validated) got=0x00000000 exp=0x00000000
+981:   [PASS] PP_STAT[15:12] nvm_verdict == 0 (no image was offered) got=0x00000000 exp=0x00000000
+983:   [PASS] PP_NVM_SEL reads back the index            got=0x00000002 exp=0x00000002
+984:   [PASS] PP_NVM_DATA reads back the backend's word 2 (sequence) got=0xA5C30001 exp=0xA5C30001
+985:   [PASS] PP_NVM_STAT: not configured, not backed, no operation in flight got=0x00000000 exp=0x00000000
+987:   [PASS] PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence) got=0x00000001 exp=0x00000001
+988:   [PASS] PP_NVM_STAT[6] agrees with PP_STAT[6]      got=0x00000001 exp=0x00000001
+989:   [PASS] PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness got=0x00000001 exp=0x00000001
+990:   [PASS] PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records) got=0x00000001 exp=0x00000001
+991:   [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+992:   [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+994:   [PASS] side-port access completed                 ack seen
+995:   [PASS] snapshot[0] magic == 'KLPP'                got=0x4B4C5050 exp=0x4B4C5050
+996:   [PASS] snapshot[1] shape non-zero                 shape word present
+998:   [PASS] ADP DISCOVER accepted (rx_frames +1)       got=0x00000001 exp=0x00000001
+999:   [PASS] no frame lost to a full FIFO               got=0x00000000 exp=0x00000000
+1001:   [PASS] 8 IPv4 frames REJECTED (rx_frames flat)    got=0x00000000 exp=0x00000000
+1002:   [PASS] and none of them was counted as a drop     got=0x00000000 exp=0x00000000
+1004:   [PASS] the processor SENT (tx_frames > 0)         its TX lanes produced frames
+1005:   [PASS] MAC TX CARRIED them (the drain is off)     2 frame(s) egressed at the MAC boundary
+1006:   [PASS] every frame in the window was a processor control PDU got=0x00000000 exp=0x00000000
+1008:   [PASS] adp_next_avail_index read 0 before any advertisement got=0x00000000 exp=0x00000000
+1009:   [PASS] adp_next_avail_index CHANGED (the engine drives it) index advanced with the first ENTITY_AVAILABLE
+1011:   [PASS] an ADP frame reached the MAC TX boundary   1 ADPDU(s) at the MAC boundary of 2 frames
+1012:   [PASS] ADPDU is 82 octets on the wire             got=0x00000052 exp=0x00000052
+1013:   [PASS] ADPDU DA == 91:E0:F0:01:00:00              got=0x91E0F001 exp=0x91E0F001
+1014:   [PASS] ADPDU EtherType 0x22F0 + subtype 0xFA      got=0x0022F0FA exp=0x0022F0FA
+1015:   [PASS] ADPDU sv=0 version=0 message_type=ENTITY_AVAILABLE got=0x00000000 exp=0x00000000
+1016:   [PASS] ADPDU control_data_length == 56            got=0x00000038 exp=0x00000038
+1017:   [PASS] ADPDU entity_id == the 0x604/0x608 pair    got=0x001BC50C exp=0x001BC50C
+1018:   [PASS] ADPDU entity_id low half                   got=0xAC000001 exp=0xAC000001
+1019:   [PASS] ADPDU entity_model_id == the 0x60C/0x610 pair got=0x001BC544 exp=0x001BC544
+1020:   [PASS] ADPDU talker_stream_sources == 0x618       got=0x00000002 exp=0x00000002
+1021:   [PASS] ADPDU talker_capabilities == 0x618         got=0x00004801 exp=0x00004801
+1022:   [PASS] ADPDU listener_stream_sinks == 0x61C       got=0x00000002 exp=0x00000002
+1023:   [PASS] ADPDU listener_capabilities == 0x61C       got=0x00004801 exp=0x00004801
+1024:   [PASS] ADPDU is byte-exact against the CSR identity group 0 differing octet(s); first at wire byte -1
+1025:   [PASS] available_index strictly increases across ADPDUs got=0x00000000 exp=0x00000000
+1026:   [PASS] class-D available_index >= the last one on the wire the published index tracks the wire
+1028:   [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+1029:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+1030:   [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+1031:   [PASS] every accepted request was ANSWERED        accepted == answered
+1032:   [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+1033:   [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+1034:   [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+1035:   [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+1036:   [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+1037:   [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+1039:   [PASS] #403 declared output count                 got=0x00000002 exp=0x00000002
+1040:   [PASS] #606 source 0 startup allocation was refused no block was valid at acceptance
+1041:   [PASS] #606 source 1 startup allocation was refused no block was valid at acceptance
+1042:   [PASS] #403 exact MAAP boot count readback        got=0x00000201 exp=0x00000201
+1043:   [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+1044:   [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+1045:   [PASS] every accepted request was ANSWERED        got=0x00000022 exp=0x00000022
+1046:   [PASS] every response has its accepted source     got=0x00000000 exp=0x00000000
+1047:   [PASS] #606 source 0 auto-acquired before first probe got=0x00000001 exp=0x00000001
+1048:   [PASS] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+1049:   [PASS] #606 first probe response arrived          bounded command service
+1050:   [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+1051:   [PASS] #606 first probe names the source SID      station MAC and source UID
+1052:   [PASS] #606 first probe names the acquired destination real MAAP base plus source
+1053:   [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+1054:   [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+1056:   [PASS] #606 source 1 auto-acquired before first probe got=0x00000001 exp=0x00000001
+1057:   [PASS] [I] source 1 grant equals MAAP base plus index accepted request identifies the response
+1058:   [PASS] #606 first probe response arrived          bounded command service
+1059:   [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+1060:   [PASS] #606 first probe names the source SID      station MAC and source UID
+1061:   [PASS] #606 first probe names the acquired destination real MAAP base plus source
+1062:   [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+1063:   [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+1065:   [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+1066:   [PASS] and it was held, not a one-cycle blip      gate held
+1067:   [PASS] #403 boundary ACMP response status         got=0x00000000 exp=0x00000000
+1068:   [PASS] #403 highest valid source gets base + index wire destination checked against allocator base
+1069:   [PASS] #403 boundary ACMP response status         got=0x00000002 exp=0x00000002
+1070:   [PASS] #403 first invalid source makes no allocator request got=0x00000000 exp=0x00000000
+1072:   [PASS] the store FETCHED from descriptor memory   bursts served
+1074:   [PASS] the descriptor image VALIDATED (magic+version+checksum) got=0x00000001 exp=0x00000001
+1075:   [PASS] ...with no header fault                    got=0x00000000 exp=0x00000000
+1076:   [PASS] L1 READ_DESCRIPTOR(ENTITY,0) was ANSWERED  an AECPDU egressed
+1077:   [PASS] L1: message_type = command + 1             got=0x00000001 exp=0x00000001
+1078:   [PASS] L1: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1079:   [PASS] L1: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1080:   [PASS] L1: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1081:   [PASS] L1: sequence_id echoed                     got=0x00000101 exp=0x00000101
+1082:   [PASS] L1: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+1083:   [PASS] L1: unicast back to the requester          got=0x02112233 exp=0x02112233
+1084:   [PASS] L1: source address is the station MAC      got=0x02000000 exp=0x02000000
+1085:   [PASS] L1: control_data_length = 12 + payload     got=0x00000038 exp=0x00000038
+1086:   [PASS] L1: frame length matches (60-octet min)    got=0x00000052 exp=0x00000052
+1087:   [PASS] L1: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+1088:   [PASS] L1: configuration_index @24 echoed         got=0x00000000 exp=0x00000000
+1089:   [PASS] L1: reserved @26 is zero                   got=0x00000000 exp=0x00000000
+1090:   [PASS] L1: the DESCRIPTOR bytes @28 are the image's, exactly got=0x00000000 exp=0x00000000
+1091:   [PASS] L2 READ_DESCRIPTOR(CONFIGURATION,1) was ANSWERED an AECPDU egressed
+1092:   [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+1093:   [PASS] L8: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1094:   [PASS] L8: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1095:   [PASS] L8: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1096:   [PASS] L8: sequence_id echoed                     got=0x0000010A exp=0x0000010A
+1097:   [PASS] L8: command_type echoed, u = 0             got=0x00000000 exp=0x00000000
+1098:   [PASS] L8: unicast back to the requester          got=0x02112233 exp=0x02112233
+1099:   [PASS] L8: source address is the station MAC      got=0x02000000 exp=0x02000000
+1100:   [PASS] L8: control_data_length = 12 + payload     got=0x0000001C exp=0x0000001C
+1101:   [PASS] L8: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1102:   [PASS] L8: status NOT_SUPPORTED(11), never SUCCESS got=0x0000000B exp=0x0000000B
+1103:   [PASS] L8: flags remain zero                      got=0x00000000 exp=0x00000000
+1104:   [PASS] L8: owner_id high remains zero             got=0x00000000 exp=0x00000000
+1105:   [PASS] L8: owner_id low remains zero              got=0x00000000 exp=0x00000000
+1106:   [PASS] L8: ENTITY descriptor target remains zero  got=0x00000000 exp=0x00000000
+1108:   [PASS] M: with no memory, READ_DESCRIPTOR still gets an ANSWER the watchdog degraded cleanly
+1109:   [PASS] M: status NO_SUCH_DESCRIPTOR(2)            got=0x00000002 exp=0x00000002
+1110:   [PASS] M: control_data_length = 12 + the 8-byte stub payload got=0x00000014 exp=0x00000014
+1111:   [PASS] M: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+1112:   [PASS] M: the image HEALS when memory returns (no reset) SUCCESS again
+1115:   [PASS] N: the buffer WROTE its lanes to main memory lane writes committed
+1116:   [PASS] N: ...and READ them back to build the frame read bursts served
+1117:   [PASS] N: with no memory, the command still gets an ANSWER the watchdog voided the response cleanly
+1118:   [PASS] N: status ENTITY_MISBEHAVING(10)           got=0x0000000A exp=0x0000000A
+1119:   [PASS] N: the response carries NO payload it could not build got=0x0000000C exp=0x0000000C
+1120:   [PASS] N: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+1121:   [PASS] N: ...and it is still addressed back to the requester got=0x02112233 exp=0x02112233
+1122:   [PASS] N: the buffer HEALS when memory returns (no reset) SUCCESS again
+1125:   [PASS] the PROCESSOR leg transmitted              processor PDUs on the wire
+1126:   [PASS] the AECP leg was represented on the shared lane AECP responses on the wire
+1127:   [PASS] the MAAP leg transmitted                   MAAP PDUs on the wire
+1128:   [PASS] no frame on the wire was too short to classify got=0x00000000 exp=0x00000000
+1129:   [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+1130:   [PASS] every AVTP PDU's length matches the length it declares got=0x00000000 exp=0x00000000
+1131:   [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+1132:   [PASS] every MAAP PDU carried KL_maap's own DA    got=0x00000000 exp=0x00000000
+1134:   [PASS] ctl_tx_mux (lane 0) never aborted a frame  got=0x00000000 exp=0x00000000
+1135:   [PASS] the MAC-boundary mux (lane 3) never aborted a frame got=0x00000000 exp=0x00000000
+1136:   [PASS] no TX-trunk arbiter ever stalled           got=0x00000000 exp=0x00000000
+1138:   [PASS] accepted == answered across the entire run balanced
+1139:   [PASS] no RELEASE_DA is reachable while every source is pinned enabled got=0x00000000 exp=0x00000000
+1141:   [PASS] T: source 0's DA gate is open (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+1142:   [PASS] T: source 0 declares Talke0x00000028
+1143:   [PASS] L2: frame length matches (60-octet min)    got=0x00000042 exp=0x00000042
+1144:   [PASS] L2: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+1145:   [PASS] L2: index 1 served at elem_off + 1*elem_stride got=0x00000000 exp=0x00000000
+1146:   [PASS] L2: ...and it is NOT index 0's descriptor  got=0x00000001 exp=0x00000001
+1147:   [PASS] L3 READ_DESCRIPTOR(index beyond the count) was ANSWERED an AECPDU egressed
+1148:   [PASS] L3: message_type = command + 1             got=0x00000001 exp=0x00000001
+1149:   [PASS] L3: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1150:   [PASS] L3: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1151:   [PASS] L3: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1152:   [PASS] L3: sequence_id echoed                     got=0x00000103 exp=0x00000103
+1153:   [PASS] L3: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+1154:   [PASS] L3: unicast back to the requester          got=0x02112233 exp=0x02112233
+1155:   [PASS] L3: source address is the station MAC      got=0x02000000 exp=0x02000000
+1156:   [PASS] L3: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+1157:   [PASS] L3: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1158:   [PASS] L3: status NO_SUCH_DESCRIPTOR(2)           got=0x00000002 exp=0x00000002
+1159:   [PASS] L3: the IEEE 7.4.5 stub names the descriptor_type got=0x00000002 exp=0x00000002
+1160:   [PASS] L3: ...and the descriptor_index            got=0x00000007 exp=0x00000007
+1161:   [PASS] L3t READ_DESCRIPTOR(absent type) was ANSWERED an AECPDU egressed
+1162:   [PASS] L3t: message_type = command + 1            got=0x00000001 exp=0x00000001
+1163:   [PASS] L3t: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+1164:   [PASS] L3t: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+1165:   [PASS] L3t: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+1166:   [PASS] L3t: sequence_id echoed                    got=0x00000113 exp=0x00000113
+1167:   [PASS] L3t: command_type echoed, u = 0            got=0x00000004 exp=0x00000004
+1168:   [PASS] L3t: unicast back to the requester         got=0x02112233 exp=0x02112233
+1169:   [PASS] L3t: source address is the station MAC     got=0x02000000 exp=0x02000000
+1170:   [PASS] L3t: control_data_length = 12 + payload    got=0x00000014 exp=0x00000014
+1171:   [PASS] L3t: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+1172:   [PASS] L3t: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+1173:   [PASS] L3t: the IEEE 7.4.5 stub names the descriptor_type got=0x0000000F exp=0x0000000F
+1174:   [PASS] L3t: ...and the descriptor_index           got=0x00000007 exp=0x00000007
+1175:   [PASS] L4 READ_DESCRIPTOR(bad config) was ANSWERED an AECPDU egressed
+1176:   [PASS] L4: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+1177:   [PASS] L4: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1178:   [PASS] L4: status BAD_ARGUMENTS(7), NOT NO_SUCH_DESCRIPTOR got=0x00000007 exp=0x00000007
+1179:   [PASS] L4: the stub still names the type          got=0x00000001 exp=0x00000001
+1180:   [PASS] L4: ...and the index                       got=0x00000001 exp=0x00000001
+1181:   [PASS] L4: configuration_index @24 is the BAD one, echoed got=0x00000005 exp=0x00000005
+1182:   [PASS] L5 an unassigned opcode was ANSWERED, not dropped an AECPDU egressed
+1183:   [PASS] L5: message_type = command + 1             got=0x00000001 exp=0x00000001
+1184:   [PASS] L5: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1185:   [PASS] L5: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1186:   [PASS] L5: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1187:   [PASS] L5: sequence_id echoed                     got=0x00000105 exp=0x00000105
+1188:   [PASS] L5: command_type echoed, u = 0             got=0x00007FFE exp=0x00007FFE
+1189:   [PASS] L5: unicast back to the requester          got=0x02112233 exp=0x02112233
+1190:   [PASS] L5: source address is the station MAC      got=0x02000000 exp=0x02000000
+1191:   [PASS] L5: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+1192:   [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1193:   [PASS] L5: status NOT_IMPLEMENTED(1)              got=0x00000001 exp=0x00000001
+1194:   [PASS] L5: the command's payload is ECHOED back   got=0x00000000 exp=0x00000000
+1195:   [PASS] L5b GET_COUNTERS(STREAM_INPUT 0) was ANSWERED an AECPDU egressed
+1196:   [PASS] L5b: message_type = command + 1            got=0x00000001 exp=0x00000001
+1197:   [PASS] L5b: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+1198:   [PASS] L5b: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+1199:   [PASS] L5b: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+1200:   [PASS] L5b: sequence_id echoed                    got=0x00000130 exp=0x00000130
+1201:   [PASS] L5b: command_type echoed, u = 0            got=0x00000029 exp=0x00000029
+1202:   [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+1203:   [PASS] L5b: source address is the station MAC     got=0x02000000 exp=0x02000000
+1204:   [PASS] L5b: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+1205:   [PASS] L5b: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+1206:   [PASS] L5b: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+1207:   [PASS] L5b: descriptor_type echoed @0             got=0x00000005 exp=0x00000005
+1208:   [PASS] L5b: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+1209:   [PASS] L5b: counters_valid @4 is the twelve we keep (0xFFF) got=0x00000FFF exp=0x00000FFF
+1210:   [PASS] L5b: the unclaimed quadlets 12..31 are zero got=0x00000000 exp=0x00000000
+1211:   [PASS] L5b: the block is a full 32 quadlets       the frame ends at 174
+1212:   [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+1213:   [PASS] L5c: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+1214:   [PASS] L5c: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+1215:   [PASS] L5c: status NO_SUCH_DESCRIPTOR(2) - the image rules got=0x00000002 exp=0x00000002
+1216:   [PASS] L5c: descriptor_index 9 echoed, not clamped to 0 got=0x00000009 exp=0x00000009
+1217:   [PASS] L5c: counters_valid is EMPTY - no such sink here got=0x00000000 exp=0x00000000
+1218:   [PASS] L5c: ...and the block is all zeros, not sink 0's numbers got=0x00000000 exp=0x00000000
+1219:   [PASS] L5e a PADDED GET_COUNTERS was ANSWERED     an AECPDU egressed
+1220:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+1221:   [PASS] L5e: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+1222:   [PASS] L5e: the type is @24's, NOT the padding at @28 got=0x00000005 exp=0x00000005
+1223:   [PASS] L5e: the index is @26's, NOT the padding at @30 got=0x00000000 exp=0x00000000
+1224:   [PASS] L5e: ...so the mask is still Stream Input 0's got=0x00000FFF exp=0x00000FFF
+1225:   [PASS] L5d GET_COUNTERS(ENTITY) was ANSWERED      an AECPDU egressed
+1226:   [PASS] L5d: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+1227:   [PASS] L5d: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+1228:   [PASS] L5d: status NOT_SUPPORTED(11) - no ENTITY counters here got=0x0000000B exp=0x0000000B
+1229:   [PASS] L5d: descriptor_type ENTITY echoed         got=0x00000000 exp=0x00000000
+1230:   [PASS] L5d: counters_valid ZERO in the full body  got=0x00000000 exp=0x00000000
+1231:   [PASS] L5d: ...and the block is all zeros         got=0x00000000 exp=0x00000000
+1232:   [PASS] L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1} got=0x00000081 exp=0x00000081
+1233:   [PASS] L5e0: CHMAP_LOOP reads cluster 1 back as {en, reserved src 2} got=0x000000C2 exp=0x000000C2
+1234:   [PASS] L5e GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED an AECPDU egressed
+1235:   [PASS] L5e: message_type = command + 1            got=0x00000001 exp=0x00000001
+1236:   [PASS] L5e: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+1237:   [PASS] L5e: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+1238:   [PASS] L5e: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+1239:   [PASS] L5e: sequence_id echoed                    got=0x00000140 exp=0x00000140
+1240:   [PASS] L5e: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+1241:   [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+1242:   [PASS] L5e: source address is the station MAC     got=0x02000000 exp=0x02000000
+1243:   [PASS] L5e: control_data_length = 12 + payload    got=0x00000020 exp=0x00000020
+1244:   [PASS] L5e: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+1245:   [PASS] L5e: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+1246:   [PASS] L5e: descriptor_type echoed @0             got=0x0000000E exp=0x0000000E
+1247:   [PASS] L5e: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+1248:   [PASS] L5e: map_index echoed @4                   got=0x00000000 exp=0x00000000
+1249:   [PASS] L5e: number_of_maps @6 is the fixed partition count got=0x00000001 exp=0x00000001
+1250:   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
+1251:   [PASS] L5e: reserved @10 is zero                  got=0x00000000 exp=0x00000000
+1252:   [PASS] L5e: record 0 = {stream 0, ch 1, cluster 0, chan 0} got=0x00000001 exp=0x00000001
+1253:   [PASS] L5e: record 0 offset half                  got=0x00000000 exp=0x00000000
+1254:   [PASS] L5e2 the re-read was ANSWERED              an AECPDU egressed
+1255:   [PASS] L5e2: control_data_length = 12 + payload   got=0x00000028 exp=0x00000028
+1256:   [PASS] L5e2: frame length matches (60-octet min)  got=0x00000042 exp=0x00000042
+1257:   [PASS] L5e2: number_of_mappings rose to 2         got=0x00000002 exp=0x00000002
+1258:   [PASS] L5e2: record 1 is cluster 1's {stream 0, ch 0} got=0x00000000 exp=0x00000000
+1259:   [PASS] L5e2: record 1 offset half                 got=0x00010000 exp=0x00010000
+1260:   [PASS] L5f GET_AUDIO_MAP(page 1 of 1) was ANSWERED an AECPDU egressed
+1261:   [PASS] L5f: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+1262:   [PASS] L5f: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+1263:   [PASS] L5f: status BAD_ARGUMENTS(7) - 7.4.44.1's page rule got=0x00000007 exp=0x00000007
+1264:   [PASS] L5f: number_of_maps still tells the real N got=0x00000001 exp=0x00000001
+1265:   [PASS] L5f: number_of_mappings 0 - an empty page, no records got=0x00000000 exp=0x00000000
+1266:   [PASS] L5g GET_AUDIO_MAP(SPI 1) was ANSWERED      an AECPDU egressed
+1267:   [PASS] L5g: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+1268:   [PASS] L5g: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+1269:   [PASS] L5g: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+1270:   [PASS] L5g: descriptor_index 1 echoed, not clamped got=0x00000001 exp=0x00000001
+1271:   [PASS] L5h GET_AUDIO_MAP(STREAM_PORT_OUTPUT) was ANSWERED an AECPDU egressed
+1272:   [PASS] L5h: message_type = command + 1            got=0x00000001 exp=0x00000001
+1273:   [PASS] L5h: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+1274:   [PASS] L5h: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+1275:   [PASS] L5h: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+1276:   [PASS] L5h: sequence_id echoed                    got=0x00000144 exp=0x00000144
+1277:   [PASS] L5h: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+1278:   [PASS] L5h: unicast back to the requester         got=0x02112233 exp=0x02112233
+1279:   [PASS] L5h: source address is the station MAC     got=0x02000000 exp=0x02000000
+1280:   [PASS] L5h: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+1281:   [PASS] L5h: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+1282:   [PASS] L5h: status NO_SUCH_DESCRIPTOR(2) - the image rules the served OUTPUT side too got=0x00000002 exp=0x00000002
+1283:   [PASS] L5h: the addressed type is in the fixed part got=0x0000000F exp=0x0000000F
+1284:   [PASS] L6 IDENTIFY_NOTIFICATION-as-command was ANSWERED an AECPDU egressed
+1285:   [PASS] L6: message_type = command + 1             got=0x00000001 exp=0x00000001
+1286:   [PASS] L6: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1287:   [PASS] L6: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1288:   [PASS] L6: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1289:   [PASS] L6: sequence_id echoed                     got=0x00000106 exp=0x00000106
+1290:   [PASS] L6: command_type echoed, u = 0             got=0r Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+1291:   [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+1292:   [PASS] T Asking Failed: the engine publishes lstn_reg_state 1 got=0x00000001 exp=0x00000001
+1293:   [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+1294:   [PASS] T Asking Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1295:   [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+1296:   [PASS] T Asking Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1298:   [PASS] T Asking Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000001 exp=0x00000001
+1299:   [PASS] T Asking Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1300:   [PASS] T Asking Failed: LWSRP_STATUS[3] listener ready got=0x00000000 exp=0x00000000
+1301:   [PASS] T Ready Failed: the engine publishes lstn_reg_state 3 got=0x00000003 exp=0x00000003
+1302:   [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1303:   [PASS] T Ready Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1304:   [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1305:   [PASS] T Ready Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1307:   [PASS] T Ready Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000003 exp=0x00000003
+1308:   [PASS] T Ready Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1309:   [PASS] T Ready Failed: LWSRP_STATUS[3] listener ready got=0x00000001 exp=0x00000001
+1310:   [PASS] T Ready: the engine publishes lstn_reg_state 2 got=0x00000002 exp=0x00000002
+1311:   [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1312:   [PASS] T Ready: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1313:   [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1314:   [PASS] T Ready: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1316:   [PASS] T Ready: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000002 exp=0x00000002
+1317:   [PASS] T Ready: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1318:   [PASS] T Ready: LWSRP_STATUS[3] listener ready    got=0x00000001 exp=0x00000001
+1319:   [PASS] T left: the engine publishes lstn_reg_state 0 got=0x00000000 exp=0x00000000
+1320:   [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1321:   [PASS] T left: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1322:   [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1323:   [PASS] T left: GET_STREAM_INFO flags_ex REGISTERING got=0x00000000 exp=0x00000000
+1325:   [PASS] T left: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000000 exp=0x00000000
+1326:   [PASS] T left: LWSRP_STATUS[2] listener registered got=0x00000000 exp=0x00000000
+1327:   [PASS] T left: LWSRP_STATUS[3] listener ready     got=0x00000000 exp=0x00000000
+1329:   [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0000BB80
+1331:   [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+1332:   [PASS] R2b: ...and the refusal carries the CURRENT 48000 got=0x0000BB80 exp=0x0000BB80
+1333:   [PASS] R3: GET_SAMPLING_RATE still reads 48000    got=0x0000BB80 exp=0x0000BB80
+1334:   [PASS] R4: nothing was announced to the second controller got=0x00000000 exp=0x00000000
+1336:   [PASS] R5: the media grid did not move            counted over the same window
+1337:   [PASS] R6: SET_SAMPLING_RATE(96000), listed, is SUCCESS got=0x00000000 exp=0x00000000
+1338:   [PASS] R6b: ...carrying the 96000 it stored       got=0x00017700 exp=0x00017700
+1339:   [PASS] R7: GET_SAMPLING_RATE reads 96000          got=x00000026 exp=0x00000026
+1340:   [PASS] L6: unicast back to the requester          got=0x02112233 exp=0x02112233
+1341:   [PASS] L6: source address is the station MAC      got=0x02000000 exp=0x02000000
+1342:   [PASS] L6: control_data_length = 12 + payload     got=0x00000010 exp=0x00000010
+1343:   [PASS] L6: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1344:   [PASS] L6: status BAD_ARGUMENTS(7) — 7.4.39.2 beats 9.3.5.3.3 got=0x00000007 exp=0x00000007
+1345:   [PASS] L7a: a command for ANOTHER entity gets no reply got=0x00000000 exp=0x00000000
+1346:   [PASS] L7b: an AECP RESPONSE arriving as input gets no reply got=0x00000000 exp=0x00000000
+1347:   [PASS] L7c: ...and the AECP plane is still SERVING after both a following command answered SUCCESS
+1348:   [PASS] L8 ACQUIRE_ENTITY was ANSWERED             an AECPDU egressed
+1349:   [PASS] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+1350:   [PASS] L8: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+1351:   [PASS] L8: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+1352:   [PASS] L8: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+1353:   [PASS] L8: sequence_id echoed                     got=0x0000010A exp=0x0000010A
+1354:   [PASS] L8: command_type echoed, u = 0             got=0x00000000 exp=0x00000000
+1355:   [PASS] L8: unicast back to the requester          got=0x02112233 exp=0x02112233
+1356:   [PASS] L8: source address is the station MAC      got=0x02000000 exp=0x02000000
+1357:   [PASS] L8: control_data_length = 12 + payload     got=0x0000001C exp=0x0000001C
+1358:   [PASS] L8: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+1359:   [PASS] L8: status NOT_SUPPORTED(11), never SUCCESS got=0x0000000B exp=0x0000000B
+1360:   [PASS] L8: flags remain zero                      got=0x00000000 exp=0x00000000
+1361:   [PASS] L8: owner_id high remains zero             got=0x00000000 exp=0x00000000
+1362:   [PASS] L8: owner_id low remains zero              got=0x00000000 exp=0x00000000
+1363:   [PASS] L8: ENTITY descriptor target remains zero  got=0x00000000 exp=0x00000000
+1365:   [PASS] M: with no memory, READ_DESCRIPTOR still gets an ANSWER the watchdog degraded cleanly
+1366:   [PASS] M: status NO_SUCH_DESCRIPTOR(2)            got=0x00000002 exp=0x00000002
+1367:   [PASS] M: control_data_length = 12 + the 8-byte stub payload got=0x00000014 exp=0x00000014
+1368:   [PASS] M: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+1369:   [PASS] M: the image HEALS when memory returns (no reset) SUCCESS again
+1372:   [PASS] N: the buffer WROTE its lanes to main memory lane writes committed
+1373:   [PASS] N: ...and READ them back to build the frame read bursts served
+1374:   [PASS] N: with no memory, the command still gets an ANSWER the watchdog voided the response cleanly
+1375:   [PASS] N: status ENTITY_MISBEHAVING(10)           got=0x0000000A exp=0x0000000A
+1376:   [PASS] N: the response carries NO payload it could not build got=0x0000000C exp=0x0000000C
+1377:   [PASS] N: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+1378:   [PASS] N: ...and it is still addressed back to the requester got=0x02112233 exp=0x02112233
+1379:   [PASS] N: the buffer HEALS when memory returns (no reset) SUCCESS again
+1382:   [PASS] the PROCESSOR leg transmitted              processor PDUs on the wire
+1383:   [PASS] the AECP leg was represented on the shared lane AECP responses on the wire
+1384:   [PASS] the MAAP leg transmitted                   MAAP PDUs on the wire
+1385:   [PASS] no frame on the wire was too short to classify got=0x00000000 exp=0x00000000
+1386:   [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+1387:   [PASS] every AVTP PDU's length matches the length it declares got=0x00000000 exp=0x00000000
+1388:   [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+1389:   [PASS] every MAAP PDU carried KL_maap's own DA    got=0x00000000 exp=0x00000000
+1391:   [PASS] ctl_tx_mux (lane 0) never aborted a frame  got=0x00000000 exp=0x00000000
+1392:   [PASS] the MAC-boundary mux (lane 3) never aborted a frame got=0x00000000 exp=0x00000000
+1393:   [PASS] no TX-trunk arbiter ever stalled           got=0x00000000 exp=0x00000000
+1395:   [PASS] accepted == answered across the entire run balanced
+1396:   [PASS] no RELEASE_DA is reachable while every source is pinned enabled got=0x00000000 exp=0x00000000
+1398:   [PASS] T: source 0's DA gate is open (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+1399:   [PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+1400:   [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+1401:   [PASS] T Asking Failed: the engine publishes lstn_reg_state 1 got=0x00000001 exp=0x00000001
+1402:   [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+1403:   [PASS] T Asking Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1404:   [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+1405:   [PASS] T Asking Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1407:   [PASS] T Asking Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000001 exp=0x00000001
+1408:   [PASS] T Asking Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1409:   [PASS] T Asking Failed: LWSRP_STATUS[3] listener ready got=0x00000000 exp=0x00000000
+1410:   [PASS] T Ready Failed: the engine publishes lstn_reg_state 3 got=0x00000003 exp=0x00000003
+1411:   [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1412:   [PASS] T Ready Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1413:   [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1414:   [PASS] T Ready Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1416:   [PASS] T Ready Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000003 exp=0x00000003
+1417:   [PASS] T Ready Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1418:   [PASS] T Ready Failed: LWSRP_STATUS[3] listener ready got=0x00000001 exp=0x00000001
+1419:   [PASS] T Ready: the engine publishes lstn_reg_state 2 got=0x00000002 exp=0x00000002
+1420:   [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1421:   [PASS] T Ready: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1422:   [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1423:   [PASS] T Ready: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+1425:   [PASS] T Ready: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000002 exp=0x00000002
+1426:   [PASS] T Ready: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+1427:   [PASS] T Ready: LWSRP_STATUS[3] listener ready    got=0x00000001 exp=0x00000001
+1428:   [PASS] T left: the engine publishes lstn_reg_state 0 got=0x00000000 exp=0x00000000
+1429:   [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+1430:   [PASS] T left: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+1431:   [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+1432:   [PASS] T left: GET_STREAM_INFO flags_ex REGISTERING got=0x00000000 exp=0x00000000
+1434:   [PASS] T left: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000000 exp=0x00000000
+1435:   [PASS] T left: LWSRP_STATUS[2] listener registered got=0x00000000 exp=0x00000000
+1436:   [PASS] T left: LWSRP_STATUS[3] listener ready     got=0x00000000 exp=0x00000000
+1438:   [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0x00017700 exp=0x00017700
+1439:   [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+1440:   [PASS] R8b: ...announcing 96000                   got=0x00017700 exp=0x00017700
+1442:   [PASS] R9: the media grid did not move for an accepted rate either the fabric runs 48 kHz by elaboration
+1444:   [PASS] U: the listener launched a probe at the named talker CONNECT_TX_COMMAND seen
+1445:   [PASS] U: the sink is BOUND (0x6A4[3], the class-D record) got=0x00000001 exp=0x00000001
+1446:   [PASS] U: ...and settled on the VLAN this harness named (0x6A4[27:16]) got=0x00000002 exp=0x00000002
+1448:   [PASS] U armed, nothing registered: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+1449:   [PASS] U armed, nothing registered: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1450:   [PASS] U armed, nothing registered: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1452:   [PASS] U Advertise: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+1453:   [PASS] U Advertise: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1454:   [PASS] U Advertise: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1456:   [PASS] U Failed: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+1457:   [PASS] U Failed: ACMPL_STATE[7] TalkerFailed registered got=0x00000001 exp=0x00000001
+1458:   [PASS] U Failed: ACMPL_TUID[23:16] MSRP failure code got=0x00000001 exp=0x00000001
+1460:   [PASS] U Advertise again: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+1461:   [PASS] U Advertise again: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1462:   [PASS] U Advertise again: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1464:   [PASS] M2: the restore walk after the handover proves the image and sequences restore_done
+1465:   [PASS] M2: the FIRST post-handover command was answered an AECPDU egressed
+1466:   [PASS] M2: ...and SERVED, not sacrificed to the re-arm (status) got=0x00000000 exp=0x00000000
+1467:   [PASS] M2: the ENTITY descriptor's cdl (12 + 4 + 40) got=0x00000038 exp=0x00000038
+1468:   [PASS] M2: the served bytes are the image's (seed body @4..7) got=0xA4A5A6A7 exp=0xA4A5A6A7
+1469:   [PASS] M2: the second command (GET_COUNTERS) answered an AECPDU egressed
+1470:   [PASS] M2: GET_COUNTERS STREAM_INPUT 0 is SUCCESS got=0x00000000 exp=0x00000000
+1471:   [PASS] M2: ...with the twelve-counter mask, not a raced zero got=0x00000FFF exp=0x00000FFF
+1473:   [PASS] PP_NVM_SEL reads back the IMG_LEN index    got=0x00000001 exp=0x00000001
+1474:   [PASS] PP_NVM_DATA reads back the one-byte image length got=0x00000001 exp=0x00000001
+1475:   [PASS] P3: the reset retired [M2]'s walk, so this result is a NEW one got=0x00000000 exp=0x00000000
+1476:   [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fail 1 done 1)
+1477:   [PASS] P3: the backend refusal reaches the processor and retires the walk restore_done set
+1478:   [PASS] P3: a refused image is NOT reported as a successful restore got=0x00000001 exp=0x00000001
+1479:   [PASS] P3: ...and does not read blank (fail, not an empty first boot) got=0x00000000 exp=0x00000000
+1480:   [PASS] P3: nothing was committed, so nothing is dirty got=0x00000000 exp=0x00000000
+1481:   [PASS] P3: the shared reset retires the terminal result got=0x00000000 exp=0x00000000
+1482:   [PASS] P3: a legitimate blank READ still completes after the reset restore_done set
+1483:   [PASS] P3: ...and that walk is blank, not a restore got=0x00000001 exp=0x00000001
+1484:   [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030049 exp=0x00030049
+1485:   [PASS] #400 diagnostic writes preserve Domain default got=0x00030000BB80
+1487:   [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+1488:   [PASS] R2b: ...and the refusal carries the CURRENT 48000 got=0x0000BB80 exp=0x0000BB80
+1489:   [PASS] R3: GET_SAMPLING_RATE still reads 48000    got=0x0000BB80 exp=0x0000BB80
+1490:   [PASS] R4: nothing was announced to the second controller got=0x00000000 exp=0x00000000
+1492:   [PASS] R5: the media grid did not move            counted over the same window
+1493:   [PASS] R6: SET_SAMPLING_RATE(96000), listed, is SUCCESS got=0x00000000 exp=0x00000000
+1494:   [PASS] R6b: ...carrying the 96000 it stored       got=0x00017700 exp=0x00017700
+1495:   [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+1496:   [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+1497:   [PASS] R8b: ...announcing 96000                   got=0x00017700 exp=0x00017700
+1499:   [PASS] R9: the media grid did not move for an accepted rate either the fabric runs 48 kHz by elaboration
+1501:   [PASS] U: the listener launched a probe at the named talker CONNECT_TX_COMMAND seen
+1502:   [PASS] U: the sink is BOUND (0x6A4[3], the class-D record) got=0x00000001 exp=0x00000001
+1503:   [PASS] U: ...and settled on the VLAN this harness named (0x6A4[27:16]) got=0x00000002 exp=0x00000002
+1505:   [PASS] U armed, nothing registered: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+1506:   [PASS] U armed, nothing registered: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1507:   [PASS] U armed, nothing registered: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1509:   [PASS] U Advertise: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+1510:   [PASS] U Advertise: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1511:   [PASS] U Advertise: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1513:   [PASS] U Failed: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+1514:   [PASS] U Failed: ACMPL_STATE[7] TalkerFailed registered got=0x00000001 exp=0x00000001
+1515:   [PASS] U Failed: ACMPL_TUID[23:16] MSRP failure code got=0x00000001 exp=0x00000001
+1517:   [PASS] U Advertise again: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+1518:   [PASS] U Advertise again: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+1519:   [PASS] U Advertise again: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+1521:   [PASS] M2: the restore walk after the handover proves the image and sequences restore_done
+1522:   [PASS] M2: the FIRST post-handover command was answered an AECPDU egressed
+1523:   [PASS] M2: ...and SERVED, not sacrificed to the re-arm (status) got=0x00000000 exp=0x00000000
+1524:   [PASS] M2: the ENTITY descriptor's cdl (12 + 4 + 40) got=0x00000038 exp=0x00000038
+1525:   [PASS] M2: the served bytes are the image's (seed body @4..7) got=0xA4A5A6A7 exp=0xA4A5A6A7
+1526:   [PASS] M2: the second command (GET_COUNTERS) answered an AECPDU egressed
+1527:   [PASS] M2: GET_COUNTERS STREAM_INPUT 0 is SUCCESS got=0x00000000 exp=0x00000000
+1528:   [PASS] M2: ...with the twelve-counter mask, not a raced zero got=0x00000FFF exp=0x00000FFF
+1530:   [PASS] PP_NVM_SEL reads back the IMG_LEN index    got=0x00000001 exp=0x00000001
+1531:   [PASS] PP_NVM_DATA reads back the one-byte image length got=0x00000001 exp=0x00000001
+1532:   [PASS] P3: the reset retired [M2]'s walk, so this result is a NEW one got=0x00000000 exp=0x00000000
+1533:   [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fa0049 exp=0x00030049
+1534:   [PASS] #400 network Domain adoption stays live    got=0x01030005 exp=0x01030005
+1535:   [PASS] #400 adoption leaves diagnostic LWSRP VID  got=0x00000013 exp=0x00000013
+1536:   [PASS] #400 adoption leaves diagnostic AAF VID    got=0x00170000 exp=0x00170000
+1537:   [PASS] #400 link cycle restores generated default got=0x00030049 exp=0x00030049
+1539:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1540:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1541:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1542:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1543:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1544:   [PASS] K10 unchanged no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1545:   [PASS] K10 unchanged pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+1546:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1547:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1548:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1549:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1550:   [PASS] K10 unchanged live_state_changed           got=0x00000000 exp=0x00000000
+1551:   [PASS] K10 unchanged sticky_pending_PP_STAT       got=0x00000000 exp=0x00000000
+1552:   [PASS] K10 unchanged sticky_pending_PP_NVM_STAT   got=0x00000000 exp=0x00000000
+1553:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1554:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1555:   [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+1556:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1557:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1558:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1559:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1560:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1561:   [PASS] K10 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+1562:   [PASS] K10 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+1563:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+1564:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1565:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1566:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1567:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1569:   [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+1570:   [PASS] K10 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+1571:   [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+1572:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1573:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1574:   [PASS] K10 repeat no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+1575:   [PASS] K10 repeat pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+1576:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+1577:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1578:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1579:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1580:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1582:   [PASS] K10 repeat live_state_changed              got=0x00000001 exp=0x00000001
+1583:   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x0000il 1 done 1)
+1584:   [PASS] P3: the backend refusal reaches the processor and retires the walk restore_done set
+1585:   [PASS] P3: a refused image is NOT reported as a successful restore got=0x00000001 exp=0x00000001
+1586:   [PASS] P3: ...and does not read blank (fail, not an empty first boot) got=0x00000000 exp=0x00000000
+1587:   [PASS] P3: nothing was committed, so nothing is dirty got=0x00000000 exp=0x00000000
+1588:   [PASS] P3: the shared reset retires the terminal result got=0x00000000 exp=0x00000000
+1589:   [PASS] P3: a legitimate blank READ still completes after the reset restore_done set
+1590:   [PASS] P3: ...and that walk is blank, not a restore got=0x00000001 exp=0x00000001
+1591:   [PASS] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030002
+1592:   [PASS] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030002
+1593:   [PASS] #400 network Domain adoption stays live    got=0x01030005 exp=0x01030005
+1594:   [PASS] #400 adoption leaves diagnostic LWSRP VID  got=0x00000013 exp=0x00000013
+1595:   [PASS] #400 adoption leaves diagnostic AAF VID    got=0x00170000 exp=0x00170000
+1596:   [PASS] #400 link cycle restores generated default got=0x00030002 exp=0x00030002
+1598:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1599:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1600:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1601:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1602:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1603:   [PASS] K10 unchanged no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1604:   [PASS] K10 unchanged pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+1605:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1606:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1607:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1608:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1609:   [PASS] K10 unchanged live_state_changed           got=0x00000000 exp=0x00000000
+1610:   [PASS] K10 unchanged sticky_pending_PP_STAT       got=0x00000000 exp=0x00000000
+1611:   [PASS] K10 unchanged sticky_pending_PP_NVM_STAT   got=0x00000000 exp=0x00000000
+1612:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1613:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1614:   [PASS] K10 SET_NAME returns all changed lanes     got=0x00000001 exp=0x00000001
+1615:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1616:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1617:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1618:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1619:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1620:   [PASS] K10 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+1621:   [PASS] K10 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+1622:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+1623:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1624:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1625:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1626:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1628:   [PASS] K10 live_state_changed                     got=0x00000001 exp=0x00000001
+1629:   [PASS] K10 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+1630:   [PASS] K10 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+1631:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1632:   [PASS] K command: response status                 got=0x0000000GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+1633:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1634:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1635:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1636:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1637:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1638:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1639:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1640:   [PASS] K12 boot: the input map starts empty: response status got=0x00000000 exp=0x00000000
+1641:   [PASS] K12 boot: the input map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1642:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1643:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1644:   [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1645:   [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1646:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1647:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1648:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1649:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1650:   [PASS] K12 zero records live_state_changed        got=0x00000000 exp=0x00000000
+1651:   [PASS] K12 zero records sticky_pending_PP_STAT    got=0x00000000 exp=0x00000000
+1652:   [PASS] K12 zero records sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1653:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1654:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1655:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1656:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1657:   [PASS] K12 refused record input: response status  got=0x00000007 exp=0x00000007
+1658:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1659:   [PASS] K12 refused record input: response status  got=0x00000000 exp=0x00000000
+1660:   [PASS] K12 refused record input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1661:   [PASS] K12 refused record input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1662:   [PASS] K12 refused record input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1663:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1664:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1665:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1666:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1667:   [PASS] K12 refused record input live_state_changed got=0x00000000 exp=0x00000000
+1668:   [PASS] K12 refused record input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1669:   [PASS] K12 refused record input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1670:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1671:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1672:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1673:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1674:   [PASS] K12 partial refusal input: response status got=0x00000007 exp=0x00000007
+1675:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1676:   [PASS] K12 partial refusal input: response status got=0x00000000 exp=0x00000000
+1677:   [PASS] K12 partial refusal input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1678:   [PASS] K12 partial refusal input no_0001 exp=0x00000001
+1679:   [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+1680:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1681:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1682:   [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+1683:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1684:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1685:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1686:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1687:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1688:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1689:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1690:   [PASS] K12 boot: the input map starts empty: response status got=0x00000000 exp=0x00000000
+1691:   [PASS] K12 boot: the input map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1692:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1693:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1694:   [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1695:   [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1696:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1697:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1698:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1699:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1700:   [PASS] K12 zero records live_state_changed        got=0x00000000 exp=0x00000000
+1701:   [PASS] K12 zero records sticky_pending_PP_STAT    got=0x00000000 exp=0x00000000
+1702:   [PASS] K12 zero records sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1703:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1704:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1705:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1706:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1707:   [PASS] K12 refused record input: response status  got=0x00000007 exp=0x00000007
+1708:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1709:   [PASS] K12 refused record input: response status  got=0x00000000 exp=0x00000000
+1710:   [PASS] K12 refused record input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1711:   [PASS] K12 refused record input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1712:   [PASS] K12 refused record input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1713:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1714:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1715:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1716:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1717:   [PASS] K12 refused record input live_state_changed got=0x00000000 exp=0x00000000
+1718:   [PASS] K12 refused record input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1719:   [PASS] K12 refused record input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1720:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1721:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1722:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1723:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1724:   [PASS] K12 partial refusal input: response status got=0x00000007 exp=0x00000007
+1725:   [PASS] K commdurable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1726:   [PASS] K12 partial refusal input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1727:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1728:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1729:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1730:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1731:   [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+1732:   [PASS] K12 partial refusal input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1733:   [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1734:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1735:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1736:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1737:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1738:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1739:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1740:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1741:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1742:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1743:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1744:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1745:   [PASS] K12 input: response status                 got=0x00000000 exp=0x00000000
+1746:   [PASS] K12 input GET_AUDIO_MAP record count       got=0x00000001 exp=0x00000001
+1747:   [PASS] K12 input GET_AUDIO_MAP exact record       got=0x00000001 exp=0x00000001
+1748:   [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+1749:   [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+1750:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1751:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+1752:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1753:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1754:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1756:   [PASS] K12 input live_state_changed               got=0x00000001 exp=0x00000001
+1757:   [PASS] K12 input sticky_pending_PP_STAT           got=0x00000001 exp=0x00000001
+1758:   [PASS] K12 input sticky_pending_PP_NVM_STAT       got=0x00000001 exp=0x00000001
+1759:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1760:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1761:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1762:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1763:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+1764:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+1765:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+1766:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+1767:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1768:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1769:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1770:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+1771:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+1772:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+1773:   [PASS] K12 duplicate input no_durable_claim_over_uns0 exp=0x00000000
+1774:   [PASS] K10 repeat no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+1775:   [PASS] K10 repeat pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+1776:   [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+1777:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1778:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1779:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1780:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1782:   [PASS] K10 repeat live_state_changed              got=0x00000001 exp=0x00000001
+1783:   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000001 exp=0x00000001
+1784:   [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+1785:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1786:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1787:   [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+1788:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1789:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1790:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1791:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1792:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1793:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1794:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1795:   [PASS] K12 boot: the input map starts empty: response status got=0x00000000 exp=0x00000000
+1796:   [PASS] K12 boot: the input map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1797:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1798:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1799:   [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1800:   [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1801:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1802:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1803:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1804:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1805:   [PASS] K12 zero records live_state_changed        got=0x00000000 exp=0x00000000
+1806:   [PASS] K12 zero records sticky_pending_PP_STAT    got=0x00000000 exp=0x00000000
+1807:   [PASS] K12 zero records sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1808:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1809:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1810:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1811:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1812:   [PASS] K12 refused record input: response status  got=0x00000007 exp=0x00000007
+1813:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1814:   [PASS] K12 refused record input: response status  got=0x00000000 exp=0x00000000
+1815:   [PASS] K12 refused record input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1816:   [PASS] K12 refused record input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1817:   [PASS] K12 refused record input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1818:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1819:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1820:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1821:   [PASS] K and: matching response completes     got=0x00000001 exp=0x00000001
+1822:   [PASS] K12 partial refusal input: response status got=0x00000000 exp=0x00000000
+1823:   [PASS] K12 partial refusal input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1824:   [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1825:   [PASS] K12 partial refusal input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1826:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1827:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1828:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1829:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1830:   [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+1831:   [PASS] K12 partial refusal input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1832:   [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1833:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1834:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1835:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1836:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1837:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1838:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1839:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1840:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1841:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1842:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1843:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1844:   [PASS] K12 input: response status                 got=0x00000000 exp=0x00000000
+1845:   [PASS] K12 input GET_AUDIO_MAP record count       got=0x00000001 exp=0x00000001
+1846:   [PASS] K12 input GET_AUDIO_MAP exact record       got=0x00000001 exp=0x00000001
+1847:   [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+1848:   [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+1849:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1850:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+1851:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1852:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1853:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1855:   [PASS] K12 input live_state_changed               got=0x00000001 exp=0x00000001
+1856:   [PASS] K12 input sticky_pending_PP_STAT           got=0x00000001 exp=0x00000001
+1857:   [PASS] K12 input sticky_pending_PP_NVM_STAT       got=0x00000001 exp=0x00000001
+1858:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1859:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1860:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1861:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1862:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+1863:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+1864:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+1865:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+1866:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1867:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1868:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1869:   [PASS] K12 duplicate input:0001 exp=0x00000001
+1870:   [PASS] K10 repeat sticky_pending_PP_NVM_STAT      got=0x00000001 exp=0x00000001
+1871:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1872:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1873:   [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+1874:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1875:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1876:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1877:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1878:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1879:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1880:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1881:   [PASS] K12 boot: the input map starts empty: response status got=0x00000000 exp=0x00000000
+1882:   [PASS] K12 boot: the input map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1883:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1884:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1885:   [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1886:   [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1887:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1888:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1889:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1890:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1891:   [PASS] K12 zero records live_state_changed        got=0x00000000 exp=0x00000000
+1892:   [PASS] K12 zero records sticky_pending_PP_STAT    got=0x00000000 exp=0x00000000
+1893:   [PASS] K12 zero records sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1894:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1895:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1896:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1897:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1898:   [PASS] K12 refused record input: response status  got=0x00000007 exp=0x00000007
+1899:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1900:   [PASS] K12 refused record input: response status  got=0x00000000 exp=0x00000000
+1901:   [PASS] K12 refused record input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1902:   [PASS] K12 refused record input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1903:   [PASS] K12 refused record input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1904:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1905:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1906:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1907:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1908:   [PASS] K12 refused record input live_state_changed got=0x00000000 exp=0x00000000
+1909:   [PASS] K12 refused record input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1910:   [PASS] K12 refused record input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1911:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1912:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1913:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1914:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1915:   [PASS] K12 partial refusal input: response status got=0x00000007 exp=0x00000007
+1916:   [PASS] K comm response status       got=0x00000000 exp=0x00000000
+1917:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+1918:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+1919:   [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1920:   [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1921:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1922:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+1923:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1924:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1925:   [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+1926:   [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1927:   [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1928:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1929:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1930:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1931:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1932:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+1933:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+1934:   [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+1935:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+1936:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1937:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1938:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1939:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1940:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1941:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1942:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1943:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1944:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+1945:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1946:   [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1947:   [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1948:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1949:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+1950:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1951:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1952:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1954:   [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+1955:   [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+1956:   [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+1957:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1958:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1959:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1960:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1961:   [PASS] K12 static output refused: response status got=0x0000000B exp=0x0000000B
+1962:   [PASS] K12 static output refused no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1963:   [PASS] K12 static output refused pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1964:   [PASS] K accepted name lanes    and: matching response completes     got=0x00000001 exp=0x00000001
+1965:   [PASS] K12 partial refusal input: response status got=0x00000000 exp=0x00000000
+1966:   [PASS] K12 partial refusal input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+1967:   [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+1968:   [PASS] K12 partial refusal input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+1969:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1970:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+1971:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+1972:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1973:   [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+1974:   [PASS] K12 partial refusal input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+1975:   [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+1976:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+1977:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+1978:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+1979:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1980:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+1981:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+1982:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+1983:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+1984:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+1985:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+1986:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+1987:   [PASS] K12 input: response status                 got=0x00000000 exp=0x00000000
+1988:   [PASS] K12 input GET_AUDIO_MAP record count       got=0x00000001 exp=0x00000001
+1989:   [PASS] K12 input GET_AUDIO_MAP exact record       got=0x00000001 exp=0x00000001
+1990:   [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+1991:   [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+1992:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+1993:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+1994:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+1995:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+1996:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+1998:   [PASS] K12 input live_state_changed               got=0x00000001 exp=0x00000001
+1999:   [PASS] K12 input sticky_pending_PP_STAT           got=0x00000001 exp=0x00000001
+2000:   [PASS] K12 input sticky_pending_PP_NVM_STAT       got=0x00000001 exp=0x00000001
+2001:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2002:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2003:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2004:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2005:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+2006:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2007:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+2008:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+2009:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2010:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+2011:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2012:   [PASS] K12 duplicate input:aved got=0x00000000 exp=0x00000000
+2013:   [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+2014:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2015:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+2016:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+2017:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2018:   [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+2019:   [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+2020:   [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+2021:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2022:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2023:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2024:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2025:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+2026:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2027:   [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+2028:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+2029:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2030:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+2031:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+2032:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+2033:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+2034:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+2035:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+2036:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2037:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+2038:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+2039:   [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+2040:   [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+2041:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2042:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+2043:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+2044:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2045:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+2047:   [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+2048:   [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+2049:   [PASS] K12 remove input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+2050:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2051:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2052:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2053:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2054:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2055:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2056:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2057:   [PASS] K12 boot: the output map starts empty: response status got=0x00000000 exp=0x00000000
+2058:   [PASS] K12 boot: the output map starts empty GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+2059:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2061:   [PASS] K12 refused record input live_state_changed got=0x00000000 exp=0x00000000
+2062:   [PASS] K12 refused record input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+2063:   [PASS] K12 refused record input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+2064:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2065:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2066:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2067:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2068:   [PASS] K12 partial refusal input: response status got=0x00000007 exp=0x00000007
+2069:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2070:   [PASS] K12 partial refusal input: response status got=0x00000000 exp=0x00000000
+2071:   [PASS] K12 partial refusal input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+2072:   [PASS] K12 partial refusal input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+2073:   [PASS] K12 partial refusal input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+2074:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2075:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+2076:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+2077:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2078:   [PASS] K12 partial refusal input live_state_changed got=0x00000000 exp=0x00000000
+2079:   [PASS] K12 partial refusal input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+2080:   [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+2081:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2082:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2083:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2084:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2085:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+2086:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+2087:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+2088:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+2089:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+2090:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+2091:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2092:   [PASS] K12 input: response status                 got=0x00000000 exp=0x00000000
+2093:   [PASS] K12 input GET_AUDIO_MAP record count       got=0x00000001 exp=0x00000001
+2094:   [PASS] K12 input GET_AUDIO_MAP exact record       got=0x00000001 exp=0x00000001
+2095:   [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+2096:   [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+2097:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2098:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+2099:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+2100:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2101:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+2103:   [PASS] K12 input live_state_changed               got=0x00000001 exp=0x00000001
+2104:   [PASS] K12 input sticky_pending_PP_STAT           got=0x00000001 exp=0x00000001
+2105:   [PASS] K12 input sticky_pending_PP_NVM_STAT       got=0x00000001 exp=0x00000001
+2106:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2107:   [PASS] K control: reset/load permits durable status got=0                  got=0x00000000 exp=0x00000000
+2108:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+2109:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+2110:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2111:   [PASS] K12 static output refused live_state_changed got=0x00000000 exp=0x00000000
+2112:   [PASS] K12 static output refused sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+2113:   [PASS] K12 static output refused sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+2114:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2115:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2116:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2117:   [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+2118:   [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+2119:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2120:   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+2121:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+2122:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2123:   [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+2124:   [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+2125:   [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+2127: pp_shadow: 609 checks, 0 failures
+2130:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2131:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2132:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+2133:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2134:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+2135:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+2136:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2137:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+2138:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2139:   [PASS] K12 duplicate input: response status       got=0x00000000 exp=0x00000000
+2140:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2141:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+2142:   [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+2143:   [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+2144:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2145:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+2146:   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+2147:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2148:   [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+2149:   [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+2150:   [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+2151:   [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+2152:   [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+2153:   [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+2154:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2155:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+2156:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2157:   [PASS] K12 remove input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+2158:   [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+2159:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2160:   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+2161:   [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+2162:   [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+2163:   [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+2164:   [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+2165:   [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+2166:   [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+2167:   [PASS] K12 remove input: response status          got=0x00000000 exp=0x00000000
+2168:   [PASS] K12 remove input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+2169:   [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+2170:   [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+2171:   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+2172:   [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+2173:   [PASS] K command marks                            got=0x00000001 exp=0x00000001
+2174:   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+2175:   [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+2177:   [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+2178:   [PASS] K12 remove input sticky_pending response status       got=0x00000000 exp=0x00000000
+2179:   [PASS] K12 duplicate input GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+2180:   [PASS] K12 duplicate input GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001

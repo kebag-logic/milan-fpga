@@ -1,0 +1,380 @@
+[
+  {
+    "name": "m3_short_period",
+    "item": "M3",
+    "assertion": "M3 B.3.6.1 generator period is 2^32-1",
+    "scope": "unit"
+  },
+  {
+    "name": "m3_trap_outside_basis",
+    "item": "M3",
+    "assertion": "M3 B.3.6.1 generator period is 2^32-1",
+    "scope": "unit"
+  },
+  {
+    "name": "m3_ignores_clock",
+    "item": "M3",
+    "assertion": "M3 B.3.6.1 first enable seeds MAC plus clock",
+    "scope": "unit"
+  },
+  {
+    "name": "m3_xors_clock",
+    "item": "M3",
+    "assertion": "M3 B.3.6.1 first enable seeds MAC plus clock",
+    "scope": "unit"
+  },
+  {
+    "name": "m3_reseeds_after_release",
+    "item": "M3",
+    "assertion": "M3 Release/Begin retains the generator sequence",
+    "scope": "unit"
+  },
+  {
+    "name": "m3_first_offset_ignores_clock",
+    "item": "M3",
+    "assertion": "M3 B.3.6.1 clocks 2^k apart claim different first offsets",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_first_offset_ignores_seed",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 adjacent MACs claim disjoint first blocks",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_first_offset_raw_seed_bits",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 adjacent MACs claim disjoint first blocks",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_first_offset_drops_seed_high_half",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_first_interval_raw_seed_bits",
+    "item": "M4",
+    "assertion": "M4 B.3.4 MACs 2^i apart draw different first probe intervals",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_offset_row0_bit_drop",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_offset_row6_bit_drop",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_probe_fold_unstepped",
+    "item": "M4",
+    "assertion": "M4 B.3.4 every seed pair 2^i apart draws different first probe intervals",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_first_offset_nonlinear",
+    "item": "M4",
+    "assertion": "M4 first-draw maps learned from the RTL are linear in the seed",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_probe_row_repeats_offset_row",
+    "item": "M4",
+    "assertion": "M4 B.3.6.1 first offset word and first probe draw are independent",
+    "scope": "unit"
+  },
+  {
+    "name": "m6_overwrite_active_response",
+    "item": "M6",
+    "assertion": "M6 occupied response buffer preserves active DEFEND",
+    "scope": "unit"
+  },
+  {
+    "name": "m6_replace_pending_response",
+    "item": "M6",
+    "assertion": "M6 pending response preserves prober and requested range",
+    "scope": "unit"
+  },
+  {
+    "name": "m6_pending_survives_release",
+    "item": "M6",
+    "assertion": "M6 pending response cancelled with allocation",
+    "scope": "unit"
+  },
+  {
+    "name": "m6_drop_busy_probe",
+    "item": "M6",
+    "assertion": "M6 busy PROBE gets DEFEND after wire is free",
+    "scope": "unit"
+  },
+  {
+    "name": "m6_pending_source_not_saved",
+    "item": "M6",
+    "assertion": "M6 pending response preserves prober and requested range",
+    "scope": "unit"
+  },
+  {
+    "name": "m5_ignore_link_return",
+    "item": "M5",
+    "assertion": "M5 B.3.5.9 link return revokes and reprobes",
+    "scope": "unit"
+  },
+  {
+    "name": "m5_level_restarts",
+    "item": "M5",
+    "assertion": "M5 B.3.5.9 link return restarts PROBE",
+    "scope": "unit"
+  },
+  {
+    "name": "m5_restart_on_link_loss",
+    "item": "M5",
+    "assertion": "M5 B.3.5.9 link loss is no event; return reprobes",
+    "scope": "unit"
+  },
+  {
+    "name": "m1_probe_no_compare",
+    "item": "M1",
+    "assertion": "M1 rProbe/PROBE lower MAC keeps range",
+    "scope": "unit"
+  },
+  {
+    "name": "m1_defend_no_compare",
+    "item": "M1",
+    "assertion": "M1 rDefend/DEFEND lower MAC keeps range",
+    "scope": "unit"
+  },
+  {
+    "name": "m8_early_last_accepted",
+    "item": "M8",
+    "assertion": "M8 B.2 truncated PROBE-state input has no effect",
+    "scope": "unit"
+  },
+  {
+    "name": "m8_missing_bytes_accepted",
+    "item": "M8",
+    "assertion": "M8 B.2 truncated DEFEND-state input has no effect",
+    "scope": "unit"
+  },
+  {
+    "name": "m7_accept_invalid_seed",
+    "item": "M7",
+    "assertion": "M7 Table B.9 invalid supplied range refused",
+    "scope": "unit"
+  },
+  {
+    "name": "m7_reject_valid_boundary",
+    "item": "M7",
+    "assertion": "M7 Table B.9 valid supplied boundary retained",
+    "scope": "unit"
+  },
+  {
+    "name": "m2_own_requested_start",
+    "item": "M2",
+    "assertion": "M2 B.3.6.6 requested start echoes PROBE",
+    "scope": "unit"
+  },
+  {
+    "name": "m2_echo_overlap_start",
+    "item": "M2",
+    "assertion": "M2 B.3.6.6 requested start echoes a PROBE starting below ours",
+    "scope": "unit"
+  },
+  {
+    "name": "m2_own_requested_count",
+    "item": "M2",
+    "assertion": "M2 B.3.6.6 requested count echoes all 16 bits",
+    "scope": "unit"
+  },
+  {
+    "name": "cdl_28",
+    "item": 1,
+    "assertion": "B.2.1 cdl 16 (Begin! PROBE 1)",
+    "scope": "unit"
+  },
+  {
+    "name": "defend_to_multicast",
+    "item": 1,
+    "assertion": "B.2.1 DEFEND DA = PROBE source (above)",
+    "scope": "unit"
+  },
+  {
+    "name": "defend_destination_not_latched",
+    "item": 1,
+    "assertion": "B.2.1 DEFEND DA latched at send",
+    "scope": "unit"
+  },
+  {
+    "name": "every_frame_to_the_prober",
+    "item": 1,
+    "assertion": "B.2.1 PROBE DA multicast (Begin! 1)",
+    "scope": "unit"
+  },
+  {
+    "name": "probe_draw_7_bits",
+    "item": 2,
+    "assertion": "B.3.4.2 probe T < 600 ms (campaign)",
+    "scope": "unit"
+  },
+  {
+    "name": "probe_base_500",
+    "item": 2,
+    "assertion": "B.3.4.2 probe T > 500 ms (campaign)",
+    "scope": "unit"
+  },
+  {
+    "name": "announce_base_3s",
+    "item": 2,
+    "assertion": "B.3.4.1 announce T > 30 s",
+    "scope": "unit"
+  },
+  {
+    "name": "announce_draw_11_bits",
+    "item": 2,
+    "assertion": "B.3.4.1 announce T < 32 s",
+    "scope": "unit"
+  },
+  {
+    "name": "announce_not_randomized",
+    "item": 2,
+    "assertion": "B.3.4.1 announce T randomized",
+    "scope": "unit"
+  },
+  {
+    "name": "zero_seed_freezes_the_probe_draw",
+    "item": 2,
+    "assertion": "B.3.4.2 probe T randomized (zero-seed MAC)",
+    "scope": "unit"
+  },
+  {
+    "name": "zero_seed_freezes_the_announce_draw",
+    "item": 2,
+    "assertion": "B.3.4.1 announce T randomized (zero-seed MAC)",
+    "scope": "unit"
+  },
+  {
+    "name": "announce_judged_on_conflict_fields",
+    "item": 3,
+    "assertion": "B.2.7 ANNOUNCE conflict_* is not its range",
+    "scope": "unit"
+  },
+  {
+    "name": "inclusive_range_end",
+    "item": 3,
+    "assertion": "note b adjacent above: no conflict",
+    "scope": "unit"
+  },
+  {
+    "name": "inclusive_range_start",
+    "item": 3,
+    "assertion": "note b adjacent below: no conflict",
+    "scope": "unit"
+  },
+  {
+    "name": "empty_range_conflicts",
+    "item": 3,
+    "assertion": "note b empty range: no conflict",
+    "scope": "unit"
+  },
+  {
+    "name": "no_compare_mac",
+    "item": 3,
+    "assertion": "T.B7 note d: lower MAC keeps range",
+    "scope": "unit"
+  },
+  {
+    "name": "compare_mac_while_probing",
+    "item": 3,
+    "assertion": "T.B7 rAnnounce!/PROBE: no compare_MAC",
+    "scope": "unit"
+  },
+  {
+    "name": "compare_mac_unreversed",
+    "item": 3,
+    "assertion": "T.B7 rAnnounce!/DEFEND: re-address",
+    "scope": "unit"
+  },
+  {
+    "name": "three_probes",
+    "item": 4,
+    "assertion": "T.B7 Begin!: four PROBEs before ANNOUNCE",
+    "scope": "unit"
+  },
+  {
+    "name": "first_probe_after_a_timer",
+    "item": 4,
+    "assertion": "T.B7 Begin!: first PROBE at once",
+    "scope": "unit"
+  },
+  {
+    "name": "restart_probe_after_a_timer",
+    "item": 4,
+    "assertion": "T.B7 Restart!: first PROBE at once",
+    "scope": "unit"
+  },
+  {
+    "name": "announce_after_a_timer",
+    "item": 4,
+    "assertion": "T.B7 probeCount!: ANNOUNCE at once (Begin!)",
+    "scope": "unit"
+  },
+  {
+    "name": "restart_rewrites_the_frame_on_the_wire",
+    "item": 0,
+    "assertion": "frame on the wire keeps its offset",
+    "scope": "unit"
+  },
+  {
+    "name": "overlap_count_to_our_end",
+    "item": 0,
+    "assertion": "B.2.8 conflict_count = overlap (below)",
+    "scope": "unit"
+  },
+  {
+    "name": "defend_rewrites_the_frame_on_the_wire",
+    "item": 0,
+    "assertion": "PROBE mid-frame: frame on the wire byte-identical",
+    "scope": "unit"
+  },
+  {
+    "name": "own_empty_range_conflicts",
+    "item": 0,
+    "assertion": "note b: this station's empty range never conflicts",
+    "scope": "unit"
+  },
+  {
+    "name": "m4_reset_time_sampling",
+    "item": "M4",
+    "assertion": "M4 datapath: programmed MAC changes probe intervals",
+    "scope": "datapath"
+  },
+  {
+    "name": "m5_datapath_ignores_link",
+    "item": "M5",
+    "assertion": "M5 datapath: link return starts four fresh PROBEs",
+    "scope": "datapath"
+  },
+  {
+    "name": "m3_datapath_ignores_clock",
+    "item": "M3",
+    "assertion": "M3 datapath: real-time clock changes probe intervals",
+    "scope": "datapath"
+  },
+  {
+    "name": "m4_datapath_first_offset_ignores_seed",
+    "item": "M4",
+    "assertion": "M4 datapath: fixed adjacent MAC pair claims disjoint first blocks",
+    "scope": "datapath"
+  },
+  {
+    "name": "m3_datapath_first_offset_ignores_clock",
+    "item": "M3",
+    "assertion": "M3 datapath: fixed PHC time pair claims different first offsets",
+    "scope": "datapath"
+  }
+]

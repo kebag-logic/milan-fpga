@@ -1,0 +1,33 @@
+57:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+448: == milan_dp_mclk: checks: 55   failures: 0 ==
+463: == milan_dp_mclk: checks: 32   failures: 0 ==
+494: == milan_dp_mclk: checks: 50   failures: 0 ==
+496: [PASS] the schemata at id 0 pass the --loss leg
+497: [PASS] mutant 12 (the meter's held lock cleared on a sequence gap, --loss): caught; breaks "loss leg: the servo stays LOCKED through single lost PDUs"
+498: [PASS] the schemata at id 0 pass the --internal leg
+499: [PASS] mutant 3 (the aligner left disengaged at INTERNAL (no A2-a), --internal): caught; breaks "INTERNAL: the packet grid holds the physical grid's rate"
+500: [PASS] the schemata at id 0 pass the --refmux leg
+501: [PASS] mutant 2 (the reference mux stuck on KL_crf_rx, --refmux): caught; breaks "AAF0: the trim holds until the meter's rate validates"
+502: [PASS] the schemata at id 0 pass the --aafloss leg
+503: [PASS] the schemata at id 0 pass the --switch leg
+504: [PASS] mutant 5 (no re-seed on a change of the followed listener, --switch): caught; breaks "switch: no request pulse at any switch"
+505: [PASS] mutant 6 (the meter's raw lock-fall edge wired as the disruption, --switch): caught; breaks "switch: no request pulse at any switch"
+506: [PASS] mutant 8 (disrupt_p not ORed into the request, --aafloss): caught; breaks "AAF loss: one request at the meter's timeout"
+507: [PASS] mutant 14 (the decode table one source short (the previous shape's), --switch): caught; breaks "switch: AAF1 decodes as listener 1 and the meter follows it"
+508: [PASS] the schemata at id 0 pass the --silent leg
+509: [PASS] mutant 16 (a change of the followed listener keeping a held lock, --silent): caught; breaks "switch (iv): the meter's lock clears at the switch"
+510: [PASS] the schemata at id 0 pass the --dwell leg
+511: [PASS] the schemata at id 0 pass the --echo leg
+512: [PASS] mutant 7 (the meter's enable tied high, --dwell): caught; breaks "(iii) INTERNAL dwell: AAF0's mr toggle raises no request"
+513: [PASS] mutant 9 (the echo ungated (the meter's listener compare ignored), --echo): caught; breaks "echo: the unfollowed AAF1's toggle raises no request"
+514: [PASS] the schemata at id 0 pass the --csr leg
+515: [PASS] the schemata at id 0 pass the --select leg
+516: [PASS] the schemata at id 0 pass the --tu leg
+517: [PASS] the schemata at id 0 pass the --w2 leg
+518: [PASS] mutant 1 (the decode kept as the CRF-only compare, --select): caught; breaks "AAF0: the servo leaves IDLE once the meter locks"
+519: [PASS] mutant 4 (the one-cycle unlocked presentation removed (W2), --w2): caught; breaks "W2: the switch onto a locked CRF passes HOLDOVER"
+520: [PASS] mutant 10 (C0's level (~tu only), --select): caught; breaks "C1: UNLOCKED moves at the switch onto AAF0"
+521: [PASS] mutant 11 (C2's level (the reference lock), --select): caught; breaks "C1: LOCKED holds until the servo reads LOCKED"
+522: [PASS] mutant 13 (the read-window terms missing, --csr): caught; breaks "CSR: AAFM_STAT reads the meter's status word"
+523: [PASS] mutant 15 (tu taken from the tv net (the CRF wiring), --tu): caught; breaks "tu: the followed talker's tu edge restarts the meter's history"
+525: 31 checks: 31 PASS, 0 FAIL

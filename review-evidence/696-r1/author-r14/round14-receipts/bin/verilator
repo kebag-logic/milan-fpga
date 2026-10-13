@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+import fcntl,os,subprocess,sys,time
+from pathlib import Path
+root=Path(__file__).resolve().parent.parent
+handles=[(root/f'build-slot-{i}.lock').open('a') for i in range(2)]
+while True:
+    selected=None
+    for f in handles:
+        try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);selected=f;break
+        except BlockingIOError:pass
+    if selected:break
+    time.sleep(.2)
+args=sys.argv[1:];out=[];i=0
+while i<len(args):
+    x=args[i]
+    if x in ('-j','--build-jobs'):
+        out += [x,'2'];i+=2
+    elif x.startswith('-j') and x[2:].isdigit():out.append('-j2');i+=1
+    else:out.append(x);i+=1
+raise SystemExit(subprocess.run(['$PINNED_COMPILER/verilator',*out],pass_fds=(selected.fileno(),)).returncode)

@@ -1,0 +1,15 @@
+{
+  "name": "firmware",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--jobs",
+    "2"
+  ],
+  "cwd": "$WORK/candidate",
+  "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+  "rc": 0,
+  "seconds": 2654.6
+}
