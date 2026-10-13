@@ -1,0 +1,11 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['python3', '/packet/recheck_prior.py', 'rename']
+UNCHANGED formula demonstration (hardcoded old replay formula)
+hosted files: docs/reference/REGISTER_MAP.md -> rtl=true
+replay files: docs/page.md -> rtl=false
+CURRENT rtl.yml hosted = replay = ('true', ['docs/reference/REGISTER_MAP.md'])
+CURRENT rtl-fast.yml hosted = replay = ('true', ['docs/reference/REGISTER_MAP.md'])
+CURRENT elaborate.yml hosted = replay = ('true', ['docs/reference/REGISTER_MAP.md'])
+PASS: current shipping selectors resolve all three rename divergences
+
+EXIT 0 elapsed_seconds=0.768

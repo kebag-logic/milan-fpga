@@ -1,0 +1,20 @@
+## commit messages (body lines per commit)
+59354ffe7 lines=1 | Correct elaboration scope failure wording
+3f916cc79 lines=1 | Run the complete isolated flat runner selftest in CI
+97907c2e9 lines=1 | Disable automatic maintenance in isolated scope fixtures
+488fceae8 lines=1 | Pin scope history wiring in the standalone runner contract
+478d01b29 lines=1 | Match replay scope to the live hosted merge composition
+042ae05ec lines=1 | Restore standalone scope selftests with isolated Git fixtures
+33ac35b54 lines=1 | Classify PR scope against the live validation base
+0519ff368 lines=1 | Classify pull requests from their own merge-base changes
+## git diff --check
+rc=0
+## isolated-mode callers of ci_scope.py
+rc=1
+## submodule gitlinks unchanged
+0
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

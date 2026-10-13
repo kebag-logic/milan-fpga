@@ -1,0 +1,35 @@
+total 692
+drwxr-xr-x 2 <user> <user>   4096 Oct 13 21:59 .
+drwxr-xr-x 5 <user> <user>   4096 Oct 13 21:59 ..
+-r-xr-xr-x 1 <user> <user> 698218 Oct 13 21:59 act_ci.py
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event retains the recorded base oid as metadata
+  ok   the recorded payload oid is not the fetched live scope base
+Traceback (most recent call last):
+  File "/box/install/act_ci.py", line 17207, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "/box/install/act_ci.py", line 17157, in main
+    return selftest(shipping_root)
+  File "/box/install/act_ci.py", line 15420, in selftest
+    selftest_scope_event(tally, fixture, shipping_root)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/box/install/act_ci.py", line 6424, in selftest_scope_event
+    scope_fixture_environment_control(shipping_root, poison))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/box/install/act_ci.py", line 6405, in scope_fixture_environment_control
+    case = scope_fixture_history(root, shipping)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/box/install/act_ci.py", line 6259, in scope_fixture_history
+    import ci_scope_history
+ModuleNotFoundError: No module named 'ci_scope_history'

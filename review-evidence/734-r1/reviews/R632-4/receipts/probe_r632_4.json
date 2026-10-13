@@ -1,0 +1,2637 @@
+{
+ "b16": {
+  "head": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+  "landed_merge": "6c810c45ac4ac7d5b45797430753020c9ea31d86",
+  "live_first_parent": "e81ce82f9aa3e4dcaffa5bcdf7e60f0c7cffd80c",
+  "ok": true,
+  "recorded": "49da9fd974e8805d56c90e29dcfcb67994c2c430",
+  "runs": {
+   "elaborate.yml": {
+    "hosted(real landed merge)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    },
+    "replay(live=first parent)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    }
+   },
+   "rtl-fast.yml": {
+    "hosted(real landed merge)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    },
+    "replay(live=first parent)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    }
+   },
+   "rtl.yml": {
+    "hosted(real landed merge)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    },
+    "replay(live=first parent)": {
+     "paths": [
+      "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "docs/findings/README.md"
+     ],
+     "rc": 0,
+     "rtl": "false",
+     "stderr_tail": []
+    }
+   }
+  },
+  "three_dot_no_renames": [
+   "docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+   "docs/findings/README.md"
+  ],
+  "two_dot_default_renames": 64,
+  "two_dot_no_renames": 65
+ },
+ "candidate": "$REVIEWS/734-r632-4-packet/scratch/cand",
+ "failures": 0,
+ "mutants": [
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/hosted",
+    "C2 stale-base RTL/hosted",
+    "C3 submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C8 RTL deletion/hosted",
+    "C9 RTL renamed into docs/hosted",
+    "C10 RTL mode-only/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C13 non-ASCII RTL path (quoted)/hosted",
+    "C14 .gitmodules only/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH1 hosted two-dot frozen base",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH2 hosted frozen merge-base",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH3 hosted head first-parent only",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/replay",
+    "C6 REV+E/replay",
+    "C11 conflict resolved to lane RTL/replay",
+    "C12 lane merged dev cleanly, own change docs/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR1 replay frozen recorded base",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR2 replay head-only merge-base",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/replay",
+    "C2 stale-base RTL/replay",
+    "C3 submodule pointer/replay",
+    "C3b documentation-shaped submodule pointer/replay",
+    "C4 empty net delta/replay",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/replay",
+    "C13 non-ASCII RTL path (quoted)/replay",
+    "C14 .gitmodules only/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR3 replay live-to-head two-dot",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C2 stale-base RTL/hosted",
+    "C2 stale-base RTL/replay",
+    "C5 REV/hosted",
+    "C5 REV/replay",
+    "C6 REV+E/hosted",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/hosted",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/hosted",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/hosted",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/hosted",
+    "C10 RTL mode-only/replay",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C11 conflict resolved to lane RTL/replay"
+   ],
+   "mutant": "MC1 hdl/ treated as docs",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/replay"
+   ],
+   "mutant": "MC2 submodule rule removed",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C4 empty net delta/replay"
+   ],
+   "mutant": "MC3 empty-diff rule removed",
+   "workflow": "rtl.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/hosted",
+    "C2 stale-base RTL/hosted",
+    "C3 submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C8 RTL deletion/hosted",
+    "C9 RTL renamed into docs/hosted",
+    "C10 RTL mode-only/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C13 non-ASCII RTL path (quoted)/hosted",
+    "C14 .gitmodules only/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH1 hosted two-dot frozen base",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH2 hosted frozen merge-base",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH3 hosted head first-parent only",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/replay",
+    "C6 REV+E/replay",
+    "C11 conflict resolved to lane RTL/replay",
+    "C12 lane merged dev cleanly, own change docs/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR1 replay frozen recorded base",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR2 replay head-only merge-base",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/replay",
+    "C2 stale-base RTL/replay",
+    "C3 submodule pointer/replay",
+    "C3b documentation-shaped submodule pointer/replay",
+    "C4 empty net delta/replay",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/replay",
+    "C13 non-ASCII RTL path (quoted)/replay",
+    "C14 .gitmodules only/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR3 replay live-to-head two-dot",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C2 stale-base RTL/hosted",
+    "C2 stale-base RTL/replay",
+    "C5 REV/hosted",
+    "C5 REV/replay",
+    "C6 REV+E/hosted",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/hosted",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/hosted",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/hosted",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/hosted",
+    "C10 RTL mode-only/replay",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C11 conflict resolved to lane RTL/replay"
+   ],
+   "mutant": "MC1 hdl/ treated as docs",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/replay"
+   ],
+   "mutant": "MC2 submodule rule removed",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C4 empty net delta/replay"
+   ],
+   "mutant": "MC3 empty-diff rule removed",
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/hosted",
+    "C2 stale-base RTL/hosted",
+    "C3 submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C8 RTL deletion/hosted",
+    "C9 RTL renamed into docs/hosted",
+    "C10 RTL mode-only/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C13 non-ASCII RTL path (quoted)/hosted",
+    "C14 .gitmodules only/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH1 hosted two-dot frozen base",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C12 lane merged dev cleanly, own change docs/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH2 hosted frozen merge-base",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C5 REV/hosted",
+    "C6 REV+E/hosted",
+    "C7 RTL buried under later docs commits/hosted",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C15 base-side rename into gate-read doc/hosted"
+   ],
+   "mutant": "MH3 hosted head first-parent only",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C5 REV/replay",
+    "C6 REV+E/replay",
+    "C11 conflict resolved to lane RTL/replay",
+    "C12 lane merged dev cleanly, own change docs/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR1 replay frozen recorded base",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR2 replay head-only merge-base",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C1 stale-base docs-only/replay",
+    "C2 stale-base RTL/replay",
+    "C3 submodule pointer/replay",
+    "C3b documentation-shaped submodule pointer/replay",
+    "C4 empty net delta/replay",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/replay",
+    "C13 non-ASCII RTL path (quoted)/replay",
+    "C14 .gitmodules only/replay",
+    "C15 base-side rename into gate-read doc/replay"
+   ],
+   "mutant": "MR3 replay live-to-head two-dot",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C2 stale-base RTL/hosted",
+    "C2 stale-base RTL/replay",
+    "C5 REV/hosted",
+    "C5 REV/replay",
+    "C6 REV+E/hosted",
+    "C6 REV+E/replay",
+    "C7 RTL buried under later docs commits/hosted",
+    "C7 RTL buried under later docs commits/replay",
+    "C8 RTL deletion/hosted",
+    "C8 RTL deletion/replay",
+    "C9 RTL renamed into docs/hosted",
+    "C9 RTL renamed into docs/replay",
+    "C10 RTL mode-only/hosted",
+    "C10 RTL mode-only/replay",
+    "C11 conflict resolved to lane RTL/hosted",
+    "C11 conflict resolved to lane RTL/replay"
+   ],
+   "mutant": "MC1 hdl/ treated as docs",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C3b documentation-shaped submodule pointer/hosted",
+    "C3b documentation-shaped submodule pointer/replay"
+   ],
+   "mutant": "MC2 submodule rule removed",
+   "workflow": "elaborate.yml"
+  },
+  {
+   "killed": true,
+   "killed_by": [
+    "C4 empty net delta/hosted",
+    "C4 empty net delta/replay"
+   ],
+   "mutant": "MC3 empty-diff rule removed",
+   "workflow": "elaborate.yml"
+  }
+ ],
+ "push": [
+  {
+   "before_diff": {
+    "paths": null,
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "ok": true,
+   "workflow": "rtl.yml",
+   "zero_before": {
+    "paths": null,
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   }
+  },
+  {
+   "before_diff": {
+    "paths": [
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "ok": true,
+   "workflow": "rtl-fast.yml",
+   "zero_before": {
+    "paths": [
+     ".gitmodules",
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "docs/ptr.md",
+     "hdl/a.sv",
+     "hdl/b.sv",
+     "hdl/x.sv",
+     "protocol-processor",
+     "scripts/ci_scope.py",
+     "scripts/tool.py"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   }
+  },
+  {
+   "before_diff": {
+    "paths": null,
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "ok": true,
+   "workflow": "elaborate.yml",
+   "zero_before": {
+    "paths": null,
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   }
+  }
+ ],
+ "results": [
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C16 criss-cross replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 128,
+    "rtl": null,
+    "stderr_tail": [
+     "fatal: Not a valid object name 1019dc5cd49f88d3ae341062a20001bfbf796281",
+     "d2f32a455312dd7cbf08620c36128f7a66d0321c^{commit}"
+    ]
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C17 conflict replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 1,
+    "rtl": null,
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "D1 diagnostic: hosted branch on bare head",
+   "got": {
+    "paths": [
+     "README.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted-without-merge",
+   "ok": null,
+   "workflow": "rtl.yml"
+  },
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C16 criss-cross replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 128,
+    "rtl": null,
+    "stderr_tail": [
+     "fatal: Not a valid object name 1019dc5cd49f88d3ae341062a20001bfbf796281",
+     "d2f32a455312dd7cbf08620c36128f7a66d0321c^{commit}"
+    ]
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C17 conflict replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 1,
+    "rtl": null,
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "D1 diagnostic: hosted branch on bare head",
+   "got": {
+    "paths": [
+     "README.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted-without-merge",
+   "ok": null,
+   "workflow": "rtl-fast.yml"
+  },
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C1 stale-base docs-only",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C2 stale-base RTL",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C3 submodule pointer",
+   "expected": [
+    [
+     "protocol-processor"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "protocol-processor"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C3b documentation-shaped submodule pointer",
+   "expected": [
+    [
+     "docs/ptr.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/ptr.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C4 empty net delta",
+   "expected": [
+    [],
+    "true"
+   ],
+   "got": {
+    "paths": [],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C5 REV",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C6 REV+E",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C7 RTL buried under later docs commits",
+   "expected": [
+    [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "README.md",
+     "docs/a.md",
+     "docs/page.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C8 RTL deletion",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C9 RTL renamed into docs",
+   "expected": [
+    [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a_moved.md",
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C10 RTL mode-only",
+   "expected": [
+    [
+     "hdl/a.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "hdl/a.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C11 conflict resolved to lane RTL",
+   "expected": [
+    [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md",
+     "hdl/x.sv"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C12 lane merged dev cleanly, own change docs",
+   "expected": [
+    [
+     "docs/a.md"
+    ],
+    "false"
+   ],
+   "got": {
+    "paths": [
+     "docs/a.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C13 non-ASCII RTL path (quoted)",
+   "expected": [
+    [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "\"hdl/\\303\\251.sv\""
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C14 .gitmodules only",
+   "expected": [
+    [
+     ".gitmodules"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     ".gitmodules"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "hosted",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C15 base-side rename into gate-read doc",
+   "expected": [
+    [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "true"
+   ],
+   "got": {
+    "paths": [
+     "docs/reference/REGISTER_MAP.md"
+    ],
+    "rc": 0,
+    "rtl": "true",
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C16 criss-cross replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 128,
+    "rtl": null,
+    "stderr_tail": [
+     "fatal: Not a valid object name 1019dc5cd49f88d3ae341062a20001bfbf796281",
+     "d2f32a455312dd7cbf08620c36128f7a66d0321c^{commit}"
+    ]
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "C17 conflict replay refuses",
+   "got": {
+    "paths": null,
+    "rc": 1,
+    "rtl": null,
+    "stderr_tail": []
+   },
+   "mode": "replay",
+   "ok": true,
+   "workflow": "elaborate.yml"
+  },
+  {
+   "case": "D1 diagnostic: hosted branch on bare head",
+   "got": {
+    "paths": [
+     "README.md"
+    ],
+    "rc": 0,
+    "rtl": "false",
+    "stderr_tail": []
+   },
+   "mode": "hosted-without-merge",
+   "ok": null,
+   "workflow": "elaborate.yml"
+  }
+ ]
+}
