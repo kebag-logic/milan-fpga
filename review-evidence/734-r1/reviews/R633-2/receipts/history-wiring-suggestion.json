@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "git clone --quiet --no-hardlinks /src /work/tree && cd /work/tree && python3 -c 'from pathlib import Path; p=Path(\"scripts/ci_scope.py\"); s=p.read_text(); old=\"failures += history_selftest(ROOT)\"; assert s.count(old)==1; p.write_text(s.replace(old,\"failures += 0\"))' && python3 scripts/ci_scope.py --selftest && python3 scripts/ci_events.py --check"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 0,
+  "seconds": 9.105
+}

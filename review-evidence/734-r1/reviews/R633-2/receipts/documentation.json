@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "set -e; python3 scripts/docs_check.py; python3 scripts/docs_check.py --selftest; python3 scripts/check_doc_paths.py; python3 scripts/check_doc_style.py; python3 scripts/gen_toc.py --check; python3 scripts/gen_toc.py --selftest; python3 scripts/check_em_dash.py --base a0f39ad4; python3 scripts/check_em_dash.py --selftest; python3 scripts/check_py_idiom.py; python3 scripts/check_py_idiom.py --selftest; python3 scripts/pp_srcs.py --check; python3 scripts/pp_srcs.py --selftest; python3 scripts/measure_test_evidence.py --check; python3 scripts/measure_test_evidence.py --selftest"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 0,
+  "seconds": 46.188
+}

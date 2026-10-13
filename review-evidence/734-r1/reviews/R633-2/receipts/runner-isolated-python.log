@@ -1,0 +1,25 @@
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event retains the recorded base oid as metadata
+  ok   the recorded payload oid is not the fetched live scope base
+Traceback (most recent call last):
+  File "/src/scripts/act_ci.py", line 16928, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "/src/scripts/act_ci.py", line 16878, in main
+    return selftest(shipping_root)
+  File "/src/scripts/act_ci.py", line 15143, in selftest
+    selftest_scope_event(tally, fixture)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/src/scripts/act_ci.py", line 6201, in selftest_scope_event
+    from ci_scope_history import execute, git, history, merge_checkout, scope_script
+ModuleNotFoundError: No module named 'ci_scope_history'

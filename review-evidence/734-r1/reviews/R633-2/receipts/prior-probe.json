@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "git clone --quiet --no-hardlinks /src /work/repo && python3 /review/replay_prior_probe.py /review/probe_scope.py /work/repo /work/history"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 0,
+  "seconds": 5.836
+}

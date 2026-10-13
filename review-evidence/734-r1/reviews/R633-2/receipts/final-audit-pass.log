@@ -1,0 +1,126 @@
+{
+  "source": {
+    "head": "33ac35b54648ef919227c5dd8b9abc97fa6bedbd",
+    "tree": "42ffc92e382df24433ffc80333174e7d03ab4006",
+    "parent": {
+      "revision": "33ac35b54648ef919227c5dd8b9abc97fa6bedbd",
+      "tracked_blobs_verified": 1308,
+      "index_matches_tree": true,
+      "gitlinks": {
+        "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+        "gptp-processor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+        "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+        "third_party/lwSRP": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+        "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      }
+    },
+    "required_submodules": {
+      "protocol-processor": {
+        "revision": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+        "tracked_blobs_verified": 562,
+        "index_matches_tree": true,
+        "gitlinks": {}
+      },
+      "gptp-processor": {
+        "revision": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+        "tracked_blobs_verified": 104,
+        "index_matches_tree": true,
+        "gitlinks": {}
+      },
+      "third_party/verilog-axis": {
+        "revision": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+        "tracked_blobs_verified": 214,
+        "index_matches_tree": true,
+        "gitlinks": {}
+      }
+    },
+    "status": "clean",
+    "unchanged_product_trees": {
+      "hdl": "b1bdc8605ecc88aa370a4cc3485b4e6aa988532a",
+      "sw": "16a1acf87c026755f05db314a3feeb88f7b6b789",
+      "configs": "46399440800854473d3277e68feff3fd054eee06",
+      "syn": "4283050dfec5c562ff15199e33318936f207a78d",
+      "REQUIREMENTS.md": "5e358972eb583fdda9c8c11bc3f51f8e99081d94",
+      ".gitmodules": "b1534950da909a770759b0ff69b6a4878ffcd5df"
+    }
+  },
+  "evidence": {
+    "evidence_commit": "872d08f828de11c7e3b4919afd3d75cce3c2f999",
+    "selected_manifest_receipts_verified": [
+      "r2-head.json",
+      "r2-image-hashes.json",
+      "r2-events-final.log",
+      "r2-images.json",
+      "r2-scope-final.json",
+      "r2-probe-unchanged.json",
+      "r2-docs-final.log",
+      "r2-scope-final.log",
+      "r2-MANIFEST.sha256",
+      "r2-image-controls.json",
+      "r2-docs-final.json",
+      "r2-validated-files.json",
+      "r2-events-final.json",
+      "r2-images.log",
+      "r2-image-controls.log",
+      "r2-probe-current.json",
+      "r2-replay_probe.py",
+      "r2-events-selftest.json",
+      "r2-act-final.json",
+      "r2-events-selftest.log",
+      "r2-act-final.log"
+    ],
+    "publisher_redaction_records": [
+      "r2-images.json",
+      "r2-scope-final.json",
+      "r2-probe-unchanged.json",
+      "r2-image-controls.json",
+      "r2-docs-final.json",
+      "r2-events-final.json",
+      "r2-images.log",
+      "r2-image-controls.log",
+      "r2-probe-current.json",
+      "r2-events-selftest.json",
+      "r2-act-final.json"
+    ],
+    "source_bindings_verified": 7,
+    "prior_probe_unmodified": true,
+    "five_elf_pairs_identical": true
+  },
+  "images": [
+    {
+      "shape": "endstation_arty_4x4",
+      "bytes": 50752,
+      "base_sha256": "8c27ee19b7a4f0a6266834c43c50d8a397469c612fe86860ecc2296ae44ebb5e",
+      "head_sha256": "8c27ee19b7a4f0a6266834c43c50d8a397469c612fe86860ecc2296ae44ebb5e",
+      "equals_published_author_hash": false
+    },
+    {
+      "shape": "endstation_arty_8ch",
+      "bytes": 50752,
+      "base_sha256": "b7976d5cc2e0bc8889bbe471472e4817a6368df9a31d48ec8c2e8a1d63c23af7",
+      "head_sha256": "b7976d5cc2e0bc8889bbe471472e4817a6368df9a31d48ec8c2e8a1d63c23af7",
+      "equals_published_author_hash": false
+    },
+    {
+      "shape": "endstation_arty_current",
+      "bytes": 50744,
+      "base_sha256": "b119b2b56911120eeb424276525ca53d2e34340bf169bbb4a788efe65cb8a092",
+      "head_sha256": "b119b2b56911120eeb424276525ca53d2e34340bf169bbb4a788efe65cb8a092",
+      "equals_published_author_hash": false
+    },
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "bytes": 50768,
+      "base_sha256": "5a4086ce0245a5e2ad198aa0db56e62b982b7c4c6d177fe4929dca4da6b2dfff",
+      "head_sha256": "5a4086ce0245a5e2ad198aa0db56e62b982b7c4c6d177fe4929dca4da6b2dfff",
+      "equals_published_author_hash": false
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "bytes": 50776,
+      "base_sha256": "acb380ee815698bcd99f31920c09e55c3e93d44d7d09b4d1ae8f2d6a2a03c1bd",
+      "head_sha256": "acb380ee815698bcd99f31920c09e55c3e93d44d7d09b4d1ae8f2d6a2a03c1bd",
+      "equals_published_author_hash": false
+    }
+  ]
+}

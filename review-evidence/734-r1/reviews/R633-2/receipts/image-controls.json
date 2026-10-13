@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+    "--require-rv32"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 1,
+  "seconds": 0.215
+}

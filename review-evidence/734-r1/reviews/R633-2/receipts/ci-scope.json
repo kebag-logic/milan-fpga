@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "scripts/ci_scope.py",
+    "--selftest"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 0,
+  "seconds": 12.963
+}

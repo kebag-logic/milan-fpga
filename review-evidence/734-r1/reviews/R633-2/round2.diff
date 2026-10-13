@@ -1,0 +1,920 @@
+diff --git a/.github/workflows/elaborate.yml b/.github/workflows/elaborate.yml
+index 479ce15ad..0df08e71c 100644
+--- a/.github/workflows/elaborate.yml
++++ b/.github/workflows/elaborate.yml
+@@ -77,14 +77,14 @@ jobs:
+       # A documentation-only pull request must not pay a LiteX install, a
+       # VexiiRiscv checkout and a Scala run. scripts/ci_scope.py is the
+       # repository's one answer to "does this change need the RTL toolchain",
+-      # and it fails safe: an empty diff and an unresolvable base both come
+-      # back `true`. Raised against this workflow by [R1] while reviewing
++      # and it fails safe: an empty diff is relevant and an unresolvable
++      # PR ancestry fails the step. Raised against this workflow by [R1] while reviewing
+       # PR #176, which introduces that classifier.
+       - name: Decide whether this head needs an elaboration
+         id: scope
+         env:
+           EVENT_NAME: ${{ github.event_name }}
+-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
++          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+         run: |
+           set -euo pipefail
+@@ -101,12 +101,15 @@ jobs:
+             echo "rtl=true" >> "$GITHUB_OUTPUT"
+             exit 0
+           fi
+-          if [ -n "$PR_BASE_SHA" ] \
+-             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+-            git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" \
++          if [ "${ACT:-false}" = true ]; then
++            # Replay uses the live base fetched and verified by the runner.
++            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
++            git cat-file -e "$base^{commit}"
++            git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" \
+               > "$RUNNER_TEMP/changed"
+           else
+-            git ls-files > "$RUNNER_TEMP/changed"
++            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
++              > "$RUNNER_TEMP/changed"
+           fi
+           echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
+ 
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 8d9f1e8d7..c2eac509f 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -36,33 +36,35 @@ jobs:
+         id: scope
+         env:
+           EVENT_NAME: ${{ github.event_name }}
+-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
++          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+           PUSH_BEFORE_SHA: ${{ github.event.before }}
+         run: |
+           set -euo pipefail
+           python3 scripts/ci_scope.py --selftest
+ 
+-          base=""
+           if [ "$EVENT_NAME" = pull_request ]; then
+-            base="$PR_BASE_SHA"
+-          else
+-            base="$PUSH_BEFORE_SHA"
+-          fi
+-
+-          if [ -n "$base" ] \
+-             && [ "$base" != 0000000000000000000000000000000000000000 ] \
+-             && git cat-file -e "$base^{commit}" 2>/dev/null; then
+-            if [ "$EVENT_NAME" = pull_request ]; then
+-              git diff --no-renames --name-only "$base...$PR_HEAD_SHA" \
++            if [ "${ACT:-false}" = true ]; then
++              # Replay uses the live base fetched and verified by the runner.
++              base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
++              git cat-file -e "$base^{commit}"
++              git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" \
+                 > "$RUNNER_TEMP/changed-files"
+             else
+-              git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
++              git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+                 > "$RUNNER_TEMP/changed-files"
+             fi
+           else
+-            # An unknown base must never turn a real change into docs-only.
+-            git ls-files > "$RUNNER_TEMP/changed-files"
++            base="$PUSH_BEFORE_SHA"
++            if [ -n "$base" ] \
++               && [ "$base" != 0000000000000000000000000000000000000000 ] \
++               && git cat-file -e "$base^{commit}" 2>/dev/null; then
++              git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
++                > "$RUNNER_TEMP/changed-files"
++            else
++              # An unknown base must never turn a real change into docs-only.
++              git ls-files > "$RUNNER_TEMP/changed-files"
++            fi
+           fi
+ 
+           echo "Changed files:"
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 7a5716693..9108e9722 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -99,7 +99,7 @@ jobs:
+         env:
+           EVENT_NAME: ${{ github.event_name }}
+           PR_DRAFT: ${{ github.event.pull_request.draft }}
+-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
++          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+         run: |
+           set -euo pipefail
+@@ -112,12 +112,15 @@ jobs:
+             exit 0
+           fi
+ 
+-          if [ -n "$PR_BASE_SHA" ] \
+-             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+-            git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" \
++          if [ "${ACT:-false}" = true ]; then
++            # Replay uses the live base fetched and verified by the runner.
++            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
++            git cat-file -e "$base^{commit}"
++            git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" \
+               > "$RUNNER_TEMP/changed-files"
+           else
+-            git ls-files > "$RUNNER_TEMP/changed-files"
++            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
++              > "$RUNNER_TEMP/changed-files"
+           fi
+ 
+           echo "Changed files:"
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index eaf59b15a..ad631b427 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -165,20 +165,30 @@ named only inside a message, a reader outside those six roots (a script under
+ it does not read. A reader written that way must be added to `GATE_READ_DOCS`
+ by hand.
+ 
+-All three scope steps classify the PR's own changes.
+-They use `git diff --no-renames --name-only <base>...<head>`.
+-Both revisions come from the pull request event payload.
+-The base is its recorded base SHA.
+-The head is its own head SHA, through `PR_HEAD_SHA`.
+-`GITHUB_SHA` still identifies the checkout each validation job builds.
+-On hosted PR jobs, that checkout is a synthetic merge.
+-Using it for scope would include later base changes.
++All three scope steps classify against the live base the job builds on.
++Hosted PR jobs check out a synthetic merge at `GITHUB_SHA`.
++They use `git diff --no-renames --name-only <merge>^1 <merge>`.
++The first parent is the live base tip used for that merge.
++This lists exactly what landing the PR would change in that base.
++GitHub's recorded `pull_request.base.sha` is frozen when the PR opens.
++After a lane merges newer dev, that recorded base can hide restored RTL.
++A frozen-base diff can therefore incorrectly skip the RTL gates.
++
++The replay checks out the PR head, identified by `PR_HEAD_SHA`.
++With `ACT=true`, scope reads `refs/remotes/origin/<base-ref>`.
++`PR_BASE_REF` binds to `github.event.pull_request.base.ref`.
++The runner already fetched that ref and verified its live tip.
++Scope compares its unique merge base with the PR head.
++This is `<live-base>...<head>`, with ambiguous merge bases refused.
++The frozen base SHA remains event metadata and is never a scope input.
++This also works with the existing trusted runner's event payload.
+ Each scope checkout explicitly sets `fetch-depth: 0`.
+-That preserves the ancestry needed to find the merge base.
+-Older documentation branches therefore remain documentation-only.
++Missing revisions or missing merge ancestry fail the scope step.
++Older documentation branches remain documentation-only.
+ RTL changes and submodule pointers remain relevant.
+ Empty deltas retain the conservative relevant verdict.
+ Fast push events retain their before-to-after tree comparison.
++An unknown push base retains the full tracked-file fallback.
+ 
+ The merge train validates composition before every merge.
+ Its current-dev candidate runs builder and full native banks.
+@@ -188,9 +198,12 @@ The hosted required contexts and merge validation remain mandatory.
+ 
+ The scope self-test executes each workflow's actual shell body.
+ It compares hosted merge checkouts with replay head checkouts.
+-Its divergent history covers documentation, RTL, gitlinks, and empty deltas.
++Its histories cover documentation, RTL, gitlinks, and empty deltas.
++REV merges newer dev, restores an RTL file, then edits documentation.
++REV+E adds a later unrelated dev RTL commit.
++Both must stay relevant; a two-documentation-path B16 shape stays docs-only.
+ Each control rejects its corresponding removed rule.
+-Additional mutations reject endpoint comparisons and synthetic-merge scope.
++Mutations reject frozen-base scope and replay endpoint comparisons.
+ The CI-events gate pins these scripts and their event bindings.
+ 
+ All three classifier-gated workflows build the changed-path list with
+@@ -647,12 +660,12 @@ is exactly these twelve things:
+    checkout are pinned to their own key sets exactly as the default-branch
+    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
+    `continue-on-error` or a `working-directory` on any of them is refused by
+-   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
+-   `PR_BASE_SHA`, each bound to the source expression item 6 requires, and
+-   the checkout keeps `fetch-depth: 0` (the decision step
+-   diffs against the pull request's base commit, which a shallow clone does
+-   not carry). `if: false` on the pin step or on the decision step leaves the
+-   assert step's script canonical and publishes no `run_full` at all.
++   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT`,
++   `PR_BASE_REF` and `PR_HEAD_SHA`.
++   Each uses the source expression item 6 requires, and the checkout keeps `fetch-depth: 0` (the decision step
++   needs the merge's first parent or the replay's live-base ancestry,
++   which a shallow clone need not carry).
++   `if: false` on the pin step or on the decision step leaves the assert step's script canonical and publishes no `run_full` at all.
+    Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
+    own names any `GH_*` variable: the step's `env` is pinned to exactly
+    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
+@@ -661,19 +674,21 @@ is exactly these twelve things:
+    source expression that name is bound to, because the name is not the
+    contract. The decision step carries
+    `EVENT_NAME: ${{ github.event_name }}`,
+-   `PR_DRAFT: ${{ github.event.pull_request.draft }}` and
+-   `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`; the
++   `PR_DRAFT: ${{ github.event.pull_request.draft }}`,
++   `PR_BASE_REF: ${{ github.event.pull_request.base.ref }}` and
++   `PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}`; the
+    default-branch step carries `GH_TOKEN: ${{ github.token }}`; each verifier
+    step binds `GATE_SHA` to `full-ci-gate`'s `target_sha` output, derived from
+    that job and output rather than restated. Names alone held nothing where it
+-   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
++   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all four
+    names and all four keys and makes a ready RTL pull request publish
+    `run_full=false`, on which both worker matrices skip, both aggregates skip
+    under the no-op exception in item 8, and the skipped required contexts
+    satisfy the ruleset -- a false green, not a refusal.
+-   `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
+-   `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
+-   run taking the pull-request branch) arrive at the same place. A refusal
++   Rebinding `PR_BASE_REF` changes the replay's live-base lookup.
++   Rebinding `PR_HEAD_SHA` changes its scope endpoint.
++   The `ACT` marker selects the source-head replay path; hosted uses the merge.
++   `EVENT_NAME: pull_request` makes a non-PR run take that PR path. A refusal
+    names the step, the variable, the expression required and the one found.
+ 7. **The decision step's script.** Pinned verbatim after whitespace
+    normalization, the way the default-branch step's is, and refused by naming
+@@ -760,7 +775,7 @@ is exactly these twelve things:
+     `defaults` or job-level `env`; the workflow carries no top-level
+     `defaults`; and its exact
+     two-step sequence is `actions/checkout@v4` with full history followed by
+-    the `scope` step. That step's keys and three env bindings are pinned, and
++    the `scope` step. That step's keys and four env bindings are pinned, and
+     its normalized canonical script must self-test `ci_scope.py`, derive the
+     conservative changed-file set, read the selector answer and publish that
+     answer. An empty or forced-false publication can no longer skip both RTL
+@@ -860,8 +875,9 @@ is exactly these twelve things:
+     HEAD` judges no line and a `|| true` reports none, and each left every
+     recorded key, name and binding in place;
+     `elaborate`'s scope step is held as the decide step is (item 7, the
+-    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
+-    env bindings pinned to their source expressions, `ci_scope.py
++    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its three
++    env bindings (`EVENT_NAME`, `PR_BASE_REF`, `PR_HEAD_SHA`) pinned to
++    the source expressions in item 6, `ci_scope.py
+     --selftest` exactly once and before the script reads the selector's
+     answer, and the whole script canonical -- so `if: false` on the step
+     that publishes the output every elaboration gate's guard reads, a
+@@ -931,9 +947,9 @@ is exactly these twelve things:
+     `TSN_GEN_REV` in the exhaustive workflow, `VERILATOR_VERSION` in the fast
+     one, nothing in the other two); no job carries a job-level `env`; and
+     the names a job's steps bind stay inside that job's recorded set (the
+-    gate's four, the workers' shard and target names, the aggregates'
++    gate's five, the workers' shard and target names, the aggregates'
+     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
+-    step's result bindings, `elaborate`'s scope pair, `docs-check`'s
++    step's result bindings, `elaborate`'s scope triple, `docs-check`'s
+     em-dash gate triple (`EVENT_NAME`, `PR_BASE_REF`, `PUSH_BEFORE_SHA`),
+     and nothing else in the documentation jobs). Each
+     refusal names the scope, the job or step, and
+@@ -1069,7 +1085,7 @@ on the step, on the job, on the workflow and on the verifier steps; the gate
+ given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
+ `if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
+ env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
+-`PR_BASE_SHA` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
++`PR_BASE_REF` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
+ `pull_request`, `GH_TOKEN` rebound to another token and a verifier's
+ `GATE_SHA` rebound to its own run; the decision script rewritten to publish
+ `run_full=false` always and stripped of the selector's self-test; the assert
+@@ -1144,7 +1160,7 @@ given an `if: false`, a
+ `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
+ each removed; the elaborate scope script made to publish a literal
+ `rtl=false`, stripped of its `ci_scope.py --selftest`, running the
+-self-test after the answer is read, and its two env bindings rebound; each
++self-test after the answer is read, and its three env bindings rebound; each
+ of the four carriers' bodies replaced by a `run: true` stub behind a
+ renamed-away id and by a duplicate mapping's last-wins parse, plus an
+ appended duplicate `wire-accountability:` and `elaborate:` mapping as a
+@@ -1512,11 +1528,14 @@ commit the trusted worktree must be at, and the commit the fetch must return.
+ GitHub's recorded PR base oid (`baseRefOid`) is frozen when the PR is opened
+ and does not track the branch, so the runner prints both SHAs and the recorded
+ one never refuses a run; re-targeting a PR's base to refresh it (the old
+-`gh pr edit --base` flip) is no longer needed. The generated event still
+-carries the **recorded** oid and the PR's own head.
+-The three scope steps use their merge-base diff, `<base>...<head>`.
+-Hosted and replay therefore classify the same PR changes.
+-The replay self-test proves this on a stale-base documentation branch.
++`gh pr edit --base` flip) is no longer needed.
++The generated event retains the recorded oid as metadata, plus the base ref and the PR's own head.
++Hosted scope compares the synthetic merge against its live-base first parent.
++Replay scope uses the fetched, verified `refs/remotes/origin/<base-ref>`.
++It compares that tip's unique merge base with the PR head.
++The recorded oid never participates in either scope calculation.
++The replay self-test checks the production payload through all three selectors.
++It covers stale-base documentation, RTL, pointers, empty deltas, REV and REV+E.
+ The validation base still anchors every trust and fetch check.
+ Because the trusted worktree must sit at a moving branch
+ tip, fast-forward it before invoking; a `dev` push between the resolve and the
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index a22ffa7d3..494350ac5 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -2375,20 +2375,19 @@ def is_leased_act_job_volume(boundary: DockerBoundary, name: str) -> bool:
+ def build_event(run: ValidatedRun) -> dict[str, object]:
+     """The smallest pull_request payload every repository workflow consumes.
+ 
+-    The base SHA is the RECORDED base oid, because this payload's only
+-    consumer is scope classification and hosted receives the recorded value.
+-    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) use
+-    `git diff <recorded-base>...<pr-head>`: only the PR's merge-base delta.
+-    Both SHAs come from this payload, including the PR head rather than the
+-    hosted synthetic merge commit in GITHUB_SHA. Full-history checkouts keep
+-    the merge base available. Hosted and replay therefore classify the same
+-    file set even when the recorded base and live dev tip have moved beyond
+-    the PR's fork point. A stale-base docs-only PR stays docs-only; the
+-    merge-train candidate banks validate composition before every merge.
+-
+-    The trust properties stay on the validation base, where they belong:
+-    which commit the trusted worktree must be at, and which commit the fetch
+-    must return. Neither reads this payload.
++    Hosted scope compares the synthetic merge with its first parent, the
++    live base that job builds on. Replay checks out the PR head instead,
++    so with ACT=true the three selectors resolve the payload's base ref to
++    refs/remotes/origin/<base-ref>, fetched and verified by
++    materialize_remote_head against run.validation_base. They compare
++    merge-base(live, head) to head, never the frozen recorded base oid.
++    Missing or multiple merge bases refuse classification. Full-history
++    checkouts preserve the ancestry. A lane that merges newer dev and restores
++    its RTL therefore stays relevant, while stale-base docs stay docs-only.
++    The merge-train candidate banks validate composition before every merge.
++
++    The trust and fetch checks still read run.validation_base directly.
++    The recorded oid remains metadata for diagnostics, not a scope input.
+     """
+     pr = run.pr
+     repository = run.repository
+@@ -6187,60 +6186,47 @@ def selftest_fetch_window(
+     stale_event = build_event(resolved)
+     stale_event_pr = stale_event["pull_request"]
+     assert isinstance(stale_event_pr, dict)
+-    #: [R3] on PR #336: the payload feeds scope classification and nothing
+-    #: else, and hosted receives the RECORDED oid, so the replica must too or
+-    #: its verdict stops predicting the run it stands in for. The trust
+-    #: checks read resolved.validation_base and never this payload, so the
+-    #: two arms below pin the split in both directions.
+     check(
+-        "the event carries the recorded base oid, so the local replica "
+-        "classifies the same file set hosted does",
++        "the event retains the recorded base oid as metadata",
+         stale_event_pr["base"]["sha"] == pr.base_sha,
+     )
+     check(
+-        "and that is not the validation base, so the payload cannot be "
+-        "mistaken for the commit the trust checks read",
++        "the recorded payload oid is not the fetched live scope base",
+         stale_event_pr["base"]["sha"] != resolved.validation_base,
+     )
+ 
+ 
+ def selftest_scope_event(tally: SelftestTally, fixture: SelftestFixture) -> None:
+-    """A real stale-base docs PR has the same merge-base delta in both payloads."""
++    """Execute hosted and live-base replay scope from the production event builder."""
++    from ci_scope_history import execute, git, history, merge_checkout, scope_script
++
+     with tempfile.TemporaryDirectory(prefix="act-ci-scope-selftest-") as raw:
+-        git_fixture = selftest_git_fixture(pathlib.Path(raw), fixture.pr)
+-        repo, test_git = git_fixture.repo, git_fixture.test_git
+-        recorded = git_fixture.test_head
+-        (repo / "README").write_text("live base change\n", encoding="utf-8")
+-        test_git("add", "README")
+-        test_git("commit", "--quiet", "-m", "Live base")
+-        live = test_git("rev-parse", "HEAD")
+-        test_git("checkout", "--quiet", "--detach", git_fixture.first_commit)
+-        (repo / "docs").mkdir()
+-        (repo / "docs/note.md").write_text("PR documentation\n", encoding="utf-8")
+-        test_git("add", "docs/note.md")
+-        test_git("commit", "--quiet", "-m", "Documentation only")
+-        head = test_git("rev-parse", "HEAD")
+-        pr = replace(fixture.pr, base_sha=recorded, head_sha=head)
+-        resolved = resolve_validation_base(
+-            pr, fixture.repository, query_tip=lambda _repo, _ref: live,
+-            emit=lambda _note: None,
+-        )
+-        event = build_event(resolved)
+-        payload = event["pull_request"]
+-        assert isinstance(payload, dict)
+-        hosted = test_git("diff", "--no-renames", "--name-only",
+-                          f"{recorded}...{head}").splitlines()
+-        replay = test_git("diff", "--no-renames", "--name-only",
+-                          f'{payload["base"]["sha"]}...{payload["head"]["sha"]}').splitlines()
+-        tally.check(
+-            "stale-base docs-only PR: hosted and replay classify only docs/note.md",
+-            hosted == replay == ["docs/note.md"],
+-        )
+-        tally.check(
+-            "the stale-base fixture detects an endpoint-tree comparison",
+-            test_git("diff", "--no-renames", "--name-only", recorded, head).splitlines()
+-            == ["README", "docs/note.md"],
+-        )
++        repo = pathlib.Path(raw)
++        for case in history(repo, ROOT):
++            pr = replace(fixture.pr, base_sha=case.recorded, head_sha=case.head)
++            resolved = resolve_validation_base(
++                pr, fixture.repository, query_tip=lambda _repo, _ref: case.live,
++                emit=lambda _note: None,
++            )
++            event = build_event(resolved)
++            payload = event["pull_request"]
++            assert isinstance(payload, dict)
++            for workflow, job, step in (
++                    ("rtl.yml", "full-ci-gate", "gate"),
++                    ("rtl-fast.yml", "changes", "scope"),
++                    ("elaborate.yml", "elaborate", "scope")):
++                script = scope_script(ROOT, workflow, job, step)
++                merge = merge_checkout(repo, case)
++                hosted = execute(repo, script, case.recorded, case.head, merge)
++                git(repo, "checkout", "--quiet", "--detach", case.head)
++                git(repo, "update-ref", "refs/remotes/origin/dev", resolved.validation_base)
++                replay = execute(repo, script, payload["base"]["sha"],
++                                 payload["head"]["sha"], case.head,
++                                 inputs={"ACT": "true", "PR_BASE_REF": payload["base"]["ref"]})
++                tally.check(
++                    f"scope event {case.label} {workflow}: hosted = replay = {case.paths}",
++                    hosted == replay == (case.paths, case.rtl),
++                )
+ 
+ 
+ def materialize_for_transcript(
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 1a95048a6..b92f28a66 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -350,14 +350,13 @@ VERIFY_STEP_IF = "${{ always() }}"
+ #: Every pinned step's `env`, as the BINDING each name must carry, never the
+ #: name alone ([R0] on PR #239). Holding the names while leaving the
+ #: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
+-#: valid workflow YAML, keeps all three pinned names and all four pinned
++#: valid workflow YAML, keeps all four pinned names and all four pinned
+ #: keys, and makes a ready RTL pull request publish `run_full=false`. Both
+ #: worker matrices then skip, both aggregates skip under their documented
+ #: no-op exception, and a skipped required context satisfies the ruleset, so
+-#: the run is a false green rather than a refusal. `PR_BASE_SHA:
+-#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
+-#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
+-#: pull-request branch) reach the same place by the same route. So the
++#: the run is a false green rather than a refusal. A rebound PR_BASE_REF
++#: changes the replay's live-base lookup, and PR_HEAD_SHA its endpoint.
++#: `EVENT_NAME: pull_request` makes a non-PR run take the PR path. So the
+ #: mapping is the contract and pinned_step_keys compares the value: there is
+ #: no longer any way to pin an env name in this file without saying what it
+ #: must be bound to. GATE_SHA is derived from the job and the output it
+@@ -398,7 +397,7 @@ DECIDE_STEP_KEYS = ("name", "id", "env", "run")
+ DECIDE_STEP_ENV = {
+     "EVENT_NAME": "${{ github.event_name }}",
+     "PR_DRAFT": "${{ github.event.pull_request.draft }}",
+-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
++    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+     "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
+ }
+ #: The decision step's script, pinned verbatim after whitespace
+@@ -420,13 +419,14 @@ CANONICAL_DECIDE_SCRIPT = (
+     'echo "Non-PR event: exhaustive validation required."',
+     "exit 0",
+     "fi",
+-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+-    "2>/dev/null; then",
+-    'git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" '
+-    '> "$RUNNER_TEMP/changed-files"',
+-    "else",
+-    'git ls-files > "$RUNNER_TEMP/changed-files"',
+-    "fi",
++    'if [ "${ACT:-false}" = true ]; then',
++    '# Replay uses the live base fetched and verified by the runner.',
++    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
++    'git cat-file -e "$base^{commit}"',
++    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed-files"',
++    'else',
++    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
++    'fi',
+     'echo "Changed files:"',
+     "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
+     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+@@ -582,13 +582,13 @@ RECORDED_ACTIONS = frozenset({
+ #: The pinned steps bind these exactly elsewhere; this table closes the
+ #: unpinned steps too, and a job absent from it may carry none.
+ INHERITED_STEP_ENV = {
+-    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT", "PR_HEAD_SHA"),
++    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_REF", "PR_DRAFT", "PR_HEAD_SHA"),
+     (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
+     (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
+     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
+     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+-    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
++    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
+     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                              "FIRMWARE_UNIT_RESULT",
+                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+@@ -596,7 +596,7 @@ INHERITED_STEP_ENV = {
+                              "PUBLICATION_CENSUS_RESULT",
+                              "VERILATOR_LINT_RESULT",
+                              "YOSYS_ELABORATION_RESULT"),
+-    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA", "PR_HEAD_SHA"),
++    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA"),
+     (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
+ }
+ #: The shard denominator a worker passes and states in its display name.
+@@ -845,13 +845,14 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
+     'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+     "exit 0",
+     "fi",
+-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+-    "2>/dev/null; then",
+-    'git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" '
+-    '> "$RUNNER_TEMP/changed"',
+-    "else",
+-    'git ls-files > "$RUNNER_TEMP/changed"',
+-    "fi",
++    'if [ "${ACT:-false}" = true ]; then',
++    '# Replay uses the live base fetched and verified by the runner.',
++    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
++    'git cat-file -e "$base^{commit}"',
++    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed"',
++    'else',
++    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"',
++    'fi',
+     'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
+     '>> "$GITHUB_OUTPUT"',
+ )
+@@ -1146,7 +1147,7 @@ CARRIER_STEP_LISTS = {
+         {"name": "Decide whether this head needs an elaboration",
+          "id": ELAB_SCOPE_STEP_ID,
+          "env": {"EVENT_NAME": "${{ github.event_name }}",
+-                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
++                 "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+                  "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}"},
+          "run": CANONICAL_ELAB_SCOPE_SCRIPT},
+         {"name": "Fetch the source dependencies the elaboration reads",
+@@ -1283,33 +1284,33 @@ FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
+ FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
+ FAST_SCOPE_STEP_ENV = {
+     "EVENT_NAME": "${{ github.event_name }}",
+-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
++    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+     "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
+     "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+ }
+ CANONICAL_FAST_SCOPE_SCRIPT = (
+     "set -euo pipefail",
+     "python3 scripts/ci_scope.py --selftest",
+-    'base=""',
+     'if [ "$EVENT_NAME" = pull_request ]; then',
+-    'base="$PR_BASE_SHA"',
+-    "else",
++    'if [ "${ACT:-false}" = true ]; then',
++    '# Replay uses the live base fetched and verified by the runner.',
++    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
++    'git cat-file -e "$base^{commit}"',
++    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed-files"',
++    'else',
++    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
++    'fi',
++    'else',
+     'base="$PUSH_BEFORE_SHA"',
+-    "fi",
+     'if [ -n "$base" ] && [ "$base" != '
+     '0000000000000000000000000000000000000000 ] && '
+     'git cat-file -e "$base^{commit}" 2>/dev/null; then',
+-    'if [ "$EVENT_NAME" = pull_request ]; then',
+-    'git diff --no-renames --name-only "$base...$PR_HEAD_SHA" > '
+-    '"$RUNNER_TEMP/changed-files"',
+-    "else",
+-    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
+-    '"$RUNNER_TEMP/changed-files"',
+-    "fi",
+-    "else",
+-    "# An unknown base must never turn a real change into docs-only.",
++    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
++    'else',
++    '# An unknown base must never turn a real change into docs-only.',
+     'git ls-files > "$RUNNER_TEMP/changed-files"',
+-    "fi",
++    'fi',
++    'fi',
+     'echo "Changed files:"',
+     'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
+     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+@@ -4933,8 +4934,8 @@ def _m_workflow_env_gh_host(w: World) -> None:
+ 
+ 
+ def _m_decide_env_missing(w: World) -> None:
+-    """Drop PR_BASE_SHA from the decision step's env."""
+-    del _decide_step(w)["env"]["PR_BASE_SHA"]
++    """Drop PR_BASE_REF from the decision step's env."""
++    del _decide_step(w)["env"]["PR_BASE_REF"]
+ 
+ 
+ def _m_decide_script_no_op(w: World) -> None:
+@@ -6109,16 +6110,16 @@ def _gate_condition_arms() -> list[Arm]:
+         ("decision step working-directory",
+          _set_step_key(_decide_step, "working-directory", "/tmp"),
+          "surplus: working-directory"),
+-        ("decision step loses PR_BASE_SHA", _m_decide_env_missing,
+-         "missing: PR_BASE_SHA"),
++        ("decision step loses PR_BASE_REF", _m_decide_env_missing,
++         "missing: PR_BASE_REF"),
+         # #209 O15/O16: the decision step's env bound to another source, and
+         # its script rewritten, each leaving every pinned name and key alone.
+         ("O15 decision step PR_DRAFT forced true",
+          _set_env_key(_decide_step, "PR_DRAFT", "true"),
+          "must bind `PR_DRAFT`"),
+-        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
+-         _set_env_key(_decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
+-         "must bind `PR_BASE_SHA`"),
++        ("O15b decision step PR_BASE_REF rebound to this run's own SHA",
++         _set_env_key(_decide_step, "PR_BASE_REF", "${{ github.sha }}"),
++         "must bind `PR_BASE_REF`"),
+         ("O15c decision step EVENT_NAME hard-coded to pull_request",
+          _set_env_key(_decide_step, "EVENT_NAME", "pull_request"),
+          "must bind `EVENT_NAME`"),
+@@ -6418,10 +6419,16 @@ def _invisible_whitespace_arms() -> list[Arm]:
+             ("full", _decide_step, "the decision step script is not the canonical form"),
+             ("fast", _fast_scope_step, "the fast selector scope script is not the canonical form"),
+             ("elaborate", _elab_scope_step, "the elaborate scope step script is not the canonical form")):
+-        base = "$base" if title == "fast" else "$PR_BASE_SHA"
+-        arms.append((f"#734 {title} scope compares endpoint trees",
+-                     _m_step_text(get, f'"{base}...$PR_HEAD_SHA"',
+-                                  f'"{base}" "$PR_HEAD_SHA"'), want))
++        for label, old, new in (
++                ("hosted frozen base", '"$GITHUB_SHA^1" "$GITHUB_SHA"',
++                 '"$PR_BASE_SHA...$PR_HEAD_SHA"'),
++                ("replay endpoint trees", '"$base" "$PR_HEAD_SHA"',
++                 '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"'),
++                ("hosted always takes replay path", '"${ACT:-false}" = true',
++                 '"true" = true'),
++                ("ambiguous replay merge base", "git merge-base --all", "git merge-base")):
++            arms.append((f"#734 {title} {label}",
++                         _m_step_text(get, old, new), want))
+         arms.append((f"#734 {title} scope head rebound to the merge commit",
+                      _set_env_key(get, "PR_HEAD_SHA", "${{ github.sha }}"),
+                      "must bind `PR_HEAD_SHA`"))
+@@ -6845,7 +6852,7 @@ def _contract_step_and_env_arms() -> list[Arm]:
+          "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
+         ("#261 elaborate builder-call step-level BASH_ENV",
+          _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
+-         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA', 'PR_HEAD_SHA']"),
++         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_REF', 'PR_HEAD_SHA']"),
+         ("#261 wire-accountability gate step-level BASH_ENV",
+          _m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
+          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+@@ -7207,9 +7214,9 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
+         ("#295 elaborate scope step EVENT_NAME hard-coded",
+          _set_env_key(_elab_scope_step, "EVENT_NAME", "pull_request"),
+          "must bind `EVENT_NAME`"),
+-        ("#295 elaborate scope step PR_BASE_SHA rebound to this run's SHA",
+-         _set_env_key(_elab_scope_step, "PR_BASE_SHA", "${{ github.sha }}"),
+-         "must bind `PR_BASE_SHA`"),
++        ("#295 elaborate scope step PR_BASE_REF rebound to this run's SHA",
++         _set_env_key(_elab_scope_step, "PR_BASE_REF", "${{ github.sha }}"),
++         "must bind `PR_BASE_REF`"),
+         ("#295 elaborate scope step removed", _m_scope_step_removed,
+          f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+         # #295 presence: the stub-id evasion and a duplicate mapping's
+diff --git a/scripts/ci_scope_history.py b/scripts/ci_scope_history.py
+index 5b1e9e14a..8ae225cdc 100644
+--- a/scripts/ci_scope_history.py
++++ b/scripts/ci_scope_history.py
+@@ -4,6 +4,7 @@
+ 
+ from __future__ import annotations
+ 
++from dataclasses import dataclass
+ import os
+ from pathlib import Path
+ import shutil
+@@ -33,12 +34,26 @@ def commit_file(root: Path, parent: str, path: str, text: str) -> str:
+     return git(root, "rev-parse", "HEAD")
+ 
+ 
+-def history(root: Path, shipping: Path) -> tuple[str, str, list[tuple[str, str, list[str], str]]]:
+-    """A fork, two newer base commits, and four PR deltas with independent oracles."""
++@dataclass(frozen=True)
++class ScopeCase:
++    """A PR history with independent changed-path and relevance oracles."""
++
++    label: str
++    recorded: str
++    live: str
++    head: str
++    paths: list[str]
++    rtl: str
++
++
++def history(root: Path, shipping: Path) -> list[ScopeCase]:
++    """Forked PRs and lanes that merge newer dev, restore RTL, then edit docs."""
+     git(root, "init", "--quiet")
+     (root / "scripts").mkdir()
+     shutil.copyfile(shipping / "scripts/ci_scope.py", root / "scripts/ci_scope.py")
+-    # A documentation-shaped gitlink makes removing the explicit pointer rule observable.
++    (root / "hdl").mkdir()
++    (root / "hdl/x.sv").write_text("// original RTL\n", encoding="utf-8")
++    # A documentation-shaped gitlink exposes removal of the explicit pointer rule.
+     (root / ".gitmodules").write_text(
+         '[submodule "pointer"]\n\tpath = docs/pointer.md\n'
+         '\turl = https://example.invalid/pointer.git\n', encoding="utf-8")
+@@ -51,19 +66,43 @@ def history(root: Path, shipping: Path) -> tuple[str, str, list[tuple[str, str,
+     recorded = commit_file(root, common, "scripts/base.py", "base = 1\n")
+     live = commit_file(root, recorded, "hdl/base.sv", "// base change\n")
+     docs = commit_file(root, common, "docs/note.md", "PR documentation\n")
++    b16 = commit_file(root, docs, "docs/findings/README.md", "Finding index\n")
+     rtl = commit_file(root, common, "hdl/pr.sv", "// PR change\n")
+     git(root, "checkout", "--quiet", "--detach", common)
+     git(root, "update-index", "--cacheinfo", f"160000,{recorded},docs/pointer.md")
+     git(root, "commit", "--quiet", "-m", "Pointer control")
+     moved = git(root, "rev-parse", "HEAD")
+-    return recorded, live, [
+-        ("stale-base docs", docs, ["docs/note.md"], "false"),
+-        ("stale-base RTL", rtl, ["hdl/pr.sv"], "true"),
+-        ("submodule pointer", moved, ["docs/pointer.md"], "true"),
+-        ("empty delta", common, [], "true"),
++    newer = commit_file(root, common, "hdl/x.sv", "// newer dev RTL\n")
++    git(root, "checkout", "--quiet", "--detach", docs)
++    git(root, "merge", "--quiet", "--no-ff", "--no-edit", newer)
++    restored = commit_file(root, git(root, "rev-parse", "HEAD"),
++                           "hdl/x.sv", "// original RTL\n")
++    restored = commit_file(root, restored, "docs/note.md", "Final PR documentation\n")
++    later = commit_file(root, newer, "hdl/later.sv", "// unrelated dev RTL\n")
++    return [
++        ScopeCase("stale-base docs", recorded, live, docs, ["docs/note.md"], "false"),
++        ScopeCase("B16 shape", recorded, live, b16,
++                  ["docs/findings/README.md", "docs/note.md"], "false"),
++        ScopeCase("stale-base RTL", recorded, live, rtl, ["hdl/pr.sv"], "true"),
++        ScopeCase("submodule pointer", recorded, live, moved, ["docs/pointer.md"], "true"),
++        ScopeCase("empty delta", recorded, live, common, [], "true"),
++        ScopeCase("REV", common, newer, restored, ["docs/note.md", "hdl/x.sv"], "true"),
++        ScopeCase("REV+E", common, later, restored, ["docs/note.md", "hdl/x.sv"], "true"),
+     ]
+ 
+ 
++def merge_checkout(root: Path, case: ScopeCase) -> str:
++    """Build a synthetic merge with the live base as first parent, even for no delta."""
++    git(root, "checkout", "--quiet", "--detach", case.live)
++    git(root, "merge", "--quiet", "--no-ff", "--no-edit", case.head)
++    merge = git(root, "rev-parse", "HEAD")
++    if merge == case.live:
++        merge = git(root, "commit-tree", f"{merge}^{{tree}}", "-p", case.live,
++                    "-p", case.head, "-m", "Empty PR merge")
++        git(root, "checkout", "--quiet", "--detach", merge)
++    return merge
++
++
+ def scope_script(shipping: Path, workflow: str, job: str, step_id: str) -> str:
+     """Read the actual workflow body, omitting only its recursive selftest call."""
+     # Scope runs before dependency installation; the fixture needs only the
+@@ -87,14 +126,16 @@ def scope_script(shipping: Path, workflow: str, job: str, step_id: str) -> str:
+ 
+ 
+ def execute(root: Path, script: str, recorded: str, head: str,
+-            checked_out: str, event: str = "pull_request") -> tuple[list[str], str]:
++            checked_out: str, *, inputs: dict[str, str] | None = None) -> tuple[list[str], str]:
+     """Execute one shipping scope body and read both its paths and output."""
+     with tempfile.TemporaryDirectory(prefix="scope-output-") as raw:
+         work = Path(raw)
+         output = work / "output"
+-        env = dict(os.environ, EVENT_NAME=event, PR_BASE_SHA=recorded,
++        env = dict(os.environ, ACT="false", EVENT_NAME="pull_request",
++                   PR_BASE_SHA=recorded, PR_BASE_REF="dev",
+                    PR_HEAD_SHA=head, GITHUB_SHA=checked_out, PR_DRAFT="false",
+                    PUSH_BEFORE_SHA=recorded, GITHUB_OUTPUT=str(output), RUNNER_TEMP=raw)
++        env.update(inputs or {})
+         # Use the interpreter running the gate for the workflow's python3.
+         (work / "python3").symlink_to(sys.executable)
+         env["PATH"] = raw + os.pathsep + env["PATH"]
+@@ -105,6 +146,26 @@ def execute(root: Path, script: str, recorded: str, head: str,
+         return changed.read_text().splitlines(), verdicts["rtl"]
+ 
+ 
++def refuses(root: Path, script: str, case: ScopeCase, checked_out: str,
++            inputs: dict[str, str]) -> bool:
++    """A failed shell step cannot release a documentation-only skip."""
++    try:
++        execute(root, script, case.recorded, case.head, checked_out, inputs=inputs)
++    except subprocess.CalledProcessError:
++        return True
++    return False
++
++
++def criss_cross(root: Path, parent: str) -> ScopeCase:
++    """Two ordered merges have two merge bases, neither a unique scope authority."""
++    left = commit_file(root, parent, "docs/left.md", "Left branch\n")
++    right = commit_file(root, parent, "docs/right.md", "Right branch\n")
++    first = merge_checkout(root, ScopeCase("left merge", parent, left, right, [], "true"))
++    second = merge_checkout(root, ScopeCase("right merge", parent, right, left, [], "true"))
++    assert len(git(root, "merge-base", "--all", first, second).splitlines()) == 2
++    return ScopeCase("ambiguous base", parent, first, second, [], "true")
++
++
+ def selftest(shipping: Path) -> int:
+     """Every control must pass, then fail for its corresponding removed rule."""
+     failures = 0
+@@ -117,48 +178,82 @@ def selftest(shipping: Path) -> int:
+ 
+     with tempfile.TemporaryDirectory(prefix="ci-scope-history-") as raw:
+         root = Path(raw)
+-        recorded, live, cases = history(root, shipping)
++        cases = history(root, shipping)
++        ambiguous = criss_cross(root, cases[4].head)
+         for workflow, job, step in (
+                 ("rtl.yml", "full-ci-gate", "gate"),
+                 ("rtl-fast.yml", "changes", "scope"),
+                 ("elaborate.yml", "elaborate", "scope")):
+             script = scope_script(shipping, workflow, job, step)
+-            for label, head, expected, verdict in cases:
+-                git(root, "checkout", "--quiet", "--detach", live)
+-                git(root, "merge", "--quiet", "--no-edit", head)
+-                merge = git(root, "rev-parse", "HEAD")
+-                hosted = execute(root, script, recorded, head, merge)
+-                git(root, "checkout", "--quiet", "--detach", head)
+-                replay = execute(root, script, recorded, head, head)
+-                check(f"{workflow} {label}: hosted = replay = {expected}, rtl={verdict}",
+-                      hosted == replay == (expected, verdict))
+-                classifier = root / "scripts/ci_scope.py"
+-                pristine = classifier.read_text()
+-                if verdict == "false":
+-                    mutant = script.replace("...$PR_HEAD_SHA", '" "$PR_HEAD_SHA')
+-                    check(f"{workflow} endpoint-tree mutation rejected",
+-                          execute(root, mutant, recorded, head, head) != (expected, verdict))
+-                    mutant = script.replace("$PR_HEAD_SHA", "$GITHUB_SHA")
+-                    check(f"{workflow} merge-commit scope mutation rejected",
+-                          execute(root, mutant, recorded, head, merge) != (expected, verdict))
++            for case in cases:
++                merge = merge_checkout(root, case)
++                hosted = execute(root, script, case.recorded, case.head, merge)
++                git(root, "checkout", "--quiet", "--detach", case.head)
++                git(root, "update-ref", "refs/remotes/origin/dev", case.live)
++                replay = execute(root, script, case.recorded, case.head, case.head, inputs={"ACT": "true"})
++                expected = (case.paths, case.rtl)
++                check(f"{workflow} {case.label}: hosted = replay = {expected}",
++                      hosted == replay == expected)
++                # Both former frozen-base formulas must lose these real lane controls.
++                if case.label in ("REV", "REV+E") or case.rtl == "false":
++                    mutant = script.replace('"$GITHUB_SHA^1" "$GITHUB_SHA"',
++                                            '"$PR_BASE_SHA" "$GITHUB_SHA"')
++                    check(f"{workflow} {case.label} hosted frozen-base mutation rejected",
++                          execute(root, mutant, case.recorded, case.head, merge) != expected)
++                if case.label in ("REV", "REV+E"):
++                    mutant = script.replace('"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"',
++                                            '"$PR_BASE_SHA" "$PR_HEAD_SHA"')
++                    check(f"{workflow} {case.label} replay frozen-base mutation rejected",
++                          execute(root, mutant, case.recorded, case.head, case.head,
++                                  inputs={"ACT": "true"}) != expected)
++                    mutant = script.replace('"$GITHUB_SHA^1" "$GITHUB_SHA"',
++                                            '"$PR_BASE_SHA...$PR_HEAD_SHA"')
++                    check(f"{workflow} {case.label} hosted frozen merge-base mutation rejected",
++                          execute(root, mutant, case.recorded, case.head, merge) != expected)
++                elif case.rtl == "false":
++                    mutant = script.replace('"$base" "$PR_HEAD_SHA"',
++                                            '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"')
++                    check(f"{workflow} {case.label} replay endpoint mutation rejected",
++                          execute(root, mutant, case.live, case.head, case.head,
++                                  inputs={"ACT": "true"}) != expected)
+                 else:
++                    classifier = root / "scripts/ci_scope.py"
++                    pristine = classifier.read_text()
+                     old, new = {
+                         "stale-base RTL": ('DOC_PREFIXES = ["LICENSES/"]',
+                                            'DOC_PREFIXES = ["LICENSES/", "hdl/"]'),
+                         "submodule pointer": ("is_submodule_path(clean) or ", ""),
+                         "empty delta": ("not changed or ", ""),
+-                    }[label]
+-                    assert pristine.count(old) == 1, f"mutation anchor drift: {label}"
++                    }[case.label]
++                    assert pristine.count(old) == 1, f"mutation anchor drift: {case.label}"
+                     try:
+                         classifier.write_text(pristine.replace(old, new))
+-                        check(f"{workflow} {label} rule-removal mutation rejected",
+-                              execute(root, script, recorded, head, head) != (expected, verdict))
++                        check(f"{workflow} {case.label} rule-removal mutation rejected",
++                              execute(root, script, case.live, case.head, case.head,
++                                      inputs={"ACT": "true"}) != expected)
+                     finally:
+                         classifier.write_text(pristine)
++            case = cases[0]
++            check(f"{workflow} missing hosted merge refuses",
++                  refuses(root, script, case, "0" * 40, {}))
++            check(f"{workflow} missing replay base refuses",
++                  refuses(root, script, case, case.head,
++                          {"ACT": "true", "PR_BASE_REF": "missing"}))
++            git(root, "update-ref", "refs/remotes/origin/dev", case.live)
++            check(f"{workflow} missing replay head refuses",
++                  refuses(root, script, case, case.head,
++                          {"ACT": "true", "PR_HEAD_SHA": "0" * 40}))
++            git(root, "checkout", "--quiet", "--detach", ambiguous.head)
++            git(root, "update-ref", "refs/remotes/origin/dev", ambiguous.live)
++            check(f"{workflow} ambiguous replay base refuses",
++                  refuses(root, script, ambiguous, ambiguous.head, {"ACT": "true"}))
++            mutant = script.replace("git merge-base --all", "git merge-base")
++            check(f"{workflow} arbitrary merge-base mutation rejected",
++                  not refuses(root, mutant, ambiguous, ambiguous.head, {"ACT": "true"}))
+             if workflow == "rtl-fast.yml":
+-                # A push keeps its before-to-after tree comparison, even for a rewind.
+-                expected = ["hdl/base.sv"]
++                case = cases[0]
+                 check("fast push retains before-to-after comparison",
+-                      execute(root, script, live, recorded, recorded, "push")
+-                      == (expected, "true"))
++                      execute(root, script, case.live, case.recorded, case.recorded,
++                              inputs={"EVENT_NAME": "push"})
++                      == (["hdl/base.sv"], "true"))
+     return int(failures)

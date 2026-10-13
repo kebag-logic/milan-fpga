@@ -1,0 +1,23 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image.py",
+    "--shape",
+    "endstation_arty_4x4",
+    "--shape",
+    "endstation_arty_8ch",
+    "--shape",
+    "endstation_arty_current",
+    "--shape",
+    "endstation_ax7101_1x1_tdm8",
+    "--shape",
+    "endstation_ax7101_8x8",
+    "--base",
+    "a0f39ad4",
+    "--out",
+    "/work/images"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 1,
+  "seconds": 0.215
+}

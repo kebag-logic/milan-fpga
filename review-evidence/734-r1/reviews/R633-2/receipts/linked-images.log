@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/src/sw/firmware/ctrl/test/ctrl_image.py", line 80, in <module>
+    import ctrl_arms  # noqa: E402
+    ^^^^^^^^^^^^^^^^
+  File "/src/sw/firmware/ctrl/test/ctrl_arms.py", line 17, in <module>
+    import fw_rv32
+  File "/src/sw/firmware/gtest/fw_rv32.py", line 20, in <module>
+    CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
+                      ~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 1261, in home
+    raise RuntimeError("Could not determine home directory.")
+RuntimeError: Could not determine home directory.

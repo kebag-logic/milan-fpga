@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "git show a0f39ad4:scripts/act_ci.py > /work/act_ci.py && chmod 0555 /work/act_ci.py && python3 -I /work/act_ci.py --selftest --worktree /src"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 0,
+  "seconds": 26.48
+}

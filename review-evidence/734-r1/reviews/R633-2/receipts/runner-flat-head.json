@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "install -m 0555 scripts/act_ci.py /work/act_ci.py && python3 -I /work/act_ci.py --selftest --worktree /src"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 1,
+  "seconds": 0.315
+}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "/review/scope_audit.py",
+    "/src",
+    "/work/probes"
+  ],
+  "isolation": "unprivileged disposable filesystem, PID, IPC, UTS and network namespaces; no capabilities; read-only source; no host credential or service mounts",
+  "rc": 1,
+  "seconds": 2.974
+}
