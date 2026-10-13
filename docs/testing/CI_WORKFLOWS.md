@@ -176,7 +176,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
 [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
 the campaign it runs, so those two records are relevant by directory.
 
-Seven pages under `docs/` are relevant because Python in a classifier-gated
+These pages under `docs/` are relevant because Python in a classifier-gated
 job names them. The behave suite of `bdd-conformance`, which no docs job runs,
 asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
