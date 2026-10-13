@@ -1,0 +1,9 @@
+# probe P1b: stack include/wire.h poisoned with #error, same scratch copy
+## stream_counter_f5.py --shape 1
+$PACKET/scratch/cand/third_party/tsn-c-stack/include/wire.h:46:2: error: #error r584-poison: the F5 build reads the stack header
+   46 | #error r584-poison: the F5 build reads the stack header
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: aecp.c does not compile:
+$PACKET/scratch/cand/third_party/tsn-c-stack/include/wire.h:46:2: error: #error r584-poison: the F5 build reads the stack header
+   46 | #error r584-poison: the F5 build reads the stack header
+rc=1

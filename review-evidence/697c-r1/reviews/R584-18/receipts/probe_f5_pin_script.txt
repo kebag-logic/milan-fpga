@@ -1,0 +1,23 @@
+# P1: one comment line appended to third_party/tsn-c-stack/include/wire.h
+REFUSED: tsn-c-stack differs from the pinned 405dc683: include/wire.h
+stack-pin rc=2
+F5 1x1 clean run.log: rc=0
+stream_counter_f5 rc=0
+# P1b: #error planted in third_party/tsn-c-stack/include/wire.h
+<host path> error: #error probe-poison: the F5 build reads the stack header
+   46 | #error probe-poison: the F5 build reads the stack header
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: aecp.c does not compile:
+# P3: make -n of the milan_dp targets that run it
+## counters-f5
+python3 stream_counter_f5.py --shape 1
+python3 stream_counter_f5.py --shape 8
+## counters-mutants
+set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid egress-stall; do \
+  VERILATOR=verilator python3 stream_counters.py --variant $variant; \
+done
+VERILATOR=verilator python3 stream_counters.py --variant egress-stall --shape 8
+python3 stream_counter_f5.py --variant late
+python3 stream_counter_f5.py --variant rate
+python3 stream_counter_f5.py --variant fixed-grid
+milan_dp/Makefile lines naming stack-pin: 0

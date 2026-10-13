@@ -1,0 +1,10 @@
+# probe P1: stack include/wire.h edited (one appended comment line) in a scratch copy of 6758fe02 (gptp-processor 7dda9c3b and protocol-processor 2ad2f845 at their gitlinks)
+ include/wire.h | 1 +
+ 1 file changed, 1 insertion(+)
+## ctrl_build.py --stack-pin
+REFUSED: tsn-c-stack differs from the pinned 405dc683: include/wire.h
+rc=2
+## stream_counter_f5.py --shape 1
+F5 1x1 clean run.log: rc=0
+rc=0
+## files under the work dir naming the stack include dir

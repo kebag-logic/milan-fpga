@@ -1,0 +1,10 @@
+# cwd: $PACKET/scratch/cand
+# cmd: bash -c for v in late rate fixed-grid; do python tb/verilator/milan_dp/stream_counter_f5.py --variant $v || exit 1; done
+# start: 2026-10-13T05:14:18Z
+F5 1x1 late run.log: rc=1
+F5 1x1 late escape.log: rc=0
+F5 1x1 rate run.log: rc=1
+F5 1x1 rate escape.log: rc=0
+F5 1x1 fixed-grid run.log: rc=1
+F5 1x1 fixed-grid escape.log: rc=0
+# end: 2026-10-13T05:15:20Z elapsed=62s rc=0

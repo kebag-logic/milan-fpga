@@ -1,0 +1,12 @@
+# cwd: $CLONE
+# cmd: python sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+# start: 2026-10-13T05:13:41Z
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (357 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (85 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (248 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+REFUSED: tb/verilator/milan_dp/stream_counter_f5.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+# end: 2026-10-13T05:25:53Z elapsed=732s rc=2

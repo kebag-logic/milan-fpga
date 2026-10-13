@@ -1,0 +1,12 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 8509b99ae..de1e06033 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -175,6 +175,7 @@ OUTSIDE = {
+ #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
+ #: checkout's own trees.
+ SUITES = {
++    "tb/verilator/milan_dp/stream_counter_f5.py": "R584 PROBE ONLY: classified to see what else the composed gate holds",
+     "sw/firmware/ctrl/test/ctrl_mutants.py": "the control campaign (test_ctrl_firmware.py --self-test): copies of "
+                                              "the firmware's tree and the stack's src/ and include/ with a defect "
+                                              "planted, and the checkout's tests and the stack's tests against them",

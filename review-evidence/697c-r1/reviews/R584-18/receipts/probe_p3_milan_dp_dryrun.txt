@@ -1,0 +1,20 @@
+# make -n dry runs of #726's targets that build against the stack, in a scratch copy of 6758fe02
+## make -n -C tb/verilator/milan_dp counters-f5
+python3 stream_counter_f5.py --shape 1
+python3 stream_counter_f5.py --shape 8
+## make -n -C tb/verilator/milan_dp counters-mutants
+set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid egress-stall; do \
+  VERILATOR=verilator python3 stream_counters.py --variant $variant; \
+done
+VERILATOR=verilator python3 stream_counters.py --variant egress-stall --shape 8
+python3 stream_counter_f5.py --variant late
+python3 stream_counter_f5.py --variant rate
+python3 stream_counter_f5.py --variant fixed-grid
+## the mbx bench's pin prerequisite, for comparison
+52:# shared pin check (stack-pin) is a prerequisite of every target whose recipe
+71:.PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean
+99:stack-pin:
+100:	python3 -B $(FW_DIR)/test/ctrl_build.py --stack-pin $(STACK_DIR)
+102:obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR) | stack-pin
+## milan_dp/Makefile lines naming the pin check
+0
