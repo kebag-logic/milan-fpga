@@ -179,9 +179,10 @@ module KL_aaf_packetizer #(
   //! --- status ------------------------------------------------------------
   output logic [31:0] frames_sent_o,     //! t0 frames (legacy CSR alias)
   //! per-PDU completion strobe + its talker: the event feed for the Milan
-  //! Table 5.4 diagnostic counters (KL_talker_diag_ctx - FRAMES_TX and the
-  //! tu-qualified TIMESTAMP_UNCERTAIN are per-OBSERVATION-INTERVAL counts
-  //! over TRANSMITTED PDUs, so they need the emission event, not a total)
+  //! Table 5.4 diagnostic counters (KL_talker_diag_ctx). FRAMES_TX counts each
+  //! transmitted PDU (#726) and the tu-qualified TIMESTAMP_UNCERTAIN is a
+  //! per-OBSERVATION-INTERVAL count over TRANSMITTED PDUs, so they need the
+  //! emission event, not a total
   output logic        frame_p_o,         //! one-cycle pulse per emitted PDU
   output logic [3:0]  frame_idx_o,       //! that PDU's talker index
   //! the tu bit from the same completed PDU. This is the latched etu_r

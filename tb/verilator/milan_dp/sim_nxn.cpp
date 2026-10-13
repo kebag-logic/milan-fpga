@@ -90,6 +90,9 @@ namespace {
 class NxnDatapathHarness {
  public:
     int run();
+#ifdef STREAM_COUNTERS_TB
+#include "stream_counters.hpp"
+#endif
 
  private:
     Vmilan_datapath* dut;
@@ -625,10 +628,17 @@ class NxnDatapathHarness {
     //! toggles it 1:1 with axis_clk
     bool audio_held = false;
     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
+#ifdef STREAM_COUNTERS_TB
+                       dut->clk_tdm_i = 0;
+#endif
                        rmem_drive(); dmem_drive(); nmem_drive(); dut->eval();
                        rmem_edge(); dmem_edge(); nmem_edge(); }
     void hi() { dut->axis_clk = 1; dut->gtx_clk = 1;
-                dut->clk_audio_i = audio_held ? 0 : 1; dut->eval(); }
+                dut->clk_audio_i = audio_held ? 0 : 1;
+#ifdef STREAM_COUNTERS_TB
+                dut->clk_tdm_i = audio_held ? 0 : 1;
+#endif
+                dut->eval(); }
     unsigned long tkd_dirty_seen = 0;
     //! the Table 5.22 descriptor arbiter's scalar face toward the processor
     //! (issue #69): which {type, index} tuples it delivered since the last
@@ -1857,6 +1867,9 @@ class NxnDatapathHarness {
 
     //! One clock with both MAC ports owned by the section.
     void gsi_tick() {
+#ifdef STREAM_COUNTERS_TB
+        counter_watch();
+#endif
         gsi_drive_rx();
         dut->m_axis_mac_tx_tready = 1;
         lo();
@@ -1892,6 +1905,9 @@ class NxnDatapathHarness {
     //! Every frame the entity sends, filed where the section reads it.
     void gsi_tx_frame() {
         const std::vector<uint8_t>& f = gsi_tx_cur;
+#ifdef STREAM_COUNTERS_TB
+        counter_departed(f);
+#endif
         if (f.size() >= 18 && gsi_be(f, 12, 2) == 0x22EA) {
             gsi_on_mrpdu(f);
             return;
@@ -2529,9 +2545,10 @@ class NxnDatapathHarness {
         return -1;
     }
 
-    //! Bind sink `s`, settle its probe and lock it off real PDUs; then wait
-    //! until its row has pushed nothing for 1.1 processor seconds, so the
-    //! one-second limiter is open when the unbind lands, as on a live input.
+    //! Bind and lock on real PDUs, then briefly pause their source and drain
+    //! pending counter updates. Healthy traffic now marks the row dirty
+    //! (#726), so continuous traffic cannot establish the old quiet premise.
+    //! The pause is bounded below the receiver's real 100 ms silence timeout.
     void unb_bind_and_lock(int s, const char* kind) {
         char w[160];
         gsi_acmp_rsp.erase((0x07u << 8) | static_cast<unsigned>(s));
@@ -2554,8 +2571,7 @@ class NxnDatapathHarness {
         ck(w, ctr_word(c, 0), 1);
         snprintf(w, sizeof w, "[UNB] %s sink %d locked: MEDIA_UNLOCKED", kind, s);
         ck(w, ctr_word(c, 1), 0);
-        //! the lock's own push (held by the limiter behind the bind's wipe
-        //! push) goes first, then a quiet 1.1 s
+        //! The lock's own push (held behind the bind's wipe push) goes first.
         long last = -1;
         for (long n = 0; n < 1500L * kMsCycTb; n += kMsCycTb) {
             gsi_ms(1);
@@ -2567,7 +2583,17 @@ class NxnDatapathHarness {
         snprintf(w, sizeof w, "[UNB] %s sink %d the lock was pushed", kind, s);
         ck(w, static_cast<long>(last >= 0
                                 && ctr_word(notify_last(0x0029, CTL_B, 0x0005, s), 0) == 1), 1);
-        while (uns_log_cycle - last < 1100L * kMsCycTb) gsi_tick();
+        unb_live = -1;
+        size_t seen = uns_log.size();
+        const long quiet_start = uns_log_cycle;
+        const long quiet_end = quiet_start + 4000L * kMsCycTb;
+        while (uns_log_cycle - last < 1100L * kMsCycTb && uns_log_cycle < quiet_end) {
+            gsi_tick();
+            for (; seen < uns_log.size(); ++seen)
+                if (unb_is_push(uns_log[seen], s)) last = uns_log_when[seen];
+        }
+        snprintf(w, sizeof w, "[UNB] %s sink %d source pause remains below silence timeout", kind, s);
+        ck(w, uns_log_cycle - quiet_start < 10000000L, 1);
     }
 
     //! U2 waits for the push reporting the unlock and U4 for both
@@ -2613,9 +2639,8 @@ class NxnDatapathHarness {
         const unsigned key = (0x09u << 8) | static_cast<unsigned>(s);
         gsi_acmp_rsp.erase(key);
         gsi_acmp_when.erase(key);
-        //! the live stream raised no push of its own: the row's limiter is
-        //! open when the unbind lands, so nothing but the order can hold the
-        //! unlock's push back
+        //! The brief source pause drained healthy updates. The row's limiter
+        //! is open when the unbind lands, so only ordering holds its push back.
         long last = -1;
         for (size_t i = 0; i < uns_log.size(); i++)
             if (unb_is_push(uns_log[i], s)) last = uns_log_when[i];
@@ -2634,6 +2659,8 @@ class NxnDatapathHarness {
         snprintf(w, sizeof w, "[UNB] %s sink %d U1 UNBIND_RX", kind, s);
         gsi_ck_acmp_ok(w, 0x09, s);
         const long rsp = gsi_acmp_when.count(key) ? gsi_acmp_when[key] : -1;
+        unb_live = s;
+        unb_next = uns_log_cycle;
         //! U3 at the source, on the edge the response left: the controller
         //! learns of the unbind there, so the pair already says "not
         //! synchronized"
@@ -5487,8 +5514,8 @@ class NxnDatapathHarness {
     }
 
     //! The wrap law (Milan 5.3.8.10, gh #61) of each update law, through
-    //! real PDUs of the followed stream at the root. FRAMES_RX is an
-    //! observation-interval counter and STREAM_INTERRUPTED a per-event one;
+    //! real PDUs of the followed stream at the root. FRAMES_RX counts each
+    //! received AVTPDU and STREAM_INTERRUPTED counts each interruption;
     //! both sit one short of 2^32, both are read back whole first (the CSR
     //! slice would read 0xFFFF), and one real event each must land on zero.
     void grade_the_crf_input_counter_wrap_through_real_pdus() {
@@ -5501,7 +5528,7 @@ class NxnDatapathHarness {
            ctr_word(r0, 2), 0xFFFFFFFFu);
         send_crf();                       // first PDU of the era: no seq check
         const std::vector<uint8_t> r1 = crf_ctrs(0x4404);
-        ck("[CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0",
+        ck("[CTRS-CRF] wrap: one accepted PDU takes FRAMES_RX to 0",
            ctr_word(r1, 11), 0);
         ck("[CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move",
            ctr_word(r1, 2), 0xFFFFFFFFu);
@@ -9433,5 +9460,9 @@ int NxnDatapathHarness::run() {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     NxnDatapathHarness harness;
+#ifdef STREAM_COUNTERS_TB
+    return harness.stream_counter_probe();
+#else
     return harness.run();
+#endif
 }
