@@ -1,0 +1,13 @@
+boundary control owned-and-standard: compiles; passes
+boundary control standard-digraph: compiles; passes
+boundary control outside-hash: compiles; refused
+boundary control outside-digraph: compiles; refused
+boundary control outside-trigraph: compiles; refused
+boundary control outside-relative: compiles; refused
+boundary control outside-spliced: compiles; refused
+boundary control outside-macro: compiles; refused
+boundary control heap-direct: compiles; refused
+boundary control heap-macro: compiles; refused
+boundary control heap-pointer: compiles; refused
+boundary control os-symbol: compiles; refused
+boundary: compiler dependencies and object symbols pass

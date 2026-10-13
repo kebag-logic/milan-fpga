@@ -1,0 +1,19 @@
+valid 0 doc path gate: OK (1 cited paths all resolve; 0 line anchor(s) within their file)
+
+missing 1 doc path gate: 1 dangling path(s) in 1 document(s)
+
+  MISSING  hdl/exists.sv
+           cited by README.md
+
+A cited path that does not exist sends the reader nowhere. Repoint it, or
+if it is deliberately absent add it to ALLOW in this script WITH the reason.
+
+anchor 1 doc path gate: 1 line anchor(s) point past the end of the file they cite
+
+  ANCHOR   hdl/exists.sv#L2  but that file has 1 line(s)
+           cited by README.md
+
+The path still resolves, so the reader is sent to the wrong place rather than
+nowhere. Repoint the anchor at the lines it meant.
+
+doc path controls: 3/3 PASS

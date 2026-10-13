@@ -1,0 +1,146 @@
+{
+  "head": "651ccb5aea1bc4d99f356503c188947d39e0c9e4",
+  "branch": "665-f3b-parent",
+  "clean": true,
+  "pushed": false,
+  "hosted_new_head": "unproven",
+  "submodules": [
+    {
+      "path": "protocol-processor",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "clean": true
+    },
+    {
+      "path": "gptp-processor",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "clean": true
+    },
+    {
+      "path": "third_party/lwSRP",
+      "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "origin": "https://github.com/kebag-logic/lwSRP.git",
+      "clean": true
+    },
+    {
+      "path": "third_party/tsn-c-stack",
+      "pin": "70936b77dc41981e192438388cd0aced69954f18",
+      "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+      "clean": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "clean": true
+    }
+  ],
+  "commits": [
+    "651ccb5aea1bc4d99f356503c188947d39e0c9e4",
+    "2748ed52d60c1c80b9a47665b35b34e8e760edbc",
+    "d8cae51e0f0813a69f45d30ba2506b7bb00800cb"
+  ],
+  "changed_files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 92976,
+      "sha256": "51eff87876e710e9b742751fffea39d03b3e1ae53ae82f2a43dd6501a0189620"
+    },
+    {
+      "path": "docs/reference/SUBMODULES.md",
+      "size": 19888,
+      "sha256": "857ccdfcac91ce755352a990edbfbf3ec95664fae39df7ba1e0224c023412e4f"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "size": 71358,
+      "sha256": "bc1d7e4c58116c79b7821dec223ad954ffdc3d894a223ab6f092bb3d6d025f74"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/README.md",
+      "size": 12942,
+      "sha256": "61284b1d9ebcda436fa39a2fb9ec8b50e76572d22894b67aa2de3762e757cfb0"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_mbx.c",
+      "size": 5902,
+      "sha256": "4bed3f4a66944795ff6b4d28e22ebd69413f41b594e4cf28e6a2e0f186a71c52"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_mbx.h",
+      "size": 2447,
+      "sha256": "80c4063407d5724b0c7f57706b32ca1e76eaee24e2f4cfebfdeb8253540c81f3"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.h",
+      "size": 8014,
+      "sha256": "53257abcca4786dc93c99e030c55c049686ab75c4b2f2ac5d53be49bbf311627"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "size": 24705,
+      "sha256": "8e277a85f472f2d1d85d8ec3b4998bdd38e8c36bd7a4164fb48a8048ac95cd87"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "size": 37269,
+      "sha256": "b397c2f30d79e51729a66ee66aa4583b3b55dba5e97b5615a881a4b87a805e7d"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_configs.py",
+      "size": 26402,
+      "sha256": "489d127020c0fa1eccb67422fddb6a327d19fefde43367fe9fb21af1e68d7127"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "size": 64129,
+      "sha256": "ed47898de7bd7a573ed62a554e0b6c590fca4eaf1d44d70d358763ee67c8cf24"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_pin.py",
+      "size": 61282,
+      "sha256": "72a039bb7b5eaa2a629523b7492fa25526980006c6f8b5fcc430c2fe0feb7c89"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_pin_env.py",
+      "size": 17318,
+      "sha256": "b4269c38b81bf1440d905792b7a30e700637e59df409b1f264e8cb560050b9a7"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_pin_lifecycle.py",
+      "size": 4319,
+      "sha256": "9df36e6c648c379285b61d7ed2ba82d419889e19a2c10d7025c06cca575c6ce5"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_pin_store.py",
+      "size": 28357,
+      "sha256": "bd16efcd2704a0ae6a0218dbbc799bdad8f8ce7186f3a0c336306c998e57aa04"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_service_bounds.py",
+      "size": 5494,
+      "sha256": "12681cb1867131055afabe4edb8579e0eed4380e8f241d1c1cc8afeb4c1b0e27"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "size": 75279,
+      "sha256": "737b243fbcb0cdcb90c7f1dfa4fe09cfa3807181e66d5eff19b711509a55214f"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 17648,
+      "sha256": "688f7b0138251c58c769bf284e8fd10fb2dd8df0cf380e4983046172b7770e1d"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+      "size": 30396,
+      "sha256": "7b45f15bd3f2f7241d6f4c3f75831da298d87ada443fc74781a5f66bd62541ae"
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "size": 35128,
+      "sha256": "1bb80f5b0467a93b86ee0176d3e9f36048ee4a21fa539143d17fbda5d3c68432"
+    }
+  ]
+}
