@@ -1,0 +1,44 @@
+command: ["env", "MILAN_RV32_CC=/sdk/bin/riscv32-linux-gcc", "python3", "sw/firmware/ctrl/test/ctrl_image.py", "--shape", "endstation_arty_4x4", "--shape", "endstation_arty_8ch", "--shape", "endstation_arty_current", "--shape", "endstation_ax7101_1x1_tdm8", "--shape", "endstation_ax7101_8x8", "--base", "a0f39ad4", "--out", "/tmp/images"]
+Traceback (most recent call last):
+  File "/work/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+    ~~~~^^
+  File "/work/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None))
+  File "/work/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/work/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
+compiler: /sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "/work/sw/firmware/ctrl/test/ctrl_image.py", line 434, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/work/sw/firmware/ctrl/test/ctrl_image.py", line 422, in main
+    head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape)
+  File "/work/sw/firmware/ctrl/test/ctrl_image.py", line 339, in measure
+    inputs = nvm_bench.shape_inputs(config, work / "shape")
+  File "/work/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 246, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/work/sw/builder/endstation_builder.py', '/work/configs/endstation_arty_4x4.yaml', '-o', '/tmp/images/head/endstation_arty_4x4/shape/builder']' returned non-zero exit status 1.

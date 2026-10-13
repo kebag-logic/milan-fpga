@@ -1,0 +1,76 @@
+command: ["env", "MILAN_RV32_CC=/sdk/bin/riscv32-linux-gcc", "python3", "sw/firmware/ctrl/test/ctrl_image_selftest.py", "--require-rv32"]
+Traceback (most recent call last):
+  File "/work/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+    ~~~~^^
+  File "/work/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None))
+  File "/work/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/work/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh'
+compiler: /sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+PASS: arith: every helper against the host's arithmetic, 0 mismatches
+PASS: leaves: the helpers define fw_rv32.HELPERS, leave nothing open and call no helper
+PASS: leaves: refused mulsi3-star: mulsi3-star.o calls helpers: __mulsi3
+PASS: leaves: refused udivsi3-out: udivsi3-out.o leaves symbols open: image_elsewhere
+PASS: audit: the probe linked as the image is passes (RV32I audit: e_flags 0, rv32i2p1, 159 words all RV32I base instructions, nothing undefined)
+PASS: audit: every RV32I base instruction form passes
+PASS: audit: refused an RV32IM object with no M instruction: architecture attribute ['rv32i2p1_m2p0_zmmul1p0'], not RV32I alone
+PASS: audit: refused a weak symbol left undefined: symbols left undefined: image_probe_hook
+PASS: audit: refused mul a0, a0, a1 (M): .text: 1 words outside RV32I, the first 0x02b50533 at 0x4
+PASS: audit: refused divu a0, a4, a2 (M): .text: 1 words outside RV32I, the first 0x02c75533 at 0x4
+PASS: audit: refused c.nop, c.nop (C): .text: 1 words outside RV32I, the first 0x00010001 at 0x4
+PASS: audit: refused fence.i (Zifencei): .text: 1 words outside RV32I, the first 0x0000100f at 0x4
+PASS: audit: refused csrrs a0, cycle, zero (Zicsr): .text: 1 words outside RV32I, the first 0xc0002573 at 0x4
+PASS: audit: refused amoadd.w a0, a1, (a0) (A): .text: 1 words outside RV32I, the first 0x00b5252f at 0x4
+PASS: audit: refused flw fa0, 0(a0) (F): .text: 1 words outside RV32I, the first 0x00052507 at 0x4
+PASS: audit: refused fadd.s fa0, fa0, fa1 (F): .text: 1 words outside RV32I, the first 0x00b57553 at 0x4
+PASS: audit: refused wfi (privileged): .text: 1 words outside RV32I, the first 0x10500073 at 0x4
+PASS: audit: refused slli a0, a0, 32 (a 6-bit shift): .text: 1 words outside RV32I, the first 0x02051513 at 0x4
+PASS: audit: refused an all-zero word: .text: 1 words outside RV32I, the first 0x00000000 at 0x4
+PASS: audit: refused RVC: e_flags 0x1, not 0: RVC
+PASS: audit: refused single-float ABI: e_flags 0x2, not 0: a hardware-float ABI
+PASS: audit: refused double-float ABI: e_flags 0x4, not 0: a hardware-float ABI
+PASS: audit: refused RVE: e_flags 0x8, not 0: RVE
+PASS: audit: refused Ztso: e_flags 0x10, not 0: Ztso
+PASS: audit: refused an unnamed e_flags bit: e_flags 0x20, not 0: bits RV32I ILP32 does not set
+PASS: audit: refused x86-64 machine: machine 62, not RISC-V; architecture attribute [], not RV32I alone
+PASS: audit: refused relocatable: ELF type 1, not an executable
+PASS: audit: refused 64-bit class: header8.elf is not a little-endian ELF32 file
+PASS: audit: refused big-endian: header9.elf is not a little-endian ELF32 file
+Traceback (most recent call last):
+  File "/work/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 431, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/work/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 422, in main
+    header_cases(cc, work / "audit") + measure_cases(cc, work / "measure"))
+                                       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 387, in measure_cases
+    image = ctrl_image.measure(cc, FIRMWARE, SHIPPING, work / "shipped")
+  File "/work/sw/firmware/ctrl/test/ctrl_image.py", line 339, in measure
+    inputs = nvm_bench.shape_inputs(config, work / "shape")
+  File "/work/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 246, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/work/sw/builder/endstation_builder.py', '/work/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '/tmp/ctrl-image-selftest-zd5q82_9/measure/shipped/shape/builder']' returned non-zero exit status 1.

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "env",
+    "MILAN_RV32_CC=/sdk/bin/riscv32-linux-gcc",
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image.py",
+    "--shape",
+    "endstation_arty_4x4",
+    "--shape",
+    "endstation_arty_8ch",
+    "--shape",
+    "endstation_arty_current",
+    "--shape",
+    "endstation_ax7101_1x1_tdm8",
+    "--shape",
+    "endstation_ax7101_8x8",
+    "--base",
+    "a0f39ad4",
+    "--out",
+    "/tmp/images"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 0.716,
+  "source_head": "59354ffe75697e17a16fd117d9ba853e104394bc",
+  "boundary": "unprivileged mount, user, PID and network namespaces; source read-only; no credentials; writes confined to scratch"
+}

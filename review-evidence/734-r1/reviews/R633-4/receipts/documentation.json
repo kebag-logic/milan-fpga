@@ -1,0 +1,11 @@
+{
+  "command": [
+    "bash",
+    "-euc",
+    "/deps/bin/python scripts/docs_check.py; /deps/bin/python scripts/docs_check.py --selftest; /deps/bin/python scripts/check_doc_paths.py; /deps/bin/python scripts/check_doc_style.py; /deps/bin/python scripts/gen_toc.py --check; /deps/bin/python scripts/gen_toc.py --verify-anchors; /deps/bin/python scripts/check_em_dash.py --base a0f39ad4; /deps/bin/python scripts/check_py_idiom.py; /deps/bin/python scripts/check_sh_idiom.py; /deps/bin/python scripts/pp_srcs.py --check; /deps/bin/python scripts/measure_test_evidence.py --check"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 34.427,
+  "source_head": "59354ffe75697e17a16fd117d9ba853e104394bc",
+  "boundary": "unprivileged mount, user, PID and network namespaces; source read-only; no credentials; writes confined to scratch"
+}

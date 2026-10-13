@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "MILAN_RV32_CC=/sdk/bin/riscv32-linux-gcc",
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+    "--require-rv32"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 1.97,
+  "source_head": "59354ffe75697e17a16fd117d9ba853e104394bc",
+  "boundary": "unprivileged mount, user, PID and network namespaces; source read-only; no credentials; writes confined to scratch"
+}

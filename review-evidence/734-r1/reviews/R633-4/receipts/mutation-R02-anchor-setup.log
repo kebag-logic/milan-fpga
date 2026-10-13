@@ -1,0 +1,6 @@
+command: ["python3", "/review/runner_mutations.py", "R02"]
+Traceback (most recent call last):
+  File "/review/runner_mutations.py", line 15, in <module>
+    s=target.read_text();assert s.count(old)==1;target.write_text(s.replace(old,new));print('MUTATION',mode,'sha256',hashlib.sha256(target.read_bytes()).hexdigest(),flush=True)
+                                ^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,61 @@
+command: ["python3", "/review/prior_and_current.py", "round2"]
+COMMAND ['/usr/bin/python3', '-I', '/review/prior/probe_r632_2.py', '/work', '/tmp/probe'] rc 1
+ok   rtl.yml        stale-docs               hosted=false ['docs/b.md'] replay=false ['docs/b.md'] want=false/false
+ok   rtl.yml        stale-rtl                hosted=true ['hdl/pr.sv'] replay=true ['hdl/pr.sv'] want=true/true
+ok   rtl.yml        stale-rtl-delete         hosted=true ['hdl/z.sv'] replay=true ['hdl/z.sv'] want=true/true
+ok   rtl.yml        gitlink                  hosted=true ['protocol-processor'] replay=true ['protocol-processor'] want=true/true
+ok   rtl.yml        empty                    hosted=true [] replay=true [] want=true/true
+ok   rtl.yml        rename-rtl-to-docs       hosted=true ['docs/z.md', 'hdl/z.sv'] replay=true ['docs/z.md', 'hdl/z.sv'] want=true/true
+ok   rtl.yml        REV                      hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl.yml        REV+E                    hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl.yml        REV-evil+E               hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl.yml        REV-ff+E                 hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl.yml        REV-gitlink              hosted=true ['docs/b.md', 'protocol-processor'] replay=true ['docs/b.md', 'protocol-processor'] want=true/true
+ok   rtl.yml        own-rtl-then-merge-dev   hosted=true ['docs/b.md', 'hdl/own.sv'] replay=true ['docs/b.md', 'hdl/own.sv'] want=true/true
+MISS rtl.yml        identical-on-dev         hosted=false ['docs/c.md'] replay=false ['docs/c.md'] want=false/true
+ok   rtl-fast.yml   stale-docs               hosted=false ['docs/b.md'] replay=false ['docs/b.md'] want=false/false
+ok   rtl-fast.yml   stale-rtl                hosted=true ['hdl/pr.sv'] replay=true ['hdl/pr.sv'] want=true/true
+ok   rtl-fast.yml   stale-rtl-delete         hosted=true ['hdl/z.sv'] replay=true ['hdl/z.sv'] want=true/true
+ok   rtl-fast.yml   gitlink                  hosted=true ['protocol-processor'] replay=true ['protocol-processor'] want=true/true
+ok   rtl-fast.yml   empty                    hosted=true [] replay=true [] want=true/true
+ok   rtl-fast.yml   rename-rtl-to-docs       hosted=true ['docs/z.md', 'hdl/z.sv'] replay=true ['docs/z.md', 'hdl/z.sv'] want=true/true
+ok   rtl-fast.yml   REV                      hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl-fast.yml   REV+E                    hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl-fast.yml   REV-evil+E               hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl-fast.yml   REV-ff+E                 hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   rtl-fast.yml   REV-gitlink              hosted=true ['docs/b.md', 'protocol-processor'] replay=true ['docs/b.md', 'protocol-processor'] want=true/true
+ok   rtl-fast.yml   own-rtl-then-merge-dev   hosted=true ['docs/b.md', 'hdl/own.sv'] replay=true ['docs/b.md', 'hdl/own.sv'] want=true/true
+MISS rtl-fast.yml   identical-on-dev         hosted=false ['docs/c.md'] replay=false ['docs/c.md'] want=false/true
+ok   elaborate.yml  stale-docs               hosted=false ['docs/b.md'] replay=false ['docs/b.md'] want=false/false
+ok   elaborate.yml  stale-rtl                hosted=true ['hdl/pr.sv'] replay=true ['hdl/pr.sv'] want=true/true
+ok   elaborate.yml  stale-rtl-delete         hosted=true ['hdl/z.sv'] replay=true ['hdl/z.sv'] want=true/true
+ok   elaborate.yml  gitlink                  hosted=true ['protocol-processor'] replay=true ['protocol-processor'] want=true/true
+ok   elaborate.yml  empty                    hosted=true [] replay=true [] want=true/true
+ok   elaborate.yml  rename-rtl-to-docs       hosted=true ['docs/z.md', 'hdl/z.sv'] replay=true ['docs/z.md', 'hdl/z.sv'] want=true/true
+ok   elaborate.yml  REV                      hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   elaborate.yml  REV+E                    hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   elaborate.yml  REV-evil+E               hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   elaborate.yml  REV-ff+E                 hosted=true ['docs/b.md', 'hdl/x.sv'] replay=true ['docs/b.md', 'hdl/x.sv'] want=true/true
+ok   elaborate.yml  REV-gitlink              hosted=true ['docs/b.md', 'protocol-processor'] replay=true ['docs/b.md', 'protocol-processor'] want=true/true
+ok   elaborate.yml  own-rtl-then-merge-dev   hosted=true ['docs/b.md', 'hdl/own.sv'] replay=true ['docs/b.md', 'hdl/own.sv'] want=true/true
+MISS elaborate.yml  identical-on-dev         hosted=false ['docs/c.md'] replay=false ['docs/c.md'] want=false/true
+ok   rtl.yml        push before=56c84012 rtl=true paths=None want=true
+ok   rtl.yml        push before=00000000 rtl=true paths=None want=true
+ok   rtl.yml        push before=empty    rtl=true paths=None want=true
+ok   rtl-fast.yml   push before=56c84012 rtl=false paths=1 want=false
+ok   rtl-fast.yml   push before=00000000 rtl=true paths=7 want=true
+ok   rtl-fast.yml   push before=empty    rtl=true paths=7 want=true
+ok   elaborate.yml  push before=56c84012 rtl=true paths=None want=true
+ok   elaborate.yml  push before=00000000 rtl=true paths=None want=true
+ok   elaborate.yml  push before=empty    rtl=true paths=None want=true
+probe: 3 MISS
+
+PASS: only three historical-oracle misses; current requirement is equality on identical-on-dev
+PASS current rename rtl.yml ('true', ['docs/reference/REGISTER_MAP.md']) ('true', ['docs/reference/REGISTER_MAP.md'])
+PASS current rename rtl-fast.yml ('true', ['docs/reference/REGISTER_MAP.md']) ('true', ['docs/reference/REGISTER_MAP.md'])
+PASS current rename elaborate.yml ('true', ['docs/reference/REGISTER_MAP.md']) ('true', ['docs/reference/REGISTER_MAP.md'])
+COMMAND ['bash', '/review/prior/rename_divergence_r632_2.sh', '/work', '/tmp/old-rename'] rc 0
+hosted files: docs/reference/REGISTER_MAP.md -> rtl=true
+replay files: docs/page.md -> rtl=false
+
+Historical rename script hardcodes old formulas; current actual selectors separately pass above
