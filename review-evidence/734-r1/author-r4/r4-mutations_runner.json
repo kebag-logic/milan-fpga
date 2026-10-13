@@ -1,0 +1,5 @@
+[
+ ["R01_wiring_removed", "scripts/ci_scope.py", "    failures += history_selftest(ROOT)\n", ""],
+ ["R02_sibling_import_outside_scope_event", "scripts/act_ci.py", "    \"\"\"Independently pin the executed history population and kill disconnections.\"\"\"\n", "    \"\"\"Independently pin the executed history population and kill disconnections.\"\"\"\n    import ci_scope_history\n"],
+ ["R03_sibling_import_in_scope_event", "scripts/act_ci.py", "    \"\"\"Forked PRs and lanes that merge newer dev, restore RTL, then edit docs.\"\"\"\n    scope_fixture_git(root, \"init\", \"--quiet\")\n", "    \"\"\"Forked PRs and lanes that merge newer dev, restore RTL, then edit docs.\"\"\"\n    import ci_scope_history\n    scope_fixture_git(root, \"init\", \"--quiet\")\n"]
+]

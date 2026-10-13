@@ -1,0 +1,10 @@
+PASS classifier: leaking signing is rejected
+PASS classifier: leaking gitdir is rejected
+PASS runner: leaking signing is rejected
+PASS runner: leaking gitdir is rejected
+  FAIL classifier selftest accumulates the history result
+  ok   classifier history wiring rejects removed result
+  ok   classifier history wiring rejects discarded result
+  ok   classifier history wiring rejects zeroed result
+PASS disconnected history call is rejected by the independent runner guard
+extra controls: PASS

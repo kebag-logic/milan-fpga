@@ -1,0 +1,84 @@
+{
+  "head": "59354ffe75697e17a16fd117d9ba853e104394bc",
+  "tree": "e732e9f65636bfd49cb9af9844f27077ce037df7",
+  "round4_base": "97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab",
+  "round4_changes": [
+    ".github/workflows/docs.yml",
+    "docs/testing/CI_WORKFLOWS.md",
+    "docs/testing/TESTING.md",
+    "scripts/act_ci.py",
+    "scripts/ci_events.py"
+  ],
+  "tracked_blobs_verified": 1308,
+  "product_inputs_unchanged_from": "a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0",
+  "scope_logic_unchanged_from": "97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab",
+  "gitlinks": {
+    "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+    "gptp-processor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+    "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+    "third_party/lwSRP": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+    "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+  },
+  "initialized_submodules": {
+    "protocol-processor": {
+      "head": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "status": "clean; own top-level and origin verified"
+    },
+    "gptp-processor": {
+      "head": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+      "status": "clean; own top-level and origin verified"
+    },
+    "third_party/verilog-axis": {
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "status": "clean; own top-level and origin verified"
+    }
+  },
+  "files": {
+    ".github/workflows/docs.yml": {
+      "bytes": 27059,
+      "sha256": "e344032c0038d6cc563255b75751a63cb099165d744e4dd29f47199597c55566"
+    },
+    ".github/workflows/elaborate.yml": {
+      "bytes": 16506,
+      "sha256": "f750e883a13244a89e9969f3dc742332268b6ca1a540bfa9cc4f273cd28a2b66"
+    },
+    ".github/workflows/rtl-fast.yml": {
+      "bytes": 23362,
+      "sha256": "655a004e1cc643c75641cc462fab97f91b5929352328965c9aaca77f1d03225a"
+    },
+    ".github/workflows/rtl.yml": {
+      "bytes": 29147,
+      "sha256": "a3ef8decda069ec41805c4bfea5ccdd49b3bc5e96ceec7a707d78689f6f57d5a"
+    },
+    "docs/testing/CI_WORKFLOWS.md": {
+      "bytes": 169019,
+      "sha256": "032060b57853baec8a4bc73a4cfd7fb6d07e012b80047faebedcf9214b8270bb"
+    },
+    "docs/testing/TESTING.md": {
+      "bytes": 122496,
+      "sha256": "9c3c8783fe5f3c6bb2f2c0e3f6ce21c4a9b0126a14f9352aed46301f6b4309d5"
+    },
+    "scripts/act_ci.py": {
+      "bytes": 698190,
+      "sha256": "9716d047bf2643c67dae8f2e39438d26d659d55522a0125271d31d2a0ba004fe"
+    },
+    "scripts/ci_events.py": {
+      "bytes": 440850,
+      "sha256": "db579de26c851af9b5f47c426ddd1a209d604ad01a0aac6533e5e98f9371e0a7"
+    },
+    "scripts/ci_scope.py": {
+      "bytes": 25645,
+      "sha256": "872861f9709a1010885cdb803a65644438cca0faaa99e68a2f066ba874cd4b27"
+    },
+    "scripts/ci_scope_history.py": {
+      "bytes": 19147,
+      "sha256": "343b272084271c9a8b2d4cf35071b08e9307084fde12aea7c828b5026d0c91b8"
+    }
+  },
+  "memory_current_bytes": 556068864,
+  "memory_peak_bytes": 740950016,
+  "commits": [
+    "59354ffe75697e17a16fd117d9ba853e104394bc Correct elaboration scope failure wording",
+    "3f916cc79b60ef5c7ee4112fb75aecd300f751ce Run the complete isolated flat runner selftest in CI"
+  ]
+}

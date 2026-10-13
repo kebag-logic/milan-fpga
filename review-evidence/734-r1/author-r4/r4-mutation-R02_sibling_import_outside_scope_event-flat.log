@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "<scratch>/r4/tmp.qP0FUWVGFr/act_ci.py", line 17207, in <module>
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event retains the recorded base oid as metadata
+  ok   the recorded payload oid is not the fetched live scope base
+  ok   scope fixture isolates ambient signing
+  ok   scope fixture isolates ambient gitdir
+  ok   scope event stale-base docs rtl.yml: hosted = replay = ['docs/note.md']
+  ok   scope event stale-base docs rtl-fast.yml: hosted = replay = ['docs/note.md']
+  ok   scope event stale-base docs elaborate.yml: hosted = replay = ['docs/note.md']
+  ok   scope event B16 shape rtl.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event B16 shape rtl-fast.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event B16 shape elaborate.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event stale-base RTL rtl.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event stale-base RTL rtl-fast.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event stale-base RTL elaborate.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event submodule pointer rtl.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event submodule pointer rtl-fast.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event submodule pointer elaborate.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event empty delta rtl.yml: hosted = replay = []
+  ok   scope event empty delta rtl-fast.yml: hosted = replay = []
+  ok   scope event empty delta elaborate.yml: hosted = replay = []
+  ok   scope event REV rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event identical-on-dev rtl.yml: hosted = replay = ['docs/note.md']
+  ok   scope event identical-on-dev rtl-fast.yml: hosted = replay = ['docs/note.md']
+  ok   scope event identical-on-dev elaborate.yml: hosted = replay = ['docs/note.md']
+  ok   scope event base-side rename rtl.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+  ok   scope event base-side rename rtl-fast.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+  ok   scope event base-side rename elaborate.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+    raise SystemExit(main(sys.argv))
+                     ^^^^^^^^^^^^^^
+  File "<scratch>/r4/tmp.qP0FUWVGFr/act_ci.py", line 17157, in main
+    return selftest(shipping_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/r4/tmp.qP0FUWVGFr/act_ci.py", line 15421, in selftest
+    selftest_scope_history_wiring(tally, shipping_root)
+  File "<scratch>/r4/tmp.qP0FUWVGFr/act_ci.py", line 6464, in selftest_scope_history_wiring
+    import ci_scope_history
+ModuleNotFoundError: No module named 'ci_scope_history'
