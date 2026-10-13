@@ -1,0 +1,21 @@
+# R632-6 commands (paths relative to the packet; CLONE = exact-head clone at 73b8dcd667aa5bf1254e828dd1dd7217c8a103ce)
+# Interpreter: /usr/bin/python3 = CPython 3.14.7, PyYAML 6.0.3; Markdown gates use a pinned-renderer venv (cmarkgfm 2025.10.22, html5lib 1.1).
+# Every candidate execution ran inside scripts/sandbox.sh (unprivileged namespaces: no network, no Docker socket, read-only system, private /tmp).
+scripts/export_tree.sh CLONE 73b8dcd667aa5bf1254e828dd1dd7217c8a103ce scratch/tree-head
+scripts/export_tree.sh CLONE ede700b00ef4d79566a6f108b11ce9bd4ad6beaa scratch/tree-ede700b0
+scripts/run_gates.sh PACKET scratch/tree-head receipts/gates CLONE            # act_ci --selftest, ci_events, slot proof, idiom, bare-metal, docs, style (export tree)
+scripts/run_git_gates.sh PACKET CLONE receipts/gates ALTERNATES MDVENV       # git-dependent gates, clone bound read-only
+python3 -I scripts/prior/mutants_r2.py PACKET scratch/tree-head --jobs 8     # concurrently with:
+python3 -I scripts/prior/mutants_r3.py PACKET scratch/tree-head --jobs 8
+sandbox.sh scratch/tree-head python3 -I .probe_r632_6.py . 3000
+python3 -I scripts/probe_controls.py PACKET scratch/tree-head                # 7 planted defects, probe run on each (600 seeds)
+python3 -I scripts/mutants_r632_6.py PACKET scratch/tree-head --jobs 10      # concurrently with the three probes below
+sandbox.sh scratch/tree-head     python3 -I probe_boundary_precedence.py .
+sandbox.sh scratch/tree-ede700b0 python3 -I probe_boundary_precedence.py .   # control: the pre-fix head must fail
+sandbox.sh scratch/tree-head     python3 -I probe_cleanup_entry.py .
+sandbox.sh scratch/tree-head     python3 -I probe_r6_interrupt_diag.py .
+# S8 copy of the head (only `or primary is delivered` removed), then each of:
+sandbox.sh scratch/s8 python3 -I {probe_r6_interrupt_diag,probe_boundary_precedence,probe_cleanup_entry}.py .
+# earlier public probes, unchanged, concurrently:
+sandbox.sh scratch/tree-head python3 -I {probe_shutdown.py ., probe_r3.py . 300, probe_lifecycle.py ., probe_monitor.py ., probe_cpu_ranges_compat.py ., r633_1_probe_adapted.py .}
+gh api repos/kebag-logic/milan-fpga/commits/73b8dcd667aa5bf1254e828dd1dd7217c8a103ce/check-runs   # read-only

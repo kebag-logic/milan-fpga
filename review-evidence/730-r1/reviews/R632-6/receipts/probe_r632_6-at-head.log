@@ -1,0 +1,106 @@
+L layout
+  ok   slot 0 staging is 0-3
+  ok   slot 1 staging is 20-23
+  ok   slot 3 staging is 60-63
+  ok   slot 63 staging is 1260-1263
+  ok   every staging and job range of slots 0..63 is 4 CPUs wide
+  ok   no CPU is shared by two ranges in one slot or across slots 0..63 at full concurrency
+  ok   slots 0..63 at full concurrency own exactly CPUs 0..1279
+  ok   slot 0 job ranges are 4-7 8-11 12-15 16-19
+  ok   slot 3 job ranges are 64-67 .. 76-79
+  ok   a concurrency of 5 is refused
+  ok   a concurrency of 0 is refused
+  ok   host 1 slot 0 x1: refused (needs CPUs 0..7)
+  ok   host 1 slot 0 x4: refused (needs CPUs 0..19)
+  ok   host 1 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 1 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 1 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 1 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 4 slot 0 x1: refused (needs CPUs 0..7)
+  ok   host 4 slot 0 x4: refused (needs CPUs 0..19)
+  ok   host 4 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 4 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 4 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 4 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 7 slot 0 x1: refused (needs CPUs 0..7)
+  ok   host 7 slot 0 x4: refused (needs CPUs 0..19)
+  ok   host 7 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 7 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 7 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 7 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 8 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 8 slot 0 x4: refused (needs CPUs 0..19)
+  ok   host 8 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 8 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 8 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 8 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 19 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 19 slot 0 x4: refused (needs CPUs 0..19)
+  ok   host 19 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 19 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 19 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 19 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 20 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 20 slot 0 x4: allowed (needs CPUs 0..19)
+  ok   host 20 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 20 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 20 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 20 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 21 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 21 slot 0 x4: allowed (needs CPUs 0..19)
+  ok   host 21 slot 3 x1: refused (needs CPUs 0..67)
+  ok   host 21 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 21 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 21 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 79 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 79 slot 0 x4: allowed (needs CPUs 0..19)
+  ok   host 79 slot 3 x1: allowed (needs CPUs 0..67)
+  ok   host 79 slot 3 x4: refused (needs CPUs 0..79)
+  ok   host 79 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 79 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 80 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 80 slot 0 x4: allowed (needs CPUs 0..19)
+  ok   host 80 slot 3 x1: allowed (needs CPUs 0..67)
+  ok   host 80 slot 3 x4: allowed (needs CPUs 0..79)
+  ok   host 80 slot 6 x1: refused (needs CPUs 0..127)
+  ok   host 80 slot 6 x4: refused (needs CPUs 0..139)
+  ok   host 128 slot 0 x1: allowed (needs CPUs 0..7)
+  ok   host 128 slot 0 x4: allowed (needs CPUs 0..19)
+  ok   host 128 slot 3 x1: allowed (needs CPUs 0..67)
+  ok   host 128 slot 3 x4: allowed (needs CPUs 0..79)
+  ok   host 128 slot 6 x1: allowed (needs CPUs 0..127)
+  ok   host 128 slot 6 x4: refused (needs CPUs 0..139)
+D derivation
+  ok   shipping derives rtl-full 4, docs/elaborate/rtl-fast 1
+  ok   every order of the four shipping workflows derives 4
+  ok   rtl.yml max-parallel 1 on both matrix jobs: rtl-full derives 1 (the file is read, not a mirror)
+  ok   rtl.yml max-parallel 2 on both matrix jobs: rtl-full derives 2 (the file is read, not a mirror)
+  ok   rtl.yml max-parallel 3 on both matrix jobs: rtl-full derives 3 (the file is read, not a mirror)
+  ok   rtl.yml max-parallel 4 on both matrix jobs: rtl-full derives 4 (the file is read, not a mirror)
+  ok   rtl.yml max-parallel 0 on both matrix jobs: rtl-full derives 1 (the file is read, not a mirror)
+  ok   rtl.yml max-parallel 007 on both matrix jobs: rtl-full derives 7 (the file is read, not a mirror)
+  ok   max-parallel 1 on the first matrix job only: the other job's default keeps the maximum at 4
+  ok   max-parallel 3 on the first matrix job only: the other job's default keeps the maximum at 4
+  ok   max-parallel 6 on the first matrix job only: the other job's default keeps the maximum at 6
+  ok   max-parallel 5 (too wide) is refused before any slot
+  ok   max-parallel 64 (too wide) is refused before any slot
+  ok   max-parallel 999999 (too wide) is refused before any slot
+  ok   max-parallel '${{ matrix.n }}' (not a literal integer) is refused
+  ok   max-parallel "'3 '" (not a literal integer) is refused
+  ok   max-parallel '-1' (not a literal integer) is refused
+  ok   max-parallel '1e1' (not a literal integer) is refused
+  ok   max-parallel '1234567' (not a literal integer) is refused
+  ok   max-parallel '[2]' (not a literal integer) is refused
+  ok   max-parallel '{a: 1}' (not a literal integer) is refused
+  ok   max-parallel "''" (not a literal integer) is refused
+  ok   a strategy that is not a mapping is refused
+  ok   CONCURRENT_JOB_LIMIT 2 sums the two widest jobs (3 + 4 = 7)
+R lifecycle
+  ok   3000 randomized lifecycles: no two existing containers on one job range, every occupant holds its range, all freed at the end
+  ok   R633-1 sequence create A, update A, start A, die A, create B, update B, start B, start A: A and B never share a range
+P plan
+    act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7 --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
+  ok   slot 0 plan names staging 0-3 and four job ranges
+    act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1); each created on --cpuset-cpus=60-63, then moved to a free one of --cpuset-cpus=64-67 --cpuset-cpus=68-71 --cpuset-cpus=72-75 --cpuset-cpus=76-79
+  ok   slot 3 plan names staging 60-63 and four job ranges
+probe_r632_6: PASS (0 failure(s))

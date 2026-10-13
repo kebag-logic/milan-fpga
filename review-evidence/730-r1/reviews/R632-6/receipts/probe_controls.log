@@ -1,0 +1,8 @@
+C1 DETECTED rc=1 die frees a range: 2 FAIL; first: FAIL 600 randomized lifecycles: no two existing containers on one job range, every occupant holds its range, all freed at the end ([(0, ['after observe: 0000 on
+C2 DETECTED rc=1 a timed-out move is released before the read: 1 FAIL; first: FAIL 600 randomized lifecycles: no two existing containers on one job range, every occupant holds its range, all freed at the end ([(3, ['late landing: 0000 on 
+C3 DETECTED rc=1 an unreadable container's range is freed: 1 FAIL; first: FAIL 600 randomized lifecycles: no two existing containers on one job range, every occupant holds its range, all freed at the end ([(0, ['after observe: 0000 on
+C4 DETECTED rc=1 a move seen off target frees its range: 1 FAIL; first: FAIL 600 randomized lifecycles: no two existing containers on one job range, every occupant holds its range, all freed at the end ([(10, ['late landing: 0000 on
+C5 DETECTED rc=1 slot spacing back to one range per slot: 15 FAIL; first: FAIL slot 1 staging is 20-23
+C6 DETECTED rc=1 the derivation adds the workflows instead of taking the most: 24 FAIL; first: FAIL order ('docs', 'elaborate', 'rtl-fast', 'rtl-full') derives 4 (7)
+C7 DETECTED rc=1 an unreadable max-parallel falls back to act's default: 8 FAIL; first: FAIL max-parallel '${{ matrix.n }}' (not a literal integer) is refused
+controls: 7, detected 7, not detected []

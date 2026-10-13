@@ -1,0 +1,7 @@
+  ok   first SIGINT during act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=130 started=[1] stderr='act-ci: interrupted by SIGINT after cleanup\n' trail=['contained', 'stream ended'])
+  ok   first SIGTERM during act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=143 started=[1] stderr='act-ci: interrupted by SIGTERM after cleanup\n' trail=['contained', 'stream ended'])
+  ok   first SIGHUP during act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=129 started=[1] stderr='act-ci: interrupted by SIGHUP after cleanup\n' trail=['contained', 'stream ended'])
+  ok   first SIGINT pending before act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=130 started=[] stderr='act-ci: interrupted by SIGINT after cleanup\n' trail=['contained', 'stream ended'])
+  ok   first SIGTERM pending before act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=143 started=[] stderr='act-ci: interrupted by SIGTERM after cleanup\n' trail=['contained', 'stream ended'])
+  ok   first SIGHUP pending before act, no earlier failure: exit 128+signal, only the interrupt diagnostic, containment done (outcome=129 started=[] stderr='act-ci: interrupted by SIGHUP after cleanup\n' trail=['contained', 'stream ended'])
+probe_r6_interrupt_diag: PASS (0 failure(s))
