@@ -1,0 +1,26 @@
+job=differential head=e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd verilator=$REVIEWS/696-r558-14-packet/scratch/bin/verilator (Verilator 5.050 2026-07-01 rev v5.050) start=2026-10-13T21:01:41+02:00
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+[==========] Running 12 tests from 2 test suites.
+[... clean-run test output elided; see raw-log index ...]
+52:RESULT: PASS
+53:  verdict: PASS (12 tests, 0 failures, exit 0)
+268:[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+340:[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+404:[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+468:[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+532:[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+596:[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+660:[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+724:[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+787:[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+882:[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+977:[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+106070:[ok] differential mutant probe-1ms: MaapDifferential.ProbeTimingAndCount
+211163:[ok] differential mutant probe-500ms: MaapDifferential.ProbeTimingAndCount
+316256:[ok] differential mutant probe-600ms: MaapDifferential.ProbeTimingAndCount
+328615:[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+328675:[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+328736:[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+328737:differential mutants: 17/17 caught
+328737:differential mutants: 17/17 caught
+328738:end=2026-10-13T21:04:28+02:00 rc=0

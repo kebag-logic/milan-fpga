@@ -1,0 +1,16 @@
+== boundary-attempt1-broken-clang-wrapper.log (environment refusal; superseded by logs/boundary-verilator.log)
+env: ‘$VALIDATION_STORAGE/697-a569/round6/clang18/root/usr/bin/clang-18’: No such file or directory
+head=e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd verilator=Verilator 5.050 2026-07-01 rev v5.050 clang= rv32=$REVIEWS/696-r558-14-packet/scratch/sdk/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc start=2026-10-13T21:02:57+02:00
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+[...]
+no capture given: running every known builder the run judges under one
+Terminated                 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+end=2026-10-13T21:03:22+02:00 rc=143
+== boundary-attempt2-lwsrp-uninitialised.log (environment refusal; superseded by logs/boundary-verilator.log)
+head=e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd verilator=Verilator 5.050 2026-07-01 rev v5.050 clang=clang version 23.1.1 rv32=$REVIEWS/696-r558-14-packet/scratch/sdk/riscv32-ilp32d--glibc--stable-2025.08-1/bin/riscv32-linux-gcc start=2026-10-13T21:03:31+02:00
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+no capture given: running every known builder the run judges under one
+[...]
+wrote $REVIEWS/696-r558-14-packet/scratch/tmp/boundary/ctrl-boundary-ntxlpj91/images/srp-image/endstation_ax7101_8x8-if2--with-aecp/contract/mbx_contract.h (2 interfaces)
+REFUSED: lwSRP is not its own checkout
+end=2026-10-13T21:10:05+02:00 rc=2
