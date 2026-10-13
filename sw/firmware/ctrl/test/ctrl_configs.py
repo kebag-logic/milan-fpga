@@ -98,7 +98,7 @@ class Builder:
 
 
 #: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
-#: four through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
+#: five through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
 #: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
 #: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
 #: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
@@ -118,6 +118,7 @@ BUILDERS = (
               "4"),)),
     Builder("sw/firmware/gtest/fw_coverage.py",
             (("{python}", "sw/firmware/gtest/fw_coverage.py", "--build-only", "--jobs", "4"),)),
+    Builder("sw/litex/test_ctrl_memory.py", (("{python}", "sw/litex/test_ctrl_memory.py", "--build-only"),)),
     Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
@@ -136,6 +137,7 @@ NEEDS = {"verilator": "Verilator"}
 #: The programs found by text that run, in the builds, only under another builder (as its module, or a program
 #: it runs): left out where that one is, and otherwise held as any builder found by text is.
 PART_OF = {
+    "sw/litex/ctrl_memory_probe.py": "sw/litex/test_ctrl_memory.py",
     "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
     # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
     "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
@@ -145,6 +147,9 @@ PART_OF = {
 }
 #: The builders found by text whose compiles, if any, are none of the firmware's, each with the reason.
 OUTSIDE = {
+    "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
+    "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
+                            "compile no control-stack source",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",

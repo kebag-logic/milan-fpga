@@ -73,6 +73,10 @@ pull-request update and on every push to `dev`. It produces one stable
   The suite builders run by their `--build-only`: the control gate builds and links every arm's binaries and its RV32 build, the store's gate every shape's binaries and its RV32 build, and the coverage gate both gates' coverage builds.
   None runs a binary, plants a defect or measures anything; each ends `BUILT`.
   The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
+  The fifth builder is `sw/litex/test_ctrl_memory.py --build-only`.
+  It compiles the reset entry and links its probe.
+  The job installs `sw/litex/litex_pins.txt` for its imports.
+  This mode needs no CPU generation or SoC simulations.
   A builder dropped from the known set is still found by text, and refuses the gate by name: a program that names the firmware's tree must be a known builder or listed with why it need not be, even where another builder still runs it.
   So does a known builder the capture holds nothing of from a run of its own, though another builder's run compiles it, as the coverage gate's runs the control and store gates; two standing controls plant each.
   The builders found by text that compile only in a suite, the planted-defect campaigns and the coverage reader's planted cases, are listed with what they compile there (`ctrl_configs.SUITES`).

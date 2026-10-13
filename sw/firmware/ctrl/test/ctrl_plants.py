@@ -26,6 +26,7 @@ gate's own, never a builder (ctrl_configs.GATE).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -189,6 +190,19 @@ MAKE_SRC = "$(PLANT_INCLUDES) -c $(PLANT_CTRL)/adp/adp_mbx.c -o planted.o"
 NOT_OURS = "which is neither the stack's nor the C implementation's"
 
 PLANTS = (
+    *(Plant(f"an unclassified copy of {name}", "ctrl", "", "", "",
+            f"sw/firmware/ctrl/test/planted_{name} names the firmware's tree",
+            texts=((f"planted_{name}", (Path(__file__).resolve().parents[3] / "litex" / name).read_text()),))
+      for name in ("test_ctrl_memory.py", "ctrl_memory.py", "milan_soc.py")),
+    Plant("the reset-entry builder's own capture is missing", "ctrl", "", "", "",
+          "the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own",
+          alter="drop run sw/litex/test_ctrl_memory.py"),
+    Plant("the reset entry includes a private stack header in the fifth capture", "ctrl", "plat/ctrl_split_start.S",
+          '\t.section .text.start, "ax"\n',
+          f'#define TSN_PORT_STRING_H\n#include "{FROM_CTRL}"\n#undef TSN_PORT_STRING_H\n'
+          '\t.section .text.start, "ax"\n',
+          f"firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads {STRING_NAMED}",
+          replay="ctrl_split_start.S"),
     # The stack's side: its sources and headers, as the arms and the image compile them.
     Plant("stack source includes the mailbox HAL", "stack", "src/adp.c", "#include <assert.h>\n",
           "#include <assert.h>\n#include \"mbx_hal.h\"\n",
