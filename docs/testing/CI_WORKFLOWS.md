@@ -1601,8 +1601,11 @@ python3 -I <audited-install>/act_ci.py --pr <number> \
 The audited install may be flat as shown. The offline self-test binds its byte
 check to that installed file. It requires no copied repository directory
 shape. Scope fixtures are inline; no sibling import is required.
-An isolated child repeats scope checks from a single-file install.
-A planted sibling import must fail in that child.
+The ordinary self-test runs the complete isolated single-file self-test.
+The isolated child skips only that launcher, preventing recursion.
+A sibling import planted outside the scope-event graph must fail.
+The docs workflow also runs the documented flat installation directly.
+Its contract pins the empty temporary directory, mode and invocation.
 
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects

@@ -691,6 +691,13 @@ def rendered_names(job: YamlMap) -> list[str] | None:
             name))
     return out
 ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
+ACT_CI_SELFTEST_SCRIPT = (
+    ACT_CI_SELFTEST,
+    'install_dir="$(mktemp -d)"',
+    'trap \'rm -rf "$install_dir"\' EXIT',
+    'install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"',
+    'python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"',
+)
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -1099,7 +1106,7 @@ CARRIER_STEP_LISTS = {
         {"name": "CI event and SHA contract gate",
          "run": CANONICAL_DOCS_GATE_SCRIPT},
         {"name": "Local act runner contract gate",
-         "run": (ACT_CI_SELFTEST,)},
+         "run": ACT_CI_SELFTEST_SCRIPT},
         {"name": "Doc cited-path gate",
          "run": (
              'python3 scripts/check_doc_paths.py',
@@ -4079,9 +4086,9 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
     act_selftests = [s for s in steps(docs_job)
                      if tuple(normalize_script(
                          s.get("run") if isinstance(s.get("run"), str) else ""
-                     )) == (ACT_CI_SELFTEST,)]
+                     )) == ACT_CI_SELFTEST_SCRIPT]
     c.item(len(act_selftests) == 1, DOCS,
-           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` and the flat isolated install exactly once "
            f"(found {len(act_selftests)}): the runner's refusal and cleanup "
            "controls are not a hosted gate unless the required docs context "
            "executes their negative controls")
@@ -5484,7 +5491,7 @@ def _docs_act_selftest_step(w: World) -> YamlMap:
     found = [s for s in steps(job)
              if tuple(normalize_script(
                  s.get("run") if isinstance(s.get("run"), str) else ""
-             )) == (ACT_CI_SELFTEST,)]
+             )) == ACT_CI_SELFTEST_SCRIPT]
     assert len(found) == 1, (
         "fixture drift: no unique act_ci.py self-test step")
     return found[0]
@@ -6536,6 +6543,17 @@ def _docs_builder_arms() -> list[Arm]:
         ("docs only parses the local act runner self-test",
          _m_docs_act_selftest_key("shell", "bash -n {0}"),
          "must carry no `shell`"),
+        ("docs runs only the ordinary local runner self-test",
+         _m_docs_act_selftest_key("run", ACT_CI_SELFTEST), "flat isolated install"),
+        ("docs flat runner allows non-isolated imports",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("python3 -I", "python3")),
+         "flat isolated install"),
+        ("docs flat runner installs a writable file",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("0555", "0755")),
+         "flat isolated install"),
+        ("docs flat runner omits its shipping worktree",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace(
+             ' --worktree "$GITHUB_WORKSPACE"', "")), "flat isolated install"),
         ("docs builder omits verilog-axis",
          _m_builder_drop_submodule(DOCS, "docs-check",
                                   "third_party/verilog-axis"),

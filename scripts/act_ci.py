@@ -6474,36 +6474,33 @@ def selftest_scope_history_wiring(tally: SelftestTally, shipping_root: pathlib.P
                     not scope_history_wired(source.replace(call, replacement)))
 
 
-def selftest_scope_flat_install(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
-    """Run scope arms from one non-writable file under isolated Python imports."""
-    with tempfile.TemporaryDirectory(prefix="act-ci-flat-scope-") as raw:
+def selftest_flat_install(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Run the complete selftest from one non-writable file under isolated Python."""
+    # The isolated child executes every other arm; only this launcher is skipped.
+    if sys.flags.isolated:
+        return
+    with tempfile.TemporaryDirectory(prefix="act-ci-flat-selftest-") as raw:
         installed = pathlib.Path(raw) / "act_ci.py"
         source = pathlib.Path(__file__).read_text(encoding="utf-8")
-        probe = (
-            "import pathlib, runpy, sys; "
-            "scope = runpy.run_path(sys.argv[1]); "
-            "tally = scope['SelftestTally'](); "
-            "scope['selftest_scope_event'](tally, scope['selftest_fixture'](), "
-            "pathlib.Path(sys.argv[2])); "
-            "sys.exit(bool(tally.failures))"
-        )
+        anchor = '    """Independently pin the executed history population and kill disconnections."""\n'
+        assert source.count(anchor) == 1
         for sibling_import in (False, True):
             if installed.exists():
                 installed.chmod(0o755)
-            installed.write_text(source + ("\nimport ci_scope_history\n" if sibling_import else ""),
-                                 encoding="utf-8")
+            planted = source.replace(anchor, anchor + "    import ci_scope_history\n")
+            installed.write_text(planted if sibling_import else source, encoding="utf-8")
             installed.chmod(0o555)
             result = subprocess.run(
-                [sys.executable, "-I", "-c", probe, str(installed), str(shipping_root)],
+                [sys.executable, "-I", str(installed), "--selftest", "--worktree", str(shipping_root)],
                 cwd=raw, capture_output=True, text=True, check=False,
             )
             if sibling_import:
-                tally.check("flat isolated scope rejects a restored sibling import",
+                tally.check("flat isolated selftest rejects a sibling import outside scope events",
                             result.returncode != 0
                             and "No module named 'ci_scope_history'" in result.stderr)
             else:
-                tally.check("flat isolated scope uses the explicit shipping worktree",
-                            result.returncode == 0 and "scope event REV+E" in result.stdout)
+                tally.check("flat isolated full selftest uses the explicit shipping worktree",
+                            result.returncode == 0 and "selftest: PASS" in result.stdout)
                 if result.returncode:
                     print(result.stdout + result.stderr)
 
@@ -15421,7 +15418,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_fetch_window(tally, fixture, resolved)
     selftest_scope_event(tally, fixture, shipping_root)
     selftest_scope_history_wiring(tally, shipping_root)
-    selftest_scope_flat_install(tally, shipping_root)
+    selftest_flat_install(tally, shipping_root)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)
     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
