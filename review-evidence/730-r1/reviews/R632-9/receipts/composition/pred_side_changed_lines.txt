@@ -1,0 +1,74 @@
+-Six pages under `docs/` are relevant because Python in a classifier-gated
++Seven pages under `docs/` are relevant because Python in a classifier-gated
++`sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
++requires the rule table in section 3 of
++[SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
++`ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
+-inventory by a stable hash; the fifth, shard 4/5, runs `milan_dp` alone
+-(#444). A worker runs its suites one at a time, so the fifth worker changes
+-no suite's deadline. It takes the other suites of the old shard 0/4 off
+-`milan_dp`'s path: that shard carried `milan_dp` plus eleven suites and set
+-the context's latency at 1745-2514 s, of which the eleven took 492-725 s.
+-The hashed owners of every other suite are unchanged. The aggregate
+-rejects missing, unexpected, or duplicate suite logs before it trusts the
+-combined tally, and requires all five workers. Specialized dependencies are
+-installed only by their stable owners: `tsn_fuzz` owns the pinned packet
+-generator, and `chmap_capture` owns the Yosys/sv2v netlist leg. The shard
+-selector self-test pins those owners and the dedicated worker, and the
+-workers' ownership step proves them again at run time; `ci_events.py` pins
+-that step's script. It pins the aggregate's tally script and its
+-worker-result script the same way, and the Yosys aggregate's two twins. The
+-worker-result step is the only step that turns a failed or timed-out worker
+-red: a killed suite's partial log still tallies and its SHA record still
+-verifies, so on both hosted `milan_dp` timeouts only that step failed.
++inventory by measured hosted time (#727); the fifth, shard 4/5, runs
++`milan_dp` alone (#444). A worker runs its suites one at a time, so the fifth
++worker changes no suite's deadline. It takes the other suites of the old
++shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
++suites and set the context's latency at 1745-2514 s, of which the eleven took
++492-725 s.
++
++`scripts/suite_shards.py` records each default suite's hosted duration and
++each worker's job overhead. All figures come from one dev run, except `maap`,
++which keeps #696's figure from its pull-request run until a dev run measures
++that change. It places the longest suite first, on the worker with the lowest
++predicted wall clock. Its self-test refuses a suite without a duration and a
++duration without a suite.
++It also refuses any worker predicted above 60% of the job's
++`timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
++gives the refresh procedure, and the steps for a change that adds a suite: a
++provisional figure from `run_all_suites.sh`'s `suite_timeout`, a worker added
++if a prediction then exceeds 60%, and the figure replaced from the change's
++own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
++104 minutes, and #696's head reached its 120-minute timeout there.
++
++The aggregate rejects missing, unexpected, or duplicate suite logs before it
++trusts the combined tally, and requires all five workers. Specialized
++dependencies are installed only by their stable owners: `tsn_fuzz` owns the
++pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
++The shard selector pins those owners and the dedicated worker, its self-test
++proves them, and the workers' ownership step proves them again at run time;
++`ci_events.py` pins that step's script. It pins the aggregate's tally script
++and its worker-result script the same way, and the Yosys aggregate's two
++twins. The worker-result step is the only step that turns a failed or
++timed-out worker red: a killed suite's partial log still tallies and its SHA
++record still verifies, so on both hosted `milan_dp` timeouts only that step
++failed.
+-`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
++`milan_dp_gm_steps` suite, which the stable hash then gave worker 3/5, the
+-`suite_shards.py` pins that owner among its five-worker landmarks.
++#727 replaced the hash with the measured-time split, which places the suite
++by its own recorded duration.
++The RV32 SDK this job installs serves one member the same way.
++`test_ctrl_memory` (#640 M8a) links a probe through the split placement's
++link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
++SDK step installs; without a compiler that member declares a skip too.
++Its SoC arm runs the end-station builder, so it needs the PyYAML this job
++installs, and exports the split 1x1 SoC through the LiteX the pins install and
++the patch series patches. It needs no firmware data package: as
++`sw/builder/test_shipping_clock_constraints.py` does, its child refuses every
++`pythondata_software_*` import and writes LiteX's headers without the firmware
++make inputs, which name picolibc and compiler-rt. So the arm grades the same in
++this job and on a host that has those packages. The split CPU is its own
++VexiiRiscv argument set, so a cold metadata cache pays one more Scala run for it.
++

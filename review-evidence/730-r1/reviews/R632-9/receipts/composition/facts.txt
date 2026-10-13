@@ -1,0 +1,37 @@
+HEAD=ac0142539856222b84ef8e5af414d12132a5bebf tree=f0cf7c248d645e4a305ba5bad7d38f6679298bc9 expected=ac0142539856222b84ef8e5af414d12132a5bebf
+parents: ada26e56ac42ee5de311aef84cb86c8435b97cee b341e875d87c6aa2be355bad17f373782517f723
+merge-base(PR,train)=dc4d06cbfec209cc2ff76806f4b49c51f46639ae
+recomputed merge-tree(train,PR)=f0cf7c248d645e4a305ba5bad7d38f6679298bc9
+recomputed merge-tree(dev,PR)=2f86acb79ee330c5593828484a70dfec5a4c5ccc
+
+== files the PR changes (dc4d06cbfec209cc2ff76806f4b49c51f46639ae..b341e875d87c6aa2be355bad17f373782517f723)
+docs/testing/CI_WORKFLOWS.md
+scripts/act_ci.py
+
+== files the train delta changes (dc4d06cbfec209cc2ff76806f4b49c51f46639ae..ada26e56ac42ee5de311aef84cb86c8435b97cee): 54
+== overlap
+docs/testing/CI_WORKFLOWS.md
+== train-delta files under .github: 0
+== .github diff BASE..CAND (empty means no workflow change anywhere in the stack):
+== train commits touching the overlap
+49da9fd97 Merge PR #728: Split the Verilator suites across the five workers by measured time, with a 60 % headroom gate (#727)
+d5858bbee Merge PR #721: Mark II M8a-1: split placement control memory on chip, firmware owns the reset entry (#640)
+4994aa9ca State in the testing docs that the serial preflight and every hosted worker wait for SUITE_SECONDS to name every default suite, and where the new-suite steps are
+61296ea1f Name maap's pull-request run as the one exception to the dev run that supplies the selector's figures in the CI workflow policy
+a57d384dc Describe the measured-time Verilator split, its 60% gate and its refresh procedure in the CI workflow policy
+8ab2b5399 Merge dev into 640-m8a, keeping both sentences in the hardware and software split page
+087df1447 Grade the split SoC arm in the elaborate job's interpreter by refusing LiteX's firmware data packages, and grade each mutant only against an arm that passes unmutated (#640)
+22caf7351 Register the split control memory page as gate-read, since the elaborate job's test holds its rule table to the rules (#640)
+be431eec9 Register every split memory refusal rule, refuse writable data in rom and truncated ELFs by name, and require a named failure for each rule removed, the SoC build's controls and the whole decoded window (#640)
+a475ab5ab Document the split placement's control memory and record M8a-1's measured firmware block RAM ledger rows (#640)
+
+== blobs (base / train parent / PR head / candidate / merge(dev,PR))
+docs/testing/CI_WORKFLOWS.md: 254a4770fa1b005de957899954a8fe4000b1c5c4 a0990d6677133c8544a2064f442392470c65eb71 a9ded0c04d9f36e80e36b2dfed0abeb920de1a7c 7e36e7cb2a2fb9edb88c7b4cec45cc56d966106e 7e36e7cb2a2fb9edb88c7b4cec45cc56d966106e
+scripts/act_ci.py: 588d24b4145c3b8ae63e459cd4b0a3525f354d91 588d24b4145c3b8ae63e459cd4b0a3525f354d91 15257b8a2817d725eaa05f6797f72aff52d44054 15257b8a2817d725eaa05f6797f72aff52d44054 15257b8a2817d725eaa05f6797f72aff52d44054
+.github/workflows/rtl.yml: 67766752e267c6c8f50528926e307f050a8ff518 67766752e267c6c8f50528926e307f050a8ff518 67766752e267c6c8f50528926e307f050a8ff518 67766752e267c6c8f50528926e307f050a8ff518 67766752e267c6c8f50528926e307f050a8ff518
+.github/workflows/docs.yml: 12ab53a57048236a37c3e33b9bc2af373d57b347 12ab53a57048236a37c3e33b9bc2af373d57b347 12ab53a57048236a37c3e33b9bc2af373d57b347 12ab53a57048236a37c3e33b9bc2af373d57b347 12ab53a57048236a37c3e33b9bc2af373d57b347
+.github/workflows/elaborate.yml: af8f3700266d344f6de2f281cd4a7598b6a7639a af8f3700266d344f6de2f281cd4a7598b6a7639a af8f3700266d344f6de2f281cd4a7598b6a7639a af8f3700266d344f6de2f281cd4a7598b6a7639a af8f3700266d344f6de2f281cd4a7598b6a7639a
+.github/workflows/rtl-fast.yml: 902b92cd40baa61a73d1149154853c9318e5b989 902b92cd40baa61a73d1149154853c9318e5b989 902b92cd40baa61a73d1149154853c9318e5b989 902b92cd40baa61a73d1149154853c9318e5b989 902b92cd40baa61a73d1149154853c9318e5b989
+
+== max-parallel in workflows (none means act default 4 for matrix jobs):
+none
