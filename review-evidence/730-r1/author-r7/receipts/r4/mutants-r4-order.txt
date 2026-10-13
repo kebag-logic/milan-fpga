@@ -1,0 +1,17 @@
+O01 KILLED rc=1 fails=2 - the first selected workflow's concurrency wins
+    FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+O02 KILLED rc=1 fails=3 - the selected workflows' concurrencies are added up
+    FAIL each workflow's CPU-range monitor is handed the run's derived job ranges
+    FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+O03 KILLED rc=1 fails=2 - the least of the selected workflows wins
+    FAIL a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+O04 KILLED rc=1 fails=1 - only the first two selected workflows are read
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+O05 KILLED rc=1 fails=1 - only the last two selected workflows are read
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+O06 KILLED rc=1 fails=1 - the last selected workflow wins (R632-3 Q24)
+    FAIL the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+mutants: 6, killed 6, survived [], bad anchors []

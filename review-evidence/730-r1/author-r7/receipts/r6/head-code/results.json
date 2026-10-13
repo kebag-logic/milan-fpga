@@ -1,0 +1,81 @@
+[
+  {
+    "name": "act-ci-selftest",
+    "command": [
+      "python3",
+      "-I",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 28.24
+  },
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.37
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 24.58
+  },
+  {
+    "name": "slot-proof-selftest",
+    "command": [
+      "scripts/act_slot_proof.sh",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 26.08
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.88
+  },
+  {
+    "name": "py-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.54
+  },
+  {
+    "name": "baremetal-check",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 19.12
+  },
+  {
+    "name": "baremetal-selftest",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 8.09
+  }
+]
