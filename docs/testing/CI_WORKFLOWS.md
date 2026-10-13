@@ -1816,16 +1816,26 @@ Other runner workers also start with these signals blocked.
 The act boundary temporarily unblocks them so act remains interruptible.
 The live interrupt probe opens the same temporary signal window.
 Its exit restores the mask before returning to the monitor.
+Closing the normal boundary preserves any already-propagating failure.
+An interrupt during restoration cannot replace that failure.
+The runner restores the hold before monitor cleanup.
+It prints the later signal beside the failure:
+
+```text
+act-ci: act boundary closing was interrupted (...); the failure already propagating is kept
+```
+
 The mask covers the transition into cleanup and every cleanup step.
 Containment, reader completion, dead-thread proof and pipe finalization finish first.
 Only then does the monitor restore the incoming mask.
 A held signal is delivered then, with status `128 + signal`.
 An earlier body failure keeps precedence over that signal.
-The signal diagnostic accompanies that earlier failure.
+The signal is printed beside that earlier failure as
+`act-ci: CPU-range monitor cleanup was interrupted (...); the failure already propagating is kept`.
 Without an earlier failure, a held signal keeps its conventional status.
 Any cleanup error is printed beside that signal.
 
-Then the first failure wins. An interrupt or a
+Throughout, the first failure wins. An interrupt or a
 failure that was already unwinding through the monitor keeps going, so
 `SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
 diagnostic. Each cleanup failure is printed beside it as
