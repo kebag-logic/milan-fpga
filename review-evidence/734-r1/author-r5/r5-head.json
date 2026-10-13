@@ -1,0 +1,93 @@
+{
+  "starting_head": "59354ffe75697e17a16fd117d9ba853e104394bc",
+  "merged_base": "0136de16291a127e0a34627c77ac09cd41efc08b",
+  "tested_tree": "622e79ae2a21917a49426c675d417307104112a1",
+  "resolved_conflicts": [
+    "scripts/ci_events.py:598"
+  ],
+  "changes_relative_to_dev": {
+    ".github/workflows/docs.yml": {
+      "sha256": "e344032c0038d6cc563255b75751a63cb099165d744e4dd29f47199597c55566",
+      "bytes": 27059
+    },
+    ".github/workflows/elaborate.yml": {
+      "sha256": "f750e883a13244a89e9969f3dc742332268b6ca1a540bfa9cc4f273cd28a2b66",
+      "bytes": 16506
+    },
+    ".github/workflows/rtl-fast.yml": {
+      "sha256": "de7c27f5ecf251ad1c00287f51f1b346590ca13459f6c5e7c0c02dc54b83dfef",
+      "bytes": 29472
+    },
+    ".github/workflows/rtl.yml": {
+      "sha256": "bb66f846e5626adf4b800799d832f4142cb7c11558a65729c932b3352e3dd8a0",
+      "bytes": 29171
+    },
+    "docs/testing/CI_WORKFLOWS.md": {
+      "sha256": "a5a693bf184a278e3e3c1c308c72621740ace843c56d6161867ad07e6b1d3f02",
+      "bytes": 176123
+    },
+    "docs/testing/TESTING.md": {
+      "sha256": "9c3c8783fe5f3c6bb2f2c0e3f6ce21c4a9b0126a14f9352aed46301f6b4309d5",
+      "bytes": 122496
+    },
+    "scripts/act_ci.py": {
+      "sha256": "506155c11334eeccdb210a0001f41c2b0d9ceb5bd95b41887d1bb5422255882a",
+      "bytes": 700085
+    },
+    "scripts/ci_events.py": {
+      "sha256": "2aa09c44dcf6d6d111e9cdb205f340ee6a40df9dcad17380590d2d785fb8957b",
+      "bytes": 445447
+    },
+    "scripts/ci_scope.py": {
+      "sha256": "d091ccd7d60562db374ad4b0b7f09b81620d8c4f08d73da886351d1d75c13455",
+      "bytes": 25930
+    },
+    "scripts/ci_scope_history.py": {
+      "sha256": "343b272084271c9a8b2d4cf35071b08e9307084fde12aea7c828b5026d0c91b8",
+      "bytes": 19147
+    }
+  },
+  "gitlinks": [
+    "160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0\texternal",
+    "160000 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 0\tgptp-processor",
+    "160000 2ad2f845dd583f8310075fa2380cb60a04fd091a 0\tprotocol-processor",
+    "160000 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0\tthird_party/lwSRP",
+    "160000 405dc68310a18f669049ffc10cc23eef7300dcff 0\tthird_party/tsn-c-stack",
+    "160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0\tthird_party/verilog-axis"
+  ],
+  "head": "7c862ad980dfe829ef4d85ff8f4fb4fab451984f",
+  "parents": [
+    "59354ffe75697e17a16fd117d9ba853e104394bc",
+    "0136de16291a127e0a34627c77ac09cd41efc08b"
+  ],
+  "product_delta_from_dev": "",
+  "product_inputs_equal_dev": true,
+  "service_memory_peak_bytes": 667713536,
+  "python_version": "Python 3.12.3",
+  "initialized_submodules": [
+    {
+      "path": "third_party/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "clean": true
+    },
+    {
+      "path": "protocol-processor",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "clean": true
+    },
+    {
+      "path": "gptp-processor",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "clean": true
+    },
+    {
+      "path": "third_party/tsn-c-stack",
+      "pin": "405dc68310a18f669049ffc10cc23eef7300dcff",
+      "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+      "clean": true
+    }
+  ]
+}

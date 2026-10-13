@@ -1,0 +1,35 @@
+"""Run independent gate groups with a receipt per foreground command."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+w=Path('<scratch>')
+python=str(w/'venv/bin/python')
+groups={
+ 'docs': [
+  ('docs-final','scripts/docs_check.py',[]),
+  ('docs-controls','scripts/docs_check.py',['--selftest']),
+  ('docpaths','scripts/check_doc_paths.py',[]),
+  ('docstyle','scripts/check_doc_style.py',[]),
+  ('toc-final','scripts/gen_toc.py',['--check']),
+  ('toc-controls','scripts/gen_toc.py',['--selftest']),
+  ('toc-anchors','scripts/gen_toc.py',['--verify-anchors']),
+  ('dash-final','scripts/check_em_dash.py',['--base','a0f39ad4']),
+  ('dash-controls','scripts/check_em_dash.py',['--selftest']),
+ ],
+ 'contracts': [
+  ('contract-final','scripts/ci_events.py',['--check']),
+  ('events-final','scripts/ci_events.py',['--selftest']),
+  ('idiom-check','scripts/check_py_idiom.py',[]),
+  ('idiom-controls','scripts/check_py_idiom.py',['--selftest']),
+  ('source-list','scripts/pp_srcs.py',['--check']),
+  ('source-controls','scripts/pp_srcs.py',['--selftest']),
+  ('readers','scripts/measure_test_evidence.py',['--check']),
+  ('reader-controls','scripts/measure_test_evidence.py',['--selftest']),
+ ]}
+for name,script,args in groups[sys.argv[1]]:
+ p=subprocess.run([sys.executable,str(w/'run_gate.py'),'r5-'+name,python,script,*args],capture_output=True,text=True,timeout=570)
+ print(p.stdout.splitlines()[0] if p.stdout else p.stderr,flush=True)
+ if p.returncode:
+  print(p.stdout+p.stderr,flush=True)
+  sys.exit(p.returncode)

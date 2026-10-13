@@ -1,0 +1,12 @@
+PASS unchanged published probe: only its three old divergence expectations differ
+Published probe SHA-256: 3c52a25fef3861174d87d621c93a4defbf0870334a53a5b5a96a7761db362689
+PASS unchanged rename probe reproduces the old formula discrepancy
+Published rename probe SHA-256: c2e7a12af001b1be263d77ecd6be9ac365bc75508b154b30ae28b0907825ba1b
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/734-a613/r3/review_probe_checks.py", line 54, in <module>
+    hosted=m.hosted(repo,body,recorded,live,head)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/734-a613/r3/review-probes/probe_r632_2.py", line 137, in hosted
+    m = repo.gh_merge(live, head)
+        ^^^^^^^^^^^^^
+AttributeError: 'Holder' object has no attribute 'gh_merge'
