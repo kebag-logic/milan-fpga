@@ -12,6 +12,26 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+from unittest import mock
+
+
+def fixture_environment(root: Path) -> dict[str, str]:
+    """Isolate fixture Git and shell children from every caller Git setting."""
+    home = root / ".scope-home"
+    home.mkdir(exist_ok=True)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_") and key not in ("HOME", "XDG_CONFIG_HOME")}
+    env.update(HOME=str(home), XDG_CONFIG_HOME=str(home),
+               GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull,
+               GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0",
+               GIT_AUTHOR_NAME="Scope fixture", GIT_AUTHOR_EMAIL="scope@example.invalid",
+               GIT_COMMITTER_NAME="Scope fixture", GIT_COMMITTER_EMAIL="scope@example.invalid",
+               GIT_AUTHOR_DATE="2001-01-01T00:00:00+0000",
+               GIT_COMMITTER_DATE="2001-01-01T00:00:00+0000",
+               GIT_CONFIG_COUNT="2", GIT_CONFIG_KEY_0="commit.gpgsign",
+               GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.hooksPath",
+               GIT_CONFIG_VALUE_1=os.devnull)
+    return env
 
 
 def git(root: Path, *args: str) -> str:
@@ -19,7 +39,7 @@ def git(root: Path, *args: str) -> str:
     return subprocess.check_output(
         ["git", "-c", "core.hooksPath=/dev/null", "-c", "user.name=Scope fixture",
          "-c", "user.email=scope@example.invalid", "-C", str(root), *args],
-        text=True, stderr=subprocess.STDOUT,
+        text=True, stderr=subprocess.STDOUT, env=fixture_environment(root),
     ).strip()
 
 
@@ -131,7 +151,7 @@ def execute(root: Path, script: str, recorded: str, head: str,
     with tempfile.TemporaryDirectory(prefix="scope-output-") as raw:
         work = Path(raw)
         output = work / "output"
-        env = dict(os.environ, ACT="false", EVENT_NAME="pull_request",
+        env = dict(fixture_environment(root), ACT="false", EVENT_NAME="pull_request",
                    PR_BASE_SHA=recorded, PR_BASE_REF="dev",
                    PR_HEAD_SHA=head, GITHUB_SHA=checked_out, PR_DRAFT="false",
                    PUSH_BEFORE_SHA=recorded, GITHUB_OUTPUT=str(output), RUNNER_TEMP=raw)
@@ -154,6 +174,40 @@ def refuses(root: Path, script: str, case: ScopeCase, checked_out: str,
     except subprocess.CalledProcessError:
         return True
     return False
+
+
+def environment_control(shipping: Path, poison: str) -> bool:
+    """Exercise real history and shell Git with hostile caller settings."""
+    with tempfile.TemporaryDirectory(prefix="scope-environment-") as raw:
+        work = Path(raw)
+        victim = work / "victim"
+        victim.mkdir()
+        git(victim, "init", "--quiet")
+        git(victim, "commit", "--quiet", "--allow-empty", "-m", "Victim")
+        before = {str(path.relative_to(victim)): path.read_bytes()
+                  for path in (victim / ".git").rglob("*") if path.is_file()}
+        caller_home = work / "caller"
+        caller_home.mkdir()
+        config = caller_home / ".gitconfig"
+        config.write_text("[commit]\n\tgpgsign = true\n", encoding="utf-8")
+        inherited = {"HOME": str(caller_home), "GIT_CONFIG_GLOBAL": str(config),
+                     "GIT_CONFIG_SYSTEM": str(config), "GIT_AUTHOR_NAME": "Wrong author",
+                     "GIT_COMMITTER_DATE": "2002-02-02T00:00:00+0000"}
+        if poison == "gitdir":
+            inherited.update(GIT_DIR=str(victim / ".git"), GIT_WORK_TREE=str(victim),
+                             GIT_INDEX_FILE=str(victim / ".git/index"))
+        root = work / "fixture"
+        root.mkdir()
+        with mock.patch.dict(os.environ, inherited):
+            case = history(root, shipping)[0]
+            merge = merge_checkout(root, case)
+            script = scope_script(shipping, "rtl-fast.yml", "changes", "scope")
+            result = execute(root, script, case.recorded, case.head, merge)
+            identity = git(root, "show", "-s", "--format=%an|%cn|%at|%ct", merge)
+        after = {str(path.relative_to(victim)): path.read_bytes()
+                 for path in (victim / ".git").rglob("*") if path.is_file()}
+        return (result == (case.paths, case.rtl) and before == after
+                and identity == "Scope fixture|Scope fixture|978307200|978307200")
 
 
 def criss_cross(root: Path, parent: str) -> ScopeCase:
@@ -179,6 +233,9 @@ def selftest(shipping: Path) -> int:
     with tempfile.TemporaryDirectory(prefix="ci-scope-history-") as raw:
         root = Path(raw)
         cases = history(root, shipping)
+        for poison in ("signing", "gitdir"):
+            check(f"ambient {poison} and identity are isolated; victim bytes unchanged",
+                  environment_control(shipping, poison))
         ambiguous = criss_cross(root, cases[4].head)
         for workflow, job, step in (
                 ("rtl.yml", "full-ci-gate", "gate"),
