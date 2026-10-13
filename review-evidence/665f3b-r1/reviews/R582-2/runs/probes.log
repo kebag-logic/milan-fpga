@@ -1,0 +1,27 @@
+[SURVIVED] r582-allocation-filter-removed
+[KILLED] r582-interface-filter-removed
+    acmpif2 rc=1 first='[FAIL] AcmpMailbox.F3bListenerRequiresSourceDestination: published source predicate includes destination validity and interface'
+    maap_if2 rc=1 first='[FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported'
+[KILLED] r582-maap-validity-removed
+    acmp rc=2 first='d parameter ‘valid’ [-Werror=unused-parameter]\n   50 | static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)\n      |                                                                                              ^\ncc1: all warnings being treated as errors\n'
+    acmpif2 rc=2 first='d parameter ‘valid’ [-Werror=unused-parameter]\n   50 | static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)\n      |                                                                                              ^\ncc1: all warnings being treated as errors\n'
+    maap rc=2 first='d parameter ‘valid’ [-Werror=unused-parameter]\n   50 | static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)\n      |                                                                                              ^\ncc1: all warnings being treated as errors\n'
+    maap_if2 rc=2 first='d parameter ‘valid’ [-Werror=unused-parameter]\n   50 | static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)\n      |                                                                                              ^\ncc1: all warnings being treated as errors\n'
+[KILLED] r582-event-refresh-removed
+    maap rc=1 first='[FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources'
+    maap_if2 rc=1 first='[FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources'
+[SURVIVED] r582-rx-refresh-removed
+[SURVIVED] r582-link-refresh-removed
+[KILLED] r582-poll-refresh-removed
+    acmp rc=1 first='[FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand'
+    acmpif2 rc=1 first='[FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand'
+    maap rc=1 first='[FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source'
+    maap_if2 rc=1 first='[FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source'
+[SURVIVED] r582-range-cache-not-updated
+[SURVIVED] r582-poll-writes-before-maap-poll
+[KILLED] r582-demand-not-cleared
+    acmp rc=1 first='[FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: idle tick closes the composed gate at freshness expiry'
+    acmpif2 rc=1 first='[FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: idle tick closes the composed gate at freshness expiry'
+    maap rc=1 first='[FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source'
+    maap_if2 rc=1 first='[FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source'
+r582 probes: 5 killed, 5 survived of 10

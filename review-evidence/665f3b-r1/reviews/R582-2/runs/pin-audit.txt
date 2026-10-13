@@ -1,0 +1,41 @@
+# stack pin audit (reviewer R582-2)
+old 405dc68310a18f669049ffc10cc23eef7300dcff new 70936b77dc41981e192438388cd0aced69954f18
+merge-base(old,new) 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+changed paths old..new: 45
+## commits old..new
+70936b77dc41981e192438388cd0aced69954f18 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 f13c9c16c2b300d158f980dd7c7f071dcb84df5b | Gate ACMP declaration on a fresh probe or Listener (#25)
+f13c9c16c2b300d158f980dd7c7f071dcb84df5b 1edff3180c2ff435b855cc770fb8be371f2096b3 | Complete ACMP freshness contract mutation coverage
+1edff3180c2ff435b855cc770fb8be371f2096b3 0868387deab21bd0db414424f306c7ea62498e29 | Protect ACMP freshness expiry across masked clock wraps
+0868387deab21bd0db414424f306c7ea62498e29 9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1 | Address ACMP freshness review findings
+9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1 917201098395f1f1acc635ea1722e6c9a91a3ec0 | Prove ACMP freshness terms with mutation and target coverage
+917201098395f1f1acc635ea1722e6c9a91a3ec0 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 | Gate ACMP declaration on configured probe freshness or Listener demand
+1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 98dc9e3076714bebe113982ee18c3c1c496cf3c9 | Integrate the ACMP publish port with main (#23)
+98dc9e3076714bebe113982ee18c3c1c496cf3c9 51870377c5012766a8ea1d9798e3c499ca1060a3 | Specify the entity in YAML and generate the cores' C configuration (#20)
+51870377c5012766a8ea1d9798e3c499ca1060a3 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 | Discard malformed ADP discovery frames (#19)
+## core source/header delta old..new
+ include/acmp.h | 14 ++++++++++++++
+ src/acmp.c     | 61 +++++++++++++++++++++++++++++++++++++++++++++++-----------
+ src/adp.c      |  8 ++++++--
+ 3 files changed, 70 insertions(+), 13 deletions(-)
+## #19-only adp.c delta equals old..new adp.c delta: yes
+## #23 resolution vs clean merge-tree (no src/include): 0 core paths
+## squash tree == reviewed head tree
+#19 merge 51870377 tree 231e90357e5efe0101ed7fdd42c8b5ae2b25a89f reviewed-head 66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0 tree 231e90357e5efe0101ed7fdd42c8b5ae2b25a89f
+#20 merge 98dc9e30 tree 7d4a8d904e073167345d3d7eeecf91fee5bec48e reviewed-head 0c5ef532cb782f9e7c73855b41c397679d176ea7 tree 7d4a8d904e073167345d3d7eeecf91fee5bec48e
+#23 merge 1ba27354 tree a5321e5deae4cc5b52c858a41e4824c9e6f1d6b1 reviewed-head 3c9ca52fc44b4a37e11149392363686f0ea426e0 tree a5321e5deae4cc5b52c858a41e4824c9e6f1d6b1
+#25 merge 70936b77 tree 591d38854105564a5d632c18e846b0dd60c2f148 reviewed-head f13c9c16c2b300d158f980dd7c7f071dcb84df5b tree 591d38854105564a5d632c18e846b0dd60c2f148
+## PR metadata
+#19 MERGED 2026-10-09T17:39:31Z merge=51870377c5012766a8ea1d9798e3c499ca1060a3 head=66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0
+#20 MERGED 2026-10-09T20:37:54Z merge=98dc9e3076714bebe113982ee18c3c1c496cf3c9 head=0c5ef532cb782f9e7c73855b41c397679d176ea7
+#23 MERGED 2026-10-12T02:07:55Z merge=1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 head=3c9ca52fc44b4a37e11149392363686f0ea426e0
+#25 MERGED 2026-10-12T19:04:21Z merge=70936b77dc41981e192438388cd0aced69954f18 head=f13c9c16c2b300d158f980dd7c7f071dcb84df5b
+## review verdict lines
+6085778617 PR#19 [R576] POSITIVE - exact head 66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0
+6086078198 PR#19 [R577] POSITIVE - exact head 66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0
+6088675209 PR#20 [R578] POSITIVE - exact head 0c5ef532cb782f9e7c73855b41c397679d176ea7
+6088680624 PR#20 [R579] POSITIVE - exact head 0c5ef532cb782f9e7c73855b41c397679d176ea7
+6116467700 PR#22 [R622] POSITIVE - exact head 405dc68310a18f669049ffc10cc23eef7300dcff
+6116469528 PR#22 [R623] POSITIVE - exact head 405dc68310a18f669049ffc10cc23eef7300dcff
+6116472923 PR#23 [A10] Merge bar met for the integration of #21:
+6130754591 PR#25 [R631] POSITIVE - exact head f13c9c16c2b300d158f980dd7c7f071dcb84df5b
+6130759174 PR#25 [R630] POSITIVE - exact head f13c9c16c2b300d158f980dd7c7f071dcb84df5b

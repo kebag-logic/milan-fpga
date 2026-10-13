@@ -1,0 +1,62 @@
+2026-10-13T20:35:47.5675306Z ##[group]Run set -euo pipefail
+2026-10-13T20:35:47.5675775Z set -euo pipefail
+2026-10-13T20:35:47.5676133Z python3 scripts/ci_scope.py --selftest
+2026-10-13T20:35:47.5676700Z 
+2026-10-13T20:35:47.5676947Z base=""
+2026-10-13T20:35:47.5677243Z if [ "$EVENT_NAME" = pull_request ]; then
+2026-10-13T20:35:47.5677611Z   base="$PR_BASE_SHA"
+2026-10-13T20:35:47.5677907Z else
+2026-10-13T20:35:47.5678174Z   base="$PUSH_BEFORE_SHA"
+2026-10-13T20:35:47.5678474Z fi
+2026-10-13T20:35:47.5678705Z 
+2026-10-13T20:35:47.5678952Z if [ -n "$base" ] \
+2026-10-13T20:35:47.5679307Z    && [ "$base" != 0000000000000000000000000000000000000000 ] \
+2026-10-13T20:35:47.5679793Z    && git cat-file -e "$base^{commit}" 2>/dev/null; then
+2026-10-13T20:35:47.5680266Z   git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
+2026-10-13T20:35:47.5680746Z     > "$RUNNER_TEMP/changed-files"
+2026-10-13T20:35:47.5681077Z else
+2026-10-13T20:35:47.5681436Z   # An unknown base must never turn a real change into docs-only.
+2026-10-13T20:35:47.5681913Z   git ls-files > "$RUNNER_TEMP/changed-files"
+2026-10-13T20:35:47.5682265Z fi
+2026-10-13T20:35:47.5682497Z 
+2026-10-13T20:35:47.5682748Z echo "Changed files:"
+2026-10-13T20:35:47.5683090Z sed 's/^/  /' "$RUNNER_TEMP/changed-files"
+2026-10-13T20:35:47.5683579Z rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"
+2026-10-13T20:35:47.5684050Z echo "rtl=$rtl" >> "$GITHUB_OUTPUT"
+2026-10-13T20:35:47.5684401Z echo "RTL/tooling relevant: $rtl"
+2026-10-13T20:35:47.5939040Z shell: /usr/bin/bash -e {0}
+2026-10-13T20:35:47.5939603Z env:
+2026-10-13T20:35:47.5940034Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:47.5940560Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:47.5941046Z   EVENT_NAME: pull_request
+2026-10-13T20:35:47.5941667Z   PR_BASE_SHA: a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+2026-10-13T20:35:47.5942422Z   PUSH_BEFORE_SHA: db29bdd07529fbc697b7956827092f64b1241714
+2026-10-13T20:36:00.9865459Z   ok   ['third_party/tsn-c-stack']: rtl=True
+2026-10-13T20:36:00.9865869Z   ok   ['.gitmodules']: rtl=True
+2026-10-13T20:36:00.9866269Z   ok   ['docs/x.md', 'gptp-processor']: rtl=True
+2026-10-13T20:36:00.9866923Z   ok   submodule rule names protocol-processor
+2026-10-13T20:36:00.9867370Z   ok   submodule rule names gptp-processor
+2026-10-13T20:36:00.9867786Z   ok   submodule rule names external
+2026-10-13T20:36:00.9868211Z   ok   submodule rule names third_party/verilog-axis
+2026-10-13T20:36:00.9868658Z   ok   submodule rule names .gitmodules
+2026-10-13T20:36:00.9869343Z   ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+2026-10-13T20:36:00.9870314Z   ok   gate-read page docs/design/AREA_BUDGET.md (named at syn/ooc/pp_resource_gate.py:72) is relevant
+2026-10-13T20:36:00.9871258Z   FAIL gate-read page docs/design/MAILBOX_SPLIT.md (named at sw/firmware/ctrl/test/ctrl_service_bounds.py:13) is relevant
+2026-10-13T20:36:00.9872176Z   ok   gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:94) is relevant
+2026-10-13T20:36:00.9873198Z   ok   gate-read page docs/reference/MAILBOX_CONTRACT.md (named at sw/mailbox/gen_mailbox.py:77) is relevant
+2026-10-13T20:36:00.9874049Z   ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3209) is relevant
+2026-10-13T20:36:00.9874890Z   ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+2026-10-13T20:36:00.9875816Z   ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+2026-10-13T20:36:00.9898181Z   ok   mutation: gate-read docs/reference/MAILBOX_CONTRACT.md filed as docs-only is rejected
+2026-10-13T20:36:00.9898797Z   ok   mutation: the scan still names docs/reference/MAILBOX_CONTRACT.md once the table drops it
+2026-10-13T20:36:00.9899388Z   ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+2026-10-13T20:36:00.9899976Z   ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+2026-10-13T20:36:00.9900678Z   ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+2026-10-13T20:36:00.9901244Z   ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+2026-10-13T20:36:00.9901841Z   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+2026-10-13T20:36:00.9902475Z   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+2026-10-13T20:36:00.9902935Z selftest: 1 FAILURE(S)
+2026-10-13T20:36:00.9919127Z ##[error]Process completed with exit code 1.
+2026-10-13T20:36:01.0079311Z Post job cleanup.
+2026-10-13T20:36:01.0980816Z [command]/usr/bin/git version
+2026-10-13T20:36:01.1023761Z git version 2.55.0

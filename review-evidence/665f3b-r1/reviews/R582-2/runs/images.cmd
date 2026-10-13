@@ -1,0 +1,1 @@
+python3 -u sw/firmware/ctrl/test/ctrl_image.py --base d40e4e9827be2516f8f34b9d65f0a483fff2194c --shape endstation_arty_4x4 --shape endstation_arty_8ch --shape endstation_arty_current --shape endstation_ax7101_1x1_tdm8 --shape endstation_ax7101_8x8 --out $REVIEWS/665f3b-r582-2-packet/scratch/images/out 
