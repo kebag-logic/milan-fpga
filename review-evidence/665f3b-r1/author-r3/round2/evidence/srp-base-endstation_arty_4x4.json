@@ -1,0 +1,21 @@
+{
+  "name": "srp-base-endstation_arty_4x4",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_srp_image.py",
+    "--config",
+    "configs/endstation_arty_4x4.yaml",
+    "--libc",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime/libc.a",
+    "--compiler-runtime",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a",
+    "--output",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/composed-images/srp/base/endstation_arty_4x4",
+    "--ctrl-source",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/images/base-tree/sw/firmware/ctrl",
+    "--stack-source",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/images/base-tree/tsn-c-stack"
+  ],
+  "rc": 0,
+  "seconds": 2.24
+}

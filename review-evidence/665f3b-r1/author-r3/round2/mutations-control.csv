@@ -1,0 +1,521 @@
+name,arms,result,evidence,batch
+reentry-guard-removed,"reentry_debug, reentry_debug, reentry_release, reentry_release",CAUGHT,2650 check(s) failed,1
+reentry-uncounted,reentry_release,CAUGHT,122 check(s) failed,1
+reentry-not-ignored,reentry_release,CAUGHT,1083 check(s) failed,1
+departing-keeps-index,walk,CAUGHT,2 check(s) failed,1
+departing-sends-zero,adp,CAUGHT,17 check(s) failed,1
+available-replaces-owed-departing,adp,CAUGHT,34 check(s) failed,1
+available-passes-owed-departing,adp,CAUGHT,10 check(s) failed,1
+second-departing-dropped,adp,CAUGHT,20 check(s) failed,1
+second-shutdown-overwrites-index,adp,CAUGHT,14 check(s) failed,1
+link-loss-drops-owed-departing,adp,CAUGHT,5 check(s) failed,1
+gm-change-drops-owed-available,adp,CAUGHT,4 check(s) failed,1
+discover-drops-owed-available,adp,CAUGHT,9 check(s) failed,1
+stray-expiry-drops-owed-available,adp,CAUGHT,2 check(s) failed,1
+link-loss-keeps-owed-available,adp,CAUGHT,5 check(s) failed,1
+departing-queue-unbounded,adp,CAUGHT,14 check(s) failed,1
+coalesced-departing-uncounted,adp,CAUGHT,4 check(s) failed,1
+coalesce-drops-queued-departing,adp,CAUGHT,6 check(s) failed,1
+coalesce-overwrites-oldest-index,adp,CAUGHT,7 check(s) failed,1
+own-discover-discarded,walk,CAUGHT,4 check(s) failed,1
+down-answers-discover,walk,CAUGHT,14 check(s) failed,1
+link-down-departs,walk,CAUGHT,2 check(s) failed,1
+gm-change-ignored,walk,CAUGHT,4 check(s) failed,1
+delay-ignores-link-down,walk,CAUGHT,2 check(s) failed,1
+shutdown-in-down-departs,walk,CAUGHT,2 check(s) failed,1
+advertise-expiry-skips-delay,walk,CAUGHT,14 check(s) failed,1
+advertise-period-wrong,walk,CAUGHT,4 check(s) failed,1
+link-up-draws-startup-kind,walk,CAUGHT,1 check(s) failed,1
+draw-kinds-merged,adp,CAUGHT,1 check(s) failed,1
+foreign-discover-answered,adp,CAUGHT,3 check(s) failed,1
+frame-misses-config-index,walk,CAUGHT,11 check(s) failed,1
+stale-tag-accepted,adp,CAUGHT,2 check(s) failed,1
+latency-extra-read,adp,CAUGHT,5 check(s) failed,1
+pool-free-leaks,port,CAUGHT,5 check(s) failed,1
+calloc-overflow-unchecked,port,CAUGHT,1 check(s) failed,1
+pool-double-free-accepted,port,CAUGHT,4 check(s) failed,1
+debug-truncation-uncounted,port,CAUGHT,1 check(s) failed,1
+tick-count-ignored,port,CAUGHT,7 check(s) failed,1
+rx-pass-unbounded,port,CAUGHT,1 check(s) failed,1
+poll-owes-nothing,adp,CAUGHT,4 check(s) failed,1
+events-halved,"adp, acmp",CAUGHT,3 check(s) failed,1
+rx-before-events,adp,CAUGHT,1 check(s) failed,1
+carried-ticks-overwritten,port,CAUGHT,1 check(s) failed,1
+tick-slice-unbounded,port,CAUGHT,2 check(s) failed,1
+owed-ticks-let-it-sleep,port,CAUGHT,2 check(s) failed,1
+filter-opened-before-eid,port,CAUGHT,2 check(s) failed,1
+rx-no-resync,"port, unit",CAUGHT,6 check(s) failed,1
+tx-overfills,port,CAUGHT,3 check(s) failed,1
+lanes-big-endian,model,CAUGHT,16 check(s) failed,1
+frame-sources-from-sinks,entity,CAUGHT,1 check(s) failed,1
+pool-falls-back-to-heap,"port, rv32",CAUGHT,3 check(s) failed,1
+model-rate-unlimited,model,CAUGHT,6 check(s) failed,1
+seq-not-stamped,port,CAUGHT,1 check(s) failed,1
+model-round-robin,model,CAUGHT,5 check(s) failed,1
+model-gm-hi-live,model,CAUGHT,1 check(s) failed,1
+zero-byte-class-accepted,port,CAUGHT,1 check(s) failed,1
+zero-size-refusal-uncounted,port,CAUGHT,2 check(s) failed,1
+foreign-free-uncounted,port,CAUGHT,3 check(s) failed,1
+port-pool-unreported,port,CAUGHT,1 check(s) failed,1
+pool-follows-a-cut-free-list,port,CAUGHT,1 check(s) failed,1
+pool-cut-list-refuses-outright,port,CAUGHT,2 check(s) failed,1
+encoding-failure-swallowed,port,CAUGHT,1 check(s) failed,1
+rx-binds-no-function,port,CAUGHT,1 check(s) failed,1
+seed-left-at-zero,adp,CAUGHT,1 check(s) failed,1
+enable-not-idempotent,adp,CAUGHT,1 check(s) failed,1
+other-subtype-accepted,adp,CAUGHT,2 check(s) failed,1
+app-binds-pool-after-the-mailbox,unit,CAUGHT,1 check(s) failed,1
+app-starts-on-an-uncarved-pool,unit,CAUGHT,3 check(s) failed,1
+major-unchecked,"unit, unit",CAUGHT,40 check(s) failed,1
+evt-words-unchecked,unit,CAUGHT,12 check(s) failed,1
+step-waits-twice,unit,CAUGHT,1 check(s) failed,1
+maap-base-shifted,unit,CAUGHT,1 check(s) failed,1
+tx-negative-fill,unit,CAUGHT,2 check(s) failed,1
+unknown-event-decoded-as-tick,unit,CAUGHT,1 check(s) failed,1
+whole-field-loses-its-top-bit,unit,CAUGHT,1 check(s) failed,1
+slots-past-the-bank,unit,CAUGHT,1 check(s) failed,1
+foreign-frame-uncounted,unit,CAUGHT,1 check(s) failed,1
+attach-ignores-poll-room,unit,CAUGHT,1 check(s) failed,1
+mmio-offset-as-index,unit,CAUGHT,2 check(s) failed,1
+wait-without-wfi,unit,CAUGHT,1 check(s) failed,1
+model-tag-stripped,model,CAUGHT,12 check(s) failed,1
+model-tpid-matches-a-tuple,model,CAUGHT,13 check(s) failed,1
+model-multicast-dst-ignored,model,CAUGHT,48 check(s) failed,1
+model-ethertype-ignored,model,CAUGHT,33 check(s) failed,1
+model-subtype-ignored,model,CAUGHT,38 check(s) failed,1
+model-own-any-unicast,"model, acmp",CAUGHT,20 check(s) failed,1
+model-own-mac-of-interface-0,model,CAUGHT,2 check(s) failed,1
+model-own-mac-hi-dropped,model,CAUGHT,34 check(s) failed,1
+model-aecp-command-only,model,CAUGHT,5 check(s) failed,1
+model-mismatch-never-counted,"model, acmp",CAUGHT,48 check(s) failed,1
+model-mismatch-counts-identity-refusals,model,CAUGHT,27 check(s) failed,1
+model-mismatch-sets-no-err,model,CAUGHT,1 check(s) failed,1
+model-msg-type-off-by-one,model,CAUGHT,13 check(s) failed,1
+model-tuple-msg-type-ignored,model,CAUGHT,6 check(s) failed,1
+model-msg-type-refusal-uncounted,model,CAUGHT,4 check(s) failed,1
+model-defend-any-unicast,model,CAUGHT,4 check(s) failed,1
+own-mac-unguarded,unit,CAUGHT,2 check(s) failed,1
+own-mac-halves-swapped,"unit, port",CAUGHT,7 check(s) failed,1
+mismatch-read-from-bus-err,"unit, port",CAUGHT,2 check(s) failed,1
+own-mac-after-the-channels-open,port,CAUGHT,1 check(s) failed,1
+app-own-mac-not-the-entity-mac,"unit, acmp",CAUGHT,3 check(s) failed,1
+acmp-init-no-interface,acmp,CAUGHT,1 check(s) failed,1
+acmp-init-too-many-sinks,acmp,CAUGHT,1 check(s) failed,1
+acmp-init-too-many-sources,acmp,CAUGHT,1 check(s) failed,1
+acmp-init-sink-interface,acmp,CAUGHT,1 check(s) failed,1
+acmp-init-source-interface,acmp,CAUGHT,1 check(s) failed,1
+acmp-init-reads-the-seed,"acmp, acmp",CAUGHT,60 check(s) failed,1
+acmp-header-no-resp-2s,"acmp, acmpwalk",CAUGHT,49 check(s) failed,1
+acmp-header-retry-2s,"acmp, acmpwalk",CAUGHT,15 check(s) failed,1
+acmp-header-no-tk-5s,acmp,CAUGHT,5 check(s) failed,1
+acmp-header-valid-time-in-seconds,acmp,CAUGHT,14 check(s) failed,1
+acmp-header-listener-unknown-is-2,acmp,CAUGHT,3 check(s) failed,1
+acmp-header-registering-failed-bit,acmp,CAUGHT,2 check(s) failed,1
+acmp-header-cdl-84,acmp,CAUGHT,1 check(s) failed,1
+acmp-bind-count-0,"acmp, acmpwalk",CAUGHT,23 check(s) failed,1
+acmp-probe-without-fast-connect,"acmp, acmpwalk",CAUGHT,11 check(s) failed,1
+acmp-probe-before-response,acmp,CAUGHT,25 check(s) failed,1
+acmp-no-resp-2s,"acmp, acmp",CAUGHT,58 check(s) failed,1
+acmp-bind-starts-no-discovery,"acmp, acmpwalk",CAUGHT,240 check(s) failed,1
+acmp-bind-change-before-response,acmp,CAUGHT,3 check(s) failed,1
+acmp-nothing-persisted,"acmp, acmpnvm",CAUGHT,32 check(s) failed,1
+acmp-unbind-not-persisted,"acmpnvm, acmpwalk",CAUGHT,8 check(s) failed,1
+acmp-rebind-not-persisted,"acmpnvm, acmp",CAUGHT,28 check(s) failed,1
+acmp-streaming-wait-ignored,acmp,CAUGHT,8 check(s) failed,1
+acmp-sw-read-from-fast-connect,acmp,CAUGHT,15 check(s) failed,1
+acmp-getrx-count-unbound,"acmp, acmpwalk",CAUGHT,2 check(s) failed,1
+acmp-getrx-no-fast-connect,"acmp, acmpwalk",CAUGHT,15 check(s) failed,1
+acmp-getrx-no-registering-failed,acmp,CAUGHT,1 check(s) failed,1
+acmp-unknown-sink-silent,acmp,CAUGHT,1 check(s) failed,1
+acmp-unbind-echoes-the-talker,"acmp, acmpwalk",CAUGHT,16 check(s) failed,1
+acmp-unbind-keeps-srp,"acmp, acmpwalk",CAUGHT,6 check(s) failed,1
+acmp-unbind-srp-after-response,acmp,CAUGHT,4 check(s) failed,2
+acmp-unbind-keeps-discovery,"acmp, acmpwalk",CAUGHT,17 check(s) failed,2
+acmp-unbind-change-before-response,acmp,CAUGHT,7 check(s) failed,2
+acmp-not-authorized-is-13,"acmp, acmpwalk",CAUGHT,8 check(s) failed,2
+acmp-lock-ignored,acmp,CAUGHT,2 check(s) failed,2
+acmp-lock-refuses-the-holder,acmp,CAUGHT,9 check(s) failed,2
+acmp-get-rx-state-locked,acmp,CAUGHT,1 check(s) failed,2
+acmp-rebind-same-reprobes,"acmp, acmpwalk",CAUGHT,12 check(s) failed,2
+acmp-rebind-same-keeps-the-controller,acmp,CAUGHT,8 check(s) failed,2
+acmp-bind-new-keeps-srp,"acmp, acmpwalk",CAUGHT,5 check(s) failed,2
+acmp-bind-same-talker-is-the-same-source,acmp,CAUGHT,1 check(s) failed,2
+acmp-sequence-id-never-advances,"acmp, acmp",CAUGHT,18 check(s) failed,2
+acmp-sequence-id-per-sink,"acmp, acmpwalk",CAUGHT,170 check(s) failed,2
+acmp-response-keyed-on-the-source,acmp,CAUGHT,4 check(s) failed,2
+acmp-guard-controller-dropped,"acmp, acmpwalk",CAUGHT,13 check(s) failed,2
+acmp-guard-talker-dropped,"acmp, acmpwalk",CAUGHT,12 check(s) failed,2
+acmp-guard-unique-id-dropped,"acmp, acmpwalk",CAUGHT,11 check(s) failed,2
+acmp-guard-sequence-id-dropped,"acmp, acmpwalk",CAUGHT,10 check(s) failed,2
+acmp-guard-reads-the-binding,acmp,CAUGHT,2 check(s) failed,2
+acmp-responses-taken-outside-probing,"acmp, acmpwalk",CAUGHT,55 check(s) failed,2
+acmp-vlan-masked,acmp,CAUGHT,4 check(s) failed,2
+acmp-no-tk-1s,"acmp, acmpwalk",CAUGHT,15 check(s) failed,2
+acmp-settle-starts-no-srp,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-settle-swaps-stream-fields,"acmp, acmpwalk",CAUGHT,34 check(s) failed,2
+acmp-failure-status-dropped,"acmp, acmpwalk",CAUGHT,15 check(s) failed,2
+acmp-failure-retries-at-200ms,"acmp, acmpwalk",CAUGHT,11 check(s) failed,2
+acmp-duplicate-takes-a-new-sequence-id,"acmp, acmpwalk",CAUGHT,26 check(s) failed,2
+acmp-second-timeout-keeps-status-0,"acmp, acmp, acmpwalk",CAUGHT,10 check(s) failed,2
+acmp-no-duplicate,"acmp, acmpwalk",CAUGHT,53 check(s) failed,2
+acmp-retry-ignores-discovery,"acmp, acmpwalk",CAUGHT,14 check(s) failed,2
+acmp-retry-zeroes-the-status,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-delay-resends-the-old-probe,"acmp, acmpwalk",CAUGHT,5 check(s) failed,2
+acmp-no-tk-keeps-srp,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-reprobe-ignores-discovery,"acmp, acmp, acmpwalk",CAUGHT,16 check(s) failed,2
+acmp-registered-anywhere,"acmp, acmpwalk",CAUGHT,32 check(s) failed,2
+acmp-registered-keeps-no-tk,"acmp, acmpwalk",CAUGHT,18 check(s) failed,2
+acmp-registered-kind-dropped,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-unregistered-anywhere,"acmp, acmpwalk",CAUGHT,27 check(s) failed,2
+acmp-kind-lost,acmp,CAUGHT,5 check(s) failed,2
+acmp-kind-any-state,acmp,CAUGHT,15 check(s) failed,2
+acmp-unregistered-keeps-srp,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-timer-at-the-latest-deadline,acmp,CAUGHT,16 check(s) failed,2
+acmp-timer-port-called-every-time,acmp,CAUGHT,8 check(s) failed,2
+acmp-timer-never-stopped,"acmp, acmp",CAUGHT,22 check(s) failed,2
+acmp-expiry-takes-every-interface,acmp,CAUGHT,2 check(s) failed,2
+acmp-expiry-not-consumed,acmp,CAUGHT,2 check(s) failed,2
+acmp-zero-delay-waits,acmp,CAUGHT,2 check(s) failed,2
+acmp-delay-up-to-4s,acmp,CAUGHT,1 check(s) failed,2
+acmp-seed-at-every-draw,acmp,CAUGHT,1 check(s) failed,2
+acmp-rng-left-at-0,acmp,CAUGHT,1 check(s) failed,2
+acmp-response-passes-an-owed-frame,acmp,CAUGHT,2 check(s) failed,2
+acmp-poll-drains-everything,"acmp, acmp",CAUGHT,18 check(s) failed,2
+acmp-change-not-held-for-its-response,"acmp, acmp",CAUGHT,12 check(s) failed,2
+acmp-full-queue-acts,acmp,CAUGHT,1 check(s) failed,2
+acmp-lost-probe-uncounted,acmp,CAUGHT,1 check(s) failed,2
+acmp-first-owed-releases-every-change,acmp,CAUGHT,1 check(s) failed,2
+acmp-poll-newest-first,"acmp, acmp",CAUGHT,26 check(s) failed,2
+acmp-probe-tx-reports-asking-failed,acmp,CAUGHT,1 check(s) failed,2
+acmp-probe-tx-echoes-every-flag,acmpwalk,CAUGHT,1 check(s) failed,2
+acmp-probe-tx-any-interface,"acmp, acmpwalk",CAUGHT,4 check(s) failed,2
+acmp-probe-tx-no-destination-mac-check,"acmp, acmpwalk",CAUGHT,2 check(s) failed,2
+acmp-disconnect-always-succeeds,"acmp, acmpwalk",CAUGHT,2 check(s) failed,2
+acmp-unknown-source-answered,"acmp, acmpwalk",CAUGHT,7 check(s) failed,2
+acmp-get-tx-state-echoes-the-listener,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-get-tx-state-registering-failed-0,"acmp, acmpwalk",CAUGHT,2 check(s) failed,2
+acmp-get-tx-state-unheld-mac,acmp,CAUGHT,1 check(s) failed,2
+acmp-get-tx-connection-supported,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-every-listener-is-this-one,acmp,CAUGHT,1 check(s) failed,2
+acmp-every-talker-is-this-one,acmp,CAUGHT,1 check(s) failed,2
+acmp-short-pdu-read,acmp,CAUGHT,1 check(s) failed,2
+acmp-longer-pdu-refused,acmp,CAUGHT,1 check(s) failed,2
+acmp-discovery-reads-no-grandmaster,"acmp, acmpwalk",CAUGHT,22 check(s) failed,2
+acmp-discovery-reads-no-domain,"acmp, acmpwalk",CAUGHT,9 check(s) failed,2
+acmp-valid-time-in-seconds,"acmp, acmpwalk",CAUGHT,23 check(s) failed,2
+acmp-discovered-interface-unchecked,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-restart-on-a-smaller-index-only,acmp,CAUGHT,1 check(s) failed,2
+acmp-restart-raises-no-discovered,"acmp, acmpwalk",CAUGHT,6 check(s) failed,2
+acmp-restart-mismatch-keeps-aging,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-refresh-notes-no-index,"acmp, acmpwalk",CAUGHT,7 check(s) failed,2
+acmp-departing-taken-undiscovered,acmp,CAUGHT,1 check(s) failed,2
+acmp-departing-interface-unchecked,"acmp, acmpwalk",CAUGHT,3 check(s) failed,2
+acmp-departing-keeps-aging,"acmp, acmpwalk",CAUGHT,4 check(s) failed,2
+acmp-no-aging,"acmp, acmpwalk",CAUGHT,9 check(s) failed,2
+acmp-discovery-on-every-interface,acmp,CAUGHT,1 check(s) failed,2
+acmp-discovery-on-unbound-sinks,acmp,CAUGHT,1 check(s) failed,2
+acmp-grandmaster-sampled-for-the-refresh,acmp,CAUGHT,1 check(s) failed,2
+acmp-grandmaster-sampled-per-sink,acmp,CAUGHT,1 check(s) failed,2
+acmp-reentry-unguarded,"acmp, acmp",CAUGHT,62 check(s) failed,2
+acmp-reentry-untrapped,acmp,CAUGHT,23 check(s) failed,2
+acmp-send-port-unflagged,acmp,CAUGHT,15 check(s) failed,2
+acmp-timer-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-gptp-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-clock-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-seed-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-lock-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-source-port-unflagged,acmp,CAUGHT,6 check(s) failed,2
+acmp-srp-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-persist-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-changed-port-unflagged,acmp,CAUGHT,1 check(s) failed,2
+acmp-restore-lands-in-prb-w-resp,"acmp, acmpnvm",CAUGHT,20 check(s) failed,2
+acmp-restore-starts-no-discovery,"acmp, acmpnvm",CAUGHT,14 check(s) failed,2
+acmp-restore-announced,acmpnvm,CAUGHT,2 check(s) failed,2
+acmp-record-flags-swapped,acmpnvm,CAUGHT,2 check(s) failed,2
+acmp-record-unique-id-little-endian,acmp,CAUGHT,4 check(s) failed,2
+acmp-restore-unique-id-little-endian,acmp,CAUGHT,5 check(s) failed,2
+acmp-roll-back-keeps-the-bindings,"acmp, acmpnvm",CAUGHT,5 check(s) failed,2
+acmp-unbound-record-not-zero,acmp,CAUGHT,35 check(s) failed,2
+acmp-started-not-saved,"acmp, acmpnvm",CAUGHT,7 check(s) failed,2
+acmp-discovery-notifies,"acmp, acmpwalk",CAUGHT,8 check(s) failed,2
+acmp-status-not-notified,acmp,CAUGHT,1 check(s) failed,2
+acmp-probing-status-not-notified,acmpwalk,CAUGHT,4 check(s) failed,2
+acmp-frames-on-the-adp-channel,acmp,CAUGHT,5 check(s) failed,2
+acmp-timer-on-the-next-slot,acmp,CAUGHT,22 check(s) failed,2
+acmp-timer-deadline-taken-as-a-delay,acmp,CAUGHT,11 check(s) failed,2
+acmp-stale-tag-taken,acmp,CAUGHT,2 check(s) failed,2
+acmp-tag-reused,acmp,CAUGHT,2 check(s) failed,2
+acmp-stop-keeps-the-arm,acmp,CAUGHT,2 check(s) failed,2
+acmp-tap-takes-discover,acmp,CAUGHT,1 check(s) failed,2
+acmp-tap-drops-the-rest,acmp,CAUGHT,2 check(s) failed,2
+acmp-no-tap,"acmp, acmp",CAUGHT,34 check(s) failed,2
+acmp-domain-not-sampled,acmp,CAUGHT,1 check(s) failed,2
+acmp-attach-before-adp,acmp,CAUGHT,2 check(s) failed,2
+acmp-attach-ignores-sink-room,acmp,CAUGHT,1 check(s) failed,2
+acmp-attach-ignores-poll-room,acmp,CAUGHT,1 check(s) failed,2
+acmp-slots-past-the-bank,acmp,CAUGHT,6 check(s) failed,2
+acmp-interfaces-past-the-mailbox,acmp,CAUGHT,1 check(s) failed,2
+acmp-poll-owes-nothing,acmp,CAUGHT,1 check(s) failed,2
+acmp-bind-reads-the-clock-twice,acmp,CAUGHT,3 check(s) failed,2
+acmp-get-rx-state-reads-the-clock,acmp,CAUGHT,2 check(s) failed,2
+acmp-probe-response-reads-the-clock-twice,acmp,CAUGHT,2 check(s) failed,2
+acmp-unbind-reads-the-clock,acmp,CAUGHT,2 check(s) failed,3
+acmp-talker-reads-the-clock,acmp,CAUGHT,3 check(s) failed,3
+acmp-expiry-reads-the-clock-twice,acmp,CAUGHT,9 check(s) failed,3
+acmp-available-reads-the-clock-twice,acmp,CAUGHT,2 check(s) failed,3
+acmp-departing-samples-the-grandmaster,acmp,CAUGHT,2 check(s) failed,3
+acmp-aging-samples-the-grandmaster,acmp,CAUGHT,2 check(s) failed,3
+acmp-smallest-record-overstated,acmp,CAUGHT,2 check(s) failed,3
+acmp-pass-bound-understated,acmp,CAUGHT,1 check(s) failed,3
+acmp-adp-ring-bound-understated,acmp,CAUGHT,1 check(s) failed,3
+acmp-discovery-takes-the-first-sink,acmp,CAUGHT,2 check(s) failed,3
+rx-one-record-per-pass,"acmp, acmp",CAUGHT,8 check(s) failed,3
+acmp-second-no-resp-samples-the-grandmaster,acmp,CAUGHT,2 check(s) failed,3
+acmp-retry-samples-the-grandmaster,acmp,CAUGHT,2 check(s) failed,3
+acmp-delay-reads-the-clock-again,acmp,CAUGHT,2 check(s) failed,3
+acmp-no-tk-samples-the-grandmaster,acmp,CAUGHT,3 check(s) failed,3
+acmp-backlog-understated,"acmp, acmp",CAUGHT,10 check(s) failed,3
+model-event-ring-a-record-short,acmp,CAUGHT,1 check(s) failed,3
+acmp-new-bind-never-started,acmp,CAUGHT,9 check(s) failed,3
+acmp-bind-response-always-streaming-wait,acmp,CAUGHT,1 check(s) failed,3
+acmp-view-without-registering-failed,acmp,CAUGHT,6 check(s) failed,3
+acmp-discovered-probing-stays-passive,acmp,CAUGHT,2 check(s) failed,3
+acmp-grandmaster-read-twice,"acmp, acmp",CAUGHT,8 check(s) failed,3
+acmp-adp-short-frame-taken,acmp,CAUGHT,1 check(s) failed,3
+acmp-adp-ethertype-unchecked,acmp,CAUGHT,1 check(s) failed,3
+acmp-adp-subtype-unchecked,acmp,CAUGHT,1 check(s) failed,3
+acmp-adp-discover-taken,acmp,CAUGHT,1 check(s) failed,3
+acmp-frames-to-the-own-mac,"acmp, acmp",CAUGHT,6 check(s) failed,3
+app-acmp-before-adp,acmp,CAUGHT,28 check(s) failed,3
+app-acmp-never-composed,acmp,CAUGHT,64 check(s) failed,3
+acmp-nvm-bindings-to-the-others,acmpnvm,CAUGHT,11 check(s) failed,3
+acmp-nvm-refusal-applied,"acmpnvm, acmpnvm",CAUGHT,4 check(s) failed,3
+acmp-nvm-d3-roll-back-kept,acmpnvm,CAUGHT,5 check(s) failed,3
+acmp-nvm-latch-length-unchecked,acmpnvm,CAUGHT,1 check(s) failed,3
+acmp-nvm-bindings-latched-by-the-others,acmpnvm,CAUGHT,11 check(s) failed,3
+acmp-nvm-release-dropped,acmpnvm,CAUGHT,1 check(s) failed,3
+acmp-nvm-settle-dropped,acmpnvm,CAUGHT,3 check(s) failed,3
+acmp-nvm-model-always-ready,acmpnvm,CAUGHT,1 check(s) failed,3
+acmp-version-unchecked,"acmp, acmp",CAUGHT,64 check(s) failed,3
+acmp-adp-version-unchecked,"acmp, acmp",CAUGHT,64 check(s) failed,3
+acmp-version-bits-misread,acmp,CAUGHT,10 check(s) failed,3
+acmp-header-version-1,acmp,CAUGHT,4 check(s) failed,3
+acmp-owed-probe-timer-runs,"acmp, acmp, acmp",CAUGHT,66 check(s) failed,3
+acmp-owed-probe-never-starts,"acmp, acmp",CAUGHT,12 check(s) failed,3
+acmp-owed-probe-no-resp-2s,acmp,CAUGHT,6 check(s) failed,3
+acmp-owed-probe-sequence-unchecked,acmp,CAUGHT,2 check(s) failed,3
+acmp-owed-probe-unnamed,acmp,CAUGHT,6 check(s) failed,3
+acmp-owed-probe-names-the-next-sink,acmp,CAUGHT,6 check(s) failed,3
+acmp-probe-timer-before-its-send,"acmp, acmp",CAUGHT,16 check(s) failed,3
+acmp-taken-probe-timer-from-the-entry-clock,acmp,CAUGHT,6 check(s) failed,3
+acmp-expiry-due-at-its-first-read,acmp,CAUGHT,1 check(s) failed,3
+acmp-held-timer-expires,acmp,CAUGHT,7 check(s) failed,3
+acmp-held-timer-armed,acmp,CAUGHT,15 check(s) failed,3
+acmp-lost-probe-held,acmp,CAUGHT,1 check(s) failed,3
+acmp-stop-keeps-the-hold,acmp,CAUGHT,2 check(s) failed,3
+acmp-slot-sum-wraps,acmp,CAUGHT,2 check(s) failed,3
+acmp-slot-narrowed-first,acmp,CAUGHT,2 check(s) failed,3
+acmp-slots-one-short,acmp,CAUGHT,2 check(s) failed,3
+acmp-one-slot-for-all-interfaces,acmpif2,CAUGHT,22 check(s) failed,3
+acmp-expiry-to-interface-0,acmpif2,CAUGHT,10 check(s) failed,3
+acmp-gptp-of-interface-0,acmpif2,CAUGHT,1 check(s) failed,3
+acmp-record-flag-defines-swapped,acmp,CAUGHT,6 check(s) failed,3
+acmp-record-valid-bit-moved,acmp,CAUGHT,34 check(s) failed,3
+acmp-longer-record-applied,acmp,CAUGHT,3 check(s) failed,3
+acmp-nvm-d3-rollback-drops-bindings,"acmpnvm, acmpnvm",CAUGHT,4 check(s) failed,3
+acmp-due-unsigned,"acmp, acmp",CAUGHT,18 check(s) failed,3
+acmp-earliest-unsigned,acmp,CAUGHT,1 check(s) failed,3
+acmp-no-adp-due-unsigned,acmp,CAUGHT,1 check(s) failed,3
+acmp-no-resp-deadline-saturates,acmp,CAUGHT,5 check(s) failed,3
+acmp-retry-deadline-saturates,acmp,CAUGHT,2 check(s) failed,3
+acmp-no-tk-deadline-saturates,acmp,CAUGHT,3 check(s) failed,3
+acmp-delay-deadline-saturates,acmp,CAUGHT,2 check(s) failed,3
+acmp-no-adp-deadline-saturates,acmp,CAUGHT,4 check(s) failed,3
+acmp-admit-never-called,"acmp, acmp, acmp",CAUGHT,60 check(s) failed,3
+acmp-admit-on-every-entry,"acmp, acmp",CAUGHT,42 check(s) failed,3
+acmp-admit-ignores-another-talker,"acmp, acmp",CAUGHT,8 check(s) failed,3
+acmp-admit-on-interface-0,"acmp, acmpif2",CAUGHT,13 check(s) failed,3
+acmp-admit-port-unflagged,acmp,CAUGHT,1 check(s) failed,3
+acmp-reset-forgets-the-admitted,acmp,CAUGHT,1 check(s) failed,3
+acmp-open-does-nothing,"acmp, acmp",CAUGHT,32 check(s) failed,3
+acmp-open-unguarded,acmp,CAUGHT,1 check(s) failed,3
+app-acmp-never-opened,"acmp, acmp",CAUGHT,20 check(s) failed,3
+acmp-mbx-admit-on-entry-0,acmp,CAUGHT,2 check(s) failed,3
+acmp-mbx-admit-always-bound,"acmp, acmp",CAUGHT,6 check(s) failed,3
+mbx-bound-unguarded,unit,CAUGHT,3 check(s) failed,3
+mbx-bound-entry-unguarded,unit,CAUGHT,2 check(s) failed,3
+mbx-bound-withdraw-writes-nothing,"unit, acmp",CAUGHT,4 check(s) failed,3
+mbx-bound-enabled-before-the-identity,unit,CAUGHT,1 check(s) failed,3
+mbx-bound-halves-swapped,"unit, acmp",CAUGHT,17 check(s) failed,3
+mbx-bound-entry-stride-ignored,"unit, acmp",CAUGHT,6 check(s) failed,3
+model-bound-term-misses,model,CAUGHT,16 check(s) failed,3
+model-bound-enable-ignored,model,CAUGHT,4 check(s) failed,3
+model-bound-low-word-only,model,CAUGHT,4 check(s) failed,3
+model-bound-table-of-interface-0,model,CAUGHT,1 check(s) failed,3
+model-bound-term-any-type,model,CAUGHT,1 check(s) failed,3
+model-bound-entry-decoded-as-0,model,CAUGHT,3 check(s) failed,3
+model-bound-en-reads-the-eid,model,CAUGHT,1 check(s) failed,3
+app-maap-slots-overlap-acmp,acmp,CAUGHT,3 check(s) failed,3
+app-maap-slots-overlap-adp,"maap, acmp",CAUGHT,3 check(s) failed,3
+app-maap-attached-after-open,"acmp, maap",CAUGHT,11 check(s) failed,3
+app-maap-before-acmp,"acmp, acmp",CAUGHT,4 check(s) failed,3
+app-maap-started-in-compose,acmp,CAUGHT,4 check(s) failed,3
+app-maap-never-started,"acmp, maap",CAUGHT,14 check(s) failed,3
+app-maap-channel-unbound,"acmp, acmp",CAUGHT,8 check(s) failed,3
+app-maap-preferred-unchecked,"acmp, maap",CAUGHT,6 check(s) failed,3
+app-maap-last-range-refused,acmp,CAUGHT,1 check(s) failed,3
+app-maap-range-past-the-pool,acmp,CAUGHT,2 check(s) failed,3
+app-maap-refusal-ignored,acmp,CAUGHT,6 check(s) failed,3
+app-acmp-refusal-ignored,"acmp, acmp",CAUGHT,8 check(s) failed,3
+app-maap-entry-takes-no-port,"acmp, maap",CAUGHT,3 check(s) failed,3
+app-maap-entry-drops-preferred,maap,CAUGHT,7 check(s) failed,3
+app-three-way-pass-overrun,acmp,CAUGHT,1 check(s) failed,3
+app-maap-mac-per-interface,acmpif2,CAUGHT,1 check(s) failed,3
+app-own-mac-per-interface,acmpif2,CAUGHT,1 check(s) failed,3
+app-three-way-bound-drops-maap,"acmp, acmpif2",CAUGHT,2 check(s) failed,3
+app-three-way-bound-one-maap-poll,acmpif2,CAUGHT,1 check(s) failed,3
+maap-down-start-keeps-owner,maap,CAUGHT,1 check(s) failed,3
+maap-initial-send-absent,maap,CAUGHT,20 check(s) failed,3
+maap-retransmit-count,maap,CAUGHT,27 check(s) failed,3
+maap-probe-count-not-decremented,maap,CAUGHT,10103 check(s) failed,3
+maap-wire-version,maap,CAUGHT,13 check(s) failed,3
+maap-wire-length,maap,CAUGHT,17 check(s) failed,3
+maap-wire-source,maap,CAUGHT,13 check(s) failed,3
+maap-wire-padding,maap,CAUGHT,13 check(s) failed,3
+maap-constant-probe_base,maap,CAUGHT,4 check(s) failed,3
+maap-constant-probe_variation,maap,CAUGHT,3 check(s) failed,3
+maap-constant-announce_base,maap,CAUGHT,3 check(s) failed,3
+maap-constant-announce_variation,maap,CAUGHT,2 check(s) failed,3
+maap-seed-clock-ignored,maap,CAUGHT,6 check(s) failed,3
+maap-zero-seed-sticks,maap,CAUGHT,1 check(s) failed,3
+maap-biased-random-bucket,maap,CAUGHT,2 check(s) failed,3
+maap-numeric-mac-priority,maap,CAUGHT,30 check(s) failed,4
+maap-defend-multicast,maap,CAUGHT,8 check(s) failed,4
+maap-defend-echo-own-range,maap,CAUGHT,4 check(s) failed,4
+maap-intersection-too-long,maap,CAUGHT,4 check(s) failed,4
+maap-adjacent-overlaps,maap,CAUGHT,2 check(s) failed,4
+maap-zero-count-conflicts,maap,CAUGHT,1 check(s) failed,4
+maap-defend-checks-request,maap,CAUGHT,1 check(s) failed,4
+maap-malformed-ethertype,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-subtype,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-version,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-reserved-zero,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-reserved-high,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-cdl-short,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-cdl-truncated,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-cdl-current,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-source-zero,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-source-group,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-destination,maap,CAUGHT,2 check(s) failed,4
+maap-malformed-own-probe,maap,CAUGHT,2 check(s) failed,4
+maap-valid-minimum-refused,maap,CAUGHT,4 check(s) failed,4
+maap-future-version-refused,maap,CAUGHT,3 check(s) failed,4
+maap-range-end-off-by-one,maap,CAUGHT,2 check(s) failed,4
+maap-port-up-keeps-claim,maap,CAUGHT,9 check(s) failed,4
+maap-release-keeps-enable,maap,CAUGHT,2 check(s) failed,4
+maap-expiry-forgotten-on-stall,maap,CAUGHT,7 check(s) failed,4
+maap-allocation-before-commit,maap,CAUGHT,1 check(s) failed,4
+maap-probe-announce-reordered,maap,CAUGHT,2 check(s) failed,4
+maap-overflow-uncounted,maap,CAUGHT,1 check(s) failed,4
+maap-poll-unbounded,maap,CAUGHT,2 check(s) failed,4
+maap-release-leaves-output,maap,CAUGHT,2 check(s) failed,4
+maap-reentry-not-counted,maap,CAUGHT,1 check(s) failed,4
+maap-debug-no-assert,maap_debug,CAUGHT,1 check(s) failed,4
+maap-stream-index-missing,maap,CAUGHT,7 check(s) failed,4
+maap-selection-not-restored,maap,CAUGHT,1 check(s) failed,4
+maap-fabric-owner-kept,maap,CAUGHT,1 check(s) failed,4
+maap-loss-keeps-crf,maap,CAUGHT,24 check(s) failed,4
+maap-count-mismatch-accepted,maap,CAUGHT,2 check(s) failed,4
+maap-crf-index-wrong,maap,CAUGHT,3 check(s) failed,4
+maap-timer-tag-ignored,maap,CAUGHT,2 check(s) failed,4
+maap-foreign-not-counted,maap,CAUGHT,1 check(s) failed,4
+maap-half-attach,maap,CAUGHT,2 check(s) failed,4
+maap-interface-zero,maap_if2,CAUGHT,5 check(s) failed,4
+maap-no-range-filter,maap,CAUGHT,11 check(s) failed,4
+maap-filter-destination-ignored,maap,CAUGHT,8 check(s) failed,4
+maap-late-service,maap,CAUGHT,56 check(s) failed,4
+maap-stall-unqueued,maap,CAUGHT,18 check(s) failed,4
+maap-app-channel-closed,maap,CAUGHT,12 check(s) failed,4
+maap-callback-work-overrun,maap,CAUGHT,18 check(s) failed,4
+maap-ignored-input-late,maap,CAUGHT,13 check(s) failed,4
+maap-table-b7-0,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-1,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-2,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-3,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-4,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-5,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-6,maap,CAUGHT,5 check(s) failed,4
+maap-table-b7-7,maap,CAUGHT,6 check(s) failed,4
+maap-table-b7-8,maap,CAUGHT,9 check(s) failed,4
+maap-table-b7-9,maap,CAUGHT,2 check(s) failed,4
+maap-table-b7-10,maap,CAUGHT,2 check(s) failed,4
+maap-table-b7-11,maap,CAUGHT,2 check(s) failed,4
+maap-table-b7-12,maap,CAUGHT,15 check(s) failed,4
+maap-table-b7-13,maap,CAUGHT,14 check(s) failed,4
+maap-table-b7-14,maap,CAUGHT,10 check(s) failed,4
+maap-table-b7-15,maap,CAUGHT,2 check(s) failed,4
+maap-table-b7-16,maap,CAUGHT,3 check(s) failed,4
+maap-table-b7-17,maap,CAUGHT,3 check(s) failed,4
+maap-allocation-seam-disconnected,maap,CAUGHT,10054 check(s) failed,4
+maap-app-missing-rx-interrupt,maap,CAUGHT,4 check(s) failed,4
+maap-begin-down-forgets-range,maap,CAUGHT,3 check(s) failed,4
+maap-restart-reuses-range,maap,CAUGHT,4 check(s) failed,4
+maap-reverse-five-octets,maap,CAUGHT,1 check(s) failed,4
+maap-compare-mac-lsb-only,maap,CAUGHT,5 check(s) failed,4
+maap-csr-select-listener,maap,CAUGHT,7 check(s) failed,4
+maap-csr-enable-before-programming,maap,CAUGHT,23 check(s) failed,4
+maap-poll-first-interface-only,maap_if2,CAUGHT,2 check(s) failed,4
+maap-generic-initial-handles-conflict,maap,CAUGHT,12 check(s) failed,4
+maap-generic-probe-state-defends,maap,CAUGHT,32 check(s) failed,4
+maap-generic-probe-defend-uses-priority,maap,CAUGHT,4 check(s) failed,4
+maap-generic-equal-mac-wins,maap,CAUGHT,1 check(s) failed,4
+r2-saved-range-never-consumed,maap,CAUGHT,1 check(s) failed,4
+f3b-query-inside-allocation,maap,CAUGHT,542 check(s) failed,4
+f3b-composition-owner,acmp,CAUGHT,5 check(s) failed,4
+f3b-idle-tick,acmp,CAUGHT,2 check(s) failed,4
+f3b-config-interval,acmp,CAUGHT,3 check(s) failed,4
+f3b-fresh-probe-arm,maap,CAUGHT,2 check(s) failed,4
+f3b-listener-arm,maap,CAUGHT,17 check(s) failed,4
+f3b-no-demand-arm,maap,CAUGHT,7 check(s) failed,4
+f3b-source-validity,"acmp, acmp, acmpif2, acmpif2, maap",CAUGHT,35 check(s) failed,4
+f3b-expiry-arm,maap,CAUGHT,1 check(s) failed,4
+f3b-expiry-refresh,maap,CAUGHT,3 check(s) failed,4
+pin-adp-short-discovery,adp,CAUGHT,124 check(s) failed,4
+pin-adp-discovery-version,adp,CAUGHT,26 check(s) failed,4
+pin-adp-discovery-length,adp,CAUGHT,20 check(s) failed,4
+pin-adp-valid-discovery,adp,CAUGHT,2 check(s) failed,4
+pub-sid-valid-set-first,unit,CAUGHT,1 check(s) failed,4
+pub-sid-halves-swapped,unit,CAUGHT,1 check(s) failed,4
+pub-domain-priority-and-vid-swapped,unit,CAUGHT,2 check(s) failed,4
+pub-licence-in-the-da-gate,unit,CAUGHT,2 check(s) failed,4
+pub-sink-past-the-block,unit,CAUGHT,2 check(s) failed,4
+pub-sink-binding-past-the-block,unit,CAUGHT,2 check(s) failed,4
+pub-started-in-the-bound-bit,unit,CAUGHT,2 check(s) failed,4
+pub-sink-binding-drops-sid-valid,unit,CAUGHT,1 check(s) failed,4
+pub-talker-decl-in-the-licence,unit,CAUGHT,2 check(s) failed,4
+model-pub-sid-not-gated,model,CAUGHT,5 check(s) failed,4
+model-pub-hole-takes-a-write,model,CAUGHT,3 check(s) failed,4
+model-pub-started-not-stored,model,CAUGHT,5 check(s) failed,4
+model-pub-declarations-a-hole,model,CAUGHT,4 check(s) failed,4
+model-pub-every-sink-reads-entry-0,model,CAUGHT,7 check(s) failed,4
+pub-acmp-after-the-response,"acmp, acmp",CAUGHT,16 check(s) failed,4
+pub-acmp-skipped-at-the-end-of-an-entry,"acmp, acmp, acmp",CAUGHT,51 check(s) failed,4
+pub-acmp-talker-for-the-stream,acmp,CAUGHT,7 check(s) failed,4
+pub-acmp-stream-held-past-settlement,acmp,CAUGHT,1 check(s) failed,4
+pub-acmp-every-sink-every-entry,acmp,CAUGHT,26 check(s) failed,4
+pub-acmp-port-unguarded,acmp,CAUGHT,1 check(s) failed,4
+pub-acmp-reset-forgets-the-port,acmp,CAUGHT,3 check(s) failed,4
+pub-acmp-adapter-drops-the-port,"acmp, acmp",CAUGHT,22 check(s) failed,4
+pub-acmp-started-after-the-response,acmp,CAUGHT,1 check(s) failed,4
+pub-acmp-started-after-the-report,acmp,CAUGHT,4 check(s) failed,4
+pub-acmp-started-from-bound,acmp,CAUGHT,9 check(s) failed,4
+pub-acmp-started-move-skipped,acmp,CAUGHT,5 check(s) failed,4
+pub-acmp-adapter-rewrites-the-stream,acmp,CAUGHT,1 check(s) failed,4
+pub-acmp-adapter-drops-sid-valid,acmp,CAUGHT,4 check(s) failed,4
+pub-acmp-adapter-sid-valid-always,"acmp, acmpif2",CAUGHT,18 check(s) failed,4
+pub-maap-gate-after-the-report,maap,CAUGHT,5 check(s) failed,4
+pub-maap-gate-skipped,maap,CAUGHT,25 check(s) failed,4
+pub-maap-gate-one-source-short,maap,CAUGHT,16 check(s) failed,4
+pub-maap-gate-open-while-invalid,maap,CAUGHT,4 check(s) failed,4
+rv-maap-gate-on-interface-0,"maap_if2, maap_if2",CAUGHT,12 check(s) failed,4
+pub-maap-sources-past-the-block,maap,CAUGHT,1 check(s) failed,4

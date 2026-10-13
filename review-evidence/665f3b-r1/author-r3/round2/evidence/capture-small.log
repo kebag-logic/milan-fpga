@@ -1,0 +1,55 @@
+PASS: explicit absent compiler is refused without fallback
+PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+PASS: caught hosted headers restored
+PASS: caught freestanding disabled
+PASS: caught RV64 object
+PASS: caught hard-float object
+PASS: caught compressed ISA object
+PASS: caught multiply ISA object
+PASS: caught malformed object and dynamic stack report
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects restored stack-protector dependency
+RV32 build self-test: 17 checks PASS
+sw/firmware/gtest/fw_rv32_selftest.py 0
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+endstation_arty_4x4          clock=83333000 Hz
+  nvm_suite: built, not run (--build-only)
+  rv32 at 83333000 Hz: text=12124 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_arty_8ch          clock=83333000 Hz
+  nvm_suite: built, not run (--build-only)
+  rv32 at 83333000 Hz: text=12124 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_arty_current      clock=83333000 Hz
+  nvm_suite: built, not run (--build-only)
+  rv32 at 83333000 Hz: text=12116 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+  nvm_suite: built, not run (--build-only)
+  nvm_vector: built, not run (--build-only)
+  nvm_mapin: built, not run (--build-only)
+  nvm_noname: built, not run (--build-only)
+  nvm_litespi: built, not run (--build-only)
+  nvm_prefix: built, not run (--build-only)
+  rv32 at 100000000 Hz: text=12132 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_ax7101_8x8        clock=100000000 Hz
+  nvm_suite: built, not run (--build-only)
+  nvm_vector: built, not run (--build-only)
+  rv32 at 100000000 Hz: text=12136 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): BUILT across 5 shape(s), nothing run (--build-only)
+sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py 0
+test_ctrl_memory: BUILT (reset entry and probe; no suites run)
+sw/litex/test_ctrl_memory.py 0
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+F5 1x1: BUILT
+tb/verilator/milan_dp/stream_counter_f5.py 0
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+F5 8x8: BUILT
+tb/verilator/milan_dp/stream_counter_f5.py 0
