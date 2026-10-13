@@ -1,0 +1,31 @@
+[R632] R632-5 own pass, written before any prior review finding text was read.
+Exact head ede700b00ef4d79566a6f108b11ce9bd4ad6beaa, tree 1efdeba1e3477de15b8f04c5615c6d58e2756e46.
+
+Provisional verdict: POSITIVE (no BLOCKER, MAJOR or MINOR found).
+
+Findings:
+- RESIDUE R1 (Docs): docs/testing/CI_WORKFLOWS.md:1824 calls the line printed beside an
+  earlier body failure "the signal diagnostic"; in this page "diagnostic" otherwise means the
+  interrupt line `act-ci: interrupted by SIG... after cleanup`, which is not printed in that
+  case. The printed line is `act-ci: CPU-range monitor cleanup was interrupted
+  (TerminationRequest: SIG...); the failure already propagating is kept`.
+- RESIDUE R2 (Docs): docs/testing/CI_WORKFLOWS.md:1828 "Then the first failure wins." follows
+  a paragraph that already states the precedence; "Then" reads as a later step.
+- SUGGESTION S1 (Tests): two of this round's own control mutants (V07, V08) fail the self-test
+  by ending it (rc 129 by a stray SIGHUP; an escaping Refusal) rather than by a named FAIL arm.
+
+Ledger (provisional):
+Conformance CLEAN; RTL (runner architecture/concurrency; no HDL in the diff) CLEAN;
+Robustness CLEAN; Tests CLEAN; Docs CLEAN (RESIDUE only).
+
+Executed at this head (all inside the no-network, no-Docker sandbox):
+- act_ci.py --selftest: 507 ok, 0 FAIL, rc 0.
+- prior mutants_r2.py unchanged: 36/36 killed (K12, K13, K32, K36 KILLED).
+- prior mutants_r3.py unchanged: 24/30 killed, Q24 KILLED; survivors Q06 Q11 Q13 Q15 Q28 Q29.
+- R633-4 probe_cleanup_entry.py unchanged: six cases invariant true, rc 130/143/129, rc 0.
+- own probe_r632_5.py: masks PASS; sweep 470 injections (235 steps x main thread and
+  process-wide) 0 failures; the same sweep on a no-outer-mask control: 18 failures.
+- own mutants_r632_5.py: 12/12 killed.
+- gates: ci_events --check/--selftest, act_slot_proof --selftest, py-idiom and selftest,
+  baremetal --check/--selftest, docs_check (pinned), doc style, gen_toc --check and
+  --verify-anchors, doc paths, em-dash --base dc4d06cb, git diff --check: all rc 0.
