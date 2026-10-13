@@ -1,0 +1,5 @@
+# Composition test legs on a byte-identical copy of the candidate (scratch/tree).
+make -C tb/verilator/milan_dp VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator VERILATOR_JOBS=4 counters
+make -C tb/verilator/milan_dp counters-f5
+cd tests && python3 -m behave --no-capture -f plain
+python3 tb/tools/torture_campaign.py --self-test

@@ -1,0 +1,44 @@
+# Documentation-workflow gates applicable on the candidate (no act_ci, no SDK
+# download, no builder bank, no submodule docs build).
+python3 scripts/gen_hdl_reference.py --selftest
+python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base 49da9fd974e8805d56c90e29dcfcb67994c2c430
+python3 scripts/check_em_dash.py --base c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+python3 scripts/check_doc_style.py && python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py && python3 scripts/check_gptp_docs.py --selftest
+python3 docs/DOC_MAP.gen.py --check && python3 docs/DOC_MAP.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check && python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 scripts/check_solution_docs.py && python3 scripts/check_solution_docs.py --selftest
+python3 docs/diagrams/submodule_boundaries.gen.py --check && python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 scripts/check_submodule_docs.py && python3 scripts/check_submodule_docs.py --selftest
+python3 scripts/gen_wavedrom.py --selftest
+python3 scripts/check_diagram_pngs.py && python3 scripts/check_diagram_pngs.py --selftest
+python3 scripts/check_feature_status.py --self-test
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/measure_control_flow.py --selftest
+python3 scripts/measure_cohesion.py --selftest
+python3 scripts/check_baremetal_only.py --check && python3 scripts/check_baremetal_only.py --selftest
+python3 scripts/check_nvm_record_space.py && python3 scripts/check_nvm_record_space.py --self-test
+python3 scripts/check_nvm_capture.py
+python3 scripts/check_soc_sources.py && python3 scripts/check_soc_sources.py --selftest
+python3 scripts/check_rtl_source_lists.py && python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/measure_naming.py --check && python3 scripts/measure_naming.py --selftest
+python3 scripts/check_port_contracts.py && python3 scripts/check_port_contracts.py --selftest
+python3 scripts/measure_fail_fast.py --check && python3 scripts/measure_fail_fast.py --selftest
+python3 scripts/check_todo_ownership.py && python3 scripts/check_todo_ownership.py --selftest
+python3 scripts/measure_test_evidence.py --check && python3 scripts/measure_test_evidence.py --selftest
+python3 scripts/check_hygiene.py --check && python3 scripts/check_hygiene.py --selftest
+python3 scripts/check_sv_idiom.py && python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py && python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_py_idiom.py && python3 scripts/check_py_idiom.py --selftest
+python3 scripts/check_sh_idiom.py && python3 scripts/check_sh_idiom.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/gen_toc.py --check
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/suite_shards.py --selftest
+python3 scripts/ci_scope.py --selftest
+git diff --check 49da9fd974e8805d56c90e29dcfcb67994c2c430 cdb49e7ec8b2e03f835a9bda2230ef3e26788c16
+python3 scripts/gen_toc.py --selftest
+python3 scripts/check_em_dash.py --selftest

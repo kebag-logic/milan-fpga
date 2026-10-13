@@ -1,0 +1,17 @@
+# Standing counters plants and the before control on the candidate copy; each must exit 0 (detected by name, then escape with that check omitted).
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant tx-interval --work $REVIEWS/726-r628-7-packet/scratch/work/m-tx-interval
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant rx-interval --work $REVIEWS/726-r628-7-packet/scratch/work/m-rx-interval
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant tx-reset --work $REVIEWS/726-r628-7-packet/scratch/work/m-tx-reset
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant aaf-reset --work $REVIEWS/726-r628-7-packet/scratch/work/m-aaf-reset
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant crf-reset --work $REVIEWS/726-r628-7-packet/scratch/work/m-crf-reset
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant rx-saturation --work $REVIEWS/726-r628-7-packet/scratch/work/m-rx-saturation
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant late --work $REVIEWS/726-r628-7-packet/scratch/work/m-late
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant rate --work $REVIEWS/726-r628-7-packet/scratch/work/m-rate
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant tx-nodirty --work $REVIEWS/726-r628-7-packet/scratch/work/m-tx-nodirty
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant fixed-grid --work $REVIEWS/726-r628-7-packet/scratch/work/m-fixed-grid
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant egress-stall --work $REVIEWS/726-r628-7-packet/scratch/work/m-egress-stall
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant egress-stall --shape 8 --work $REVIEWS/726-r628-7-packet/scratch/work/m-egress-stall-8
+cd tb/verilator/milan_dp && VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator python3 stream_counters.py --variant before --shape 1 --work $REVIEWS/726-r628-7-packet/scratch/work/before-1
+cd tb/verilator/milan_dp && python3 stream_counter_f5.py --variant late --work $REVIEWS/726-r628-7-packet/scratch/work/f5-late
+cd tb/verilator/milan_dp && python3 stream_counter_f5.py --variant rate --work $REVIEWS/726-r628-7-packet/scratch/work/f5-rate
+cd tb/verilator/milan_dp && python3 stream_counter_f5.py --variant fixed-grid --work $REVIEWS/726-r628-7-packet/scratch/work/f5-fixed-grid
