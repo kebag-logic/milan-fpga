@@ -1,0 +1,120 @@
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 12500 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 15500 ns from original deadline (model)
+  H-MAAP timer 2: 57 accesses, 20800 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 24200 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (1 ms)
+[ RUN      ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported
+[       OK ] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported (0 ms)
+[ RUN      ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:207: Failure
+Expected equality of these values:
+  gate_at_report[last]
+    Which is: 0
+  expected_gate(last)
+    Which is: 170
+DA gate of the acquiring interface opens before its own report
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:208: Failure
+Expected equality of these values:
+  gate(last)
+    Which is: 0
+  expected_gate(last)
+    Which is: 170
+DA gate of the acquiring interface stays open while it holds the range
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface stays open while it holds the range
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:210: Failure
+Value of: gate(k) == 0u && !valid[k]
+  Actual: false
+Expected: true
+DA gate of interface 0, which holds no range, stays closed
+
+  [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of interface 0, which holds no range, stays closed
+[  FAILED  ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport (0 ms)
+[ RUN      ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:225: Failure
+Expected equality of these values:
+  gate(k)
+    Which is: 170
+  expected_gate(k)
+    Which is: 85
+DA gate of interface 0 stays open while it holds the range
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: DA gate of interface 0 stays open while it holds the range
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:224: Failure
+Expected equality of these values:
+  gate_at_report[k]
+    Which is: 0
+  expected_gate(k)
+    Which is: 170
+DA gate of interface 1 opens before its own report
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: DA gate of interface 1 opens before its own report
+$REVIEWS/r583-2-665f3b/sw/firmware/ctrl/test/test_maap_mbx.cpp:225: Failure
+Expected equality of these values:
+  gate(k)
+    Which is: 0
+  expected_gate(k)
+    Which is: 170
+DA gate of interface 1 stays open while it holds the range
+
+  [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: DA gate of interface 1 stays open while it holds the range
+[  FAILED  ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+[       OK ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource
+[       OK ] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource (0 ms)
+[ RUN      ] MaapHost.DaGateListenerDeclaresWithoutProbe
+[       OK ] MaapHost.DaGateListenerDeclaresWithoutProbe (0 ms)
+[ RUN      ] MaapHost.DaGateWithoutDemandStaysClosed
+[       OK ] MaapHost.DaGateWithoutDemandStaysClosed (0 ms)
+[ RUN      ] MaapHost.DaGateProbeExpiresAtFifteenSeconds
+[       OK ] MaapHost.DaGateProbeExpiresAtFifteenSeconds (0 ms)
+[ RUN      ] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms
+[       OK ] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms (0 ms)
+[ RUN      ] MaapHost.DaGateWaitsForSourceOwnerAfterAllocation
+[       OK ] MaapHost.DaGateWaitsForSourceOwnerAfterAllocation (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[       OK ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[       OK ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.AppWaitWakesForMaapWithinBudget
+  H-MAAP wake interface 0: 4800 ns from RX_HEAD (model)
+  H-MAAP wake interface 1: 4800 ns from RX_HEAD (model)
+[       OK ] MaapHost.AppWaitWakesForMaapWithinBudget (0 ms)
+[ RUN      ] MaapHost.InterfaceOneStallDrainsWithinBudget
+  H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+[       OK ] MaapHost.InterfaceOneStallDrainsWithinBudget (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[       OK ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 22 tests from MaapHost (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 20 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport
+[  FAILED  ] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport
+
+ 2 FAILED TESTS
+== ctrl H-MAAP mailbox: checks: 22   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 22 checks, exit 1)

@@ -1,0 +1,776 @@
+﻿2026-10-13T20:35:26.4644065Z Current runner version: '2.337.0'
+2026-10-13T20:35:26.4658256Z ##[group]Runner Image Provisioner
+2026-10-13T20:35:26.4658753Z Hosted Compute Agent
+2026-10-13T20:35:26.4659096Z Version: 20261002.596
+2026-10-13T20:35:26.4659530Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T20:35:26.4659939Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T20:35:26.4660319Z Worker ID: {67a469d1-3a85-40bd-adcc-619514aeed07}
+2026-10-13T20:35:26.4660757Z Region: westus3
+2026-10-13T20:35:26.4661077Z Cloud: Azure
+2026-10-13T20:35:26.4661412Z ##[endgroup]
+2026-10-13T20:35:26.4662344Z ##[group]Operating System
+2026-10-13T20:35:26.4662682Z Ubuntu
+2026-10-13T20:35:26.4663037Z 24.04.5
+2026-10-13T20:35:26.4663334Z LTS
+2026-10-13T20:35:26.4663659Z ##[endgroup]
+2026-10-13T20:35:26.4664012Z ##[group]Runner Image
+2026-10-13T20:35:26.4664349Z Image: ubuntu-24.04
+2026-10-13T20:35:26.4664716Z Version: 20261004.327.1
+2026-10-13T20:35:26.4665426Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T20:35:26.4666338Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T20:35:26.4666872Z ##[endgroup]
+2026-10-13T20:35:26.4667582Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T20:35:26.4668742Z Contents: read
+2026-10-13T20:35:26.4669157Z Metadata: read
+2026-10-13T20:35:26.4669505Z Packages: read
+2026-10-13T20:35:26.4669848Z ##[endgroup]
+2026-10-13T20:35:26.4671002Z Secret source: Actions
+2026-10-13T20:35:26.4671518Z Cache mode: write
+2026-10-13T20:35:26.4672100Z Prepare workflow directory
+2026-10-13T20:35:26.4891106Z Prepare all required actions
+2026-10-13T20:35:26.4920180Z Getting action download info
+2026-10-13T20:35:26.7791309Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T20:35:26.8953568Z Complete job name: full-ci-gate
+2026-10-13T20:35:26.9415274Z ##[group]Run actions/checkout@v4
+2026-10-13T20:35:26.9415664Z with:
+2026-10-13T20:35:26.9415896Z   fetch-depth: 0
+2026-10-13T20:35:26.9416166Z   repository: kebag-logic/milan-fpga
+2026-10-13T20:35:26.9418077Z   token: ***
+2026-10-13T20:35:26.9418310Z   ssh-strict: true
+2026-10-13T20:35:26.9418546Z   ssh-user: git
+2026-10-13T20:35:26.9418863Z   persist-credentials: true
+2026-10-13T20:35:26.9419127Z   clean: true
+2026-10-13T20:35:26.9419371Z   sparse-checkout-cone-mode: true
+2026-10-13T20:35:26.9419650Z   fetch-tags: false
+2026-10-13T20:35:26.9419887Z   show-progress: true
+2026-10-13T20:35:26.9420127Z   lfs: false
+2026-10-13T20:35:26.9420347Z   submodules: false
+2026-10-13T20:35:26.9420590Z   set-safe-directory: true
+2026-10-13T20:35:26.9420863Z   allow-unsafe-pr-checkout: false
+2026-10-13T20:35:26.9421204Z env:
+2026-10-13T20:35:26.9421427Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:26.9421690Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:26.9422113Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-13T20:35:26.9422440Z ##[endgroup]
+2026-10-13T20:35:27.0027712Z Syncing repository: kebag-logic/milan-fpga
+2026-10-13T20:35:27.0028834Z ##[group]Getting Git version info
+2026-10-13T20:35:27.0029206Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T20:35:27.0029727Z [command]/usr/bin/git version
+2026-10-13T20:35:27.0107390Z git version 2.55.0
+2026-10-13T20:35:27.0119475Z ##[endgroup]
+2026-10-13T20:35:27.0133052Z Temporarily overriding HOME='<home-path>/work/_temp/22f690bd-8f3a-4088-af0c-9bd06767c6d9' before making global git config changes
+2026-10-13T20:35:27.0134058Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T20:35:27.0135045Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T20:35:27.0179567Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T20:35:27.0183905Z ##[group]Initializing the repository
+2026-10-13T20:35:27.0189586Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T20:35:27.0285812Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T20:35:27.0288272Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T20:35:27.0290048Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T20:35:27.0291128Z hint: call:
+2026-10-13T20:35:27.0291922Z hint:
+2026-10-13T20:35:27.0292828Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T20:35:27.0293463Z hint:
+2026-10-13T20:35:27.0294052Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T20:35:27.0294924Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T20:35:27.0295650Z hint:
+2026-10-13T20:35:27.0296106Z hint: 	git branch -m <name>
+2026-10-13T20:35:27.0296602Z hint:
+2026-10-13T20:35:27.0297268Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T20:35:27.0299053Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-13T20:35:27.0305011Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-13T20:35:27.0350413Z ##[endgroup]
+2026-10-13T20:35:27.0351170Z ##[group]Disabling automatic garbage collection
+2026-10-13T20:35:27.0352528Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T20:35:27.0382579Z ##[endgroup]
+2026-10-13T20:35:27.0383174Z ##[group]Setting up auth
+2026-10-13T20:35:27.0387520Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T20:35:27.0414609Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T20:35:27.0720027Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T20:35:27.0749028Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T20:35:27.0927315Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T20:35:27.0955355Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T20:35:27.1126305Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T20:35:27.1158713Z ##[endgroup]
+2026-10-13T20:35:27.1159465Z ##[group]Fetching the repository
+2026-10-13T20:35:27.1166273Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +e6ca38f35cd4deae7552d743948b92ed23b5e67d:refs/remotes/pull/736/merge
+2026-10-13T20:35:40.9431360Z From https://github.com/kebag-logic/milan-fpga
+2026-10-13T20:35:40.9437481Z  * [new branch]          116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+2026-10-13T20:35:40.9438208Z  * [new branch]          117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+2026-10-13T20:35:40.9438828Z  * [new branch]          117-hive-review-evidence                 -> origin/117-hive-review-evidence
+2026-10-13T20:35:40.9439430Z  * [new branch]          117-la-avdecc-enum                       -> origin/117-la-avdecc-enum
+2026-10-13T20:35:40.9439892Z  * [new branch]          117-review-evidence                      -> origin/117-review-evidence
+2026-10-13T20:35:40.9440365Z  * [new branch]          117-silicon-evidence                     -> origin/117-silicon-evidence
+2026-10-13T20:35:40.9441136Z  * [new branch]          120-sound-card-option                    -> origin/120-sound-card-option
+2026-10-13T20:35:40.9441667Z  * [new branch]          129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+2026-10-13T20:35:40.9442482Z  * [new branch]          129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+2026-10-13T20:35:40.9443236Z  * [new branch]          130-prune-behavioural                    -> origin/130-prune-behavioural
+2026-10-13T20:35:40.9443731Z  * [new branch]          145-rebased-on-170                       -> origin/145-rebased-on-170
+2026-10-13T20:35:40.9444489Z  * [new branch]          154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+2026-10-13T20:35:40.9445350Z  * [new branch]          159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+2026-10-13T20:35:40.9446074Z  * [new branch]          159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+2026-10-13T20:35:40.9446881Z  * [new branch]          160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit -> origin/160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit
+2026-10-13T20:35:40.9447596Z  * [new branch]          162-boot-gate-instruments                -> origin/162-boot-gate-instruments
+2026-10-13T20:35:40.9448216Z  * [new branch]          163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+2026-10-13T20:35:40.9448850Z  * [new branch]          167-shard-github-verilator-ci            -> origin/167-shard-github-verilator-ci
+2026-10-13T20:35:40.9449407Z  * [new branch]          207-gptp-drop-counters-csr               -> origin/207-gptp-drop-counters-csr
+2026-10-13T20:35:40.9449898Z  * [new branch]          211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+2026-10-13T20:35:40.9450403Z  * [new branch]          219-pathtrace-cap-edge                   -> origin/219-pathtrace-cap-edge
+2026-10-13T20:35:40.9451196Z  * [new branch]          231-pp-shadow-baseline                   -> origin/231-pp-shadow-baseline
+2026-10-13T20:35:40.9451688Z  * [new branch]          231-review-evidence                      -> origin/231-review-evidence
+2026-10-13T20:35:40.9452299Z  * [new branch]          234-area-baseline                        -> origin/234-area-baseline
+2026-10-13T20:35:40.9452795Z  * [new branch]          234-review-evidence                      -> origin/234-review-evidence
+2026-10-13T20:35:40.9453908Z  * [new branch]          246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+2026-10-13T20:35:40.9455127Z  * [new branch]          260-pps-output                           -> origin/260-pps-output
+2026-10-13T20:35:40.9455614Z  * [new branch]          270-shorten-ci-feedback                  -> origin/270-shorten-ci-feedback
+2026-10-13T20:35:40.9456281Z  * [new branch]          286-yosys-single-process-bench           -> origin/286-yosys-single-process-bench
+2026-10-13T20:35:40.9457402Z  * [new branch]          287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real -> origin/287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real
+2026-10-13T20:35:40.9459397Z  * [new branch]          292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid -> origin/292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid
+2026-10-13T20:35:40.9462219Z  * [new branch]          295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check -> origin/295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check
+2026-10-13T20:35:40.9463700Z  * [new branch]          296-documentation-audience-guides-wavedrom -> origin/296-documentation-audience-guides-wavedrom
+2026-10-13T20:35:40.9464165Z  * [new branch]          297-test-aggregate-standalone-litex-simulations -> origin/297-test-aggregate-standalone-litex-simulations
+2026-10-13T20:35:40.9464849Z  * [new branch]          300-tooling-replace-the-legacy-teroshdl-dependency-graph -> origin/300-tooling-replace-the-legacy-teroshdl-dependency-graph
+2026-10-13T20:35:40.9465510Z  * [new branch]          303-rework-fpga-gptp-docs                -> origin/303-rework-fpga-gptp-docs
+2026-10-13T20:35:40.9466120Z  * [new branch]          304-docs-archive-the-closed-throughput-campaign -> origin/304-docs-archive-the-closed-throughput-campaign
+2026-10-13T20:35:40.9467200Z  * [new branch]          309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way -> origin/309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way
+2026-10-13T20:35:40.9468138Z  * [new branch]          311-workflow-align-clean-review-verdict-syntax-with-integrity-audit -> origin/311-workflow-align-clean-review-verdict-syntax-with-integrity-audit
+2026-10-13T20:35:40.9468695Z  * [new branch]          312-docs-compliance-matrix-and-hygiene   -> origin/312-docs-compliance-matrix-and-hygiene
+2026-10-13T20:35:40.9469258Z  * [new branch]          314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows -> origin/314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows
+2026-10-13T20:35:40.9469967Z  * [new branch]          315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path -> origin/315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path
+2026-10-13T20:35:40.9471132Z  * [new branch]          316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger -> origin/316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger
+2026-10-13T20:35:40.9472469Z  * [new branch]          317-make-consumer-filenames              -> origin/317-make-consumer-filenames
+2026-10-13T20:35:40.9473055Z  * [new branch]          334-harden-act-ci-sigint-cleanup         -> origin/334-harden-act-ci-sigint-cleanup
+2026-10-13T20:35:40.9473762Z  * [new branch]          337-act-action-cache-serialisation       -> origin/337-act-action-cache-serialisation
+2026-10-13T20:35:40.9474512Z  * [new branch]          337-live-boundary-negative-control       -> origin/337-live-boundary-negative-control
+2026-10-13T20:35:40.9475144Z  * [new branch]          340-repair-act-ci-trusted-runner         -> origin/340-repair-act-ci-trusted-runner
+2026-10-13T20:35:40.9475737Z  * [new branch]          345-rule12-idiom-gates-wiring            -> origin/345-rule12-idiom-gates-wiring
+2026-10-13T20:35:40.9476298Z  * [new branch]          350-yosys-result-cache                   -> origin/350-yosys-result-cache
+2026-10-13T20:35:40.9476784Z  * [new branch]          351-check-merge-containment-git-minimum  -> origin/351-check-merge-containment-git-minimum
+2026-10-13T20:35:40.9477245Z  * [new branch]          358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+2026-10-13T20:35:40.9477593Z  * [new branch]          358-gptp-latency-correction              -> origin/358-gptp-latency-correction
+2026-10-13T20:35:40.9478013Z  * [new branch]          359-ax7101-boot-stall                    -> origin/359-ax7101-boot-stall
+2026-10-13T20:35:40.9478534Z  * [new branch]          360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay -> origin/360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay
+2026-10-13T20:35:40.9479116Z  * [new branch]          362-build-hash-seed                      -> origin/362-build-hash-seed
+2026-10-13T20:35:40.9479469Z  * [new branch]          363-docs-clock-domains                   -> origin/363-docs-clock-domains
+2026-10-13T20:35:40.9479842Z  * [new branch]          365-ax1x1-simulation-baseline            -> origin/365-ax1x1-simulation-baseline
+2026-10-13T20:35:40.9480382Z  * [new branch]          366-flashpair-first-boot-restart         -> origin/366-flashpair-first-boot-restart
+2026-10-13T20:35:40.9480753Z  * [new branch]          367-ax1x1-gptp-on-simulation             -> origin/367-ax1x1-gptp-on-simulation
+2026-10-13T20:35:40.9481158Z  * [new branch]          372-bound-axis-assertions                -> origin/372-bound-axis-assertions
+2026-10-13T20:35:40.9481481Z  * [new branch]          372-review-evidence                      -> origin/372-review-evidence
+2026-10-13T20:35:40.9481871Z  * [new branch]          373-testing-submodule-command            -> origin/373-testing-submodule-command
+2026-10-13T20:35:40.9482332Z  * [new branch]          374-link-guard-settle-comments           -> origin/374-link-guard-settle-comments
+2026-10-13T20:35:40.9482755Z  * [new branch]          375-latency-scratch-wording              -> origin/375-latency-scratch-wording
+2026-10-13T20:35:40.9483112Z  * [new branch]          376-act-selftest-zombie-drain            -> origin/376-act-selftest-zombie-drain
+2026-10-13T20:35:40.9483523Z  * [new branch]          377-one-dut-acceptance-docs              -> origin/377-one-dut-acceptance-docs
+2026-10-13T20:35:40.9483844Z  * [new branch]          378-em-dash-gate                         -> origin/378-em-dash-gate
+2026-10-13T20:35:40.9484154Z  * [new branch]          386-tdm-render-setpoint                  -> origin/386-tdm-render-setpoint
+2026-10-13T20:35:40.9484538Z  * [new branch]          387-gm-step-rebase                       -> origin/387-gm-step-rebase
+2026-10-13T20:35:40.9484837Z  * [new branch]          387-media-rebase                         -> origin/387-media-rebase
+2026-10-13T20:35:40.9485138Z  * [new branch]          387-review-evidence                      -> origin/387-review-evidence
+2026-10-13T20:35:40.9485534Z  * [new branch]          387b-review-evidence                     -> origin/387b-review-evidence
+2026-10-13T20:35:40.9485930Z  * [new branch]          389-truthful-clock-sources               -> origin/389-truthful-clock-sources
+2026-10-13T20:35:40.9486250Z  * [new branch]          390-ring-one-grid                        -> origin/390-ring-one-grid
+2026-10-13T20:35:40.9486542Z  * [new branch]          394-387-e1-cycles                        -> origin/394-387-e1-cycles
+2026-10-13T20:35:40.9486846Z  * [new branch]          394-387-review-evidence                  -> origin/394-387-review-evidence
+2026-10-13T20:35:40.9487164Z  * [new branch]          394-510-511-decisions                    -> origin/394-510-511-decisions
+2026-10-13T20:35:40.9487482Z  * [new branch]          394_510_511-review-evidence              -> origin/394_510_511-review-evidence
+2026-10-13T20:35:40.9487797Z  * [new branch]          395-review-evidence                      -> origin/395-review-evidence
+2026-10-13T20:35:40.9488170Z  * [new branch]          395-timing-grade                         -> origin/395-timing-grade
+2026-10-13T20:35:40.9488461Z  * [new branch]          396-release-gates                        -> origin/396-release-gates
+2026-10-13T20:35:40.9488762Z  * [new branch]          396-review-evidence                      -> origin/396-review-evidence
+2026-10-13T20:35:40.9489071Z  * [new branch]          397-review-evidence                      -> origin/397-review-evidence
+2026-10-13T20:35:40.9489372Z  * [new branch]          397-service-budget                       -> origin/397-service-budget
+2026-10-13T20:35:40.9489706Z  * [new branch]          398-boot-policy-declarations             -> origin/398-boot-policy-declarations
+2026-10-13T20:35:40.9490056Z  * [new branch]          399-clock-plan-declarations              -> origin/399-clock-plan-declarations
+2026-10-13T20:35:40.9490398Z  * [new branch]          400-403-declaration-truth                -> origin/400-403-declaration-truth
+2026-10-13T20:35:40.9490726Z  * [new branch]          400-403-review-evidence                  -> origin/400-403-review-evidence
+2026-10-13T20:35:40.9491078Z  * [new branch]          401-descriptor-name-declarations         -> origin/401-descriptor-name-declarations
+2026-10-13T20:35:40.9491559Z  * [new branch]          402-build-sh-sources-generated-argv      -> origin/402-build-sh-sources-generated-argv
+2026-10-13T20:35:40.9492095Z  * [new branch]          404-builder-doc-key-map                  -> origin/404-builder-doc-key-map
+2026-10-13T20:35:40.9492458Z  * [new branch]          406-pin-rtl-job-step-lists               -> origin/406-pin-rtl-job-step-lists
+2026-10-13T20:35:40.9492773Z  * [new branch]          407-ac5-probe                            -> origin/407-ac5-probe
+2026-10-13T20:35:40.9493082Z  * [new branch]          407-carrier-script-pins                  -> origin/407-carrier-script-pins
+2026-10-13T20:35:40.9493401Z  * [new branch]          408-409-465-boot-gate                    -> origin/408-409-465-boot-gate
+2026-10-13T20:35:40.9493720Z  * [new branch]          408-409-boot-gate-retire                 -> origin/408-409-boot-gate-retire
+2026-10-13T20:35:40.9494038Z  * [new branch]          408-review-evidence                      -> origin/408-review-evidence
+2026-10-13T20:35:40.9494380Z  * [new branch]          410-origin-probe-call-value-eval         -> origin/410-origin-probe-call-value-eval
+2026-10-13T20:35:40.9494789Z  * [new branch]          411-clarify-ptp-scratch-and-test-readback -> origin/411-clarify-ptp-scratch-and-test-readback
+2026-10-13T20:35:40.9495158Z  * [new branch]          412-em-dash-residue                      -> origin/412-em-dash-residue
+2026-10-13T20:35:40.9495505Z  * [new branch]          413-type7-html-heading-exemption         -> origin/413-type7-html-heading-exemption
+2026-10-13T20:35:40.9496042Z  * [new branch]          418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+2026-10-13T20:35:40.9496647Z  * [new branch]          419-design-evidence                      -> origin/419-design-evidence
+2026-10-13T20:35:40.9496977Z  * [new branch]          419-snapshot-ownership-adr               -> origin/419-snapshot-ownership-adr
+2026-10-13T20:35:40.9497315Z  * [new branch]          422-strict-gptp-tx-flags                 -> origin/422-strict-gptp-tx-flags
+2026-10-13T20:35:40.9497643Z  * [new branch]          423-readiness-evidence                   -> origin/423-readiness-evidence
+2026-10-13T20:35:40.9497989Z  * [new branch]          423-retained-redundant-replay            -> origin/423-retained-redundant-replay
+2026-10-13T20:35:40.9498317Z  * [new branch]          423-review-evidence                      -> origin/423-review-evidence
+2026-10-13T20:35:40.9498747Z  * [new branch]          424-integrate-nvm-completion-ownership   -> origin/424-integrate-nvm-completion-ownership
+2026-10-13T20:35:40.9499135Z  * [new branch]          426-complete-review-histories            -> origin/426-complete-review-histories
+2026-10-13T20:35:40.9499461Z  * [new branch]          437-cmark-gfm                            -> origin/437-cmark-gfm
+2026-10-13T20:35:40.9499793Z  * [new branch]          437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+2026-10-13T20:35:40.9500130Z  * [new branch]          437-review-evidence                      -> origin/437-review-evidence
+2026-10-13T20:35:40.9500475Z  * [new branch]          438-containment-selftest-cleanup         -> origin/438-containment-selftest-cleanup
+2026-10-13T20:35:40.9500815Z  * [new branch]          439-review-evidence                      -> origin/439-review-evidence
+2026-10-13T20:35:40.9501145Z  * [new branch]          439-rtl-script-content-pins              -> origin/439-rtl-script-content-pins
+2026-10-13T20:35:40.9501479Z  * [new branch]          440-markdown-closers                     -> origin/440-markdown-closers
+2026-10-13T20:35:40.9501785Z  * [new branch]          440-review-evidence                      -> origin/440-review-evidence
+2026-10-13T20:35:40.9502213Z  * [new branch]          443-render-csr                           -> origin/443-render-csr
+2026-10-13T20:35:40.9502604Z  * [new branch]          443-review-evidence                      -> origin/443-review-evidence
+2026-10-13T20:35:40.9503092Z  * [new branch]          444-milan-dp-shard-and-ci-trims          -> origin/444-milan-dp-shard-and-ci-trims
+2026-10-13T20:35:40.9503646Z  * [new branch]          445-render-phase-observation             -> origin/445-render-phase-observation
+2026-10-13T20:35:40.9504158Z  * [new branch]          447-tdm-master-render                    -> origin/447-tdm-master-render
+2026-10-13T20:35:40.9504470Z  * [new branch]          451-review-evidence                      -> origin/451-review-evidence
+2026-10-13T20:35:40.9504778Z  * [new branch]          451-tdm8-first-light                     -> origin/451-tdm8-first-light
+2026-10-13T20:35:40.9505091Z  * [new branch]          452-bclk-iob-packable                    -> origin/452-bclk-iob-packable
+2026-10-13T20:35:40.9505428Z  * [new branch]          452-tdm8-fsync-launch-edge               -> origin/452-tdm8-fsync-launch-edge
+2026-10-13T20:35:40.9505779Z  * [new branch]          453-deploy-render-interface              -> origin/453-deploy-render-interface
+2026-10-13T20:35:40.9506117Z  * [new branch]          462-463-descriptor-truth                 -> origin/462-463-descriptor-truth
+2026-10-13T20:35:40.9506566Z  * [new branch]          464-aem-store-selftest                   -> origin/464-aem-store-selftest
+2026-10-13T20:35:40.9506884Z  * [new branch]          464-review-evidence                      -> origin/464-review-evidence
+2026-10-13T20:35:40.9507434Z  * [new branch]          466-deploy-shape-in-docs-check           -> origin/466-deploy-shape-in-docs-check
+2026-10-13T20:35:40.9507923Z  * [new branch]          471-472-srp-status-words                 -> origin/471-472-srp-status-words
+2026-10-13T20:35:40.9508356Z  * [new branch]          475-fail-unpacked-iob                    -> origin/475-fail-unpacked-iob
+2026-10-13T20:35:40.9508684Z  * [new branch]          478-audio-unit-rate-bound                -> origin/478-audio-unit-rate-bound
+2026-10-13T20:35:40.9509006Z  * [new branch]          478-review-evidence                      -> origin/478-review-evidence
+2026-10-13T20:35:40.9509335Z  * [new branch]          484-snapshot-ownership-impl              -> origin/484-snapshot-ownership-impl
+2026-10-13T20:35:40.9509661Z  * [new branch]          495-builder-residue                      -> origin/495-builder-residue
+2026-10-13T20:35:40.9509968Z  * [new branch]          495b-review-evidence                     -> origin/495b-review-evidence
+2026-10-13T20:35:40.9510275Z  * [new branch]          498-review-evidence                      -> origin/498-review-evidence
+2026-10-13T20:35:40.9510599Z  * [new branch]          500-d3-materialization-adr               -> origin/500-d3-materialization-adr
+2026-10-13T20:35:40.9510932Z  * [new branch]          500-design-evidence                      -> origin/500-design-evidence
+2026-10-13T20:35:40.9511235Z  * [new branch]          501-outmap-record                        -> origin/501-outmap-record
+2026-10-13T20:35:40.9511535Z  * [new branch]          501-review-evidence                      -> origin/501-review-evidence
+2026-10-13T20:35:40.9511847Z  * [new branch]          502-pending-live-write                   -> origin/502-pending-live-write
+2026-10-13T20:35:40.9512568Z  * [new branch]          502-review-evidence                      -> origin/502-review-evidence
+2026-10-13T20:35:40.9512960Z  * [new branch]          503-review-evidence                      -> origin/503-review-evidence
+2026-10-13T20:35:40.9513283Z  * [new branch]          504-hosted-rv32-compiler                 -> origin/504-hosted-rv32-compiler
+2026-10-13T20:35:40.9513613Z  * [new branch]          504-readiness-evidence                   -> origin/504-readiness-evidence
+2026-10-13T20:35:40.9513923Z  * [new branch]          504-review-evidence                      -> origin/504-review-evidence
+2026-10-13T20:35:40.9514230Z  * [new branch]          505-review-evidence                      -> origin/505-review-evidence
+2026-10-13T20:35:40.9514625Z  * [new branch]          508-pp-pin-adopt                         -> origin/508-pp-pin-adopt
+2026-10-13T20:35:40.9514925Z  * [new branch]          508-review-evidence                      -> origin/508-review-evidence
+2026-10-13T20:35:40.9515252Z  * [new branch]          509-pp-descriptor-ownership              -> origin/509-pp-descriptor-ownership
+2026-10-13T20:35:40.9515583Z  * [new branch]          509-review-evidence                      -> origin/509-review-evidence
+2026-10-13T20:35:40.9515905Z  * [new branch]          514-containment-retention                -> origin/514-containment-retention
+2026-10-13T20:35:40.9516221Z  * [new branch]          514-review-evidence                      -> origin/514-review-evidence
+2026-10-13T20:35:40.9516549Z  * [new branch]          517-bounded-simulation-pool              -> origin/517-bounded-simulation-pool
+2026-10-13T20:35:40.9516876Z  * [new branch]          517-review-evidence                      -> origin/517-review-evidence
+2026-10-13T20:35:40.9517236Z  * [new branch]          520-review-evidence                      -> origin/520-review-evidence
+2026-10-13T20:35:40.9517648Z  * [new branch]          520-yosys-rom-cache-identity             -> origin/520-yosys-rom-cache-identity
+2026-10-13T20:35:40.9518024Z  * [new branch]          523-isolate-mutation-cancellation        -> origin/523-isolate-mutation-cancellation
+2026-10-13T20:35:40.9518369Z  * [new branch]          523-review-evidence                      -> origin/523-review-evidence
+2026-10-13T20:35:40.9518681Z  * [new branch]          529-crf-input-counters                   -> origin/529-crf-input-counters
+2026-10-13T20:35:40.9518994Z  * [new branch]          529-review-evidence                      -> origin/529-review-evidence
+2026-10-13T20:35:40.9519302Z  * [new branch]          530-crf-talker-licence                   -> origin/530-crf-talker-licence
+2026-10-13T20:35:40.9519696Z  * [new branch]          530-review-evidence                      -> origin/530-review-evidence
+2026-10-13T20:35:40.9520014Z  * [new branch]          532-act-parallel-slots                   -> origin/532-act-parallel-slots
+2026-10-13T20:35:40.9520340Z  * [new branch]          532-pasta-invoked-name                   -> origin/532-pasta-invoked-name
+2026-10-13T20:35:40.9520651Z  * [new branch]          532-review-evidence                      -> origin/532-review-evidence
+2026-10-13T20:35:40.9520961Z  * [new branch]          532b-review-evidence                     -> origin/532b-review-evidence
+2026-10-13T20:35:40.9521266Z  * [new branch]          536-aecp-model-mvu                       -> origin/536-aecp-model-mvu
+2026-10-13T20:35:40.9521568Z  * [new branch]          536-review-evidence                      -> origin/536-review-evidence
+2026-10-13T20:35:40.9521884Z  * [new branch]          539-crf-servo-step-guard                 -> origin/539-crf-servo-step-guard
+2026-10-13T20:35:40.9522421Z  * [new branch]          539-review-evidence                      -> origin/539-review-evidence
+2026-10-13T20:35:40.9522716Z  * [new branch]          541-crf-unlock                           -> origin/541-crf-unlock
+2026-10-13T20:35:40.9523012Z  * [new branch]          541-review-evidence                      -> origin/541-review-evidence
+2026-10-13T20:35:40.9523313Z  * [new branch]          542-notify-pointer                       -> origin/542-notify-pointer
+2026-10-13T20:35:40.9523616Z  * [new branch]          542-review-evidence                      -> origin/542-review-evidence
+2026-10-13T20:35:40.9523915Z  * [new branch]          544-macro-sample                         -> origin/544-macro-sample
+2026-10-13T20:35:40.9576863Z  * [new branch]          544-review-evidence                      -> origin/544-review-evidence
+2026-10-13T20:35:40.9577498Z  * [new branch]          545-crf-servo-slew                       -> origin/545-crf-servo-slew
+2026-10-13T20:35:40.9578098Z  * [new branch]          545-review-evidence                      -> origin/545-review-evidence
+2026-10-13T20:35:40.9578461Z  * [new branch]          546-crf-talker-step                      -> origin/546-crf-talker-step
+2026-10-13T20:35:40.9579002Z  * [new branch]          546-review-evidence                      -> origin/546-review-evidence
+2026-10-13T20:35:40.9579309Z  * [new branch]          548-ctlr-diag-zero                       -> origin/548-ctlr-diag-zero
+2026-10-13T20:35:40.9579821Z  * [new branch]          548-review-evidence                      -> origin/548-review-evidence
+2026-10-13T20:35:40.9580177Z  * [new branch]          551-licence-real-grant                   -> origin/551-licence-real-grant
+2026-10-13T20:35:40.9580593Z  * [new branch]          551-review-evidence                      -> origin/551-review-evidence
+2026-10-13T20:35:40.9580901Z  * [new branch]          559-capture-copy                         -> origin/559-capture-copy
+2026-10-13T20:35:40.9581293Z  * [new branch]          559-review-evidence                      -> origin/559-review-evidence
+2026-10-13T20:35:40.9581597Z  * [new branch]          565-8x8-clock                            -> origin/565-8x8-clock
+2026-10-13T20:35:40.9582032Z  * [new branch]          565-review-evidence                      -> origin/565-review-evidence
+2026-10-13T20:35:40.9582371Z  * [new branch]          567-pp-pin-0922e434                      -> origin/567-pp-pin-0922e434
+2026-10-13T20:35:40.9582717Z  * [new branch]          567-review-evidence                      -> origin/567-review-evidence
+2026-10-13T20:35:40.9583070Z  * [new branch]          571-pp-unit-counts                       -> origin/571-pp-unit-counts
+2026-10-13T20:35:40.9583374Z  * [new branch]          571-review-evidence                      -> origin/571-review-evidence
+2026-10-13T20:35:40.9583787Z  * [new branch]          573-builder-model-refusals               -> origin/573-builder-model-refusals
+2026-10-13T20:35:40.9584204Z  * [new branch]          573-review-evidence                      -> origin/573-review-evidence
+2026-10-13T20:35:40.9584585Z  * [new branch]          577-image-l6-l10                         -> origin/577-image-l6-l10
+2026-10-13T20:35:40.9584890Z  * [new branch]          577-review-evidence                      -> origin/577-review-evidence
+2026-10-13T20:35:40.9585267Z  * [new branch]          580-pp-pin-16be6768                      -> origin/580-pp-pin-16be6768
+2026-10-13T20:35:40.9585566Z  * [new branch]          580-review-evidence                      -> origin/580-review-evidence
+2026-10-13T20:35:40.9585946Z  * [new branch]          582-baremetal-clock                      -> origin/582-baremetal-clock
+2026-10-13T20:35:40.9586278Z  * [new branch]          582-review-evidence                      -> origin/582-review-evidence
+2026-10-13T20:35:40.9586715Z  * [new branch]          587-8x8-baseline-50mhz                   -> origin/587-8x8-baseline-50mhz
+2026-10-13T20:35:40.9587024Z  * [new branch]          587-review-evidence                      -> origin/587-review-evidence
+2026-10-13T20:35:40.9587334Z  * [new branch]          590-592-599-firmware                     -> origin/590-592-599-firmware
+2026-10-13T20:35:40.9587719Z  * [new branch]          590-review-evidence                      -> origin/590-review-evidence
+2026-10-13T20:35:40.9588014Z  * [new branch]          593-mr-tu-soak                           -> origin/593-mr-tu-soak
+2026-10-13T20:35:40.9588390Z  * [new branch]          593-review-evidence                      -> origin/593-review-evidence
+2026-10-13T20:35:40.9588692Z  * [new branch]          595-review-evidence                      -> origin/595-review-evidence
+2026-10-13T20:35:40.9589104Z  * [new branch]          595-yaml-int-refusal                     -> origin/595-yaml-int-refusal
+2026-10-13T20:35:40.9589409Z  * [new branch]          602-phc-step-mr                          -> origin/602-phc-step-mr
+2026-10-13T20:35:40.9589769Z  * [new branch]          602-review-evidence                      -> origin/602-review-evidence
+2026-10-13T20:35:40.9590095Z  * [new branch]          606-608-pp-pin                           -> origin/606-608-pp-pin
+2026-10-13T20:35:40.9590464Z  * [new branch]          606-608-review-evidence                  -> origin/606-608-review-evidence
+2026-10-13T20:35:40.9590942Z  * [new branch]          607-review-evidence                      -> origin/607-review-evidence
+2026-10-13T20:35:40.9591244Z  * [new branch]          607-xdc-clock-names                      -> origin/607-xdc-clock-names
+2026-10-13T20:35:40.9591536Z  * [new branch]          608-b14-bench                            -> origin/608-b14-bench
+2026-10-13T20:35:40.9591839Z  * [new branch]          608-b14-review-evidence                  -> origin/608-b14-review-evidence
+2026-10-13T20:35:40.9592291Z  * [new branch]          617-capture-frame-atomic                 -> origin/617-capture-frame-atomic
+2026-10-13T20:35:40.9592610Z  * [new branch]          617-review-evidence                      -> origin/617-review-evidence
+2026-10-13T20:35:40.9592929Z  * [new branch]          621-ascapable-phc-step                   -> origin/621-ascapable-phc-step
+2026-10-13T20:35:40.9593243Z  * [new branch]          621-review-evidence                      -> origin/621-review-evidence
+2026-10-13T20:35:40.9593532Z  * [new branch]          629-b15-tone                             -> origin/629-b15-tone
+2026-10-13T20:35:40.9593829Z  * [new branch]          629-b16-review-evidence                  -> origin/629-b16-review-evidence
+2026-10-13T20:35:40.9594124Z  * [new branch]          629-b16-tone                             -> origin/629-b16-tone
+2026-10-13T20:35:40.9594397Z  * [new branch]          629-b7-bench                             -> origin/629-b7-bench
+2026-10-13T20:35:40.9594691Z  * [new branch]          629-b7-review-evidence                   -> origin/629-b7-review-evidence
+2026-10-13T20:35:40.9594982Z  * [new branch]          629-b8-bench                             -> origin/629-b8-bench
+2026-10-13T20:35:40.9595366Z  * [new branch]          629-b8-review-evidence                   -> origin/629-b8-review-evidence
+2026-10-13T20:35:40.9595681Z  * [new branch]          629-m2-review-evidence                   -> origin/629-m2-review-evidence
+2026-10-13T20:35:40.9595996Z  * [new branch]          629-media-clock-follow                   -> origin/629-media-clock-follow
+2026-10-13T20:35:40.9596309Z  * [new branch]          629-media-clock-impl                     -> origin/629-media-clock-impl
+2026-10-13T20:35:40.9596623Z  * [new branch]          629-review-evidence                      -> origin/629-review-evidence
+2026-10-13T20:35:40.9596942Z  * [new branch]          629-tone-review-evidence                 -> origin/629-tone-review-evidence
+2026-10-13T20:35:40.9597264Z  * [new branch]          635-pp-pin-631eeb34                      -> origin/635-pp-pin-631eeb34
+2026-10-13T20:35:40.9597571Z  * [new branch]          635-review-evidence                      -> origin/635-review-evidence
+2026-10-13T20:35:40.9597857Z  * [new branch]          640-m0s                                  -> origin/640-m0s
+2026-10-13T20:35:40.9598148Z  * [new branch]          640-m0s-review-evidence                  -> origin/640-m0s-review-evidence
+2026-10-13T20:35:40.9598444Z  * [new branch]          640-m2                                   -> origin/640-m2
+2026-10-13T20:35:40.9598732Z  * [new branch]          640-m2-review-evidence                   -> origin/640-m2-review-evidence
+2026-10-13T20:35:40.9599015Z  * [new branch]          640-m5                                   -> origin/640-m5
+2026-10-13T20:35:40.9599294Z  * [new branch]          640-m5-review-evidence                   -> origin/640-m5-review-evidence
+2026-10-13T20:35:40.9599574Z  * [new branch]          640-m6                                   -> origin/640-m6
+2026-10-13T20:35:40.9599852Z  * [new branch]          640-m6-review-evidence                   -> origin/640-m6-review-evidence
+2026-10-13T20:35:40.9600130Z  * [new branch]          640-m7                                   -> origin/640-m7
+2026-10-13T20:35:40.9600411Z  * [new branch]          640-m7-review-evidence                   -> origin/640-m7-review-evidence
+2026-10-13T20:35:40.9600698Z  * [new branch]          640-m8a                                  -> origin/640-m8a
+2026-10-13T20:35:40.9601064Z  * [new branch]          640-m8a-review-evidence                  -> origin/640-m8a-review-evidence
+2026-10-13T20:35:40.9601370Z  * [new branch]          640-mark2-plan                           -> origin/640-mark2-plan
+2026-10-13T20:35:40.9601670Z  * [new branch]          640-review-evidence                      -> origin/640-review-evidence
+2026-10-13T20:35:40.9602040Z  * [new branch]          641-651-gate-guards                      -> origin/641-651-gate-guards
+2026-10-13T20:35:40.9602432Z  * [new branch]          641-review-evidence                      -> origin/641-review-evidence
+2026-10-13T20:35:40.9602735Z  * [new branch]          643-review-evidence                      -> origin/643-review-evidence
+2026-10-13T20:35:40.9603034Z  * [new branch]          643-t30-phase                            -> origin/643-t30-phase
+2026-10-13T20:35:40.9603329Z  * [new branch]          645-review-evidence                      -> origin/645-review-evidence
+2026-10-13T20:35:40.9603629Z  * [new branch]          645-ring-slip                            -> origin/645-ring-slip
+2026-10-13T20:35:40.9603920Z  * [new branch]          649-resource-map                         -> origin/649-resource-map
+2026-10-13T20:35:40.9604219Z  * [new branch]          649-review-evidence                      -> origin/649-review-evidence
+2026-10-13T20:35:40.9604520Z  * [new branch]          652-builder-names                        -> origin/652-builder-names
+2026-10-13T20:35:40.9604818Z  * [new branch]          652-review-evidence                      -> origin/652-review-evidence
+2026-10-13T20:35:40.9605114Z  * [new branch]          653-b11-bench                            -> origin/653-b11-bench
+2026-10-13T20:35:40.9605413Z  * [new branch]          653-b11-review-evidence                  -> origin/653-b11-review-evidence
+2026-10-13T20:35:40.9605798Z  * [new branch]          653-b12-bench                            -> origin/653-b12-bench
+2026-10-13T20:35:40.9606097Z  * [new branch]          653-b12-review-evidence                  -> origin/653-b12-review-evidence
+2026-10-13T20:35:40.9606408Z  * [new branch]          653-review-evidence                      -> origin/653-review-evidence
+2026-10-13T20:35:40.9606703Z  * [new branch]          653-unbind-order                         -> origin/653-unbind-order
+2026-10-13T20:35:40.9606998Z  * [new branch]          654-review-evidence                      -> origin/654-review-evidence
+2026-10-13T20:35:40.9607316Z  * [new branch]          654-soc-option-refusals                  -> origin/654-soc-option-refusals
+2026-10-13T20:35:40.9607632Z  * [new branch]          656-dp-gptp-order                        -> origin/656-dp-gptp-order
+2026-10-13T20:35:40.9607934Z  * [new branch]          656-review-evidence                      -> origin/656-review-evidence
+2026-10-13T20:35:40.9608240Z  * [new branch]          657-render-mutants                       -> origin/657-render-mutants
+2026-10-13T20:35:40.9608539Z  * [new branch]          657-review-evidence                      -> origin/657-review-evidence
+2026-10-13T20:35:40.9608844Z  * [new branch]          658-dynmap-default                       -> origin/658-dynmap-default
+2026-10-13T20:35:40.9609142Z  * [new branch]          658-review-evidence                      -> origin/658-review-evidence
+2026-10-13T20:35:40.9609445Z  * [new branch]          661-pp-pin-ead80360                      -> origin/661-pp-pin-ead80360
+2026-10-13T20:35:40.9609744Z  * [new branch]          661-review-evidence                      -> origin/661-review-evidence
+2026-10-13T20:35:40.9610035Z  * [new branch]          664-mark2-reqs                           -> origin/664-mark2-reqs
+2026-10-13T20:35:40.9610330Z  * [new branch]          664-review-evidence                      -> origin/664-review-evidence
+2026-10-13T20:35:40.9610627Z  * [new branch]          665-f0-mailbox                           -> origin/665-f0-mailbox
+2026-10-13T20:35:40.9610901Z  * [new branch]          665-f1-nvm                               -> origin/665-f1-nvm
+2026-10-13T20:35:40.9611279Z  * [new branch]          665-f2-maap                              -> origin/665-f2-maap
+2026-10-13T20:35:40.9611546Z  * [new branch]          665-f3-acmp                              -> origin/665-f3-acmp
+2026-10-13T20:35:40.9611829Z  * [new branch]          665-f3b-parent                           -> origin/665-f3b-parent
+2026-10-13T20:35:40.9612221Z  * [new branch]          665-f4-srp                               -> origin/665-f4-srp
+2026-10-13T20:35:40.9612488Z  * [new branch]          665-f5-aecp                              -> origin/665-f5-aecp
+2026-10-13T20:35:40.9612760Z  * [new branch]          665-fc-filter                            -> origin/665-fc-filter
+2026-10-13T20:35:40.9613034Z  * [new branch]          665-ft-gtest                             -> origin/665-ft-gtest
+2026-10-13T20:35:40.9613314Z  * [new branch]          665-int-split                            -> origin/665-int-split
+2026-10-13T20:35:40.9613612Z  * [new branch]          665f0-review-evidence                    -> origin/665f0-review-evidence
+2026-10-13T20:35:40.9613934Z  * [new branch]          665f1-review-evidence                    -> origin/665f1-review-evidence
+2026-10-13T20:35:40.9614244Z  * [new branch]          665f2-review-evidence                    -> origin/665f2-review-evidence
+2026-10-13T20:35:40.9614550Z  * [new branch]          665f3-review-evidence                    -> origin/665f3-review-evidence
+2026-10-13T20:35:40.9614867Z  * [new branch]          665f3b-review-evidence                   -> origin/665f3b-review-evidence
+2026-10-13T20:35:40.9615184Z  * [new branch]          665f4-review-evidence                    -> origin/665f4-review-evidence
+2026-10-13T20:35:40.9615493Z  * [new branch]          665f5-review-evidence                    -> origin/665f5-review-evidence
+2026-10-13T20:35:40.9615889Z  * [new branch]          665fc-review-evidence                    -> origin/665fc-review-evidence
+2026-10-13T20:35:40.9616201Z  * [new branch]          665ft-review-evidence                    -> origin/665ft-review-evidence
+2026-10-13T20:35:40.9616517Z  * [new branch]          665int-review-evidence                   -> origin/665int-review-evidence
+2026-10-13T20:35:40.9616815Z  * [new branch]          667-b13-bench                            -> origin/667-b13-bench
+2026-10-13T20:35:40.9617112Z  * [new branch]          667-b13-review-evidence                  -> origin/667-b13-review-evidence
+2026-10-13T20:35:40.9617425Z  * [new branch]          667-review-evidence                      -> origin/667-review-evidence
+2026-10-13T20:35:40.9617720Z  * [new branch]          667-talker-start                         -> origin/667-talker-start
+2026-10-13T20:35:40.9618007Z  * [new branch]          671-read-fault                           -> origin/671-read-fault
+2026-10-13T20:35:40.9618305Z  * [new branch]          671-review-evidence                      -> origin/671-review-evidence
+2026-10-13T20:35:40.9618601Z  * [new branch]          673-mclk-timeout                         -> origin/673-mclk-timeout
+2026-10-13T20:35:40.9618902Z  * [new branch]          673-review-evidence                      -> origin/673-review-evidence
+2026-10-13T20:35:40.9619186Z  * [new branch]          677-fw-fixes                             -> origin/677-fw-fixes
+2026-10-13T20:35:40.9619473Z  * [new branch]          677-review-evidence                      -> origin/677-review-evidence
+2026-10-13T20:35:40.9619772Z  * [new branch]          679-review-evidence                      -> origin/679-review-evidence
+2026-10-13T20:35:40.9620060Z  * [new branch]          679-rv32-sdk                             -> origin/679-rv32-sdk
+2026-10-13T20:35:40.9620352Z  * [new branch]          682-pp-pin-2ad2f845                      -> origin/682-pp-pin-2ad2f845
+2026-10-13T20:35:40.9620656Z  * [new branch]          682-review-evidence                      -> origin/682-review-evidence
+2026-10-13T20:35:40.9620953Z  * [new branch]          686-maap-annexb                          -> origin/686-maap-annexb
+2026-10-13T20:35:40.9621353Z  * [new branch]          686-review-evidence                      -> origin/686-review-evidence
+2026-10-13T20:35:40.9621692Z  * [new branch]          69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+2026-10-13T20:35:40.9622155Z  * [new branch]          691-review-evidence                      -> origin/691-review-evidence
+2026-10-13T20:35:40.9622441Z  * [new branch]          691-rx-iob                               -> origin/691-rx-iob
+2026-10-13T20:35:40.9622723Z  * [new branch]          696-maap-annexb                          -> origin/696-maap-annexb
+2026-10-13T20:35:40.9623022Z  * [new branch]          696-review-evidence                      -> origin/696-review-evidence
+2026-10-13T20:35:40.9623306Z  * [new branch]          697-consume                              -> origin/697-consume
+2026-10-13T20:35:40.9623590Z  * [new branch]          697-review-evidence                      -> origin/697-review-evidence
+2026-10-13T20:35:40.9623895Z  * [new branch]          697c-review-evidence                     -> origin/697c-review-evidence
+2026-10-13T20:35:40.9624193Z  * [new branch]          70-d3-contract                           -> origin/70-d3-contract
+2026-10-13T20:35:40.9624504Z  * [new branch]          70-firmware-flash-writer                 -> origin/70-firmware-flash-writer
+2026-10-13T20:35:40.9624839Z  * [new branch]          70-flat-names-allocation                 -> origin/70-flat-names-allocation
+2026-10-13T20:35:40.9625151Z  * [new branch]          70-lane2-pin-d352                        -> origin/70-lane2-pin-d352
+2026-10-13T20:35:40.9625444Z  * [new branch]          70-nvm-backend                           -> origin/70-nvm-backend
+2026-10-13T20:35:40.9625738Z  * [new branch]          70-nvm-persistence                       -> origin/70-nvm-persistence
+2026-10-13T20:35:40.9626127Z  * [new branch]          70-review-evidence                       -> origin/70-review-evidence
+2026-10-13T20:35:40.9626444Z  * [new branch]          70L2-review-evidence                     -> origin/70L2-review-evidence
+2026-10-13T20:35:40.9626749Z  * [new branch]          711-lwsrp-bump                           -> origin/711-lwsrp-bump
+2026-10-13T20:35:40.9627053Z  * [new branch]          711-review-evidence                      -> origin/711-review-evidence
+2026-10-13T20:35:40.9627348Z  * [new branch]          716-fw-unit-split                        -> origin/716-fw-unit-split
+2026-10-13T20:35:40.9627648Z  * [new branch]          716-review-evidence                      -> origin/716-review-evidence
+2026-10-13T20:35:40.9627948Z  * [new branch]          726-review-evidence                      -> origin/726-review-evidence
+2026-10-13T20:35:40.9628248Z  * [new branch]          726-stream-counters                      -> origin/726-stream-counters
+2026-10-13T20:35:40.9628546Z  * [new branch]          727-review-evidence                      -> origin/727-review-evidence
+2026-10-13T20:35:40.9628843Z  * [new branch]          727-shard-balance                        -> origin/727-shard-balance
+2026-10-13T20:35:40.9629132Z  * [new branch]          730-act-cpusets                          -> origin/730-act-cpusets
+2026-10-13T20:35:40.9629424Z  * [new branch]          730-review-evidence                      -> origin/730-review-evidence
+2026-10-13T20:35:40.9629726Z  * [new branch]          734-merge-base-scope                     -> origin/734-merge-base-scope
+2026-10-13T20:35:40.9630028Z  * [new branch]          734-review-evidence                      -> origin/734-review-evidence
+2026-10-13T20:35:40.9630326Z  * [new branch]          74-junction-chatter                      -> origin/74-junction-chatter
+2026-10-13T20:35:40.9630740Z  * [new branch]          74-media-clock-select-crf-and-align-the-audio-grid -> origin/74-media-clock-select-crf-and-align-the-audio-grid
+2026-10-13T20:35:40.9631151Z  * [new branch]          74-review-evidence                       -> origin/74-review-evidence
+2026-10-13T20:35:40.9631460Z  * [new branch]          75-lwsrp-restart-bound                   -> origin/75-lwsrp-restart-bound
+2026-10-13T20:35:40.9631850Z  * [new branch]          75-reconnect-bench                       -> origin/75-reconnect-bench
+2026-10-13T20:35:40.9632211Z  * [new branch]          75-review-evidence                       -> origin/75-review-evidence
+2026-10-13T20:35:40.9632489Z  * [new branch]          a1e9839e                                 -> origin/a1e9839e
+2026-10-13T20:35:40.9632757Z  * [new branch]          b1-bench-0929                            -> origin/b1-bench-0929
+2026-10-13T20:35:40.9633044Z  * [new branch]          b1-review-evidence                       -> origin/b1-review-evidence
+2026-10-13T20:35:40.9633326Z  * [new branch]          b2-bench-0929                            -> origin/b2-bench-0929
+2026-10-13T20:35:40.9633613Z  * [new branch]          b2-review-evidence                       -> origin/b2-review-evidence
+2026-10-13T20:35:40.9633894Z  * [new branch]          b3-bench-0930                            -> origin/b3-bench-0930
+2026-10-13T20:35:40.9634184Z  * [new branch]          b3-review-evidence                       -> origin/b3-review-evidence
+2026-10-13T20:35:40.9634464Z  * [new branch]          b4-bench-1001                            -> origin/b4-bench-1001
+2026-10-13T20:35:40.9634745Z  * [new branch]          b4-review-evidence                       -> origin/b4-review-evidence
+2026-10-13T20:35:40.9635026Z  * [new branch]          b5-bench-1001                            -> origin/b5-bench-1001
+2026-10-13T20:35:40.9635310Z  * [new branch]          b5-review-evidence                       -> origin/b5-review-evidence
+2026-10-13T20:35:40.9635590Z  * [new branch]          b6-bench-1001                            -> origin/b6-bench-1001
+2026-10-13T20:35:40.9635870Z  * [new branch]          b6-review-evidence                       -> origin/b6-review-evidence
+2026-10-13T20:35:40.9636287Z  * [new branch]          chore/cpp-core-guidelines-idiom          -> origin/chore/cpp-core-guidelines-idiom
+2026-10-13T20:35:40.9636599Z  * [new branch]          dev                                      -> origin/dev
+2026-10-13T20:35:40.9636870Z  * [new branch]          finish-259-116                           -> origin/finish-259-116
+2026-10-13T20:35:40.9637166Z  * [new branch]          g35-review-evidence                      -> origin/g35-review-evidence
+2026-10-13T20:35:40.9637469Z  * [new branch]          g48-review-evidence                      -> origin/g48-review-evidence
+2026-10-13T20:35:40.9637769Z  * [new branch]          g70-review-evidence                      -> origin/g70-review-evidence
+2026-10-13T20:35:40.9638081Z  * [new branch]          gptp68-review-evidence                   -> origin/gptp68-review-evidence
+2026-10-13T20:35:40.9638404Z  * [new branch]          gptp75-review-evidence                   -> origin/gptp75-review-evidence
+2026-10-13T20:35:40.9638729Z  * [new branch]          lwsrp17-review-evidence                  -> origin/lwsrp17-review-evidence
+2026-10-13T20:35:40.9639070Z  * [new branch]          lwsrp4-review-evidence                   -> origin/lwsrp4-review-evidence
+2026-10-13T20:35:40.9639404Z  * [new branch]          lwsrpdoc-review-evidence                 -> origin/lwsrpdoc-review-evidence
+2026-10-13T20:35:40.9639735Z  * [new branch]          lwsrplic-review-evidence                 -> origin/lwsrplic-review-evidence
+2026-10-13T20:35:40.9640075Z  * [new branch]          lwsrplicfix-review-evidence              -> origin/lwsrplicfix-review-evidence
+2026-10-13T20:35:40.9640412Z  * [new branch]          lwsrpm2-review-evidence                  -> origin/lwsrpm2-review-evidence
+2026-10-13T20:35:40.9640750Z  * [new branch]          lwsrpnotes-review-evidence               -> origin/lwsrpnotes-review-evidence
+2026-10-13T20:35:40.9641091Z  * [new branch]          lwsrptest-review-evidence                -> origin/lwsrptest-review-evidence
+2026-10-13T20:35:40.9641387Z  * [new branch]          main                                     -> origin/main
+2026-10-13T20:35:40.9641710Z  * [new branch]          pin-gptp-processor-to-donor-main         -> origin/pin-gptp-processor-to-donor-main
+2026-10-13T20:35:40.9642301Z  * [new branch]          pp102-review-evidence                    -> origin/pp102-review-evidence
+2026-10-13T20:35:40.9642616Z  * [new branch]          pp104-review-evidence                    -> origin/pp104-review-evidence
+2026-10-13T20:35:40.9642924Z  * [new branch]          pp106-review-evidence                    -> origin/pp106-review-evidence
+2026-10-13T20:35:40.9643237Z  * [new branch]          pp112-review-evidence                    -> origin/pp112-review-evidence
+2026-10-13T20:35:40.9643543Z  * [new branch]          pp113-review-evidence                    -> origin/pp113-review-evidence
+2026-10-13T20:35:40.9643850Z  * [new branch]          pp116-review-evidence                    -> origin/pp116-review-evidence
+2026-10-13T20:35:40.9644159Z  * [new branch]          pp120-review-evidence                    -> origin/pp120-review-evidence
+2026-10-13T20:35:40.9644465Z  * [new branch]          pp123-review-evidence                    -> origin/pp123-review-evidence
+2026-10-13T20:35:40.9644775Z  * [new branch]          pp125-review-evidence                    -> origin/pp125-review-evidence
+2026-10-13T20:35:40.9645079Z  * [new branch]          pp127-review-evidence                    -> origin/pp127-review-evidence
+2026-10-13T20:35:40.9645387Z  * [new branch]          pp128-review-evidence                    -> origin/pp128-review-evidence
+2026-10-13T20:35:40.9645692Z  * [new branch]          pp131-review-evidence                    -> origin/pp131-review-evidence
+2026-10-13T20:35:40.9645996Z  * [new branch]          pp134-review-evidence                    -> origin/pp134-review-evidence
+2026-10-13T20:35:40.9646304Z  * [new branch]          pp141-review-evidence                    -> origin/pp141-review-evidence
+2026-10-13T20:35:40.9646696Z  * [new branch]          pp143-review-evidence                    -> origin/pp143-review-evidence
+2026-10-13T20:35:40.9647001Z  * [new branch]          pp148-review-evidence                    -> origin/pp148-review-evidence
+2026-10-13T20:35:40.9647312Z  * [new branch]          pp151-review-evidence                    -> origin/pp151-review-evidence
+2026-10-13T20:35:40.9647618Z  * [new branch]          pp158-review-evidence                    -> origin/pp158-review-evidence
+2026-10-13T20:35:40.9647923Z  * [new branch]          pp163-review-evidence                    -> origin/pp163-review-evidence
+2026-10-13T20:35:40.9648228Z  * [new branch]          pp167-review-evidence                    -> origin/pp167-review-evidence
+2026-10-13T20:35:40.9648532Z  * [new branch]          pp168-review-evidence                    -> origin/pp168-review-evidence
+2026-10-13T20:35:40.9648839Z  * [new branch]          pp170-review-evidence                    -> origin/pp170-review-evidence
+2026-10-13T20:35:40.9649152Z  * [new branch]          pp22-review-evidence                     -> origin/pp22-review-evidence
+2026-10-13T20:35:40.9649459Z  * [new branch]          pp230-review-evidence                    -> origin/pp230-review-evidence
+2026-10-13T20:35:40.9649770Z  * [new branch]          pp232-review-evidence                    -> origin/pp232-review-evidence
+2026-10-13T20:35:40.9650078Z  * [new branch]          pp42-review-evidence                     -> origin/pp42-review-evidence
+2026-10-13T20:35:40.9650385Z  * [new branch]          pp43-review-evidence                     -> origin/pp43-review-evidence
+2026-10-13T20:35:40.9650734Z  * [new branch]          pp46-lstn-reg-state-whole-project        -> origin/pp46-lstn-reg-state-whole-project
+2026-10-13T20:35:40.9651119Z  * [new branch]          pp51-sampling-rate-whole-project         -> origin/pp51-sampling-rate-whole-project
+2026-10-13T20:35:40.9651463Z  * [new branch]          pp510-review-evidence                    -> origin/pp510-review-evidence
+2026-10-13T20:35:40.9651778Z  * [new branch]          pp639-review-evidence                    -> origin/pp639-review-evidence
+2026-10-13T20:35:40.9652232Z  * [new branch]          pp69-review-evidence                     -> origin/pp69-review-evidence
+2026-10-13T20:35:40.9652628Z  * [new branch]          pp72-review-evidence                     -> origin/pp72-review-evidence
+2026-10-13T20:35:40.9652933Z  * [new branch]          pp73-review-evidence                     -> origin/pp73-review-evidence
+2026-10-13T20:35:40.9653237Z  * [new branch]          pp81-review-evidence                     -> origin/pp81-review-evidence
+2026-10-13T20:35:40.9653542Z  * [new branch]          pp85-review-evidence                     -> origin/pp85-review-evidence
+2026-10-13T20:35:40.9653880Z  * [new branch]          pp90-nvm-exports-whole-project           -> origin/pp90-nvm-exports-whole-project
+2026-10-13T20:35:40.9654218Z  * [new branch]          pp92-review-evidence                     -> origin/pp92-review-evidence
+2026-10-13T20:35:40.9654525Z  * [new branch]          pp94-review-evidence                     -> origin/pp94-review-evidence
+2026-10-13T20:35:40.9654826Z  * [new branch]          pp99-review-evidence                     -> origin/pp99-review-evidence
+2026-10-13T20:35:40.9655136Z  * [new branch]          ppC1-review-evidence                     -> origin/ppC1-review-evidence
+2026-10-13T20:35:40.9655447Z  * [new branch]          ppC10-review-evidence                    -> origin/ppC10-review-evidence
+2026-10-13T20:35:40.9655761Z  * [new branch]          ppC11-review-evidence                    -> origin/ppC11-review-evidence
+2026-10-13T20:35:40.9656069Z  * [new branch]          ppC2-review-evidence                     -> origin/ppC2-review-evidence
+2026-10-13T20:35:40.9656375Z  * [new branch]          ppC3-review-evidence                     -> origin/ppC3-review-evidence
+2026-10-13T20:35:40.9656681Z  * [new branch]          ppC4-review-evidence                     -> origin/ppC4-review-evidence
+2026-10-13T20:35:40.9657068Z  * [new branch]          ppC5a-review-evidence                    -> origin/ppC5a-review-evidence
+2026-10-13T20:35:40.9657383Z  * [new branch]          ppC5b-review-evidence                    -> origin/ppC5b-review-evidence
+2026-10-13T20:35:40.9657694Z  * [new branch]          ppC6-review-evidence                     -> origin/ppC6-review-evidence
+2026-10-13T20:35:40.9657998Z  * [new branch]          ppC7-review-evidence                     -> origin/ppC7-review-evidence
+2026-10-13T20:35:40.9658302Z  * [new branch]          ppC8-review-evidence                     -> origin/ppC8-review-evidence
+2026-10-13T20:35:40.9658606Z  * [new branch]          ppP1-review-evidence                     -> origin/ppP1-review-evidence
+2026-10-13T20:35:40.9658911Z  * [new branch]          ppP2-review-evidence                     -> origin/ppP2-review-evidence
+2026-10-13T20:35:40.9659217Z  * [new branch]          repin-gptp-09af9fc                       -> origin/repin-gptp-09af9fc
+2026-10-13T20:35:40.9659565Z  * [new branch]          repin-gptp-after-donor-rewrite           -> origin/repin-gptp-after-donor-rewrite
+2026-10-13T20:35:40.9659898Z  * [new branch]          repin-gptp-bacf812                       -> origin/repin-gptp-bacf812
+2026-10-13T20:35:40.9660222Z  * [new branch]          shape-include-ambiguity                  -> origin/shape-include-ambiguity
+2026-10-13T20:35:40.9660544Z  * [new branch]          tsn24-review-evidence                    -> origin/tsn24-review-evidence
+2026-10-13T20:35:40.9660865Z  * [new branch]          validation/478-candidate2                -> origin/validation/478-candidate2
+2026-10-13T20:35:40.9661171Z  * [new ref]             e6ca38f35cd4deae7552d743948b92ed23b5e67d -> pull/736/merge
+2026-10-13T20:35:40.9662195Z ##[endgroup]
+2026-10-13T20:35:40.9662455Z ##[group]Determining the checkout info
+2026-10-13T20:35:40.9662708Z ##[endgroup]
+2026-10-13T20:35:40.9662862Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T20:35:40.9663346Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T20:35:40.9663875Z ##[group]Checking out the ref
+2026-10-13T20:35:40.9664097Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/736/merge
+2026-10-13T20:35:41.1088671Z Note: switching to 'refs/remotes/pull/736/merge'.
+2026-10-13T20:35:41.1088862Z 
+2026-10-13T20:35:41.1088992Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T20:35:41.1089270Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T20:35:41.1089543Z state without impacting any branches by switching back to a branch.
+2026-10-13T20:35:41.1089700Z 
+2026-10-13T20:35:41.1089813Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T20:35:41.1090076Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T20:35:41.1090224Z 
+2026-10-13T20:35:41.1090299Z   git switch -c <new-branch-name>
+2026-10-13T20:35:41.1090408Z 
+2026-10-13T20:35:41.1090479Z Or undo this operation with:
+2026-10-13T20:35:41.1090580Z 
+2026-10-13T20:35:41.1090644Z   git switch -
+2026-10-13T20:35:41.1090746Z 
+2026-10-13T20:35:41.1090874Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T20:35:41.1091053Z 
+2026-10-13T20:35:41.1091255Z HEAD is now at e6ca38f35 Merge 651ccb5aea1bc4d99f356503c188947d39e0c9e4 into a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+2026-10-13T20:35:41.1110152Z ##[endgroup]
+2026-10-13T20:35:41.1148658Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T20:35:41.1169416Z e6ca38f35cd4deae7552d743948b92ed23b5e67d
+2026-10-13T20:35:41.1324839Z ##[group]Run set -euo pipefail
+2026-10-13T20:35:41.1325118Z [36;1mset -euo pipefail[0m
+2026-10-13T20:35:41.1325339Z [36;1mecho "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA"[0m
+2026-10-13T20:35:41.1325573Z [36;1mhead="$(git rev-parse HEAD)"[0m
+2026-10-13T20:35:41.1325756Z [36;1mif [ "$head" != "$GITHUB_SHA" ]; then[0m
+2026-10-13T20:35:41.1325979Z [36;1m  echo "checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA" >&2[0m
+2026-10-13T20:35:41.1326191Z [36;1m  exit 1[0m
+2026-10-13T20:35:41.1326323Z [36;1mfi[0m
+2026-10-13T20:35:41.1326491Z [36;1mecho "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"[0m
+2026-10-13T20:35:41.1543169Z shell: /usr/bin/bash -e {0}
+2026-10-13T20:35:41.1543351Z env:
+2026-10-13T20:35:41.1543488Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:41.1543646Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:41.1543817Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-13T20:35:41.1544012Z ##[endgroup]
+2026-10-13T20:35:41.1619308Z event=pull_request ref=refs/pull/736/merge sha=e6ca38f35cd4deae7552d743948b92ed23b5e67d
+2026-10-13T20:35:41.1674773Z ##[group]Run set -euo pipefail
+2026-10-13T20:35:41.1674974Z [36;1mset -euo pipefail[0m
+2026-10-13T20:35:41.1675249Z [36;1mobserved="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"[0m
+2026-10-13T20:35:41.1675570Z [36;1mpython3 scripts/ci_events.py --require-default-branch \[0m
+2026-10-13T20:35:41.1675813Z [36;1m  --event "$GITHUB_EVENT_NAME" --observed "$observed"[0m
+2026-10-13T20:35:41.1719609Z shell: /usr/bin/bash -e {0}
+2026-10-13T20:35:41.1719769Z env:
+2026-10-13T20:35:41.1719903Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:41.1720069Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:41.1720263Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-13T20:35:41.1721687Z   GH_TOKEN: ***
+2026-10-13T20:35:41.1721824Z ##[endgroup]
+2026-10-13T20:35:41.8401915Z default_branch=dev expected=dev event=pull_request (informational)
+2026-10-13T20:35:41.8402459Z default-branch: OK
+2026-10-13T20:35:41.8482903Z ##[group]Run python3 -m pip install --quiet pyyaml
+2026-10-13T20:35:41.8483161Z [36;1mpython3 -m pip install --quiet pyyaml[0m
+2026-10-13T20:35:41.8483360Z [36;1mpython3 scripts/ci_events.py --check[0m
+2026-10-13T20:35:41.8533456Z shell: /usr/bin/bash -e {0}
+2026-10-13T20:35:41.8533611Z env:
+2026-10-13T20:35:41.8533747Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:41.8533899Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:41.8534073Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-13T20:35:41.8534267Z ##[endgroup]
+2026-10-13T20:35:42.6598876Z   note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+2026-10-13T20:35:42.6599927Z ci_events: OK (2169 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+2026-10-13T20:35:42.6684994Z ##[group]Run set -euo pipefail
+2026-10-13T20:35:42.6685200Z [36;1mset -euo pipefail[0m
+2026-10-13T20:35:42.6685369Z [36;1mpython3 scripts/ci_scope.py --selftest[0m
+2026-10-13T20:35:42.6685524Z [36;1m[0m
+2026-10-13T20:35:42.6685650Z [36;1mif [ "$EVENT_NAME" != pull_request ]; then[0m
+2026-10-13T20:35:42.6685830Z [36;1m  echo "rtl=true" >> "$GITHUB_OUTPUT"[0m
+2026-10-13T20:35:42.6685995Z [36;1m  echo "run_full=true" >> "$GITHUB_OUTPUT"[0m
+2026-10-13T20:35:42.6686272Z [36;1m  echo "Non-PR event: exhaustive validation required."[0m
+2026-10-13T20:35:42.6701409Z [36;1m  exit 0[0m
+2026-10-13T20:35:42.6701541Z [36;1mfi[0m
+2026-10-13T20:35:42.6701646Z [36;1m[0m
+2026-10-13T20:35:42.6701759Z [36;1mif [ -n "$PR_BASE_SHA" ] \[0m
+2026-10-13T20:35:42.6702062Z [36;1m   && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then[0m
+2026-10-13T20:35:42.6702333Z [36;1m  git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \[0m
+2026-10-13T20:35:42.6702557Z [36;1m    > "$RUNNER_TEMP/changed-files"[0m
+2026-10-13T20:35:42.6702698Z [36;1melse[0m
+2026-10-13T20:35:42.6702864Z [36;1m  git ls-files > "$RUNNER_TEMP/changed-files"[0m
+2026-10-13T20:35:42.6703051Z [36;1mfi[0m
+2026-10-13T20:35:42.6703153Z [36;1m[0m
+2026-10-13T20:35:42.6703261Z [36;1mecho "Changed files:"[0m
+2026-10-13T20:35:42.6703412Z [36;1msed 's/^/  /' "$RUNNER_TEMP/changed-files"[0m
+2026-10-13T20:35:42.6703629Z [36;1mrtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"[0m
+2026-10-13T20:35:42.6703829Z [36;1mrun_full=false[0m
+2026-10-13T20:35:42.6703978Z [36;1mif [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then[0m
+2026-10-13T20:35:42.6704144Z [36;1m  run_full=true[0m
+2026-10-13T20:35:42.6704261Z [36;1mfi[0m
+2026-10-13T20:35:42.6704377Z [36;1mecho "rtl=$rtl" >> "$GITHUB_OUTPUT"[0m
+2026-10-13T20:35:42.6704545Z [36;1mecho "run_full=$run_full" >> "$GITHUB_OUTPUT"[0m
+2026-10-13T20:35:42.6704736Z [36;1mecho "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"[0m
+2026-10-13T20:35:42.6704916Z [36;1mif [ "$rtl" = false ]; then[0m
+2026-10-13T20:35:42.6705376Z [36;1m  echo "docs-only: every changed path is a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no skipped gate reads unless docs-check reads it too; the exhaustive workers and both required aggregates skip"[0m
+2026-10-13T20:35:42.6705830Z [36;1mfi[0m
+2026-10-13T20:35:42.6757664Z shell: /usr/bin/bash -e {0}
+2026-10-13T20:35:42.6757800Z env:
+2026-10-13T20:35:42.6757916Z   VERILATOR_VERSION: v5.050
+2026-10-13T20:35:42.6758044Z   YOSYS_VERSION: v0.66
+2026-10-13T20:35:42.6758189Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-10-13T20:35:42.6758358Z   EVENT_NAME: pull_request
+2026-10-13T20:35:42.6758480Z   PR_DRAFT: false
+2026-10-13T20:35:42.6758618Z   PR_BASE_SHA: a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+2026-10-13T20:35:42.6758780Z ##[endgroup]
+2026-10-13T20:35:48.9843116Z   ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+2026-10-13T20:35:48.9843480Z   ok   ['README.md', 'AGENTS.md']: rtl=False
+2026-10-13T20:35:48.9843734Z   ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+2026-10-13T20:35:48.9844106Z   ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+2026-10-13T20:35:48.9844479Z   ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-10-13T20:35:48.9844797Z   ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+2026-10-13T20:35:48.9845089Z   ok   ['docs/AAF_LATENCY_TAPS.md']: rtl=True
+2026-10-13T20:35:48.9845392Z   ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+2026-10-13T20:35:48.9845692Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-10-13T20:35:48.9845991Z   ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+2026-10-13T20:35:48.9846264Z   ok   ['docs/design/AREA_BUDGET.md']: rtl=True
+2026-10-13T20:35:48.9846533Z   ok   ['docs/reference/MAILBOX_CONTRACT.md']: rtl=True
+2026-10-13T20:35:48.9847108Z   ok   ['docs/design/SPLIT_CONTROL_MEMORY.md']: rtl=True
+2026-10-13T20:35:48.9847591Z   ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+2026-10-13T20:35:48.9848040Z   ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+2026-10-13T20:35:48.9848309Z   ok   ['docs/traceability/untested.budget']: rtl=True
+2026-10-13T20:35:48.9848552Z   ok   ['docs/notes.txt']: rtl=True
+2026-10-13T20:35:48.9848778Z   ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+2026-10-13T20:35:48.9849024Z   ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+2026-10-13T20:35:48.9849252Z   ok   ['cdc_census.drawio']: rtl=True
+2026-10-13T20:35:48.9849460Z   ok   ['cdc_census.svg']: rtl=True
+2026-10-13T20:35:48.9849735Z   ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-10-13T20:35:48.9850166Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-10-13T20:35:48.9850606Z   ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-10-13T20:35:48.9850917Z   ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-10-13T20:35:48.9851201Z   ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+2026-10-13T20:35:48.9851433Z   ok   ['LICENSE']: rtl=True
+2026-10-13T20:35:48.9851622Z   ok   ['notes.rst']: rtl=True
+2026-10-13T20:35:48.9851857Z   ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+2026-10-13T20:35:48.9852237Z   ok   ['requirements.txt']: rtl=True
+2026-10-13T20:35:48.9852462Z   ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+2026-10-13T20:35:48.9852713Z   ok   ['sw/firmware/ctrl/adp/adp_mbx.c']: rtl=True
+2026-10-13T20:35:48.9852998Z   ok   ['sw/firmware/ctrl_nvm/test/test_nvm_write.cpp']: rtl=True
+2026-10-13T20:35:48.9853277Z   ok   ['sw/firmware/gtest/README.md']: rtl=True
+2026-10-13T20:35:48.9853557Z   ok   ['docs/x.md', 'sw/firmware/gtest/coverage.ratchet']: rtl=True
+2026-10-13T20:35:48.9853827Z   ok   ['scripts/lint_rtl.py']: rtl=True
+2026-10-13T20:35:48.9854050Z   ok   ['.github/workflows/rtl.yml']: rtl=True
+2026-10-13T20:35:48.9854309Z   ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+2026-10-13T20:35:48.9854553Z   ok   []: rtl=True
+2026-10-13T20:35:48.9854741Z   ok   ['gptp-processor']: rtl=True
+2026-10-13T20:35:48.9854967Z   ok   ['protocol-processor']: rtl=True
+2026-10-13T20:35:48.9855193Z   ok   ['external']: rtl=True
+2026-10-13T20:35:48.9855406Z   ok   ['third_party/verilog-axis']: rtl=True
+2026-10-13T20:35:48.9855650Z   ok   ['third_party/tsn-c-stack']: rtl=True
+2026-10-13T20:35:48.9855880Z   ok   ['.gitmodules']: rtl=True
+2026-10-13T20:35:48.9856097Z   ok   ['docs/x.md', 'gptp-processor']: rtl=True
+2026-10-13T20:35:48.9856347Z   ok   submodule rule names protocol-processor
+2026-10-13T20:35:48.9856595Z   ok   submodule rule names gptp-processor
+2026-10-13T20:35:48.9856823Z   ok   submodule rule names external
+2026-10-13T20:35:48.9857064Z   ok   submodule rule names third_party/verilog-axis
+2026-10-13T20:35:48.9857318Z   ok   submodule rule names .gitmodules
+2026-10-13T20:35:48.9857716Z   ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+2026-10-13T20:35:48.9858261Z   ok   gate-read page docs/design/AREA_BUDGET.md (named at syn/ooc/pp_resource_gate.py:72) is relevant
+2026-10-13T20:35:48.9858857Z   FAIL gate-read page docs/design/MAILBOX_SPLIT.md (named at sw/firmware/ctrl/test/ctrl_service_bounds.py:13) is relevant
+2026-10-13T20:35:48.9859469Z   ok   gate-read page docs/design/SPLIT_CONTROL_MEMORY.md (named at sw/litex/test_ctrl_memory.py:94) is relevant
+2026-10-13T20:35:48.9860058Z   ok   gate-read page docs/reference/MAILBOX_CONTRACT.md (named at sw/mailbox/gen_mailbox.py:77) is relevant
+2026-10-13T20:35:48.9860623Z   ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3209) is relevant
+2026-10-13T20:35:48.9861191Z   ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+2026-10-13T20:35:48.9861845Z   ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+2026-10-13T20:35:48.9862873Z   ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9863384Z   ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9863897Z   ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9864449Z   ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9865042Z   ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9865646Z   ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9866197Z   ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9866744Z   ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9867304Z   ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9867808Z   ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+2026-10-13T20:35:48.9868395Z   ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9869066Z   ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9869606Z   ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-10-13T20:35:48.9870033Z   ok   a new reader spelt as a comment naming it names nothing
+2026-10-13T20:35:48.9870370Z   ok   a new reader spelt as a message naming it names nothing
+2026-10-13T20:35:48.9870726Z   ok   a new reader spelt as a reader docs-check runs too names nothing
+2026-10-13T20:35:48.9871087Z   ok   mutation: gptp-processor filed as docs-only is rejected
+2026-10-13T20:35:48.9871446Z   ok   mutation: protocol-processor filed as docs-only is rejected
+2026-10-13T20:35:48.9871782Z   ok   mutation: external filed as docs-only is rejected
+2026-10-13T20:35:48.9872230Z   ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+2026-10-13T20:35:48.9872594Z   ok   mutation: .gitmodules filed as docs-only is rejected
+2026-10-13T20:35:48.9872948Z   ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+2026-10-13T20:35:48.9873287Z   ok   mutation: LICENSE filed as docs-only is rejected
+2026-10-13T20:35:48.9873573Z   ok   mutation: .rst filed as docs-only is rejected
+2026-10-13T20:35:48.9873862Z   ok   mutation: docs/ filed as docs-only is rejected
+2026-10-13T20:35:48.9874195Z   ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+2026-10-13T20:35:48.9874633Z   ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+2026-10-13T20:35:48.9874998Z   ok   mutation: tb/ filed as docs-only is rejected
+2026-10-13T20:35:48.9875315Z   ok   mutation: sw/firmware/ filed as docs-only is rejected
+2026-10-13T20:35:48.9875659Z   ok   mutation: sw/firmware/gtest/ filed as docs-only is rejected
+2026-10-13T20:35:48.9875984Z   ok   mutation: .py filed as docs-only is rejected
+2026-10-13T20:35:48.9876274Z   ok   mutation: .json filed as docs-only is rejected
+2026-10-13T20:35:48.9876556Z   ok   mutation: .svg filed as docs-only is rejected
+2026-10-13T20:35:48.9876922Z   ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+2026-10-13T20:35:48.9877375Z   ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+2026-10-13T20:35:48.9877859Z   ok   mutation: gate-read docs/design/AREA_BUDGET.md filed as docs-only is rejected
+2026-10-13T20:35:48.9878322Z   ok   mutation: the scan still names docs/design/AREA_BUDGET.md once the table drops it
+2026-10-13T20:35:48.9879095Z   ok   mutation: gate-read docs/design/SPLIT_CONTROL_MEMORY.md filed as docs-only is rejected
+2026-10-13T20:35:48.9879628Z   ok   mutation: the scan still names docs/design/SPLIT_CONTROL_MEMORY.md once the table drops it
+2026-10-13T20:35:48.9880157Z   ok   mutation: gate-read docs/reference/MAILBOX_CONTRACT.md filed as docs-only is rejected
+2026-10-13T20:35:48.9880690Z   ok   mutation: the scan still names docs/reference/MAILBOX_CONTRACT.md once the table drops it
+2026-10-13T20:35:48.9881208Z   ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+2026-10-13T20:35:48.9881713Z   ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+2026-10-13T20:35:48.9882320Z   ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+2026-10-13T20:35:48.9882816Z   ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+2026-10-13T20:35:48.9883343Z   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+2026-10-13T20:35:48.9883901Z   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+2026-10-13T20:35:48.9884292Z selftest: 1 FAILURE(S)
+2026-10-13T20:35:48.9912528Z ##[error]Process completed with exit code 1.
+2026-10-13T20:35:48.9991207Z Post job cleanup.
+2026-10-13T20:35:49.0501570Z [command]/usr/bin/git version
+2026-10-13T20:35:49.0532937Z git version 2.55.0
+2026-10-13T20:35:49.0557308Z Temporarily overriding HOME='<home-path>/work/_temp/868d2470-e20f-4c2e-ba48-352a1fcde732' before making global git config changes
+2026-10-13T20:35:49.0558121Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T20:35:49.0560487Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T20:35:49.0589070Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T20:35:49.0612922Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T20:35:49.0798486Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T20:35:49.0820245Z http.https://github.com/.extraheader
+2026-10-13T20:35:49.0827680Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T20:35:49.0856403Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T20:35:49.1037955Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T20:35:49.1066121Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T20:35:49.1340795Z Evaluate and set job outputs
+2026-10-13T20:35:49.1346118Z Set output 'target_sha'
+2026-10-13T20:35:49.1347223Z Cleaning up orphan processes
+2026-10-13T20:35:49.1516550Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

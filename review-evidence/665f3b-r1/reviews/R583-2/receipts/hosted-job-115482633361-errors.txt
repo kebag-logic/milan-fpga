@@ -1,0 +1,40 @@
+2026-10-13T19:18:54.4749106Z [ok] tsn-c-stack pin control, the inherited environment, GIT_WORK_TREE, another directory: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.6503488Z [ok] tsn-c-stack pin control, the inherited environment, GIT_COMMON_DIR, an empty repository's: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.8283485Z [ok] tsn-c-stack pin control, the inherited environment, GIT_OBJECT_DIRECTORY, an empty store: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.9691247Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ALTERNATE_OBJECT_DIRECTORIES, the clone's objects, which its own store no longer holds: cannot read the pinned tree of /tmp/ctrl-boundary-9wf0r04z/pins/pin-clone: the pinned commit (commit 70936b77): fatal: git cat-file 70936b77dc41981e192438388cd0aced69954f18: bad file
+2026-10-13T19:18:55.1461854Z [ok] tsn-c-stack pin control, the inherited environment, GIT_REPLACE_REF_BASE, a base under which the pinned src/ tree is replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.3174661Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.4888952Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_PARAMETERS, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.6597220Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_GLOBAL, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.8331922Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_SYSTEM, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.0040232Z [ok] tsn-c-stack pin control, the inherited environment, HOME, a directory whose .gitconfig names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.1721389Z [ok] tsn-c-stack pin control, the inherited environment, XDG_CONFIG_HOME, a directory whose git/config names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.3545397Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, a clean filter turning the edit back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.5364007Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ATTR_SOURCE, a tree giving the edited source a clean filter that turns it back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.7936632Z [ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:56.8338858Z [ok] tsn-c-stack pin control, the audit hook's environment judge, fork_exec's entries with GIT_NO_REPLACE_OBJECTS twice: has the helper start Git (_posixsubprocess.fork_exec) with an environment whose entries are not each a key given once, so what Git is given is not what was judged
+2026-10-13T19:18:57.0803257Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+2026-10-13T19:18:57.8993599Z Traceback (most recent call last):
+2026-10-13T19:18:57.8994842Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 540, in <module>
+2026-10-13T19:18:57.8995550Z     sys.exit(main())
+2026-10-13T19:18:57.8995804Z              ^^^^^^
+2026-10-13T19:18:57.8996313Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 509, in main
+2026-10-13T19:18:57.8997330Z     misbehaved, pins = pin_controls(work / "pins", makefiles())
+2026-10-13T19:18:57.8997938Z                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-13T19:18:57.8999006Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 962, in pin_controls
+2026-10-13T19:18:57.9001062Z     clone.fresh()
+2026-10-13T19:18:57.9001729Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 749, in fresh
+2026-10-13T19:18:57.9010820Z     onexc(os.unlink, fullname, err)
+2026-10-13T19:18:57.9011426Z   File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+2026-10-13T19:18:57.9012585Z     os.unlink(entry.name, dir_fd=topfd)
+2026-10-13T19:18:57.9013271Z FileNotFoundError: [Errno 2] No such file or directory: 'maintenance.lock'
+2026-10-13T19:18:57.9692467Z ##[error]Process completed with exit code 1.
+2026-10-13T19:18:57.9816716Z Post job cleanup.
+2026-10-13T19:18:58.0691860Z [command]/usr/bin/git version
+2026-10-13T19:18:58.0735023Z git version 2.55.0
+2026-10-13T19:18:58.0773352Z Temporarily overriding HOME='<home-path>/work/_temp/c0a04aff-076f-4213-82a6-205a087ef7f7' before making global git config changes
+2026-10-13T19:18:58.0774693Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T19:18:58.0778899Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:18:58.0818497Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T19:18:58.0853796Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T19:18:58.1083635Z Entering 'gptp-processor'

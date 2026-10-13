@@ -1,0 +1,13 @@
+2026-10-13T20:36:12.8040751Z   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+2026-10-13T20:36:12.8041695Z   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+2026-10-13T20:36:12.8042171Z selftest: 1 FAILURE(S)
+2026-10-13T20:36:12.8063825Z ##[error]Process completed with exit code 1.
+2026-10-13T20:36:12.8329564Z Post job cleanup.
+2026-10-13T20:36:12.9210927Z [command]/usr/bin/git version
+2026-10-13T20:36:12.9257119Z git version 2.55.0
+2026-10-13T20:36:12.9315237Z Temporarily overriding HOME='<home-path>/work/_temp/7d59a89b-111a-4ef8-8e06-bf2cb062f950' before making global git config changes
+2026-10-13T20:36:12.9316778Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T20:36:12.9317849Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T20:36:12.9345941Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T20:36:12.9384616Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T20:36:12.9638219Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader

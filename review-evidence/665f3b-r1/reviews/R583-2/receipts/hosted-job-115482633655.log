@@ -1,0 +1,625 @@
+﻿2026-10-13T19:17:30.4000864Z Current runner version: '2.337.0'
+2026-10-13T19:17:30.4027972Z ##[group]Runner Image Provisioner
+2026-10-13T19:17:30.4028842Z Hosted Compute Agent
+2026-10-13T19:17:30.4029420Z Version: 20261002.596
+2026-10-13T19:17:30.4030123Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T19:17:30.4030890Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T19:17:30.4031607Z Worker ID: {90848e12-7092-423d-bdc6-18da5b0dfb1e}
+2026-10-13T19:17:30.4032337Z Region: centralus
+2026-10-13T19:17:30.4032891Z Cloud: Azure
+2026-10-13T19:17:30.4033513Z ##[endgroup]
+2026-10-13T19:17:30.4035256Z ##[group]Operating System
+2026-10-13T19:17:30.4035966Z Ubuntu
+2026-10-13T19:17:30.4036514Z 24.04.5
+2026-10-13T19:17:30.4037143Z LTS
+2026-10-13T19:17:30.4037703Z ##[endgroup]
+2026-10-13T19:17:30.4038297Z ##[group]Runner Image
+2026-10-13T19:17:30.4038886Z Image: ubuntu-24.04
+2026-10-13T19:17:30.4039519Z Version: 20261004.327.1
+2026-10-13T19:17:30.4040799Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T19:17:30.4042510Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T19:17:30.4043464Z ##[endgroup]
+2026-10-13T19:17:30.4044945Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T19:17:30.4047248Z Contents: read
+2026-10-13T19:17:30.4048027Z Metadata: read
+2026-10-13T19:17:30.4048593Z Packages: read
+2026-10-13T19:17:30.4049199Z ##[endgroup]
+2026-10-13T19:17:30.4051390Z Secret source: Actions
+2026-10-13T19:17:30.4052371Z Cache mode: write
+2026-10-13T19:17:30.4053202Z Prepare workflow directory
+2026-10-13T19:17:30.4468254Z Prepare all required actions
+2026-10-13T19:17:30.4517683Z Getting action download info
+2026-10-13T19:17:30.7297281Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T19:17:30.8329146Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-13T19:17:31.0313701Z Complete job name: firmware-boundary
+2026-10-13T19:17:31.1252590Z ##[group]Run actions/checkout@v4
+2026-10-13T19:17:31.1254325Z with:
+2026-10-13T19:17:31.1255201Z   repository: kebag-logic/milan-fpga
+2026-10-13T19:17:31.1263142Z   token: ***
+2026-10-13T19:17:31.1263904Z   ssh-strict: true
+2026-10-13T19:17:31.1264966Z   ssh-user: git
+2026-10-13T19:17:31.1265724Z   persist-credentials: true
+2026-10-13T19:17:31.1266521Z   clean: true
+2026-10-13T19:17:31.1267277Z   sparse-checkout-cone-mode: true
+2026-10-13T19:17:31.1268151Z   fetch-depth: 1
+2026-10-13T19:17:31.1268848Z   fetch-tags: false
+2026-10-13T19:17:31.1269626Z   show-progress: true
+2026-10-13T19:17:31.1270356Z   lfs: false
+2026-10-13T19:17:31.1271029Z   submodules: false
+2026-10-13T19:17:31.1271767Z   set-safe-directory: true
+2026-10-13T19:17:31.1272606Z   allow-unsafe-pr-checkout: false
+2026-10-13T19:17:31.1274174Z env:
+2026-10-13T19:17:31.1274884Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:17:31.1275700Z   YOSYS_VERSION: v0.66
+2026-10-13T19:17:31.1276443Z ##[endgroup]
+2026-10-13T19:17:31.2321507Z Syncing repository: kebag-logic/milan-fpga
+2026-10-13T19:17:31.2324630Z ##[group]Getting Git version info
+2026-10-13T19:17:31.2325594Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T19:17:31.2326666Z [command]/usr/bin/git version
+2026-10-13T19:17:31.2424951Z git version 2.55.0
+2026-10-13T19:17:31.2453228Z ##[endgroup]
+2026-10-13T19:17:31.2471815Z Temporarily overriding HOME='<home-path>/work/_temp/abef4886-2dc7-4c4a-b69c-883c87abe2f7' before making global git config changes
+2026-10-13T19:17:31.2474747Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T19:17:31.2478292Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:17:31.2536820Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T19:17:31.2541427Z ##[group]Initializing the repository
+2026-10-13T19:17:31.2547128Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:17:31.2699133Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T19:17:31.2701057Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T19:17:31.2713172Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T19:17:31.2714838Z hint: call:
+2026-10-13T19:17:31.2715575Z hint:
+2026-10-13T19:17:31.2716473Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T19:17:31.2717510Z hint:
+2026-10-13T19:17:31.2718562Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T19:17:31.2719580Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T19:17:31.2720360Z hint:
+2026-10-13T19:17:31.2720822Z hint: 	git branch -m <name>
+2026-10-13T19:17:31.2721338Z hint:
+2026-10-13T19:17:31.2722008Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T19:17:31.2723079Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-13T19:17:31.2726713Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-13T19:17:31.2783592Z ##[endgroup]
+2026-10-13T19:17:31.2785248Z ##[group]Disabling automatic garbage collection
+2026-10-13T19:17:31.2788934Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T19:17:31.2824756Z ##[endgroup]
+2026-10-13T19:17:31.2826420Z ##[group]Setting up auth
+2026-10-13T19:17:31.2833538Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T19:17:31.2896508Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T19:17:31.3309179Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T19:17:31.3348583Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T19:17:31.3583758Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:17:31.3627184Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T19:17:31.3879147Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T19:17:31.3923083Z ##[endgroup]
+2026-10-13T19:17:31.3924796Z ##[group]Fetching the repository
+2026-10-13T19:17:31.3935352Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc:refs/remotes/pull/736/merge
+2026-10-13T19:17:33.2681599Z From https://github.com/kebag-logic/milan-fpga
+2026-10-13T19:17:33.2682896Z  * [new ref]         805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc -> pull/736/merge
+2026-10-13T19:17:33.2686549Z ##[endgroup]
+2026-10-13T19:17:33.2687422Z ##[group]Determining the checkout info
+2026-10-13T19:17:33.2690154Z ##[endgroup]
+2026-10-13T19:17:33.2694790Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T19:17:33.2761981Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T19:17:33.2796645Z ##[group]Checking out the ref
+2026-10-13T19:17:33.2800165Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/736/merge
+2026-10-13T19:17:33.4761262Z Note: switching to 'refs/remotes/pull/736/merge'.
+2026-10-13T19:17:33.4762338Z 
+2026-10-13T19:17:33.4763088Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T19:17:33.4765264Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T19:17:33.4767098Z state without impacting any branches by switching back to a branch.
+2026-10-13T19:17:33.4768174Z 
+2026-10-13T19:17:33.4768979Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T19:17:33.4771095Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T19:17:33.4771971Z 
+2026-10-13T19:17:33.4772379Z   git switch -c <new-branch-name>
+2026-10-13T19:17:33.4772988Z 
+2026-10-13T19:17:33.4773381Z Or undo this operation with:
+2026-10-13T19:17:33.4774190Z 
+2026-10-13T19:17:33.4774537Z   git switch -
+2026-10-13T19:17:33.4774987Z 
+2026-10-13T19:17:33.4775798Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T19:17:33.4776952Z 
+2026-10-13T19:17:33.4778435Z HEAD is now at 805a81c Merge db29bdd07529fbc697b7956827092f64b1241714 into a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+2026-10-13T19:17:33.4786769Z ##[endgroup]
+2026-10-13T19:17:33.4837310Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T19:17:33.4867888Z 805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc
+2026-10-13T19:17:33.5119320Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+2026-10-13T19:17:33.5123184Z [36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack[0m
+2026-10-13T19:17:33.5423320Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:17:33.5424302Z env:
+2026-10-13T19:17:33.5424823Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:17:33.5425524Z   YOSYS_VERSION: v0.66
+2026-10-13T19:17:33.5426131Z ##[endgroup]
+2026-10-13T19:17:33.5760954Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-10-13T19:17:33.5794730Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-10-13T19:17:33.5800636Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+2026-10-13T19:17:33.5875216Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+2026-10-13T19:17:33.5879330Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-10-13T19:17:33.5881759Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-10-13T19:17:34.3566133Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-10-13T19:17:36.0981860Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+2026-10-13T19:17:36.5945477Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+2026-10-13T19:17:37.8218028Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-10-13T19:17:38.4690818Z Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+2026-10-13T19:17:38.5452041Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+2026-10-13T19:17:38.5578976Z Submodule path 'third_party/lwSRP': checked out '08ee86e812a0eb5e1dc6cd61b494d8baf3491348'
+2026-10-13T19:17:38.5749252Z Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+2026-10-13T19:17:38.5948592Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-10-13T19:17:38.6010915Z ##[group]Run set -euo pipefail
+2026-10-13T19:17:38.6011302Z [36;1mset -euo pipefail[0m
+2026-10-13T19:17:38.6011617Z [36;1msudo apt-get update -qq[0m
+2026-10-13T19:17:38.6012078Z [36;1msudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev[0m
+2026-10-13T19:17:38.6012652Z [36;1mpython3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt[0m
+2026-10-13T19:17:38.6013124Z [36;1mdpkg-query -W libgtest-dev libgmock-dev[0m
+2026-10-13T19:17:38.6013503Z [36;1mg++ --version | head -n 1[0m
+2026-10-13T19:17:38.6081318Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:17:38.6081638Z env:
+2026-10-13T19:17:38.6081894Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:17:38.6082190Z   YOSYS_VERSION: v0.66
+2026-10-13T19:17:38.6082682Z ##[endgroup]
+2026-10-13T19:17:43.1994653Z Reading package lists...
+2026-10-13T19:17:43.3982784Z Building dependency tree...
+2026-10-13T19:17:43.3990380Z Reading state information...
+2026-10-13T19:17:43.5429235Z The following additional packages will be installed:
+2026-10-13T19:17:43.5434975Z   googletest
+2026-10-13T19:17:43.5606161Z The following NEW packages will be installed:
+2026-10-13T19:17:43.5613686Z   googletest libgmock-dev libgtest-dev
+2026-10-13T19:17:43.5790886Z 0 upgraded, 3 newly installed, 0 to remove and 29 not upgraded.
+2026-10-13T19:17:43.5791711Z Need to get 924 kB of archives.
+2026-10-13T19:17:43.5792214Z After this operation, 5933 kB of additional disk space will be used.
+2026-10-13T19:17:43.5792642Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-13T19:17:43.6214177Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+2026-10-13T19:17:43.6532203Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+2026-10-13T19:17:43.6910137Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+2026-10-13T19:17:43.9418519Z Fetched 924 kB in 0s (7505 kB/s)
+2026-10-13T19:17:43.9652620Z Selecting previously unselected package googletest.
+2026-10-13T19:17:44.0018576Z (Reading database ... 
+2026-10-13T19:17:44.0019087Z (Reading database ... 5%
+2026-10-13T19:17:44.0019885Z (Reading database ... 10%
+2026-10-13T19:17:44.0021071Z (Reading database ... 15%
+2026-10-13T19:17:44.0021529Z (Reading database ... 20%
+2026-10-13T19:17:44.0022138Z (Reading database ... 25%
+2026-10-13T19:17:44.0022575Z (Reading database ... 30%
+2026-10-13T19:17:44.0023022Z (Reading database ... 35%
+2026-10-13T19:17:44.0023415Z (Reading database ... 40%
+2026-10-13T19:17:44.0023855Z (Reading database ... 45%
+2026-10-13T19:17:44.0024506Z (Reading database ... 50%
+2026-10-13T19:17:44.0083508Z (Reading database ... 55%
+2026-10-13T19:17:44.1103600Z (Reading database ... 60%
+2026-10-13T19:17:44.3176333Z (Reading database ... 65%
+2026-10-13T19:17:44.4701268Z (Reading database ... 70%
+2026-10-13T19:17:44.6605391Z (Reading database ... 75%
+2026-10-13T19:17:44.7663241Z (Reading database ... 80%
+2026-10-13T19:17:44.8940719Z (Reading database ... 85%
+2026-10-13T19:17:44.9803691Z (Reading database ... 90%
+2026-10-13T19:17:45.1328334Z (Reading database ... 95%
+2026-10-13T19:17:45.1328731Z (Reading database ... 100%
+2026-10-13T19:17:45.1329166Z (Reading database ... 203191 files and directories currently installed.)
+2026-10-13T19:17:45.1370140Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+2026-10-13T19:17:45.1396846Z Unpacking googletest (1.14.0-1) ...
+2026-10-13T19:17:45.1996602Z Selecting previously unselected package libgtest-dev:amd64.
+2026-10-13T19:17:45.2120483Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+2026-10-13T19:17:45.2128307Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:17:45.2439842Z Selecting previously unselected package libgmock-dev:amd64.
+2026-10-13T19:17:45.2567277Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+2026-10-13T19:17:45.2575005Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:17:45.2981589Z Setting up googletest (1.14.0-1) ...
+2026-10-13T19:17:45.3000093Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:17:45.3015704Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:17:45.9705198Z 
+2026-10-13T19:17:45.9705780Z Running kernel seems to be up-to-date.
+2026-10-13T19:17:45.9706222Z 
+2026-10-13T19:17:45.9706430Z No services need to be restarted.
+2026-10-13T19:17:45.9706787Z 
+2026-10-13T19:17:45.9707003Z No containers need to be restarted.
+2026-10-13T19:17:45.9707363Z 
+2026-10-13T19:17:45.9707624Z No user sessions are running outdated binaries.
+2026-10-13T19:17:45.9708084Z 
+2026-10-13T19:17:45.9708487Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-13T19:18:20.1013087Z libgmock-dev:amd64	1.14.0-1
+2026-10-13T19:18:20.1013620Z libgtest-dev:amd64	1.14.0-1
+2026-10-13T19:18:20.1122907Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+2026-10-13T19:18:20.1781590Z ##[group]Run actions/cache@v4
+2026-10-13T19:18:20.1781872Z with:
+2026-10-13T19:18:20.1782074Z   path: ~/br-milan-rv32/host
+2026-10-13T19:18:20.1782795Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:18:20.1783558Z   enableCrossOsArchive: false
+2026-10-13T19:18:20.1783807Z   fail-on-cache-miss: false
+2026-10-13T19:18:20.1784427Z   lookup-only: false
+2026-10-13T19:18:20.1784647Z   save-always: false
+2026-10-13T19:18:20.1784845Z env:
+2026-10-13T19:18:20.1785031Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:18:20.1785259Z   YOSYS_VERSION: v0.66
+2026-10-13T19:18:20.1785462Z ##[endgroup]
+2026-10-13T19:18:20.2855727Z (node:3411) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T19:18:20.2856505Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T19:18:20.4425271Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:18:20.4537158Z (node:3411) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T19:18:21.5855257Z Received 92274688 of 153250353 (60.2%), 88.0 MBs/sec
+2026-10-13T19:18:22.1830789Z Received 153250353 of 153250353 (100.0%), 91.1 MBs/sec
+2026-10-13T19:18:22.1833161Z Cache Size: ~146 MB (153250353 B)
+2026-10-13T19:18:22.1940984Z [command]/usr/bin/tar -xf <home-path>/work/_temp/5896f3af-fe30-4c31-9077-5794827cccb6/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-10-13T19:18:23.1875242Z Cache restored successfully
+2026-10-13T19:18:23.2027309Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:18:23.2152072Z ##[group]Run set -euo pipefail
+2026-10-13T19:18:23.2152460Z [36;1mset -euo pipefail[0m
+2026-10-13T19:18:23.2152752Z [36;1mpython3 scripts/ci_rv32_sdk_selftest.py[0m
+2026-10-13T19:18:23.2153183Z [36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"[0m
+2026-10-13T19:18:23.2217767Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:18:23.2218030Z env:
+2026-10-13T19:18:23.2218230Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:18:23.2218481Z   YOSYS_VERSION: v0.66
+2026-10-13T19:18:23.2218698Z ##[endgroup]
+2026-10-13T19:18:23.3206370Z test_archive_root (__main__.InstallerTests.test_archive_root)
+2026-10-13T19:18:23.3334849Z SDK archive verified: /tmp/rv32-installer-test-c4fjww4g/wrong-root.tar.xz sha256=c264b3721985e5130fa571f9b25c753bc7a97c1dfee67175ae59cbe102b11192
+2026-10-13T19:18:23.3345647Z An authenticated archive with another root is still not extracted. ... ok
+2026-10-13T19:18:23.3346390Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+2026-10-13T19:18:23.3401698Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+2026-10-13T19:18:23.3402821Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+2026-10-13T19:18:23.3705608Z Explicit offline inputs are checked even beside a valid cache. ... ok
+2026-10-13T19:18:23.3706616Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+2026-10-13T19:18:23.4000319Z A cache made by other installer bytes is refused before its tools run. ... ok
+2026-10-13T19:18:23.4001254Z test_download_path (__main__.InstallerTests.test_download_path)
+2026-10-13T19:18:23.4292590Z The hosted path, with no --archive, installs what the pin names. ... ok
+2026-10-13T19:18:23.4293788Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+2026-10-13T19:18:23.4429508Z A wrong download is refused before tar reads it or anything runs. ... ok
+2026-10-13T19:18:23.4430503Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+2026-10-13T19:18:23.4719936Z A compiler whose realpath leaves the prefix is never executed. ... ok
+2026-10-13T19:18:23.4720915Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+2026-10-13T19:18:23.5009568Z A receipt carrying an unexpected section is malformed. ... ok
+2026-10-13T19:18:23.5010483Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+2026-10-13T19:18:23.5114798Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+2026-10-13T19:18:23.5115881Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+2026-10-13T19:18:23.5509948Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+2026-10-13T19:18:23.5511249Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+2026-10-13T19:18:23.5875964Z Deletion, replacement, mode change and extra files all refuse. ... ok
+2026-10-13T19:18:23.5876627Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+2026-10-13T19:18:23.6169453Z JSON of the wrong type cannot pass as provenance. ... ok
+2026-10-13T19:18:23.6170209Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+2026-10-13T19:18:23.6224622Z An existing directory is not an installed SDK. ... ok
+2026-10-13T19:18:23.6225272Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+2026-10-13T19:18:23.6516668Z A relocated tree is bound to the prefix where it was measured. ... ok
+2026-10-13T19:18:23.6517262Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+2026-10-13T19:18:23.6800866Z The installer digest and host are the ones measured here, independently. ... ok
+2026-10-13T19:18:23.6801781Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+2026-10-13T19:18:23.7096083Z Pointing the selector at another installed tool is cache drift. ... ok
+2026-10-13T19:18:23.7096682Z test_special_file (__main__.InstallerTests.test_special_file)
+2026-10-13T19:18:23.7404684Z A FIFO planted in the cache is refused before any tool runs. ... ok
+2026-10-13T19:18:23.7405693Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+2026-10-13T19:18:23.7460524Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+2026-10-13T19:18:23.7461470Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+2026-10-13T19:18:23.7758248Z Provenance must be stored in the installation, not another tree. ... ok
+2026-10-13T19:18:23.7758848Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+2026-10-13T19:18:23.8054390Z An interrupted receipt write never becomes a usable cache. ... ok
+2026-10-13T19:18:23.8055305Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+2026-10-13T19:18:23.8340835Z SDK argv: ["/tmp/rv32-installer-test-wk8_v4bb/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:23.8360898Z SDK argv: ["/tmp/rv32-installer-test-wk8_v4bb/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:23.8381768Z SDK argv: ["/tmp/rv32-installer-test-wk8_v4bb/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:23.8402189Z SDK argv: ["/tmp/rv32-installer-test-wk8_v4bb/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:23.8432904Z Even a successful process must prove its relocation result. ... ok
+2026-10-13T19:18:23.8434354Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+2026-10-13T19:18:23.8491993Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+2026-10-13T19:18:23.8493036Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+2026-10-13T19:18:23.8843304Z Every cache input is bound, including the whole digest and prefix. ... ok
+2026-10-13T19:18:23.8844421Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+2026-10-13T19:18:23.9137890Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:23.9157461Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:23.9177095Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:23.9197013Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:23.9220091Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:23.9240443Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:23.9260158Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:23.9280031Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:23.9303405Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:23.9322781Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:23.9342302Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:23.9361523Z SDK argv: ["/tmp/rv32-installer-test-7lnqsk5q/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:23.9392194Z A compiler with the wrong version or target cannot create a receipt. ... ok
+2026-10-13T19:18:23.9393203Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+2026-10-13T19:18:23.9685261Z SDK argv: ["/tmp/rv32-installer-test-_biy20pv/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:23.9704888Z SDK argv: ["/tmp/rv32-installer-test-_biy20pv/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:23.9724411Z SDK argv: ["/tmp/rv32-installer-test-_biy20pv/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:23.9744387Z SDK argv: ["/tmp/rv32-installer-test-_biy20pv/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:23.9775982Z Cached identification must agree with the program actually invoked. ... ok
+2026-10-13T19:18:23.9776543Z 
+2026-10-13T19:18:23.9776801Z ----------------------------------------------------------------------
+2026-10-13T19:18:23.9777433Z Ran 25 tests in 0.657s
+2026-10-13T19:18:23.9777661Z 
+2026-10-13T19:18:23.9777785Z OK
+2026-10-13T19:18:25.0125810Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:18:25.0147799Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:18:25.0162706Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:18:25.0177483Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:18:25.0206496Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+2026-10-13T19:18:25.0212255Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+2026-10-13T19:18:25.0215909Z SDK cache hit: verified
+2026-10-13T19:18:25.0349201Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+2026-10-13T19:18:25.0349963Z [36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator[0m
+2026-10-13T19:18:25.0413814Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:18:25.0414338Z env:
+2026-10-13T19:18:25.0414541Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:18:25.0414786Z   YOSYS_VERSION: v0.66
+2026-10-13T19:18:25.0415002Z ##[endgroup]
+2026-10-13T19:18:25.2969476Z tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:25.2972435Z no capture given: running every known builder the run judges under one
+2026-10-13T19:18:35.1179582Z     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+2026-10-13T19:24:13.5387886Z     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (338 s)
+2026-10-13T19:25:59.3133445Z     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (106 s)
+2026-10-13T19:30:17.9679738Z     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (259 s)
+2026-10-13T19:30:18.5022270Z     sw/litex/test_ctrl_memory.py --build-only: exit 0 (1 s)
+2026-10-13T19:30:36.2548533Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (18 s)
+2026-10-13T19:30:53.9606565Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (18 s)
+2026-10-13T19:31:25.8827534Z capture: 3082 compiler invocations from 22 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py
+2026-10-13T19:31:25.8833009Z   LEFT OUT: tb/verilator/mbx/Makefile, which needs Verilator, which this run has none of (--without verilator)
+2026-10-13T19:31:25.8834750Z   LEFT OUT: sw/firmware/ctrl/test/maap_differential.py, which needs Verilator, which this run has none of (--without verilator)
+2026-10-13T19:31:25.8836182Z   LEFT OUT: sw/firmware/ctrl/test/aecp_wire.py, which needs Verilator, which this run has none of (--without verilator)
+2026-10-13T19:31:25.8838997Z   1 compile(s) failed, each with its dependency pass, and compiled nothing: sw/firmware/gtest/fw_gtest.py, sw/firmware/gtest/fw_rv32_selftest.py ran riscv32-linux-gcc -march=rv32i -mabi=ilp32 -fno-stack-protector -fstack-usage -Os -std=c11 -Wall -Werror --sysroot=/tmp/fw-rv32-vd83mqw6/sysroot -nostdinc -isystem <home-path>/br-milan-rv32/host/bin/ ...
+2026-10-13T19:31:25.8841605Z     ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (9 s)
+2026-10-13T19:31:25.8842336Z     ctrl_image_selftest.py: exit 0 (20 s)
+2026-10-13T19:31:25.8843254Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:31:25.8844696Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:31:25.8845921Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:31:25.8847084Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:31:25.8848290Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (5 s)
+2026-10-13T19:31:25.8849484Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:31:25.8850643Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:31:25.8851775Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:31:25.8853498Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:31:25.8855084Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:31:25.8856253Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:31:25.8857419Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+2026-10-13T19:32:12.8987409Z   LEFT OUT: boundary control V1 a mode only the AECP wire comparison gives, judged where its builders' capture is (needs verilator)
+2026-10-13T19:32:12.8990435Z   LEFT OUT: boundary control V2 a mode only its two-interface reference gives, judged where its builders' capture is (needs verilator)
+2026-10-13T19:32:12.8995193Z   LEFT OUT: boundary control V3 a value only its two-interface reference gives, judged where its builders' capture is (needs verilator)
+2026-10-13T19:32:12.9012495Z   LEFT OUT: boundary control a header only the MAAP differential's C++ source reaches includes a stack file in C++ only, judged where its builders' capture is (needs verilator)
+2026-10-13T19:32:12.9014668Z   LEFT OUT: boundary control the capture holds nothing of the AECP wire comparison, judged where its builders' capture is (needs verilator)
+2026-10-13T19:32:12.9016020Z [ok] boundary control pass: the copies as they are, the base the controls share: passes
+2026-10-13T19:32:12.9018511Z [ok] boundary control the F5 builder removed from the registry: REFUSED: tb/verilator/milan_dp/stream_counter_f5.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+2026-10-13T19:32:12.9022130Z [ok] boundary control the F5 builder's own capture is missing: REFUSED: the capture holds no invocation of tb/verilator/milan_dp/stream_counter_f5.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+2026-10-13T19:32:12.9026137Z [ok] boundary control an unclassified copy of test_ctrl_memory.py: REFUSED: sw/firmware/ctrl/test/planted_test_ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+2026-10-13T19:32:12.9030156Z [ok] boundary control an unclassified copy of ctrl_memory.py: REFUSED: sw/firmware/ctrl/test/planted_ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+2026-10-13T19:32:12.9034396Z [ok] boundary control an unclassified copy of milan_soc.py: REFUSED: sw/firmware/ctrl/test/planted_milan_soc.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+2026-10-13T19:32:12.9037965Z [ok] boundary control the reset-entry builder's own capture is missing: REFUSED: the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+2026-10-13T19:32:12.9040908Z [ok] boundary control the reset entry includes a private stack header in the fifth capture: firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:12.9043897Z [ok] boundary control stack source includes the mailbox HAL: stack: tsn-c-stack/src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9047094Z [ok] boundary control stack source includes the register-map contract: stack: tsn-c-stack/src/acmp.c includes sw/firmware/ctrl/mbx/mbx_contract.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9049838Z [ok] boundary control stack source includes the composition: stack: tsn-c-stack/src/maap.c includes sw/firmware/ctrl/app/ctrl_app.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9052461Z [ok] boundary control stack source includes the store's port: stack: tsn-c-stack/src/maap.c includes sw/firmware/ctrl_nvm/nvm_state.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9055364Z [ok] boundary control stack source includes the loop through a macro: stack: tsn-c-stack/src/adp.c includes sw/firmware/ctrl/loop/ctrl_loop.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9058192Z [ok] boundary control stack public header includes the platform's header: stack: tsn-c-stack/include/wire.h includes sw/firmware/ctrl/port/ctrl_debug.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9061194Z [ok] boundary control Q7: a store header shadows the C library's for the stack in the image build: stack: tsn-c-stack/include/adp.h includes sw/firmware/ctrl_nvm/plat/stdbool.h, which is neither the stack's nor the C implementation's [sw/firmware/ctrl/test/ctrl_image.py]
+2026-10-13T19:32:12.9064947Z [ok] boundary control a firmware directory shadows a header the C library's own headers include, for the stack: stack: tsn-c-stack/src/adp.c reads sw/firmware/ctrl/port/bits/libc-header-start.h (included by /usr/include/stdint.h), which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9068340Z [ok] boundary control stack source includes the mailbox HAL under the re-entry assertion: stack: tsn-c-stack/src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9071233Z [ok] boundary control stack source includes the platform's header in a debug build: stack: tsn-c-stack/src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9074517Z [ok] boundary control stack source includes the contract in a debug build with the re-entry assertion: stack: tsn-c-stack/src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9077371Z [ok] boundary control stack source includes the AECP core's header: stack: tsn-c-stack/src/adp.c includes sw/firmware/ctrl/aecp/aecp.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9079805Z [ok] boundary control a mode a builder compiles the stack with: stack: tsn-c-stack/src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [a builder]
+2026-10-13T19:32:12.9082177Z [ok] boundary control a mode a builder writes as two arguments: stack: tsn-c-stack/src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [a builder]
+2026-10-13T19:32:12.9084917Z [ok] boundary control a mode a new Makefile writes as two words: stack: tsn-c-stack/src/maap.c includes sw/firmware/ctrl/loop/ctrl_loop.h, which is neither the stack's nor the C implementation's [a builder]
+2026-10-13T19:32:12.9087534Z [ok] boundary control a stack test includes the mailbox HAL: stack: tsn-c-stack/tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9090853Z [ok] boundary control a stack test includes the firmware's harness: stack: tsn-c-stack/tests/test_adp.cpp includes sw/firmware/gtest/fw_gtest.hpp, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9093819Z [ok] boundary control a stack test includes the platform's pool in its release build: stack: tsn-c-stack/tests/test_adp_reentry.cpp includes sw/firmware/ctrl/port/ctrl_pool.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9097410Z [ok] boundary control a stack public header includes the mailbox HAL for C++ only: stack: tsn-c-stack/include/acmp.h includes sw/firmware/ctrl/mbx/mbx_hal.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9100185Z [ok] boundary control a stack test includes the AECP adapter: stack: tsn-c-stack/tests/test_adp.cpp includes sw/firmware/ctrl/aecp/aecp_mbx.h, which is neither the stack's nor the C implementation's [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9102899Z [ok] boundary control N1: a store source reaches a stack example, as the image builder compiles it: firmware: sw/firmware/ctrl_nvm/nvm_store.c reads tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+2026-10-13T19:32:12.9106138Z [ok] boundary control a store source reaches a stack file outside its public headers in the image build: firmware: sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+2026-10-13T19:32:12.9108703Z [ok] boundary control firmware reaches a stack example's header: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9110990Z [ok] boundary control firmware header reaches a stack source by a relative path: firmware: sw/firmware/ctrl/maap/maap_mbx.h includes tsn-c-stack/src/maap.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9113762Z [ok] boundary control image source reaches a stack file outside its public headers: firmware: sw/firmware/ctrl/test/rv32_image/image_main.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+2026-10-13T19:32:12.9116642Z [ok] boundary control a firmware adapter reaches a stack source under the re-entry assertion: firmware: sw/firmware/ctrl/acmp/acmp_mbx.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9119938Z [ok] boundary control firmware tests a mode by its value: firmware: sw/firmware/ctrl/maap/maap_mbx.c reads tsn-c-stack/src/maap.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9122540Z [ok] boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined: firmware: sw/firmware/ctrl/acmp/acmp_mbx.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9125684Z [ok] boundary control the AECP core reaches a stack source: firmware: sw/firmware/ctrl/aecp/aecp.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9128078Z [ok] boundary control the AECP core reaches a stack source at a value only its arms compile with: firmware: sw/firmware/ctrl/aecp/aecp.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:12.9130611Z [ok] boundary control the AECP application bridge reaches a stack example's header: firmware: sw/firmware/ctrl/app/ctrl_app_aecp.c reads tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:12.9133878Z [ok] boundary control the image reaches a stack file under a shape's stream count: firmware: sw/firmware/ctrl/test/rv32_image/image_main.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+2026-10-13T19:32:12.9137021Z [ok] boundary control the SRP image's composition reaches a stack source, as the SRP image builder compiles it: firmware: sw/firmware/ctrl/test/ctrl_image.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [a builder]
+2026-10-13T19:32:12.9139720Z [ok] boundary control the AECP image's SRP composition reaches a stack source, as the SRP image builder compiles it: firmware: sw/firmware/ctrl/test/ctrl_aecp_image.c reads tsn-c-stack/src/maap.c, not one of the stack's public headers [a builder]
+2026-10-13T19:32:12.9142473Z [ok] boundary control the AECP image reaches a stack source at a shape its generated header gives many maps: firmware: sw/firmware/ctrl/test/ctrl_aecp_image.c reads tsn-c-stack/src/acmp.c, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6596124Z [ok] boundary control an adapter reaches a stack source where the SRP shape header is force-included: firmware: sw/firmware/ctrl/maap/maap_mbx.c reads tsn-c-stack/src/maap.c, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6607352Z [ok] boundary control an adapter reaches a stack source on the two-interface contract, as the SRP image builder compiles it: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/src/adp.c, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6610423Z [ok] boundary control a firmware header reaches a stack test's fake in C++ only: firmware: sw/firmware/ctrl/acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:19.6613595Z [ok] boundary control a firmware header reaches a stack file through a computed include in C++ only: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [sw/firmware/gtest/fw_gtest.py]
+2026-10-13T19:32:19.6618455Z [ok] boundary control a copy of the stack's wire.h in the firmware: firmware: sw/firmware/ctrl/mbx/wire.h has the name of the stack's wire.h
+2026-10-13T19:32:19.6620028Z [ok] boundary control a copy of the stack's adp.c in the firmware: firmware: sw/firmware/ctrl/adp/adp.c has the name of the stack's adp.c
+2026-10-13T19:32:19.6621643Z [ok] boundary control a copy of the stack's acmp.h in the AECP directory: firmware: sw/firmware/ctrl/aecp/acmp.h has the name of the stack's acmp.h
+2026-10-13T19:32:19.6623649Z [ok] boundary control a Makefile's patsubst writes a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6626070Z [ok] boundary control a Makefile's foreach writes a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6628230Z [ok] boundary control a Makefile appends a mode with no space: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6630655Z [ok] boundary control a Makefile writes a mode's name after a bare -D: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6633053Z [ok] boundary control a Makefile computes a mode's name: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6635643Z [ok] boundary control a Makefile computes a mode's value: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6640556Z [ok] boundary control a Makefile prefixes -D to the modes it lists: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6642983Z [ok] boundary control an f-string writes a mode after other text: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6645566Z [ok] boundary control a multi-word literal holds a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6647912Z [ok] boundary control a shell command's literal holds a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6650264Z [ok] boundary control shlex splits a mode out of a literal: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6652675Z [ok] boundary control a bare -D takes a mode a conditional chooses: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6655177Z [ok] boundary control str.format writes a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6657316Z [ok] boundary control a builder joins -D to a mode it computes: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6659641Z [ok] boundary control a builder formats a mode with %: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.6661932Z [ok] boundary control a builder joins a value to a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:19.9271031Z [ok] boundary control an f-string computes a mode's name: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:20.3662575Z [ok] boundary control a bare -D takes the modes a list holds: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:20.8041039Z [ok] boundary control -Wp, passes a mode to the preprocessor: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:21.2747831Z [ok] boundary control -Xpreprocessor passes a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:21.7183072Z [ok] boundary control --define-macro= defines a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:22.1529770Z [ok] boundary control --define-macro and a separate name define a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:22.6012094Z [ok] boundary control a response file holds a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:23.0695244Z [ok] boundary control -imacros of a header the builder writes defines a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:23.6296465Z [ok] boundary control a precompiled header the builder makes defines a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:23.9585191Z [ok] boundary control -include of a header the builder writes defines a mode: firmware: sw/firmware/ctrl/adp/adp_mbx.c reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:25.6577255Z [ok] boundary control a Makefile's wildcard names the C++ source: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:25.6580237Z [ok] boundary control a builder joins a C++ source's name: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:25.6582963Z [ok] boundary control a glob names the C++ source: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:25.7773591Z [ok] boundary control an iterdir names the C++ source: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:26.2183786Z [ok] boundary control a builder writes the C++ source from a literal: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:26.6672823Z [ok] boundary control a builder writes the C++ source's include from an f-string: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:27.1259193Z [ok] boundary control a builder writes the C++ source from a template it formats: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:27.5549230Z [ok] boundary control a builder copies the C++ source from a template file: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:28.0089964Z [ok] boundary control a written C++ source reaches the header through a header it writes beside it: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:28.4472294Z [ok] boundary control --include-directory names where the C++ source's header is: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:29.1185262Z [ok] boundary control a builder copies a C++ source out of its own directories and compiles it from elsewhere: firmware: sw/firmware/ctrl/adp/adp_r5.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:32:29.5795306Z [ok] boundary control a builder compiles C++ from its standard input: REFUSED: a builder ran c++ -x c++ -fsyntax-only -, whose dependency output for - is none: it compiles its standard input, which a dependency pass cannot read again
+2026-10-13T19:32:30.0385438Z [ok] boundary control a builder passes a dependency option the pass cannot override: REFUSED: a builder ran cc -Wp,-MD,planted.d -I/tmp/ctrl-boundary-qz9v8u6d/controls/88/root/sw/firmware/ctrl/mbx -I/tmp/ctrl-boundary-qz9v8u6d/controls/88/root/sw/firmware/ctrl/host -I/tmp/ctrl-boundary-qz9v8u6d/controls/88/ ..., whose dependency output for /tmp/ctrl-boundary-qz9v8u6d/controls/88/root/sw/firmware/ctrl/adp/adp_mbx.c is none: its dependency pass wrote no rule naming what it read
+2026-10-13T19:32:30.0389763Z [ok] boundary control the capture is missing: REFUSED: no capture at /tmp/ctrl-boundary-qz9v8u6d/controls/89/run/no-capture: it holds no manifest
+2026-10-13T19:32:30.0392524Z [ok] boundary control the capture is empty: REFUSED: the capture at /tmp/ctrl-boundary-qz9v8u6d/controls/90/run/empty is empty: it records no compiler invocation
+2026-10-13T19:32:30.0397188Z [ok] boundary control the capture holds nothing of a known builder: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/test_ctrl_firmware.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's); sw/firmware/ctrl/test/srp_arms.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+2026-10-13T19:32:30.0402481Z [ok] boundary control a known builder whose own run compiles nothing, which another builder still runs: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/test_ctrl_firmware.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+2026-10-13T19:32:30.0407139Z [ok] boundary control a builder dropped from the known set, which another builder still runs: REFUSED: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+2026-10-13T19:32:30.3906897Z [ok] boundary control a builder runs a compiler by its own path: REFUSED: a builder ran /usr/bin/gcc, a compiler the capture does not wrap, so it records none of that compiler's invocations
+2026-10-13T19:32:32.1607419Z [ok] boundary control a Makefile runs a compiler by its own path: REFUSED: planted.mk (target planted) ran /usr/bin/gcc, a compiler the capture does not wrap, so it records none of that compiler's invocations
+2026-10-13T19:32:32.1614857Z [ok] boundary control a builder runs a compiler on a PATH of its own: REFUSED: a builder ran /usr/bin/gcc, a compiler the capture does not wrap, so it records none of that compiler's invocations
+2026-10-13T19:32:32.1618280Z [ok] boundary control a builder of the firmware that no capture holds: REFUSED: sw/firmware/ctrl/test/planted_unrun.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+2026-10-13T19:32:32.1622446Z [ok] boundary control a builder compiles with a flag the compiler cannot expand (a macro with no name): REFUSED: a builder ran cc -D=1 -c planted.c -o planted.o, which the compiler could not expand: the compiler's own expansion of it failed (exit 1: End of search list. <command-line>: error: macro names must be identifiers)
+2026-10-13T19:32:32.2509915Z [ok] boundary control a response file names the source: REFUSED: a builder ran cc @planted.rsp -c, which the compiler could not expand: the compiler's own expansion of it compiles planted.c, an input it names where the recorder did not see it (a response file's)
+2026-10-13T19:32:32.7011116Z [ok] boundary control a response file names the output: REFUSED: a builder ran cc @planted.rsp -c planted.c, which the compiler could not expand: the compiler preprocessed 1 translation unit(s) and printed 0: its expansion went to an output the recorder did not see (a response file's)
+2026-10-13T19:32:33.2776371Z [ok] boundary control a builder reads first a precompiled header whose making the recorder cannot see: REFUSED: a builder ran cc -x c-header modes.h @out.rsp, which the compiler could not expand: the compiler preprocessed 1 translation unit(s) and printed 0: its expansion went to an output the recorder did not see (a response file's); a builder ran cc -include modes.h -c planted.c -o planted.o, which the compiler could not expand: it reads the precompiled header /tmp/ctrl-boundary-qz9v8u6d/controls/101/run/builder/modes.h.gch first, which no compile the capture holds made
+2026-10-13T19:32:33.6676571Z [ok] boundary control a builder reads first a stack source: REFUSED: a builder ran cc -include /tmp/ctrl-boundary-qz9v8u6d/controls/102/root/third_party/tsn-c-stack/src/adp.c -I/tmp/ctrl-boundary-qz9v8u6d/controls/102/root/third_party/tsn-c-stack/include -c planted.c -o planted.o, which reads /tmp/ctrl-boundary-qz9v8u6d/controls/102/root/third_party/tsn-c-stack/src/adp.c first, a file of the stack that is not one of its public headers
+2026-10-13T19:32:34.1131678Z [ok] boundary control a builder reads a firmware header first into a compile of a stack source: REFUSED: a builder ran cc -include /tmp/ctrl-boundary-qz9v8u6d/controls/103/root/sw/firmware/ctrl/mbx/mbx_hal.h -I/tmp/ctrl-boundary-qz9v8u6d/controls/103/root/sw/firmware/ctrl/mbx -I/tmp/ctrl-boundary-qz9v8u6d/controls/103 ..., which reads /tmp/ctrl-boundary-qz9v8u6d/controls/103/root/sw/firmware/ctrl/mbx/mbx_hal.h first into a compile of the stack's own sources: a file of the checkout outside the stack
+2026-10-13T19:32:34.5694600Z [ok] boundary control pass: the firmware includes a public header: passes
+2026-10-13T19:32:35.0755037Z [ok] boundary control pass: the stack includes only its own header and the C library: passes
+2026-10-13T19:32:37.4322310Z [ok] boundary control pass: a stack test reaches the stack's example: passes
+2026-10-13T19:32:37.4323726Z [ok] boundary control pass: a stack source includes a header nobody supplies: the compile fails, and compiled nothing: passes
+2026-10-13T19:32:37.4325704Z [ok] boundary control pass: a builder compiles a C++ source that is no file: the compile fails, and compiled nothing: passes
+2026-10-13T19:32:37.4327278Z [ok] boundary control pass: a stack source includes an OS header of the host's C implementation: passes
+2026-10-13T19:32:37.4841131Z [ok] boundary control pass: a builder compiles the firmware with a mode no file tests: passes
+2026-10-13T19:32:37.9212868Z [ok] boundary control pass: a builder's own C++ source whose include a macro computes reads a firmware header: passes
+2026-10-13T19:32:42.2074805Z [ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:32:42.2882894Z [ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:42.3697523Z [ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 70936b77: tests/test_adp.cpp
+2026-10-13T19:32:42.4488878Z [ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+2026-10-13T19:32:42.5280766Z [ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 70936b77: CMakeLists.txt
+2026-10-13T19:32:42.6067479Z [ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 70936b77: LICENSE
+2026-10-13T19:32:42.6906470Z [ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:42.7801083Z [ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 70936b77: include/stdint.h
+2026-10-13T19:32:42.8584908Z [ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:42.9377503Z [ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+2026-10-13T19:32:42.9884664Z [ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:32:43.0781206Z [ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:43.1723250Z [ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:43.2518049Z [ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:43.2956834Z [ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: filter.pin-control.clean (local)
+2026-10-13T19:32:43.4790410Z [ok] tsn-c-stack pin control, the pin proof as the checkout holds it, under its audit hook: the pin check's verdict, no refusal
+2026-10-13T19:32:43.6175332Z [ok] tsn-c-stack pin control, the audit hook, a Git command run by the harness's runner (ctrl_build.run): sw/firmware/ctrl/test/ctrl_build.py:589 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:43.7639576Z [ok] tsn-c-stack pin control, the audit hook, a program named by a computed name (git.__name__): sw/firmware/ctrl/test/ctrl_build.py:595 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:43.9068379Z [ok] tsn-c-stack pin control, the audit hook, a dashed program (git-ls-tree): sw/firmware/ctrl/test/ctrl_build.py:595 starts git-ls-tree (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.0527799Z [ok] tsn-c-stack pin control, the audit hook, the Git program by its path, with the helper's environment, by the harness's runner: sw/firmware/ctrl/test/ctrl_build.py:595 starts /usr/bin/git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.2360051Z [ok] tsn-c-stack pin control, the audit hook, a refusal caught and ignored: sw/firmware/ctrl/test/ctrl_build.py:596 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.3778984Z [ok] tsn-c-stack pin control, the audit hook, an aliased import (from subprocess import run as r): sw/firmware/ctrl/test/ctrl_build.py:596 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.5746346Z [ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 starts git ls-files (os.system) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.7102949Z [ok] tsn-c-stack pin control, the audit hook, exec of a string: sw/firmware/ctrl/test/ctrl_build.py:431 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:44.8428500Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py: sw/firmware/ctrl/test/ctrl_build.py:430 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:44.9788238Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:977 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:45.1477791Z [ok] tsn-c-stack pin control, the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git: sw/firmware/ctrl/test/ctrl_build.py:430 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:32:45.3319582Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:45.4666695Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.eval: sw/firmware/ctrl/test/ctrl_build.py:432 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:45.6106840Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.compile: sw/firmware/ctrl/test/ctrl_build.py:596 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:45.7462025Z [ok] tsn-c-stack pin control, the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple): sw/firmware/ctrl/test/ctrl_build.py:432 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:45.9343871Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:974 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.1165975Z [ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.2588986Z [ok] tsn-c-stack pin control, the audit hook, pkgutil.importlib.import_module: sw/firmware/ctrl/test/ctrl_build.py:595 asks for exec in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.3919624Z [ok] tsn-c-stack pin control, the audit hook, exec of a string inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.5229367Z [ok] tsn-c-stack pin control, the audit hook, eval inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.6532184Z [ok] tsn-c-stack pin control, the audit hook, compile inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:46.8336751Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:174 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:47.0161330Z [ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+2026-10-13T19:32:47.1973345Z [ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 replaces __code__ of stack_pin, a function of the pin proof
+2026-10-13T19:32:47.3829162Z [ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:47.5627001Z [ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:32:47.6958769Z [ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+2026-10-13T19:32:47.8281545Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+2026-10-13T19:32:47.9591038Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_GRAFT_FILE: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FILE None, a path that can exist, so Git would read a graft file
+2026-10-13T19:32:48.0907685Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+2026-10-13T19:32:48.2211611Z [ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+2026-10-13T19:32:48.3530438Z [ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+2026-10-13T19:32:48.4863054Z [ok] tsn-c-stack pin control, the audit hook, a key of the helper's environment that is another's to the hook (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+2026-10-13T19:32:48.6159595Z [ok] tsn-c-stack pin control, the audit hook, a value of the helper's environment that Git is given as another (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+2026-10-13T19:32:48.7654747Z [ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+2026-10-13T19:32:48.9134614Z [ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+2026-10-13T19:32:49.0646001Z [ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+2026-10-13T19:32:49.2159959Z [ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+2026-10-13T19:32:49.3824724Z [ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+2026-10-13T19:32:49.6020111Z [ok] tsn-c-stack pin control, the inherited environment, GIT_DIR, a repository whose HEAD and gitlink are a commit holding the clone's edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:49.7626376Z [ok] tsn-c-stack pin control, the inherited environment, GIT_INDEX_FILE, an index whose gitlink is the revision the clone is checked out at: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:32:49.9383171Z [ok] tsn-c-stack pin control, the inherited environment, GIT_WORK_TREE, another directory: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:50.1210314Z [ok] tsn-c-stack pin control, the inherited environment, GIT_COMMON_DIR, an empty repository's: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:50.3023456Z [ok] tsn-c-stack pin control, the inherited environment, GIT_OBJECT_DIRECTORY, an empty store: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:50.4472758Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ALTERNATE_OBJECT_DIRECTORIES, the clone's objects, which its own store no longer holds: cannot read the pinned tree of /tmp/ctrl-boundary-qz9v8u6d/pins/pin-clone: the pinned commit (commit 70936b77): fatal: git cat-file 70936b77dc41981e192438388cd0aced69954f18: bad file
+2026-10-13T19:32:50.6331301Z [ok] tsn-c-stack pin control, the inherited environment, GIT_REPLACE_REF_BASE, a base under which the pinned src/ tree is replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:50.8097751Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:50.9858903Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_PARAMETERS, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:51.1625566Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_GLOBAL, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:51.3395874Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_SYSTEM, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:51.5186800Z [ok] tsn-c-stack pin control, the inherited environment, HOME, a directory whose .gitconfig names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:51.6976686Z [ok] tsn-c-stack pin control, the inherited environment, XDG_CONFIG_HOME, a directory whose git/config names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:51.8850710Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, a clean filter turning the edit back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:52.0750794Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ATTR_SOURCE, a tree giving the edited source a clean filter that turns it back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:32:52.3382139Z [ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:32:52.3743156Z [ok] tsn-c-stack pin control, the audit hook's environment judge, fork_exec's entries with GIT_NO_REPLACE_OBJECTS twice: has the helper start Git (_posixsubprocess.fork_exec) with an environment whose entries are not each a key given once, so what Git is given is not what was judged
+2026-10-13T19:32:52.6297352Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+2026-10-13T19:32:53.2290716Z Traceback (most recent call last):
+2026-10-13T19:32:53.2291731Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 540, in <module>
+2026-10-13T19:32:53.2292665Z     sys.exit(main())
+2026-10-13T19:32:53.2293011Z              ^^^^^^
+2026-10-13T19:32:53.2293766Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 509, in main
+2026-10-13T19:32:53.2295195Z     misbehaved, pins = pin_controls(work / "pins", makefiles())
+2026-10-13T19:32:53.2295879Z                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-13T19:32:53.2296772Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 962, in pin_controls
+2026-10-13T19:32:53.2299640Z     clone.fresh()
+2026-10-13T19:32:53.2300397Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 749, in fresh
+2026-10-13T19:32:53.2303000Z     shutil.rmtree(self.path)
+2026-10-13T19:32:53.2303440Z   File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+2026-10-13T19:32:53.2305313Z     _rmtree_safe_fd(fd, path, onexc)
+2026-10-13T19:32:53.2305990Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+2026-10-13T19:32:53.2307248Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+2026-10-13T19:32:53.2307842Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+2026-10-13T19:32:53.2309268Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+2026-10-13T19:32:53.2309983Z   File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+2026-10-13T19:32:53.2311250Z     onexc(os.unlink, fullname, err)
+2026-10-13T19:32:53.2311804Z   File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+2026-10-13T19:32:53.2313894Z     os.unlink(entry.name, dir_fd=topfd)
+2026-10-13T19:32:53.2315226Z FileNotFoundError: [Errno 2] No such file or directory: 'bitmap-ref-tips_VElR2S'
+2026-10-13T19:32:53.3668260Z ##[error]Process completed with exit code 1.
+2026-10-13T19:32:53.3872041Z Post job cleanup.
+2026-10-13T19:32:53.4753841Z [command]/usr/bin/git version
+2026-10-13T19:32:53.4802330Z git version 2.55.0
+2026-10-13T19:32:53.4847822Z Temporarily overriding HOME='<home-path>/work/_temp/8bd98c9d-e373-4627-a3a7-a9031f022753' before making global git config changes
+2026-10-13T19:32:53.4849057Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T19:32:53.4855040Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:32:53.4899778Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T19:32:53.4936982Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T19:32:53.5199840Z Entering 'gptp-processor'
+2026-10-13T19:32:53.5256309Z Entering 'protocol-processor'
+2026-10-13T19:32:53.5306422Z Entering 'third_party/lwSRP'
+2026-10-13T19:32:53.5373193Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:32:53.5418726Z Entering 'third_party/verilog-axis'
+2026-10-13T19:32:53.5485236Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T19:32:53.5547107Z http.https://github.com/.extraheader
+2026-10-13T19:32:53.5615816Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T19:32:53.5628156Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T19:32:53.5869988Z Entering 'gptp-processor'
+2026-10-13T19:32:53.5915272Z Entering 'protocol-processor'
+2026-10-13T19:32:53.5963534Z Entering 'third_party/lwSRP'
+2026-10-13T19:32:53.6010395Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:32:53.6057421Z Entering 'third_party/verilog-axis'
+2026-10-13T19:32:53.6121152Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.6163014Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T19:32:53.6402481Z Entering 'gptp-processor'
+2026-10-13T19:32:53.6429760Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-10-13T19:32:53.6454836Z Entering 'protocol-processor'
+2026-10-13T19:32:53.6480057Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-10-13T19:32:53.6500572Z Entering 'third_party/lwSRP'
+2026-10-13T19:32:53.6521851Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+2026-10-13T19:32:53.6542992Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:32:53.6562468Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+2026-10-13T19:32:53.6583065Z Entering 'third_party/verilog-axis'
+2026-10-13T19:32:53.6602612Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-10-13T19:32:53.6643206Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.6682018Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.6719587Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.6755207Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.6795648Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:32:53.7000468Z Cleaning up orphan processes
+2026-10-13T19:32:53.7445803Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

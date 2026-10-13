@@ -1,0 +1,656 @@
+﻿2026-10-13T19:07:10.6239477Z Current runner version: '2.337.0'
+2026-10-13T19:07:10.6276341Z ##[group]Runner Image Provisioner
+2026-10-13T19:07:10.6277874Z Hosted Compute Agent
+2026-10-13T19:07:10.6279225Z Version: 20261002.596
+2026-10-13T19:07:10.6280455Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T19:07:10.6281821Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T19:07:10.6283063Z Worker ID: {c8a89cb1-d49a-47cb-9ce4-e8de403875ac}
+2026-10-13T19:07:10.6284529Z Region: eastus
+2026-10-13T19:07:10.6285545Z Cloud: Azure
+2026-10-13T19:07:10.6286653Z ##[endgroup]
+2026-10-13T19:07:10.6289581Z ##[group]Operating System
+2026-10-13T19:07:10.6290789Z Ubuntu
+2026-10-13T19:07:10.6291691Z 24.04.5
+2026-10-13T19:07:10.6292579Z LTS
+2026-10-13T19:07:10.6293539Z ##[endgroup]
+2026-10-13T19:07:10.6294472Z ##[group]Runner Image
+2026-10-13T19:07:10.6295663Z Image: ubuntu-24.04
+2026-10-13T19:07:10.6296671Z Version: 20261004.327.1
+2026-10-13T19:07:10.6299554Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T19:07:10.6302385Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T19:07:10.6304288Z ##[endgroup]
+2026-10-13T19:07:10.6306453Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T19:07:10.6309702Z Contents: read
+2026-10-13T19:07:10.6310811Z Metadata: read
+2026-10-13T19:07:10.6311943Z Packages: read
+2026-10-13T19:07:10.6312996Z ##[endgroup]
+2026-10-13T19:07:10.6316233Z Secret source: Actions
+2026-10-13T19:07:10.6317833Z Cache mode: write
+2026-10-13T19:07:10.6319322Z Prepare workflow directory
+2026-10-13T19:07:10.6912593Z Prepare all required actions
+2026-10-13T19:07:10.6987303Z Getting action download info
+2026-10-13T19:07:10.9173554Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T19:07:11.0229788Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-13T19:07:11.2243077Z Complete job name: firmware-verilator
+2026-10-13T19:07:11.3128451Z ##[group]Run actions/checkout@v4
+2026-10-13T19:07:11.3129387Z with:
+2026-10-13T19:07:11.3129840Z   repository: kebag-logic/milan-fpga
+2026-10-13T19:07:11.3133812Z   token: ***
+2026-10-13T19:07:11.3134234Z   ssh-strict: true
+2026-10-13T19:07:11.3134664Z   ssh-user: git
+2026-10-13T19:07:11.3135099Z   persist-credentials: true
+2026-10-13T19:07:11.3135588Z   clean: true
+2026-10-13T19:07:11.3136024Z   sparse-checkout-cone-mode: true
+2026-10-13T19:07:11.3136544Z   fetch-depth: 1
+2026-10-13T19:07:11.3136969Z   fetch-tags: false
+2026-10-13T19:07:11.3137404Z   show-progress: true
+2026-10-13T19:07:11.3137845Z   lfs: false
+2026-10-13T19:07:11.3138489Z   submodules: false
+2026-10-13T19:07:11.3138950Z   set-safe-directory: true
+2026-10-13T19:07:11.3139456Z   allow-unsafe-pr-checkout: false
+2026-10-13T19:07:11.3140238Z env:
+2026-10-13T19:07:11.3140654Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:11.3141151Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:11.3141597Z ##[endgroup]
+2026-10-13T19:07:11.4201463Z Syncing repository: kebag-logic/milan-fpga
+2026-10-13T19:07:11.4203665Z ##[group]Getting Git version info
+2026-10-13T19:07:11.4204539Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T19:07:11.4205597Z [command]/usr/bin/git version
+2026-10-13T19:07:11.4304274Z git version 2.55.0
+2026-10-13T19:07:11.4333862Z ##[endgroup]
+2026-10-13T19:07:11.4352746Z Temporarily overriding HOME='<home-path>/work/_temp/36677f61-1080-48fb-9369-98beee1f5e23' before making global git config changes
+2026-10-13T19:07:11.4355448Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T19:07:11.4358871Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:07:11.4417778Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-13T19:07:11.4421711Z ##[group]Initializing the repository
+2026-10-13T19:07:11.4425496Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:07:11.4551923Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T19:07:11.4553595Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T19:07:11.4555104Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T19:07:11.4556295Z hint: call:
+2026-10-13T19:07:11.4556925Z hint:
+2026-10-13T19:07:11.4557727Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T19:07:11.4559351Z hint:
+2026-10-13T19:07:11.4560345Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T19:07:11.4561866Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T19:07:11.4563060Z hint:
+2026-10-13T19:07:11.4563705Z hint: 	git branch -m <name>
+2026-10-13T19:07:11.4564462Z hint:
+2026-10-13T19:07:11.4565459Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T19:07:11.4567170Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-13T19:07:11.4571169Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-13T19:07:11.4620956Z ##[endgroup]
+2026-10-13T19:07:11.4622279Z ##[group]Disabling automatic garbage collection
+2026-10-13T19:07:11.4626273Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T19:07:11.4662036Z ##[endgroup]
+2026-10-13T19:07:11.4663384Z ##[group]Setting up auth
+2026-10-13T19:07:11.4670107Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T19:07:11.4705443Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T19:07:11.5147250Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T19:07:11.5189559Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T19:07:11.5425220Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:07:11.5465586Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T19:07:11.5699297Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T19:07:11.5747949Z ##[endgroup]
+2026-10-13T19:07:11.5749337Z ##[group]Fetching the repository
+2026-10-13T19:07:11.5764126Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc:refs/remotes/pull/736/merge
+2026-10-13T19:07:13.1649819Z From https://github.com/kebag-logic/milan-fpga
+2026-10-13T19:07:13.1660578Z  * [new ref]         805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc -> pull/736/merge
+2026-10-13T19:07:13.1665205Z ##[endgroup]
+2026-10-13T19:07:13.1666921Z ##[group]Determining the checkout info
+2026-10-13T19:07:13.1668785Z ##[endgroup]
+2026-10-13T19:07:13.1669649Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T19:07:13.1733304Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T19:07:13.1768131Z ##[group]Checking out the ref
+2026-10-13T19:07:13.1771843Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/736/merge
+2026-10-13T19:07:13.3716399Z Note: switching to 'refs/remotes/pull/736/merge'.
+2026-10-13T19:07:13.3717568Z 
+2026-10-13T19:07:13.3718671Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T19:07:13.3720429Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T19:07:13.3721768Z state without impacting any branches by switching back to a branch.
+2026-10-13T19:07:13.3722617Z 
+2026-10-13T19:07:13.3723230Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T19:07:13.3725388Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T19:07:13.3726726Z 
+2026-10-13T19:07:13.3727316Z   git switch -c <new-branch-name>
+2026-10-13T19:07:13.3728527Z 
+2026-10-13T19:07:13.3729081Z Or undo this operation with:
+2026-10-13T19:07:13.3729931Z 
+2026-10-13T19:07:13.3730445Z   git switch -
+2026-10-13T19:07:13.3731154Z 
+2026-10-13T19:07:13.3732260Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T19:07:13.3733864Z 
+2026-10-13T19:07:13.3735638Z HEAD is now at 805a81c Merge db29bdd07529fbc697b7956827092f64b1241714 into a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+2026-10-13T19:07:13.3741438Z ##[endgroup]
+2026-10-13T19:07:13.3780102Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T19:07:13.3807518Z 805a81c4ff69f0461e9b6ca9d1abe819d2ac51cc
+2026-10-13T19:07:13.4141801Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+2026-10-13T19:07:13.4145943Z [36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack[0m
+2026-10-13T19:07:13.4414289Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:07:13.4415490Z env:
+2026-10-13T19:07:13.4416465Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:13.4417623Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:13.4418889Z ##[endgroup]
+2026-10-13T19:07:13.4755486Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-10-13T19:07:13.4762219Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-10-13T19:07:13.4768758Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+2026-10-13T19:07:13.4774239Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+2026-10-13T19:07:13.4780091Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-10-13T19:07:13.4807726Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-10-13T19:07:13.7803161Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-10-13T19:07:14.6910962Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+2026-10-13T19:07:14.9056573Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+2026-10-13T19:07:15.6684322Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-10-13T19:07:15.9509357Z Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+2026-10-13T19:07:16.0270262Z Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+2026-10-13T19:07:16.0394314Z Submodule path 'third_party/lwSRP': checked out '08ee86e812a0eb5e1dc6cd61b494d8baf3491348'
+2026-10-13T19:07:16.0570858Z Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+2026-10-13T19:07:16.0766487Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-10-13T19:07:16.0827315Z ##[group]Run set -euo pipefail
+2026-10-13T19:07:16.0827666Z [36;1mset -euo pipefail[0m
+2026-10-13T19:07:16.0827943Z [36;1msudo apt-get update -qq[0m
+2026-10-13T19:07:16.0828673Z [36;1msudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev[0m
+2026-10-13T19:07:16.0829175Z [36;1mpython3 -m pip install --quiet pyyaml[0m
+2026-10-13T19:07:16.0829518Z [36;1mdpkg-query -W libgtest-dev libgmock-dev[0m
+2026-10-13T19:07:16.0829847Z [36;1mg++ --version | head -n 1[0m
+2026-10-13T19:07:16.0898289Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:07:16.0898578Z env:
+2026-10-13T19:07:16.0898795Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:16.0899050Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:16.0899544Z ##[endgroup]
+2026-10-13T19:07:20.4317960Z Reading package lists...
+2026-10-13T19:07:20.6150271Z Building dependency tree...
+2026-10-13T19:07:20.6158033Z Reading state information...
+2026-10-13T19:07:20.7507205Z The following additional packages will be installed:
+2026-10-13T19:07:20.7512878Z   googletest
+2026-10-13T19:07:20.7677634Z The following NEW packages will be installed:
+2026-10-13T19:07:20.7688883Z   googletest libgmock-dev libgtest-dev
+2026-10-13T19:07:20.7860689Z 0 upgraded, 3 newly installed, 0 to remove and 29 not upgraded.
+2026-10-13T19:07:20.7861309Z Need to get 924 kB of archives.
+2026-10-13T19:07:20.7861891Z After this operation, 5933 kB of additional disk space will be used.
+2026-10-13T19:07:20.7863278Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-13T19:07:20.8861425Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+2026-10-13T19:07:20.9857770Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+2026-10-13T19:07:21.0712680Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+2026-10-13T19:07:21.3134558Z Fetched 924 kB in 0s (3112 kB/s)
+2026-10-13T19:07:21.3358010Z Selecting previously unselected package googletest.
+2026-10-13T19:07:21.3650154Z (Reading database ... 
+2026-10-13T19:07:21.3650518Z (Reading database ... 5%
+2026-10-13T19:07:21.3650775Z (Reading database ... 10%
+2026-10-13T19:07:21.3651134Z (Reading database ... 15%
+2026-10-13T19:07:21.3651375Z (Reading database ... 20%
+2026-10-13T19:07:21.3651660Z (Reading database ... 25%
+2026-10-13T19:07:21.3652289Z (Reading database ... 30%
+2026-10-13T19:07:21.3652533Z (Reading database ... 35%
+2026-10-13T19:07:21.3652915Z (Reading database ... 40%
+2026-10-13T19:07:21.3653300Z (Reading database ... 45%
+2026-10-13T19:07:21.3653683Z (Reading database ... 50%
+2026-10-13T19:07:21.3706213Z (Reading database ... 55%
+2026-10-13T19:07:21.5083038Z (Reading database ... 60%
+2026-10-13T19:07:21.7161974Z (Reading database ... 65%
+2026-10-13T19:07:21.9047167Z (Reading database ... 70%
+2026-10-13T19:07:22.0709229Z (Reading database ... 75%
+2026-10-13T19:07:22.2517153Z (Reading database ... 80%
+2026-10-13T19:07:22.4624687Z (Reading database ... 85%
+2026-10-13T19:07:22.6668538Z (Reading database ... 90%
+2026-10-13T19:07:22.8179680Z (Reading database ... 95%
+2026-10-13T19:07:22.8180049Z (Reading database ... 100%
+2026-10-13T19:07:22.8180463Z (Reading database ... 203191 files and directories currently installed.)
+2026-10-13T19:07:22.8222681Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+2026-10-13T19:07:22.8251460Z Unpacking googletest (1.14.0-1) ...
+2026-10-13T19:07:22.8855522Z Selecting previously unselected package libgtest-dev:amd64.
+2026-10-13T19:07:22.8980355Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+2026-10-13T19:07:22.8991925Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:07:22.9274413Z Selecting previously unselected package libgmock-dev:amd64.
+2026-10-13T19:07:22.9397592Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+2026-10-13T19:07:22.9404262Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:07:22.9946650Z Setting up googletest (1.14.0-1) ...
+2026-10-13T19:07:22.9967221Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:07:22.9985763Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+2026-10-13T19:07:23.6384626Z 
+2026-10-13T19:07:23.6385360Z Running kernel seems to be up-to-date.
+2026-10-13T19:07:23.6385834Z 
+2026-10-13T19:07:23.6386046Z No services need to be restarted.
+2026-10-13T19:07:23.6386328Z 
+2026-10-13T19:07:23.6386458Z No containers need to be restarted.
+2026-10-13T19:07:23.6386684Z 
+2026-10-13T19:07:23.6386862Z No user sessions are running outdated binaries.
+2026-10-13T19:07:23.6387129Z 
+2026-10-13T19:07:23.6387382Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-13T19:07:26.7846217Z libgmock-dev:amd64	1.14.0-1
+2026-10-13T19:07:26.7846729Z libgtest-dev:amd64	1.14.0-1
+2026-10-13T19:07:26.7930440Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+2026-10-13T19:07:26.8029144Z ##[group]Run actions/cache@v4
+2026-10-13T19:07:26.8029444Z with:
+2026-10-13T19:07:26.8029648Z   path: /opt/verilator
+2026-10-13T19:07:26.8029889Z   key: verilator-v5.050-Linux
+2026-10-13T19:07:26.8030164Z   enableCrossOsArchive: false
+2026-10-13T19:07:26.8030415Z   fail-on-cache-miss: false
+2026-10-13T19:07:26.8030648Z   lookup-only: false
+2026-10-13T19:07:26.8030860Z   save-always: false
+2026-10-13T19:07:26.8031058Z env:
+2026-10-13T19:07:26.8031262Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:26.8031487Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:26.8031691Z ##[endgroup]
+2026-10-13T19:07:26.9098860Z (node:2884) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T19:07:26.9100281Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T19:07:26.9769860Z Cache hit for: verilator-v5.050-Linux
+2026-10-13T19:07:26.9872810Z (node:2884) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T19:07:27.5189038Z Received 92153557 of 92153557 (100.0%), 174.4 MBs/sec
+2026-10-13T19:07:27.5189678Z Cache Size: ~88 MB (92153557 B)
+2026-10-13T19:07:27.5221260Z [command]/usr/bin/tar -xf <home-path>/work/_temp/806440c6-cf63-402a-a4be-086c185d7be0/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-10-13T19:07:27.7011273Z Cache restored successfully
+2026-10-13T19:07:27.7127151Z Cache restored from key: verilator-v5.050-Linux
+2026-10-13T19:07:27.7323894Z ##[group]Run set -euo pipefail
+2026-10-13T19:07:27.7324361Z [36;1mset -euo pipefail[0m
+2026-10-13T19:07:27.7324666Z [36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"[0m
+2026-10-13T19:07:27.7325024Z [36;1m/opt/verilator/bin/verilator --version[0m
+2026-10-13T19:07:27.7325460Z [36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"[0m
+2026-10-13T19:07:27.7387941Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:07:27.7388366Z env:
+2026-10-13T19:07:27.7388577Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:27.7388830Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:27.7389051Z ##[endgroup]
+2026-10-13T19:07:28.1344768Z Verilator 5.050 2026-07-01 rev v5.050
+2026-10-13T19:07:28.1898365Z Verilator 5.050 2026-07-01 rev v5.050
+2026-10-13T19:07:28.2531794Z ##[group]Run actions/cache@v4
+2026-10-13T19:07:28.2532076Z with:
+2026-10-13T19:07:28.2532295Z   path: ~/br-milan-rv32/host
+2026-10-13T19:07:28.2533013Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:07:28.2533765Z   enableCrossOsArchive: false
+2026-10-13T19:07:28.2534019Z   fail-on-cache-miss: false
+2026-10-13T19:07:28.2534263Z   lookup-only: false
+2026-10-13T19:07:28.2534473Z   save-always: false
+2026-10-13T19:07:28.2534688Z env:
+2026-10-13T19:07:28.2534878Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:28.2535110Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:28.2535317Z ##[endgroup]
+2026-10-13T19:07:28.3652746Z (node:2922) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T19:07:28.3653726Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T19:07:28.4295511Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:07:28.4405138Z (node:2922) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T19:07:29.2349085Z Received 153250353 of 153250353 (100.0%), 189.6 MBs/sec
+2026-10-13T19:07:29.2352033Z Cache Size: ~146 MB (153250353 B)
+2026-10-13T19:07:29.2395076Z [command]/usr/bin/tar -xf <home-path>/work/_temp/38817d49-a39c-4383-ab48-6a5104d74696/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-10-13T19:07:30.3631150Z Cache restored successfully
+2026-10-13T19:07:30.3807008Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-10-13T19:07:30.4002912Z ##[group]Run set -euo pipefail
+2026-10-13T19:07:30.4003417Z [36;1mset -euo pipefail[0m
+2026-10-13T19:07:30.4003902Z [36;1mpython3 scripts/ci_rv32_sdk_selftest.py[0m
+2026-10-13T19:07:30.4004680Z [36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"[0m
+2026-10-13T19:07:30.4087267Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:07:30.4087684Z env:
+2026-10-13T19:07:30.4088023Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:30.4088685Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:30.4089068Z ##[endgroup]
+2026-10-13T19:07:30.5411338Z test_archive_root (__main__.InstallerTests.test_archive_root)
+2026-10-13T19:07:30.5537980Z SDK archive verified: /tmp/rv32-installer-test-2gm91few/wrong-root.tar.xz sha256=8bcc363fb980b7376695ad85af2b0197dab736f789ed258b5188ecbf6aada24b
+2026-10-13T19:07:30.5550159Z An authenticated archive with another root is still not extracted. ... ok
+2026-10-13T19:07:30.5551071Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+2026-10-13T19:07:30.5602019Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+2026-10-13T19:07:30.5603094Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+2026-10-13T19:07:30.5910537Z Explicit offline inputs are checked even beside a valid cache. ... ok
+2026-10-13T19:07:30.5911786Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+2026-10-13T19:07:30.6215511Z A cache made by other installer bytes is refused before its tools run. ... ok
+2026-10-13T19:07:30.6216402Z test_download_path (__main__.InstallerTests.test_download_path)
+2026-10-13T19:07:30.6534898Z The hosted path, with no --archive, installs what the pin names. ... ok
+2026-10-13T19:07:30.6536050Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+2026-10-13T19:07:30.6670478Z A wrong download is refused before tar reads it or anything runs. ... ok
+2026-10-13T19:07:30.6671512Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+2026-10-13T19:07:30.6964821Z A compiler whose realpath leaves the prefix is never executed. ... ok
+2026-10-13T19:07:30.6965852Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+2026-10-13T19:07:30.7261251Z A receipt carrying an unexpected section is malformed. ... ok
+2026-10-13T19:07:30.7261783Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+2026-10-13T19:07:30.7379920Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+2026-10-13T19:07:30.7381042Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+2026-10-13T19:07:30.7838027Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+2026-10-13T19:07:30.7839370Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+2026-10-13T19:07:30.8235652Z Deletion, replacement, mode change and extra files all refuse. ... ok
+2026-10-13T19:07:30.8236750Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+2026-10-13T19:07:30.8585989Z JSON of the wrong type cannot pass as provenance. ... ok
+2026-10-13T19:07:30.8586502Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+2026-10-13T19:07:30.8656903Z An existing directory is not an installed SDK. ... ok
+2026-10-13T19:07:30.8657855Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+2026-10-13T19:07:30.8967702Z A relocated tree is bound to the prefix where it was measured. ... ok
+2026-10-13T19:07:30.8969299Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+2026-10-13T19:07:30.9289859Z The installer digest and host are the ones measured here, independently. ... ok
+2026-10-13T19:07:30.9299164Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+2026-10-13T19:07:30.9677484Z Pointing the selector at another installed tool is cache drift. ... ok
+2026-10-13T19:07:30.9699378Z test_special_file (__main__.InstallerTests.test_special_file)
+2026-10-13T19:07:31.0023063Z A FIFO planted in the cache is refused before any tool runs. ... ok
+2026-10-13T19:07:31.0092252Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+2026-10-13T19:07:31.0093158Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+2026-10-13T19:07:31.0093796Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+2026-10-13T19:07:31.0404979Z Provenance must be stored in the installation, not another tree. ... ok
+2026-10-13T19:07:31.0405765Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+2026-10-13T19:07:31.0736225Z An interrupted receipt write never becomes a usable cache. ... ok
+2026-10-13T19:07:31.0737094Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+2026-10-13T19:07:31.1023231Z SDK argv: ["/tmp/rv32-installer-test-dc5aa3mi/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:31.1049930Z SDK argv: ["/tmp/rv32-installer-test-dc5aa3mi/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:31.1065584Z SDK argv: ["/tmp/rv32-installer-test-dc5aa3mi/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:31.1087150Z SDK argv: ["/tmp/rv32-installer-test-dc5aa3mi/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:31.1117594Z Even a successful process must prove its relocation result. ... ok
+2026-10-13T19:07:31.1118753Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+2026-10-13T19:07:31.1172644Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+2026-10-13T19:07:31.1173590Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+2026-10-13T19:07:31.1500522Z Every cache input is bound, including the whole digest and prefix. ... ok
+2026-10-13T19:07:31.1501405Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+2026-10-13T19:07:31.1781388Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:31.1803125Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:31.1824314Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:31.1845207Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:31.1869406Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:31.1890286Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:31.1910862Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:31.1931680Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:31.1955588Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:31.1975781Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:31.1995851Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:31.2015903Z SDK argv: ["/tmp/rv32-installer-test-u51cuylz/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:31.2045911Z A compiler with the wrong version or target cannot create a receipt. ... ok
+2026-10-13T19:07:31.2046917Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+2026-10-13T19:07:31.2337294Z SDK argv: ["/tmp/rv32-installer-test-_x_qs9pw/installed/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:31.2358803Z SDK argv: ["/tmp/rv32-installer-test-_x_qs9pw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:31.2380544Z SDK argv: ["/tmp/rv32-installer-test-_x_qs9pw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:31.2401315Z SDK argv: ["/tmp/rv32-installer-test-_x_qs9pw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:31.2432908Z Cached identification must agree with the program actually invoked. ... ok
+2026-10-13T19:07:31.2433486Z 
+2026-10-13T19:07:31.2433766Z ----------------------------------------------------------------------
+2026-10-13T19:07:31.2434377Z Ran 25 tests in 0.702s
+2026-10-13T19:07:31.2434595Z 
+2026-10-13T19:07:31.2434723Z OK
+2026-10-13T19:07:32.2702015Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+2026-10-13T19:07:32.2724249Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+2026-10-13T19:07:32.2740699Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+2026-10-13T19:07:32.2756690Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+2026-10-13T19:07:32.2785498Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+2026-10-13T19:07:32.2791872Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+2026-10-13T19:07:32.2795070Z SDK cache hit: verified
+2026-10-13T19:07:32.2926529Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+2026-10-13T19:07:32.2927803Z [36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator[0m
+2026-10-13T19:07:32.3009364Z shell: /usr/bin/bash -e {0}
+2026-10-13T19:07:32.3009787Z env:
+2026-10-13T19:07:32.3010115Z   VERILATOR_VERSION: v5.050
+2026-10-13T19:07:32.3010528Z   YOSYS_VERSION: v0.66
+2026-10-13T19:07:32.3010908Z ##[endgroup]
+2026-10-13T19:07:32.5564051Z tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:07:32.5566268Z no capture given: running every known builder the run judges under one
+2026-10-13T19:09:07.3943098Z     make -C tb/verilator/mbx: exit 0 (95 s)
+2026-10-13T19:12:04.8206363Z     sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (177 s)
+2026-10-13T19:17:10.5807763Z     sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (306 s)
+2026-10-13T19:17:43.0601077Z capture: 926 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+2026-10-13T19:17:43.0604103Z   LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0605609Z   LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0607618Z   LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0609371Z   LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0610730Z   LEFT OUT: sw/litex/test_ctrl_memory.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0612132Z   LEFT OUT: tb/verilator/milan_dp/stream_counter_f5.py, which the run that holds the firmware builders judges (--only verilator)
+2026-10-13T19:17:43.0613387Z   the builders found by text are cross-checked by the run that holds the firmware builders
+2026-10-13T19:17:43.0614349Z     ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (9 s)
+2026-10-13T19:17:43.0615051Z     ctrl_image_selftest.py: exit 0 (20 s)
+2026-10-13T19:17:43.0615909Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:17:43.0617189Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:17:43.0618577Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:17:43.0619846Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:17:43.0621109Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (5 s)
+2026-10-13T19:17:43.0622336Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:17:43.0623571Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:17:43.0624773Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:17:43.0625948Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (8 s)
+2026-10-13T19:17:43.0627145Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (3 s)
+2026-10-13T19:17:43.0628811Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+2026-10-13T19:17:43.0630046Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+2026-10-13T19:17:43.0631442Z   LEFT OUT: boundary control the F5 builder removed from the registry, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0633018Z   LEFT OUT: boundary control the F5 builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0634622Z   LEFT OUT: boundary control an unclassified copy of test_ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0636224Z   LEFT OUT: boundary control an unclassified copy of ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0637762Z   LEFT OUT: boundary control an unclassified copy of milan_soc.py, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0639576Z   LEFT OUT: boundary control the reset-entry builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0641381Z   LEFT OUT: boundary control the reset entry includes a private stack header in the fifth capture, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0643145Z   LEFT OUT: boundary control stack source includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0644806Z   LEFT OUT: boundary control stack source includes the register-map contract, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0646673Z   LEFT OUT: boundary control stack source includes the composition, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0648124Z   LEFT OUT: boundary control stack source includes the store's port, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0649746Z   LEFT OUT: boundary control stack source includes the loop through a macro, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0651316Z   LEFT OUT: boundary control stack public header includes the platform's header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0653068Z   LEFT OUT: boundary control Q7: a store header shadows the C library's for the stack in the image build, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0655056Z   LEFT OUT: boundary control a firmware directory shadows a header the C library's own headers include, for the stack, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0657041Z   LEFT OUT: boundary control stack source includes the mailbox HAL under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0659177Z   LEFT OUT: boundary control stack source includes the platform's header in a debug build, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0661094Z   LEFT OUT: boundary control stack source includes the contract in a debug build with the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0662923Z   LEFT OUT: boundary control stack source includes the AECP core's header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0664489Z   LEFT OUT: boundary control a mode a builder compiles the stack with, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0666028Z   LEFT OUT: boundary control a mode a builder writes as two arguments, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0667545Z   LEFT OUT: boundary control a mode a new Makefile writes as two words, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0669567Z   LEFT OUT: boundary control a stack test includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0671132Z   LEFT OUT: boundary control a stack test includes the firmware's harness, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0672829Z   LEFT OUT: boundary control a stack test includes the platform's pool in its release build, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0674581Z   LEFT OUT: boundary control a stack public header includes the mailbox HAL for C++ only, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0676216Z   LEFT OUT: boundary control a stack test includes the AECP adapter, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0677976Z   LEFT OUT: boundary control N1: a store source reaches a stack example, as the image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0680245Z   LEFT OUT: boundary control a store source reaches a stack file outside its public headers in the image build, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0682079Z   LEFT OUT: boundary control firmware reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0683784Z   LEFT OUT: boundary control firmware header reaches a stack source by a relative path, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0685811Z   LEFT OUT: boundary control image source reaches a stack file outside its public headers, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0687703Z   LEFT OUT: boundary control a firmware adapter reaches a stack source under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0689634Z   LEFT OUT: boundary control firmware tests a mode by its value, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0691418Z   LEFT OUT: boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0693211Z   LEFT OUT: boundary control the AECP core reaches a stack source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0695048Z   LEFT OUT: boundary control the AECP core reaches a stack source at a value only its arms compile with, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0696970Z   LEFT OUT: boundary control the AECP application bridge reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0699056Z   LEFT OUT: boundary control the image reaches a stack file under a shape's stream count, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0701107Z   LEFT OUT: boundary control the SRP image's composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0703283Z   LEFT OUT: boundary control the AECP image's SRP composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0705479Z   LEFT OUT: boundary control the AECP image reaches a stack source at a shape its generated header gives many maps, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0707548Z   LEFT OUT: boundary control an adapter reaches a stack source where the SRP shape header is force-included, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0710214Z   LEFT OUT: boundary control an adapter reaches a stack source on the two-interface contract, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0712266Z   LEFT OUT: boundary control a firmware header reaches a stack test's fake in C++ only, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0714145Z   LEFT OUT: boundary control a firmware header reaches a stack file through a computed include in C++ only, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0715899Z   LEFT OUT: boundary control a copy of the stack's wire.h in the firmware, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0717448Z   LEFT OUT: boundary control a copy of the stack's adp.c in the firmware, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0719211Z   LEFT OUT: boundary control a copy of the stack's acmp.h in the AECP directory, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0720772Z   LEFT OUT: boundary control a Makefile's patsubst writes a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0722264Z   LEFT OUT: boundary control a Makefile's foreach writes a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0723792Z   LEFT OUT: boundary control a Makefile appends a mode with no space, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0725591Z   LEFT OUT: boundary control a Makefile writes a mode's name after a bare -D, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0727338Z   LEFT OUT: boundary control a Makefile computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0729016Z   LEFT OUT: boundary control a Makefile computes a mode's value, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0730582Z   LEFT OUT: boundary control a Makefile prefixes -D to the modes it lists, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0732207Z   LEFT OUT: boundary control an f-string writes a mode after other text, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0733768Z   LEFT OUT: boundary control a multi-word literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0735314Z   LEFT OUT: boundary control a shell command's literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0736841Z   LEFT OUT: boundary control shlex splits a mode out of a literal, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0738580Z   LEFT OUT: boundary control a bare -D takes a mode a conditional chooses, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0740094Z   LEFT OUT: boundary control str.format writes a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0741557Z   LEFT OUT: boundary control a builder joins -D to a mode it computes, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0743063Z   LEFT OUT: boundary control a builder formats a mode with %, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0744513Z   LEFT OUT: boundary control a builder joins a value to a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0746013Z   LEFT OUT: boundary control an f-string computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0747526Z   LEFT OUT: boundary control a bare -D takes the modes a list holds, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0749436Z   LEFT OUT: boundary control -Wp, passes a mode to the preprocessor, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0750896Z   LEFT OUT: boundary control -Xpreprocessor passes a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0752400Z   LEFT OUT: boundary control --define-macro= defines a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0753933Z   LEFT OUT: boundary control --define-macro and a separate name define a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0755455Z   LEFT OUT: boundary control a response file holds a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0757016Z   LEFT OUT: boundary control -imacros of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0758993Z   LEFT OUT: boundary control a precompiled header the builder makes defines a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0760735Z   LEFT OUT: boundary control -include of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0762384Z   LEFT OUT: boundary control a Makefile's wildcard names the C++ source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0763910Z   LEFT OUT: boundary control a builder joins a C++ source's name, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0765321Z   LEFT OUT: boundary control a glob names the C++ source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0767224Z   LEFT OUT: boundary control an iterdir names the C++ source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0768958Z   LEFT OUT: boundary control a builder writes the C++ source from a literal, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0770643Z   LEFT OUT: boundary control a builder writes the C++ source's include from an f-string, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0772349Z   LEFT OUT: boundary control a builder writes the C++ source from a template it formats, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0774069Z   LEFT OUT: boundary control a builder copies the C++ source from a template file, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0776344Z   LEFT OUT: boundary control a written C++ source reaches the header through a header it writes beside it, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0778542Z   LEFT OUT: boundary control --include-directory names where the C++ source's header is, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0780674Z   LEFT OUT: boundary control a builder copies a C++ source out of its own directories and compiles it from elsewhere, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0784974Z   LEFT OUT: boundary control a builder compiles C++ from its standard input, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0786928Z   LEFT OUT: boundary control a builder passes a dependency option the pass cannot override, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0802116Z   LEFT OUT: boundary control the capture is missing, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0803575Z   LEFT OUT: boundary control the capture is empty, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0805015Z   LEFT OUT: boundary control the capture holds nothing of a known builder, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0806962Z   LEFT OUT: boundary control a known builder whose own run compiles nothing, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0809342Z   LEFT OUT: boundary control a builder dropped from the known set, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0813227Z   LEFT OUT: boundary control a builder runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0814835Z   LEFT OUT: boundary control a Makefile runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0816434Z   LEFT OUT: boundary control a builder runs a compiler on a PATH of its own, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0818063Z   LEFT OUT: boundary control a builder of the firmware that no capture holds, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0820116Z   LEFT OUT: boundary control a builder compiles with a flag the compiler cannot expand (a macro with no name), judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0821863Z   LEFT OUT: boundary control a response file names the source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0823329Z   LEFT OUT: boundary control a response file names the output, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0825087Z   LEFT OUT: boundary control a builder reads first a precompiled header whose making the recorder cannot see, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0827038Z   LEFT OUT: boundary control a builder reads first a stack source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0828980Z   LEFT OUT: boundary control a builder reads a firmware header first into a compile of a stack source, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0830799Z   LEFT OUT: boundary control pass: the firmware includes a public header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0832509Z   LEFT OUT: boundary control pass: the stack includes only its own header and the C library, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0834232Z   LEFT OUT: boundary control pass: a stack test reaches the stack's example, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0836171Z   LEFT OUT: boundary control pass: a stack source includes a header nobody supplies: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0838555Z   LEFT OUT: boundary control pass: a builder compiles a C++ source that is no file: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:17:43.0840605Z   LEFT OUT: boundary control pass: a stack source includes an OS header of the host's C implementation, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:18:23.6680609Z   LEFT OUT: boundary control pass: a builder compiles the firmware with a mode no file tests, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:18:23.6682760Z   LEFT OUT: boundary control pass: a builder's own C++ source whose include a macro computes reads a firmware header, judged where its builders' capture is (needs the firmware builders)
+2026-10-13T19:18:23.6684453Z [ok] boundary control pass: the copies as they are, the base the controls share: passes
+2026-10-13T19:18:23.6686352Z [ok] boundary control V1 a mode only the AECP wire comparison gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:18:23.6689614Z [ok] boundary control V2 a mode only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:18:23.6692392Z [ok] boundary control V3 a value only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:18:43.1196753Z [ok] boundary control a header only the MAAP differential's C++ source reaches includes a stack file in C++ only: firmware: sw/firmware/ctrl/maap/maap_r584.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+2026-10-13T19:18:43.1200220Z [ok] boundary control the capture holds nothing of the AECP wire comparison: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+2026-10-13T19:18:47.1315995Z [ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:47.2068506Z [ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:47.2850367Z [ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 70936b77: tests/test_adp.cpp
+2026-10-13T19:18:47.3594660Z [ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+2026-10-13T19:18:47.4334231Z [ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 70936b77: CMakeLists.txt
+2026-10-13T19:18:47.5120582Z [ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 70936b77: LICENSE
+2026-10-13T19:18:47.5921286Z [ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:47.6679774Z [ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 70936b77: include/stdint.h
+2026-10-13T19:18:47.7425783Z [ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:47.8179746Z [ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+2026-10-13T19:18:47.8655498Z [ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:47.9510987Z [ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:48.0408705Z [ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:48.1169750Z [ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:48.1591494Z [ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: filter.pin-control.clean (local)
+2026-10-13T19:18:48.3309605Z [ok] tsn-c-stack pin control, the pin proof as the checkout holds it, under its audit hook: the pin check's verdict, no refusal
+2026-10-13T19:18:48.4621407Z [ok] tsn-c-stack pin control, the audit hook, a Git command run by the harness's runner (ctrl_build.run): sw/firmware/ctrl/test/ctrl_build.py:589 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:48.6066956Z [ok] tsn-c-stack pin control, the audit hook, a program named by a computed name (git.__name__): sw/firmware/ctrl/test/ctrl_build.py:595 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:48.7393220Z [ok] tsn-c-stack pin control, the audit hook, a dashed program (git-ls-tree): sw/firmware/ctrl/test/ctrl_build.py:595 starts git-ls-tree (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:48.8724720Z [ok] tsn-c-stack pin control, the audit hook, the Git program by its path, with the helper's environment, by the harness's runner: sw/firmware/ctrl/test/ctrl_build.py:595 starts /usr/bin/git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.0446985Z [ok] tsn-c-stack pin control, the audit hook, a refusal caught and ignored: sw/firmware/ctrl/test/ctrl_build.py:596 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.1787229Z [ok] tsn-c-stack pin control, the audit hook, an aliased import (from subprocess import run as r): sw/firmware/ctrl/test/ctrl_build.py:596 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.3800843Z [ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 starts git ls-files (os.system) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.5076162Z [ok] tsn-c-stack pin control, the audit hook, exec of a string: sw/firmware/ctrl/test/ctrl_build.py:431 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:49.6320452Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py: sw/firmware/ctrl/test/ctrl_build.py:430 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.7570925Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:977 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:49.9197877Z [ok] tsn-c-stack pin control, the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git: sw/firmware/ctrl/test/ctrl_build.py:430 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+2026-10-13T19:18:50.0912289Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.2170440Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.eval: sw/firmware/ctrl/test/ctrl_build.py:432 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.3499190Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.compile: sw/firmware/ctrl/test/ctrl_build.py:596 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.4796968Z [ok] tsn-c-stack pin control, the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple): sw/firmware/ctrl/test/ctrl_build.py:432 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.6523377Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:974 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.8251283Z [ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:50.9580571Z [ok] tsn-c-stack pin control, the audit hook, pkgutil.importlib.import_module: sw/firmware/ctrl/test/ctrl_build.py:595 asks for exec in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:51.0878326Z [ok] tsn-c-stack pin control, the audit hook, exec of a string inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:51.2137971Z [ok] tsn-c-stack pin control, the audit hook, eval inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:51.3389416Z [ok] tsn-c-stack pin control, the audit hook, compile inside the helper: sw/firmware/ctrl/test/ctrl_build.py:417 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:51.5084763Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:174 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:51.6810131Z [ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+2026-10-13T19:18:51.8544507Z [ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 replaces __code__ of stack_pin, a function of the pin proof
+2026-10-13T19:18:52.0280021Z [ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:52.2006944Z [ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+2026-10-13T19:18:52.3249127Z [ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+2026-10-13T19:18:52.4499412Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+2026-10-13T19:18:52.5756855Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_GRAFT_FILE: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FILE None, a path that can exist, so Git would read a graft file
+2026-10-13T19:18:52.7003772Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+2026-10-13T19:18:52.8262632Z [ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+2026-10-13T19:18:52.9520297Z [ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+2026-10-13T19:18:53.0775557Z [ok] tsn-c-stack pin control, the audit hook, a key of the helper's environment that is another's to the hook (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+2026-10-13T19:18:53.2024332Z [ok] tsn-c-stack pin control, the audit hook, a value of the helper's environment that Git is given as another (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+2026-10-13T19:18:53.3473706Z [ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+2026-10-13T19:18:53.4899530Z [ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+2026-10-13T19:18:53.6340313Z [ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+2026-10-13T19:18:53.7839254Z [ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+2026-10-13T19:18:53.9417816Z [ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+2026-10-13T19:18:54.1501841Z [ok] tsn-c-stack pin control, the inherited environment, GIT_DIR, a repository whose HEAD and gitlink are a commit holding the clone's edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.3048516Z [ok] tsn-c-stack pin control, the inherited environment, GIT_INDEX_FILE, an index whose gitlink is the revision the clone is checked out at: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:54.4749106Z [ok] tsn-c-stack pin control, the inherited environment, GIT_WORK_TREE, another directory: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.6503488Z [ok] tsn-c-stack pin control, the inherited environment, GIT_COMMON_DIR, an empty repository's: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.8283485Z [ok] tsn-c-stack pin control, the inherited environment, GIT_OBJECT_DIRECTORY, an empty store: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:54.9691247Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ALTERNATE_OBJECT_DIRECTORIES, the clone's objects, which its own store no longer holds: cannot read the pinned tree of /tmp/ctrl-boundary-9wf0r04z/pins/pin-clone: the pinned commit (commit 70936b77): fatal: git cat-file 70936b77dc41981e192438388cd0aced69954f18: bad file
+2026-10-13T19:18:55.1461854Z [ok] tsn-c-stack pin control, the inherited environment, GIT_REPLACE_REF_BASE, a base under which the pinned src/ tree is replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.3174661Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.4888952Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_PARAMETERS, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.6597220Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_GLOBAL, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:55.8331922Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_SYSTEM, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.0040232Z [ok] tsn-c-stack pin control, the inherited environment, HOME, a directory whose .gitconfig names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.1721389Z [ok] tsn-c-stack pin control, the inherited environment, XDG_CONFIG_HOME, a directory whose git/config names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.3545397Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, a clean filter turning the edit back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.5364007Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ATTR_SOURCE, a tree giving the edited source a clean filter that turns it back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+2026-10-13T19:18:56.7936632Z [ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+2026-10-13T19:18:56.8338858Z [ok] tsn-c-stack pin control, the audit hook's environment judge, fork_exec's entries with GIT_NO_REPLACE_OBJECTS twice: has the helper start Git (_posixsubprocess.fork_exec) with an environment whose entries are not each a key given once, so what Git is given is not what was judged
+2026-10-13T19:18:57.0803257Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+2026-10-13T19:18:57.8993599Z Traceback (most recent call last):
+2026-10-13T19:18:57.8994842Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 540, in <module>
+2026-10-13T19:18:57.8995550Z     sys.exit(main())
+2026-10-13T19:18:57.8995804Z              ^^^^^^
+2026-10-13T19:18:57.8996313Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_boundary.py", line 509, in main
+2026-10-13T19:18:57.8997330Z     misbehaved, pins = pin_controls(work / "pins", makefiles())
+2026-10-13T19:18:57.8997938Z                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-13T19:18:57.8999006Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 962, in pin_controls
+2026-10-13T19:18:57.9001062Z     clone.fresh()
+2026-10-13T19:18:57.9001729Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 749, in fresh
+2026-10-13T19:18:57.9003497Z     shutil.rmtree(self.path)
+2026-10-13T19:18:57.9003956Z   File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+2026-10-13T19:18:57.9005275Z     _rmtree_safe_fd(fd, path, onexc)
+2026-10-13T19:18:57.9005786Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+2026-10-13T19:18:57.9006898Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+2026-10-13T19:18:57.9007379Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+2026-10-13T19:18:57.9008997Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+2026-10-13T19:18:57.9009649Z   File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+2026-10-13T19:18:57.9010820Z     onexc(os.unlink, fullname, err)
+2026-10-13T19:18:57.9011426Z   File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+2026-10-13T19:18:57.9012585Z     os.unlink(entry.name, dir_fd=topfd)
+2026-10-13T19:18:57.9013271Z FileNotFoundError: [Errno 2] No such file or directory: 'maintenance.lock'
+2026-10-13T19:18:57.9692467Z ##[error]Process completed with exit code 1.
+2026-10-13T19:18:57.9816716Z Post job cleanup.
+2026-10-13T19:18:58.0691860Z [command]/usr/bin/git version
+2026-10-13T19:18:58.0735023Z git version 2.55.0
+2026-10-13T19:18:58.0773352Z Temporarily overriding HOME='<home-path>/work/_temp/c0a04aff-076f-4213-82a6-205a087ef7f7' before making global git config changes
+2026-10-13T19:18:58.0774693Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T19:18:58.0778899Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-13T19:18:58.0818497Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T19:18:58.0853796Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T19:18:58.1083635Z Entering 'gptp-processor'
+2026-10-13T19:18:58.1134386Z Entering 'protocol-processor'
+2026-10-13T19:18:58.1183428Z Entering 'third_party/lwSRP'
+2026-10-13T19:18:58.1245274Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:18:58.1289328Z Entering 'third_party/verilog-axis'
+2026-10-13T19:18:58.1355172Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T19:18:58.1383839Z http.https://github.com/.extraheader
+2026-10-13T19:18:58.1393720Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T19:18:58.1432388Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T19:18:58.1668623Z Entering 'gptp-processor'
+2026-10-13T19:18:58.1745202Z Entering 'protocol-processor'
+2026-10-13T19:18:58.1781706Z Entering 'third_party/lwSRP'
+2026-10-13T19:18:58.1826677Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:18:58.1871835Z Entering 'third_party/verilog-axis'
+2026-10-13T19:18:58.1936831Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.1981909Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T19:18:58.2206137Z Entering 'gptp-processor'
+2026-10-13T19:18:58.2228015Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-10-13T19:18:58.2247924Z Entering 'protocol-processor'
+2026-10-13T19:18:58.2267869Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-10-13T19:18:58.2287274Z Entering 'third_party/lwSRP'
+2026-10-13T19:18:58.2307052Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+2026-10-13T19:18:58.2325229Z Entering 'third_party/tsn-c-stack'
+2026-10-13T19:18:58.2344350Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+2026-10-13T19:18:58.2363135Z Entering 'third_party/verilog-axis'
+2026-10-13T19:18:58.2382579Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-10-13T19:18:58.2418098Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.2455179Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.2491993Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.2528961Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.2566294Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T19:18:58.2745355Z Cleaning up orphan processes
+2026-10-13T19:18:58.3050134Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

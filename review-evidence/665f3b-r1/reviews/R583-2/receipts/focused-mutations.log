@@ -1,0 +1,26 @@
+Focused controls selected 19
+{"mutant": "f3b-query-inside-allocation", "arm": "maap", "test": "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported", "needle": "declaration query stays outside MAAP callbacks", "caught": true, "rc": 1}
+{"mutant": "f3b-composition-owner", "arm": "acmp", "test": "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake", "needle": "composed mailbox publishes the accepted probe demand", "caught": true, "rc": 1}
+{"mutant": "f3b-idle-tick", "arm": "acmp", "test": "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake", "needle": "service tick wakes an idle platform for freshness expiry", "caught": true, "rc": 1}
+{"mutant": "f3b-config-interval", "arm": "acmp", "test": "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake", "needle": "mailbox composition supplies the Milan freshness interval", "caught": true, "rc": 1}
+{"mutant": "f3b-fresh-probe-arm", "arm": "maap", "test": "MaapHost.DaGateFreshProbeDeclaresOnlyItsSource", "needle": "fresh probe opens only its configured source", "caught": true, "rc": 1}
+{"mutant": "f3b-listener-arm", "arm": "maap", "test": "MaapHost.DaGateListenerDeclaresWithoutProbe", "needle": "registered Listener opens the gate without a probe", "caught": true, "rc": 1}
+{"mutant": "f3b-no-demand-arm", "arm": "maap", "test": "MaapHost.DaGateWithoutDemandStaysClosed", "needle": "neither probe nor Listener keeps the gate closed", "caught": true, "rc": 1}
+{"mutant": "f3b-source-validity", "arm": "acmp", "test": "AcmpMailbox.F3bListenerRequiresSourceDestination", "needle": "published source predicate includes destination validity and interface", "caught": true, "rc": 1}
+{"mutant": "f3b-source-validity", "arm": "acmp", "test": "AcmpMailbox.F3bProbeRequiresSourceDestination", "needle": "published source predicate includes destination validity and interface", "caught": true, "rc": 1}
+{"mutant": "f3b-source-validity", "arm": "acmpif2", "test": "AcmpMailbox.F3bListenerRequiresSourceDestination", "needle": "published source predicate includes destination validity and interface", "caught": true, "rc": 1}
+{"mutant": "f3b-source-validity", "arm": "acmpif2", "test": "AcmpMailbox.F3bProbeRequiresSourceDestination", "needle": "published source predicate includes destination validity and interface", "caught": true, "rc": 1}
+{"mutant": "f3b-source-validity", "arm": "maap", "test": "MaapHost.DaGateWaitsForSourceOwnerAfterAllocation", "needle": "allocation report cannot replace source destination validity", "caught": true, "rc": 1}
+{"mutant": "f3b-expiry-arm", "arm": "maap", "test": "MaapHost.DaGateProbeExpiresAtFifteenSeconds", "needle": "probe expires at 15000 milliseconds without a Listener", "caught": true, "rc": 1}
+{"mutant": "f3b-expiry-refresh", "arm": "maap", "test": "MaapHost.DaGateProbeExpiresAtFifteenSeconds", "needle": "probe expires at 15000 milliseconds without a Listener", "caught": true, "rc": 1}
+{"mutant": "pin-adp-short-discovery", "arm": "adp", "test": "AdpAdapter.PinRejectsEveryTruncatedDiscovery", "needle": "malformed discovery changes only the discard count", "caught": true, "rc": 1}
+{"mutant": "pin-adp-discovery-version", "arm": "adp", "test": "AdpAdapter.PinRejectsUnsupportedDiscoveryVersions", "needle": "malformed discovery changes only the discard count", "caught": true, "rc": 1}
+{"mutant": "pin-adp-discovery-length", "arm": "adp", "test": "AdpAdapter.PinRejectsWrongDiscoveryControlLength", "needle": "malformed discovery changes only the discard count", "caught": true, "rc": 1}
+{"mutant": "pin-adp-valid-discovery", "arm": "adp", "test": "AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox", "needle": "complete discovery restarts advertising through the mailbox", "caught": true, "rc": 1}
+{"mutant": "pub-maap-gate-after-the-report", "arm": "maap", "test": "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported", "needle": "DA gate opens the eight sources before the allocation is reported", "caught": true, "rc": 1}
+{"mutant": "pub-maap-gate-skipped", "arm": "maap", "test": "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported", "needle": "DA gate opens the eight sources before the allocation is reported", "caught": true, "rc": 1}
+{"mutant": "pub-maap-gate-one-source-short", "arm": "maap", "test": "MaapHost.CallbackWorkAndEveryOutputCount", "needle": "DA gate opens each of the count sources", "caught": true, "rc": 1}
+{"mutant": "pub-maap-gate-open-while-invalid", "arm": "maap", "test": "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported", "needle": "DA gate closed while the range is only probed", "caught": true, "rc": 1}
+{"mutant": "rv-maap-gate-on-interface-0", "arm": "maap_if2", "test": "MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport", "needle": "DA gate of the acquiring interface opens before its own report", "caught": true, "rc": 1}
+{"mutant": "rv-maap-gate-on-interface-0", "arm": "maap_if2", "test": "MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport", "needle": "DA gate of interface 1 opens before its own report", "caught": true, "rc": 1}
+Focused mutations: 19 mutants, 24 checks, 0 escapes
