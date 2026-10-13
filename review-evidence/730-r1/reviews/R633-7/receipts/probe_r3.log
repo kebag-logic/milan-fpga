@@ -1,0 +1,7 @@
+PASS P1 randomized lifecycles keep every job range to one existing container: 200 seeds x 400 steps = 80000 steps; staging outcomes 1654; violations 0 []
+PASS P2 concurrency is the most of any selected workflow in either order: (docs, rtl-full) -> 4; (rtl-full, docs) -> 4
+PASS P3 derivation reads the tree it is handed: a planted checkout's max-parallel wins, too wide refuses: planted 3, runner tree 1, planted 5 -> 5, refused True
+PASS P3b run_validation derives from the materialized checkout: concurrency = replay_container_concurrency(layout.checkout, workflows); boundary.slot, replay_container_concurrency(layout.checkout, (workflow,))
+PASS P4 every slot and concurrency: refusal exactly at the last CPU, all ranges disjoint: slots 0-63, 320 ranges, boundary errors [], overlaps []
+PASS P5 every range is CONTAINER_CPU_LIMIT wide (nproc 4): widths [4]
+probes: PASS

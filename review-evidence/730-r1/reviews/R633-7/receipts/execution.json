@@ -1,0 +1,225 @@
+[
+  {
+    "name": "runner-selftest",
+    "rc": 0,
+    "elapsed_s": 26.229,
+    "command": [
+      "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+      "$REVIEWS/730-r633-7-packet/scratch/pristine",
+      "python3",
+      "-I",
+      "scripts/act_ci.py",
+      "--selftest"
+    ]
+  },
+  {
+    "name": "mutants_r2",
+    "rc": 0,
+    "elapsed_s": 392.18,
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-7-packet/scripts/mutants_r2.py",
+      "$REVIEWS/730-r633-7-packet",
+      "$REVIEWS/730-r633-7-packet/scratch/pristine",
+      "--jobs",
+      "5"
+    ]
+  },
+  {
+    "name": "mutants_r3",
+    "rc": 0,
+    "elapsed_s": 160.567,
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-7-packet/scripts/mutants_r3.py",
+      "$REVIEWS/730-r633-7-packet",
+      "$REVIEWS/730-r633-7-packet/scratch/pristine",
+      "--jobs",
+      "5"
+    ]
+  },
+  {
+    "name": "mutants_r632_6",
+    "rc": 0,
+    "elapsed_s": 108.06,
+    "command": [
+      "python3",
+      "-I",
+      "$REVIEWS/730-r633-7-packet/scripts/mutants_r632_6.py",
+      "$REVIEWS/730-r633-7-packet",
+      "$REVIEWS/730-r633-7-packet/scratch/pristine",
+      "--jobs",
+      "3"
+    ]
+  },
+  [
+    {
+      "name": "probe_cpu_ranges_r1",
+      "rc": 1,
+      "elapsed_s": 0.466,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_cpu_ranges_r1.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_cpu_ranges_compat",
+      "rc": 0,
+      "elapsed_s": 0.465,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_cpu_ranges_compat.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_lifecycle",
+      "rc": 0,
+      "elapsed_s": 0.666,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_lifecycle.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_monitor",
+      "rc": 0,
+      "elapsed_s": 1.768,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_monitor.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_shutdown",
+      "rc": 0,
+      "elapsed_s": 3.972,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_shutdown.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_r3",
+      "rc": 0,
+      "elapsed_s": 0.715,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_r3.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_cleanup_entry",
+      "rc": 0,
+      "elapsed_s": 0.365,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_cleanup_entry.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_boundary_precedence",
+      "rc": 0,
+      "elapsed_s": 0.515,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_boundary_precedence.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "probe_r6_interrupt_diag",
+      "rc": 0,
+      "elapsed_s": 0.165,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/probe_r6_interrupt_diag.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "offline_dryrun",
+      "rc": 0,
+      "elapsed_s": 0.315,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "-I",
+        "$REVIEWS/730-r633-7-packet/scripts/offline_dryrun.py",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine"
+      ]
+    },
+    {
+      "name": "ci-events-check",
+      "rc": 0,
+      "elapsed_s": 0.264,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ]
+    },
+    {
+      "name": "ci-events-selftest",
+      "rc": 0,
+      "elapsed_s": 24.073,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ]
+    },
+    {
+      "name": "slot-proof",
+      "rc": 0,
+      "elapsed_s": 26.221,
+      "command": [
+        "$REVIEWS/730-r633-7-packet/scripts/sandbox.sh",
+        "$REVIEWS/730-r633-7-packet/scratch/pristine",
+        "bash",
+        "scripts/act_slot_proof.sh",
+        "--selftest"
+      ]
+    }
+  ]
+]
