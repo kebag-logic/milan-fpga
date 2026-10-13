@@ -1,0 +1,23 @@
+## git diff --stat 532ab871..6b4feeca
+ docs/testing/CI_WORKFLOWS.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## name-status incl. submodules
+M	docs/testing/CI_WORKFLOWS.md
+## full diff
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index c8770fe09..7956ca8c9 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -176,7 +176,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
+ [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
+ the campaign it runs, so those two records are relevant by directory.
+ 
+-Seven pages under `docs/` are relevant because Python in a classifier-gated
++These pages under `docs/` are relevant because Python in a classifier-gated
+ job names them. The behave suite of `bdd-conformance`, which no docs job runs,
+ asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
+ [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
+## commit
+6b4feeca5d2fab0ec35cf071322cc775a5b15cb5 parent=532ab871272597d83fa08506bcb05298fbe87806
+docs(ci): describe the gate-read pages without a count
+
