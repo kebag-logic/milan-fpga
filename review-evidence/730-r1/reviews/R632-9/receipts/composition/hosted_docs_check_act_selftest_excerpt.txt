@@ -1,0 +1,33 @@
+docs-check	Local act runner contract gate	﻿2026-10-13T05:26:25.5668905Z ##[group]Run python3 scripts/act_ci.py --selftest
+docs-check	Local act runner contract gate	2026-10-13T05:26:25.5669320Z python3 scripts/act_ci.py --selftest
+docs-check	Local act runner contract gate	2026-10-13T05:26:25.5732208Z shell: /usr/bin/bash -e {0}
+docs-check	Local act runner contract gate	2026-10-13T05:26:25.5732487Z ##[endgroup]
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.1066817Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.1270792Z act-ci: interrupted by SIGHUP after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.2884641Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.2888260Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.4621905Z act-ci: interrupted by SIGINT after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.6644449Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:51.8666487Z act-ci: interrupted by SIGHUP after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:52.0690056Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:52.2770665Z act-ci: interrupted by SIGINT after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:52.4794458Z act-ci: interrupted by SIGTERM after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:52.6815971Z act-ci: interrupted by SIGHUP after cleanup
+docs-check	Local act runner contract gate	2026-10-13T05:26:52.7455850Z act-ci: NOTE: recorded base oid moved from 1111111111111111111111111111111111111111 to 5555555555555555555555555555555555555555 during validation; the validation base is the live dev tip resolved at invocation and the unchanged exact-head evidence for 2222222222222222222222222222222222222222 remains valid
+docs-check	Local act runner contract gate	2026-10-13T05:26:53.4811213Z selftest: PASS
+docs-check	Doc cited-path gate	﻿2026-10-13T05:26:53.4995114Z ##[group]Run python3 scripts/check_doc_paths.py
+docs-check	Doc cited-path gate	2026-10-13T05:26:53.4995519Z python3 scripts/check_doc_paths.py
+docs-check	Doc cited-path gate	2026-10-13T05:26:53.5057923Z shell: /usr/bin/bash -e {0}
+docs-check	Doc cited-path gate	2026-10-13T05:26:53.5058201Z ##[endgroup]
+docs-check	Doc cited-path gate	2026-10-13T05:26:53.6059593Z doc path gate: OK (970 cited paths all resolve; 10 line anchor(s) within their file)
+docs-check	Archive integrity gate	﻿2026-10-13T05:26:53.6138079Z ##[group]Run python3 scripts/check_archive.py
+docs-check	Archive integrity gate	2026-10-13T05:26:53.6138474Z python3 scripts/check_archive.py
+docs-check	Archive integrity gate	2026-10-13T05:26:53.6138835Z python3 scripts/check_archive.py --selftest
+docs-check	Archive integrity gate	2026-10-13T05:26:53.6199887Z shell: /usr/bin/bash -e {0}
+docs-check	Archive integrity gate	2026-10-13T05:26:53.6200165Z ##[endgroup]
+docs-check	Archive integrity gate	2026-10-13T05:26:54.1123837Z archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+docs-check	Archive integrity gate	2026-10-13T05:26:54.1659948Z archive selftest: OK (24 controls)
+docs-check	Per-page contents gate	﻿2026-10-13T05:26:54.1750103Z ##[group]Run python3 scripts/gen_toc.py --selftest
+source: gh run view 38348813316 --log (docs-check job 115136282389), PR #731 head b341e875 merged by the hosted service into dev 49da9fd9 as 6dd63a34
+HEAD is now at 6dd63a340 Merge b341e875d87c6aa2be355bad17f373782517f723 into 49da9fd974e8805d56c90e29dcfcb67994c2c430
+ok-arm lines: 531
