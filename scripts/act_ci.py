@@ -5326,27 +5326,52 @@ def execute_act_boundary(
 
     act stays interruptible inside a caller's hold of the cleanup signals,
     the CPU-range monitor's: they are unblocked for the whole boundary, so a
-    held one is delivered on entry, and the hold is restored by one call
-    before this returns or raises (#730).
+    held one is delivered on entry. Closing the window preserves an active
+    failure if a signal interrupts the first restore; the final restore
+    completes before the monitor receives either outcome (#730).
     """
     held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    primary: BaseException | None = None
     try:
-        signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
-        require_live_pull_request(run.pr, run.repository, seams.query)
-        integrity_check()
-        if seams.pre_spawn is not None:
-            seams.pre_spawn()
         try:
-            result = seams.run_process(
-                command,
-                context=replace(context, env=dict(context.env)),
-                check=False,
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+            require_live_pull_request(run.pr, run.repository, seams.query)
+            integrity_check()
+            if seams.pre_spawn is not None:
+                seams.pre_spawn()
+            try:
+                result = seams.run_process(
+                    command,
+                    context=replace(context, env=dict(context.env)),
+                    check=False,
+                )
+            except OSError as exc:
+                raise Refusal(f"cannot start act: {exc}") from exc
+            require_live_pull_request(run.pr, run.repository, seams.query)
+            integrity_check()
+            return result.returncode
+        except BaseException as exc:
+            primary = exc
+            raise
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, held)
+    except TerminationRequest as delivered:
+        # The first restore can itself be interrupted before it blocks.
+        # The latch defers repeats; restore the hold before any diagnostic.
+        signal.pthread_sigmask(signal.SIG_SETMASK, held)
+        if primary is None or primary is delivered:
+            raise
+        try:
+            print(
+                f"act-ci: act boundary closing was interrupted ({type(delivered).__name__}: "
+                f"{delivered}); the failure already propagating is kept",
+                file=sys.stderr,
+                flush=True,
             )
-        except OSError as exc:
-            raise Refusal(f"cannot start act: {exc}") from exc
-        require_live_pull_request(run.pr, run.repository, seams.query)
-        integrity_check()
-        return result.returncode
+        except Exception:
+            # Diagnostics have no authority to replace what propagates.
+            pass
+        raise primary
     finally:
         signal.pthread_sigmask(signal.SIG_SETMASK, held)
 
@@ -12438,6 +12463,128 @@ def selftest_act_signal_window(
         "and the hold is back after it",
         held == (signal.SIGHUP, set(CLEANUP_SIGNALS)) and len(seen) == 1 and not left,
     )
+    selftest_act_closing_signal(tally, fixture, fixture_run)
+
+
+def act_closing_signal_case(
+    fixture: SelftestFixture,
+    fixture_run: ValidatedRun,
+    signum: int,
+    line: int,
+    earlier: BaseException | None,
+) -> tuple[bool, str]:
+    """Deliver a first signal at one closing restore of the real act boundary; prove precedence and cleanup (#730)."""
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    stream.stdout = HeldEventPipe([], stream.contained, stream.contained, trail)
+    context = CommandContext(use_sudo=False, cwd=ROOT, env={})
+    fired: list[BaseException | None] = []
+    masks: list[set[int]] = []
+    checks: list[None] = []
+    outcome: BaseException | int | None = None
+    stderr = io.StringIO()
+
+    def integrity() -> None:
+        """Fail the closing integrity check, after the stand-in act has run interruptibly."""
+        checks.append(None)
+        if len(checks) == 2 and earlier is not None:
+            raise earlier
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Record act's open signal window without starting any external process."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        return subprocess.CompletedProcess([], 0)
+
+    def contain(*_args: object, **_kwargs: object) -> None:
+        """Record the restored mask at containment and release the reader."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        trail.append("contained")
+        stream.contained.set()
+
+    def trace(frame: object, event: str, _arg: object) -> object:
+        """Inject before the chosen mask call, while retaining the active exception as evidence."""
+        if (not fired and event == "line"
+                and frame.f_code is execute_act_boundary.__code__  # type: ignore[attr-defined]
+                and frame.f_lineno == line):  # type: ignore[attr-defined]
+            fired.append(sys.exception())
+            signal.raise_signal(signum)
+        return trace
+
+    def action() -> int:
+        """Run the real monitor and act boundary; inspect the obligations at outer teardown."""
+        try:
+            with job_cpu_range_monitor(
+                DockerBoundary(token="a" * 32, name="closing-signal-probe"), ("4-7",), context=context,
+                seams=ProcessSeams(popen=lambda *_args, **_kwargs: stream, terminate_group=contain),
+            ):
+                try:
+                    return execute_act_boundary(
+                        ["act"], run=fixture_run, context=context, integrity_check=integrity,
+                        seams=SpawnSeams(query=lambda *_args: fixture.pr, run_process=act_process),
+                    )
+                finally:
+                    masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        finally:
+            if not stream.stdout.closed:
+                trail.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                trail.append("reader alive")
+            trail.append("outer teardown")
+
+    incoming = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    previous = sys.gettrace()
+    with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool), \
+            contextlib.redirect_stderr(stderr):
+        try:
+            sys.settrace(trace)
+            outcome = run_with_cleanup_signals(action)
+        except BaseException as exc:
+            outcome = exc
+            if isinstance(exc, Refusal):
+                print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
+        finally:
+            sys.settrace(previous)
+            remaining = signal.pthread_sigmask(signal.SIG_BLOCK, ()) != incoming
+            pending = settle_cleanup_signals(incoming)
+            stream.contained.set()
+            for thread in threading.enumerate():
+                if thread.name == "act-ci-cpu-range-monitor":
+                    thread.join(timeout=10)
+    diagnostic = stderr.getvalue()
+    name = signal.Signals(signum).name
+    precedence = (
+        outcome is earlier and f"TerminationRequest: {name}" in diagnostic
+        and "the failure already propagating is kept" in diagnostic
+        and (not isinstance(earlier, Refusal) or f"REFUSED: {earlier}" in diagnostic)
+    ) if earlier is not None else (
+        outcome == 128 + signum and diagnostic == f"act-ci: interrupted by {name} after cleanup\n"
+    )
+    clean = (
+        fired == [earlier] and masks == [set(), set(CLEANUP_SIGNALS), set(CLEANUP_SIGNALS)]
+        and trail == ["contained", "stream ended", "outer teardown"]
+        and stream.stdout.closed and not remaining and not pending
+    )
+    return clean and precedence, f"outcome={outcome!r}, fired={fired!r}, masks={masks!r}, trail={trail!r}"
+
+
+def selftest_act_closing_signal(
+    tally: SelftestTally, fixture: SelftestFixture, fixture_run: ValidatedRun
+) -> None:
+    """Arms: signals at the real boundary's closing restores preserve its active failure, hold and cleanup (#730)."""
+    source = pathlib.Path(__file__).read_text(encoding="utf-8")
+    boundary = next(node for node in ast.parse(source).body
+                    if isinstance(node, ast.FunctionDef) and node.name == "execute_act_boundary")
+    restores = sorted(node.finalbody[0].lineno for node in ast.walk(boundary)
+                      if isinstance(node, ast.Try) and node.finalbody)
+    for signum, line, failure in itertools.product(
+        CLEANUP_SIGNALS, restores, (None, Refusal("original integrity failure"), RuntimeError("original failure"))
+    ):
+        passed, evidence = act_closing_signal_case(fixture, fixture_run, signum, line, failure)
+        tally.check(
+            f"first {signal.Signals(signum).name} at act closing restore line {line}, "
+            f"earlier {type(failure).__name__}: preserves outcome and completes containment, "
+            f"reader completion and pipe close before teardown ({evidence})", passed,
+        )
 
 
 def selftest_interrupt_probe_signal_window(tally: SelftestTally, docker: DockerFixture) -> None:
