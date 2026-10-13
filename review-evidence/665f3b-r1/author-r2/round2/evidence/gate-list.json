@@ -1,0 +1,242 @@
+[
+  {
+    "gate": "docs",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "docs-selftest",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "doc-style-selftest",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "python-idiom",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "em-dash",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d40e4e9827be2516f8f34b9d65f0a483fff2194c"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "toc",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "submodule-docs",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "hygiene",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "mailbox-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "coverage-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "tally-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "sw/firmware/gtest/tally_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "diagram",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "diagram-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "submodule-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "python-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "cpp-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "toc-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "em-dash-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "hygiene-controls",
+    "command": [
+      "$VALIDATION_STORAGE/665f3b-a612/venv/bin/python",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "doc-path-controls",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py",
+      "--selftest"
+    ]
+  },
+  {
+    "gate": "source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ]
+  },
+  {
+    "gate": "source-controls",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ]
+  },
+  {
+    "gate": "evidence-readers",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ]
+  },
+  {
+    "gate": "evidence-controls",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ]
+  },
+  {
+    "gate": "dispatch-controls",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+    ]
+  }
+]
