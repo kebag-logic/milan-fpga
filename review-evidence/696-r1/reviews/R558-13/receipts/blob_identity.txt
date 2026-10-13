@@ -1,0 +1,42 @@
+gitlinks (ls-tree) at L, D, M:
+26e2748f: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 protocol-processor=2ad2f845dd583f8310075fa2380cb60a04fd091a third_party/lwSRP=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+e81ce82f: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 protocol-processor=2ad2f845dd583f8310075fa2380cb60a04fd091a third_party/lwSRP=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+313616d1: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 protocol-processor=2ad2f845dd583f8310075fa2380cb60a04fd091a third_party/lwSRP=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor (remotes/origin/main-1-g7dda9c3)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+-08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+
+dev feature files, blob at D vs M:
+same 5cce82f5ab189e16979b31dc230d6d4842bef5f3 sw/litex/ctrl_memory.py
+same f5b438bfef3a8f93584e44a5ebea70f076a1737f sw/litex/milan_soc.py
+same b8d1ad1747eb01c30ac3ce5c16aca81ccd4cc586 syn/ooc/ctrl_memory_ooc.py
+same 26290e9f244c8f953443d782c22c38f7d7034550 docs/design/SPLIT_CONTROL_MEMORY.md
+same f05021cddd53f4b7c79583568cb37962937e0fc0 sw/firmware/ctrl/plat/ctrl_split.ld
+same 07ec7a3ebf46a303894bc504742a0a591e84526e sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+same 3f0bea6ecbbca33bedf4f000d1b9ad24132f2d91 sw/firmware/ctrl/test/test_ctrl_firmware.py
+same ac930bf2a6d4ba84f98f8266da5f7d1cdc9c50b0 scripts/suite_shards.py
+same 902b92cd40baa61a73d1149154853c9318e5b989 .github/workflows/rtl-fast.yml
+same a0990d6677133c8544a2064f442392470c65eb71 docs/testing/CI_WORKFLOWS.md
+same a708eff96d524c139a68a5780a9256147067bd6e hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv
+same b2913b64609c8018229614f92e7009ead21df73c hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+same 33e5fed3690799159928feee35a5483813b74afe tb/verilator/milan_dp/stream_counters.py
+same a45e79215d94701c9893fc5cf5d4d8698dadf48a tb/verilator/milan_dp/Makefile
+same b85cf88a87b899449f61d67b06a484c94afa332f docs/testing/726_STREAM_COUNTERS.md
+
+lane protected files, blob at L vs M:
+same 746be52d3e043f4ff4f16ee6f590f984b069118e hdl/ieee1722/maap/KL_maap.sv
+same e0ad4691045cbcc5c4bab92adebdbe979d5e1fba hdl/milan/milan_datapath.sv
+same 77de72998b1db0fa888bcc422f27ff7457087e07 docs/design/MAAP_FABRIC.md
+same 4c71e9fb022c9bccd1541f560dff3b1f39c73b37 tb/verilator/maap/Makefile
+same 0d005fd0d7e8a51373767415760d9d2b8cd8efd3 tb/verilator/maap/integration.mk
+same 085989b73764269884bf09861173d01c1f62f2f7 tb/verilator/maap/mutants.py
+same 9dfc863ac6df92577feeeab717fc0647fdd3878f tb/verilator/maap/sim_main.cpp
+same e02f65f70fb35b3780702257f89ac37a0bdb97d9 tb/verilator/maap/sim_integration.cpp
+same 684f238839867477ed6a339e911132afebbe924d sw/firmware/ctrl/test/maap_differential.py
+same af9ae46141fcc86adcfe42d0b57939db7ccaf003 sw/firmware/ctrl/test/test_maap_differential.cpp
+same af98405d156079445b3939c9453ecd6f0af7bffc syn/ooc/pp_resource_baseline.json
+same 2be675df8f69a78ac6f4901f721c97de9fe14a14 docs/findings/234_PP_SHADOW_AREA_BASELINE.md
