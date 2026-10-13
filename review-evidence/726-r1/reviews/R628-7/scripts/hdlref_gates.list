@@ -1,0 +1,3 @@
+# core.commitGraph=false only silences this local clone's stale commit-graph warning, which the generator's dirty check reads as output.
+GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.commitGraph GIT_CONFIG_VALUE_0=false python3 scripts/gen_hdl_reference.py --selftest
+GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.commitGraph GIT_CONFIG_VALUE_0=false python3 scripts/gen_hdl_reference.py --output $REVIEWS/726-r628-7-packet/scratch/hdlref

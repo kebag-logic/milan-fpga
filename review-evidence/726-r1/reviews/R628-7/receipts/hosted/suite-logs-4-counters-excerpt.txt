@@ -1,0 +1,32 @@
+artifact suite-logs-4 of run 38322428967 (pull_request event, PR head 12f00129)
+TARGET_SHA 83049c8e23c94c0cddaf6cc4a8f33598fa458367 (the event's merge ref, not the candidate)
+milan_dp.log sha256 0f71b17078720ed5bf8911ca0430af09faa6aa3d1385f1dcd9f74e5a8696df4d bytes 2212764
+--- lines 19720-19750
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 509.734, "state": "idle", "idle_s": 0.153}
+
+6 checks: 6 PASS, 0 FAIL
+make counters
+make[1]: Entering directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+VERILATOR=verilator python3 stream_counters.py --shape 1
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 8
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 1 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+VERILATOR=verilator python3 stream_counters.py --shape 8 --output-condition frames-only
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+make[1]: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+make: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'

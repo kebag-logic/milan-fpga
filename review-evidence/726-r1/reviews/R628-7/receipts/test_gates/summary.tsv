@@ -1,0 +1,4 @@
+1	0	make -C tb/verilator/milan_dp VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator VERILATOR_JOBS=4 counters
+2	0	make -C tb/verilator/milan_dp counters-f5
+3	0	cd tests && python3 -m behave --no-capture -f plain
+4	0	python3 tb/tools/torture_campaign.py --self-test

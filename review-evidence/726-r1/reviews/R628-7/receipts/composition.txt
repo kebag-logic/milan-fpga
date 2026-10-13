@@ -1,0 +1,18 @@
+git git version 2.56.0
+candidate cdb49e7ec8b2e03f835a9bda2230ef3e26788c16 parents: 49da9fd974e8805d56c90e29dcfcb67994c2c430 12f00129349c889e6dbbb7de11529ab38c9d164d
+candidate tree: ab5a465c81b38a05600c2f006cfe0aaf1eadcaef
+merge-tree --write-tree 49da9fd974e8805d56c90e29dcfcb67994c2c430 12f00129349c889e6dbbb7de11529ab38c9d164d: ab5a465c81b38a05600c2f006cfe0aaf1eadcaef
+merge-base 49da9fd974e8805d56c90e29dcfcb67994c2c430 12f00129349c889e6dbbb7de11529ab38c9d164d: c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+PR files (base..source): 33
+dev files (base..dev): 25
+overlap: docs/README.md 
+dev..candidate equals PR file set: yes
+files whose candidate blob differs from source blob:
+  docs/README.md
+files whose candidate blob differs from dev blob among dev's changed files:
+  docs/README.md
+dev-side predecessors in base..dev (first parent):
+  49da9fd97 Merge PR #728: Split the Verilator suites across the five workers by measured time, with a 60 % headroom gate (#727)
+  d5858bbee Merge PR #721: Mark II M8a-1: split placement control memory on chip, firmware owns the reset entry (#640)
+  dc4d06cbf Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716)
+ci_scope on dev..candidate paths: true
