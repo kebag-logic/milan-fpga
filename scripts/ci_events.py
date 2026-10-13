@@ -423,7 +423,10 @@ CANONICAL_DECIDE_SCRIPT = (
     '# Replay uses the live base fetched and verified by the runner.',
     'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
     'git cat-file -e "$base^{commit}"',
-    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed-files"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
     'else',
     'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
     'fi',
@@ -849,7 +852,10 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     '# Replay uses the live base fetched and verified by the runner.',
     'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
     'git cat-file -e "$base^{commit}"',
-    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed"',
     'else',
     'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"',
     'fi',
@@ -1296,7 +1302,10 @@ CANONICAL_FAST_SCOPE_SCRIPT = (
     '# Replay uses the live base fetched and verified by the runner.',
     'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
     'git cat-file -e "$base^{commit}"',
-    'git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" > "$RUNNER_TEMP/changed-files"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
     'else',
     'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
     'fi',
@@ -6422,8 +6431,10 @@ def _invisible_whitespace_arms() -> list[Arm]:
         for label, old, new in (
                 ("hosted frozen base", '"$GITHUB_SHA^1" "$GITHUB_SHA"',
                  '"$PR_BASE_SHA...$PR_HEAD_SHA"'),
-                ("replay endpoint trees", '"$base" "$PR_HEAD_SHA"',
+                ("replay endpoint trees", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
                  '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"'),
+                ("replay omits merge composition", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                 '"$base" "$PR_HEAD_SHA"'),
                 ("hosted always takes replay path", '"${ACT:-false}" = true',
                  '"true" = true'),
                 ("ambiguous replay merge base", "git merge-base --all", "git merge-base")):

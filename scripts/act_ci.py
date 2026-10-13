@@ -2380,9 +2380,13 @@ def build_event(run: ValidatedRun) -> dict[str, object]:
     live base that job builds on. Replay checks out the PR head instead,
     so with ACT=true the three selectors resolve the payload's base ref to
     refs/remotes/origin/<base-ref>, fetched and verified by
-    materialize_remote_head against run.validation_base. They compare
-    merge-base(live, head) to head, never the frozen recorded base oid.
-    Missing or multiple merge bases refuse classification. Full-history
+    materialize_remote_head against run.validation_base. After requiring a
+    unique merge base, they compose live and head with merge-tree --write-tree
+    and compare live to that tree, never the frozen recorded base oid.
+    This matches hosted paths even when dev renamed a page into a gate-read
+    path or independently made the same RTL edit. A head-only merge-base
+    diff can miss the renamed gate input, so it cannot stand in for composition.
+    Missing or multiple merge bases and merge conflicts refuse classification. Full-history
     checkouts preserve the ancestry. A lane that merges newer dev and restores
     its RTL therefore stays relevant, while stale-base docs stay docs-only.
     The merge-train candidate banks validate composition before every merge.
@@ -6255,6 +6259,9 @@ def scope_fixture_history(root: pathlib.Path, shipping: pathlib.Path) -> list[Sc
     shutil.copyfile(shipping / "scripts/ci_scope.py", root / "scripts/ci_scope.py")
     (root / "hdl").mkdir()
     (root / "hdl/x.sv").write_text("// original RTL\n", encoding="utf-8")
+    (root / "docs").mkdir()
+    page = "".join(f"line {number}\n" for number in range(40))
+    (root / "docs/page.md").write_text(page, encoding="utf-8")
     # A documentation-shaped gitlink exposes removal of the explicit pointer rule.
     (root / ".gitmodules").write_text(
         '[submodule "pointer"]\n\tpath = docs/pointer.md\n'
@@ -6281,6 +6288,14 @@ def scope_fixture_history(root: pathlib.Path, shipping: pathlib.Path) -> list[Sc
                            "hdl/x.sv", "// original RTL\n")
     restored = scope_fixture_commit_file(root, restored, "docs/note.md", "Final PR documentation\n")
     later = scope_fixture_commit_file(root, newer, "hdl/later.sv", "// unrelated dev RTL\n")
+    shared_head = scope_fixture_commit_file(root, docs, "hdl/shared.sv", "// shared change\n")
+    shared_live = scope_fixture_commit_file(root, live, "hdl/shared.sv", "// shared change\n")
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", live)
+    (root / "docs/reference").mkdir(exist_ok=True)
+    scope_fixture_git(root, "mv", "docs/page.md", "docs/reference/REGISTER_MAP.md")
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Base renames gate-read page")
+    renamed = scope_fixture_git(root, "rev-parse", "HEAD")
+    edited = scope_fixture_commit_file(root, common, "docs/page.md", page.replace("line 20", "line twenty"))
     return [
         ScopeEventCase("stale-base docs", recorded, live, docs, ["docs/note.md"], "false"),
         ScopeEventCase("B16 shape", recorded, live, b16,
@@ -6290,7 +6305,11 @@ def scope_fixture_history(root: pathlib.Path, shipping: pathlib.Path) -> list[Sc
         ScopeEventCase("empty delta", recorded, live, common, [], "true"),
         ScopeEventCase("REV", common, newer, restored, ["docs/note.md", "hdl/x.sv"], "true"),
         ScopeEventCase("REV+E", common, later, restored, ["docs/note.md", "hdl/x.sv"], "true"),
+        ScopeEventCase("identical-on-dev", recorded, shared_live, shared_head, ["docs/note.md"], "false"),
+        ScopeEventCase("base-side rename", recorded, renamed, edited,
+                  ["docs/reference/REGISTER_MAP.md"], "true"),
     ]
+
 
 
 def scope_fixture_merge_checkout(root: pathlib.Path, case: ScopeEventCase) -> str:
@@ -6435,7 +6454,8 @@ def selftest_scope_flat_install(tally: SelftestTally, shipping_root: pathlib.Pat
             "sys.exit(bool(tally.failures))"
         )
         for sibling_import in (False, True):
-            installed.chmod(0o755) if installed.exists() else None
+            if installed.exists():
+                installed.chmod(0o755)
             installed.write_text(source + ("\nimport ci_scope_history\n" if sibling_import else ""),
                                  encoding="utf-8")
             installed.chmod(0o555)

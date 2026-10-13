@@ -73,6 +73,9 @@ def history(root: Path, shipping: Path) -> list[ScopeCase]:
     shutil.copyfile(shipping / "scripts/ci_scope.py", root / "scripts/ci_scope.py")
     (root / "hdl").mkdir()
     (root / "hdl/x.sv").write_text("// original RTL\n", encoding="utf-8")
+    (root / "docs").mkdir()
+    page = "".join(f"line {number}\n" for number in range(40))
+    (root / "docs/page.md").write_text(page, encoding="utf-8")
     # A documentation-shaped gitlink exposes removal of the explicit pointer rule.
     (root / ".gitmodules").write_text(
         '[submodule "pointer"]\n\tpath = docs/pointer.md\n'
@@ -99,6 +102,14 @@ def history(root: Path, shipping: Path) -> list[ScopeCase]:
                            "hdl/x.sv", "// original RTL\n")
     restored = commit_file(root, restored, "docs/note.md", "Final PR documentation\n")
     later = commit_file(root, newer, "hdl/later.sv", "// unrelated dev RTL\n")
+    shared_head = commit_file(root, docs, "hdl/shared.sv", "// shared change\n")
+    shared_live = commit_file(root, live, "hdl/shared.sv", "// shared change\n")
+    git(root, "checkout", "--quiet", "--detach", live)
+    (root / "docs/reference").mkdir(exist_ok=True)
+    git(root, "mv", "docs/page.md", "docs/reference/REGISTER_MAP.md")
+    git(root, "commit", "--quiet", "-m", "Base renames gate-read page")
+    renamed = git(root, "rev-parse", "HEAD")
+    edited = commit_file(root, common, "docs/page.md", page.replace("line 20", "line twenty"))
     return [
         ScopeCase("stale-base docs", recorded, live, docs, ["docs/note.md"], "false"),
         ScopeCase("B16 shape", recorded, live, b16,
@@ -108,6 +119,9 @@ def history(root: Path, shipping: Path) -> list[ScopeCase]:
         ScopeCase("empty delta", recorded, live, common, [], "true"),
         ScopeCase("REV", common, newer, restored, ["docs/note.md", "hdl/x.sv"], "true"),
         ScopeCase("REV+E", common, later, restored, ["docs/note.md", "hdl/x.sv"], "true"),
+        ScopeCase("identical-on-dev", recorded, shared_live, shared_head, ["docs/note.md"], "false"),
+        ScopeCase("base-side rename", recorded, renamed, edited,
+                  ["docs/reference/REGISTER_MAP.md"], "true"),
     ]
 
 
@@ -220,6 +234,35 @@ def criss_cross(root: Path, parent: str) -> ScopeCase:
     return ScopeCase("ambiguous base", parent, first, second, [], "true")
 
 
+def edge_controls(root: Path, script: str, case: ScopeCase,
+                  ambiguous: ScopeCase) -> list[tuple[str, bool]]:
+    """Fail closed on unresolved ancestry and conflicts, with an ambiguity mutant."""
+    checks: list[tuple[str, bool]] = []
+    conflict_live = commit_file(root, case.recorded, "hdl/x.sv", "// live conflict\n")
+    conflict_head = commit_file(root, case.recorded, "hdl/x.sv", "// head conflict\n")
+    git(root, "update-ref", "refs/remotes/origin/dev", conflict_live)
+    checks.append(("replay merge conflict refuses",
+          refuses(root, script, case, conflict_head,
+                  {"ACT": "true", "PR_HEAD_SHA": conflict_head})))
+    checks.append(("missing hosted merge refuses",
+          refuses(root, script, case, "0" * 40, {})))
+    checks.append(("missing replay base refuses",
+          refuses(root, script, case, case.head,
+                  {"ACT": "true", "PR_BASE_REF": "missing"})))
+    git(root, "update-ref", "refs/remotes/origin/dev", case.live)
+    checks.append(("missing replay head refuses",
+          refuses(root, script, case, case.head,
+                  {"ACT": "true", "PR_HEAD_SHA": "0" * 40})))
+    git(root, "checkout", "--quiet", "--detach", ambiguous.head)
+    git(root, "update-ref", "refs/remotes/origin/dev", ambiguous.live)
+    checks.append(("ambiguous replay base refuses",
+          refuses(root, script, ambiguous, ambiguous.head, {"ACT": "true"})))
+    mutant = script.replace("git merge-base --all", "git merge-base")
+    checks.append(("arbitrary merge-base mutation rejected",
+          not refuses(root, mutant, ambiguous, ambiguous.head, {"ACT": "true"})))
+    return checks
+
+
 def selftest(shipping: Path) -> int:
     """Every control must pass, then fail for its corresponding removed rule."""
     failures = 0
@@ -251,6 +294,13 @@ def selftest(shipping: Path) -> int:
                 expected = (case.paths, case.rtl)
                 check(f"{workflow} {case.label}: hosted = replay = {expected}",
                       hosted == replay == expected)
+                if case.label in ("identical-on-dev", "base-side rename"):
+                    mutant = script.replace('"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                                            '"$base" "$PR_HEAD_SHA"')
+                    check(f"{workflow} {case.label} replay without composition rejected",
+                          execute(root, mutant, case.recorded, case.head, case.head,
+                                  inputs={"ACT": "true"}) != expected)
+                    continue
                 # Both former frozen-base formulas must lose these real lane controls.
                 if case.label in ("REV", "REV+E") or case.rtl == "false":
                     mutant = script.replace('"$GITHUB_SHA^1" "$GITHUB_SHA"',
@@ -258,8 +308,8 @@ def selftest(shipping: Path) -> int:
                     check(f"{workflow} {case.label} hosted frozen-base mutation rejected",
                           execute(root, mutant, case.recorded, case.head, merge) != expected)
                 if case.label in ("REV", "REV+E"):
-                    mutant = script.replace('"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"',
-                                            '"$PR_BASE_SHA" "$PR_HEAD_SHA"')
+                    mutant = script.replace('"refs/remotes/origin/$PR_BASE_REF"',
+                                            '"$PR_BASE_SHA"')
                     check(f"{workflow} {case.label} replay frozen-base mutation rejected",
                           execute(root, mutant, case.recorded, case.head, case.head,
                                   inputs={"ACT": "true"}) != expected)
@@ -268,7 +318,7 @@ def selftest(shipping: Path) -> int:
                     check(f"{workflow} {case.label} hosted frozen merge-base mutation rejected",
                           execute(root, mutant, case.recorded, case.head, merge) != expected)
                 elif case.rtl == "false":
-                    mutant = script.replace('"$base" "$PR_HEAD_SHA"',
+                    mutant = script.replace('"refs/remotes/origin/$PR_BASE_REF" "$merged"',
                                             '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"')
                     check(f"{workflow} {case.label} replay endpoint mutation rejected",
                           execute(root, mutant, case.live, case.head, case.head,
@@ -290,23 +340,8 @@ def selftest(shipping: Path) -> int:
                                       inputs={"ACT": "true"}) != expected)
                     finally:
                         classifier.write_text(pristine)
-            case = cases[0]
-            check(f"{workflow} missing hosted merge refuses",
-                  refuses(root, script, case, "0" * 40, {}))
-            check(f"{workflow} missing replay base refuses",
-                  refuses(root, script, case, case.head,
-                          {"ACT": "true", "PR_BASE_REF": "missing"}))
-            git(root, "update-ref", "refs/remotes/origin/dev", case.live)
-            check(f"{workflow} missing replay head refuses",
-                  refuses(root, script, case, case.head,
-                          {"ACT": "true", "PR_HEAD_SHA": "0" * 40}))
-            git(root, "checkout", "--quiet", "--detach", ambiguous.head)
-            git(root, "update-ref", "refs/remotes/origin/dev", ambiguous.live)
-            check(f"{workflow} ambiguous replay base refuses",
-                  refuses(root, script, ambiguous, ambiguous.head, {"ACT": "true"}))
-            mutant = script.replace("git merge-base --all", "git merge-base")
-            check(f"{workflow} arbitrary merge-base mutation rejected",
-                  not refuses(root, mutant, ambiguous, ambiguous.head, {"ACT": "true"}))
+            for label, ok in edge_controls(root, script, cases[0], ambiguous):
+                check(f"{workflow} {label}", ok)
             if workflow == "rtl-fast.yml":
                 case = cases[0]
                 check("fast push retains before-to-after comparison",

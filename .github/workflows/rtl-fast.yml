@@ -48,7 +48,8 @@ jobs:
               # Replay uses the live base fetched and verified by the runner.
               base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
               git cat-file -e "$base^{commit}"
-              git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" \
+              merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+              git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
                 > "$RUNNER_TEMP/changed-files"
             else
               git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \

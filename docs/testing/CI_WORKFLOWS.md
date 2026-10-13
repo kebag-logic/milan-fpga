@@ -178,12 +178,20 @@ The replay checks out the PR head, identified by `PR_HEAD_SHA`.
 With `ACT=true`, scope reads `refs/remotes/origin/<base-ref>`.
 `PR_BASE_REF` binds to `github.event.pull_request.base.ref`.
 The runner already fetched that ref and verified its live tip.
-Scope compares its unique merge base with the PR head.
-This is `<live-base>...<head>`, with ambiguous merge bases refused.
+Scope first requires a unique merge base.
+It composes live and head using `git merge-tree --write-tree`.
+It compares the live base with that composed tree.
+The resulting paths match hosted merge scope.
+Base-side renames follow Git's merge result into their destination.
+Identical RTL edits already on dev add no changed path.
+A head-only merge-base diff can miss renamed gate inputs.
+It therefore cannot substitute for the composed diff.
 The frozen base SHA remains event metadata and is never a scope input.
 This also works with the existing trusted runner's event payload.
 Each scope checkout explicitly sets `fetch-depth: 0`.
 Missing revisions or missing merge ancestry fail the scope step.
+Ambiguous ancestry and merge conflicts also fail the step.
+Replay requires Git supporting `merge-tree --write-tree` (2.38 or newer).
 Older documentation branches remain documentation-only.
 RTL changes and submodule pointers remain relevant.
 Empty deltas retain the conservative relevant verdict.
@@ -202,6 +210,8 @@ Its histories cover documentation, RTL, gitlinks, and empty deltas.
 REV merges newer dev, restores an RTL file, then edits documentation.
 REV+E adds a later unrelated dev RTL commit.
 Both must stay relevant; a two-documentation-path B16 shape stays docs-only.
+Base-side rename and identical-edit controls require hosted/replay equality.
+They reject replacing composition with a head-only merge-base diff.
 Each control rejects its corresponding removed rule.
 Mutations reject frozen-base scope and replay endpoint comparisons.
 The CI-events gate pins these scripts and their event bindings.
@@ -216,8 +226,10 @@ the three scripts.
 
 The aggregate still completes,
 so a docs-only PR does not leave a required verdict pending. Mixed changes are
-treated as RTL relevant. An empty or unresolvable diff is also treated as RTL
-relevant. A submodule pointer (`protocol-processor`, `gptp-processor`,
+treated as RTL relevant. An empty diff is RTL relevant.
+On PRs, unresolvable revisions or merge ancestry fail scope.
+On pushes, an unresolvable before-SHA selects every tracked file.
+A submodule pointer (`protocol-processor`, `gptp-processor`,
 `external`, `third_party/...`, read from `.gitmodules`) or `.gitmodules` itself
 is never docs-only: it moves the RTL the sweep elaborates without touching a
 file under `hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier
@@ -1532,10 +1544,17 @@ one never refuses a run; re-targeting a PR's base to refresh it (the old
 The generated event retains the recorded oid as metadata, plus the base ref and the PR's own head.
 Hosted scope compares the synthetic merge against its live-base first parent.
 Replay scope uses the fetched, verified `refs/remotes/origin/<base-ref>`.
-It compares that tip's unique merge base with the PR head.
+It requires a unique merge base with the PR head.
+It composes both tips and compares live against that tree.
+This matches hosted scope through base-side renames and identical edits.
+Merge conflicts fail scope before any documentation-only output.
+
 The recorded oid never participates in either scope calculation.
 The replay self-test checks the production payload through all three selectors.
 It covers stale-base documentation, RTL, pointers, empty deltas, REV and REV+E.
+It also checks base-side renames and identical edits on dev.
+Fixture Git uses isolated configuration, identity, dates and home directories.
+Controls reject inherited signing settings and writes through `GIT_DIR`.
 The validation base still anchors every trust and fetch check.
 Because the trusted worktree must sit at a moving branch
 tip, fast-forward it before invoking; a `dev` push between the resolve and the
@@ -1579,7 +1598,9 @@ python3 -I <audited-install>/act_ci.py --pr <number> \
 
 The audited install may be flat as shown. The offline self-test binds its byte
 check to that installed file. It requires no copied repository directory
-shape.
+shape. Scope fixtures are inline; no sibling import is required.
+An isolated child repeats scope checks from a single-file install.
+A planted sibling import must fail in that child.
 
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects
