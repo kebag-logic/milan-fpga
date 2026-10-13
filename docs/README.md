@@ -76,6 +76,7 @@ Publish conflicts before continuing.
 | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
 | Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
 | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
+| Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
 
 ## Verification
 

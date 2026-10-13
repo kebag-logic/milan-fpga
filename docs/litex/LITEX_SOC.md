@@ -5,6 +5,7 @@ This page describes the all-fabric shipping placement.
 Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
 All-fabric remains supported and the shipping default until F2 to F5 acceptance.
 That acceptance covers all streams, counters and the audio soak.
+The split placement's firmware memory, with no BIOS, is [Split placement control memory](../design/SPLIT_CONTROL_MEMORY.md).
 
 
 `sw/litex/milan_soc.py` builds the supported target: a cacheless RV32

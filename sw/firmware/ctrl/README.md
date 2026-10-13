@@ -613,6 +613,12 @@ verified bare-metal runtime archives and an 8192-byte stack reservation;
 see the [SRP recipe](srp/README.md#evidence).
 Neither fixture is a shipping or booted image, and neither connects the
 integrator's live stream, persistence and media owners completely.
+`ctrl_srp_image.py --layout split` links the same composition into the split
+placement's block RAM instead, behind its reset entry
+([`plat/ctrl_split.ld`](plat/ctrl_split.ld),
+[`plat/ctrl_split_start.S`](plat/ctrl_split_start.S)), and adds the bank plan
+the SoC would build for it to its report; see
+[Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md).
 
 
 `ctrl_image.py` links the firmware as a Mark II platform composes it
