@@ -42,7 +42,8 @@ pull-request update and on every push to `dev`. It produces one stable
 - the mailbox publication census, `publication-census` (#665), when RTL or
   its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
-  (#665), when RTL or its tooling changes: the GoogleTest suites of
+  and three mutation jobs (#665, #716), for relevant changes.
+  They run the GoogleTest suites of
   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
   two freestanding RV32 object builds, the tally listener's planted failure and
   crash, and the line and branch coverage ratchet with its planted cases
@@ -60,8 +61,49 @@ pull-request update and on every push to `dev`. It produces one stable
   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
   The job runs the tally listener's planted cases.
 
+Firmware work uses four independent jobs, each requiring `changes`.
+The `rtl-fast` aggregate requires every job's result.
+Failures and cancellations remain failures.
+Each job retains the same relevance condition.
+
+`firmware-unit` runs normal suites, saved-state tests, and RV32 controls.
+It also runs the tally checks and complete coverage ratchet.
+`firmware-control-mutants` runs the complete control mutation table.
+`firmware-aecp-mutants` runs the complete AECP mutation table.
+`firmware-srp-mutants` runs both SRP campaigns and pin controls.
+The normal shard includes the SRP wire comparator self-test.
+Both SRP interface campaigns retain F-INT's publication mutants.
+The aggregate also requires the separate `publication-census` job.
+All jobs verify the same pinned SDK.
+Only that authenticated SDK is cached; builds remain fresh.
+
+| Job | Timeout | Hosted acceptance ceiling | Prediction ceiling |
+|---|---|---|---|
+| `firmware-unit` | 45 min | 1890 s | 1620 s |
+| `firmware-control-mutants` | 45 min | 1890 s | 1620 s |
+| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |
+| `firmware-srp-mutants` | 45 min | 1890 s | 1620 s |
+
+Acceptance requires ten consecutive hosted runs within each 70% ceiling.
+Before review, four-CPU measurements must predict each job below 60%.
+Scale them using the original job's hosted-to-local ratio.
+Include checkout, installation, cache, and completion overhead.
+Issue #716 records measurements and the hosted acceptance table.
+
+The control driver's `--shard INDEX/4` selects complete phases.
+Its default invocation remains complete and ordered.
+Every sharded run checks the live default invocation inventory.
+Omitted or duplicated invocations fail, including newly discovered suites.
+The self-test plants both defects and a future suite.
+Coverage remains one unsplit measurement, with unchanged suites and thresholds.
+No coverage artifacts cross job boundaries.
+The generated command census retains each command's conditions.
+`ci_events.py` rejects differences after removing only shard arguments.
+It also pins every worker and its 45-minute timeout.
+
 A change containing only documentation skips the Verilator and Yosys setup
-jobs, `publication-census` and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs, `publication-census` and all four firmware jobs.
+Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module
@@ -75,7 +117,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
 [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
 the campaign it runs, so those two records are relevant by directory.
 
-Six pages under `docs/` are relevant because Python in a classifier-gated
+Seven pages under `docs/` are relevant because Python in a classifier-gated
 job names them. The behave suite of `bdd-conformance`, which no docs job runs,
 asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
@@ -93,6 +135,10 @@ Its reader is absent from `DOCS_JOB_PY`.
 [MAILBOX_CONTRACT.md](../reference/MAILBOX_CONTRACT.md) with the page it
 generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
 (#665). No `docs-check` step runs it.
+`sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
+requires the rule table in section 3 of
+[SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
+`ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
 The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
 Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
@@ -181,23 +227,39 @@ relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
 Verilator runs the default suite inventory on five workers. Four split the
-inventory by a stable hash; the fifth, shard 4/5, runs `milan_dp` alone
-(#444). A worker runs its suites one at a time, so the fifth worker changes
-no suite's deadline. It takes the other suites of the old shard 0/4 off
-`milan_dp`'s path: that shard carried `milan_dp` plus eleven suites and set
-the context's latency at 1745-2514 s, of which the eleven took 492-725 s.
-The hashed owners of every other suite are unchanged. The aggregate
-rejects missing, unexpected, or duplicate suite logs before it trusts the
-combined tally, and requires all five workers. Specialized dependencies are
-installed only by their stable owners: `tsn_fuzz` owns the pinned packet
-generator, and `chmap_capture` owns the Yosys/sv2v netlist leg. The shard
-selector self-test pins those owners and the dedicated worker, and the
-workers' ownership step proves them again at run time; `ci_events.py` pins
-that step's script. It pins the aggregate's tally script and its
-worker-result script the same way, and the Yosys aggregate's two twins. The
-worker-result step is the only step that turns a failed or timed-out worker
-red: a killed suite's partial log still tallies and its SHA record still
-verifies, so on both hosted `milan_dp` timeouts only that step failed.
+inventory by measured hosted time (#727); the fifth, shard 4/5, runs
+`milan_dp` alone (#444). A worker runs its suites one at a time, so the fifth
+worker changes no suite's deadline. It takes the other suites of the old
+shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
+suites and set the context's latency at 1745-2514 s, of which the eleven took
+492-725 s.
+
+`scripts/suite_shards.py` records each default suite's hosted duration and
+each worker's job overhead. All figures come from one dev run, except `maap`,
+which keeps #696's figure from its pull-request run until a dev run measures
+that change. It places the longest suite first, on the worker with the lowest
+predicted wall clock. Its self-test refuses a suite without a duration and a
+duration without a suite.
+It also refuses any worker predicted above 60% of the job's
+`timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
+gives the refresh procedure, and the steps for a change that adds a suite: a
+provisional figure from `run_all_suites.sh`'s `suite_timeout`, a worker added
+if a prediction then exceeds 60%, and the figure replaced from the change's
+own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
+104 minutes, and #696's head reached its 120-minute timeout there.
+
+The aggregate rejects missing, unexpected, or duplicate suite logs before it
+trusts the combined tally, and requires all five workers. Specialized
+dependencies are installed only by their stable owners: `tsn_fuzz` owns the
+pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
+The shard selector pins those owners and the dedicated worker, its self-test
+proves them, and the workers' ownership step proves them again at run time;
+`ci_events.py` pins that step's script. It pins the aggregate's tally script
+and its worker-result script the same way, and the Yosys aggregate's two
+twins. The worker-result step is the only step that turns a failed or
+timed-out worker red: a killed suite's partial log still tallies and its SHA
+record still verifies, so on both hosted `milan_dp` timeouts only that step
+failed.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -309,9 +371,10 @@ driver's positive control and five controls. Hosted run 38048622822 then
 timed out at 4800 s. Dev's own windows before it were already above 60% of
 that budget: 2972.7 to 3519.6 s on the six dev pushes from runs 37968528697
 to 38067159953. The leg and its five default controls therefore moved to the
-`milan_dp_gm_steps` suite, which the stable hash gives worker 3/5, the
+`milan_dp_gm_steps` suite, which the stable hash then gave worker 3/5, the
 default worker with the most headroom: its jobs took 459 to 680 s in those six runs.
-`suite_shards.py` pins that owner among its five-worker landmarks.
+#727 replaced the hash with the measured-time split, which places the suite
+by its own recorded duration.
 The new suite keeps the 1800 s default budget. The clean leg runs every
 phase once; the controls run without the #621 phase, which holds none of
 their named checks. Its README records the native per-leg times at base,
@@ -1215,6 +1278,19 @@ that has drifted in any of the three files that name it. On a host without
 Verilator the member declares a skip (`RESULT: SKIP`, counted skipped, never
 failed) and the aggregate reports INCOMPLETE rather than a green that would
 claim a comparison nobody ran.
+
+The RV32 SDK this job installs serves one member the same way.
+`test_ctrl_memory` (#640 M8a) links a probe through the split placement's
+link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
+SDK step installs; without a compiler that member declares a skip too.
+Its SoC arm runs the end-station builder, so it needs the PyYAML this job
+installs, and exports the split 1x1 SoC through the LiteX the pins install and
+the patch series patches. It needs no firmware data package: as
+`sw/builder/test_shipping_clock_constraints.py` does, its child refuses every
+`pythondata_software_*` import and writes LiteX's headers without the firmware
+make inputs, which name picolibc and compiler-rt. So the arm grades the same in
+this job and on a host that has those packages. The split CPU is its own
+VexiiRiscv argument set, so a cold metadata cache pays one more Scala run for it.
 
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume
@@ -2341,6 +2417,20 @@ python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --
 python3 sw/firmware/gtest/fw_coverage.py --selftest
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
 ```
+
+The hosted control phases can also run separately:
+
+```sh
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+python3 scripts/ci_events.py --firmware-census
+```
+
+Run all four phases to reproduce the complete control gate.
+Shard arguments cannot combine with coverage or mutation slicing.
 
 ## Failure and cancellation semantics
 

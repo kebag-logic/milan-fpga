@@ -5,7 +5,9 @@
 Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
 Their sizes and hashes are recorded alongside the section and symbol reports.
 The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
-The ELF is a size fixture; it has no board reset entry or fabric licence port.
+The ELF is a size fixture with no fabric licence port. `--layout split` links it
+into the split placement's block RAM (sw/litex/ctrl_memory.py) behind its reset
+entry and reports the bank plan the SoC would build for it.
 """
 from __future__ import annotations
 import argparse
@@ -20,6 +22,8 @@ from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
 import fw_gtest
 import fw_rv32
+sys.path.insert(0,str(ROOT/"sw/litex"))
+import ctrl_memory  # noqa: E402
 
 
 def checked(argv: list[str]) -> str:
@@ -59,6 +63,23 @@ def verify_abi(cc: str, elf: Path) -> None:
         raise Refusal("linked image must be RV32I ILP32, including runtime code")
 
 
+def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
+         layout: str) -> tuple[Path, Path]:
+    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld)."""
+    elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
+    script,ldflags=HERE/"ctrl_image.ld",[]
+    if layout == "split":
+        start=out/"ctrl_split_start.o"
+        checked([cc,"-march=rv32i","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
+        (out/"regions.ld").write_text(ctrl_memory.regions_ld())
+        script,ldflags=src/"plat/ctrl_split.ld",[f"-L{out}",str(start)]
+    checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
+             "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
+             "-T",str(script),*ldflags,*map(str,objects),
+             "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
+    return elf,mapfile
+
+
 def arguments() -> argparse.Namespace:
     """Parse the shape, composition and isolated runtime inputs."""
     parser=argparse.ArgumentParser(description=__doc__)
@@ -68,6 +89,8 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--without-srp",action="store_true")
     parser.add_argument("--with-aecp",action="store_true")
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
+    parser.add_argument("--layout",choices=("flat","split"),default="flat",
+                        help="flat: one RAM region (ctrl_image.ld); split: rom and sram behind the reset entry")
     parser.add_argument("--libc",type=Path,required=True)
     parser.add_argument("--compiler-runtime",type=Path,required=True)
     return parser.parse_args()
@@ -110,12 +133,7 @@ def main() -> int:
         findings=fw_rv32.object_findings(cc,objects)
         if findings:
             raise Refusal(str(findings))
-        elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
-        ldflags=[]
-        checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
-                 "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
-                 "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),
-                 "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
+        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         nm=cc.removesuffix("gcc")+"nm"
         verify_abi(cc,elf)
         symbols=checked([nm,"-S",str(elf)])
@@ -157,8 +175,11 @@ def main() -> int:
                             "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
         report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,"aecp":args.with_aecp,
                 "sections":sections,"static_storage":storage,"artifacts":records,
-                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack")),
-                "ram_span":addresses["__image_end"]-addresses["__image_start"]}
+                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack"))}
+        if args.layout == "split":
+            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf)).summary()
+        else:
+            report["ram_span"]=addresses["__image_end"]-addresses["__image_start"]
         (out/"symbols.txt").write_text(symbols)
         (out/"size.txt").write_text(size)
         (out/"size.json").write_text(json.dumps(report,indent=2)+"\n")

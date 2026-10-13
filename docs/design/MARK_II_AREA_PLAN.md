@@ -39,7 +39,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 - **No double counting:** M3/M10 receive zero default-image credit.
   Their AECP hardware leaves with F5.
   M4 is replaced by the split; diagnostics remain enabled.
-- **Firmware allocation:** 224 KB, budgeted at about 50 RAMB36 tiles.
+- **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 54 at the largest shape.
   The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
   Its reuse and packing assumptions require routed confirmation.
 - **Qualification risk:** F5, target service timing and bench acceptance remain.
@@ -436,7 +436,7 @@ A software protocol owner must not become a software media path.
 firmware capacity and F5 qualification remain implementation obligations.
 The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the earlier approximately 128 KB budget.
 F5's limit is now 224 KB, including AECP.
-Budget about 50 RAMB36 tiles for firmware.
+The [ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds it: up to 56 RAMB36 as mapped.
 The [memory ledger](#firmware-and-block-ram-ledger) includes the measured preflight and packing risk.
 Measure linked code, data, stack, static pools and saved-state staging.
 The current ROM parameter does not establish Mark II capacity.
@@ -602,7 +602,7 @@ Shared sites or larger replacement logic can erase that saving.
 Anonymous DDR logic could instead increase the measured saving.
 M8a must replace these assumptions with a routed delta.
 M0s and M9 retain independent primitive and memory-capacity checks.
-M8a replaces the existing CPU memory allocation within the 50-tile budget.
+M8a replaces the existing CPU memory allocation within the owner's 224 KB, up to 56 RAMB36 as mapped.
 It must reconcile that reuse against the [memory ledger](#firmware-and-block-ram-ledger).
 The lane owns its memory-map migration and both placement contracts.
 
@@ -776,6 +776,8 @@ The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecommen
 This supersedes the approximately 128 KB figure.
 The device still reserves 13.5 of its 135 tiles.
 The usable ceiling remains 121.5 tiles.
+The [ruling on M8a's STOP](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds the owner's 224 KB: up to 56 RAMB36 as mapped.
+Because M8a is split-placement only, its ledger takes the conditional release below.
 
 The [F5 sizing preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) used dev `5603c353`.
 It linked existing protocol code with the F1 store retained.
@@ -796,9 +798,8 @@ They establish neither F5 completion nor mapped RAMB36 counts.
 
 The 50-tile figure uses approximately 4.5 KB per RAMB36.
 That is raw capacity; mapping can expose less usable storage.
-For example, 224 KiB needs 56 tiles at 4 KiB usable each.
-That example is a packing check, not a new F5 threshold.
-M8a must report actual usable bytes and allocated primitives.
+224 KiB is 56 tiles at 4 KiB usable each; the ruling makes that the limit.
+[M8a-1](SPLIT_CONTROL_MEMORY.md#5-fit) reports the usable bytes and allocated primitives.
 
 This ledger first withholds the wrapper's remaining 11 tiles.
 It credits only the same removed scopes as L2's LUT basis.
@@ -810,38 +811,41 @@ The firmware row replaces CPU memory, so replacement storage counts once.
 | Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
 | L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
 | Measured mailbox replacement | +1 | +10 | +6 | 87 |
-| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
-| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
-| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
-| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+| M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
+| M2 maximum additional allocation | +2 | 0 | +2 | 125 |
+| Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 114 |
 
 The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
 The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
-The reuse estimate comes from the [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
-That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
-It is historical attribution, not a new census of `a5ca6e51`.
-M8a must confirm the reusable count at its actual checkpoint.
-Any retained boot memory outside the firmware allocation adds a debit.
-The allocation must also contain stack, pools and shape-sized saved-state staging.
-Any descriptor image or alignment space outside it adds a debit.
+The [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reported BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+M8a-1 measured 16 + 2 RAMB36 and no RAMB18 at `e8454e27`.
+The census's RAMB18 is the 49-byte identifier memory, which stays.
+The split builds neither BIOS memory, so no boot memory is retained outside the allocation.
+The allocation contains the stack, pools, shape-sized staging, descriptor image and alignment.
+Its 54 tiles are Vivado's mapping of the 8x8 two-interface image's banks, linked at `8ab2b539`.
+Vivado trims constant ROM bit columns and puts one sparse 512-word ROM bank, with the region's bank decode and read multiplexer, in 169 LUT cells.
+With every bank in block RAM, the same banks take 55 tiles.
 No separate smaller-core RAM saving is credited.
 
-Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
-The conditional release subtracts eleven once, giving 109.5.
+Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 54 + 2 = 125`.
+The conditional release subtracts eleven once, giving 114.
+With every bank in block RAM: `126`, and 115 after the release.
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
 
-Before the conditional release, the estimate leaves one tile below 121.5.
-After it, 109.5 tiles leaves twelve below that ceiling.
+Before the conditional release, with M2's unused +2 allowance, the total is 3.5 tiles over 121.5.
+The split takes the release: 114 tiles leaves 7.5 below that ceiling.
+With every bank in block RAM, 115 leaves 6.5.
 Both leave the separate 13.5-tile reserve untouched.
-Neither number proves integrated fit.
+Neither number proves integrated fit; M8a-2's route does.
 Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
 Each lane must debit them before accepting its LUT saving.
-Without the estimated CPU-memory reuse, those totals become 139 and 128.
-Both exceed the ceiling; reuse is a prerequisite, not free headroom.
+Keeping the BIOS ROM and SRAM would add 18: 143 and 132.
+Both exceed the ceiling, which is why the split builds neither.
 
-**What gives way above 50 firmware tiles:** the remaining wrapper storage.
+**What gives way for the ruled 56-tile firmware allocation:** the remaining wrapper storage.
 These disjoint scopes are outside the six AECP tiles and SRP half-tile:
 
 | Released fabric scope, relative to wrapper | RAMB36 | RAMB18 | Tiles |
@@ -860,8 +864,8 @@ Debit every replacement event, queue or diagnostic store separately.
 Equivalent observability remains required by D2.
 The measured mailbox already supplies its own queues and timers.
 Do not credit its storage or these released stores twice.
-At 56 firmware tiles, the conditional total becomes 115.5 tiles.
-It leaves six below the ceiling, before other unpriced debits.
+At 56 firmware tiles, the conditional total becomes 116 tiles.
+It leaves 5.5 below the ceiling, before other unpriced debits.
 M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
 Beyond that allowance, defer new M6/M7 block-RAM conversions first.
 Keep their existing storage and reprice the associated LUT savings.
@@ -869,8 +873,8 @@ No media buffer, diagnostic function or protocol capacity is pruned.
 If these trades still exceed 121.5, the manager must commission further redesign.
 
 Partial placement retains AECP's six tiles and any still-used wrapper stores.
-With the same 50-tile hold, the pre-release estimate becomes 126.5.
-That is five tiles over the ceiling, before extra fabric-AECP staging.
+At the measured 54 firmware tiles, its pre-release total is `125 + 6 = 131`.
+That is 9.5 tiles over the ceiling, before extra fabric-AECP staging.
 M0s must substitute measured firmware use and actual retained storage.
 A partial route cannot borrow the full split's reclamation credits.
 The all-fabric option needs its own complete memory reconciliation.
@@ -1129,7 +1133,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
 | 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
 | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
 | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile 50-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile the ruled 56-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
 | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
 | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
 | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |

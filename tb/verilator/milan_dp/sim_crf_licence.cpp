@@ -52,7 +52,7 @@
 //   [D]    a registered Asking Failed licenses nothing; Ready Failed does.
 //   [E]    the unbind: the licence closes when the Listener registration
 //          ends, not when the probe window does (the Run B last burst).
-//   [F]    item 3: FRAMES_TX counts observation intervals, not PDUs, and
+//   [F]    item 3: FRAMES_TX counts each transmitted AVTPDU (#726), and
 //          restarts at STREAM_START (Milan v1.2 5.3.7.7 Table 5.4).
 //   [G]    #551: with the same TSpec preloaded, admission refuses a
 //          re-declaration while a wire Listener
@@ -987,7 +987,7 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
 }
 
 // ============================================================================
-//  [F] item 3: FRAMES_TX counts observation intervals, not PDUs
+//  [F] item 3: FRAMES_TX counts each transmitted AVTPDU (#726)
 // ============================================================================
 void CrfLicenceHarness::phase_f_after_c(uint64_t t_start) {
     printf("[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters "
@@ -999,22 +999,20 @@ void CrfLicenceHarness::phase_f_after_c(uint64_t t_start) {
            static_cast<unsigned long long>(intervals), ftx, pdus);
     ck("STREAM_START = 1: one start since the bind", diag(Ctr::kStreamStart, kUidCrf), 1);
     ck("STREAM_STOP = 0", diag(Ctr::kStreamStop, kUidCrf), 0);
-    ck_true("FRAMES_TX = the intervals elapsed since STREAM_START (+-1)",
-            ftx + 1 >= intervals && ftx <= intervals + 1);
-    ck_true("...which is far fewer than the PDUs sent (>= 3 per interval here)",
-            pdus >= 3 * static_cast<long>(ftx) && ftx > 0);
+    ck_true("FRAMES_TX follows wire PDUs (one in-flight completion permitted)",
+            pdus > 0 && ftx >= pdus && ftx <= pdus + 1);
     ck("CRFT_COUNT (0x764) is the PDU total the wire carried",
        axi_read(A_CRFT_COUNT), crf_pdus.size());
 }
 
 void CrfLicenceHarness::phase_f_after_d(uint64_t t_restart) {
     printf("[F] ...and they restart at the next STREAM_START\n");
-    const uint64_t intervals = (cyc - t_restart) / ms(kDiagTickMs);
+    const long pdus = pdus_after(crf_pdus, t_restart, cyc);
     const uint32_t ftx = diag(Ctr::kFramesTx, kUidCrf);
     ck("STREAM_START = 2", diag(Ctr::kStreamStart, kUidCrf), 2);
     ck("STREAM_STOP = 1", diag(Ctr::kStreamStop, kUidCrf), 1);
-    ck_true("FRAMES_TX restarted: it counts only the intervals since the restart (+1)",
-            ftx <= intervals + 1);
+    ck_true("FRAMES_TX restarted: only new-run wire PDUs (one in flight)",
+            pdus > 0 && ftx >= pdus && ftx <= pdus + 1);
 }
 
 // ============================================================================

@@ -1,6 +1,13 @@
 <!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 
+**Counter-law note, 2026-10-12:** the measurements below retain their original
+image semantics. The [#726 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685)
+now requires FRAMES_TX and FRAMES_RX to count each Stream Data AVTPDU with 32-bit wrap.
+TX resets at talker start; RX resets on not-bound to bound and retains unbind totals.
+MEDIA_RESET and TIMESTAMP_UNCERTAIN keep their interval law.
+See the [new counter evidence](../testing/726_STREAM_COUNTERS.md).
+
 # gPTP silicon evidence for issue 117: one AX7101 against the reference peer
 
 *Measured on the AX7101 on two dated product images.

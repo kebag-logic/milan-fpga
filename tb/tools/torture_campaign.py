@@ -65,16 +65,12 @@ THE CLAUSES THE ASSERTION CONTRACT IS BUILT FROM.
     MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are "Reset to 0 each time the
     Talker starts streaming", which is why a FRAMES_TX delta is only meaningful
     inside one streaming episode.
-  Milan v1.2 Table 5.4 / 5.6 wording that bites - FRAMES_TX and FRAMES_RX are
-    "Incremented at the end of every observation interval during which at least
-    one Stream Data AVTPDU has been transmitted/received", the interval being
-    "implementation-specific and shall be less than or equal to 1 second".
-    IEEE 1722.1-2021 Table 7-157/7-159 define the SAME symbols as PER-FRAME
-    ("Increments on each Stream data AVTPDU received").  The two readings differ
-    by the frame rate - 8000x at class A - so the campaign asserts a RATE BAND
-    per reading and records which reading the device implements instead of
-    hardcoding one.  Getting this wrong once already produced a "FRAMES_TX is
-    8000x off" finding that was a units error in the test.
+  Ruling #726 (2026-10-12) resolves the ambiguous observation-interval
+    wording in Milan v1.2 Tables 5.4/5.6 through IEEE 1722.1-2021 Tables
+    7.159/7.157: FRAMES_TX and FRAMES_RX count every Stream Data AVTPDU.
+    Cross-device comparisons use packet deltas within the same streaming
+    episode. An interval-rate side on a measured flowing stream fails;
+    the finding belongs to that side. Anomaly counters keep their own laws.
   IEEE 1722.1-2021 Table 7-156/7-157 - the STREAM_INPUT counters_valid bit
     field and the block offsets, and the trap that comes with them: the table
     numbers bits MSB-FIRST ("Bit # 31 ... MEDIA_LOCKED" is the counter at block
@@ -300,36 +296,12 @@ INTERVAL_CEILING_SLACK = 0.15
 
 
 def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
-    """TIMESTAMP_VALID + TIMESTAMP_NOT_VALID == FRAMES_RX - but only under one
-    of the two readings of FRAMES_RX, and this returns WHICH.
+    """Check the three per-AVTPDU totals under ruling #726 (2026-10-12).
 
-    IEEE 1722.1-2021 Table 7-157 defines all three PER FRAME: TIMESTAMP_VALID
-    "Increments on receipt of a Stream data AVTPDU with the tv bit set",
-    TIMESTAMP_NOT_VALID on tv cleared, FRAMES_RX "Increments on each Stream
-    data AVTPDU received".  Under that reading the identity is exact.
-
-    Milan v1.2 Table 5.6 redefines FRAMES_RX as an INTERVAL counter:
-    "Incremented at the end of every observation interval during which at least
-    one Stream Data AVTPDU has been received on this Stream Input.  The duration
-    of the observation interval is implementation-specific and shall be less
-    than or equal to 1 second."  Under THAT reading FRAMES_RX is smaller than
-    TV + TNV by the frame rate - about 8000:1 at class A - and the identity does
-    not hold, without either counter being wrong.
-
-    So this reports PASS with reading="1722.1-per-frame" when the identity
-    holds, INFO with reading="milan-interval" when the ratio is consistent with
-    the interval reading, and FAIL only when it is neither.  Deciding which
-    reading a device implements by assertion rather than by measurement is how a
-    correct interval counter gets filed as an 8000x defect.
-
-    AND THE VACUITY GUARD, which is the whole reason this returns SKIP at all.
-    Milan v1.2 5.3.8.10: "The PAAD-AE shall reset all of these counters to zero
-    each time the Stream Input changes its state from not bound to bound."  A
-    snapshot taken immediately after a bind therefore reads 0/0/0 on a CORRECT
-    device - and abs(0 - 0) <= tolerance is a DEFINITE PASS that also concludes
-    which of the two readings the device implements, from zero samples.  That
-    was the only state this function was ever called in.  All three at zero is
-    now SKIP: nothing was measured, so nothing may be concluded.
+    IEEE 1722.1-2021 Table 7.157 defines the packet law. FRAMES_RX publication
+    may lag TV/TNV until the interval commit. A single lower FRAMES_RX snapshot
+    is diagnostic only; grade_counter_semantics() checks growth with flow evidence.
+    The all-zero and unclaimed cases still provide no measurement evidence.
     """
     need = ("TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID", "FRAMES_RX")
     if any(k not in decoded for k in need):
@@ -344,20 +316,20 @@ def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
                                 "vacuous; Milan 5.3.8.10 zeroes the block on "
                                 "not-bound -> bound, so re-read AFTER a "
                                 "streaming window instead of at the bind"})
-    if abs(total - frx) <= tolerance:
+    if frx > 0 and abs(total - frx) <= tolerance:
         return ("PASS", {"tv_plus_tnv": total, "frames_rx": frx,
                          "reading": "1722.1-per-frame"})
-    if frx and total > frx:
+    if total > frx:
         return ("INFO", {"tv_plus_tnv": total, "frames_rx": frx,
-                         "ratio": total / frx,
-                         "reading": "milan-interval",
-                         "note": "FRAMES_RX is an interval tick per Milan "
-                                 "Table 5.6, so it is smaller than the frame "
-                                 "count by the frame rate; the identity is a "
-                                 "1722.1 Table 7-157 property only"})
+                         "ratio": total / frx if frx else None,
+                         "reading": "unequal-packet-totals",
+                         "why": "FRAMES_RX is below TV+TNV; coalesced "
+                                "publication can lag between commits. "
+                                "Grade FRAMES_RX growth over a measured "
+                                "flowing window under Table 7.157."})
     return ("FAIL", {"tv_plus_tnv": total, "frames_rx": frx,
-                     "why": "FRAMES_RX exceeds TV+TNV, which neither reading "
-                            "permits: every frame is counted by exactly one of "
+                     "why": "FRAMES_RX differs from TV+TNV: "
+                            "every frame is counted by exactly one of "
                             "the two tv tallies"})
 
 
@@ -365,31 +337,11 @@ def frames_rate_reading(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                         max_interval_s: float =
                         MILAN_MAX_OBSERVATION_INTERVAL_S,
                         window_s: Optional[float] = None) -> dict:
-    """Which reading a measured FRAMES_TX/FRAMES_RX rate is consistent with, and
-    the observation interval it implies.
+    """Describe a rate using historical packet/interval diagnostic bands.
 
-    band is "per-frame", "interval" or "neither", and "neither" is reserved for
-    the two things the clauses genuinely exclude:
-
-      * rate == 0 - nothing moved at all, under either reading;
-      * an IMPLIED INTERVAL longer than a second - Milan v1.2 Table 5.4/5.6 say
-        the interval "shall be less than or equal to 1 second", so a counter
-        ticking at 0.4/s is claiming a 2.5 s interval and that is the only way
-        an interval reading can be non-conformant.
-
-    Everything between is an interval reading, because the clause bounds the
-    interval from ABOVE ONLY.  The earlier band table mapped 4.001/s .. 3999/s
-    to "neither" and so turned a conformant 5 ms interval - 200 ticks/s - into a
-    SHALL failure.  `max_interval_s` is the Milan ceiling and IS used; it was a
-    dead parameter before.
-
-    AND THE CEILING TEST MUST ABSORB TICK QUANTIZATION.  A conformant counter
-    at the exact 1 s ceiling shows floor(W) ticks over a W-second window when
-    the phase falls badly, so the measured rate lands BELOW 1/s - 0.996/s over
-    a ~9 s span - and a bare `implied <= 1 s` fails the mandated interval tick
-    at its own boundary (ax-rv32-f H2, 26 rows).  `window_s` is the MEASURED
-    span the rate was taken over: when given, the exact bound floor(W/T)/W is
-    applied; when absent, INTERVAL_CEILING_SLACK stands in for it.
+    These labels do not grant conformance. Ruling #726 requires per-AVTPDU
+    FRAMES_RX; grade_counter_semantics() applies that law with flow evidence.
+    The legacy interval classifier retains its one-tick quantization allowance.
     """
     implied = (1.0 / rate_per_s) if rate_per_s > 0 else None
     if rate_per_s <= 0:
@@ -446,30 +398,9 @@ def frames_rate_band(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                                max_interval_s, window_s=window_s)["band"]
 
 
-# --------------------------------------------------- per-counter update law --
-#: THE UPDATE LAW OF EVERY STREAM_INPUT COUNTER, from the clause that fixes it.
-#:
-#: Three laws, and the wording each is taken from:
-#:   "per-interval"  Milan v1.2 Table 5.6 - "Incremented at the end of every
-#:                   observation interval during which <condition>.  The
-#:                   duration of the observation interval is
-#:                   implementation-specific and shall be less than or equal to
-#:                   1 second."  N qualifying frames inside one interval move
-#:                   the counter by ONE.
-#:   "per-event"     Milan v1.2 Table 5.6 - "Incremented each time <event>".
-#:                   The events are state changes, so they are rare.
-#:   "per-frame"     IEEE 1722.1-2021 Table 7-157 - "Increments on receipt of a
-#:                   Stream data AVTPDU with <field>".  EVERY qualifying frame
-#:                   moves the counter.
-#:
-#: The split is not cosmetic.  Milan Table 5.6 does not define TIMESTAMP_VALID
-#: or TIMESTAMP_NOT_VALID at all - Table 5.16's mandatory mask 0xF3F skips bits
-#: 6 and 7 - so those two are governed ONLY by 1722.1 and stay per-frame, while
-#: FRAMES_RX carries the SAME 1722.1 per-frame wording ("Increments on each
-#: Stream data AVTPDU received") that Milan OVERRIDES into an interval count.
-#: A device serving all twelve therefore publishes 0xFFF and is expected to
-#: show TIMESTAMP_VALID ~8000x FRAMES_RX at class A.  That is the mandated
-#: split, not a defect in either counter.
+#: Per-counter laws after ruling #726 (2026-10-12).
+#: FRAMES_RX follows IEEE 1722.1-2021 Table 7.157 per AVTPDU.
+#: Six anomaly counters retain Milan Table 5.6 observation intervals.
 STREAM_INPUT_COUNTER_LAW = {
     "MEDIA_LOCKED": ("per-event", "Milan v1.2 Table 5.6",
                      "the input stream gets synchronized on the media clock"),
@@ -504,12 +435,11 @@ STREAM_INPUT_COUNTER_LAW = {
                         "a Stream Data AVTPDU has been received with an AVTP "
                         "timestamp field that was too far in the future to "
                         "process"),
-    "FRAMES_RX": ("per-interval", "Milan v1.2 Table 5.6",
-                  "at least one Stream Data AVTPDU has been received on this "
-                  "Stream Input"),
+    "FRAMES_RX": ("per-frame", "IEEE 1722.1-2021 Table 7.157",
+                  "each Stream Data AVTPDU received on this Stream Input"),
 }
 
-#: The seven Table 5.6 counters that are bounded by the observation interval.
+#: The six Table 5.6 anomaly counters that are bounded by the observation interval.
 MILAN_INTERVAL_COUNTERS = tuple(
     n for n, (law, _, _) in STREAM_INPUT_COUNTER_LAW.items()
     if law == "per-interval")
@@ -522,38 +452,15 @@ def counter_law(name: str) -> Optional[tuple]:
 
 def check_interval_ceiling(before: dict, after: dict, *,
                            window_s: Optional[float] = None) -> tuple:
-    """FRAMES_RX is the observation-interval CLOCK, so no Table 5.6 interval
-    counter may out-tick it.  This is the per-counter semantics grader.
+    """Retain the anomaly-to-packet delta sanity check.
 
-    Every one of the seven per-interval conditions in Table 5.6 requires a
-    Stream Data AVTPDU to have been RECEIVED in that interval - a non-sequential
-    sequence_num, a toggled mr, a set tu, a mismatched format, a late or early
-    timestamp, all of them arrive IN a frame.  FRAMES_RX ticks in every interval
-    during which "at least one Stream Data AVTPDU has been received".  So for
-    any interval counter X and any window,
-
-        delta(X)  <=  delta(FRAMES_RX)
-
-    holds on a conformant device REGARDLESS of what the implementation-specific
-    interval is, and without the checker having to guess it.  That is what makes
-    this sound where a rate band is not: the clause bounds the interval from
-    ABOVE only, so ANY rate in (0, 1/interval] is conformant and no absolute
-    rate can be called a defect on its own.
-
-    An X that out-ticks FRAMES_RX is counting PER FRAME while FRAMES_RX counts
-    per interval - the exact half-converted state this fabric shipped before the
-    seven listener counters were moved onto the interval tick, and the exact
-    shape a partial revert would leave.  A device that counts EVERYTHING per
-    frame passes this check and is classified, not failed, because a sub-frame
-    observation interval is inside the 1 s ceiling.
-
-    TIMESTAMP_VALID and TIMESTAMP_NOT_VALID are deliberately EXEMPT: Milan
-    Table 5.6 does not define them, so 1722.1's per-frame reading is the only
-    one in force and they are SUPPOSED to out-tick an interval FRAMES_RX.
+    FRAMES_RX counts AVTPDUs under ruling #726, not intervals. This loose
+    cross-counter bound cannot determine an anomaly's observation interval.
+    TV/TNV have their own packet-identity check in check_tv_tnv().
     """
     if before.get("FRAMES_RX") is None or after.get("FRAMES_RX") is None:
         return ("SKIP", {"why": "the mask does not claim FRAMES_RX, so the "
-                                "observation-interval clock is unreadable"})
+                                "packet total is unreadable"})
     d_frx = after["FRAMES_RX"] - before["FRAMES_RX"]
     if d_frx < 0:
         return ("SKIP", {"why": "FRAMES_RX went backwards: the block was "
@@ -580,7 +487,7 @@ def check_interval_ceiling(before: dict, after: dict, *,
     if d_frx == 0 and not any(deltas.values()):
         return ("SKIP", {"frames_rx_delta": 0,
                          "why": "no frame was received in the window, so the "
-                                "interval clock never ticked and the ceiling "
+                                "packet total never advanced and the ceiling "
                                 "is vacuous"})
     detail = {"frames_rx_delta": d_frx, "deltas": deltas,
               "window_s": window_s, "checked": checked}
@@ -589,7 +496,7 @@ def check_interval_ceiling(before: dict, after: dict, *,
         detail["why"] = ("a Table 5.6 interval counter ticked more often than "
                          "FRAMES_RX; every one of its trigger conditions "
                          "arrives IN a received frame, so it cannot out-tick "
-                         "the interval that counts those frames")
+                         "the count of those frames")
         return ("FAIL", detail)
     return ("PASS", detail)
 
@@ -607,17 +514,15 @@ def _grade_per_frame(base, rate, nominal_frame_rate, stream_flowing):
                                  f"stream was flowing at about "
                                  f"{nominal_frame_rate:g} frames/s - the "
                                  f"shape of a per-frame counter wrongly "
-                                 f"converted to interval semantics; Milan "
-                                 f"Table 5.6 does not define this counter "
-                                 f"and so cannot license that conversion"))
+                                 f"converted to interval semantics; ruling "
+                                 f"#726 retains the per-AVTPDU law"))
     return ("INFO", dict(base, reading="below-frame-rate",
                          why="the frame rate in the window is unknown, so "
                              "a below-nominal rate cannot be graded"))
 
 
 def _grade_per_interval(base, rate, nominal_frame_rate, stream_flowing):
-    """A Milan Table 5.6 per-interval counter, graded against the observation
-    interval its rate implies - and only FRAMES_RX's rate can imply one."""
+    """Classify a retained anomaly counter without inferring its interval."""
     name, clause, trigger = base["counter"], base["clause"], base["trigger"]
     window_s = base["window_s"]
     reading = frames_rate_reading(rate, nominal_frame_rate, window_s=window_s)
@@ -629,36 +534,11 @@ def _grade_per_interval(base, rate, nominal_frame_rate, stream_flowing):
                                  f"observation-interval count, and only an "
                                  f"interval shorter than the frame period "
                                  f"makes the two agree"))
-    #! ONLY FRAMES_RX's RATE CAN IMPLY THE OBSERVATION INTERVAL.  Table 5.6
-    #! increments each of these "at the end of every observation interval
-    #! DURING WHICH <condition>", so a counter ticks only in the intervals
-    #! where its own condition held.  FRAMES_RX's condition - "at least one
-    #! Stream Data AVTPDU has been received" - is the only one that holds in
-    #! EVERY interval of a continuously flowing stream, which is what makes
-    #! its rate the interval clock.  The other six are intermittent BY
-    #! DEFINITION: a sink that saw a late timestamp in 74 of 7545 intervals
-    #! reads 0.0098 ticks/s, and reading that as a 102 s observation interval
-    #! files a perfectly conformant error counter as a ceiling violation.
-    #! (Measured on the AX7101 sink 0, 2026-08-03: TIMESTAMP_UNCERTAIN 23 and
-    #! LATE_TIMESTAMP 74 against FRAMES_RX 7545 - this branch used to FAIL
-    #! both.)  The sound bound for those six is the interval CEILING, which is
-    #! check_interval_ceiling(), not a rate.
-    if name != "FRAMES_RX":
-        return ("PASS", dict(base, reading="interval",
-                             implied_interval_s=None,
-                             why=f"{name} ticks only in the intervals during "
-                                 f"which its condition ({trigger}) held, so "
-                                 f"its rate bounds how often that happened - "
-                                 f"NOT the observation interval; use the "
-                                 f"FRAMES_RX ceiling to grade the interval"))
-    if reading["band"] == "neither":
-        if not stream_flowing:
-            return ("INFO", dict(base, reading="neither",
-                                 why="the stream was not known to be flowing, "
-                                     "so a slow FRAMES_RX may just be a quiet "
-                                     "link rather than an over-long interval"))
-        return ("FAIL", dict(base, reading="neither", why=reading["why"]))
-    return ("PASS", dict(base, reading="interval", why=reading["why"]))
+    return ("PASS", dict(base, reading="interval",
+                         implied_interval_s=None,
+                         why=f"{name} ticks only in intervals during which "
+                             f"its condition ({trigger}) held; this rate "
+                             f"does not reveal the observation interval"))
 
 
 def grade_counter_semantics(name: str, delta: int, window_s: float, *,
@@ -679,12 +559,9 @@ def grade_counter_semantics(name: str, delta: int, window_s: float, *,
 
     FAIL is reserved for what the clauses genuinely exclude:
       * more ticks than frames could possibly have arrived;
-      * a per-interval counter whose implied interval exceeds the 1 s ceiling
-        while the stream was flowing;
-      * a per-frame counter (TIMESTAMP_VALID / TIMESTAMP_NOT_VALID, which Milan
-        Table 5.6 does NOT redefine) that moved at an interval-like rate while
-        frames were flowing - i.e. it was wrongly converted to interval
-        semantics along with the Milan seven.
+      * a per-frame counter (FRAMES_RX, TIMESTAMP_VALID or TIMESTAMP_NOT_VALID)
+        that moved at an interval-like rate while frames were flowing.
+    Ruling #726 applies IEEE 1722.1-2021 Table 7.157 to FRAMES_RX.
     Everything else is classified, because Table 5.6 bounds the observation
     interval from ABOVE only and every interval in (0, 1 s] is conformant.
     """
@@ -849,43 +726,21 @@ def licence_state(word: Optional[int]) -> tuple:
 
 
 # ------------------------------------------------- the participants and sides --
-#: WHICH COUNTER MAY BE COMPARED WITH WHICH.  This is the semantic trap that
-#: already cost this project a bogus "8000x off" finding, so it is encoded as
-#: data and enforced by a raising function rather than written in a comment.
-#:
-#:   IEEE 1722.1-2021 Table 7-153 AVB_INTERFACE: FRAMES_TX "Total number of
-#:     frames sent out of this interface", FRAMES_RX "Total number of frames
-#:     received through this interface" - RAW TOTALS since boot.
-#:   Milan v1.2 Table 5.4 STREAM_OUTPUT FRAMES_TX / Table 5.6 STREAM_INPUT
-#:     FRAMES_RX: "Incremented at the end of every observation interval during
-#:     which at least one Stream Data AVTPDU has been transmitted/received" -
-#:     OBSERVATION-INTERVAL TICKS, <= 1 s each.
-#:
-#: The two carry the SAME NAME and differ by the frame rate, so a frame-accurate
-#: cross-device comparison may use ONLY the first group.
-FRAME_ACCURATE_SOURCES = ("avb_interface", "rmon", "nic", "pcap")
-INTERVAL_SOURCES = ("stream_input", "stream_output")
+#: Packet-count sources under ruling #726. Interface totals include all traffic;
+#: stream counters include only the selected stream and reset on start/bind.
+#: Callers compare matching traffic and deltas within one counter era.
+FRAME_ACCURATE_SOURCES = ("avb_interface", "rmon", "nic", "pcap",
+                          "stream_input", "stream_output")
+INTERVAL_SOURCES = ()  # FRAMES_TX/FRAMES_RX have no interval-count source.
 
 
 class CounterSemanticError(ValueError):
-    """Raised when a frame-accurate comparison is attempted against an
-    observation-interval counter.  Making this an exception rather than a
-    comment is what stops the trap being reintroduced: the comparison cannot be
-    EXPRESSED, so it cannot be written by accident."""
+    """Raised when a source has no declared packet-count contract."""
 
 
 def assert_frame_accurate(source: str) -> str:
-    """Guard for every cross-device FRAME COUNT comparison."""
+    """Accept declared packet counters, including both stream directions."""
     s = str(source)
-    if s in INTERVAL_SOURCES:
-        raise CounterSemanticError(
-            f"{s} FRAMES_TX/FRAMES_RX is an OBSERVATION-INTERVAL tick (Milan "
-            f"v1.2 Table 5.4/5.6, <= 1 s each), not a frame count, so it cannot "
-            f"be compared frame-for-frame with another side.  Use one of "
-            f"{list(FRAME_ACCURATE_SOURCES)} - the AVB_INTERFACE totals (IEEE "
-            f"1722.1-2021 Table 7-153), the DUT RMON lanes, the test machine's "
-            f"NIC statistics or the pcap count - or compare in INTERVAL terms "
-            f"with interval_ticks_agree()")
     if s not in FRAME_ACCURATE_SOURCES:
         raise CounterSemanticError(
             f"unknown counter source {s!r}; frame-accurate sources are "
@@ -901,99 +756,71 @@ XSIDE_TOLERANCE = {
         "the sides are not sampled atomically: two AECP round trips plus the "
         "DUT's STATS_CTRL (0x200) snapshot latch put up to ~1 s between the "
         "first and last read, and one second of class A is 8000 frames",
-    "interval_ticks": 2,
-    "interval_ticks_reason":
-        "Milan v1.2 Table 5.4/5.6 leave the interval implementation-specific up "
-        "to 1 s, and the window edges cut a partial interval at each end, so "
-        "two ticks of disagreement is the window and not the device",
     "capture_edge_frames": 8000,
     "capture_edge_reason":
         "tcpdump starts and stops on its own schedule, so a capture can miss up "
         "to one second at each edge relative to a counter window",
-    "perframe_floor_ticks": 600,
-    "perframe_min_ticks_per_s": 150,
-    "perframe_reason":
-        "an observation interval is <= 1 s (Milan v1.2 Table 5.4/5.6) but has "
-        "no LOWER bound, so interval-conformance cannot be a 1-tick-per-second "
-        "test; 150 ticks/s (a 6.7 ms interval; 600 over the 4 s default "
-        "window) is 50x above the 1-3/s band every conformant implementation "
-        "on this bench sits in, while a per-frame deviant at class A rate "
-        "reads ~8000/s - the two populations never meet, so a side above the "
-        "floor is keeping the IEEE 1722.1-2021 Table 7-157 per-frame reading",
+    "packet_min_per_s": 150,
+    "packet_min_reason":
+        "a conservative flow discriminator for the supported AAF and CRF streams: "
+        "150 AVTPDUs/s is below their nominal wire rates, but above a one-per-second "
+        "regression. This is a rate-band check, not proof of exact packet equality; "
+        "the pair comparison separately bounds snapshot skew",
+
 }
 
 
-def _perframe_deviant_sides(ticks, floor):
-    """Which side is keeping 1722.1 per-frame semantics rather than Milan's."""
-    sem = {r: ("per-frame" if ticks[r] > floor else "interval")
-           for r in ("talker", "listener")}
-    return sem, [r for r in ("talker", "listener") if sem[r] == "per-frame"]
+def _perframe_deviant_sides(ticks: dict[str, int], floor: float | None) -> tuple:
+    """Identify below-packet-rate sides over a measured flowing window."""
+    sem = {role: ("static" if delta == 0 else "unmeasured" if floor is None
+                  else "per-frame" if delta >= floor else "interval")
+           for role, delta in ticks.items()}
+    return sem, [role for role in ticks if sem[role] == "interval"]
 
 
-def _perframe_findings(ticks, deviant, floor, window_s):
-    """One finding per side counting per frame, attributed to that side."""
+def _perframe_findings(ticks: dict[str, int], deviant: list[str],
+                       floor: float, window_s: float) -> list[dict]:
+    """Attribute each interval-rate packet counter to its own measured side."""
     return [
-        {"role": r, "ticks": ticks[r],
-         "ticks_per_s": (round(ticks[r] / window_s, 1)
-                         if window_s else None),
+        {"role": role, "ticks": ticks[role],
+         "ticks_per_s": round(ticks[role] / window_s, 1),
          "perframe_bound_ticks": floor,
-         "counter": {"talker": "FRAMES_TX (Milan v1.2 Table 5.4)",
-                     "listener": "FRAMES_RX (Milan v1.2 Table 5.6)"}[r],
-         "why": "this side's counter advanced far beyond what any <= 1 s "
-                "observation interval can tick over the window, so it is "
-                "keeping the IEEE 1722.1-2021 Table 7-157 per-frame "
-                "reading, not the Milan interval one"}
-        for r in deviant]
+         "counter": {"talker": "FRAMES_TX (IEEE 1722.1-2021 Table 7.159)",
+                     "listener": "FRAMES_RX (IEEE 1722.1-2021 Table 7.157)"}[role],
+         "why": "this side advanced below the packet-rate band during the "
+                "measured flowing window; ruling #726 requires one count per "
+                "AVTPDU on both stream directions"}
+        for role in deviant]
 
 
-def _interval_ticks_verdict(d, ticks, deviant, tol, self_loop):
-    """The pair verdict once both sides' ticks and their semantics are known."""
+def _interval_ticks_verdict(d: dict, ticks: dict[str, int], deviant: list[str],
+                            tol: int, self_loop: bool) -> tuple:
+    """Grade packet deltas; retain the legacy helper name for existing callers."""
     talker_delta, listener_delta = ticks["talker"], ticks["listener"]
-    if (talker_delta > 0) != (listener_delta > 0):
-        if self_loop and talker_delta > 0:
-            # A single-port device bound to ITS OWN stream: the frames egress
-            # the one port, and IEEE 802.1Q-2018 8.6.1 forbids the bridge
-            # from forwarding a frame out the port it arrived on, so the
-            # listener can never receive them.  Wire-proven on ax-rv32-e
-            # triage (2026-08-02): 8000/s left the DUT port at the tap,
-            # zero came back, listener FRAMES_RX and per-frame TV/TNV all
-            # static - the honest zero.  The talker ticking IS conformant
-            # (its Listener Ready stands, Milan v1.2 5.3.7.3), so one-sided
-            # movement here is the topology, not a device.  A listener that
-            # DID move on a self-loop falls through to the normal compare -
-            # that would mean the network delivered after all.
-            d["why"] = ("self-loop pair on a single-port DUT: the bridge "
-                        "never returns a frame to its ingress port (802.1Q "
-                        "8.6.1), so the listener side is structurally "
-                        "unreachable and only the talker's licensed ticking "
-                        "is observable")
-            d["self_loop"] = True
-            return ("SKIP", d)
-        d["why"] = ("one side ticked and the other did not: a one-sided claim "
-                    "of streaming is itself the defect (Milan v1.2 5.3.7.3 "
-                    "licenses the talker only while a Listener Ready is being "
-                    "received, so the two sides move together or neither does)")
-        return ("FAIL", d)
-    if len(deviant) == 2:
-        d["why"] = ("both sides tick per-frame, so there is no interval-"
-                    "conformant baseline to agree with; each side's deviation "
-                    "is its own attributed finding, never a silent pass")
+    if self_loop and talker_delta > 0 and listener_delta == 0 and not deviant:
+        d["why"] = ("self-loop pair on a single-port DUT: the bridge never "
+                    "returns a frame to its ingress port (802.1Q 8.6.1), so "
+                    "the listener is structurally unreachable")
+        d["self_loop"] = True
         return ("SKIP", d)
     if deviant:
-        conf = "listener" if deviant == ["talker"] else "talker"
         d["attributed"] = True
-        d["conformant_role"] = conf
-        d["why"] = (f"the {conf} ticked interval-conformant and both sides "
-                    f"moved; the {deviant[0]}'s per-frame counter semantics is "
-                    f"the {deviant[0]}'s own finding "
-                    f"(xside.peer-counter-semantics), not a pair disagreement "
-                    f"- a generic pair-FAIL would smear the conformant side")
-        return ("PASS", d)
-    if abs(talker_delta - listener_delta) > tol:
-        d["why"] = ("the two sides disagree by more than the window edges "
-                    "explain; both are interval counters so the difference is "
-                    "intervals, not frames")
+        if len(deviant) == 1:
+            other = "listener" if deviant == ["talker"] else "talker"
+            if d[other + "_semantics"] == "per-frame":
+                d["conformant_role"] = other
+        d["why"] = ("interval-rate packet counter on " + ", ".join(deviant)
+                    + "; each finding names its own side under ruling #726")
         return ("FAIL", d)
+    if (talker_delta > 0) != (listener_delta > 0):
+        d["why"] = "one side counted packets and the other did not"
+        return ("FAIL", d)
+    if abs(talker_delta - listener_delta) > tol:
+        d["why"] = "packet totals disagree beyond the measured-read skew allowance"
+        return ("FAIL", d)
+    if talker_delta > 0 and d["perframe_bound_ticks"] is None:
+        d["why"] = "no measured duration; matching deltas do not establish packet-rate growth"
+        return ("SKIP", d)
     return ("PASS", d)
 
 
@@ -1002,54 +829,28 @@ def interval_ticks_agree(talker_delta: Optional[int],
                          tolerance: int = None,
                          window_s: float = None,
                          self_loop: bool = False) -> tuple:
-    """Do the talker's and the listener's OBSERVATION-INTERVAL ticks agree?
+    """Compare per-AVTPDU deltas under the legacy public helper name.
 
-    Named for what it is: this compares INTERVAL TICKS and never frames.  While
-    one stream runs continuously both sides tick once per interval, so the two
-    deltas are the same order (~1 per second at a 1 s interval); when it does not
-    run BOTH must be static.  Milan v1.2 Table 5.4/5.6 leave the interval
-    implementation-specific, so the two sides may legitimately differ in
-    interval LENGTH - which is why this asserts agreement about MOVEMENT and a
-    small tick difference, not equality of counts.
-
-    EVERY PARTICIPANT IS A MEASURED PARTY.  A side whose delta exceeds what any
-    sub-second observation interval could tick over the window is not keeping
-    the Milan interval semantics at all - it is counting per frame (the IEEE
-    1722.1-2021 Table 7-157 reading; the peer device's known deviation, settled
-    2026-07-30).  That is a finding AGAINST THAT SIDE, returned in
-    d["peer_findings"] for the caller to attribute by name as
-    xside.peer-counter-semantics, while the pair verdict PASSes for the
-    interval-conformant side instead of smearing it with a FAIL it did not
-    earn.  Movement still binds both sides regardless of semantics: one side
-    moving while the other is static stays the original FAIL.  Two per-frame
-    sides leave no interval-conformant baseline, so that is a SKIP plus one
-    finding per side - never a silent pass for either.
-
-    `window_s` is the MEASURED span the deltas accumulated over, never the
-    requested sleep: it scales the per-frame floor and divides the deviant
-    side's ticks into the ticks_per_s it is accused with.  Dividing a real
-    ~9 s span's ticks by the 4 s request is how ax-rv32-f recorded a peer
-    moving 7,982/s as "18,048.00/s" - an accusation the run's own
-    streaming-rate PASS on the same counter refuted in the same step (H1).
+    Both deltas must describe matching traffic in one streaming/binding era.
+    The default packet allowance covers non-atomic reads and RX publication.
+    A positive measured window enables the conservative packet-rate band;
+    without it matching positive deltas are inconclusive. A negative
+    delta indicates reset/wrap and cannot establish this comparison.
     """
-    tol = XSIDE_TOLERANCE["interval_ticks"] if tolerance is None else tolerance
+    tol = XSIDE_TOLERANCE["snapshot_skew_frames"] if tolerance is None else tolerance
     if talker_delta is None or listener_delta is None:
-        return ("SKIP", {"why": "one side's interval counter was unreadable",
-                         "talker_interval_ticks": talker_delta,
-                         "listener_interval_ticks": listener_delta})
-    floor = XSIDE_TOLERANCE["perframe_floor_ticks"]
-    if window_s:
-        floor = max(floor,
-                    XSIDE_TOLERANCE["perframe_min_ticks_per_s"] * window_s)
+        return ("SKIP", {"why": "one side's packet counter was unreadable",
+                         "talker_frames": talker_delta, "listener_frames": listener_delta})
+    if min(talker_delta, listener_delta) < 0 or (window_s is not None and window_s <= 0):
+        return ("SKIP", {"why": "reset/wrap or a nonpositive measurement window"})
+    floor = XSIDE_TOLERANCE["packet_min_per_s"] * window_s if window_s else None
     ticks = {"talker": talker_delta, "listener": listener_delta}
     sem, deviant = _perframe_deviant_sides(ticks, floor)
-    d = {"talker_interval_ticks": talker_delta,
-         "listener_interval_ticks": listener_delta,
-         "tolerance_ticks": tol,
-         "tolerance_reason": XSIDE_TOLERANCE["interval_ticks_reason"],
-         "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), NOT frames",
-         "talker_semantics": sem["talker"],
-         "listener_semantics": sem["listener"],
+    d = {"talker_frames": talker_delta, "listener_frames": listener_delta,
+         "tolerance_frames": tol,
+         "tolerance_reason": XSIDE_TOLERANCE["snapshot_skew_reason"],
+         "compares": "AVTPDU PACKETS (IEEE 1722.1-2021 Tables 7.159/7.157)",
+         "talker_semantics": sem["talker"], "listener_semantics": sem["listener"],
          "perframe_bound_ticks": floor}
     if window_s:
         d["window_s"] = window_s
@@ -1058,46 +859,32 @@ def interval_ticks_agree(talker_delta: Optional[int],
     return _interval_ticks_verdict(d, ticks, deviant, tol, self_loop)
 
 
+def _concurrent_packet_findings(pair_ticks: dict, window_s: float | None) -> list[dict]:
+    """Collect attributable low-rate sides across the shared measured window."""
+    if window_s is None or window_s <= 0:
+        return []
+    floor = XSIDE_TOLERANCE["packet_min_per_s"] * window_s
+    findings = []
+    for label, pair in sorted(pair_ticks.items()):
+        ticks = {role: pair[key] for role, key in (("talker", "tx_ticks"), ("listener", "rx_ticks"))
+                 if pair.get(key) is not None}
+        _, deviant = _perframe_deviant_sides(ticks, floor)
+        findings.extend(dict(finding, pair=label)
+                        for finding in _perframe_findings(ticks, deviant, floor, window_s))
+    return findings
+
+
 def check_concurrent_flowing(pair_ticks: dict[str, dict[str, int | None]], *,
                              licensed: bool | None = None, torn_down: str | None = None,
-                             under_load: str | None = None) -> tuple[str, dict[str, object]]:
-    """Do ALL concurrently bound pairs move TOGETHER, in INTERVAL terms?
+                             under_load: str | None = None,
+                             window_s: float | None = None) -> tuple[str, dict[str, object]]:
+    """Check concurrent packet growth in one shared streaming/binding window.
 
-    `pair_ticks` maps a pair label to {"tx_ticks": d, "rx_ticks": d} - the
-    talker's FRAMES_TX and the listener's FRAMES_RX OBSERVATION-INTERVAL deltas
-    (Milan v1.2 Table 5.4/5.6) over ONE shared window, never frames, and never
-    one window per pair: a serial walk cannot see cross-stream interference,
-    which is the defect class this verdict exists for (CBS shaping under
-    aggregate load, the multi-slot rings, a per-index datapath fault).  A side
-    that could not be read is None.
-
-    The licence gates the whole question exactly as it gates the pairwise
-    frames-advance verdicts: Milan v1.2 5.3.7.3 licenses each Stream Output by
-    its OWN Talker Advertise + Listener Ready conjunction, so with the gate
-    SHUT or UNKNOWN every bound talker may be correctly silent and the verdict
-    is SKIP, never a violation.
-
-    With the licence OPEN:
-      * every readable pair moving on every readable side -> PASS;
-      * ANY readable pair static - including one-sided movement, tx without rx
-        - -> FAIL naming the dead pairs.  A measured dead pair outranks a
-        measurement gap on another pair;
-      * pairs unreadable on BOTH sides are named; if nothing else is dead the
-        verdict is SKIP, because "every pair flows" cannot be certified
-        through a hole.
-
-    `torn_down` names the pair whose UNBIND preceded this window, for the
-    staged-teardown flavour: the survivors kept their own licences, so a
-    neighbour going dead right after an unbind is the cross-stream-independence
-    defect.
-
-    `under_load` names the best-effort load running during the window, for the
-    stress flavour: 802.1Q-2018 8.6.8.2/34 put admitted SR class A streams in
-    a reserved, credit-shaped queue ABOVE best-effort, so BE load SHALL NOT
-    disturb them - coexistence is the design point of the reservation itself.
-    (This is a different claim from the adverse-practice storm entries, which
-    are line-rate hostile traffic and stay RECOMMENDED; a cooperative BE load
-    inside the unreserved remainder is what the shaper exists to absorb.)
+    The legacy tx_ticks/rx_ticks fields carry FRAMES_TX/FRAMES_RX packet deltas.
+    An open licence requires every readable pair to move. A measured window
+    additionally rejects interval-rate counts against their own side. Missing
+    readings remain explicit; dead pairs outrank a measurement gap. Teardown
+    and best-effort load retain their isolation and reserved-queue contracts.
     """
     ctx = (f" after tearing down {torn_down}" if torn_down else
            (f" while {under_load} best-effort load ran" if under_load else ""))
@@ -1133,8 +920,8 @@ def check_concurrent_flowing(pair_ticks: dict[str, dict[str, int | None]], *,
     detail = {"pairs": dict(sorted(pair_ticks.items())), "flowing": flowing,
               "dead": dead, "unreadable": unreadable,
               "readable_on_one_side_only": one_sided,
-              "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), "
-                          "NOT frames"}
+              "compares": "AVTPDU PACKETS (IEEE 1722.1-2021 Tables 7.159/7.157)",
+              "window_s": window_s}
     if dead:
         detail["why"] = (
             f"{len(dead)} of {len(pair_ticks)} concurrently bound pairs "
@@ -1152,6 +939,14 @@ def check_concurrent_flowing(pair_ticks: dict[str, dict[str, int | None]], *,
                 ": one stream starving under aggregate load is invisible to "
                  "a pairwise walk, which is why this area exists")))
         return ("FAIL", detail)
+    findings = _concurrent_packet_findings(pair_ticks, window_s)
+    if findings:
+        detail["peer_findings"] = findings
+        detail["why"] = "interval-rate stream counter(s) on the named pair and side"
+        return ("FAIL", detail)
+    if window_s is None or window_s <= 0:
+        detail["why"] = "a positive measured shared window is required for packet-rate flow"
+        return ("SKIP", detail)
     if unreadable:
         detail["why"] = (f"{unreadable} could not be read on either side, so "
                          f"'every pair flows{ctx}' cannot be certified; this "
@@ -1481,11 +1276,11 @@ A_TALKER_INVARIANT = AssertSpec(
     "STREAM_START=STREAM_STOP'")
 A_TV_TNV = AssertSpec(
     "counters.stream_input.tv-plus-tnv",
-    "IEEE 1722.1-2021 Table 7-157: TIMESTAMP_VALID 'Increments on receipt of a "
-    "Stream data AVTPDU with the tv bit set' and TIMESTAMP_NOT_VALID on tv "
-    "cleared, so TV + TNV == FRAMES_RX exactly when FRAMES_RX is the "
-    "per-frame 1722.1 reading; under the Milan interval reading the identity "
-    "does not hold and the assertion records which reading is in force")
+    "IEEE 1722.1-2021 Table 7.157 and ruling #726: TIMESTAMP_VALID plus "
+    "TIMESTAMP_NOT_VALID equals the eventual FRAMES_RX packet total. "
+    "Coalesced publication makes a lower FRAMES_RX snapshot inconclusive; "
+    "the per-counter rate grader checks flowing-window growth. Empty or "
+    "unclaimed samples cannot pass.")
 A_RX_TICKING = AssertSpec(
     "counters.stream_input.frames-rx-advances",
     "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a "
@@ -1519,25 +1314,14 @@ A_TU_HANDLING = AssertSpec(
     "assertion compares the counter to the WIRE and never to a wish")
 A_COUNTER_LAW = AssertSpec(
     "counters.stream_input.update-law-per-counter",
-    "Milan v1.2 Table 5.6 + IEEE 1722.1-2021 Table 7-157: EVERY Stream Input "
-    "counter is graded against the update law of the clause that defines it - "
-    "'Incremented each time ...' (MEDIA_LOCKED, MEDIA_UNLOCKED, "
-    "STREAM_INTERRUPTED), 'Incremented at the end of every observation "
-    "interval during which ...' (the Milan seven, interval <= 1 s) and "
-    "'Increments on receipt of ...' (TIMESTAMP_VALID / TIMESTAMP_NOT_VALID, "
-    "which Milan Table 5.6 does not define at all, so 1722.1's per-frame "
-    "reading is the only one in force).  The grade is a CLASSIFICATION plus "
-    "the clause it was made under: the interval is bounded from above only, "
-    "so no absolute rate is a defect on its own")
+    "Ruling #726 (2026-10-12), IEEE 1722.1-2021 Table 7.157: FRAMES_RX, "
+    "TIMESTAMP_VALID and TIMESTAMP_NOT_VALID count packets. Milan v1.2 "
+    "Table 5.6 retains three event counters and six interval anomaly counters. "
+    "Each measured delta is graded against its own law and cited clause.")
 A_INTERVAL_CEILING = AssertSpec(
     "counters.stream_input.interval-ceiling",
-    "Milan v1.2 Table 5.6: every per-interval trigger arrives IN a received "
-    "Stream Data AVTPDU and FRAMES_RX ticks in every interval during which "
-    "any frame was received, so delta(X) <= delta(FRAMES_RX) holds for all "
-    "seven interval counters WITHOUT the checker having to guess the "
-    "implementation's interval.  A counter that out-ticks FRAMES_RX is still "
-    "counting per frame while FRAMES_RX counts per interval - the "
-    "half-converted state, and the shape a partial revert leaves behind")
+    "Compare retained anomaly deltas with the FRAMES_RX packet delta. "
+    "This sanity bound alone does not prove an observation interval.")
 A_COUNTER_RESET_ON_BIND = AssertSpec(
     "counters.stream_input.reset-on-not-bound-to-bound",
     "Milan v1.2 5.3.8.10: 'The PAAD-AE shall reset all of these counters to "
@@ -1620,8 +1404,9 @@ A_XSIDE_CORROBORATED = AssertSpec(
     "side or on none: a one-sided claim of streaming is itself the defect.  The "
     "comparison uses only FRAME-ACCURATE sources - the IEEE 1722.1-2021 Table "
     "7-153 AVB_INTERFACE totals, the DUT RMON lanes, the test machine's NIC "
-    "statistics or the pcap count - because the stream-descriptor FRAMES_TX / "
-    "FRAMES_RX are <= 1 s observation-interval ticks and not frame counts")
+    "statistics or the pcap count, and stream-descriptor FRAMES_TX / FRAMES_RX "
+    "packet deltas under Tables 7.159/7.157 and ruling #726. Compare matching "
+    "traffic in one streaming/binding era")
 A_XSIDE_UNLICENSED_SILENT = AssertSpec(
     "xside.unlicensed-silent-everywhere",
     "Milan v1.2 5.3.7.3: with no Listener Ready there is no licence, so an "
@@ -1643,23 +1428,16 @@ A_XSIDE_PRUNED = AssertSpec(
     "absence is asserted and not assumed")
 A_XSIDE_INTERVAL_AGREE = AssertSpec(
     "xside.interval-ticks-agree",
-    "Milan v1.2 Table 5.4 STREAM_OUTPUT FRAMES_TX and Table 5.6 STREAM_INPUT "
-    "FRAMES_RX are both 'incremented at the end of every observation interval "
-    "during which at least one Stream Data AVTPDU has been "
-    "transmitted/received', the interval being implementation-specific and <= 1 "
-    "s.  So the two sides are compared in INTERVAL TERMS - both moving or both "
-    "static - and NEVER frame for frame.  The assertion name says 'interval' so "
-    "nobody later reads it as a frame count")
+    "Legacy assertion id; ruling #726 applies IEEE 1722.1-2021 Tables "
+    "7.159/7.157: FRAMES_TX and FRAMES_RX count AVTPDUs. Compare packet deltas "
+    "from matching traffic in one counter era, allowing non-atomic read skew. "
+    "Over a measured flowing window an interval-rate side FAILs by name")
 A_XSIDE_PEER_SEMANTICS = AssertSpec(
     "xside.peer-counter-semantics",
-    "Milan v1.2 Table 5.4 FRAMES_TX / Table 5.6 FRAMES_RX increment 'at the "
-    "end of every observation interval', the interval <= 1 s - a counter "
-    "advancing at wire frame rate is keeping the IEEE 1722.1-2021 Table 7-157 "
-    "per-frame semantics instead.  Every participant is a measured party: the "
-    "deviation is attributed BY NAME to the side that ticks per-frame, with "
-    "its measured rate against the clause bound, as that side's own finding - "
-    "never smeared onto the conformant side of the pair as a generic pair "
-    "disagreement, and never silently passed")
+    "Ruling #726 applies IEEE 1722.1-2021 Tables 7.159/7.157 to both stream "
+    "directions. A per-AVTPDU pair is conformant. An interval-rate FRAMES_TX "
+    "or FRAMES_RX on a measured flowing stream is a finding against that "
+    "talker or listener, including when both sides regress")
 A_XSIDE_ERRORS_STATIC = AssertSpec(
     "xside.errors-static-all-sides",
     "Milan v1.2 Table 5.6 (SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT, "
@@ -1704,7 +1482,7 @@ LICENSED_STREAMING_ASSERTS = (
     A_SRP_LICENCE, A_STREAM_ON_BIND_ALONE, A_TX_TICKING, A_RX_TICKING,
     A_COUNTER_LAW, A_INTERVAL_CEILING,
     A_XSIDE_CORROBORATED, A_XSIDE_UNLICENSED_SILENT, A_XSIDE_NOT_MORE,
-    A_XSIDE_PRUNED, A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
+    A_XSIDE_PRUNED, A_XSIDE_INTERVAL_AGREE, A_XSIDE_PEER_SEMANTICS, A_INSTRUMENT_LOSSLESS)
 
 # ------------------------------------- the multi-stream concurrency asserts --
 #: Real deployments run MANY streams at once, and the pairwise matrix - bind
@@ -1717,9 +1495,9 @@ A_MULTI_ALL_FLOWING = AssertSpec(
     "multi.concurrent-all-flowing",
     "Milan v1.2 5.3.7.3 applied PER Stream Output: each concurrently bound "
     "pair holds its OWN licence (its Talker Advertise and its own Listener "
-    "Ready), so with the gate open EVERY bound pair's interval counters "
-    "(Table 5.4 FRAMES_TX / Table 5.6 FRAMES_RX) advance together over one "
-    "shared window.  One stream going static while its neighbours flow is the "
+    "Ready), so with the gate open EVERY bound pair's packet counters "
+    "(IEEE 1722.1-2021 Tables 7.159/7.157, ruling #726) advance at packet rate "
+    "over one measured shared window.  One stream going static while its neighbours flow is the "
     "aggregate-load defect class - CBS credit starvation, ring-slot "
     "contention, a per-index datapath fault - and it is structurally "
     "invisible to a pairwise walk")
@@ -4319,23 +4097,35 @@ class _CounterLawChecks:
         self.assertEqual(check_talker_invariant(
             {"STREAM_START": 3, "STREAM_STOP": 1})[0], "FAIL")
 
-    def test_tv_tnv_distinguishes_the_two_frames_rx_readings(self) -> None:
-        """TIMESTAMP_VALID + NOT_VALID against FRAMES_RX separates the 1722.1
-        per-frame reading from the Milan interval one, and neither permits
-        FRAMES_RX above their sum."""
+    def test_tv_tnv_grades_settled_and_coalesced_packet_snapshots(self) -> None:
+        """A single coalesced snapshot cannot establish a packet-rate defect."""
         # 1722.1 per-frame reading: the identity is exact
         v, d = check_tv_tnv({"TIMESTAMP_VALID": 1000,
                              "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1000})
         self.assertEqual((v, d["reading"]), ("PASS", "1722.1-per-frame"))
-        # Milan interval reading: 8000 frames in 1 s, FRAMES_RX ticks once
+        # Superseded interval reading: 8000 frames in 1 s, RX ticks once.
         v, d = check_tv_tnv({"TIMESTAMP_VALID": 8000,
                              "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1})
-        self.assertEqual((v, d["reading"]), ("INFO", "milan-interval"))
+        self.assertEqual((v, d["reading"]), ("INFO", "unequal-packet-totals"))
         # neither reading permits FRAMES_RX above TV+TNV
         self.assertEqual(check_tv_tnv({"TIMESTAMP_VALID": 5,
                                        "TIMESTAMP_NOT_VALID": 0,
                                        "FRAMES_RX": 99})[0], "FAIL")
         self.assertEqual(check_tv_tnv({})[0], "SKIP")
+
+    def test_unpublished_zero_receive_snapshot(self) -> None:
+        """Real startup boundary: three accepted packets precede RX publication."""
+        for packets in (1, 2, 3):
+            sample = {"TIMESTAMP_VALID": packets, "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 0}
+            verdict, detail = check_tv_tnv(sample)
+            self.assertEqual(verdict, "INFO", "[726 SNAPSHOT] unpublished zero")
+            self.assertIsNone(detail["ratio"])
+        sample = {"TIMESTAMP_VALID": 3, "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 3}
+        self.assertEqual(check_tv_tnv(sample)[0], "PASS")
+        self.assertEqual(check_tv_tnv(dict.fromkeys(sample, 0))[0], "SKIP")
+        self.assertEqual(check_tv_tnv({})[0], "SKIP")
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 4, 4.0, stream_flowing=True)[0], "FAIL")
 
     def test_every_stream_input_counter_has_an_update_law(self) -> None:
         """Every counter in the 1722.1 Stream Input block has an update law, so no
@@ -4345,17 +4135,15 @@ class _CounterLawChecks:
         # bench grader all answer to, so it must cover the whole block.
         for n in IEEE_STREAM_INPUT_BLOCK:
             self.assertIsNotNone(counter_law(n), n)
-        # Milan Table 5.6 defines TEN of the twelve; the two it does NOT
-        # define keep 1722.1's per-frame reading, which is exactly why a
-        # conformant device shows TIMESTAMP_VALID ~8000x FRAMES_RX.
+        # The ruling includes FRAMES_RX among the three packet counters.
         self.assertEqual(
             {n for n, (k, _, _) in STREAM_INPUT_COUNTER_LAW.items()
              if k == "per-frame"},
-            {"TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID"})
+            {"TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID", "FRAMES_RX"})
         self.assertEqual(set(MILAN_INTERVAL_COUNTERS),
                          set(MILAN_TABLE_56) - {"MEDIA_LOCKED",
                                                 "MEDIA_UNLOCKED",
-                                                "STREAM_INTERRUPTED"})
+                                                "STREAM_INTERRUPTED", "FRAMES_RX"})
         for n in MILAN_INTERVAL_COUNTERS:
             self.assertEqual(counter_law(n)[1], "Milan v1.2 Table 5.6", n)
 
@@ -4363,8 +4151,7 @@ class _CounterLawChecks:
         """Nothing whose trigger arrives in a frame may out-tick FRAMES_RX - except
         the two tv tallies Milan never defined, which are exempt.  That is what
         a half-converted counter looks like from outside."""
-        # FRAMES_RX is the interval clock: nothing whose trigger arrives in
-        # a frame may out-tick it.
+        # The retained sanity bound compares anomaly deltas to packet totals.
         b = {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0, "LATE_TIMESTAMP": 0}
         self.assertEqual(check_interval_ceiling(
             b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 30,
@@ -4375,8 +4162,7 @@ class _CounterLawChecks:
         self.assertEqual(v, "FAIL")
         self.assertEqual([o["counter"] for o in d["offenders"]],
                          ["TIMESTAMP_UNCERTAIN"])
-        # the two tv tallies are EXEMPT - Milan never defined them, so they
-        # are supposed to out-tick an interval FRAMES_RX
+        # TV/TNV use their separate packet-identity check.
         self.assertEqual(check_interval_ceiling(
             {"FRAMES_RX": 0, "TIMESTAMP_VALID": 0, "LATE_TIMESTAMP": 0},
             {"FRAMES_RX": 30, "TIMESTAMP_VALID": 240060,
@@ -4390,22 +4176,20 @@ class _CounterLawChecks:
             {"FRAMES_RX": 500}, {"FRAMES_RX": 3})[0], "SKIP")
 
     def test_counter_semantics_grades_both_ways_round(self) -> None:
-        """The grader passes the mandated per-frame/per-interval split in BOTH
-        directions, and no longer fails the intermittent counters that an
-        earlier cut read as ceiling violations against real silicon."""
-        # the mandated split at class A: TV per frame, FRAMES_RX per
-        # interval - both PASS, which is the whole point
+        """Packet counters follow the ruled rate; anomaly counters keep their law."""
+        # Both TV and FRAMES_RX follow the packet rate. Interval RX fails.
         self.assertEqual(grade_counter_semantics(
             "TIMESTAMP_VALID", 240060, 30.0, stream_flowing=True)[0], "PASS")
         self.assertEqual(grade_counter_semantics(
-            "FRAMES_RX", 30, 30.0, stream_flowing=True)[0], "PASS")
+            "FRAMES_RX", 30, 30.0, stream_flowing=True)[0], "FAIL")
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 240060, 30.0, stream_flowing=True)[0], "PASS")
         # OVER-conversion: a per-frame counter dragged onto the interval
-        # tick alongside the Milan seven
+        # tick alongside the six anomaly counters
         v, d = grade_counter_semantics("TIMESTAMP_VALID", 30, 30.0,
                                        stream_flowing=True)
         self.assertEqual((v, d["reading"]), ("FAIL", "interval"))
-        # an interval longer than the 1 s ceiling, which only FRAMES_RX's
-        # rate can ever imply
+        # A slower packet counter also fails with known flowing traffic.
         self.assertEqual(grade_counter_semantics(
             "FRAMES_RX", 15, 30.0, stream_flowing=True)[0], "FAIL")
         # more ticks than frames: impossible under every reading
@@ -4426,7 +4210,7 @@ class _CounterLawChecks:
             self.assertEqual((v, d["reading"]), ("PASS", "interval"),
                              f"{name} is intermittent by definition")
         self.assertEqual(grade_counter_semantics(
-            "FRAMES_RX", 7545, 7531.0, stream_flowing=True)[0], "PASS")
+            "FRAMES_RX", 7545, 7531.0, stream_flowing=True)[0], "FAIL")
         # nothing measured, nothing concluded
         self.assertEqual(grade_counter_semantics(
             "UNSUPPORTED_FORMAT", 0, 30.0)[0], "SKIP")
@@ -4522,83 +4306,51 @@ class _StreamingLicenceChecks:
         self.assertEqual(decode_lwsrp_status(5 << 16)
                          ["msrp_failure_code"], 5)
 
-    def test_the_frame_versus_interval_semantic_trap_cannot_be_expressed(self) -> None:
-        """Comparing a frame-accurate source against an interval counter RAISES
-        instead of returning a number: the two share their names and sit about
-        8000:1 apart, so the mistake has to be unwritable rather than caught."""
-        # AVB_INTERFACE FRAMES_TX/RX are TOTALS (1722.1 Table 7-153); the
-        # stream-descriptor ones are <= 1 s interval TICKS (Milan Table
-        # 5.4/5.6).  Same name, ~8000:1 apart.  A frame-accurate comparison
-        # against the interval counters must be IMPOSSIBLE TO WRITE.
-        for good in FRAME_ACCURATE_SOURCES:
+    def test_stream_sources_count_packets(self) -> None:
+        """Both stream directions are declared packet sources under #726."""
+        for good in (*FRAME_ACCURATE_SOURCES, "stream_input", "stream_output"):
             self.assertEqual(assert_frame_accurate(good), good)
-        for bad in INTERVAL_SOURCES:
-            with self.assertRaises(CounterSemanticError):
-                assert_frame_accurate(bad)
+        self.assertEqual(INTERVAL_SOURCES, ())
         with self.assertRaises(CounterSemanticError):
             assert_frame_accurate("vibes")
-        # and the interval comparison is named for what it compares
-        v, d = interval_ticks_agree(4, 4)
-        self.assertEqual(v, "PASS")
-        self.assertIn("OBSERVATION INTERVALS", d["compares"])
-        self.assertEqual(interval_ticks_agree(4, 0)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(32000, 0, window_s=4)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(32000, 0, window_s=4, self_loop=True)[0], "SKIP")
         self.assertEqual(interval_ticks_agree(0, 0)[0], "PASS")
-        self.assertEqual(interval_ticks_agree(9, 4)[0], "FAIL")
-        self.assertEqual(interval_ticks_agree(None, 4)[0], "SKIP")
+        self.assertEqual(interval_ticks_agree(None, 32000)[0], "SKIP")
+        self.assertEqual(interval_ticks_agree(-1, 32000, window_s=4)[0], "SKIP")
+        self.assertEqual(interval_ticks_agree(32000, 32000, window_s=0)[0], "SKIP")
 
-    def test_interval_agreement_attributes_a_per_frame_side(self) -> None:
-        """A side counting per frame is named as the deviant and the conformant
-        side still passes, while a genuine movement disagreement outranks the
-        attribution and two deviant sides leave no baseline at all."""
-        # EVERY PARTICIPANT IS A MEASURED PARTY.  The three shapes:
-        # (1) both interval-conformant and agreeing -> PASS, no finding
-        v, d = interval_ticks_agree(4, 4, window_s=4.0)
-        self.assertEqual(v, "PASS")
-        self.assertNotIn("peer_findings", d)
-        # (2) both interval-conformant and genuinely disagreeing -> the
-        #     ORIGINAL pair FAIL, untouched by attribution
-        v, d = interval_ticks_agree(9, 4, window_s=4.0)
-        self.assertEqual(v, "FAIL")
-        self.assertNotIn("peer_findings", d)
-        # (3) one side per-frame (the peer's deviation, ~8000/s): the pair
-        #     verdict PASSes FOR THE CONFORMANT SIDE and the deviation is
-        #     an attributed finding naming the deviant ROLE and its rate
-        v, d = interval_ticks_agree(4, 31982, window_s=4.0)
-        self.assertEqual(v, "PASS")
-        self.assertTrue(d["attributed"])
-        self.assertEqual(d["conformant_role"], "talker")
-        self.assertEqual(d["listener_semantics"], "per-frame")
-        pf = d["peer_findings"]
-        self.assertEqual([f["role"] for f in pf], ["listener"])
-        self.assertGreater(pf[0]["ticks_per_s"], 150)
-        self.assertIn("Table 7-157", pf[0]["why"])
-        # ... and mirrored, the talker can be the deviant
-        v, d = interval_ticks_agree(72880, 9, window_s=8.0)
-        self.assertEqual(v, "PASS")
-        self.assertEqual(d["conformant_role"], "listener")
-        self.assertEqual(d["peer_findings"][0]["role"], "talker")
-        # movement disagreement OUTRANKS attribution: a deviant side
-        # pumping frames while the conformant side saw nothing is the
-        # original one-sided-streaming FAIL, with the finding kept
-        v, d = interval_ticks_agree(0, 31982, window_s=4.0)
-        self.assertEqual(v, "FAIL")
-        self.assertEqual(d["peer_findings"][0]["role"], "listener")
-        # two per-frame sides leave no baseline: SKIP + one finding EACH,
-        # never a silent pass for either
-        v, d = interval_ticks_agree(31982, 31982, window_s=4.0)
-        self.assertEqual(v, "SKIP")
-        self.assertEqual(len(d["peer_findings"]), 2)
-        # without a window the absolute floor still catches wire rate
-        v, d = interval_ticks_agree(4, 31982)
-        self.assertEqual(v, "PASS")
-        self.assertEqual(d["peer_findings"][0]["role"], "listener")
-        self.assertIsNone(d["peer_findings"][0]["ticks_per_s"])
-        # and a fast-but-plausible interval implementation is NOT deviant:
-        # 40 ticks over 4 s (a legal 100 ms interval) stays an interval
-        # reading, so the disagreement with a 1/s peer is the pair's
-        v, d = interval_ticks_agree(4, 40, window_s=4.0)
-        self.assertEqual(v, "FAIL")
-        self.assertNotIn("peer_findings", d)
+    def test_packet_agreement_attributes_interval_sides(self) -> None:
+        """Ruled pairs pass; each interval regression belongs to its own side."""
+        for tx, rx in ((32000, 32000), (31982, 32000), (2000, 2000)):
+            verdict, detail = interval_ticks_agree(tx, rx, window_s=4.0)
+            self.assertEqual(verdict, "PASS", "[726 XSIDE] ruled packet pair")
+            self.assertNotIn("peer_findings", detail)
+            self.assertIn("AVTPDU PACKETS", detail["compares"])
+        for tx, rx, roles in ((4, 32000, ["talker"]), (32000, 4, ["listener"]),
+                              (4, 4, ["talker", "listener"])):
+            verdict, detail = interval_ticks_agree(tx, rx, window_s=4.0)
+            self.assertEqual(verdict, "FAIL", "[726 XSIDE] interval-rate pair")
+            self.assertEqual([f["role"] for f in detail.get("peer_findings", [])], roles,
+                             "[726 XSIDE] attributed side")
+            for finding in detail["peer_findings"]:
+                self.assertEqual(finding["ticks_per_s"], 1.0)
+                self.assertIn("IEEE 1722.1-2021", finding["counter"])
+        self.assertEqual(interval_ticks_agree(32000, 48000, window_s=4)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(32000, 32003, tolerance=2, window_s=4)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(4, 4)[0], "SKIP")  # no duration, no rate claim
+
+    def test_concurrent_packet_law_attributes_each_direction(self) -> None:
+        """A shared flowing window cannot pass an interval-rate pair."""
+        for tx, rx, roles in ((32000, 32000, []), (4, 32000, ["talker"]),
+                              (32000, 4, ["listener"]), (4, 4, ["talker", "listener"])):
+            verdict, detail = check_concurrent_flowing(
+                {"tested": {"tx_ticks": tx, "rx_ticks": rx}}, licensed=True, window_s=4)
+            self.assertEqual(verdict, "FAIL" if roles else "PASS", "[726 MULTI] packet rate")
+            self.assertEqual([f["role"] for f in detail.get("peer_findings", [])], roles)
+            self.assertTrue(all(f["pair"] == "tested" for f in detail.get("peer_findings", [])))
+        self.assertEqual(check_concurrent_flowing(
+            {"unmeasured": {"tx_ticks": 4, "rx_ticks": 4}}, licensed=True)[0], "SKIP")
 
     def test_cross_side_growth_bites_every_way(self) -> None:
         """Each cross-participant invariant fails on its own defect - one-sided
@@ -4693,10 +4445,10 @@ class _StreamingLicenceChecks:
                    "xside.growth-corroborated")
         self.assertEqual(v, "SKIP")
         self.assertEqual(d["sides_unreadable"], ["peer"])
-        # and the semantic guard applies to the cross-check too
+        # The guard still rejects sources without a packet-count contract.
         with self.assertRaises(CounterSemanticError):
             cross_side_growth({"x": {"role": "talker",
-                                     "source": "stream_output",
+                                     "source": "unknown_counter",
                                      "frames": 1}})
 
     def test_the_test_machine_is_an_instrument_before_a_witness(self) -> None:
@@ -6115,14 +5867,14 @@ class _ConcurrencyChecks:
         outranks a measurement gap on another pair."""
 
         def P(tx: int | None, rx: int | None) -> dict[str, int | None]:
-            """One pair's two interval-tick deltas over the shared window."""
+            """One pair's packet deltas over the shared window."""
             return {"tx_ticks": tx, "rx_ticks": rx}
         # all pairs flowing together, licence open -> PASS, and the
-        # comparison names itself as INTERVALS
-        v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(5, 4)},
-                                        licensed=True)
+        # comparison names itself as packets
+        v, d = check_concurrent_flowing({"a": P(32000, 32000), "b": P(32001, 32000)},
+                                        licensed=True, window_s=4)
         self.assertEqual(v, "PASS")
-        self.assertIn("OBSERVATION INTERVALS", d["compares"])
+        self.assertIn("AVTPDU PACKETS", d["compares"])
         # ONE DEAD AMONG MANY - the defect this area exists for
         v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(0, 0)},
                                         licensed=True)

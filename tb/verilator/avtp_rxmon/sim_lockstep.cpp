@@ -6,9 +6,10 @@
 // e8454e27 with only its name changed), both fed the SAME inputs every cycle
 // by avtp_rxmon_lockstep_wrap.
 //
-//   [LS] every output of the two is identical in every cycle: accept verdicts,
-//        dirty pulses, the stream-0 legacy counters, the LCTX window answers,
-//        lock and wire-channel levels.
+//   [LS] unchanged outputs match in every cycle: accept verdicts, legacy
+//        counters, LCTX answers, lock and channel levels. Every historical
+//        dirty pulse remains present; #726 adds healthy update pulses,
+//        graded independently by DV and the parent notification fixture.
 //   [GC] GET_COUNTERS: in every cycle, one sink and column of the shipping
 //        module's indexed read equals that column of the reference's
 //        twelve-counter row (the old interface), for every sink.
@@ -162,7 +163,11 @@ void Lockstep::compare_outputs() {
     for (int w = 0; w < 12; w++)
         if (dut_->ref_legacy_o[w] != dut_->dut_legacy_o[w]) bad("legacy counter");
     if (dut_->ref_media_locked_o != dut_->dut_media_locked_o) bad("media_locked_o");
-    if (dut_->ref_dirty_p_o != dut_->dut_dirty_p_o) bad("dirty_p_o");
+    // #726 adds healthy counter events to the historical notification law.
+    // Every historical pulse must survive; DV and the wire cadence check
+    // independently require the added healthy pulses.
+    if ((dut_->ref_dirty_p_o & dut_->dut_dirty_p_o) != dut_->ref_dirty_p_o)
+        bad("dirty_p_o lost historical event");
     if (dut_->ref_pdu_accept_p_o != dut_->dut_pdu_accept_p_o) bad("pdu_accept_p_o");
     if (dut_->ref_pdu_accept_idx_o != dut_->dut_pdu_accept_idx_o) bad("pdu_accept_idx_o");
     if (dut_->ref_wire_chans_o != dut_->dut_wire_chans_o) bad("wire_chans_o");
@@ -194,7 +199,7 @@ uint32_t Lockstep::gc_read(int sink, int col) {
 }
 
 void Lockstep::report_lockstep(const char* phase) {
-    std::string a = std::string("[LS] ") + phase + ": every output identical to the reference in every cycle";
+    std::string a = std::string("[LS] ") + phase + ": unchanged outputs match and historical dirty pulses remain";
     std::string b = std::string("[GC] ") + phase + ": every GET_COUNTERS read identical to the reference";
     if (ls_bad_ != 0 || gc_bad_ != 0) std::printf("  first divergence: %s\n", first_bad_.c_str());
     c_.dec(a.c_str(), ls_bad_, 0);
@@ -385,7 +390,7 @@ void Lockstep::h3_wrap() {
     ok &= lctx_write(s, kWCnt0 + kColMl, 0xFFFFFFFFu);
     ok &= lctx_write(s, kWCnt0 + kColMu, 0xFFFFFFFFu);
     ok &= lctx_write(s, kWCnt0 + kColSi, 0xFFFFFFFEu);
-    ok &= lctx_write(s, kWCnt0 + kColFrx, 0xFFFFFFF0u);
+    ok &= lctx_write(s, kWCnt0 + kColFrx, 0xFFFFFFFAu);
     ok &= lctx_write(s, kWDepkt, 0xFFFEFFFFu);
     c_.that("[H3] the window granted every seed write", ok);
     //! lock (MEDIA_LOCKED wraps), settle, two interrupts (SI wraps)
@@ -414,8 +419,8 @@ void Lockstep::h3_wrap() {
     c_.hex("[H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000", gc_read(s, kColMl), 0x00000000u);
     c_.hex("[H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two",
            gc_read(s, kColSi), 0x00000000u);
-    c_.hex("[H3] FRAMES_RX adds the interval's 11 frames across the wrap (0xFFFFFFF0 + 11)",
-           gc_read(s, kColFrx), 0xFFFFFFFBu);
+    c_.hex("[H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11)",
+           gc_read(s, kColFrx), 0x00000005u);
     uint32_t w11 = 0;
     c_.that("[H3] the window answered the depacketizer word", lctx_read(s, kWDepkt, w11));
     c_.hex("[H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3})", w11,
