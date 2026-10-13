@@ -1,0 +1,30 @@
+[
+  {
+    "name": "toc-check",
+    "args": [
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.824
+  },
+  {
+    "name": "toc-anchors",
+    "args": [
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.724
+  },
+  {
+    "name": "em-dash",
+    "args": [
+      "scripts/check_em_dash.py",
+      "--base",
+      "dc4d06cb"
+    ],
+    "rc": 0,
+    "seconds": 3.122
+  }
+]

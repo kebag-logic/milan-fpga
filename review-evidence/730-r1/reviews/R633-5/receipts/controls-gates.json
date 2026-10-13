@@ -1,0 +1,189 @@
+[
+  {
+    "name": "E08",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E08",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "interrupt"
+    ],
+    "rc": 1,
+    "seconds": 0.316
+  },
+  {
+    "name": "E01",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E01",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "masked"
+    ],
+    "rc": 1,
+    "seconds": 51.335
+  },
+  {
+    "name": "E02",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E02",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "masked"
+    ],
+    "rc": 1,
+    "seconds": 60.988
+  },
+  {
+    "name": "E03",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E03",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "masked"
+    ],
+    "rc": 1,
+    "seconds": 11.201
+  },
+  {
+    "name": "E04",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E04",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "masked"
+    ],
+    "rc": 1,
+    "seconds": 0.866
+  },
+  {
+    "name": "E05",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E05",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "masked"
+    ],
+    "rc": 1,
+    "seconds": 20.117
+  },
+  {
+    "name": "E06",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E06",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "window"
+    ],
+    "rc": 1,
+    "seconds": 0.415
+  },
+  {
+    "name": "E07",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<packet>/scratch/signal-mutants/E07",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/public-inputs/author-r5/receipts/r5/run_masked_arms.py",
+      "/work/scripts/act_ci.py",
+      "window"
+    ],
+    "rc": 1,
+    "seconds": 0.365
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.381
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 19.708
+  },
+  {
+    "name": "baremetal-selftest",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.528
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "dc4d06cb",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.016
+  }
+]

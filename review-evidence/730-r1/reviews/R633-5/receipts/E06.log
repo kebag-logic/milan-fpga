@@ -1,0 +1,3 @@
+  FAIL inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary raises or returns
+  FAIL a SIGHUP held before act's boundary is delivered as the boundary opens, before act starts, and the hold is back after it
+failures=2 seconds=0.0

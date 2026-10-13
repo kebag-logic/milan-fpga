@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 16680, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 16630, in main
+    return selftest(shipping_root)
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 14911, in selftest
+    docker = selftest_run_directory_stages(tally, pr)
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 14798, in selftest_run_directory_stages
+    selftest_job_cpu_monitor(tally, docker)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 7918, in selftest_job_cpu_monitor
+    selftest_job_cpu_monitor_shutdown(tally, docker)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 8182, in selftest_job_cpu_monitor_shutdown
+    read_job_cpu_events(unreadable, crashed)  # type: ignore[arg-type]
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 5542, in read_job_cpu_events
+    for line in process.stdout or ():
+                ^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut3/Q30/scripts/act_ci.py", line 8092, in __iter__
+    raise OSError("read failed")
+OSError: read failed
