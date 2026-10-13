@@ -1,0 +1,22 @@
+N01_die_frees_its_range	KILLED	rc=1	fail_arms=3	FAIL a container that died keeps its range until it is removed: after create, update, start and die of A, then create, update and start of B, A starts again on its own ra
+N02_timed_out_move_released	KILLED	rc=1	fail_arms=3	FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+N03_refused_move_released	KILLED	rc=1	fail_arms=1	FAIL a move the daemon refused keeps its range reserved and is reported
+N04_no_inspect_when_full	KILLED	rc=1	fail_arms=1	FAIL with every range held, docker inspect frees the range of a container removed without its event, keeps a stopped one's, and leaves a fifth live container on the stagi
+N05_move_trusted_without_inspect	KILLED	rc=1	fail_arms=4	FAIL a move the daemon applied before its CLI timed out keeps its range: docker inspect shows it there, the next container gets another, and the warning says both
+N06_start_not_inspected	KILLED	rc=1	fail_arms=1	FAIL a move and a read that both time out keep the range reserved, never seen there
+N07_late_update_not_inspected	KILLED	rc=1	fail_arms=1	FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+N08_reap_failure_skips_join	KILLED	rc=1	fail_arms=7	FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is 
+N09_join_failure_not_retried	KILLED	rc=1	fail_arms=3	FAIL a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed
+N10_slot0_fallback_restored	KILLED	rc=1	fail_arms=1	FAIL slot 0 refuses a host without the ranges a run derives, as every slot does: four containers need CPU 19 (19 CPUs refuse, 20 and 21 give 4-7 to 16-19), one container 
+N11_start_without_create_ignored	KILLED	rc=1	fail_arms=1	FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move
+N12_cleanup_failure_swallowed	KILLED	rc=1	fail_arms=3	FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is 
+N13_poll_failure_unguarded	KILLED	rc=1	fail_arms=1	FAIL a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+N14_join_before_containment	KILLED	rc=1	fail_arms=11	FAIL a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+N15_reserved_counts_as_moved	KILLED	rc=1	fail_arms=1	FAIL a move and a read that both time out keep the range reserved, never seen there
+N16_gone_not_counted	KILLED	rc=1	fail_arms=1	FAIL a container gone before its move frees its range and is counted; a foreign owner, an unexpected action or ID, and an unreadable line are each a problem, never a move
+N17_mismatch_not_reported	KILLED	rc=1	fail_arms=2	FAIL a timed-out move still on the staging range keeps its range reserved while another container is created, so its late completion lands on a range no one else holds
+N18_pipe_left_open_after_failure	KILLED	rc=1	fail_arms=8	FAIL a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is 
+N19_hosted_cpu_count_unpinned	KILLED	rc=1	fail_arms=1	FAIL a two-workflow run leases both, and starts the CPU-range monitor, gates, spawns, stops the monitor, cleans containers, then reconciles volumes, once per workflow in 
+N21_held_ranges_ignored	KILLED	rc=1	fail_arms=9	FAIL four concurrent containers move to four different ranges, lowest first, each seen there by docker inspect
+N20_planted_exit_ignored	KILLED	rc=1	fail_arms=1	FAIL with a container left on the staging range and act exiting 3, each workflow prints its CPU-range summary and one warning per problem, and the verdict follows act's e
+rc2=0

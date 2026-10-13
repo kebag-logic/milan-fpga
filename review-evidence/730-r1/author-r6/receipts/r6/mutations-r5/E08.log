@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<scratch>/r6/drivers/run_masked_arms.py", line 20, in <module>
+    act.selftest_interrupt_probe_signal_window(tally, docker)
+  File "<scratch>/r6/mutations-r5/E08/scripts/act_ci.py", line 12612, in selftest_interrupt_probe_signal_window
+    interrupt_live_act(["act"], monitor)
+  File "<scratch>/r6/mutations-r5/E08/scripts/act_ci.py", line 15754, in interrupt_live_act
+    raise Refusal(
+act_ci_r5.Refusal: interrupt self-test act process exited 0 before fault injection
