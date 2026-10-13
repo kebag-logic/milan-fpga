@@ -752,14 +752,17 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 9,981 / 12,639 | 1.00 / 0.79 us |
-| an ACMP command behind a full acmp ring | 10 | 36,597 / 46,343 | 0.27 / 0.21 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 73,194 / 92,686 | 0.13 / 0.10 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 29,943 / 37,917 | 0.33 / 0.26 us |
+| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
+| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
 
-At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
-the two-interface event envelope and the other rows do not. The 20 ms ACMP
+At 1 us per access, event envelopes are 10.569 / 13.287 ms.
+Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
 ceiling still covers both event envelopes, but none of the other rows.
+The firmware gate compiles these header bounds at both interface counts.
+It checks each product and conservatively rounded access-time threshold.
+Its controls spoil each table cell and the event-time conclusion.
 No target timing acceptance is claimed. Backpressure and retained SRP input
 consume their original service interval; a retry or a normative wait never
 starts a new allowance. SRP can defer its own reception behind events or owed

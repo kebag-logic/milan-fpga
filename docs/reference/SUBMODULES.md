@@ -253,7 +253,7 @@ The pin is the merge of tsn-c-stack PR 25 on `main`.
 
 The previous pin remains reachable through its publication tag.
 
-That `main` also changes `src/adp.c`, which this firmware has not taken.
+The current pin includes #19's `src/adp.c` discovery refusals.
 
 It holds the ADP, ACMP and MAAP cores.
 
