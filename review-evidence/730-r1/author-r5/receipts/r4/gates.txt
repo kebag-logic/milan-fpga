@@ -1,0 +1,19 @@
+Python 3.12.3
+act-ci-selftest rc=0 | selftest: PASS
+baremetal-check rc=0 | baremetal-only: OK (0 findings across 1270 tracked first-party file(s))
+baremetal-selftest rc=0 | baremetal-only selftest: PASS (700 arm(s))
+ci-events-check rc=0 | ci_events: OK (2016 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci-events-selftest rc=0 | selftest: PASS (2016 contract items, 2828 arms)
+diff-check rc=0 | 
+py-idiom rc=0 |   over-long line: 0 <= 0
+py-idiom-selftest rc=0 | 54 checks: 54 PASS, 0 FAIL
+slot-proof-selftest rc=0 | act_slot_proof selftest: PASS (44 cases)
+ci-events-check rc=0 | ci_events: OK (2016 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+diff-check rc=0 | 
+doc-paths rc=0 | doc path gate: OK (964 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+docs-check rc=0 | docs_check: 0 finding(s) across 204 md files + 1272 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+doc-style rc=0 | documentation style: OK (22 current documents)
+em-dash rc=0 | check_em_dash: 0 finding(s) over 133 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/3
+toc-anchors rc=0 | anchor check: 480 existing cross-page fragment links reproduced
+toc-check rc=0 | TOC gate: OK (144 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+sandboxed archive, CPython 3.14.7: rc=0 ok=498 FAIL=0 selftest: PASS
