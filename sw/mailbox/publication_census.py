@@ -175,8 +175,8 @@ class Row:
 CENSUS: dict[tuple[str, str], Row] = {
     # ---- read on the wire: carried by the publication block -----------------
     ("pp_cd_acmp_declaring_w", "acmp_talker_active_v"):
-        Row("field", "DA_GATE.OPEN", "the AAF talker admission gate; DA validity only, see the design page's "
-            "choices (#665, comment 6092086337)"),
+        Row("field", "DA_GATE.OPEN",
+            "the AAF talker declaration gate: valid destination and fresh probe or registered Listener"),
     ("pp_cd_srp_active_w", "lwsrp_stream_gate"):
         Row("field", "LICENCE.ACTIVE", "the SRP stream gate of the AAF and CRF talkers"),
     ("pp_cd_srp_sr_admitted_w", "lwsrp_stream_gate"):

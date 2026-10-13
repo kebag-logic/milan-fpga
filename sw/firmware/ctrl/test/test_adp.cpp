@@ -63,6 +63,7 @@ void discover(uint8_t* f, uint8_t msg, uint64_t eid) {
     wire_put_be(f + 12, ADP_ETHERTYPE, 2);
     f[14] = ADP_SUBTYPE;
     f[15] = msg;
+    wire_put_be(f + 16, 56u, 2);
     wire_put_be(f + 18, eid, 8);
 }
 
@@ -538,6 +539,67 @@ void backlog_grade(const Backlog& b, const Passes& s) {
 
 TEST(AdpAdapter, B1StaleTagDiscarded) {
     adapter_race();
+}
+
+void refused_discovery(const uint8_t* bytes, unsigned length) {
+    boot();
+    mbx_model_set_link(&model, 0, true);
+    settle();
+    to_waiting();
+    adp expected = *adp0();
+    expected.discarded++;
+    const auto sent = model.tx_sent;
+    const auto timers = model.tmr_ops;
+    mbx_frame frame{};
+    frame.interface = 0;
+    frame.len = static_cast<uint16_t>(length);
+    std::memcpy(frame.bytes, bytes, length);
+    app.loop.rx[MBX_CH_ADP].fn(app.loop.rx[MBX_CH_ADP].ctx, &frame);
+    EXPECT_EQ(std::memcmp(adp0(), &expected, sizeof expected), 0)
+        << "malformed discovery changes only the discard count through the parent adapter";
+    EXPECT_EQ(model.tx_sent, sent) << "malformed discovery sends no response";
+    EXPECT_EQ(model.tmr_ops, timers) << "malformed discovery touches no timer";
+}
+
+TEST(AdpAdapter, PinRejectsEveryTruncatedDiscovery) {
+    uint8_t frame[82];
+    discover(frame, 2u, 0u);
+    for (unsigned length = 0; length < 82u; ++length) {
+        refused_discovery(frame, length);
+    }
+}
+
+TEST(AdpAdapter, PinRejectsUnsupportedDiscoveryVersions) {
+    uint8_t frame[82];
+    discover(frame, 2u, 0u);
+    for (unsigned version = 1; version < 8u; ++version) {
+        frame[15] = static_cast<uint8_t>((version << 4) | 2u);
+        refused_discovery(frame, sizeof frame);
+    }
+}
+
+TEST(AdpAdapter, PinRejectsWrongDiscoveryControlLength) {
+    uint8_t frame[82];
+    discover(frame, 2u, 0u);
+    for (unsigned length : {0u, 55u, 57u, 2047u}) {
+        wire_put_be(frame + 16, length, 2);
+        refused_discovery(frame, sizeof frame);
+    }
+}
+
+TEST(AdpAdapter, PinAcceptsCompleteDiscoveryThroughMailbox) {
+    boot();
+    mbx_model_set_link(&model, 0, true);
+    settle();
+    to_waiting();
+    uint8_t frame[82];
+    discover(frame, 2u, entity.entity_id);
+    wire_put_be(frame + 16, (31u << 11) | 56u, 2);
+    const auto discarded = adp0()->discarded;
+    ASSERT_TRUE(mbx_model_rx(&model, frame, sizeof frame, 0));
+    pass();
+    EXPECT_EQ(adp0()->state, ADP_STATE_DELAY) << "complete discovery restarts advertising through the mailbox";
+    EXPECT_EQ(adp0()->discarded, discarded) << "valid_time bits are outside control_data_length";
 }
 TEST(AdpLatency, C0toC6EveryResponsePath) {
     latency();

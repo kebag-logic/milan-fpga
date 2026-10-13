@@ -432,6 +432,7 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
     wire_put_be(discover + 12, spec::ETHERTYPE, 2);
     discover[14] = spec::ADPDU_SUBTYPE;
     discover[15] = 2;
+    wire_put_be(discover + 16, 56u, 2);
     ASSERT_TRUE(mbx_model_rx(&model, discover, sizeof discover, 0));
     settle();
     EXPECT_EQ(app.adp.ifs[0].adp.state, ADP_STATE_DELAY)
@@ -441,6 +442,47 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
     post_adp_record(discover, sizeof discover);
     settle();
     EXPECT_EQ(app.adp.ifs[0].adp.discarded, discarded + 1u) << "B5 and so does any other ADPDU, which ADP discards";
+}
+
+TEST_F(AcmpMailbox, F3bComposedGateExpiresAfterIdleTickWake) {
+    mbx_model_reset(&model);
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        mbx_model_set_link(&model, interface, true);
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    EXPECT_EQ(core()->cfg.da_fresh_ms, 15000u) << "mailbox composition supplies the Milan freshness interval";
+    for (unsigned ms = 0; ms < 2200u; ++ms) {
+        mbx_model_advance_ms(&model, 1);
+        settle();
+    }
+    ASSERT_TRUE(app.maap.ifs[0].core.valid);
+    Pdu request;
+    request.msg = 0u;
+    request.talker = kOwn;
+    request.talker_uid = 0u;
+    ASSERT_TRUE(offer(request));
+    settle();
+    mbx_model_pub view{};
+    mbx_model_pub_view(&model, 0, &view);
+    ASSERT_EQ(view.da_gate, 1u) << "composed mailbox publishes the accepted probe demand";
+    mbx_model_advance_ms(&model, 14990u);
+    settle();
+    mbx_model_pub_view(&model, 0, &view);
+    ASSERT_EQ(view.da_gate, 1u);
+    struct Wake { unsigned waits = 0; bool woke = false; } wake;
+    mbx_model_bind(&model, [](void* ctx) {
+        auto* state = static_cast<Wake*>(ctx);
+        ++state->waits;
+        mbx_model_advance_ms(&model, 10u);
+        state->woke = mbx_model_irq(&model);
+    }, &wake);
+    ctrl_loop_step(&app.loop);
+    EXPECT_EQ(wake.waits, 1u) << "freshness test reaches the sleeping platform";
+    EXPECT_TRUE(wake.woke) << "service tick wakes an idle platform for freshness expiry";
+    mbx_model_bind(&model, nullptr, nullptr);
+    if (wake.woke) settle();
+    mbx_model_pub_view(&model, 0, &view);
+    EXPECT_EQ(view.da_gate, 0u) << "idle tick closes the composed gate at freshness expiry";
 }
 
 TEST_F(AcmpMailbox, B6TheGrandmasterIsTheInterfaces) {

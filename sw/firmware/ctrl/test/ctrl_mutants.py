@@ -500,6 +500,66 @@ def unnamed_tests() -> list[str]:
 
 MUTANTS += maap_mutants(Mutant)
 
+MUTANTS += (
+    Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",
+           "m->published_gate[interface] = declaring(m, interface, count, valid);",
+           "refresh_demand(m); m->published_gate[interface] = declaring(m, interface, count, valid);",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "declaration query stays outside MAAP callbacks"),
+    Mutant("f3b-composition-owner", "app/ctrl_app.c",
+           "cfg->acmp != NULL ? &app->acmp.acmp : NULL", "NULL",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "composed mailbox publishes the accepted probe demand"),
+    Mutant("f3b-idle-tick", "app/ctrl_app.c",
+           "mbx_tick_enable(true);", "mbx_tick_enable(false);",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "service tick wakes an idle platform for freshness expiry"),
+    Mutant("f3b-config-interval", "acmp/acmp_mbx.c",
+           "config.da_fresh_ms = 15000u;", "config.da_fresh_ms = 0u;",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "mailbox composition supplies the Milan freshness interval"),
+    Mutant("f3b-fresh-probe-arm", "maap/maap_mbx.c",
+           "source->answered || source->listener_registered", "false || source->listener_registered",
+           "maap", "MaapHost.DaGateFreshProbeDeclaresOnlyItsSource",
+           "fresh probe opens only its configured source"),
+    Mutant("f3b-listener-arm", "maap/maap_mbx.c",
+           "source->answered || source->listener_registered", "source->answered || false",
+           "maap", "MaapHost.DaGateListenerDeclaresWithoutProbe",
+           "registered Listener opens the gate without a probe"),
+    Mutant("f3b-no-demand-arm", "maap/maap_mbx.c",
+           "source->answered || source->listener_registered", "source->answered || source->listener_registered || true",
+           "maap", "MaapHost.DaGateWithoutDemandStaysClosed",
+           "neither probe nor Listener keeps the gate closed"),
+    Mutant("f3b-expiry-arm", ACMP_C,
+           ">= a->cfg.da_fresh_ms", "> a->cfg.da_fresh_ms",
+           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
+           "probe expires at 15000 milliseconds without a Listener"),
+    Mutant("f3b-expiry-refresh", "maap/maap_mbx.c",
+           "if (gate != m->published_gate[k])", "if (gate != m->published_gate[k] && gate != 0u)",
+           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
+           "probe expires at 15000 milliseconds without a Listener"),
+)
+
+MUTANTS += (
+    Mutant("pin-adp-short-discovery", ADP_C,
+           "len < ADP_FRAME_BYTES", "len < ADP_HEADER_BYTES + 12u",
+           "adp", "AdpAdapter.PinRejectsEveryTruncatedDiscovery",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-version", ADP_C,
+           "(frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||", "false ||",
+           "adp", "AdpAdapter.PinRejectsUnsupportedDiscoveryVersions",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-length", ADP_C,
+           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
+           "false ||", "adp", "AdpAdapter.PinRejectsWrongDiscoveryControlLength",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-valid-discovery", ADP_C,
+           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
+           "wire_be16(frame + ADP_HEADER_BYTES + 2u) != ADP_CONTROL_DATA_LENGTH ||",
+           "adp", "AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox",
+           "complete discovery restarts advertising through the mailbox"),
+)
+
 #: Lane F-INT: the publication block (#665, comment 6088423771). Each writer
 #: has a publish moved after what promises the value, a wrong field and a
 #: skipped publish; the driver's encoding and the model's twin of the RTL's
@@ -525,7 +585,7 @@ B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
 B13 = "AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream"
 ACMP_TRANSMIT = "\tpublish(a);\n\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\treturn SENT;\n\t}"
 ACMP_PUB_STREAM = "uint64_t stream = settled ? s->stream.stream_id : 0u;"
-MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);\n"
+MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, m->published_gate[interface]);\n"
 MAAP_REPORT = "\tm->allocation(m->allocation_ctx, interface, base, count, valid);"
 A31 = "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
 B10 = "AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse"
@@ -665,17 +725,18 @@ MUTANTS += (
     Mutant("pub-maap-gate-skipped", "maap/maap_mbx.c", MAAP_GATE, "",
            "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
            "DA gate opens the eight sources before the allocation is reported"),
-    Mutant("pub-maap-gate-one-source-short", "maap/maap_mbx.c", "(uint32_t)((1u << count) - 1u)",
-           "(uint32_t)((1u << (count - 1u)) - 1u)",
+    Mutant("pub-maap-gate-one-source-short", "maap/maap_mbx.c", "s < count && demand",
+           "s + 1u < count && demand",
            "maap", "MaapHost.CallbackWorkAndEveryOutputCount", "DA gate opens each of the count sources"),
-    Mutant("pub-maap-gate-open-while-invalid", "maap/maap_mbx.c", "valid ? (uint32_t)((1u << count) - 1u) : 0u",
-           "count != 0u ? (uint32_t)((1u << count) - 1u) : 0u",
+    Mutant("pub-maap-gate-open-while-invalid", "maap/maap_mbx.c", "valid && s < count && demand",
+           "s < count && (demand || !valid)",
            "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
            "DA gate closed while the range is only probed"),
     # round 3 (R583-1-F2): the gate published on interface 0 whichever
     # interface allocated, killed at two interfaces (#665 comment 6092086337)
-    Mutant("rv-maap-gate-on-interface-0", "maap/maap_mbx.c", "(void)mbx_pub_da_gate(interface, valid ?",
-           "(void)mbx_pub_da_gate(0u, valid ?",
+    Mutant("rv-maap-gate-on-interface-0", "maap/maap_mbx.c",
+           "(void)mbx_pub_da_gate(interface, m->published_gate[interface])",
+           "(void)mbx_pub_da_gate(0u, m->published_gate[interface])",
            "maap_if2", "MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport",
            "DA gate of the acquiring interface opens before its own report",
            (("maap_if2", "MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport",

@@ -40,6 +40,27 @@ class Defect:
     also: tuple[tuple[str, str], ...] = ()   # further (old, new) edits of the same file, each at one site
 
 DEFECTS = (
+    Defect('four-way-f3b-listener-not-forwarded',
+           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+           'app->srp->ifs[interface].listener_present[source]', 'false',
+           'registered Listener controls only its source interface gate',
+           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('f3b-listener-wrong-interface',
+           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+           'app->srp->ifs[interface].listener_present[source]',
+           'app->srp->ifs[(interface + 1u) % MBX_N_IF].listener_present[source]',
+           'registered Listener controls only its source interface gate',
+           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-f3b-asking-failed-excluded',
+           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+           'i->listener_present[n] = true;', 'i->listener_present[n] = v[8] == 2u || v[8] == 3u;',
+           'registered Listener controls only its source interface gate',
+           suite='test_acmp_mbx.cpp'),
+    Defect('four-way-f3b-withdrawal-stale',
+           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+           'memset(i->listener_present,0,sizeof(i->listener_present));', '',
+           'registered Listener controls only its source interface gate',
+           suite='test_acmp_mbx.cpp'),
     Defect(
         name='startup-vid',
         test='StartupDeclaresTalkersDomainAndVlan',

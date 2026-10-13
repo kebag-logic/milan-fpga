@@ -324,13 +324,14 @@ interface_publication_registers:
       offset: 0x00
       access: rw
       doc: >-
-        The talker destination-address gate: bit s is set while MAAP holds a stream
-        destination address for source s on this interface (IEEE 1722-2016 Annex B).
-        The MAAP owner writes it before it reports the allocation, which a
-        PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1). It is address validity
-        only. The processor's acmp_declaring_o also needs a probe within T-SRP-DAFRESH
-        or a registered Listener (Milan v1.2 4.3.3.1), which the firmware ACMP talker
-        does not implement yet (#665, comment 6092086337).
+        The talker declaration gate: bit s is set when source s on this
+        interface has a valid destination address and either an answered probe
+        younger than T-SRP-DAFRESH (15000 ms) or a registered Listener
+        (Milan v1.2 4.3.3.1). This is the processor's acmp_declaring_o predicate.
+        The MAAP adapter publishes it before each allocation report and refreshes
+        it after service, including idle service ticks. Invalid destinations,
+        absent demand and expired probe demand close the gate. Any matching
+        Listener counts, including Asking Failed; LICENCE remains separate.
       fields:
         - {name: OPEN, lsb: 0, width: 16, doc: "bit s: source s may send to its destination address"}
     - name: LICENCE
