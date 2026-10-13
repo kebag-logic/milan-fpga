@@ -3,7 +3,8 @@
 from __future__ import annotations
 import sys
 from pathlib import Path
-from ctrl_build import CTRL, HERE, ROOT, HARNESS, C_FLAGS, Tree, Outcome, Refusal, run
+from ctrl_build import (CTRL, HERE, ROOT, HARNESS, C_FLAGS, STACK, STACK_INCLUDE, STACK_TESTS, Tree, Outcome, Refusal,
+                        run, source, stack_pin)
 import fw_gtest
 
 AECP_SOURCES = ("aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "aecp_state.c")
@@ -39,7 +40,7 @@ def application_sources(tree: Tree) -> tuple[list, list, list]:
     lw = ROOT / "third_party/lwSRP"
     lwsrp_pin(lw)
     inc = ["-DAECP_TEST_APP", "-DLWSRP_MILAN=1", f"-I{lw/'src/include'}", f"-I{lw/'src'}"]
-    sources = [tree.src / n for n in PORTABLE if n not in ("loop/ctrl_loop.c", "mbx/mbx.c")]
+    sources = [source(tree.src, tree.stack, n) for n in PORTABLE if n not in ("loop/ctrl_loop.c", "mbx/mbx.c")]
     sources += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c")]
     sources += [lw / "src" / n for n in LWSRP_SOURCES]
     return inc, sources, []
@@ -58,7 +59,7 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
                   str(config), "-o", str(out / "aecp_entity_gen.h")])
     if result.returncode:
         raise Refusal(result.stderr)
-    inc = [f"-I{tree.src / 'aecp'}", f"-I{tree.src / 'wire'}", f"-I{HARNESS}",
+    inc = [f"-I{tree.src / 'aecp'}", f"-I{tree.stack / STACK_INCLUDE}", f"-I{HARNESS}",
            f"-I{out}", f"-I{tree.src / 'test'}", f"-DAECP_TEST_INTERFACES={interfaces}"]
     sources = [tree.src / "aecp" / n for n in AECP_SOURCES]
     host_sources = []
@@ -79,7 +80,7 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
     try:
         objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc, sources, out / "firmware", measured=not debug)
         objects += fw_gtest.compile_c(tree.build, C_FLAGS, inc, host_sources, out / "host", measured=False)
-        tests = fw_gtest.compile_tests(tree.build, inc, [HERE / test_source], out / "tests")
+        tests = fw_gtest.compile_tests(tree.build, [*inc, f"-I{STACK_TESTS}"], [HERE / test_source], out / "tests")
         exe = fw_gtest.link(tree.build, [*objects, *tests, fw_gtest.main_object(tree.build, out / "main")],
                             out / "suite")
         ok, log = fw_gtest.run_binary(exe, [f"--gtest_filter={selected}"])
@@ -97,7 +98,7 @@ def image_arm(tree: Tree, config: Path) -> Outcome:
                   str(config), "-o", str(out / "aecp_entity_gen.h")])
     if result.returncode:
         raise Refusal(result.stderr)
-    inc = [f"-I{tree.src / 'aecp'}", f"-I{tree.src / 'wire'}",
+    inc = [f"-I{tree.src / 'aecp'}", f"-I{tree.stack / STACK_INCLUDE}",
            f"-I{HARNESS}", f"-I{out}"]
     try:
         objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc,
@@ -118,7 +119,8 @@ def all_arms(tree: Tree) -> list[Outcome]:
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
-        results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build), shipping, mode="debug"))
+        results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,
+                                mode="debug"))
     return results
 
 
@@ -136,9 +138,15 @@ if __name__ == "__main__":
     parser.add_argument("--filter", default="*")
     parser.add_argument("--app", action="store_true")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--stack", type=Path, default=STACK, help="the tsn-c-stack checkout (default: the submodule)")
     args = parser.parse_args()
+    try:
+        print(f"tsn-c-stack at {stack_pin(args.stack.resolve())}", flush=True)
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        raise SystemExit(2) from exc
     build = fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4)
-    tree = Tree(CTRL, args.output, args.output / "reuse", build)
+    tree = Tree(CTRL, args.output, args.output / "reuse", build, args.stack.resolve())
     mode = next((n for n in ("app", "debug", "mailbox", "nvm", "core") if getattr(args, n)), "image")
     result = (image_arm(tree, args.config) if mode == "image" else
               core_arm(tree, args.config, args.interfaces, mode, args.filter))

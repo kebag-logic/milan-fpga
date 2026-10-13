@@ -14,7 +14,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(ROOT / "sw/firmware/ctrl/test"))
 import aecp_arms  # noqa: E402
-from ctrl_build import CTRL, Tree  # noqa: E402
+from ctrl_build import CTRL, STACK, Refusal, Tree, stack_pin  # noqa: E402
 import fw_gtest  # noqa: E402
 
 
@@ -40,7 +40,18 @@ def main() -> int:
     parser.add_argument("--work", type=Path)
     parser.add_argument("--variant", choices=("clean", "late", "rate", "fixed-grid"), default="clean")
     parser.add_argument("--shape", type=int, choices=(1, 8), default=1)
+    parser.add_argument("--stack", type=Path, default=STACK)
+    parser.add_argument("--build-only", action="store_true")
     args = parser.parse_args()
+    if args.build_only and args.variant != "clean":
+        parser.error("--build-only runs no test, so it plants no defect")
+    stack = args.stack.resolve()
+    try:
+        print(f"tsn-c-stack at {stack_pin(stack)}", flush=True)
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+    fw_gtest.EXECUTION.run = not args.build_only
     temporary = tempfile.TemporaryDirectory(prefix="stream-counter-f5-") if args.work is None else None
     work = args.work.resolve() if args.work else Path(temporary.name)
     work.mkdir(parents=True, exist_ok=True)
@@ -60,7 +71,7 @@ def main() -> int:
             raise RuntimeError("counter deadline plant anchor moved")
         delay = 2000 if args.variant == "late" else 500
         path.write_text(text.replace(anchor, f"e->counter_at = departure_ms + {delay}u;"))
-    tree = Tree(source, work / "build", work / "reuse", fw_gtest.Build(jobs=2))
+    tree = Tree(source, work / "build", work / "reuse", fw_gtest.Build(jobs=2), stack=stack)
     shape = "endstation_ax7101_1x1_tdm8" if args.shape == 1 else "endstation_ax7101_8x8"
     group = {"late": "CADENCE", "rate": "RATE", "fixed-grid": "PHASE"}.get(args.variant)
     for omitted in (None, group) if group else (None,):
@@ -77,7 +88,10 @@ def main() -> int:
                 raise RuntimeError(f"unattributable {args.variant}: {result.log}")
         elif result.rc:
             raise RuntimeError(result.log)
-        print(f"F5 {args.shape}x{args.shape} {args.variant} {name}: rc={result.rc}")
+        if args.build_only:
+            print(f"F5 {args.shape}x{args.shape}: BUILT")
+        else:
+            print(f"F5 {args.shape}x{args.shape} {args.variant} {name}: rc={result.rc}")
     if temporary:
         temporary.cleanup()
     return 0
