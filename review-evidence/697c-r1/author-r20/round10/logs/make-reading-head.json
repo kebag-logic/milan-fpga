@@ -1,0 +1,251 @@
+{
+ "tb/verilator/mbx/Makefile": {
+  "recipes": {
+   "all": {
+    "if2-gen": [
+     "python3 -B ../../../sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out <root>/tb/verilator/mbx/obj_if2/gen"
+    ],
+    "mutants-quick": [
+     "python3 -B mutants.py --quick"
+    ],
+    "obj_fw/libctrlfw.a": [
+     "mkdir -p obj_fw",
+     "rm -f obj_fw/*.o obj_fw/libctrlfw.a",
+     "cd obj_fw && cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm -c <root>/sw/firmware/ctrl/mbx/mbx.c <root>/sw/firmware/ctrl/loop/ctrl_loop.c <root>/sw/firmware/ctrl/port/ctrl_pool.c <root>/sw/firmware/ctrl/port/ctrl_debug.c <root>/sw/firmware/ctrl/port/shlan_port.c <root>/sw/firmware/ctrl/adp/adp_mbx.c <root>/sw/firmware/ctrl/maap/maap_mbx.c <root>/sw/firmware/ctrl/maap/maap_csr.c <root>/sw/firmware/ctrl/acmp/acmp_mbx.c <root>/sw/firmware/ctrl/acmp/acmp_nvm.c <root>/sw/firmware/ctrl/app/ctrl_app.c <root>/sw/firmware/ctrl/host/mbx_model.c <work>/stack-link/src/adp.c <work>/stack-link/src/maap.c <work>/stack-link/src/acmp.c",
+     "cd obj_fw && ar crs libctrlfw.a *.o"
+    ],
+    "run-axil": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil",
+     "echo \"======================================================================\"",
+     "./obj_axil/Vmbx_axil 1"
+    ],
+    "run-cosim": [
+     "if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \\",
+     "  rm -f obj_cosim/Vmbx_cosim; fi",
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=0 --Mdir obj_cosim ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv cosim_main.cpp \\",
+     "  -CFLAGS \"-Wall -Wextra -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm\" -LDFLAGS \"<root>/tb/verilator/mbx/obj_fw/libctrlfw.a\" -o Vmbx_cosim",
+     "echo \"======================================================================\"",
+     "./obj_cosim/Vmbx_cosim"
+    ],
+    "run-if2": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/tb/verilator/mbx/obj_if2/gen\" -GHOST_P=0 --Mdir obj_if2/obj_wb <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb",
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/tb/verilator/mbx/obj_if2/gen\" -GHOST_P=1 --Mdir obj_if2/obj_axil <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil",
+     "cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<root>/tb/verilator/mbx/obj_if2/gen -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm \\",
+     "  -c <root>/sw/firmware/ctrl/host/mbx_model.c -o obj_if2/mbx_model.o",
+     "g++ -std=c++17 -O2 -Wall -Wextra -Werror -I<root>/tb/verilator/mbx/obj_if2/gen -I. -I<root>/sw/firmware/ctrl/test -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm \\",
+     "  model_main.cpp obj_if2/mbx_model.o -o obj_if2/Vmbx_model",
+     "echo \"======================================================================\"",
+     "./obj_if2/obj_wb/Vmbx_wb 0",
+     "./obj_if2/obj_axil/Vmbx_axil 1",
+     "./obj_if2/Vmbx_model"
+    ],
+    "run-wb": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=0 --Mdir obj_wb ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb",
+     "echo \"======================================================================\"",
+     "./obj_wb/Vmbx_wb 0"
+    ],
+    "stack-pin": [
+     "python3 -B <root>/sw/firmware/ctrl/test/ctrl_build.py --stack-pin <work>/stack-link"
+    ]
+   },
+   "clean": {
+    "clean": [
+     "rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2"
+    ]
+   },
+   "if2-gen": {
+    "if2-gen": [
+     "python3 -B ../../../sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out <root>/tb/verilator/mbx/obj_if2/gen"
+    ]
+   },
+   "mutants": {
+    "mutants": [
+     "python3 -B mutants.py"
+    ]
+   },
+   "mutants-quick": {
+    "mutants-quick": [
+     "python3 -B mutants.py --quick"
+    ],
+    "run-axil": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil",
+     "echo \"======================================================================\"",
+     "./obj_axil/Vmbx_axil 1"
+    ],
+    "run-wb": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=0 --Mdir obj_wb ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb",
+     "echo \"======================================================================\"",
+     "./obj_wb/Vmbx_wb 0"
+    ]
+   },
+   "obj_fw/libctrlfw.a": {
+    "obj_fw/libctrlfw.a": [
+     "mkdir -p obj_fw",
+     "rm -f obj_fw/*.o obj_fw/libctrlfw.a",
+     "cd obj_fw && cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm -c <root>/sw/firmware/ctrl/mbx/mbx.c <root>/sw/firmware/ctrl/loop/ctrl_loop.c <root>/sw/firmware/ctrl/port/ctrl_pool.c <root>/sw/firmware/ctrl/port/ctrl_debug.c <root>/sw/firmware/ctrl/port/shlan_port.c <root>/sw/firmware/ctrl/adp/adp_mbx.c <root>/sw/firmware/ctrl/maap/maap_mbx.c <root>/sw/firmware/ctrl/maap/maap_csr.c <root>/sw/firmware/ctrl/acmp/acmp_mbx.c <root>/sw/firmware/ctrl/acmp/acmp_nvm.c <root>/sw/firmware/ctrl/app/ctrl_app.c <root>/sw/firmware/ctrl/host/mbx_model.c <work>/stack-link/src/adp.c <work>/stack-link/src/maap.c <work>/stack-link/src/acmp.c",
+     "cd obj_fw && ar crs libctrlfw.a *.o"
+    ],
+    "stack-pin": [
+     "python3 -B <root>/sw/firmware/ctrl/test/ctrl_build.py --stack-pin <work>/stack-link"
+    ]
+   },
+   "print-vflags": {
+    "print-vflags": [
+     "printf '%s\\n' verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\""
+    ]
+   },
+   "run-axil": {
+    "run-axil": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil",
+     "echo \"======================================================================\"",
+     "./obj_axil/Vmbx_axil 1"
+    ]
+   },
+   "run-cosim": {
+    "obj_fw/libctrlfw.a": [
+     "mkdir -p obj_fw",
+     "rm -f obj_fw/*.o obj_fw/libctrlfw.a",
+     "cd obj_fw && cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm -c <root>/sw/firmware/ctrl/mbx/mbx.c <root>/sw/firmware/ctrl/loop/ctrl_loop.c <root>/sw/firmware/ctrl/port/ctrl_pool.c <root>/sw/firmware/ctrl/port/ctrl_debug.c <root>/sw/firmware/ctrl/port/shlan_port.c <root>/sw/firmware/ctrl/adp/adp_mbx.c <root>/sw/firmware/ctrl/maap/maap_mbx.c <root>/sw/firmware/ctrl/maap/maap_csr.c <root>/sw/firmware/ctrl/acmp/acmp_mbx.c <root>/sw/firmware/ctrl/acmp/acmp_nvm.c <root>/sw/firmware/ctrl/app/ctrl_app.c <root>/sw/firmware/ctrl/host/mbx_model.c <work>/stack-link/src/adp.c <work>/stack-link/src/maap.c <work>/stack-link/src/acmp.c",
+     "cd obj_fw && ar crs libctrlfw.a *.o"
+    ],
+    "run-cosim": [
+     "if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \\",
+     "  rm -f obj_cosim/Vmbx_cosim; fi",
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=0 --Mdir obj_cosim ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv cosim_main.cpp \\",
+     "  -CFLAGS \"-Wall -Wextra -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm\" -LDFLAGS \"<root>/tb/verilator/mbx/obj_fw/libctrlfw.a\" -o Vmbx_cosim",
+     "echo \"======================================================================\"",
+     "./obj_cosim/Vmbx_cosim"
+    ],
+    "stack-pin": [
+     "python3 -B <root>/sw/firmware/ctrl/test/ctrl_build.py --stack-pin <work>/stack-link"
+    ]
+   },
+   "run-if2": {
+    "if2-gen": [
+     "python3 -B ../../../sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out <root>/tb/verilator/mbx/obj_if2/gen"
+    ],
+    "run-if2": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/tb/verilator/mbx/obj_if2/gen\" -GHOST_P=0 --Mdir obj_if2/obj_wb <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb",
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/tb/verilator/mbx/obj_if2/gen\" -GHOST_P=1 --Mdir obj_if2/obj_axil <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv <root>/tb/verilator/mbx/obj_if2/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil",
+     "cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I<root>/tb/verilator/mbx/obj_if2/gen -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm \\",
+     "  -c <root>/sw/firmware/ctrl/host/mbx_model.c -o obj_if2/mbx_model.o",
+     "g++ -std=c++17 -O2 -Wall -Wextra -Werror -I<root>/tb/verilator/mbx/obj_if2/gen -I. -I<root>/sw/firmware/ctrl/test -I<root>/sw/firmware/ctrl/mbx -I<root>/sw/firmware/ctrl/host -I<root>/sw/firmware/ctrl/port -I<root>/sw/firmware/ctrl/loop -I<root>/sw/firmware/ctrl/adp -I<root>/sw/firmware/ctrl/maap -I<root>/sw/firmware/ctrl/acmp -I<root>/sw/firmware/ctrl/app -I<work>/stack-link/include -I<root>/sw/firmware/ctrl_nvm \\",
+     "  model_main.cpp obj_if2/mbx_model.o -o obj_if2/Vmbx_model",
+     "echo \"======================================================================\"",
+     "./obj_if2/obj_wb/Vmbx_wb 0",
+     "./obj_if2/obj_axil/Vmbx_axil 1",
+     "./obj_if2/Vmbx_model"
+    ],
+    "stack-pin": [
+     "python3 -B <root>/sw/firmware/ctrl/test/ctrl_build.py --stack-pin <work>/stack-link"
+    ]
+   },
+   "run-wb": {
+    "run-wb": [
+     "verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS \"-std=c++17 -O2 -Wall -Wextra -I<root>/sw/firmware/ctrl/mbx\" -GHOST_P=0 --Mdir obj_wb ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb",
+     "echo \"======================================================================\"",
+     "./obj_wb/Vmbx_wb 0"
+    ]
+   },
+   "stack-pin": {
+    "stack-pin": [
+     "python3 -B <root>/sw/firmware/ctrl/test/ctrl_build.py --stack-pin <work>/stack-link"
+    ]
+   }
+  },
+  "stack_targets": [
+   [
+    "run-cosim",
+    "obj_fw/libctrlfw.a",
+    "stack-pin",
+    "all",
+    "run-if2"
+   ],
+   [
+    "stack-pin"
+   ],
+   []
+  ],
+  "targets": {
+   "all": [
+    "mutants-quick",
+    "run-axil",
+    "run-cosim",
+    "run-if2",
+    "run-wb"
+   ],
+   "clean": [],
+   "if2-gen": [],
+   "mutants": [],
+   "mutants-quick": [
+    "run-axil",
+    "run-wb"
+   ],
+   "obj_fw/libctrlfw.a": [
+    "<root>/sw/firmware/ctrl/acmp/acmp_mbx.c",
+    "<root>/sw/firmware/ctrl/acmp/acmp_mbx.h",
+    "<root>/sw/firmware/ctrl/acmp/acmp_nvm.c",
+    "<root>/sw/firmware/ctrl/acmp/acmp_nvm.h",
+    "<root>/sw/firmware/ctrl/adp/adp_mbx.c",
+    "<root>/sw/firmware/ctrl/adp/adp_mbx.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_image.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_internal.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_mbx.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_model.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_nvm.h",
+    "<root>/sw/firmware/ctrl/aecp/aecp_state.h",
+    "<root>/sw/firmware/ctrl/app/ctrl_app.c",
+    "<root>/sw/firmware/ctrl/app/ctrl_app.h",
+    "<root>/sw/firmware/ctrl/app/ctrl_app_aecp.h",
+    "<root>/sw/firmware/ctrl/host/mbx_model.c",
+    "<root>/sw/firmware/ctrl/host/mbx_model.h",
+    "<root>/sw/firmware/ctrl/loop/ctrl_loop.c",
+    "<root>/sw/firmware/ctrl/loop/ctrl_loop.h",
+    "<root>/sw/firmware/ctrl/maap/maap_csr.c",
+    "<root>/sw/firmware/ctrl/maap/maap_csr.h",
+    "<root>/sw/firmware/ctrl/maap/maap_mbx.c",
+    "<root>/sw/firmware/ctrl/maap/maap_mbx.h",
+    "<root>/sw/firmware/ctrl/mbx/mbx.c",
+    "<root>/sw/firmware/ctrl/mbx/mbx.h",
+    "<root>/sw/firmware/ctrl/mbx/mbx_contract.h",
+    "<root>/sw/firmware/ctrl/mbx/mbx_hal.h",
+    "<root>/sw/firmware/ctrl/mbx/mbx_wire.h",
+    "<root>/sw/firmware/ctrl/port/ctrl_debug.c",
+    "<root>/sw/firmware/ctrl/port/ctrl_debug.h",
+    "<root>/sw/firmware/ctrl/port/ctrl_pool.c",
+    "<root>/sw/firmware/ctrl/port/ctrl_pool.h",
+    "<root>/sw/firmware/ctrl/port/shlan_port.c",
+    "<root>/sw/firmware/ctrl/port/shlan_port.h",
+    "<root>/sw/firmware/ctrl/srp/srp_bounds.h",
+    "<root>/sw/firmware/ctrl/srp/srp_mbx.h",
+    "<root>/sw/firmware/ctrl/test/mmio_window.h",
+    "<root>/sw/firmware/ctrl_nvm/nvm_flash.h",
+    "<root>/sw/firmware/ctrl_nvm/nvm_klj2.h",
+    "<root>/sw/firmware/ctrl_nvm/nvm_shape.h",
+    "<root>/sw/firmware/ctrl_nvm/nvm_state.h",
+    "<root>/sw/firmware/ctrl_nvm/nvm_store.h",
+    "<work>/stack-link/include/acmp.h",
+    "<work>/stack-link/include/adp.h",
+    "<work>/stack-link/include/maap.h",
+    "<work>/stack-link/include/wire.h",
+    "<work>/stack-link/src/acmp.c",
+    "<work>/stack-link/src/adp.c",
+    "<work>/stack-link/src/maap.c",
+    "stack-pin"
+   ],
+   "print-vflags": [],
+   "run-axil": [],
+   "run-cosim": [
+    "obj_fw/libctrlfw.a",
+    "stack-pin"
+   ],
+   "run-if2": [
+    "if2-gen",
+    "stack-pin"
+   ],
+   "run-wb": [],
+   "stack-pin": []
+  }
+ }
+}

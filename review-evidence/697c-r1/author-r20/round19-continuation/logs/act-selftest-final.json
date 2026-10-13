@@ -1,0 +1,32 @@
+{
+  "label": "act-selftest-final",
+  "argv": [
+    "podman",
+    "run",
+    "--rm",
+    "--network=none",
+    "--read-only",
+    "--userns=keep-id",
+    "--user",
+    "1000:1000",
+    "-e",
+    "TMPDIR=/work",
+    "-e",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "-v",
+    "$WORK/act-tmp:/work",
+    "-v",
+    "$WORK/clone-ci:/candidate:ro",
+    "-v",
+    "$SCRATCH/stubs:/usr/local/bin:ro",
+    "-w",
+    "/candidate",
+    "localhost/697c-r6-ci:latest",
+    "python3",
+    "-I",
+    "scripts/act_ci.py",
+    "--selftest"
+  ],
+  "rc": 0,
+  "seconds": 3.72
+}

@@ -1,0 +1,15 @@
+BASELINE clean  H0 none: clean: passes; 0 escaped
+CAUGHT  H1 the helper's own code not required: clean: passes; 1 escaped
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+NOT CAUGHT  H2 the program not checked: clean: passes; 0 escaped
+NOT CAUGHT  H3 GIT_NO_REPLACE_OBJECTS not checked: clean: passes; 0 escaped
+NOT CAUGHT  H4 the graft file not checked: clean: passes; 0 escaped
+NOT CAUGHT  H5 the decision not a scope: clean: passes; 0 escaped
+NOT CAUGHT  H6 a proof module's top level not a scope: clean: passes; 0 escaped
+NOT CAUGHT  H7 the proof's own dynamic code not refused: clean: passes; 0 escaped
+NOT CAUGHT  H8 dynamic code while deciding not refused: clean: passes; 0 escaped
+NOT CAUGHT  H9 an import of importlib not refused: clean: passes; 0 escaped
+NOT CAUGHT  H10 a function's code replaceable: clean: passes; 0 escaped
+NOT CAUGHT  H11 thread starts not refused: clean: passes; 0 escaped
+NOT CAUGHT  H12 the collector's lists not refused: clean: passes; 0 escaped
+restored True

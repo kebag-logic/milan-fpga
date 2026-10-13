@@ -1,0 +1,21 @@
+BASELINE clean  H0 none: clean: passes; 0 escaped
+NOT CAUGHT  H1 the helper's own code not required: clean: passes; 0 escaped
+NOT CAUGHT  H2 the program not checked: clean: passes; 0 escaped
+NOT CAUGHT  H3 GIT_NO_REPLACE_OBJECTS not checked: clean: passes; 0 escaped
+NOT CAUGHT  H4 the graft file not checked: clean: passes; 0 escaped
+CAUGHT  H5 the decision not a scope: clean: passes; 5 escaped
+    a Git command run by the harness's runner (ctrl_build.run) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:589 to 589 that holds (subprocess.Popen): []]
+    a program named by a computed name (git.__name__) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a dashed program (git-ls-tree) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 595 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a refusal caught and ignored [no refusal at sw/firmware/ctrl/test/ctrl_build.py:595 to 599 that holds (subprocess.Popen): []]
+NOT CAUGHT  H6 a proof module's top level not a scope: clean: passes; 0 escaped
+CAUGHT  H7 the proof's own dynamic code not refused: clean: passes; 1 escaped
+    inspect.builtins.exec, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:1001 to 1003 that holds asks for compile: ['<string>:1 starts git (subprocess.Popen) while the pin proof runs, n]
+NOT CAUGHT  H8 dynamic code while deciding not refused: clean: passes; 0 escaped
+NOT CAUGHT  H9 an import of importlib not refused: clean: passes; 0 escaped
+NOT CAUGHT  H10 a function's code replaceable: clean: passes; 0 escaped
+NOT CAUGHT  H11 thread starts not refused: clean: passes; 0 escaped
+CAUGHT  H12 the collector's lists not refused: clean: passes; 1 escaped
+    the collector's list of objects, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:1001 to 1003 that holds asks for gc.get_objects: []]
+restored True

@@ -1,0 +1,15 @@
+{
+  "label": "unit-avtp-rxmon",
+  "argv": [
+    "env",
+    "VERILATOR=$WORK/verilator-two",
+    "python3",
+    "$WORK/in_checkout.py",
+    "$WORK/clone-ci",
+    "make",
+    "-C",
+    "tb/verilator/avtp_rxmon"
+  ],
+  "rc": 0,
+  "seconds": 72.07
+}

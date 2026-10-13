@@ -1,0 +1,15 @@
+{
+  "label": "capture-memory-build",
+  "argv": [
+    "$SCRATCH/r5/venv312/bin/python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/capture-memory-build",
+    "--",
+    "$SCRATCH/r5/venv312/bin/python3",
+    "sw/litex/test_ctrl_memory.py",
+    "--build-only"
+  ],
+  "rc": 0,
+  "seconds": 1.07
+}

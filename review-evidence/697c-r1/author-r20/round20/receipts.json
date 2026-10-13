@@ -1,0 +1,1006 @@
+[
+  {
+    "label": "images-head",
+    "argv": [
+      "python3",
+      "$WORK/images.py",
+      "$CANDIDATE",
+      "$WORK/images-head"
+    ],
+    "rc": 0,
+    "seconds": 169.53
+  },
+  {
+    "label": "images-dev",
+    "argv": [
+      "python3",
+      "$WORK/images.py",
+      "$DEV",
+      "$WORK/images-dev"
+    ],
+    "rc": 0,
+    "seconds": 168.37
+  },
+  {
+    "label": "image-delta",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_image.py",
+      "--base",
+      "e81ce82f9aa3e4dcaffa5bcdf7e60f0c7cffd80c",
+      "--out",
+      "$WORK/image-delta"
+    ],
+    "rc": 0,
+    "seconds": 9.4
+  },
+  {
+    "label": "boundary",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--without",
+      "verilator",
+      "--capture",
+      "$WORK/captures/rv32",
+      "--capture",
+      "$WORK/captures/control",
+      "--capture",
+      "$WORK/captures/store",
+      "--capture",
+      "$WORK/captures/coverage",
+      "--capture",
+      "$WORK/captures/memory",
+      "--capture",
+      "$WORK/captures/f5"
+    ],
+    "rc": 0,
+    "seconds": 117.08
+  },
+  {
+    "label": "boundary-v",
+    "argv": [
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-v",
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--only",
+      "verilator"
+    ],
+    "rc": 0,
+    "seconds": 511.49
+  },
+  {
+    "label": "held-text",
+    "argv": [
+      "python3",
+      "$WORK/held_text_probe.py",
+      "$CANDIDATE"
+    ],
+    "rc": 0,
+    "seconds": 0.16
+  },
+  {
+    "label": "pins-final",
+    "argv": [
+      "python3",
+      "-B",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "$CANDIDATE",
+      "$WORK/pins-final"
+    ],
+    "rc": 0,
+    "seconds": 33.45
+  },
+  {
+    "label": "pins314-256",
+    "argv": [
+      "python3",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "$CANDIDATE",
+      "$WORK/pins314-256"
+    ],
+    "rc": 0,
+    "seconds": 37.65
+  },
+  {
+    "label": "pins312-243",
+    "argv": [
+      "python3",
+      "$WORK/git243.py",
+      "python3",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "$CANDIDATE",
+      "$WORK/pins312-243"
+    ],
+    "rc": 0,
+    "seconds": 39.47
+  },
+  {
+    "label": "pins314-243",
+    "argv": [
+      "python3",
+      "$WORK/git243.py",
+      "python3",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "$CANDIDATE",
+      "$WORK/pins314-243"
+    ],
+    "rc": 0,
+    "seconds": 39.95
+  },
+  {
+    "label": "firmware",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "0/4"
+    ],
+    "rc": 0,
+    "seconds": 295.18
+  },
+  {
+    "label": "aecp",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "2/4"
+    ],
+    "rc": 0,
+    "seconds": 221.9
+  },
+  {
+    "label": "control-0",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "control",
+      "0",
+      "$WORK/control-0"
+    ],
+    "rc": 0,
+    "seconds": 250.44
+  },
+  {
+    "label": "control-1",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "control",
+      "1",
+      "$WORK/control-1"
+    ],
+    "rc": 0,
+    "seconds": 265.49
+  },
+  {
+    "label": "control-2",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "control",
+      "2",
+      "$WORK/control-2"
+    ],
+    "rc": 0,
+    "seconds": 304.39
+  },
+  {
+    "label": "control-3",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "control",
+      "3",
+      "$WORK/control-3"
+    ],
+    "rc": 0,
+    "seconds": 256.64
+  },
+  {
+    "label": "srp2-0",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "srp2",
+      "0",
+      "$WORK/srp2-0"
+    ],
+    "rc": 0,
+    "seconds": 260.59
+  },
+  {
+    "label": "srp2-1",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "srp2",
+      "1",
+      "$WORK/srp2-1"
+    ],
+    "rc": 0,
+    "seconds": 263.73
+  },
+  {
+    "label": "srp1-0",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "srp1",
+      "0",
+      "$WORK/srp1-0"
+    ],
+    "rc": 0,
+    "seconds": 125.82
+  },
+  {
+    "label": "srp1-1",
+    "argv": [
+      "python3",
+      "$WORK/campaign.py",
+      "srp1",
+      "1",
+      "$WORK/srp1-1"
+    ],
+    "rc": 0,
+    "seconds": 113.06
+  },
+  {
+    "label": "lwsrp-pin",
+    "argv": [
+      "python3",
+      "-B",
+      "-c",
+      "import sys; from pathlib import Path; sys.path.insert(0,\"sw/firmware/ctrl/test\"); import ctrl_mutants; raise SystemExit(ctrl_mutants.lwsrp_pin_arms(Path(\"$WORK/lwsrp-pin\"),Path(\"third_party/lwSRP\").resolve()))"
+    ],
+    "rc": 0,
+    "seconds": 0.16
+  },
+  {
+    "label": "store",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 85.99
+  },
+  {
+    "label": "coverage-head",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 251.23
+  },
+  {
+    "label": "coverage-dev",
+    "argv": [
+      "python3",
+      "$WORK/in_checkout.py",
+      "$DEV",
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 264.5
+  },
+  {
+    "label": "memory-full",
+    "argv": [
+      "$HOST_PATH",
+      "sw/litex/test_ctrl_memory.py"
+    ],
+    "rc": 0,
+    "seconds": 71.81
+  },
+  {
+    "label": "hook312",
+    "argv": [
+      "python3",
+      "$SCRATCH/round18/scripts/hook_mutants.py",
+      "$WORK/clone-hooks"
+    ],
+    "rc": 0,
+    "seconds": 201.21
+  },
+  {
+    "label": "hook314",
+    "argv": [
+      "python3",
+      "$SCRATCH/round18/scripts/hook_mutants.py",
+      "$WORK/clone-hooks"
+    ],
+    "rc": 0,
+    "seconds": 219.77
+  },
+  {
+    "label": "entrypoints",
+    "argv": [
+      "python3",
+      "$WORK/entrypoints20.py",
+      "$WORK/clone-pin",
+      "$WORK/entrypoints"
+    ],
+    "rc": 0,
+    "seconds": 53.44
+  },
+  {
+    "label": "config256a-final",
+    "argv": [
+      "python3",
+      "$WORK/super_mutants20.py",
+      "$WORK/clone-config",
+      "$WORK/config256a-final",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "N0",
+      "N1",
+      "N2",
+      "N3",
+      "N4"
+    ],
+    "rc": 0,
+    "seconds": 337.52
+  },
+  {
+    "label": "config256b",
+    "argv": [
+      "python3",
+      "$WORK/super_mutants20.py",
+      "$WORK/clone-config",
+      "$WORK/config256b",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "N5",
+      "N6",
+      "N7",
+      "N8",
+      "N9",
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6"
+    ],
+    "rc": 0,
+    "seconds": 322.69
+  },
+  {
+    "label": "config243a",
+    "argv": [
+      "python3",
+      "$WORK/git243.py",
+      "python3",
+      "$WORK/super_mutants20.py",
+      "$WORK/clone-hooks",
+      "$WORK/config243a",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "N0",
+      "N1",
+      "N2",
+      "N3",
+      "N4"
+    ],
+    "rc": 0,
+    "seconds": 334.09
+  },
+  {
+    "label": "config243b",
+    "argv": [
+      "python3",
+      "$WORK/git243.py",
+      "python3",
+      "$WORK/super_mutants20.py",
+      "$WORK/clone-hooks",
+      "$WORK/config243b",
+      "$EVIDENCE/round19/run_pin_controls.py",
+      "N5",
+      "N6",
+      "N7",
+      "N8",
+      "N9",
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6"
+    ],
+    "rc": 0,
+    "seconds": 321.39
+  },
+  {
+    "label": "ci-plants",
+    "argv": [
+      "python3",
+      "$SCRATCH/round19-resume/ciplants19.py",
+      "$WORK/clone-ci"
+    ],
+    "rc": 0,
+    "seconds": 3.27
+  },
+  {
+    "label": "shard-pin",
+    "argv": [
+      "python3",
+      "$SCRATCH/round18/scripts/shardpin18.py",
+      "$WORK/clone-ci",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 8.86
+  },
+  {
+    "label": "probes243",
+    "argv": [
+      "python3",
+      "$WORK/git243.py",
+      "bash",
+      "$SCRATCH/round18/scripts/probes17.sh",
+      "$WORK/clone-ci",
+      "$WORK/probes243",
+      "$WORK/logs/probes243"
+    ],
+    "rc": 0,
+    "seconds": 12.87
+  },
+  {
+    "label": "probes256",
+    "argv": [
+      "bash",
+      "$SCRATCH/round18/scripts/probes17.sh",
+      "$WORK/clone-ci",
+      "$WORK/probes256",
+      "$WORK/logs/probes256"
+    ],
+    "rc": 0,
+    "seconds": 12.12
+  },
+  {
+    "label": "act-selftest",
+    "argv": [
+      "podman",
+      "run",
+      "--rm",
+      "--network=none",
+      "--read-only",
+      "--userns=keep-id",
+      "--user",
+      "1000:1000",
+      "-e",
+      "TMPDIR=/work",
+      "-e",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "-v",
+      "$WORK/act-tmp:/work",
+      "-v",
+      "$CANDIDATE:/candidate:ro",
+      "-v",
+      "$SCRATCH/stubs:/usr/local/bin:ro",
+      "-w",
+      "/candidate",
+      "localhost/697c-r6-ci:latest",
+      "python3",
+      "-I",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.28
+  },
+  {
+    "label": "suite-shards",
+    "argv": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.62
+  },
+  {
+    "label": "docs-head",
+    "argv": [
+      "bash",
+      "$SCRATCH/round18/scripts/docsjob.sh",
+      "$CANDIDATE",
+      "$WORK/logs/docs-head",
+      "python3",
+      "e81ce82f"
+    ],
+    "rc": 0,
+    "seconds": 176.22
+  },
+  {
+    "label": "quick",
+    "argv": [
+      "python3",
+      "$WORK/quick.py"
+    ],
+    "rc": 0,
+    "seconds": 71.92
+  },
+  {
+    "label": "stream-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--work",
+      "$WORK/stream-1"
+    ],
+    "rc": 0,
+    "seconds": 66.03
+  },
+  {
+    "label": "stream-8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--work",
+      "$WORK/stream-8"
+    ],
+    "rc": 0,
+    "seconds": 84.74
+  },
+  {
+    "label": "stream-frames1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "$WORK/stream-frames1"
+    ],
+    "rc": 0,
+    "seconds": 68.43
+  },
+  {
+    "label": "stream-frames8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--output-condition",
+      "frames-only",
+      "--work",
+      "$WORK/stream-frames8"
+    ],
+    "rc": 0,
+    "seconds": 85.68
+  },
+  {
+    "label": "stream-before1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--variant",
+      "before",
+      "--work",
+      "$WORK/stream-before1"
+    ],
+    "rc": 0,
+    "seconds": 63.96
+  },
+  {
+    "label": "stream-before8",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "8",
+      "--variant",
+      "before",
+      "--work",
+      "$WORK/stream-before8"
+    ],
+    "rc": 0,
+    "seconds": 85.22
+  },
+  {
+    "label": "stream-group1",
+    "argv": [
+      "python3",
+      "$WORK/stream_group.py",
+      "$WORK",
+      "tx-interval",
+      "rx-interval",
+      "tx-reset",
+      "aaf-reset"
+    ],
+    "rc": 0,
+    "seconds": 389.13
+  },
+  {
+    "label": "stream-group2",
+    "argv": [
+      "python3",
+      "$WORK/stream_group.py",
+      "$WORK",
+      "crf-reset",
+      "rx-saturation",
+      "late",
+      "rate"
+    ],
+    "rc": 0,
+    "seconds": 370.32
+  },
+  {
+    "label": "stream-group3",
+    "argv": [
+      "python3",
+      "$WORK/stream_group.py",
+      "$WORK",
+      "tx-nodirty",
+      "fixed-grid",
+      "egress-stall",
+      "egress-stall@8"
+    ],
+    "rc": 0,
+    "seconds": 415.85
+  },
+  {
+    "label": "stream-makeflags",
+    "argv": [
+      "env",
+      "MAKEFLAGS=-w",
+      "python3",
+      "tb/verilator/milan_dp/stream_counters.py",
+      "--shape",
+      "1",
+      "--work",
+      "$WORK/stream-makeflags"
+    ],
+    "rc": 0,
+    "seconds": 65.93
+  },
+  {
+    "label": "f5-1",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--shape",
+      "1",
+      "--work",
+      "$WORK/f5-1"
+    ],
+    "rc": 0,
+    "seconds": 16.11
+  },
+  {
+    "label": "f5-controls",
+    "argv": [
+      "python3",
+      "$WORK/f5_checks.py"
+    ],
+    "rc": 0,
+    "seconds": 73.55
+  },
+  {
+    "label": "f5-make",
+    "argv": [
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-ci",
+      "make",
+      "-C",
+      "tb/verilator/milan_dp",
+      "counters-f5"
+    ],
+    "rc": 0,
+    "seconds": 34.69
+  },
+  {
+    "label": "behave",
+    "argv": [
+      "python3",
+      "$WORK/in_checkout.py",
+      "$CANDIDATE/tests",
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "rc": 0,
+    "seconds": 1.72
+  },
+  {
+    "label": "torture",
+    "argv": [
+      "python3",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.57
+  },
+  {
+    "label": "capture-rv32",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/rv32",
+      "--",
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 8.34
+  },
+  {
+    "label": "capture-control",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/control",
+      "--",
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--build-only",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 334.89
+  },
+  {
+    "label": "capture-store",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/store",
+      "--",
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--build-only",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 87.22
+  },
+  {
+    "label": "capture-coverage",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/coverage",
+      "--",
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--build-only",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 249.84
+  },
+  {
+    "label": "capture-memory",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/memory",
+      "--",
+      "python3",
+      "sw/litex/test_ctrl_memory.py",
+      "--build-only"
+    ],
+    "rc": 0,
+    "seconds": 1.12
+  },
+  {
+    "label": "capture-f5-1",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/f5",
+      "--",
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--build-only",
+      "--shape",
+      "1",
+      "--work",
+      "$WORK/f5-build-1"
+    ],
+    "rc": 0,
+    "seconds": 20.38
+  },
+  {
+    "label": "capture-f5-8",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_capture.py",
+      "--out",
+      "$WORK/captures/f5",
+      "--",
+      "python3",
+      "tb/verilator/milan_dp/stream_counter_f5.py",
+      "--build-only",
+      "--shape",
+      "8",
+      "--work",
+      "$WORK/f5-build-8"
+    ],
+    "rc": 0,
+    "seconds": 17.92
+  },
+  {
+    "label": "tally",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py",
+      "--mutants"
+    ],
+    "rc": 0,
+    "seconds": 54.7
+  },
+  {
+    "label": "sdk",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.35
+  },
+  {
+    "label": "rv32",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 6.41
+  },
+  {
+    "label": "coverage-selftest",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.39
+  },
+  {
+    "label": "image-selftest",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+      "--require-rv32",
+      "--out",
+      "$WORK/image-selftest"
+    ],
+    "rc": 0,
+    "seconds": 8.72
+  },
+  {
+    "label": "shards",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+    ],
+    "rc": 0,
+    "seconds": 0.13
+  },
+  {
+    "label": "firmware-census",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--firmware-census"
+    ],
+    "rc": 0,
+    "seconds": 0.17
+  },
+  {
+    "label": "unit-tkdiag",
+    "argv": [
+      "env",
+      "VERILATOR=$WORK/verilator-two",
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-v",
+      "make",
+      "-C",
+      "tb/verilator/tkdiag"
+    ],
+    "rc": 0,
+    "seconds": 28.73
+  },
+  {
+    "label": "unit-avtp-rxmon",
+    "argv": [
+      "env",
+      "VERILATOR=$WORK/verilator-two",
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-ci",
+      "make",
+      "-C",
+      "tb/verilator/avtp_rxmon"
+    ],
+    "rc": 0,
+    "seconds": 72.07
+  },
+  {
+    "label": "unit-crf-rx",
+    "argv": [
+      "env",
+      "VERILATOR=$WORK/verilator-two",
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-v",
+      "make",
+      "-C",
+      "tb/verilator/crf_rx",
+      "run"
+    ],
+    "rc": 0,
+    "seconds": 555.72
+  },
+  {
+    "label": "unit-crf-mutants",
+    "argv": [
+      "env",
+      "VERILATOR=$WORK/verilator-two",
+      "python3",
+      "$WORK/in_checkout.py",
+      "$WORK/clone-ci",
+      "make",
+      "-C",
+      "tb/verilator/crf_rx",
+      "mutants"
+    ],
+    "rc": 0,
+    "seconds": 110.67
+  }
+]

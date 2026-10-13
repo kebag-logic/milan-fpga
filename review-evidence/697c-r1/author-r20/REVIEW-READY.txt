@@ -1,0 +1,27 @@
+[A583] REVIEW READY — Round 20
+
+Head: `d40e4e9827be2516f8f34b9d65f0a483fff2194c` on `697-consume` (local only; no push).
+Merge: `a71b0e4149c26576499d05cacf2fa6fbfe27fb15`, parents `97e713168470bfae2685521fa557dc462b782b32` and fetched dev `e81ce82f9aa3e4dcaffa5bcdf7e60f0c7cffd80c`. The merge was clean; one implementation commit follows.
+
+The Round 20 assignment is implemented:
+- R584-18-F1: F5 is the sixth independent compiler capture at both shapes. Its build-only path records 30 invocations containing 28 compiled sources and runs no tests or plants. Removing its registry entry or independent capture is refused by name. The unchanged held-text probe reports zero program refusals.
+- R584-18-F2: F5 checks the shared pin before staging/compilation. The Makefile protects `counters`, `counters-f5`, `counters-mutants` and the aggregate run; the third counter target also invokes F5. Dirty/off-pin, poisoned-header and prerequisite-removal controls hold. The census explicitly holds the RTL-only `counters` promise. Shared pin controls increase from 106 to 120.
+- The existing bench-control helper is extracted to preserve the Python size ratchet. README/CI policy describe the sixth capture. No production firmware, image input or stack pin changes.
+
+Fresh local evidence; every final gate command rc 0:
+- All 65 linked ELFs equal dev entry for entry by direct bytes, size and SHA-256, covering every shipped shape and both runtime layouts. Both manifests: `96f55deba3b69b224fb838b746f559b3c944b552c694cef3211470d8b11db584`. Image delta +0 in every section; 33 linked-image controls pass.
+- Pin unchanged: `405dc68310a18f669049ffc10cc23eef7300dcff`. The complete seven-file diff and token/line proof are retained; comment/licence differences follow the recorded ruling. Source-text byte identity is not claimed.
+- Firmware boundary: 2852 sources / 3082 invocations, 112 boundary, 120 pin and four figure controls, zero findings/misbehavior. Verilator boundary: 829 / 926, six boundary, 120 pin and four figure controls, zero findings/misbehavior.
+- All 915 sorted firmware verdict lines equal Round 19 exactly: 60 arms, 506 control, 76 AECP, 198/73 SRP and two lwSRP pin controls. Store: 435 tests. Memory: 44 mutants caught.
+- Coverage: all 30 candidate/dev rows match under the same GCC/gcov 16.2.1 compiler; 100% after unchanged exclusions; 29 reader controls pass.
+- Pin matrix passes with CPython 3.12.3/3.14.7 and Git 2.43/2.56. Hook H0 clean, H1–H24 caught on both Python versions. All 21 configuration variants retain each Git's previous outcomes. Entry points expand to 27 × 12 = 324 named refusals. Earlier review probes, four shard pin-removal controls and 16 CI plants hold.
+- CI contract: 2169 checks, 3064 self-test arms; all 54 documentation/source-list/evidence commands pass. Disposable runner self-test: 446 arms.
+- #726: both shapes, frames-only, both original-defect controls and MAKEFLAGS=-w pass. All 12 RTL mutant cases and three F5 mutants are detected with passing check-omission runs. Behavior: 406 scenarios / 1977 steps; campaign and scheduling self-tests pass. The inherited talker-diagnostic, AVTP receive-monitor and CRF receiver suites pass directly, including their five/five/ten mutation checks.
+
+The six captures plus boundary judgement total 836.79 s locally, 46.5% of the unchanged 30-minute timeout, excluding dependency installation. Verilator boundary took 511.49 s. These are bounded local timings, not new hosted calibration.
+
+HANDOFF.md and the prepared PR-BODY.md include changed file:line tables, every image hash pair, coverage/mutation tables, exact receipts and planted controls. R584-17-RES-1/2 and R585-18's corresponding publication residue are applied; earlier explicitly carried prose residue remains listed. The PR itself was not edited.
+
+Corrected setup attempts are disclosed, including the discarded configuration campaign that reused a previously unpacked disposable object store; the complete replacement campaigns pass in fresh stores. Memory briefly peaked at 11,070,345,216 bytes, above the requested 9 GB operating target, with no OOM. Reduced overlap and scoped cache reclamation kept later monitored samples below the target.
+
+The working tree and stack checkouts are clean. No push, PR edit, rebase/amend, merge to dev or hardware operation occurred. No new review verdict, protected hosted result, exhaustive repository sweep or merge-candidate validation is claimed. The supplementary 109-mutant store campaign is not claimed. Publication, independent review and hosted/merge acceptance remain with the manager. Work stops after this comment.

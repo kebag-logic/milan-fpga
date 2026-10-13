@@ -1,0 +1,24 @@
+RUN tx-interval
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 tx-interval uncertain run.log: rc=1, failures=6
+1x1 tx-interval uncertain escape.log: rc=0, failures=0
+PASS tx-interval
+RUN rx-interval
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 rx-interval uncertain run.log: rc=1, failures=1
+1x1 rx-interval uncertain escape.log: rc=0, failures=0
+PASS rx-interval
+RUN tx-reset
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 tx-reset uncertain run.log: rc=1, failures=4
+1x1 tx-reset uncertain escape.log: rc=0, failures=0
+PASS tx-reset
+RUN aaf-reset
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 aaf-reset uncertain run.log: rc=1, failures=1
+1x1 aaf-reset uncertain escape.log: rc=0, failures=0
+PASS aaf-reset

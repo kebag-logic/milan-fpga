@@ -1,0 +1,10 @@
+unplanted            rc=0 ctrl_boundary: PASS
+mk-patsubst          rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+mk-foreach           rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+mk-append-nospace    rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+mk-addprefix         rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+mk-compiler-path     rc=2 REFUSED: tb/verilator/mbx/Makefile (target obj_fw/libctrlfw.a) ran /usr/bin/gcc, a compiler the capture does not wrap, so it records none of that compiler's invocations
+py-split             rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+py-fstring-mid       rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+py-format            rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers
+py-join              rc=1   [FAIL] firmware [-DCTRL_R5_PROBE]: adp/adp_mbx.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers

@@ -1,0 +1,103 @@
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event carries the recorded base oid, so the local replica classifies the same file set hosted does
+  ok   and that is not the validation base, so the payload cannot be mistaken for the commit the trust checks read
+  ok   the normal validation path prints the resolved base and enters its Docker boundary
+  ok   the normal validation path leases the selected workflow's act job volumes
+  ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+  ok   an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+  ok   a two-workflow run leases both, and gates, spawns, cleans containers, then reconciles volumes, once per workflow in that order
+  ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+  ok   a job volume act left after a workflow refuses the run after removal
+  ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+  ok   a boundary that does not lease the selected workflow refuses before act
+  ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+  ok   two workflows sharing two actions produce one clone each, in sorted order
+  ok   the clones in the real sequence carry the run's own credential-free git environment
+  ok   a failing clone refuses the run naming the action, before any boundary or act launch
+  ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+  ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+  ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+  ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+  ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+  ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+  ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+  ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+  ok   the resolve defaults to the real remote lookup and a flushed note
+  ok   a validated run cannot be built on anything but a full commit SHA
+  ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+  ok   and re-checks the base ref it interpolates, for the same reason
+  ok   a well-formed ls-remote reply yields the tip
+  ok   an ls-remote reply naming no ref is refused
+  ok   an ls-remote reply naming another ref is refused
+  ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+  ok   an ls-remote reply carrying the wanted ref twice is refused
+  ok   an ls-remote reply line carrying no ref at all is refused
+  ok   all selects each workflow once in stable order
+  ok   explicit workflow selection de-duplicates
+  ok   all plus another workflow is refused
+  ok   cross-repository candidate is refused
+  ok   non-open pull request is refused
+  ok   non-dev pull request is refused
+  ok   malformed GitHub metadata is refused
+  ok   act command selects the real strict exhaustive workflow
+  ok   candidate checkout is copied from immutable materialization
+  ok   job containers receive no Docker socket or host network
+  ok   artifact and cache servers bind only to the bridge gateway
+  ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+  ok   act starts at most 1 jobs of a stage at once, stated exactly once
+  ok   only an explicitly empty GitHub token reaches candidate jobs
+  ok   every ambient act input is replaced by an explicit empty file
+  ok   artifact uploads receive a real isolated listener port
+  ok   act reads the pre-populated per-head action cache offline, exactly once
+  ok   job containers get a cpuset of 0-<n-1> for n = min(host CPUs, 4)
+  ok   the CPU bound leaves the unpredictable ownership label in the same container options word
+  ok   job containers are held to 16g of memory and the same swap ceiling, one limit each, in Docker size syntax
+  ok   the container options word splits into exactly four tokens: label, cpuset, memory, memory-swap, in that order
+  ok   a boundary without a job-volume lease cannot build an act command
+  ok   artifact-server port zero is refused rather than advertised
+  ok   a missing bridge gateway cannot produce an act command
+  ok   a boundary without an exclusive tool cache cannot run act
+  ok   a boundary with an unseeded tool cache cannot run act
+  ok   the collector yields each remote action once, sorted, skipping local and docker:// steps
+  ok   an action is cloned into the directory act 0.2.89 derives from its uses: string, from act's exact clone URL
+  ok   a uses: string that is neither local, docker://, nor owner/repo@ref is refused
+  ok   the clone is a full credential-free HTTPS clone, a tag-first resolve, then a detached checkout of the resolved SHA
+  ok   every action git call runs with the runner's no-prompt, no-helper, HTTPS-only environment and no token
+  ok   a ref is resolved the way act duck-types it: tag, then origin branch, then SHA
+  ok   a failing clone is a Refusal naming the action
+  ok   dry-run prints the planned action set and clones nothing
+  ok   the materialiser re-checks each action against the audited set rather than inheriting the sandbox scan's position in the sequence
+  ok   and that refusal reaches git for nothing
+  ok   the materialiser defaults to the real tracked capture boundary
+  ok   the plants occupy every operator-environment name the boundary must withhold, each credential file carries the planted token, and both recorders are executable and silent
+Traceback (most recent call last):
+  File "/candidate/scripts/act_ci.py", line 14481, in <module>
+    raise SystemExit(main(sys.argv))
+                     ^^^^^^^^^^^^^^
+  File "/candidate/scripts/act_ci.py", line 14431, in main
+    return selftest(shipping_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/scripts/act_ci.py", line 12730, in selftest
+    docker = selftest_run_directory_stages(tally, pr)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/scripts/act_ci.py", line 12624, in selftest_run_directory_stages
+    selftest_boundary_plants(tally, docker)
+  File "/candidate/scripts/act_ci.py", line 6772, in selftest_boundary_plants
+    prefix = " ".join(isolated_command_prefix("/trusted/act", True, controlled_act_environment(first)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/scripts/act_ci.py", line 2333, in isolated_command_prefix
+    require_tool("sudo"),
+    ^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/scripts/act_ci.py", line 717, in require_tool
+    raise Refusal(f"required executable is unavailable: {name}")
+Refusal: required executable is unavailable: sudo
