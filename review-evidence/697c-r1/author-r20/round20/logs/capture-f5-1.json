@@ -1,0 +1,19 @@
+{
+  "label": "capture-f5-1",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/captures/f5",
+    "--",
+    "python3",
+    "tb/verilator/milan_dp/stream_counter_f5.py",
+    "--build-only",
+    "--shape",
+    "1",
+    "--work",
+    "$WORK/f5-build-1"
+  ],
+  "rc": 0,
+  "seconds": 20.38
+}

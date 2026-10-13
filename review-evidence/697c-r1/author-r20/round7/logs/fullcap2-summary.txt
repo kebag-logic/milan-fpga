@@ -1,0 +1,11 @@
+2026-10-11T03:45:40Z
+rc=0 after 9 s: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0 after 2123 s: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+rc=0 after 98 s: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0 after 1 s: python3 sw/firmware/gtest/fw_coverage.py --selftest
+rc=0 after 266 s: python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+2026-10-11T04:27:17Z
+DONE
+exit 0
+
+fullcap2.log: 324441 bytes, sha256 58e71b4a4645cdcd5025e30d4ad69d62b5e659f0afb97337431ccedfe2f0eae6

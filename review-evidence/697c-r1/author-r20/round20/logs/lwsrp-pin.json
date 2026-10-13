@@ -1,0 +1,11 @@
+{
+  "label": "lwsrp-pin",
+  "argv": [
+    "python3",
+    "-B",
+    "-c",
+    "import sys; from pathlib import Path; sys.path.insert(0,\"sw/firmware/ctrl/test\"); import ctrl_mutants; raise SystemExit(ctrl_mutants.lwsrp_pin_arms(Path(\"$WORK/lwsrp-pin\"),Path(\"third_party/lwSRP\").resolve()))"
+  ],
+  "rc": 0,
+  "seconds": 0.16
+}

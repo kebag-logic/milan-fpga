@@ -1,0 +1,20 @@
+Planted code: 
+import inspect
+inspect.builtins.exec('import subprocess; subprocess.run([\'$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/bin/python3.12\', \'-c\', \'print("OUTSIDE_HELPER_PROCESS_RAN")\'], check=True)')
+
+Census findings: ['sw/firmware/ctrl/test/ctrl_pin.py:922 names inspect.builtins.exec, dynamic code or reflection', 'sw/firmware/ctrl/test/ctrl_pin.py:922 names inspect.builtins, dynamic code or reflection', "sw/firmware/ctrl/test/ctrl_pin.py:922 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state"]
+Execution return code: 1
+the pin proof's audit hook refused: $VALIDATION_STORAGE/697c-a583/round11/scratch-dyn/ctrl_pin_probe.py:922 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round11/scratch-dyn/ctrl_pin_probe.py", line 922, in <module>
+    inspect.builtins.exec('import subprocess; subprocess.run([\'$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/bin/python3.12\', \'-c\', \'print("OUTSIDE_HELPER_PROCESS_RAN")\'], check=True)')
+  File "$VALIDATION_STORAGE/697c-a583/round11/c1/sw/firmware/ctrl/test/ctrl_build.py", line 317, in hook
+    refuse(frame_at(1), f"asks for {asked} in the pin proof: dynamic code, or a reach into the audit "
+  File "$VALIDATION_STORAGE/697c-a583/round11/c1/sw/firmware/ctrl/test/ctrl_build.py", line 274, in refuse
+    raise refusal(message)
+ctrl_build.AuditRefusal: $VALIDATION_STORAGE/697c-a583/round11/scratch-dyn/ctrl_pin_probe.py:922 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round11/probes/review-evidence/697c-r1/reviews/R585-9/dynamic_launch_probe.py", line 35, in <module>
+    assert result.returncode == 0 and 'OUTSIDE_HELPER_PROCESS_RAN' in result.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

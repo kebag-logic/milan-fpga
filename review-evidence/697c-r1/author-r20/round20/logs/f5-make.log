@@ -1,0 +1,10 @@
+make: Entering directory '$WORK/clone-ci/tb/verilator/milan_dp'
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+python3 stream_counter_f5.py --stack ../../../third_party/tsn-c-stack --shape 1
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+F5 1x1 clean run.log: rc=0
+python3 stream_counter_f5.py --stack ../../../third_party/tsn-c-stack --shape 8
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+F5 8x8 clean run.log: rc=0
+make: Leaving directory '$WORK/clone-ci/tb/verilator/milan_dp'

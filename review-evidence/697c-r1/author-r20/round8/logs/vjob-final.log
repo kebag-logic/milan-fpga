@@ -1,0 +1,171 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (55 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (148 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (215 s)
+capture: 916 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+  LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware builders judges (--only verilator)
+  the builders found by text are cross-checked by the run that holds the firmware builders
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (14 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+  LEFT OUT: boundary control stack source includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the register-map contract, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the composition, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the store's port, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the loop through a macro, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack public header includes the platform's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control Q7: a store header shadows the C library's for the stack in the image build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware directory shadows a header the C library's own headers include, for the stack, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the mailbox HAL under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the platform's header in a debug build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the contract in a debug build with the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the AECP core's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a builder compiles the stack with, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a builder writes as two arguments, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a new Makefile writes as two words, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the firmware's harness, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the platform's pool in its release build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack public header includes the mailbox HAL for C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the AECP adapter, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control N1: a store source reaches a stack example, as the image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a store source reaches a stack file outside its public headers in the image build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware header reaches a stack source by a relative path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control image source reaches a stack file outside its public headers, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware adapter reaches a stack source under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware tests a mode by its value, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP core reaches a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP core reaches a stack source at a value only its arms compile with, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP application bridge reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the image reaches a stack file under a shape's stream count, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the SRP image's composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP image's SRP composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP image reaches a stack source at a shape its generated header gives many maps, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source where the SRP shape header is force-included, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source on the two-interface contract, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware header reaches a stack test's fake in C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware header reaches a stack file through a computed include in C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's wire.h in the firmware, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's adp.c in the firmware, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's acmp.h in the AECP directory, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's patsubst writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's foreach writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile appends a mode with no space, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile writes a mode's name after a bare -D, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile computes a mode's value, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile prefixes -D to the modes it lists, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an f-string writes a mode after other text, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a multi-word literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a shell command's literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control shlex splits a mode out of a literal, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a bare -D takes a mode a conditional chooses, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control str.format writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins -D to a mode it computes, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder formats a mode with %, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins a value to a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an f-string computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a bare -D takes the modes a list holds, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -Wp, passes a mode to the preprocessor, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -Xpreprocessor passes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --define-macro= defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --define-macro and a separate name define a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -imacros of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a precompiled header the builder makes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -include of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's wildcard names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins a C++ source's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a glob names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an iterdir names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source from a literal, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source's include from an f-string, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source from a template it formats, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder copies the C++ source from a template file, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a written C++ source reaches the header through a header it writes beside it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --include-directory names where the C++ source's header is, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder copies a C++ source out of its own directories and compiles it from elsewhere, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder compiles C++ from its standard input, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder passes a dependency option the pass cannot override, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture is missing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture is empty, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture holds nothing of a known builder, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a known builder whose own run compiles nothing, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder dropped from the known set, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder runs a compiler on a PATH of its own, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder of the firmware that no capture holds, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder compiles with a flag the compiler cannot expand (a macro with no name), judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file names the source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file names the output, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads first a precompiled header whose making the recorder cannot see, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads first a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads a firmware header first into a compile of a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: the firmware includes a public header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: the stack includes only its own header and the C library, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack test reaches the stack's example, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack source includes a header nobody supplies: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder compiles a C++ source that is no file: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack source includes an OS header of the host's C implementation, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder compiles the firmware with a mode no file tests, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder's own C++ source whose include a macro computes reads a firmware header, judged where its builders' capture is (needs the firmware builders)
+[ok] boundary control pass: the copies as they are, the base the controls share: passes
+[ok] boundary control V1 a mode only the AECP wire comparison gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control V2 a mode only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control V3 a value only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control a header only the MAAP differential's C++ source reaches includes a stack file in C++ only: firmware: sw/firmware/ctrl/maap/maap_r584.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control the capture holds nothing of the AECP wire comparison: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 1a9f651c: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 1a9f651c: CMakeLists.txt
+[ok] tsn-c-stack pin control, an edit hidden from git status (assume-unchanged): tsn-c-stack differs from the pinned 1a9f651c: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 1a9f651c: include/stdint.h
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 74445d28da1e04c645bf2e08a2a73bc2d5adcfbd is not the pinned 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 816 compiled sources of 916 recorded invocations (386 the firmware's, 94 the stack's, 336 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 0 finding(s), 6 boundary and 20 pin controls, 0 misbehaved
+ctrl_boundary: PASS
+rc=0 494 s

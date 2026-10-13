@@ -1,0 +1,8 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (305 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (78 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (229 s)
+REFUSED: sw/firmware/ctrl/test/aecp_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE); sw/firmware/ctrl/test/ctrl_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE); sw/firmware/ctrl/test/srp_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE); sw/firmware/gtest/fw_coverage_selftest.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS) nor one whose compiles are none of the firmware's (OUTSIDE)
+rc=2 659 s

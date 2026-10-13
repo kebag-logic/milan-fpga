@@ -1,0 +1,18 @@
+{
+  "label": "capture-control",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/captures/control",
+    "--",
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--build-only",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 334.89
+}

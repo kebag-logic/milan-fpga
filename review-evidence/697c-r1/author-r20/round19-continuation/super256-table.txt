@@ -1,0 +1,21 @@
+== N0 none: rc=0 run_pin_controls: 106 pin controls, 0 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 0
+== N1 the superproject check not called: rc=1 run_pin_controls: 106 pin controls, 7 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 7
+== N2 the superproject check after the index is read: rc=0 run_pin_controls: 106 pin controls, 0 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 0
+== N3 the superproject's local scope only: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== N4 extensions.partialclone not refused: rc=1 run_pin_controls: 106 pin controls, 2 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 2
+== N4 remote.promisor not refused: rc=1 run_pin_controls: 106 pin controls, 4 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 4
+== N4 remote.partialclonefilter not refused: rc=1 run_pin_controls: 106 pin controls, 2 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 2
+== N4 remote.uploadpack not refused: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== N4 core.sshcommand not refused: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== N4 core.fsmonitor not refused: rc=1 run_pin_controls: 106 pin controls, 2 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 2
+== N5 the helper's own command-line setting refused in the superproject: rc=1 stopped: ctrl_build.Refusal: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (command); escaped 0
+== N6 no HELPER_CONFIG: rc=0 run_pin_controls: 106 pin controls, 0 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 0
+== N7 no GIT_NO_LAZY_FETCH: rc=0 run_pin_controls: 106 pin controls, 0 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 0
+== N8 neither the superproject check nor GIT_NO_LAZY_FETCH: rc=1 run_pin_controls: 106 pin controls, 7 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 7
+== N9 neither the superproject check nor HELPER_CONFIG: rc=1 run_pin_controls: 106 pin controls, 7 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 7
+== P1 round 16's match: a remote key with a named subsection only: rc=1 run_pin_controls: 106 pin controls, 3 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 3
+== P2 a remote key with a subsection, named or empty, only: rc=1 run_pin_controls: 106 pin controls, 2 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 2
+== P3 a remote key with a named subsection or none only: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== P4 the stack's `*` family holding an empty subsection too: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== P5 parsed_key reading an empty subsection as none: rc=1 run_pin_controls: 106 pin controls, 1 misbehaved; census 0; figures 0; figure controls 4, 0 misbehaved; escaped 1
+== P6 parsed_key reading no subsection as an empty one: rc=1 stopped: ctrl_build.Refusal: the allowlisted configuration control's clone holds no core.bare, core.filemode, core.logallrefupdates, core.repositoryformatversion, core.worktree, submodule.active, submodule.alternateerrorstrategy, submodule.alternatelocation; escaped 51

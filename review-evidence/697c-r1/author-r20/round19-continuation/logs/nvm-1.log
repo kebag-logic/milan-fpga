@@ -1,0 +1,29 @@
+full campaign names all 60 checks: True
+  self-test OK: overrun_as_rec             caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: framed record overruns the area: codec 7, klj2_decode 3
+  self-test OK: erased_payload_guard_early caught by codec_erased_loaded_prefix; first: [FAIL] NvmCodec.codec_erased_loaded_prefix: erased last payload at its exact loaded boundary
+  self-test OK: tie_picks_b                caught by newer_wins; first: [FAIL] Ports/NvmBoth.newer_wins/model: seq A 0x7 B 0x7: chose 1, want 0
+  self-test OK: no_crc_anywhere            caught by powercut; first: [FAIL] Ports/NvmBoth.powercut/model: model: runner POWERCUT-BAD effect=4 frac=128
+  self-test OK: short_prefix_read_on       caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: one byte short of record 0's header, the guard refuses it VD_REC
+  self-test OK: lookup_index_unbounded     caught by codec_lookups; first: [FAIL] NvmCodec.codec_lookups: no record past a group's count
+  self-test OK: header_guard_late          caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: one byte short of record 0's header, the guard refuses it VD_REC
+  self-test OK: no_version_check           caught by wrong_version_falls_back; first: [FAIL] Ports/NvmBoth.wrong_version_falls_back/model: major 1: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 5
+  self-test OK: header_n_rec               caught by blank_boot, first_commit_bytes; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: verdict_not_named          caught by both_torn_blank; first: [FAIL] Ports/NvmBoth.both_torn_blank/model: two torn slots: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0, 
+  self-test OK: select_on_unchecked_reread caught by read_flip_boot; first: [FAIL] NvmModel.read_flip_boot: seq A 0x5 B 0x6, flip in slot 0 read 2: the older slot's flipped word displace
+  self-test OK: read_not_retried           caught by read_fail_boot, authority_unknown; first: [FAIL] NvmModel.read_fail_boot: read-fail:2:2: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 
+  self-test OK: refusal_by_verdict         caught by read_disagreement; first: [FAIL] NvmModel.read_disagreement: slot A at 0x1, read-vary-at:2:0:0xee0000: the slot was not read again and a
+  self-test OK: restage_not_retried        caught by read_flip_at_stage, read_alias_at_stage, read_fail_boot; first: [FAIL] NvmModel.read_flip_at_stage: one flipped re-stage: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: rollback_failure_ignored   caught by rollback_fault_closes; first: [FAIL] Ports/NvmBoth.rollback_fault_closes/model: rollback fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: refusal_aborts             caught by refused_keeps_default; first: [FAIL] Ports/NvmBoth.refused_keeps_default/model: refusals: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 3, 
+  self-test OK: no_settle_without_names    caught by settle_after_the_last_record; first: [FAIL] NvmModel.settle_after_the_last_record: the settle step runs once, after the last record: {'abandoned': 
+  self-test OK: release_before_apply       caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=54
+  self-test OK: bindings_skipped_unproven  caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: binding_fault_aborts_d3    caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 1, 'att
+  self-test OK: no_debounce                caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: an erase inside the debounce window: 1
+  self-test OK: taken_while_capturing      caught by capture_window_edges; first: [FAIL] Ports/NvmBoth.capture_window_edges/model: a change the capture has passed: erase -1 us after it: {'aban
+  self-test OK: console_force_ignored      caught by console_commit_unchanged; first: [FAIL] Ports/NvmBoth.console_commit_unchanged/model: console commit of an unchanged container: {'abandoned': 0
+  self-test OK: nothing_to_save_framed     caught by nothing_to_save; first: [FAIL] Ports/NvmBoth.nothing_to_save/model: the staged bytes did not stand
+  self-test OK: budget_rearmed_by_change   caught by dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.dr2c_unchanged_set/model: unchanged set held: {'abandoned': 13, 'abandoned_vd': 13, 'appl
+  self-test OK: commit_now_ignores_backoff caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: console inside the backoff: retry 183703 us after the failure: {'aban
+  self-test OK: blankcheck_read_fail_ignored caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:7: want the first failure 11: {'abandoned': 0, 'abandoned_vd': 0, 
+  self-test OK: dr2b_keeps_stale           caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: a repeated value after recovery: {'abandoned': 0, 'abandone

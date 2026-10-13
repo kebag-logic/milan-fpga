@@ -1,0 +1,30 @@
+tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (53 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (147 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (211 s)
+capture: 916 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+  LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware steps judges (--only verilator)
+  LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware steps judges (--only verilator)
+  the builders found by text are cross-checked by the run that holds the firmware steps
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (13 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (4 s)
+    boundary: compiler dependencies and object symbols pass
+  [FAIL] firmware: sw/firmware/ctrl_nvm/nvm_store.c reads tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+  [FAIL] firmware: sw/firmware/ctrl_nvm/nvm_store.c includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/firmware/ctrl/test/ctrl_image.py]
+ctrl_boundary: 816 compiled sources of 916 recorded invocations (386 the firmware's, 94 the stack's, 336 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, and every Makefile builder's pin prerequisites; 2 finding(s)
+ctrl_boundary: FAIL

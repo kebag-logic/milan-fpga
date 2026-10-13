@@ -1,0 +1,23 @@
+{
+  "label": "boundary",
+  "argv": [
+    "$SCRATCH/r5/venv312/bin/python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--without",
+    "verilator",
+    "--capture",
+    "$SCRATCH/round19/capture-rv32",
+    "--capture",
+    "$SCRATCH/round19/capture-ctrl",
+    "--capture",
+    "$SCRATCH/round19/capture-nvm",
+    "--capture",
+    "$SCRATCH/round19/capture-coverage",
+    "--capture",
+    "$WORK/capture-memory-final"
+  ],
+  "rc": 0,
+  "seconds": 97.16
+}

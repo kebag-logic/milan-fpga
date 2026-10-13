@@ -1,0 +1,23 @@
+clone at 38240ac4c251b2813384a9524e7c1cb43de520e8, tsn-c-stack gitlink 1a9f651cdf7846b8e10ac246a6ef6916960fbb92
+=== probe 1: src/maap.c edited in the clone's submodule
+ M src/maap.c
+  rc=2 make -C tb/verilator/mbx run-cosim: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c 
+  rc=2 maap_differential.py: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c 
+  rc=2 maap_differential.py --self-test: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c 
+  rc=2 test_ctrl_firmware.py (control): REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/maap.c 
+=== probe 2: src/adp.c edited and hidden with assume-unchanged
+  git status in the submodule: ''
+  rc=2 ctrl_build.py --stack-pin: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c 
+  rc=2 make -C tb/verilator/mbx run-cosim: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: src/adp.c 
+=== probe 3: scripts/check_boundary.py edited
+  rc=2 ctrl_boundary.py --require-rv32: REFUSED: tsn-c-stack differs from the pinned 1a9f651c: scripts/check_boundary.py 
+=== probe 4 (R584-1-S2): a stack test includes the mailbox HAL
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at 85c6daaf413d0918586439ef4049bc6667ebbe3a   [FAIL] tests: the stack's tests/test_maap_debug.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h ctrl_boundary: FAIL 
+=== probe 5 (R585-1-F1): the stack's CTRL_REENTRY_ASSERT region includes the mailbox HAL
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at 773d7f2f876d0f71efec945be8372e85aa17ad2f   [FAIL] host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h   [FAIL] rv32 [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h ctrl_boundary: FAIL 
+=== probe 6 (R585-1-F1): the stack's #ifndef NDEBUG region includes the platform's header
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at 5dbd9879495d817350a66aeed4ca563422adab80   [FAIL] host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h   [FAIL] rv32 [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/port/ctrl_debug.h   [FAIL] the stack's own gate third_party/tsn-c-stack/scripts/check_boundary.py refused:
+=== probe 7 (R585-1-F1): the adapter reaches the stack's tests/acmp_fake.hpp under CTRL_REENTRY_ASSERT
+  rc=1 ctrl_boundary.py --require-rv32: tsn-c-stack at 1a9f651cdf7846b8e10ac246a6ef6916960fbb92   [FAIL] firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers   [FAIL] firmware rv32 [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public
+=== restored
+ 1a9f651cdf7846b8e10ac246a6ef6916960fbb92 third_party/tsn-c-stack (1a9f651)

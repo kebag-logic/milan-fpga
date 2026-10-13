@@ -1,0 +1,27 @@
+diff --git a/sw/firmware/ctrl/adp/adp_mbx.c b/sw/firmware/ctrl/adp/adp_mbx.c
+index d594cf180..a62bedc73 100644
+--- a/sw/firmware/ctrl/adp/adp_mbx.c
++++ b/sw/firmware/ctrl/adp/adp_mbx.c
+@@ -4,6 +4,9 @@
+ // adp_mbx.c - the ADP slice's mailbox adapter (see adp_mbx.h).
+ 
+ #include "adp_mbx.h"
++#ifdef CTRL_R5_PROBE
++#include "../../../../third_party/tsn-c-stack/examples/adp_port.h"
++#endif
+ 
+ #include <string.h>
+ 
+diff --git a/sw/firmware/ctrl/test/ctrl_image.py b/sw/firmware/ctrl/test/ctrl_image.py
+index 8a4c14f30..c371abf4f 100644
+--- a/sw/firmware/ctrl/test/ctrl_image.py
++++ b/sw/firmware/ctrl/test/ctrl_image.py
+@@ -95,7 +95,7 @@ SHAPES = ("endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8")
+ #: and lane F1's store with its LiteSPI port.
+ CTRL_SOURCES = PORTABLE + ("plat/mbx_plat_mmio.c",)
+ NVM_SOURCES = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
+-IMAGE_FLAGS = ("-DNDEBUG", "-ffunction-sections", "-fdata-sections", "-fno-pic", "-fno-pie")
++IMAGE_FLAGS = ("-DNDEBUG", "-ffunction-sections", "-fdata-sections", "-fno-pic", "-fno-pie") + tuple(f"{'-Os'} -DCTRL_R5_PROBE".split())
+ LINK_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-nostdlib", "-nostartfiles", "-static", "-no-pie",
+               "-Wl,--gc-sections")
+ #: The arithmetic helpers' source, compiled with the composition.

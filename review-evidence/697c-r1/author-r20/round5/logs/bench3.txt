@@ -1,0 +1,18 @@
+direct C: 10762us each
+recorder C: 11859us each
+direct C++: 11774us each
+recorder C++: 13811us each
+$VALIDATION_STORAGE/697c-a583/r5/bench/./bench3.sh: line 11: ../cap/bin/clang: No such file or directory
+123
+{"tool": "g++", "real": "/usr/bin/g++", "args": ["-c", "u.cpp", "-o", "u.o"], "cwd": "$VALIDATION_STORAGE/697c-a583/r5/bench", "sources": [["$VALIDATION_STORAGE/697c-a583/r5/bench/u.cpp", "c++", "4b9804fdbd1e6361521a2a1d624149d1384794b169ead3857d72339267cc153a"]], "forced": [], "kept": "", "from": "", "run": ""}
+{"tool": "c++", "real": "/usr/bin/c++", "args": ["-fsyntax-only", "-I/nonexistent", "planted.cpp"], "cwd": "$VALIDATION_STORAGE/697c-a583/r5/bench/w", "sources": [["$VALIDATION_STORAGE/697c-a583/r5/bench/w/planted.cpp", "c++", "993fe75ac9c758598b80b98b22e324c0b17cbf9ee0f99d0a2a63fff54316850d"]], "forced": [], "kept": "", "from": "", "run": ""}
+{"tool": "g++", "real": "/usr/bin/g++", "args": ["-x", "c++", "-fsyntax-only", "-"], "cwd": "$VALIDATION_STORAGE/697c-a583/r5/bench/w", "sources": [["-", "c++", ""]], "forced": [], "kept": "", "from": "", "run": ""}
+{"tool": "gcc", "real": "/usr/bin/gcc", "args": ["-include", "gen.hpp", "-x", "c", "-c", "../t.c", "-o", "/dev/null"], "cwd": "$VALIDATION_STORAGE/697c-a583/r5/bench/w", "sources": [["$VALIDATION_STORAGE/697c-a583/r5/bench/t.c", "c", ""]], "forced": ["$VALIDATION_STORAGE/697c-a583/r5/bench/w/gen.hpp"], "kept": "", "from": "", "run": ""}
+g++ (('$VALIDATION_STORAGE/697c-a583/r5/bench/u.cpp', 'c++', '4b9804fdbd1e6361521a2a1d624149d1384794b169ead3857d72339267cc153a'),) () () () () []
+c++ (('$VALIDATION_STORAGE/697c-a583/r5/bench/w/planted.cpp', 'c++', '993fe75ac9c758598b80b98b22e324c0b17cbf9ee0f99d0a2a63fff54316850d'),) () ('/nonexistent',) () () []
+g++ (('-', 'c++', ''),) () () () () []
+gcc (('$VALIDATION_STORAGE/697c-a583/r5/bench/t.c', 'c', ''),) () () ('$VALIDATION_STORAGE/697c-a583/r5/bench/w/gen.hpp',) () []
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+KeyError: 'chain'
+ 18:05:45 up 1 day,  7:31,  2 users,  load average: 41.56, 41.48, 40.11

@@ -1,0 +1,31 @@
+facts: first 271, second 266, shared 266
+  only in the first: 5 {('source', 'outside'): 5}
+     ('tsn-c-stack/tests/test_acmp.cpp', 'outside', 'outside')
+     ('tsn-c-stack/tests/test_adp.cpp', 'outside', 'outside')
+     ('tsn-c-stack/tests/test_adp_reentry.cpp', 'outside', 'outside')
+     ('tsn-c-stack/tests/test_maap.cpp', 'outside', 'outside')
+     ('tsn-c-stack/tests/test_maap_debug.cpp', 'outside', 'outside')
+  only in the second: 0 {}
+edges: first 679, second 659, shared 659
+  only in the first: 20 {('stack', 'outside'): 6, ('checkout', 'outside'): 14}
+     ('checkout', 'sw/firmware/ctrl/test/aecp_callback_inputs.hpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/mock_mbx_hal.hpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/mock_shlan_port.hpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/model_bench.hpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_acmp_nvm.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_adp.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_aecp_debug.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_maap.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_maap_mbx.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_mmio.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_port_loop.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_unit_driver.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/test_unit_seams.cpp', 'outside', 'outside')
+     ('checkout', 'sw/firmware/ctrl/test/unit_window.hpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/acmp_fake.hpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/test_acmp.cpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/test_adp.cpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/test_adp_reentry.cpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/test_maap.cpp', 'outside', 'outside')
+     ('stack', 'tsn-c-stack/tests/test_maap_debug.cpp', 'outside', 'outside')
+  only in the second: 0 {}

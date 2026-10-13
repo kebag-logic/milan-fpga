@@ -1,0 +1,92 @@
+findings: 0
+c++   third_party/tsn-c-stack/tests/acmp_fake.hpp: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+c++   third_party/tsn-c-stack/tests/main.cpp: 3 preprocessing(s); configurations: (default); -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_acmp.cpp: 5 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -DNDEBUG; -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_adp.cpp: 3 preprocessing(s); configurations: (default); -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_adp_reentry.cpp: 9 preprocessing(s); configurations: (default); -DADP_TEST_COVERAGE; -DADP_TEST_COVERAGE -DADP_TEST_RELEASE; -DADP_TEST_COVERAGE -DADP_TEST_RELEASE -DNDEBUG; -DADP_TEST_COVERAGE -DNDEBUG; -DADP_TEST_RELEASE; -DADP_TEST_RELEASE -DNDEBUG; -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_maap.cpp: 3 preprocessing(s); configurations: (default); -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_maap_debug.cpp: 3 preprocessing(s); configurations: (default); -DNDEBUG
+c++   third_party/tsn-c-stack/tests/test_port.cpp: 3 preprocessing(s); configurations: (default); -DNDEBUG
+host  sw/firmware/ctrl/acmp/acmp_mbx.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/acmp/acmp_mbx.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/acmp/acmp_nvm.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/acmp/acmp_nvm.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/adp/adp_mbx.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/adp/adp_mbx.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/app/ctrl_app.c: 5 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dshlan_calloc=srp_test_calloc; -Dshlan_calloc=srp_test_calloc
+host  sw/firmware/ctrl/app/ctrl_app.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/app/ctrl_app_srp.c: 5 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real
+host  sw/firmware/ctrl/loop/ctrl_loop.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/loop/ctrl_loop.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/maap/maap_csr.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/maap/maap_csr.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/maap/maap_mbx.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/maap/maap_mbx.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/mbx/mbx.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/mbx/mbx.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/mbx/mbx_contract.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/mbx/mbx_hal.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/mbx/mbx_wire.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/plat/mbx_plat_mmio.c: 5 preprocessing(s); configurations: (default); -DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window); -DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window) -DCTRL_MBX_WFI=ctrl_test_wfi; -DCTRL_MBX_WFI=ctrl_test_wfi
+host  sw/firmware/ctrl/port/ctrl_debug.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/port/ctrl_debug.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/port/ctrl_pool.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/port/ctrl_pool.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/port/shlan_port.c: 3 preprocessing(s); configurations: (default); -Dshlan_calloc=srp_test_calloc
+host  sw/firmware/ctrl/port/shlan_port.h: 3 preprocessing(s); configurations: (default); -Dshlan_calloc=srp_test_calloc
+host  sw/firmware/ctrl/srp/srp_bounds.h: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/srp/srp_mbx.c: 9 preprocessing(s); configurations: (default); -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real -Dshlan_calloc=srp_test_calloc; -Dshlan_calloc=srp_test_calloc; -UNDEBUG; -UNDEBUG -Dmrp_transmit=srp_test_transmit_real; -UNDEBUG -Dmrp_transmit=srp_test_transmit_real -Dshlan_calloc=srp_test_calloc; -UNDEBUG -Dshlan_calloc=srp_test_calloc
+host  sw/firmware/ctrl/srp/srp_mbx.h: 3 preprocessing(s); configurations: (default); -Dmrp_transmit=srp_test_transmit_real
+host  sw/firmware/ctrl/test/ctrl_image.c: 9 preprocessing(s); configurations: (default); -DCTRL_IMAGE_SRP; -DCTRL_IMAGE_SRP -DCTRL_REENTRY_ASSERT; -DCTRL_IMAGE_SRP -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -DCTRL_IMAGE_SRP -Dmrp_transmit=srp_test_transmit_real; -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real
+host  sw/firmware/ctrl/test/rv32_image/image_arith.c: 2 preprocessing(s); configurations: (default)
+host  sw/firmware/ctrl/test/rv32_image/image_main.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  sw/firmware/ctrl/test/rv32_image/image_rt.c: 2 preprocessing(s); configurations: (default)
+host  third_party/tsn-c-stack/include/acmp.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  third_party/tsn-c-stack/include/adp.h: 2 preprocessing(s); configurations: (default)
+host  third_party/tsn-c-stack/include/maap.h: 2 preprocessing(s); configurations: (default)
+host  third_party/tsn-c-stack/include/wire.h: 2 preprocessing(s); configurations: (default)
+host  third_party/tsn-c-stack/src/acmp.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+host  third_party/tsn-c-stack/src/adp.c: 3 preprocessing(s); configurations: (default); -UNDEBUG
+host  third_party/tsn-c-stack/src/maap.c: 3 preprocessing(s); configurations: (default); -UNDEBUG
+rv32  sw/firmware/ctrl/acmp/acmp_mbx.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/acmp/acmp_mbx.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/acmp/acmp_nvm.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/acmp/acmp_nvm.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/adp/adp_mbx.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/adp/adp_mbx.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/app/ctrl_app.c: 5 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dshlan_calloc=srp_test_calloc; -Dshlan_calloc=srp_test_calloc
+rv32  sw/firmware/ctrl/app/ctrl_app.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/app/ctrl_app_srp.c: 5 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real
+rv32  sw/firmware/ctrl/loop/ctrl_loop.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/loop/ctrl_loop.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/maap/maap_csr.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/maap/maap_csr.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/maap/maap_mbx.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/maap/maap_mbx.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/mbx/mbx.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/mbx/mbx.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/mbx/mbx_contract.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/mbx/mbx_hal.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/mbx/mbx_wire.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/plat/mbx_plat_mmio.c: 5 preprocessing(s); configurations: (default); -DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window); -DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window) -DCTRL_MBX_WFI=ctrl_test_wfi; -DCTRL_MBX_WFI=ctrl_test_wfi
+rv32  sw/firmware/ctrl/port/ctrl_debug.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/port/ctrl_debug.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/port/ctrl_pool.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/port/ctrl_pool.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/port/shlan_port.c: 3 preprocessing(s); configurations: (default); -Dshlan_calloc=srp_test_calloc
+rv32  sw/firmware/ctrl/port/shlan_port.h: 3 preprocessing(s); configurations: (default); -Dshlan_calloc=srp_test_calloc
+rv32  sw/firmware/ctrl/srp/srp_bounds.h: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/srp/srp_mbx.c: 9 preprocessing(s); configurations: (default); -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real -Dshlan_calloc=srp_test_calloc; -Dshlan_calloc=srp_test_calloc; -UNDEBUG; -UNDEBUG -Dmrp_transmit=srp_test_transmit_real; -UNDEBUG -Dmrp_transmit=srp_test_transmit_real -Dshlan_calloc=srp_test_calloc; -UNDEBUG -Dshlan_calloc=srp_test_calloc
+rv32  sw/firmware/ctrl/srp/srp_mbx.h: 3 preprocessing(s); configurations: (default); -Dmrp_transmit=srp_test_transmit_real
+rv32  sw/firmware/ctrl/test/ctrl_image.c: 9 preprocessing(s); configurations: (default); -DCTRL_IMAGE_SRP; -DCTRL_IMAGE_SRP -DCTRL_REENTRY_ASSERT; -DCTRL_IMAGE_SRP -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -DCTRL_IMAGE_SRP -Dmrp_transmit=srp_test_transmit_real; -DCTRL_REENTRY_ASSERT; -DCTRL_REENTRY_ASSERT -Dmrp_transmit=srp_test_transmit_real; -Dmrp_transmit=srp_test_transmit_real
+rv32  sw/firmware/ctrl/test/rv32_image/image_arith.c: 2 preprocessing(s); configurations: (default)
+rv32  sw/firmware/ctrl/test/rv32_image/image_main.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  sw/firmware/ctrl/test/rv32_image/image_rt.c: 2 preprocessing(s); configurations: (default)
+rv32  third_party/tsn-c-stack/include/acmp.h: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  third_party/tsn-c-stack/include/adp.h: 2 preprocessing(s); configurations: (default)
+rv32  third_party/tsn-c-stack/include/maap.h: 2 preprocessing(s); configurations: (default)
+rv32  third_party/tsn-c-stack/include/wire.h: 2 preprocessing(s); configurations: (default)
+rv32  third_party/tsn-c-stack/src/acmp.c: 3 preprocessing(s); configurations: (default); -DCTRL_REENTRY_ASSERT
+rv32  third_party/tsn-c-stack/src/adp.c: 3 preprocessing(s); configurations: (default); -UNDEBUG
+rv32  third_party/tsn-c-stack/src/maap.c: 3 preprocessing(s); configurations: (default); -UNDEBUG
+total preprocessings: 268

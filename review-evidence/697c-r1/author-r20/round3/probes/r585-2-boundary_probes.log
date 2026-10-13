@@ -1,0 +1,11 @@
+CAUGHT r1-reentry-stack-src (rv32=yes): host [-DCTRL_REENTRY_ASSERT]: the stack's src/acmp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT r1-adapter-acmp-fake (rv32=yes): firmware [-DCTRL_REENTRY_ASSERT]: acmp/acmp_mbx.c includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT r1-ifndef-ndebug (rv32=yes): host [-UNDEBUG]: the stack's src/maap.c includes sw/firmware/ctrl/mbx/mbx_contract.h
+CAUGHT r1-stack-test-include (rv32=yes): tests: the stack's tests/test_acmp.cpp includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT n1-fw-header-cplusplus-fake (rv32=yes): firmware c++: acmp/acmp_mbx.h includes tsn-c-stack/tests/acmp_fake.hpp, not one of the stack's public headers
+CAUGHT n2-fw-header-cplusplus-src (rv32=yes): firmware c++: adp/adp_mbx.h includes tsn-c-stack/src/adp.c, not one of the stack's public headers
+CAUGHT n3-image-value-guard (rv32=yes): firmware [-DIMAGE_SINKS=2u -DIMAGE_SOURCES=1u]: test/rv32_image/image_main.c includes tsn-c-stack/src/acmp.c, not one of the stack's public headers
+CAUGHT n4-split-flag-builder (rv32=yes): host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT n4c-joined-flag-builder (rv32=yes): host [-DCTRL_SPLIT_MODE]: the stack's src/adp.c includes sw/firmware/ctrl/mbx/mbx_hal.h
+CAUGHT n5-aecp-reentry-region (rv32=yes): firmware [-DAECP_TEST_NVM]: aecp/aecp.c includes tsn-c-stack/src/maap.c, not one of the stack's public headers
+CAUGHT n6-stack-header-cplusplus (rv32=yes): tests: the stack's tests/test_maap.cpp includes sw/firmware/ctrl/loop/ctrl_loop.h

@@ -1,0 +1,23 @@
+the pin proof's audit hook refused: sw/firmware/ctrl/test/ctrl_build.py:392 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round11/probes/review-evidence/697c-r1/reviews/R585-9/prior-probes/reviews/R584-8/scripts/pin_suite.py", line 16, in <module>
+    print("pin:", ctrl_build.stack_pin())
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 392, in stack_pin
+    tree = run(["git", "-C", str(stack), "ls-tree", "-r", "-t", "-z", "--full-tree", pin])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/gtest/fw_gtest.py", line 118, in run
+    return subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True, check=False,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1823, in _execute_child
+    sys.audit("subprocess.Popen", executable, args, cwd, env)
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 312, in hook
+    refuse(frame_at(1), why)
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 274, in refuse
+    raise refusal(message)
+ctrl_build.AuditRefusal: sw/firmware/ctrl/test/ctrl_build.py:392 starts git (subprocess.Popen) while the pin proof runs, not by the helper

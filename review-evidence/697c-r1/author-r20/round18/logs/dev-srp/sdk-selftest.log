@@ -1,0 +1,467 @@
+test_archive_root (__main__.InstallerTests.test_archive_root)
+An authenticated archive with another root is still not extracted. ... SDK archive verified: $VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-0cq09fzx/wrong-root.tar.xz sha256=69338936f8ab90c6f99d2bf4b50bb8e17a86260cba19fccded94efed5afd5e76
+ok
+test_bad_archive (__main__.InstallerTests.test_bad_archive)
+A wrong offline --archive never reaches tar or creates an installation. ... ok
+test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+A wrong download is refused before tar reads it or anything runs. ... ok
+test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... ok
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... tar (child): xz: Cannot exec: No such file or directory
+tar (child): Error is not recoverable: exiting now
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+ERROR
+
+======================================================================
+ERROR: test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 173, in test_bad_archive_with_cache
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-d3mi2w96/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-d3mi2w96/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 228, in test_changed_installer
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-f5bxdbh_/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-f5bxdbh_/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 127, in test_download_path
+    self.install_downloaded()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 134, in install_downloaded
+    sdk.install(self.destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 166, in install
+    extract(downloaded, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/milan-rv32-download-xwss14au/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-pknjqd7c/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 244, in test_escaping_compiler
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-jqyv88vh/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-jqyv88vh/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 277, in test_extra_receipt_section
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-vfib1pd5/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-vfib1pd5/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 320, in test_failed_relocation
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 316, in fail_relocation
+    return real_run(argv, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-bpj7d0de/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-bpj7d0de/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 105, in test_fresh_and_cache_hit
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-54dji8bp/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-54dji8bp/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 285, in test_incomplete_and_corrupt_tree
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-bwt9fc5l/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-bwt9fc5l/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 184, in test_malformed_receipt
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-34g0sna7/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-34g0sna7/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 368, in test_moved_cache
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-t7zr3ztz/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-t7zr3ztz/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 217, in test_provenance_values
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-jefeicc2/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-jefeicc2/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 236, in test_retargeted_symlink
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-c_f391x7/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-c_f391x7/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 271, in test_special_file
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-7epactjx/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-7epactjx/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 196, in test_symlink_receipt
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-y5hrbypu/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-y5hrbypu/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 190, in test_truncated_receipt
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-xpenedvc/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-xpenedvc/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 326, in test_unrelocated_sdk
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-2_0vcg_2/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-2_0vcg_2/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 205, in test_wrong_provenance
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-p7ecbthg/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-p7ecbthg/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 333, in test_wrong_tool
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-0leixgco/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-0leixgco/installed']' returned non-zero exit status 2.
+
+======================================================================
+ERROR: test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 346, in test_wrong_tool_receipt
+    self.install()
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk_selftest.py", line 86, in install
+    sdk.install(self.destination, self.archive)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 168, in install
+    extract(archive, destination)
+  File "$VALIDATION_STORAGE/697c-a583/round18/clones/dms/scripts/ci_rv32_sdk.py", line 135, in extract
+    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['tar', '-xJf', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-ysc1r2zv/fixture.tar.xz', '--strip-components=1', '-C', '$VALIDATION_STORAGE/697c-a583/round18/tmpdir/rv32-installer-test-ysc1r2zv/installed']' returned non-zero exit status 2.
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.165s
+
+FAILED (errors=19)

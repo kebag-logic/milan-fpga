@@ -1,0 +1,15 @@
+{
+  "label": "capture-rv32",
+  "argv": [
+    "$SCRATCH/r5/venv312/bin/python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/capture-rv32",
+    "--",
+    "$SCRATCH/r5/venv312/bin/python3",
+    "sw/firmware/gtest/fw_rv32_selftest.py",
+    "--require-rv32"
+  ],
+  "rc": 0,
+  "seconds": 9.85
+}

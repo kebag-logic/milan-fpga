@@ -1,0 +1,25 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_srp_image.py b/sw/firmware/ctrl/test/ctrl_srp_image.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_srp_image.py
+index e0b78c47b..29fc2aa6a 100644
+--- a/sw/firmware/ctrl/test/ctrl_srp_image.py
++++ b/sw/firmware/ctrl/test/ctrl_srp_image.py
+@@ -5,16 +5,12 @@
+ Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
+ Their sizes and hashes are recorded alongside the section and symbol reports.
+ The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
+-<<<<<<< 27ee16b52 (Hold dev's shard dispatch proof, a program naming the firmware that starts no compiler, as a builder whose compiles are none of the firmware's)
+-The ELF is a size fixture; it has no board reset entry or fabric licence port.
+-The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
+-tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
+-and still holds them.
+-=======
+ The ELF is a size fixture with no fabric licence port. `--layout split` links it
+ into the split placement's block RAM (sw/litex/ctrl_memory.py) behind its reset
+ entry and reports the bank plan the SoC would build for it.
+->>>>>>> d5858bbee (Merge PR #721: Mark II M8a-1: split placement control memory on chip, firmware owns the reset entry (#640))
++The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
++tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
++and still holds them.
+ """
+ from __future__ import annotations
+ import argparse

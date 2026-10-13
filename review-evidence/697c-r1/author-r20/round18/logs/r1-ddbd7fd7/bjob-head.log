@@ -1,0 +1,8 @@
+tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (11 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (328 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (87 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (254 s)
+REFUSED: sw/firmware/ctrl/test/test_ctrl_firmware_shards.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+rc=2 713 s

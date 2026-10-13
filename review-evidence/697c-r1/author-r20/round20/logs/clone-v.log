@@ -1,0 +1,36 @@
+Submodule 'external' (git@github.com:kebag-logic/fpga-avb-ethernet.git) registered for path 'external'
+Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+Cloning into '$WORK/clone-v/external'...
+Cloning into '$WORK/clone-v/gptp-processor'...
+Cloning into '$WORK/clone-v/protocol-processor'...
+Cloning into '$WORK/clone-v/third_party/lwSRP'...
+Cloning into '$WORK/clone-v/third_party/tsn-c-stack'...
+Cloning into '$WORK/clone-v/third_party/verilog-axis'...
+Submodule path 'external': checked out 'efeb541ae5fe1e078332d8462dca2fc2d9cb8db5'
+Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+Submodule path 'third_party/lwSRP': checked out '08ee86e812a0eb5e1dc6cd61b494d8baf3491348'
+Submodule path 'third_party/tsn-c-stack': checked out '405dc68310a18f669049ffc10cc23eef7300dcff'
+Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+third_party/tsn-c-stack https://github.com/kebag-logic/tsn-c-stack.git
+third_party/lwSRP https://github.com/kebag-logic/lwSRP.git
+protocol-processor https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+gptp-processor https://github.com/Mister-M-alt/FPGA-gPTP.git
+fatal: cannot change to '$WORK/clone-v/verilog-axis': No such file or directory
+Traceback (most recent call last):
+  File "$WORK/clone.py", line 8, in <module>
+    assert Path(subprocess.check_output(["git","-C",str(s),"rev-parse","--show-toplevel"],text=True).strip())==s
+                ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$WORK/clone-v/verilog-axis', 'rev-parse', '--show-toplevel']' returned non-zero exit status 128.

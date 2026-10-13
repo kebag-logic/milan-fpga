@@ -1,0 +1,10 @@
+nproc=4 2026-10-12T19:00:05Z 27ee16b52 Ho
+rc=0 3 s tally: python3 sw/firmware/gtest/tally_selftest.py
+rc=1 1 s sdk-selftest: python3 scripts/ci_rv32_sdk_selftest.py
+rc=0 6 s rv32-selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0 265 s ctrl-firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+rc=0 87 s ctrl-nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+rc=0 1 s coverage-selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+rc=0 226 s coverage-check: python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+total 589 s 2026-10-12T19:09:54Z
+exit=0

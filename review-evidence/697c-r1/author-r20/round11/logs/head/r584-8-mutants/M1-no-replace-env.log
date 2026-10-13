@@ -1,0 +1,26 @@
+the pin proof's audit hook refused: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/697c-a583/round11/probes/review-evidence/697c-r1/reviews/R585-9/prior-probes/reviews/R584-8/scripts/pin_suite.py", line 16, in <module>
+    print("pin:", ctrl_build.stack_pin())
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 384, in stack_pin
+    pin = pin or stack_gitlink()
+                 ^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 342, in stack_gitlink
+    entry = git(root, "ls-files", "--stage", "--", rel).stdout.split()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 334, in git
+    res = subprocess.run(["git", "-C", str(directory), *args], executable=GIT, input=stdin, capture_output=True,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1823, in _execute_child
+    sys.audit("subprocess.Popen", executable, args, cwd, env)
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 312, in hook
+    refuse(frame_at(1), why)
+  File "$VALIDATION_STORAGE/697c-a583/round11/pm/sw/firmware/ctrl/test/ctrl_build.py", line 274, in refuse
+    raise refusal(message)
+ctrl_build.AuditRefusal: sw/firmware/ctrl/test/ctrl_build.py:334 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object

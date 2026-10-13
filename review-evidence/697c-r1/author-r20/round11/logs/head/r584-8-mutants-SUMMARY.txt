@@ -1,0 +1,12 @@
+M1-no-replace-env: rc=1; escaped=[]; census: no line
+M2-no-graft-env: rc=1; escaped=[]; census: no line
+M3-disk-hash-through-git-filters: rc=1; escaped=['a source edited, a clean filter given through attributes turning it back into the pinned blob']; census findings: []
+M4-mode-not-compared: rc=1; escaped=['a script made executable (a mode change)']; census findings: []
+M5-symlinks-followed: rc=0; escaped=[]; census findings: []
+M5b-symlinks-followed-and-typed-by-target: rc=1; escaped=['a symbolic link standing in for a source, to its own bytes']; census findings: ["sw/firmware/ctrl/test/ctrl_build.py:400 stack_pin names on_disk, which the pin decision may not reach (sw/firmware/ctrl/test/ctrl_build.py:366 on_disk names .stat, outside the pin proof's vocabulary)",
+M6-partial-tree: rc=1; escaped=['a file no gate builds edited']; census findings: ["sw/firmware/ctrl/test/ctrl_build.py:402 stack_pin names .items, outside the pin proof's vocabulary", "sw/firmware/ctrl/test/ctrl_build.py:403 stack_pin names .items, outside the pin proof's vocabulary"
+M7-extra-paths-ignored: rc=1; escaped=['a header the pinned tree does not hold']; census findings: []
+M8-dashed-ls-tree-outside-helper: rc=1; escaped=[]; census: no line
+M9-dashed-rev-parse-outside-helper: rc=1; escaped=[]; census: no line
+M11-dashed-ls-files-outside-helper: rc=1; escaped=[]; census: no line
+M10-plain-ls-tree-outside-helper: rc=1; escaped=[]; census: no line

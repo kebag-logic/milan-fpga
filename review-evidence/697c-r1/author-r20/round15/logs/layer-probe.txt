@@ -1,0 +1,25 @@
+== allowlist-only, git version 2.56.0
+PROBE lazy_uploadpack_fail REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+PROBE lazy_uploadpack_serve REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+PROBE lazy_ssh REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local), exten ... RAN=0
+PROBE lazy_toctou REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+# lazy_toctou: after the verdict, src/adp.c planted: False; re-check: REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+== allowlist-only, git version 2.43.0
+PROBE lazy_uploadpack_fail REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+PROBE lazy_uploadpack_serve REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+PROBE lazy_ssh REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local), exten ... RAN=0
+PROBE lazy_toctou REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local ... RAN=0
+# lazy_toctou: after the verdict, src/adp.c planted: False; re-check: REFUSED tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+== lazy-env-only, git version 2.56.0
+PROBE lazy_uploadpack_fail REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-host/lazy_uploadpack ... RAN=0
+PROBE lazy_uploadpack_serve REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-host/lazy_uploadpack ... RAN=0
+PROBE lazy_ssh REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-host/lazy_ssh/stack: ... RAN=0
+PROBE lazy_toctou REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-host/lazy_toctou/sta ... RAN=0
+# lazy_toctou: after the verdict, src/adp.c planted: False; re-check: REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-host/lazy_toctou/stack: the pinned src/ tree (tree 5c8c189a): fatal: git cat-file 5c8c189a2158818a3881103fee359ea704fedbbd: bad file
+== lazy-env-only, git version 2.43.0
+PROBE lazy_uploadpack_fail REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-2.43/lazy_uploadpack_fail/stack: the pinned src/ tree (tree 5c8c189a): warning: lazy fetching disabled; some objects may not be available
+PROBE lazy_uploadpack_serve REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-2.43/lazy_uploadpack_serve/stack: the pinned src/ tree (tree 5c8c189a): warning: lazy fetching disabled; some objects may not be available
+PROBE lazy_ssh REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-2.43/lazy_ssh/stack: the pinned src/ tree (tree 5c8c189a): warning: lazy fetching disabled; some objects may not be available
+PROBE lazy_toctou REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-2.43/lazy_toctou/stack: the pinned src/ tree (tree 5c8c189a): warning: lazy fetching disabled; some objects may not be available
+# lazy_toctou: after the verdict, src/adp.c planted: False; re-check: REFUSED cannot read the pinned tree of $VALIDATION_STORAGE/697c-a583/round15/work-layer-lazy-env-only-2.43/lazy_toctou/stack: the pinned src/ tree (tree 5c8c189a): warning: lazy fetching disabled; some objects may not be available
+clone restored

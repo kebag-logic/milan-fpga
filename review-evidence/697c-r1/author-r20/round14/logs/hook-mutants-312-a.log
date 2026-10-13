@@ -1,0 +1,51 @@
+BASELINE clean  H0 none: clean: passes; 0 escaped
+CAUGHT  H1 the helper's own code not required: clean: passes; 1 escaped
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 489 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+CAUGHT  H2 the program not checked: clean: passes; 1 escaped
+    the Git program rebound by attribute assignment in ctrl_pin.py [no refusal that holds not the Git program: ['the pin proof did not reach its verdict under its audit hook: exit 2: REFUSED: third_party/tsn-c-stack is not one s]
+CAUGHT  H3 GIT_NO_REPLACE_OBJECTS not checked: clean: passes; 2 escaped
+    the helper's environment without GIT_NO_REPLACE_OBJECTS [no refusal that holds without GIT_NO_REPLACE_OBJECTS=1: []]
+    the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py [no refusal that holds without GIT_NO_REPLACE_OBJECTS=1: ['sw/firmware/ctrl/test/ctrl_build.py:385 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FIL]
+CAUGHT  H4 the graft file not checked: clean: passes; 1 escaped
+    the helper's environment without GIT_GRAFT_FILE [no refusal that holds with GIT_GRAFT_FILE None: []]
+CAUGHT  H5 the decision not a scope: clean: passes; 19 escaped
+    a Git command run by the harness's runner (ctrl_build.run) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:483 to 483 that holds (subprocess.Popen): []]
+    a program named by a computed name (git.__name__) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 489 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a dashed program (git-ls-tree) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 489 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the Git program by its path, with the helper's environment, by the harness's runner [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 489 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    a refusal caught and ignored [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 493 that holds (subprocess.Popen): []]
+    an aliased import (from subprocess import run as r) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 490 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the helper's name rebound by attribute assignment in ctrl_build.py [no refusal at sw/firmware/ctrl/test/ctrl_build.py:390 to 404 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit]
+    the helper's name rebound by attribute assignment in ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 1005 that holds (subprocess.Popen): ["the pin proof did not reach its verdict under its audit hook: exit ]
+    os.walk, a name of the proof's vocabulary, rebound to start Git [no refusal at sw/firmware/ctrl/test/ctrl_build.py:390 to 404 that holds (subprocess.Popen): []]
+    dynamic code a library runs where the pin is decided (collections.namedtuple) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:395 to 397 that holds asks for compile: []]
+    pkgutil.importlib.import_module [no refusal at sw/firmware/ctrl/test/ctrl_build.py:489 to 490 that holds pin proof: ["the pin proof did not reach its verdict under its audit hook: exit 1: NameE]
+    the Git program rebound by attribute assignment in ctrl_pin.py [no refusal that holds not the Git program: ['the pin proof did not reach its verdict under its audit hook: exit 2: REFUSED: third_party/tsn-c-stack is not one s]
+    the helper's environment without GIT_NO_REPLACE_OBJECTS [no refusal that holds without GIT_NO_REPLACE_OBJECTS=1: []]
+    the helper's environment without GIT_GRAFT_FILE [no refusal that holds with GIT_GRAFT_FILE None: []]
+    the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py [no refusal that holds without GIT_NO_REPLACE_OBJECTS=1: []]
+    the caller's environment passed to Git again, git_env rebound in ctrl_pin.py [no refusal that holds in its environment, which the pin proof's own does not set: []]
+    a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py [no refusal that holds with GIT_DIR in its environment: ['the pin proof did not reach its verdict under its audit hook: exit 2: REFUSED: third_party/tsn-c-stack ]
+    a key of the helper's environment that is another's to the hook (a str subclass) [no refusal that holds not all plain str: []]
+    a value of the helper's environment that Git is given as another (a str subclass) [no refusal that holds not all plain str: []]
+CAUGHT  H6 a proof module's top level not a scope: clean: passes; 2 escaped
+    os.system, in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 996 that holds (os.system): []]
+    a thread started, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 997 that holds (_thread.start_: []]
+CAUGHT  H7 the proof's own dynamic code not refused: clean: passes; 6 escaped
+    inspect.builtins.exec, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 997 that holds asks for compile: ['<string>:1 starts git (subprocess.Popen) while the pin proof runs, not]
+    ctrl_pin.py's code filed under another name (code.replace), then exec of a string [no refusal that holds <elsewhere>:: []]
+    an import of importlib.metadata, in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 996 that holds asks for an import of importlib.metadata: []]
+    ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:164 to 168 that holds asks for compile: []]
+    the collector's list of objects, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 997 that holds asks for gc.get_objects: []]
+    a trace function, in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 996 that holds asks for sys.settrace: []]
+CAUGHT  H8 dynamic code while deciding not refused: clean: passes; 1 escaped
+    dynamic code a library runs where the pin is decided (collections.namedtuple) [no refusal at sw/firmware/ctrl/test/ctrl_build.py:395 to 397 that holds asks for compile: []]
+CAUGHT  H9 an import of importlib not refused: clean: passes; 1 escaped
+    an import of importlib.metadata, in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 996 that holds asks for an import of importlib.metadata: []]
+CAUGHT  H10 a function's code replaceable: clean: passes; 1 escaped
+    the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 996 that holds replaces __code__ of stack_pin: ["the pin proof did not reach its verdict under its audit ]
+CAUGHT  H11 thread starts not refused: clean: passes; 1 escaped
+    a thread started, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 997 that holds (_thread.start_: []]
+CAUGHT  H12 the collector's lists not refused: clean: passes; 1 escaped
+    the collector's list of objects, in lines added to ctrl_pin.py [no refusal at sw/firmware/ctrl/test/ctrl_pin.py:995 to 997 that holds asks for gc.get_objects: []]
+restored True
