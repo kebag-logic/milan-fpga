@@ -5329,8 +5329,9 @@ def execute_act_boundary(
     held one is delivered on entry, and the hold is restored by one call
     before this returns or raises (#730).
     """
-    held = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+    held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
     try:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
         require_live_pull_request(run.pr, run.repository, seams.query)
         integrity_check()
         if seams.pre_spawn is not None:
@@ -7740,19 +7741,32 @@ def drive_job_cpu_monitor(
         return docker_completed(arguments, stdout=cpus.get(arguments[-1], "0-3") + "\n")
 
     def monitored() -> int:
-        """The body inside the monitor, as execute_workflows runs act: in act's boundary's signal window."""
-        with job_cpu_range_monitor(
-            docker.boundary,
-            ranges,
-            context=docker.context,
-            seams=ProcessSeams(popen=popen, terminate_group=terminate),
-        ) as record:
-            moved.append(record)
-            held = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
-            try:
-                body()
-            finally:
-                signal.pthread_sigmask(signal.SIG_SETMASK, held)
+        """The body inside the monitor, as execute_workflows runs act: in act's boundary's signal window.
+
+        Leaving the monitor, where the Docker boundary's teardown would begin,
+        appends ``pipe open`` and ``reader alive`` if either still is, then
+        ``boundary teardown`` (#730).
+        """
+        try:
+            with job_cpu_range_monitor(
+                docker.boundary,
+                ranges,
+                context=docker.context,
+                seams=ProcessSeams(popen=popen, terminate_group=terminate),
+            ) as record:
+                moved.append(record)
+                held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+                try:
+                    signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+                    body()
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, held)
+        finally:
+            if not stream.stdout.closed:
+                order.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                order.append("reader alive")
+            order.append("boundary teardown")
         return RC_OK
 
     outcome = "returned"
@@ -7902,6 +7916,7 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
     selftest_job_cpu_monitor_busy(tally, docker)
     selftest_job_cpu_monitor_failures(tally, docker)
     selftest_job_cpu_monitor_shutdown(tally, docker)
+    selftest_job_cpu_monitor_masked(tally, docker)
 
 
 def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -8170,6 +8185,215 @@ def selftest_job_cpu_monitor_shutdown(tally: SelftestTally, docker: DockerFixtur
         "fails records the failure as a problem rather than raising it",
         masks == [True]
         and crashed.problems == ["the CPU-range monitor stopped reading events: read failed"],
+    )
+
+
+def contained_before_teardown(trail: Sequence[str]) -> bool:
+    """Whether containment, the move, stream completion and pipe close preceded teardown, with no reader left (#730)."""
+    return (
+        "boundary teardown" in trail
+        and {"contained", "moved", "stream ended"} <= set(trail)
+        and trail.index("contained") < trail.index("stream ended") < trail.index("boundary teardown")
+        and trail.index("moved") < trail.index("boundary teardown")
+        and "pipe open" not in trail
+        and "reader alive" not in trail
+    )
+
+
+class SignalAtStep:
+    """A tracer from the body's last line through the call releasing the monitor's signal mask (#730).
+
+    Once `armed`, it records each line the main thread runs there as
+    ``file:function:line``, and delivers `signum` at step `at`: an index into
+    those lines, or the first line with that label. ``None`` only records.
+    The signal goes to the main thread, or with `process_wide` to the whole
+    process, where any thread that does not block it could take it.
+    """
+
+    def __init__(self, signum: int, at: int | str | None, process_wide: bool = False) -> None:
+        self.signum = signum
+        self.at = at
+        self.process_wide = process_wide
+        self.armed = False
+        self.steps: list[str] = []
+        self.delivered = ""
+
+    def __call__(self, frame: object, event: str, _arg: object) -> SignalAtStep:
+        """Record each line through the native unmask call, including context-manager and join internals."""
+        if not self.armed:
+            return self
+        code = frame.f_code  # type: ignore[attr-defined]
+        if event == "line":
+            lineno = frame.f_lineno  # type: ignore[attr-defined]
+            label = f"{pathlib.Path(code.co_filename).name}:{code.co_name}:{lineno}"
+            self.steps.append(label)
+            if self.at in (len(self.steps) - 1, label):
+                self.at = None
+                self.delivered = label
+                if self.process_wide:
+                    os.kill(os.getpid(), self.signum)
+                else:
+                    signal.raise_signal(self.signum)
+            caller = frame.f_back  # type: ignore[attr-defined]
+            if code.co_name == "pthread_sigmask" and caller is not None and caller.f_code.co_name == "delivered_after":
+                # This line calls the native unmask operation. Later lines
+                # convert its result after the protected section has ended.
+                self.armed = False
+        return self
+
+
+def signal_at_step(
+    docker: DockerFixture,
+    tracer: SignalAtStep,
+    *,
+    body_failure: Exception | None = None,
+    reap_failure: Exception | None = None,
+) -> tuple[list[str], JobCpuRanges | None, str, FakeEventStream, set[int]]:
+    """The trail, record, outcome, stream and cleanup signals left blocked or pending under `tracer` (#730).
+
+    The stream's only line comes once containment has begun, so the reader
+    is still moving a container while the monitor joins it, at every step.
+    The body arms the tracer as its last act, then raises `body_failure` if
+    one is given.
+    """
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    line = docker_event_line("create", "a" * 64, docker.boundary.token)
+    stream.stdout = HeldEventPipe([line], stream.contained, stream.contained, trail)
+
+    def body() -> None:
+        """End the body and arm the tracer."""
+        trail.append("body ended")
+        tracer.armed = True
+        if body_failure is not None:
+            raise body_failure
+
+    mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    previous = sys.gettrace()
+    sys.settrace(tracer)
+    try:
+        _spawns, _terminations, record, outcome = drive_job_cpu_monitor(
+            docker, ("4-7",), stream, body, reap_failure=reap_failure, move_seconds=0.05
+        )
+    finally:
+        sys.settrace(previous)
+    blocked = set(CLEANUP_SIGNALS) & (signal.pthread_sigmask(signal.SIG_BLOCK, ()) - mask)
+    return trail, record, outcome, stream, blocked | settle_cleanup_signals(mask)
+
+
+def settle_cleanup_signals(mask: Iterable[int]) -> set[int]:
+    """The cleanup signals left pending, which it consumes before it restores `mask` (#730).
+
+    A regression that leaves one held must fail its own arm, not reach a later one.
+    """
+    signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    pending = set(CLEANUP_SIGNALS) & signal.sigpending()
+    while signal.sigtimedwait(CLEANUP_SIGNALS, 0) is not None:
+        pass
+    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+    return pending
+
+
+def monitor_cleanup_entry() -> str:
+    """The label of the first statement in job_cpu_range_monitor's outer ``finally``: R633-4's delivery point (#730)."""
+    source = pathlib.Path(__file__).read_text(encoding="utf-8")
+    monitor = next(
+        node
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name == "job_cpu_range_monitor"
+    )
+    outer = next(node for node in monitor.body if isinstance(node, ast.Try) and node.finalbody)
+    return f"{pathlib.Path(__file__).name}:job_cpu_range_monitor:{outer.finalbody[0].lineno}"
+
+
+def selftest_job_cpu_monitor_masked(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: no step from the body's end to the monitor's exit lets a first signal skip its cleanup (#730).
+
+    Each run has a busy reader. It passes when the stream was contained, the
+    move finished and the stream ended before the boundary's teardown would
+    begin, with the pipe closed and no reader left, the runner exits
+    128 + the signal with its interrupt diagnostic, and no cleanup signal is
+    left blocked or pending.
+    """
+    check = tally.check
+    entry = monitor_cleanup_entry()
+
+    def conventional(signum: int, run: tuple[list[str], JobCpuRanges | None, str, FakeEventStream, set[int]]) -> bool:
+        """Whether `run` ended as a first `signum` must, whatever step it arrived at."""
+        trail, record, outcome, stream, left = run
+        name = signal.Signals(signum).name
+        return (
+            outcome == f"exit {128 + signum}"
+            and contained_before_teardown(trail)
+            and record is not None
+            and record.moved == 1
+            and stream.stderr == f"act-ci: interrupted by {name} after cleanup\n"
+            and not left
+        )
+
+    for signum in CLEANUP_SIGNALS:
+        name = signal.Signals(signum).name
+        check(
+            f"a first {name} at the monitor's cleanup entry ({entry}, R633-4's point) waits for "
+            f"the containment, the busy reader's join and the pipe close, then exits {128 + signum}",
+            conventional(signum, signal_at_step(docker, SignalAtStep(signum, entry))),
+        )
+    recorder = SignalAtStep(signal.SIGTERM, None)
+    signal_at_step(docker, recorder)
+    steps = recorder.steps
+    missed: list[str] = []
+    for index, step in enumerate(steps):
+        signum = CLEANUP_SIGNALS[index % len(CLEANUP_SIGNALS)]
+        for process_wide in (False, True):
+            tracer = SignalAtStep(signum, index, process_wide)
+            if not conventional(signum, signal_at_step(docker, tracer)) or tracer.delivered != step:
+                missed.append(f"{step} ({signal.Signals(signum).name}, process-wide {process_wide})")
+                break
+        if missed:
+            break
+    for miss in missed:
+        print(f"    missed: {miss}")
+    landmarks = (
+        entry,
+        "contextlib.py:__exit__:",
+        ":stop_job_cpu_range_monitor:",
+        ":join_job_cpu_reader:",
+        ":delivered_after:",
+    )
+    check(
+        f"a first signal at each of the {len(steps)} steps from the body's end through the mask's release, "
+        "sent to the main thread and to the whole process, waits for the containment, the reader's "
+        "join and the pipe close, and exits 128 + the signal; the steps include contextlib's exit, the "
+        "cleanup entry, stop_job_cpu_range_monitor, the reader join and the release",
+        not missed and all(any(mark in step for step in steps) for mark in landmarks),
+    )
+    reap = Refusal("cannot reap interrupted host process leader")
+    trail, record, outcome, stream, left = signal_at_step(
+        docker, SignalAtStep(signal.SIGTERM, entry), reap_failure=reap
+    )
+    check(
+        "a first SIGTERM held at the cleanup entry, then a reap that fails: the busy reader is joined "
+        "first, the runner exits 143 with its interrupt diagnostic, and the reap failure is printed "
+        "beside it, as for a SIGTERM that ends the body",
+        outcome == "exit 143"
+        and contained_before_teardown(trail)
+        and stream.stderr
+        == "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host process "
+        "leader\nact-ci: interrupted by SIGTERM after cleanup\n"
+        and not left,
+    )
+    trail, record, outcome, stream, left = signal_at_step(
+        docker, SignalAtStep(signal.SIGTERM, entry), body_failure=RuntimeError("act boundary failed")
+    )
+    check(
+        "a body failure, then a first SIGTERM held at the cleanup entry: the busy reader is joined "
+        "first, the body's failure is what the monitor raises, and the signal is printed beside it",
+        outcome == "raised act boundary failed"
+        and contained_before_teardown(trail)
+        and stream.stderr
+        == "act-ci: CPU-range monitor cleanup was interrupted (TerminationRequest: SIGTERM); the "
+        "failure already propagating is kept\n"
+        and not left,
     )
 
 
@@ -12163,6 +12387,92 @@ def selftest_remote_change(
     )
 
 
+def selftest_act_signal_window(
+    tally: SelftestTally, fixture: SelftestFixture, fixture_run: ValidatedRun
+) -> None:
+    """Arms: inside the CPU-range monitor's hold, act's boundary reopens the cleanup signals for act alone (#730)."""
+    check = tally.check
+    seen: list[set[int]] = []
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """A stand-in act that records the cleanup signals blocked while it runs, then takes a SIGTERM."""
+        seen.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        signal.raise_signal(signal.SIGTERM)
+        seen.append({0})
+        return subprocess.CompletedProcess([], 0)
+
+    def boundary(run_process: Callable[..., subprocess.CompletedProcess[object]]) -> tuple[int, set[int]]:
+        """(the signal that ended it, cleanup signals blocked after) of act's boundary run inside a hold."""
+        raised = 0
+        with cleanup_termination_signals():
+            try:
+                execute_act_boundary(
+                    ["act"],
+                    run=fixture_run,
+                    context=CommandContext(use_sudo=False, cwd=ROOT, env={}),
+                    integrity_check=lambda: None,
+                    seams=SpawnSeams(query=lambda _number, _repository: fixture.pr, run_process=run_process),
+                )
+            except TerminationRequest as exc:
+                raised = exc.signum
+            return raised, set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ())
+
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        during = boundary(act_process)
+        returned = boundary(successful_process)
+        signal.raise_signal(signal.SIGHUP)
+        held = boundary(act_process)
+    finally:
+        left = settle_cleanup_signals(previous)
+    check(
+        "inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP "
+        "unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary "
+        "raises or returns",
+        seen[:1] == [set()]
+        and during == (signal.SIGTERM, set(CLEANUP_SIGNALS))
+        and returned == (0, set(CLEANUP_SIGNALS)),
+    )
+    check(
+        "a SIGHUP held before act's boundary is delivered as the boundary opens, before act starts, "
+        "and the hold is back after it",
+        held == (signal.SIGHUP, set(CLEANUP_SIGNALS)) and len(seen) == 1 and not left,
+    )
+
+
+def selftest_interrupt_probe_signal_window(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the live interruption probe also opens its signal window inside the CPU monitor's hold, offline (#730)."""
+    monitor = InterruptMonitor(context=docker.context, boundary=docker.boundary)
+    monitor.frozen.set()
+    monitor.launched_process_group = 424242
+    seen: list[set[int]] = []
+
+    def interrupted(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Observe act's signal mask, then deliver the gate's expected SIGINT."""
+        seen.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        signal.raise_signal(signal.SIGINT)
+        seen.append({0})
+        return subprocess.CompletedProcess([], 0)
+
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        with mock.patch.multiple(
+            sys.modules[__name__],
+            run_act_process=interrupted,
+            require_act_job_volumes_absent=lambda *_args, **_kwargs: None,
+            process_group_exists=lambda *_args, **_kwargs: False,
+        ), cleanup_termination_signals():
+            interrupt_live_act(["act"], monitor)
+            after = set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    finally:
+        left = settle_cleanup_signals(previous)
+    tally.check(
+        "the live interruption probe unblocks INT, TERM and HUP inside the CPU monitor's hold, "
+        "takes its expected SIGINT immediately, and restores the hold before returning",
+        seen == [set()] and after == set(CLEANUP_SIGNALS) and not left,
+    )
+
+
 def selftest_run_directory_rollback(tally: SelftestTally) -> None:
     """Arms: a signal or a stat failure right after run-directory creation reconciles the accepted path."""
     check = tally.check
@@ -14619,6 +14929,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         selftest_git_remote_helper_probes(tally, capture_probe_root)
 
     selftest_remote_change(tally, fixture, fixture_run)
+    selftest_act_signal_window(tally, fixture, fixture_run)
+    selftest_interrupt_probe_signal_window(tally, docker)
     selftest_run_directory_rollback(tally)
     selftest_sudo_cleanup_failures(tally)
     selftest_installed_runner(tally, fixture)
@@ -15255,14 +15567,19 @@ def interrupt_live_act(command: Sequence[str], monitor: InterruptMonitor) -> Non
     use_sudo = monitor.context.use_sudo
     interrupted_signal: int | None = None
     try:
-        require_act_job_volumes_absent(
-            monitor.boundary, context=monitor.context
-        )
-        result = run_act_process(
-            command,
-            context=monitor.context,
-            started=monitor.started,
-        )
+        held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+        try:
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+            require_act_job_volumes_absent(
+                monitor.boundary, context=monitor.context
+            )
+            result = run_act_process(
+                command,
+                context=monitor.context,
+                started=monitor.started,
+            )
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, held)
     except (KeyboardInterrupt, TerminationRequest) as exc:
         if (
             isinstance(exc, TerminationRequest)
