@@ -1,0 +1,32 @@
+[
+  {
+    "name": "06-check_baremetal_only-retry",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 22.7
+  },
+  {
+    "name": "19-ci_events-retry",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.2
+  },
+  {
+    "name": "20-ci_events-retry",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 26.1
+  }
+]

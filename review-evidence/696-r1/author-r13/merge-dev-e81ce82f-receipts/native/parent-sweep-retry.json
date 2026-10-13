@@ -1,0 +1,18 @@
+{
+  "name": "parent-sweep-retry",
+  "argv": [
+    "bash",
+    "scripts/run_all_suites.sh",
+    "$WORK/native/parent-retry-logs"
+  ],
+  "cwd": "$WORK/candidate",
+  "head": "313616d1a18549d41907db389d378f0beb9bc543",
+  "rc": 143,
+  "seconds": 2018.2,
+  "signal_defaults": [
+    "SIGHUP",
+    "SIGINT",
+    "SIGQUIT"
+  ],
+  "supersedes": "parent-sweep: HUP inherited ignored from detached launcher"
+}
