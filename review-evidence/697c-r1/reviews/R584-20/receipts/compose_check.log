@@ -1,0 +1,13 @@
+merge-base(S,P)=49da9fd974e8805d56c90e29dcfcb67994c2c430
+is-ancestor B of S: yes
+tree(B)=ab5a465c81b38a05600c2f006cfe0aaf1eadcaef tree(cdb49e7ec)=ab5a465c81b38a05600c2f006cfe0aaf1eadcaef (the #726 train candidate on P's first-parent chain)
+parents(H)=ac0142539856222b84ef8e5af414d12132a5bebf d40e4e9827be2516f8f34b9d65f0a483fff2194c
+BOTH docs/testing/CI_WORKFLOWS.md base=a0990d6677133c8544a2064f442392470c65eb71 src=a0b737730349cb0c1ef27e61b7fd1a1dfc020d9f pred=7e36e7cb2a2fb9edb88c7b4cec45cc56d966106e cand=96bc1ab1091595a39c4c5351b2be623b6f29c3ea
+BOTH scripts/act_ci.py base=588d24b4145c3b8ae63e459cd4b0a3525f354d91 src=b24bc49478414302eff86906afdeef281b92b916 pred=15257b8a2817d725eaa05f6797f72aff52d44054 cand=aac3842b827294c245d28a8f973a53ed35ff924a
+paths=79 both=2 mismatches=0
+predecessor-only paths (H vs S):
+  docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+  docs/findings/README.md
+  docs/testing/CI_WORKFLOWS.md
+  scripts/act_ci.py
+merge-tree(P,S)=34b24fec86f5b1c43e6b4142f1c38facc5a72835 tree(H)=34b24fec86f5b1c43e6b4142f1c38facc5a72835

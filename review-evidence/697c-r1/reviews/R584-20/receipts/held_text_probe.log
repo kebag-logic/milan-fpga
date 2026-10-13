@@ -1,0 +1,15 @@
+# cwd: $REVIEWS/r584-20-697c
+# cmd: python3 -I $REVIEWS/697c-r584-20-packet/scripts/held_text_probe.py $REVIEWS/r584-20-697c
+# start: 2026-10-13T09:50:52Z
+tree: $REVIEWS/r584-20-697c
+known builders: 13: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+builders found by text: 39
+REFUSED: sw/firmware/ctrl/test/aecp_arms.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: sw/firmware/ctrl/test/ctrl_arms.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: sw/firmware/ctrl/test/ctrl_build.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: sw/firmware/ctrl/test/srp_arms.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: sw/firmware/ctrl_nvm/test/nvm_bench.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: sw/firmware/gtest/fw_gtest.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+REFUSED: tb/verilator/mbx/mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+program refusals (independent of what any capture holds): 0
+# end: 2026-10-13T09:50:53Z elapsed=1s rc=0
