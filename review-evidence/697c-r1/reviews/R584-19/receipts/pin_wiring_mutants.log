@@ -1,0 +1,27 @@
+Note: switching to '405dc68310a18f669049ffc10cc23eef7300dcff'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+OK  makefile mutant [clean]: 0 finding(s): 
+OK  makefile mutant [counters unpinned]: 1 finding(s): counters lacks its required stack-pin prerequisite
+OK  makefile mutant [counters-f5 unpinned]: 2 finding(s): tb/verilator/milan_dp/Makefile: counters-f5 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite; counters-f5 lacks its required stack-pin prerequisite
+OK  makefile mutant [counters-mutants unpinned]: 2 finding(s): tb/verilator/milan_dp/Makefile: counters-mutants builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite; counters-mutants lacks its required stack-pin prerequisite
+OK  makefile mutant [counters-f5 unpinned and --stack dropped]: 1 finding(s): counters-f5 lacks its required stack-pin prerequisite
+OK  makefile mutant [counters-mutants unpinned and --stack dropped]: 1 finding(s): counters-mutants lacks its required stack-pin prerequisite
+BAD makefile mutant [run without stack-pin]: 0 finding(s): 
+OK  [F5 as shipped] vs wire.h+newline clone: rc=2, pin-arm needle present; last line: REFUSED: tsn-c-stack differs from the pinned 405dc683: include/wire.h
+OK  [F5 without its pin check] vs wire.h+newline clone: rc=0, pin-arm needle ABSENT (the gate arm would fail); last line: F5 1x1: BUILT
+pin_wiring_mutants: 9 cases, 1 unexpected
